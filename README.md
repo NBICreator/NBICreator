@@ -1,2 +1,2 @@
 # NBICreator
-Creates a NetBoot Image for from an OS X installer.
+Creates a NetBoot Image from a OS X installer.
