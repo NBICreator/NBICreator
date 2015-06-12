@@ -10,6 +10,6 @@ NBICreator requires Mac OS X 10.10 or newer.
 
 To get started, read [Getting started with NBICreator]
 
-More in depth documentation is available in the wiki [Home]
+Documentation is available in the [Wiki](https://github.com/NBICreator/NBICreator/wiki)
 
 # License
