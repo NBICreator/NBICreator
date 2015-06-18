@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>5C6B6D23-209F-4F9A-A6D5-AB04282BEF44</string>
+	<key>IDESourceControlProjectName</key>
+	<string>NBICreator</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>FEE57B542FCBB7D2C9C120805F44045618827FEA</key>
+		<string>https://github.com/NBICreator/NBICreator.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>NBICreator/NBICreator.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>FEE57B542FCBB7D2C9C120805F44045618827FEA</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/NBICreator/NBICreator.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>FEE57B542FCBB7D2C9C120805F44045618827FEA</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>FEE57B542FCBB7D2C9C120805F44045618827FEA</string>
+			<key>IDESourceControlWCCName</key>
+			<string>NBICreator</string>
+		</dict>
+	</array>
+</dict>
+</plist>

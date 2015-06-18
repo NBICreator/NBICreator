@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NBCPreferences">
+            <connections>
+                <outlet property="comboBoxDateFormat" destination="Ejt-D8-GaT" id="ADz-f7-TOX"/>
+                <outlet property="textFieldDatePreview" destination="OE9-Gp-3Ou" id="o9J-NZ-5KF"/>
+                <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="NBICreator Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="F0z-JX-Cv5">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
+            <rect key="contentRect" x="196" y="240" width="471" height="86"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <view key="contentView" horizontalCompressionResistancePriority="749" id="se5-gp-TjO">
+                <rect key="frame" x="0.0" y="0.0" width="471" height="86"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="p6D-pd-DFQ">
+                        <rect key="frame" x="18" y="49" width="151" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="NetBoot Index Counter:" id="wlw-Tf-1VH">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="7ZX-y2-fu7">
+                        <rect key="frame" x="175" y="47" width="47" height="22"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="47" id="Fnt-g5-KK4"/>
+                        </constraints>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="s0T-YP-xHk">
+                            <numberFormatter key="formatter" formatterBehavior="default10_4" localizesFormat="NO" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="fcy-FK-pkp">
+                                <real key="minimum" value="1"/>
+                                <real key="maximum" value="65535"/>
+                            </numberFormatter>
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.NetBootIndexCounter" id="YnU-eU-vMG">
+                                <dictionary key="options">
+                                    <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                </dictionary>
+                            </binding>
+                        </connections>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xkJ-eX-gsG">
+                        <rect key="frame" x="18" y="20" width="81" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Date Format" id="9h4-4w-u3d">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <comboBox verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ejt-D8-GaT">
+                        <rect key="frame" x="105" y="15" width="153" height="26"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="150" id="bob-sL-5s1"/>
+                        </constraints>
+                        <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="dNU-Oh-AFe">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </comboBoxCell>
+                        <connections>
+                            <action selector="comboBoxDateFormat:" target="-2" id="4bi-cu-Ojj"/>
+                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.DateFormatString" id="9uu-Fl-9BY">
+                                <dictionary key="options">
+                                    <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                </dictionary>
+                            </binding>
+                            <outlet property="delegate" destination="-2" id="GHP-bS-gqq"/>
+                        </connections>
+                    </comboBox>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OE9-Gp-3Ou">
+                        <rect key="frame" x="263" y="20" width="53" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Preview" id="Gzt-6h-jiK">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="xkJ-eX-gsG" firstAttribute="baseline" secondItem="Ejt-D8-GaT" secondAttribute="baseline" id="1is-3C-rjg"/>
+                    <constraint firstItem="OE9-Gp-3Ou" firstAttribute="leading" secondItem="Ejt-D8-GaT" secondAttribute="trailing" constant="10" id="8bw-pr-MXJ"/>
+                    <constraint firstItem="xkJ-eX-gsG" firstAttribute="baseline" secondItem="OE9-Gp-3Ou" secondAttribute="baseline" id="Aub-Zx-JRs"/>
+                    <constraint firstAttribute="bottom" secondItem="xkJ-eX-gsG" secondAttribute="bottom" constant="20" symbolic="YES" id="Cs4-Z4-byS"/>
+                    <constraint firstItem="7ZX-y2-fu7" firstAttribute="leading" secondItem="p6D-pd-DFQ" secondAttribute="trailing" constant="8" symbolic="YES" id="D8E-mV-Kfh"/>
+                    <constraint firstItem="Ejt-D8-GaT" firstAttribute="leading" secondItem="xkJ-eX-gsG" secondAttribute="trailing" constant="8" symbolic="YES" id="JVB-RK-2DF"/>
+                    <constraint firstItem="p6D-pd-DFQ" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="20" symbolic="YES" id="Plu-Ln-mjV"/>
+                    <constraint firstItem="p6D-pd-DFQ" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="VSX-Oe-n5f"/>
+                    <constraint firstItem="p6D-pd-DFQ" firstAttribute="baseline" secondItem="7ZX-y2-fu7" secondAttribute="baseline" id="W4a-xg-zpO"/>
+                    <constraint firstItem="xkJ-eX-gsG" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="a4Z-XH-5gY"/>
+                    <constraint firstItem="xkJ-eX-gsG" firstAttribute="top" secondItem="p6D-pd-DFQ" secondAttribute="bottom" constant="12" id="bV1-iz-8If"/>
+                </constraints>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
+            </connections>
+            <point key="canvasLocation" x="236.5" y="367.5"/>
+        </window>
+        <userDefaultsController representsSharedInstance="YES" id="GFb-t0-AJf"/>
+    </objects>
+</document>
