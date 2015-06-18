@@ -2,8 +2,6 @@
 
 NBICreator is a NetBoot set creation tool written in Objective-C.
 
-
-
 Currently it supports the following NetBoot sets:
 * NetInstall
 * DeployStudio
