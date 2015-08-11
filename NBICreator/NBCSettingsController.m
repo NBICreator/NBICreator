@@ -9,12 +9,97 @@
 #import "NBCSettingsController.h"
 #import "NBCConstants.h"
 #import "NBCVariables.h"
+#import "NBCWorkflowManager.h"
 
 #import "NBCImagrSettingsViewController.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCSettingsController
 
+#pragma mark -
+#pragma mark
+#pragma mark -
+
+- (NSDictionary *)verifySettings:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
+    NSMutableArray *settings = [[NSMutableArray alloc] init];
+    
+    // ------------------------------------------------------------------------
+    //  Check if current settings are equal to any currently queued workflow
+    // ------------------------------------------------------------------------
+    NSDictionary *settingsEqualToQueuedWorkflow = [self verifySettingsEqualToQueuedWorkflow:workflowItem];
+    [settings addObject:settingsEqualToQueuedWorkflow];
+    
+    // ------------------------------------------------------------------------
+    //  Check all settings in the tab "General"
+    // ------------------------------------------------------------------------
+    NSDictionary *settingsTabGeneral = [self verifySettingsTabGeneral:workflowItem];
+    [settings addObject:settingsTabGeneral];
+    
+    switch ( [workflowItem workflowType] ) {
+        case kWorkflowTypeNetInstall:
+        {
+            break;
+        }
+        case kWorkflowTypeDeployStudio:
+        {
+            // ----------------------------------------------------------------------------
+            //  Check if any mounted volume name interferes with the DeployStudio workflow
+            // ----------------------------------------------------------------------------
+            NSDictionary *mountedVolumes = [self verifyMountedVolumeName:workflowItem];
+            [settings addObject:mountedVolumes];
+            
+            break;
+        }
+        case kWorkflowTypeImagr:
+        {
+            // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Options"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsTabOptions = [self verifySettingsTabOptions:workflowItem];
+            [settings addObject:settingsTabOptions];
+            
+            // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Extra"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsTabExtra = [self verifySettingsTabExtra:workflowItem];
+            [settings addObject:settingsTabExtra];
+            
+            NSDictionary *settingsConfigurationURL = [self verifySettingsConfigurationURL:workflowItem];
+            [settings addObject:settingsConfigurationURL];
+            
+            NSDictionary *settingsRemoteManagement = [self verifySettingsRemoteManagement:workflowItem];
+            [settings addObject:settingsRemoteManagement];
+            
+            break;
+        }
+        default:
+            break;
+    }
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    for ( NSDictionary *dict in settings ) {
+        NSArray *errorArr = dict[NBCSettingsError];
+        if ( [errorArr count] != 0 ) {
+            [settingsErrors addObjectsFromArray:errorArr];
+        }
+        
+        NSArray *warningArr = dict[NBCSettingsWarning];
+        if ( [warningArr count] != 0 ) {
+            [settingsWarnings addObjectsFromArray:warningArr];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
 - (NSDictionary *)createErrorInfoDictFromError:(NSArray *)error warning:(NSArray *)warning {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *errorInfoDict = [[NSMutableDictionary alloc] init];
     
     if ( [error count] != 0 ) {
@@ -28,19 +113,80 @@
     return [errorInfoDict copy];
 }
 
-- (NSDictionary *)verifySettingsDeployStudio:(NBCWorkflowItem *)workflowItem {
+#pragma mark -
+#pragma mark Settings Tabs
+#pragma mark -
+
+- (NSDictionary *)verifySettingsTabGeneral:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settings = [[NSMutableArray alloc] init];
     
-    NSDictionary *settingsGeneral = [self verifySettingsGeneral:workflowItem];
-    [settings addObject:settingsGeneral];
+    NSDictionary *settingsNBIName = [self verifySettingsNBIName:workflowItem];
+    [settings addObject:settingsNBIName];
     
-    NSDictionary *mountedVolumes = [self verifyMountedVolumeName:workflowItem];
-    [settings addObject:mountedVolumes];
+    NSDictionary *settingsNBIIndex = [self verifySettingsNBIIndex:workflowItem];
+    [settings addObject:settingsNBIIndex];
+    
+    NSDictionary *settingsNBIDestinationFolder = [self verifySettingsDestinationFolder:workflowItem];
+    [settings addObject:settingsNBIDestinationFolder];
+    
+    NSDictionary *settingsNBIURL = [self verifySettingsNBIURL:workflowItem];
+    [settings addObject:settingsNBIURL];
     
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
-    for (NSDictionary *dict in settings) {
+    for ( NSDictionary *dict in settings ) {
+        NSArray *errorArr = dict[NBCSettingsError];
+        if ( [errorArr count] != 0 ) {
+            [settingsErrors addObjectsFromArray:errorArr];
+        }
+        
+        NSArray *warningArr = dict[NBCSettingsWarning];
+        if ( [warningArr count] != 0 ) {
+            [settingsWarnings addObjectsFromArray:warningArr];
+        }
+    }
+        
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];;
+} // verifySettingsTabGeneral
+
+- (NSDictionary *)verifySettingsTabOptions:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *settingsNBINTP = [self verifySettingsNBINTP:workflowItem];
+    [settings addObject:settingsNBINTP];
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    for ( NSDictionary *dict in settings ) {
+        NSArray *errorArr = dict[NBCSettingsError];
+        if ( [errorArr count] != 0 ) {
+            [settingsErrors addObjectsFromArray:errorArr];
+        }
+        
+        NSArray *warningArr = dict[NBCSettingsWarning];
+        if ( [warningArr count] != 0 ) {
+            [settingsWarnings addObjectsFromArray:warningArr];
+        }
+    }
+
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+} // verifySettingsTabOptions
+
+- (NSDictionary *)verifySettingsTabExtra:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *settingsPackages = [self verifySettingsPackages:workflowItem];
+    [settings addObject:settingsPackages];
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    for ( NSDictionary *dict in settings ) {
         NSArray *errorArr = dict[NBCSettingsError];
         if ( [errorArr count] != 0 ) {
             [settingsErrors addObjectsFromArray:errorArr];
@@ -52,74 +198,34 @@
         }
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
-}
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+} // verifySettingsTabExtra
 
+#pragma mark -
+#pragma mark
+#pragma mark -
 
-- (NSDictionary *)verifySettingsNetInstall:(NBCWorkflowItem *)workflowItem {
-    NSMutableArray *settings = [[NSMutableArray alloc] init];
-    
-    NSDictionary *settingsGeneral = [self verifySettingsGeneral:workflowItem];
-    [settings addObject:settingsGeneral];
-    
+- (NSDictionary *)verifySettingsPackages:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
-    for (NSDictionary *dict in settings) {
-        NSArray *errorArr = dict[NBCSettingsError];
-        if ( [errorArr count] != 0 ) {
-            [settingsErrors addObjectsFromArray:errorArr];
-        }
-        
-        NSArray *warningArr = dict[NBCSettingsWarning];
-        if ( [warningArr count] != 0 ) {
-            [settingsWarnings addObjectsFromArray:warningArr];
-        }
-    }
+    NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+    NSArray *packages = userSettings[NBCSettingsPackages];
     
-    return errorInfoDict;
-}
-
-- (NSDictionary *)verifySettingsImagr:(NBCWorkflowItem *)workflowItem {
-    NSMutableArray *settings = [[NSMutableArray alloc] init];
-    
-    NSDictionary *settingsGeneral = [self verifySettingsGeneral:workflowItem];
-    [settings addObject:settingsGeneral];
-    
-    NSDictionary *settingsOptions = [self verifySettingsOptions:workflowItem];
-    [settings addObject:settingsOptions];
-    
-    NSDictionary *settingsConfigurationURL = [self verifySettingsConfigurationURL:workflowItem];
-    [settings addObject:settingsConfigurationURL];
-    
-    NSDictionary *settingsRemoteManagement = [self verifySettingsRemoteManagement:workflowItem];
-    [settings addObject:settingsRemoteManagement];
-    
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    for (NSDictionary *dict in settings) {
-        NSArray *errorArr = dict[NBCSettingsError];
-        if ( [errorArr count] != 0 ) {
-            [settingsErrors addObjectsFromArray:errorArr];
-        }
-        
-        NSArray *warningArr = dict[NBCSettingsWarning];
-        if ( [warningArr count] != 0 ) {
-            [settingsWarnings addObjectsFromArray:warningArr];
+    for ( NSString *packagePath in packages ) {
+        NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
+        if ( ! [packageURL checkResourceIsReachableAndReturnError:nil] ) {
+            [settingsErrors addObject:[NSString stringWithFormat:@"Installer Package \"%@\" could not be found!", [packageURL lastPathComponent]]];
         }
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
 - (NSDictionary *)verifySettingsRemoteManagement:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -150,70 +256,11 @@
         [workflowItem setUserSettings:[userSettings copy]];
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
-}
-
-- (NSDictionary *)verifySettingsOptions:(NBCWorkflowItem *)workflowItem {
-    NSMutableArray *settings = [[NSMutableArray alloc] init];
-    
-    NSDictionary *settingsNBINTP = [self verifySettingsNBINTP:workflowItem];
-    [settings addObject:settingsNBINTP];
-    
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    for ( NSDictionary *dict in settings ) {
-        NSArray *errorArr = dict[NBCSettingsError];
-        if ( [errorArr count] != 0 ) {
-            [settingsErrors addObjectsFromArray:errorArr];
-        }
-        
-        NSArray *warningArr = dict[NBCSettingsWarning];
-        if ( [warningArr count] != 0 ) {
-            [settingsWarnings addObjectsFromArray:warningArr];
-        }
-    }
-    
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
-}
-
-- (NSDictionary *)verifySettingsGeneral:(NBCWorkflowItem *)workflowItem {
-    NSMutableArray *settings = [[NSMutableArray alloc] init];
-    
-    NSDictionary *settingsNBIName = [self verifySettingsNBIName:workflowItem];
-    [settings addObject:settingsNBIName];
-    NSDictionary *settingsNBIIndex = [self verifySettingsNBIIndex:workflowItem];
-    [settings addObject:settingsNBIIndex];
-    NSDictionary *settingsNBIDestinationFolder = [self verifySettingsDestinationFolder:workflowItem];
-    [settings addObject:settingsNBIDestinationFolder];
-    NSDictionary *settingsNBIURL = [self verifySettingsNBIURL:workflowItem];
-    [settings addObject:settingsNBIURL];
-    
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    for ( NSDictionary *dict in settings ) {
-        NSArray *errorArr = dict[NBCSettingsError];
-        if ( [errorArr count] != 0 ) {
-            [settingsErrors addObjectsFromArray:errorArr];
-        }
-        
-        NSArray *warningArr = dict[NBCSettingsWarning];
-        if ( [warningArr count] != 0 ) {
-            [settingsWarnings addObjectsFromArray:warningArr];
-        }
-    }
-    
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
 - (NSDictionary *)verifySettingsNBINTP:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -249,13 +296,28 @@
         }
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
-- (NSDictionary *)verifySettingsNBIName:(NBCWorkflowItem *)workflowItem
-{
+- (NSDictionary *)verifySettingsEqualToQueuedWorkflow:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
+    NSArray *currentWorkflowQueue = [[[NBCWorkflowManager sharedManager] workflowQueue] copy];
+    
+    for ( NBCWorkflowItem *queueItem in currentWorkflowQueue ) {
+        NSDictionary *queueItemSettings = [queueItem userSettings];
+        if ( [userSettings isEqualToDictionary:queueItemSettings] ) {
+            [settingsWarnings addObject:@"Current settings are identical to an already running workflow"];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:nil warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsNBIName:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -269,17 +331,20 @@
             [settingsWarnings addObject:@"\"Name\" might contain an uncomplete variable"];
         }
         
+        if ( [nbiName containsString:@" "] ) {
+            [settingsWarnings addObject:@"\"Name\" cannot contains spaces if it will be served from NetSUS or BSDPy"];
+        }
+        
         [workflowItem setNbiName:[NSString stringWithFormat:@"%@.nbi", nbiName]];
     } else {
         [settingsErrors addObject:@"\"Name\" cannot be empty"];
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
 - (NSDictionary *)verifySettingsNBIIndex:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -305,12 +370,11 @@
         [settingsErrors addObject:@"\"Index\" cannot be empty"];
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
 - (NSDictionary *)verifySettingsDestinationFolder:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -341,12 +405,11 @@
         [settingsErrors addObject:@"\"Destination Folder\" cannot be empty"];
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
 - (NSDictionary *)verifySettingsNBIURL:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -359,13 +422,12 @@
         [settingsErrors addObject:@"\"NBI URL\" cannot be empty"];
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
 - (NSDictionary *)verifyMountedVolumeName:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -374,12 +436,11 @@
         [settingsErrors addObject:@"There is already a volume mounted at the following path: /Volumes/DeployStudioRuntime.\n\nDeployStudioAssistant will fail if there is another volume mounted with the same name. Unmount the current volume and try again."];
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
 - (int)getFreeDiskSpaceInGBFromPath:(NSString *)path {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     int freeDiskSpace = -1;
     
     NSError *error;
@@ -411,6 +472,7 @@
 }
 
 - (NSDictionary *)verifySettingsConfigurationURL:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -434,9 +496,7 @@
         [settingsErrors addObject:@"\"Configuration URL\" cannot be empty"];
     }
     
-    NSDictionary *errorInfoDict = [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-    
-    return errorInfoDict;
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
 @end

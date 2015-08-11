@@ -14,9 +14,16 @@
 @class NBCTarget;
 @class NBCTargetController;
 @class NBCWorkflowItem;
-@class NBCWorkflowProgressViewController;
+//@class NBCWorkflowProgressViewController;
+
+@protocol NBCImagrWorkflowModifyNBIDelegate
+- (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;
+- (void)updateProgressBar:(double)value;
+@end
 
 @interface NBCImagrWorkflowModifyNBI : NSObject <NBCInstallerPackageDelegate, NBCMessageDelegate>
+
+@property id delegate;
 
 // ------------------------------------------------------
 //  Properties
@@ -30,7 +37,6 @@
 @property NBCSource *source;
 @property NBCTarget *target;
 @property NBCTargetController *targetController;
-@property NBCWorkflowProgressViewController *progressView;
 @property NBCWorkflowItem *workflowItem;
 
 // ------------------------------------------------------

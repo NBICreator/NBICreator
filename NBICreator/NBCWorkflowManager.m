@@ -6,27 +6,36 @@
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
 
-#import "NBCWorkflowController.h"
+#import "NBCWorkflowManager.h"
 #import "NBCConstants.h"
 #import "NBCVariables.h"
 #import "NSString+randomString.h"
 
-#import "NBCImagrWorkflowNBI.h"
 #import "NBCImagrWorkflowResources.h"
 #import "NBCImagrWorkflowModifyNBI.h"
 
-#import "NBCDeployStudioWorkflowNBI.h"
 #import "NBCDeployStudioWorkflowResources.h"
 #import "NBCDeployStudioWorkflowModifyNBI.h"
 
-#import "NBCNetInstallWorkflowNBI.h"
 #import "NBCNetInstallWorkflowResources.h"
 #import "NBCNetInstallWorkflowModifyNBI.h"
 
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
+#import "NBCLogging.h"
 
-@implementation NBCWorkflowController
+DDLogLevel ddLogLevel;
+
+@implementation NBCWorkflowManager
+
++ (id)sharedManager {
+    static NBCWorkflowManager *sharedManager = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedManager = [[self alloc] init];
+    });
+    return sharedManager;
+}
 
 #pragma mark -
 #pragma mark Initialization
@@ -37,7 +46,7 @@
     if (self != nil) {
         
         NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-        [center addObserver:self selector:@selector(removeWorkflowItem:) name:@"removeWorkflowItem" object:nil];
+        [center addObserver:self selector:@selector(removeWorkflowItem:) name:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem object:nil];
         [center addObserver:self selector:@selector(workflowFailed:) name:NBCNotificationWorkflowFailed object:nil];
         [center addObserver:self selector:@selector(workflowCompleteNBI:) name:NBCNotificationWorkflowCompleteNBI object:nil];
         [center addObserver:self selector:@selector(workflowCompleteResources:) name:NBCNotificationWorkflowCompleteResources object:nil];
@@ -51,6 +60,7 @@
 }
 
 - (void)dealloc {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -59,22 +69,16 @@
 #pragma mark -
 
 - (void)addWorkflowItemToQueue:(NSNotification *)notification {
-    // -------------------------------------------------------------
-    //  Incremet global index counter
-    // -------------------------------------------------------------
-    
-    [self incrementIndexCounter];
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     
     // -------------------------------------------------------------
     //  Get workflow item from sender
     // -------------------------------------------------------------
-    
     NBCWorkflowItem *workflowItem = [notification userInfo][NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem];
     
     // -------------------------------------------------------------
     //  Setup progress view and add a reference of it to workflow item
     // -------------------------------------------------------------
-    
     NBCWorkflowProgressViewController *progressView = [[NBCWorkflowProgressViewController alloc] init];
     [[progressView view] setTranslatesAutoresizingMaskIntoConstraints:NO];
     
@@ -83,13 +87,21 @@
         [[progressView textFieldTitle] setStringValue:nbiName];
     }
     
-    [[progressView textFieldStatusInfo] setStringValue:@"Waiting..."];
+    //[progressView updateProgressStatus:@"Waiting..."];
     
+    NSError *error;
+    NSDictionary *userSettings = [workflowItem userSettings];
+    
+    // -------------------------------------------------------------
+    //  Incremet global index counter if %COUNTER% is used.
+    // -------------------------------------------------------------
+    if ( [userSettings[NBCSettingsNBIIndex] isEqualToString:NBCVariableIndexCounter] ) {
+        [self incrementIndexCounter];
+    }
+
     // -------------------------------------------------------------
     //  Add NBI icon to workflow item and progress view
     // -------------------------------------------------------------
-    NSError *error;
-    NSDictionary *userSettings = [workflowItem userSettings];
     NSString *nbiIconPath = [NBCVariables expandVariables:userSettings[NBCSettingsNBIIcon]
                                                    source:[workflowItem source]
                                         applicationSource:[workflowItem applicationSource]];
@@ -102,8 +114,7 @@
             [workflowItem setNbiIcon:nbiIcon];
             [[progressView nbiIcon] setImage:nbiIcon];
         } else {
-            NSLog(@"Could not get selected NBI Icon");
-            NSLog(@"Error: %@", error);
+            DDLogError(@"Error: %@", [error localizedDescription]);
         }
     }
     
@@ -113,9 +124,8 @@
     // -------------------------------------------------------------
     //  Add progress view to stack view and show it
     // -------------------------------------------------------------
-    
     if ( ! _workflowPanel ) {
-        _workflowPanel = [[NBCWorkflowPanelController alloc] initWithWindowNibName:@"NBCWorkflowPanelController"];
+        [self setWorkflowPanel:[[NBCWorkflowPanelController alloc] initWithWindowNibName:@"NBCWorkflowPanelController"]];
     }
     /* This needs to be here, otherwise the view doesn't show up... don't know why yet. */
     [[_workflowPanel window] setTitle:@"NBICreator Workflow"];
@@ -129,55 +139,55 @@
     // -------------------------------------------------------------
     //  Add workflow item to queue and run queue
     // -------------------------------------------------------------
-    
+    DDLogInfo(@"Adding %@ to workflow queue...", nbiName);
     [_workflowQueue addObject:workflowItem];
     [self workflowQueueRunWorkflow];
 }
 
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
-    NSLog(@"workflowCompleteNBI");
-    _workflowNBIComplete = YES;
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"[Workflow: NBI] Base NBI created successfully!");
+    [self setCurrentWorkflowNBIComplete:YES];
     
-    if ( _workflowNBIComplete && _workflowResourcesComplete ) {
+    if ( _currentWorkflowNBIComplete && _currentWorkflowResourcesComplete ) {
         [self workflowQueueRunWorkflowPostprocessing];
     } else {
-        [[_currentWorkflowProgressView textFieldStatusInfo] setStringValue:@"Preparing Resources to be added to NBI..."];
-        [[_currentWorkflowProgressView progressIndicator] setIndeterminate:YES];
-        NSLog(@"Waiting for workflowResources");
+        DDLogInfo(@"[Workflow: NBI] Waiting for additional resources to be prepared");
     }
 }
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
     #pragma unused(notification)
-    NSLog(@"workflowCompleteResources");
-    _workflowResourcesComplete = YES;
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"[Workflow: Resources] All resources prepared!");
+    [self setCurrentWorkflowResourcesComplete:YES];
     
-    if ( _workflowNBIComplete && _workflowResourcesComplete ) {
+    if ( _currentWorkflowNBIComplete && _currentWorkflowResourcesComplete ) {
         [self workflowQueueRunWorkflowPostprocessing];
     } else {
-        NSLog(@"Waiting for workflowNBI");
+        DDLogInfo(@"[Workflow: Resources] Waiting for base NBI to be created");
     }
 }
 
 - (void)workflowCompleteModifyNBI:(NSNotification *)notification {
     #pragma unused(notification)
-    NSLog(@"workflowCompleteModifyNBI");
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"[Workflow: Modify] NBI modifications complete!");
     [self moveNBIToDestination:[_currentWorkflowItem temporaryNBIURL] destinationURL:[_currentWorkflowItem nbiURL]];
 }
 
 - (void)endWorkflow {
-    [self setWorkflowModifyNBIComplete:YES];
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [self setCurrentWorkflowModifyNBIComplete:YES];
     [self setWorkflowRunning:NO];
-    
     [self removeTemporaryFolder];
-    
     [_workflowQueue removeObject:_currentWorkflowItem];
     [self workflowQueueRunWorkflow];
 }
 
 - (void)workflowFailed:(NSNotification *)notification {
-    NSLog(@"workflowFailed");
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *error = [notification userInfo][@"error"];
     NSString *progressViewErrorMessage = nil;
     if ( error ) {
@@ -186,7 +196,7 @@
     
     //[self removeTemporaryFolder];
     
-    [self updateWorkflowStatusError:_currentWorkflowProgressView errorMessage:progressViewErrorMessage];
+    [self updateWorkflowStatusErrorWithMessage:progressViewErrorMessage];
     [self setWorkflowRunning:NO];
     
     [_workflowQueue removeObject:_currentWorkflowItem];
@@ -194,19 +204,20 @@
 }
 
 - (void)removeWorkflowItem:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCWorkflowProgressViewController *workflowView = [notification object];
-    NBCWorkflowItem *workflowItem = [notification userInfo][NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem];
+    NBCWorkflowItem *workflowItem = [notification userInfo][NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem];
     [[_workflowPanel stackView] removeView:[workflowView view]];
     [_workflowQueue removeObject:workflowItem];
 }
 
 - (void)removeTemporaryFolder {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSURL *temporaryFolderURL = [_currentWorkflowItem temporaryFolderURL];
     if ( ! [fileManager removeItemAtURL:temporaryFolderURL error:&error] ) {
-        NSLog(@"Removing temporary folder failed!");
-        NSLog(@"Error: %@", error);
+        DDLogError(@"%@", [error localizedDescription]);
     }
 }
 
@@ -214,29 +225,20 @@
 #pragma mark Progress View Status Methods
 #pragma mark -
 
-- (void)updateWorkflowStatusComplete:(NBCWorkflowProgressViewController *)progressView {
-    [[progressView textFieldCenter] setStringValue:@"Workflow Complete!"];
-    [[progressView textFieldStatusInfo] setStringValue:[[progressView nbiURL] path]];
-    [[progressView progressIndicator] stopAnimation:self];
-    [[progressView progressIndicator] setHidden:YES];
-    [[progressView textFieldCenter] setHidden:NO];
-    [[progressView buttonStatusInfo] setHidden:NO];
+- (void)updateWorkflowStatusComplete {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [_currentWorkflowProgressView workflowCompleted];
     
     [self endWorkflow];
 }
 
-- (void)updateWorkflowStatusError:(NBCWorkflowProgressViewController *)progressView errorMessage:(NSString *)errorMessage {
+- (void)updateWorkflowStatusErrorWithMessage:(NSString *)errorMessage {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *errorString = errorMessage;
     if ( errorString == nil ) {
         errorString = @"Unknown Error (-1)";
     }
-    [[progressView textFieldCenter] setStringValue:@"Workflow Failed!"];
-    [[progressView textFieldStatusInfo] setStringValue:errorString];
-    [[progressView progressIndicator] stopAnimation:self];
-    [[progressView progressIndicator] setHidden:YES];
-    [[progressView textFieldCenter] setHidden:NO];
-    [[progressView buttonStatusInfo] setHidden:NO];
-    
+    [_currentWorkflowProgressView workflowFailedWithError:errorString];
     [self endWorkflow];
 }
 
@@ -245,29 +247,29 @@
 #pragma mark -
 
 - (void)workflowQueueRunWorkflow {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( ! _workflowRunning && [_workflowQueue count] != 0 ) {
+        
         // -------------------------------------------------------------
         //  Reset current workflow variables
         // -------------------------------------------------------------
-        
-        [self setWorkflowNBIComplete:NO];
-        [self setWorkflowResourcesComplete:NO];
-        [self setWorkflowModifyNBIComplete:NO];
+        [self setCurrentWorkflowNBIComplete:NO];
+        [self setCurrentWorkflowResourcesComplete:NO];
+        [self setCurrentWorkflowModifyNBIComplete:NO];
         [self setWorkflowRunning:YES];
+        [self setResourcesLastMessage:nil];
         
         // -------------------------------------------------------------
         //  Get workflow item from the top of the queue
         // -------------------------------------------------------------
-        
         [self setCurrentWorkflowItem:[_workflowQueue firstObject]];
         [_currentWorkflowItem setStartTime:[NSDate date]];
         
         // -------------------------------------------------------------
         //  Get progress view from current workflow item
         // -------------------------------------------------------------
-        
         [self setCurrentWorkflowProgressView:[_currentWorkflowItem progressView]];
-        [_currentWorkflowProgressView setNbiURL:[_currentWorkflowItem nbiURL]];
+        [_currentWorkflowProgressView workflowStartedForItem:_currentWorkflowItem];
         
         // -------------------------------------------------------------
         //  Create a path to a unique temporary folder
@@ -284,8 +286,8 @@
                     NSError *error;
                     NSFileManager *fileManager = [NSFileManager defaultManager];
                     if ( ! [fileManager createDirectoryAtURL:temporaryNBIURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                        NSLog(@"Failed creating temporary NBI URL: %@", temporaryNBIURL);
-                        NSLog(@"Error: %@", error);
+                        DDLogError(@"Failed to create temporary NBI directory at: %@", [temporaryNBIURL path]);
+                        DDLogError(@"Error: %@", [error localizedDescription]);
                     }
                 }
             }
@@ -294,7 +296,6 @@
         // -------------------------------------------------------------
         //  Instantiate workflow target if it doesn't exist.
         // -------------------------------------------------------------
-        
         NBCTarget *target = [_currentWorkflowItem target];
         if ( target == nil ) {
             target = [[NBCTarget alloc] init];
@@ -302,31 +303,33 @@
         }
         
         // -------------------------------------------------------------
-        //  Run workflows.Don't create NBI if source is a NBI itself.
+        //  Run workflows. Don't create NBI if source is a NBI itself.
         // -------------------------------------------------------------
-        
         NSString *sourceType = [[_currentWorkflowItem source] sourceType];
         if ( ! [sourceType isEqualToString:NBCSourceTypeNBI] ) {
-            id workflowNBI = [_currentWorkflowItem workflowNBI];
-            if ( workflowNBI ) {
-                [workflowNBI runWorkflow:_currentWorkflowItem];
+            [self setCurrentWorkflowNBI:[_currentWorkflowItem workflowNBI]];
+            if ( _currentWorkflowNBI ) {
+                [_currentWorkflowNBI setDelegate:_currentWorkflowProgressView];
+                [_currentWorkflowNBI runWorkflow:_currentWorkflowItem];
             }
         } else {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
         }
         
-        id workflowResources = [_currentWorkflowItem workflowResources];
-        if ( workflowResources ) {
-            [workflowResources runWorkflow:_currentWorkflowItem];
+        [self setCurrentWorkflowResources:[_currentWorkflowItem workflowResources]];
+        if ( _currentWorkflowResources ) {
+            [_currentWorkflowResources setDelegate:_currentWorkflowProgressView];
+            [_currentWorkflowResources runWorkflow:_currentWorkflowItem];
         }
     }
 }
 
 - (void)workflowQueueRunWorkflowPostprocessing {
-    NSLog(@"workflowQueueRunWorkflowPostprocessing");
-    id workflowModifyNBI = [_currentWorkflowItem workflowModifyNBI];
-    if ( workflowModifyNBI ) {
-        [workflowModifyNBI runWorkflow:_currentWorkflowItem];
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [self setCurrentWorkflowModifyNBI:[_currentWorkflowItem workflowModifyNBI]];
+    if ( _currentWorkflowModifyNBI ) {
+        [_currentWorkflowModifyNBI setDelegate:_currentWorkflowProgressView];
+        [_currentWorkflowModifyNBI runWorkflow:_currentWorkflowItem];
     } else {
         NSLog(@"workflowModifyNBI is nil");
     }
@@ -337,6 +340,7 @@
 #pragma mark -
 
 - (void)incrementIndexCounter {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     NSNumber *currentIndex = [ud objectForKey:NBCUserDefaultsIndexCounter];
     if ( [currentIndex integerValue] == 65535 ) {
@@ -344,16 +348,18 @@
     }
     NSNumber *newIndex = @([currentIndex intValue] + 1);
     [ud setObject:newIndex forKey:NBCUserDefaultsIndexCounter];
+    DDLogDebug(@"Updated NBI Index counter from %@ to %@", currentIndex, newIndex);
 }
 
 - (void)moveNBIToDestination:(NSURL *)sourceURL destinationURL:(NSURL *)destinationURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *err;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
     //Sanity Checking
     NSString *destinationExtension = [destinationURL pathExtension];
     if ( ! [destinationExtension isEqualToString:@"nbi"] ) {
-        [self updateWorkflowStatusError:_currentWorkflowProgressView errorMessage:@"Move Failed"];
+        [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
         return;
     }
     
@@ -368,44 +374,41 @@
                 //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
                 // ------------------------------------------------------------------
                 NSLog(@"ProxyError? %@", proxyError);
-                [self updateWorkflowStatusError:self->_currentWorkflowProgressView errorMessage:@"Move Failed"];
+                [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
             }];
             
         }] removeItemAtURL:destinationURL withReply:^(NSError *error, int terminationStatus) {
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                
-                NSLog(@"terminationStatus=%d", terminationStatus);
-                if ( terminationStatus == 0 )
-                {
+                if ( terminationStatus == 0 ) {
                     NSError *blockError;
-                    if ( [fileManager moveItemAtURL:sourceURL toURL:destinationURL error:&blockError] )
-                    {
-                        [self updateWorkflowStatusComplete:self->_currentWorkflowProgressView];
+                    if ( [fileManager moveItemAtURL:sourceURL toURL:destinationURL error:&blockError] ) {
+                        [self updateWorkflowStatusComplete];
                     } else {
                         NSLog(@"Could not move file");
                         NSLog(@"Error: %@", blockError);
-                        [self updateWorkflowStatusError:self->_currentWorkflowProgressView errorMessage:@"Move Failed"];
+                        [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
                     }
                 } else {
                     NSLog(@"Delete Destination NBI Failed");
                     NSLog(@"Error: %@", error);
-                    [self updateWorkflowStatusError:self->_currentWorkflowProgressView errorMessage:@"Move Failed"];
+                    [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
                 }
             }];
         }];
     } else {
         if ( [fileManager moveItemAtURL:sourceURL toURL:destinationURL error:&err] ) {
             NSLog(@"Move Successful!");
-            [self updateWorkflowStatusComplete:_currentWorkflowProgressView];
+            [self updateWorkflowStatusComplete];
         } else {
             NSLog(@"Moving NBI Failed!");
             NSLog(@"Error: %@", err);
-            [self updateWorkflowStatusError:_currentWorkflowProgressView errorMessage:@"Move Failed"];
+            [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
         }
     }
 }
 
 - (NSURL *)temporaryFolderURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *temporaryFolderURL;
     NSString *tmpFolderName = [NSString stringWithFormat:@"%@/workflow.%@", NBCBundleIdentifier, [NSString nbc_randomString]];
     NSString *tmpFolderPath = [NSTemporaryDirectory() stringByAppendingPathComponent:tmpFolderName];

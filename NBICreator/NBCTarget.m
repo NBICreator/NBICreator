@@ -7,6 +7,9 @@
 //
 
 #import "NBCTarget.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCTarget
 

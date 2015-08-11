@@ -8,6 +8,9 @@
 
 #import "NBCNetInstallDropViewImage.h"
 #import "NBCConstants.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCNetInstallDropViewImageIcon
 
@@ -40,6 +43,7 @@
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *draggedFileURL = [self getDraggedSourceURLFromPasteboard:[sender draggingPasteboard]];
     if ( draggedFileURL ) {
         NSDictionary * userInfo = @{ NBCNotificationUpdateNBIIconUserInfoIconURL : draggedFileURL };

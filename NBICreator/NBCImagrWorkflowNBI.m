@@ -8,6 +8,7 @@
 
 #import "NBCImagrWorkflowNBI.h"
 #import "NBCConstants.h"
+#import "NBCWorkflowItem.h"
 
 #import "NBCController.h"
 #import "NBCWorkflowNBIController.h"
@@ -17,6 +18,9 @@
 
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCImagrWorkflowNBI
 
@@ -25,8 +29,10 @@
 #pragma mark -
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Starting workflow create Imagr NBI...");
     _nbiVolumeName = [[workflowItem nbiName] stringByDeletingPathExtension];
-    _progressView = [workflowItem progressView];
+    //_progressView = [workflowItem progressView];
     _temporaryNBIPath = [[workflowItem temporaryNBIURL] path];
     
     NSDictionary *userSettings = [workflowItem userSettings];
@@ -41,6 +47,8 @@
 }
 
 - (void)runWorkflowNBICreator:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Using NBI Creator to create base NBI");
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
     
@@ -55,34 +63,34 @@
             double fileSize = [volumeAttributes[NSFileSize] doubleValue];
             [self setTemporaryNBIBaseSystemSize:fileSize];
         } else {
-            NSLog(@"Error getting volumeAttributes from InstallESD Volume");
-            NSLog(@"Error: %@", error);
+            DDLogError(@"[ERROR] Error getting volumeAttributes from InstallESD Volume");
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
     } else {
-        NSLog(@"Error getting installESDVolumePath from source");
+        DDLogError(@"[ERROR] Path for source BaseSystem.dmg is empty!");
         return;
     }
     
     // -------------------------------------------------------------
     //  Create NBI Folder
     // -------------------------------------------------------------
+    DDLogInfo(@"Creating NBI folder...");
     NSURL *temporaryNBIURL = [workflowItem temporaryNBIURL];
-    NSLog(@"temporaryNBIURL=%@", temporaryNBIURL);
     NSURL *temporaryx86FolderURL = [temporaryNBIURL URLByAppendingPathComponent:@"i386/x86_64"];
-    NSLog(@"temporaryx86FolderURL=%@", temporaryx86FolderURL);
     if ( temporaryx86FolderURL ) {
         if ( ! [fm createDirectoryAtURL:temporaryx86FolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-            NSLog(@"Error creating temporary NBI Folder");
-            NSLog(@"Error: %@", error);
+            DDLogError(@"Could not create NBI folder!");
+            DDLogError(@"Error: %@", error);
         }
     }
+    DDLogDebug(@"NBI folder path: %@", [temporaryNBIURL path]);
     
     // -------------------------------------------------------------
     //  Copy BaseSystem.dmg to temporary NBI Folder
     // -------------------------------------------------------------
+    DDLogInfo(@"Copying BaseSystem.dmg from source to NBI folder...");
     [self setCopyComplete:NO];
     NSURL *baseSystemTargetURL = [temporaryNBIURL URLByAppendingPathComponent:@"BaseSystem.dmg"];
-    NSLog(@"baseSystemTargetURL=%@", baseSystemTargetURL);
     [self setTemporaryNBIBaseSystemPath:[baseSystemTargetURL path]];
     [[workflowItem target] setBaseSystemURL:baseSystemTargetURL];
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
@@ -91,8 +99,8 @@
         if ( ! [fm copyItemAtURL:baseSystemURL toURL:baseSystemTargetURL error:&blockError] ) {
             [self setCopyComplete:YES];
             dispatch_async(dispatch_get_main_queue(), ^{
-                NSLog(@"Error copying BaseSystem.dmg to temporaryFolder");
-                NSLog(@"Error: %@", blockError);
+                DDLogError(@"Could not copy BaseSystem.dmg to NBI folder!");
+                DDLogError(@"Error: %@", blockError);
             });
         } else {
             [self setCopyComplete:YES];
@@ -102,9 +110,11 @@
         }
     });
     
-    // ---------------------------------------------------
-    //  Loop to check image size and update progress bar
-    // ---------------------------------------------------
+    // --------------------------------------------------------------------------
+    //  Loop to check size of BaseSystem.dmg during copy and update progress bar
+    // --------------------------------------------------------------------------
+    //[[self->_progressView progressIndicator] setDoubleValue:0];
+    //[[self->_progressView progressIndicator] setIndeterminate:NO];
     [NSTimer scheduledTimerWithTimeInterval:0.5
                                      target:self
                                    selector:@selector(checkCopyProgressBaseSystem:)
@@ -113,102 +123,122 @@
 }
 
 - (void)createNBIFilesNBICreator:(NBCWorkflowItem *)workflowItem baseSystemTemporaryURL:(NSURL *)baseSystemTemporaryURL {
-    NSLog(@"createNBIFilesNBICreator");
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Copying NBI specific files...");
     NSError *error;
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     NSFileManager *fm = [NSFileManager defaultManager];
-    
     NBCImagrWorkflowModifyNBI *modifyNBI = [[NBCImagrWorkflowModifyNBI alloc] init];
     
     BOOL verified = [modifyNBI resizeAndMountBaseSystemWithShadow:baseSystemTemporaryURL target:[workflowItem target]];
     if ( verified ) {
         NSURL *baseSystemTemporaryVolumeURL = [[workflowItem target] baseSystemVolumeURL];
-        NSLog(@"baseSystemTemporaryVolumeURL=%@", baseSystemTemporaryVolumeURL);
         if ( baseSystemTemporaryVolumeURL ) {
-            NSURL *booterSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/boot.efi"];
-            NSLog(@"booterSourceURL=%@", booterSourceURL);
+            
+            // --------------------------------------------------------------------------
+            //  Copy booter
+            // --------------------------------------------------------------------------
+            DDLogInfo(@"Copying booter file...");
+            [_delegate updateProgressStatus:@"Copying booter file..." workflow:self];
             NSURL *booterTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"i386/booter"];
-            NSLog(@"booterTargetURL=%@", booterTargetURL);
+            DDLogDebug(@"booterTargetURL=%@", booterTargetURL);
+            NSURL *booterSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/boot.efi"];
+            DDLogDebug(@"booterSourceURL=%@", booterSourceURL);
+            
             if ( ! [fm copyItemAtURL:booterSourceURL toURL:booterTargetURL error:&error] ) {
-                NSLog(@"Error while copying booter file!");
-                NSLog(@"Error: %@", error);
+                DDLogError(@"[ERROR] Could not copy booter file!");
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
             } else {
                 NSDictionary *booterAttributes = @{ NSFileImmutable : @NO };
                 if ( ! [fm setAttributes:booterAttributes ofItemAtPath:[booterTargetURL path] error:&error] ) {
-                    NSLog(@"Warning! Unable to unlock booter file");
-                    NSLog(@"Error: %@", error);
+                    DDLogWarn(@"[WARN] Unable to unlock booter file!");
+                    DDLogWarn(@"[ERROR] %@", [error localizedDescription]);
                 }
             }
             
+            // --------------------------------------------------------------------------
+            //  Copy PlatformSupport.plist
+            // --------------------------------------------------------------------------
+            DDLogInfo(@"Copying PlatformSupport.plist...");
+            [_delegate updateProgressStatus:@"Copying PlatformSupport.plist..." workflow:self];
             NSURL *platformSupportSourceURL;
-            NSLog(@"[[workflowItem source] systemOSVersion]=%@", [[workflowItem source] sourceVersion]);
+            NSURL *platformSupportTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"i386/PlatformSupport.plist"];
+            DDLogDebug(@"platformSupportTargetURL=%@", platformSupportTargetURL);
             if ( [[[workflowItem source] sourceVersion] containsString:@"10.7"] ) {
                 platformSupportSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/com.apple.recovery.boot/PlatformSupport.plist"];
             } else {
                 platformSupportSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/PlatformSupport.plist"];
             }
-            NSLog(@"platformSupportSourceURL=%@", platformSupportSourceURL);
-            NSURL *platformSupportTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"i386/PlatformSupport.plist"];
-            NSLog(@"platformSupportTargetURL=%@", platformSupportTargetURL);
+            DDLogDebug(@"platformSupportSourceURL=%@", platformSupportSourceURL);
             if ( ! [fm copyItemAtURL:platformSupportSourceURL toURL:platformSupportTargetURL error:&error] ) {
-                NSLog(@"Error while copying platform support plist");
-                NSLog(@"Error: %@", error);
+                DDLogError(@"[ERROR] Error while copying platform support plist");
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
             }
             
+            // --------------------------------------------------------------------------
+            //  Copy kernel cache
+            // --------------------------------------------------------------------------
+            DDLogInfo(@"Copying kernel cache files...");
+            [_delegate updateProgressStatus:@"Copying kernel cache files..." workflow:self];
             NSURL *kernelCacheTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"i386/x86_64/kernelcache"];
             NSURL *kernelCacheSourceURL;
             kernelCacheSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/PrelinkedKernels/prelinkedkernel"];
             if ( ! [kernelCacheSourceURL checkResourceIsReachableAndReturnError:nil] ) {
                 kernelCacheSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"];
                 if ( ! [kernelCacheSourceURL checkResourceIsReachableAndReturnError:nil] ) {
+                    DDLogInfo(@"Found no precompiled kernel cache files!");
                     [self generateKernelCacheForNBI:workflowItem];
                 } else {
+                    DDLogDebug(@"kernelCacheSourceURL=%@", kernelCacheSourceURL);
                     if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
                         [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
                     } else {
-                        NSLog(@"Error while copying kernel cache file");
-                        NSLog(@"Error: %@", error);
+                        DDLogError(@"[ERROR] Error while copying kernel cache file");
+                        DDLogError(@"[ERROR] %@", error);
                     }
                 }
             } else {
+                DDLogDebug(@"kernelCacheSourceURL=%@", kernelCacheSourceURL);
                 if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
                     [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
                 } else {
-                    NSLog(@"Error while copying kernel cache file");
-                    NSLog(@"Error: %@", error);
+                    DDLogError(@"[ERROR] Error while copying kernel cache file");
+                    DDLogError(@"[ERROR] %@", error);
                 }
             }
-            
-            NSLog(@"kernelCacheSourceURL=%@", kernelCacheSourceURL);
-            NSLog(@"kernelCacheTargetURL=%@", kernelCacheTargetURL);
-            
-            
-            
         } else {
-            NSLog(@"Could not mount temporary BaseSystem.dmg");
+            DDLogError(@"[ERROR] Failed to mount BaseSystem.dmg!");
             [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
         }
     } else {
-        NSLog(@"Error while resizing Base System!");
+        DDLogError(@"Resizing BaseSystem.dmg failed!");
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
 }
 
 - (void)generateKernelCacheForNBI:(NBCWorkflowItem *)workflowItem {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Generating kernel cache files...");
+    [_delegate updateProgressStatus:@"Generating kernel cache files..." workflow:self];
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     NSMutableArray *generateKernelCacheVariables = [[NSMutableArray alloc] init];
     
+    // --------------------------------------------------------------------------
+    //  Get path to generateKernelCache script
+    // --------------------------------------------------------------------------
     NSString *generateKernelCacheScriptPath = [[NSBundle mainBundle] pathForResource:@"generateKernelCache" ofType:@"bash"];
-    NSLog(@"generateKernelCacheScriptPath=%@", generateKernelCacheScriptPath);
+    DDLogDebug(@"generateKernelCacheScriptPath=%@", generateKernelCacheScriptPath);
     if ( [generateKernelCacheScriptPath length] != 0 ) {
         [generateKernelCacheVariables addObject:generateKernelCacheScriptPath];
-        NSLog(@"generateKernelCacheVariables=%@", generateKernelCacheVariables);
     } else {
-        NSLog(@"Could not get path to script generateKernelCache.bash");
+        DDLogError(@"[ERROR] generateKernelCache script doesn't exist at path: %@", generateKernelCacheScriptPath);
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        return;
     }
     
+    // --------------------------------------------------------------------------
+    //  Get path to BaseSystem.dmg volume
+    // --------------------------------------------------------------------------
     NSURL *sourceVolumeURL;
     NBCDisk *sourceBaseSystemDisk = [[workflowItem source] baseSystemDisk];
     if ( [sourceBaseSystemDisk isMounted] ) {
@@ -255,7 +285,6 @@
     }
     
     [generateKernelCacheVariables addObject:_temporaryNBIPath]; //NBI
-    
     
     NSString *osVersionMinor = [[workflowItem source] expandVariables:@"%OSMINOR%"];
     if ( [osVersionMinor length] != 0 ) {
@@ -319,8 +348,7 @@
                                     }];
     
     
-    NSLog(@"generateKernelCacheVariables=%@", generateKernelCacheVariables);
-    
+    DDLogDebug(@"generateKernelCacheVariables=%@", generateKernelCacheVariables);
     if ( [generateKernelCacheVariables count] == 4 ) {
         NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
         [helperConnector connectToHelper];
@@ -339,8 +367,6 @@
             
         }] runTaskWithCommandAtPath:commandURL arguments:generateKernelCacheVariables currentDirectory:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                
-                NSLog(@"terminationStatus=%d", terminationStatus);
                 if ( terminationStatus == 0 ) {
                     [nc removeObserver:stdOutObserver];
                     [nc removeObserver:stdErrObserver];
@@ -354,15 +380,14 @@
                 }
             }];
         }];
-    } else if ( [generateKernelCacheVariables count] != 0 ) {
-        NSLog(@"Need to be exactly 4 variables to pass to script!");
     } else {
-        NSLog(@"Didn't get any variables!?");
+        DDLogError(@"[ERROR] Variable count to be passed to script is %lu, script requires exactly 4", (unsigned long)[generateKernelCacheVariables count]);
     }
-    
 }
 
 - (void)runWorkflowSystemImageUtility:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Using System Image Utitlity to create base NBI");
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
     NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
@@ -378,11 +403,11 @@
             double freeSize = [volumeAttributes[NSFileSystemFreeSize] doubleValue];
             [self setNetInstallVolumeSize:( maxSize - freeSize )];
         } else {
-            NSLog(@"Error getting volumeAttributes from InstallESD Volume");
-            NSLog(@"Error: %@", err);
+            DDLogError(@"[ERROR] No attributes returned for InstallESD Volume");
+            DDLogError(@"[ERROR] %@", err);
         }
     } else {
-        NSLog(@"Error getting installESDVolumePath from source");
+        DDLogError(@"[ERROR] Volume path for InstallESD.dmg is empty!");
         return;
     }
     
@@ -393,7 +418,7 @@
     if ( [createNetInstallArguments count] != 0 ) {
         [workflowItem setScriptArguments:createNetInstallArguments];
     } else {
-        NSLog(@"Error, no argumets for createNetInstall");
+        DDLogError(@"[ERROR] No arguments returned for createNetInstall.sh!");
         return;
     }
     
@@ -421,7 +446,7 @@
             return;
         }
     } else {
-        NSLog(@"Error getting create Common URL from workflow item");
+        DDLogError(@"[ERROR] Path for createCommon.sh is empty!");
         return;
     }
     
@@ -531,6 +556,7 @@
 #pragma mark -
 
 - (BOOL)prepareDestinationFolder:(NSURL *)destinationFolderURL createCommonURL:(NSURL *)createCommonURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = NO;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -571,6 +597,7 @@
 } // prepareDestinationFolder:createCommonURL:workflowItem:error
 
 - (void)removeTemporaryItems:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
     // -------------------------------------------------------------
@@ -590,10 +617,13 @@
 #pragma mark -
 
 - (void)updateNetInstallWorkflowStatus:(NSString *)outStr stdErr:(NSString *)stdErr {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------------------
     //  Check if string begins with chosen prefix or with PERCENT:
     // -------------------------------------------------------------
     if ( [outStr hasPrefix:NBCWorkflowNetInstallLogPrefix] ) {
+        
         // ----------------------------------------------------------------------------------------------
         //  Check for build steps in output, then try to update UI with a meaningful message or progress
         // ----------------------------------------------------------------------------------------------
@@ -603,7 +633,7 @@
         //  "creatingImage", update progress bar from PERCENT: output
         // -------------------------------------------------------------
         if ( [buildStep isEqualToString:@"creatingImage"] ) {
-            [[_progressView textFieldStatusInfo] setStringValue:@"1/5 Creating disk image"];
+            [_delegate updateProgressStatus:@"Creating disk image..." workflow:self];
             
             // --------------------------------------------------------------------------------------
             //  "copyingSource", update progress bar from looping current file size of target volume
@@ -619,8 +649,10 @@
         } else if ( [buildStep isEqualToString:@"buildingBooter"] ) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self setCopyComplete:YES];
-                [[self->_progressView textFieldStatusInfo] setStringValue:@"3/5 Preparing the kernel and boot loader for the boot image"];
-                [[self->_progressView progressIndicator] setDoubleValue:85];
+                [self->_delegate updateProgressStatus:@"Preparing the kernel and boot loader for the boot image..." workflow:self];
+                //[[self->_progressView textFieldStatusInfo] setStringValue:@"3/5 Preparing the kernel and boot loader for the boot image"];
+                [self->_delegate updateProgressBar:85];
+                //[[self->_progressView progressIndicator] setDoubleValue:85];
             });
             
             // --------------------------------------------------------------------------------------
@@ -628,8 +660,10 @@
             // --------------------------------------------------------------------------------------
         } else if ( [buildStep isEqualToString:@"finishingUp"] ) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[self->_progressView textFieldStatusInfo] setStringValue:@"4/5 Performing post install cleanup"];
-                [[self->_progressView progressIndicator] setDoubleValue:90];
+                [self->_delegate updateProgressStatus:@"Performing post install cleanup..." workflow:self];
+                //[[self->_progressView textFieldStatusInfo] setStringValue:@"4/5 Performing post install cleanup"];
+                [self->_delegate updateProgressBar:90];
+                //[[self->_progressView progressIndicator] setDoubleValue:90];
             });
         }
         
@@ -648,6 +682,8 @@
 } // updateNetInstallWorkflowStatus:stdErr
 
 - (void)checkDiskVolumeName:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // --------------------------------------------------------------------------------
     //  Verify that the volumeName is the expected NBI volume name.
     //  Verify that the disk that's mounting has mounted completely (have a volumeURL)
@@ -669,6 +705,8 @@
 } // checkDiskVolumeName
 
 - (void)updateProgressBarCopyNetInstall {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ---------------------------------------------------
     //  Loop to check volume size and update progress bar
     // ---------------------------------------------------
@@ -680,12 +718,15 @@
 } // updateProgressBarCopy
 
 -(void)checkCopyProgressNetInstall:(NSTimer *)timer {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------
     //  Get attributes for volume URL mounted by script
     // -------------------------------------------------
     NSError *error;
     NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfFileSystemForPath:_diskVolumePath error:&error];
     if ( [volumeAttributes count] != 0 ) {
+        
         // -------------------------------------------------
         //  Calculate used size and update progress bar
         // -------------------------------------------------
@@ -699,9 +740,8 @@
         } else {
             double precentage = (((40 * volumeCurrentSize)/_netInstallVolumeSize) + 40);
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[self->_progressView textFieldStatusInfo] setStringValue:@"2/5 Copying source"];
-                [[self->_progressView progressIndicator] setDoubleValue:precentage];
-                [[self->_progressView progressIndicator] setNeedsDisplay:YES];
+                [self->_delegate updateProgressStatus:@"Copying source..." workflow:self];
+                [self->_delegate updateProgressBar:precentage];
             });
         }
     } else {
@@ -714,6 +754,8 @@
 } // checkCopyProgressNetInstall
 
 -(void)checkCopyProgressBaseSystem:(NSTimer *)timer {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------
     //  Get attributes for target BaseSystem.dmg
     // -------------------------------------------------
@@ -721,16 +763,21 @@
     NSDictionary *fileAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:_temporaryNBIBaseSystemPath error:&error];
     if ( [fileAttributes count] != 0 ) {
         double fileSize = [fileAttributes[NSFileSize] doubleValue];
+        NSString *fileSizeString = [NSByteCountFormatter stringFromByteCount:(long long)fileSize countStyle:NSByteCountFormatterCountStyleDecimal];
+        NSString *fileSizeOriginal = [NSByteCountFormatter stringFromByteCount:(long long)_temporaryNBIBaseSystemSize countStyle:NSByteCountFormatterCountStyleDecimal];
         
         if ( _temporaryNBIBaseSystemSize <= fileSize || _copyComplete == YES ) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self->_delegate updateProgressStatus:[NSString stringWithFormat:@"Copying BaseSystem.dmg... %@/%@", fileSizeString, fileSizeOriginal] workflow:self];
+            });
             [timer invalidate];
             timer = nil;
         } else {
-            double precentage = (((40 * fileSize)/_temporaryNBIBaseSystemSize) + 40);
+            double percentage = (((100 * fileSize)/_temporaryNBIBaseSystemSize));
+            double percentageSlice = ( percentage * 0.9 );
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[self->_progressView textFieldStatusInfo] setStringValue:@"2/5 Copying source"];
-                [[self->_progressView progressIndicator] setDoubleValue:precentage];
-                [[self->_progressView progressIndicator] setNeedsDisplay:YES];
+                [self->_delegate updateProgressStatus:[NSString stringWithFormat:@"Copying BaseSystem.dmg... %@/%@", fileSizeString, fileSizeOriginal] workflow:self];
+                [self->_delegate updateProgressBar:percentageSlice];
             });
         }
     } else {
@@ -743,22 +790,14 @@
 } // checkCopyProgress
 
 - (void)updateProgressBar:(double)value {
-    // ---------------------------------------------------
-    //  Set progress bar to not be indeterminate if it is
-    // ---------------------------------------------------
-    if ( [[_progressView progressIndicator] isIndeterminate] ) {
-        [[_progressView progressIndicator] setDoubleValue:0.0];
-        [[_progressView progressIndicator] setIndeterminate:NO];
-    } else if ( value <= 0 ) {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+
+    if ( value <= 0 ) {
         return;
     }
     
     double precentage = (40 * value)/[@100 doubleValue];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[self->_progressView progressIndicator] setDoubleValue:precentage];
-        [[self->_progressView progressIndicator] setNeedsDisplay:YES];
-    });
+    [self->_delegate updateProgressBar:precentage];
 } // updateProgressBar
 
 @end

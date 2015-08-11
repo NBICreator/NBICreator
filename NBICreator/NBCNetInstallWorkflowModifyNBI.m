@@ -11,12 +11,14 @@
 #import "NSString+randomString.h"
 
 #import "NBCWorkflowItem.h"
-#import "NBCWorkflowProgressViewController.h"
 
 #import "NBCTargetController.h"
 
 #import "NBCDisk.h"
 #import "NBCDiskImageController.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCNetInstallWorkflowModifyNBI
 
@@ -25,14 +27,14 @@
 #pragma mark -
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *error;
-    _workflowItem = workflowItem;
+    [self setWorkflowItem:workflowItem];
     _targetController = [[NBCTargetController alloc] init];
-    _progressView = [workflowItem progressView];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[self->_progressView textFieldStatusInfo] setStringValue:@"5/5 Adding resources to NBI"];
-        [[self->_progressView progressIndicator] setDoubleValue:91];
+        [self->_delegate updateProgressStatus:@"Adding resources to NBI" workflow:self];
+        [self->_delegate updateProgressBar:91];
     });
     
     NSURL *temporaryNBIURL = [workflowItem temporaryNBIURL];
@@ -58,6 +60,7 @@
 } // runWorkflow
 
 - (void)finalizeWorkflow {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
     

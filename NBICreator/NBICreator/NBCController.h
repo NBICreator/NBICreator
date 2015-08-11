@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
-@class NBCWorkflowController;
+
 @class NBCDisk;
 @class NBCSource;
 @class NBCPreferences;
@@ -16,8 +16,6 @@
 #import "NBCAlerts.h"
 
 @interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate>
-
-@property NBCWorkflowController *workflowController;
 
 // Windows
 @property (weak) IBOutlet NSWindow *window;

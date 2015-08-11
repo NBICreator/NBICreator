@@ -17,6 +17,9 @@
 
 #import "NBCDisk.h"
 #import "NBCDiskImageController.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCDeployStudioWorkflowModifyNBI
 
@@ -25,13 +28,14 @@
 #pragma mark -
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *error;
     _workflowItem = workflowItem;
     _targetController = [[NBCTargetController alloc] init];
     _progressView = [workflowItem progressView];
     
     dispatch_async(dispatch_get_main_queue(), ^{
-        [[self->_progressView textFieldStatusInfo] setStringValue:@"5/5 Adding resources to NBI"];
+        [[self->_progressView textFieldStatusInfo] setStringValue:@"Adding resources to NBI"];
         [[self->_progressView progressIndicator] setDoubleValue:91];
     });
     
@@ -58,8 +62,8 @@
 } // runWorkflow
 
 - (void)finalizeWorkflow {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
-    
 } // finalizeWorkflow
 
 @end

@@ -131,7 +131,12 @@
 }
 
 - (void)removeDisksObject:(NBCDisk *)anObject {
-    [disks removeObject:anObject];
+    if ( anObject != nil ) {
+        [disks removeObject:anObject];
+    } else {
+        NSLog(@"Could not remove disk, it was nil");
+        NSLog(@"This is a problem that needs to be solved earlier when the disk was removed.");
+    }
 }
 
 - (void)removeDisks:(NSSet *)objects {

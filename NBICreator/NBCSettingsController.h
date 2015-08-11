@@ -12,8 +12,6 @@
 
 @interface NBCSettingsController : NSObject
 
-- (NSDictionary *)verifySettingsImagr:(NBCWorkflowItem *)workflowItem;
-- (NSDictionary *)verifySettingsNetInstall:(NBCWorkflowItem *)workflowItem;
-- (NSDictionary *)verifySettingsDeployStudio:(NBCWorkflowItem *)workflowItem;
+- (NSDictionary *)verifySettings:(NBCWorkflowItem *)workflowItem;
 
 @end

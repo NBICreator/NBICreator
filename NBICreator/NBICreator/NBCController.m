@@ -27,7 +27,7 @@
 // Other
 #import "NBCDiskImageController.h"
 #import "NBCSource.h"
-#import "NBCWorkflowController.h"
+#import "NBCWorkflowManager.h"
 #import "NBCDisk.h"
 #import "NBCDiskArbitrator.h"
 
@@ -36,6 +36,9 @@
 #import <Security/Authorization.h>
 
 #import "Reachability.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 enum {
     kSegmentedControlNetInstall = 0,
@@ -64,6 +67,7 @@ enum {
 }
 
 - (void)dealloc {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -71,12 +75,9 @@ enum {
 #pragma mark NSApplicationDelegate methods
 #pragma mark -
 
-- (void)applicationWillFinishLaunching:(NSNotification *)notification {
-#pragma unused(notification)   
-}
-
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
 #pragma unused(notification)
+    
     // --------------------------------------------------------------
     //  Add Notification Observers
     // --------------------------------------------------------------
@@ -99,17 +100,22 @@ enum {
             [ud registerDefaults:defaultSettingsDict];
         }
     } else {
-        NSLog(@"Could not find default settings!");
+        NSLog(@"Could not find default settings plist \"Defaults.plist\" in main bundle!");
         NSLog(@"Error: %@", error);
     }
     
+    // --------------------------------------------------------------
+    //  Setup logging
+    // --------------------------------------------------------------
+    [self configureCocoaLumberjack];
+    
+    //
     [self testInternetConnection];
     
     // --------------------------------------------------------------
     //  Initalize properties
     // --------------------------------------------------------------
     _arbitrator = [NBCDiskArbitrator sharedArbitrator];
-    [self setWorkflowController:[[NBCWorkflowController alloc] init]];
     
     NSString *requiredVersion = @"1.0";
     
@@ -173,7 +179,67 @@ enum {
     [_window makeKeyAndOrderFront:self];
 } // applicationDidFinishLaunching
 
+- (void)configureCocoaLumberjack {
+    
+    // --------------------------------------------------------------
+    //  Log to ASL
+    // --------------------------------------------------------------
+    //[DDLog addLogger:[DDASLLogger sharedInstance]];
+    
+    // --------------------------------------------------------------
+    //  Log to Console (Xcode)
+    // --------------------------------------------------------------
+    [DDLog addLogger:[DDTTYLogger sharedInstance]];
+    
+    // --------------------------------------------------------------
+    //  Log to File
+    // --------------------------------------------------------------
+    DDFileLogger *fileLogger = [[DDFileLogger alloc] init];
+    [fileLogger setMaximumFileSize:10000000]; // 10000000 = 10 MB
+    [fileLogger setRollingFrequency:0];
+    [[fileLogger logFileManager] setMaximumNumberOfLogFiles:7];
+    [DDLog addLogger:fileLogger];
+    
+    NSNumber *logLevel = [[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsLogLevel];
+    if ( logLevel ) {
+        if ( [logLevel intValue] == (int)DDLogLevelDebug ) {
+            ddLogLevel = DDLogLevelInfo;
+            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:(int)ddLogLevel] forKey:NBCUserDefaultsLogLevel];
+        } else {
+            ddLogLevel = (DDLogLevel)[logLevel intValue];
+        }
+    } else {
+        ddLogLevel = DDLogLevelWarning;
+        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:(int)ddLogLevel] forKey:NBCUserDefaultsLogLevel];
+    }
+    
+    DDLogError(@"");
+    DDLogError(@"Starting NBICreator version %@...", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
+    NSString *logLevelName;
+    switch (ddLogLevel) {
+        case 1:
+            logLevelName = @"Error";
+            break;
+        case 3:
+            logLevelName = @"Warn";
+            break;
+        case 7:
+            logLevelName = @"Info";
+            break;
+        case 15:
+            logLevelName = @"Debug";
+            break;
+        default:
+            logLevelName = [[NSNumber numberWithInt:(int)ddLogLevel] stringValue];
+            break;
+    }
+    DDLogInfo(@"Log level: %@", logLevelName);
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+}
+
 - (void)openHelpURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Opening help URL: %@", NBCHelpURL);
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NBCHelpURL]];
 }
 
@@ -184,12 +250,14 @@ enum {
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
 #pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self checkUnsavedSettingsQuit];
     return NSTerminateLater;
 } // applicationShouldTerminate
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
 #pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSSet *mountedDisks = [[_arbitrator disks] copy];
     for ( NBCDisk *disk in mountedDisks ) {
         if ( [disk isMountedByNBICreator] && [disk isMounted] ) {
@@ -206,6 +274,7 @@ enum {
 #pragma mark -
 
 - (void)checkUnsavedSettingsQuit {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( [_currentSettingsController haveSettingsChanged] ) {
         NSDictionary *alertInfo = @{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedQuit };
         
@@ -217,22 +286,26 @@ enum {
 } // checkUnsavedSettingsQuit
 
 - (void)checkWorkflowRunningQuit {
-    if ( [_workflowController workflowRunning] ) {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    if ( [[NBCWorkflowManager sharedManager] workflowRunning] ) {
         NSDictionary *alertInfo = @{ NBCAlertTagKey : NBCAlertTagWorkflowRunningQuit };
         
         NBCAlerts *alerts = [[NBCAlerts alloc] initWithDelegate:self];
-        [alerts showAlertWorkflowRunningQuit:@"A workflow is still running, if you quit the  current workflow will cancel and result in an incomplete NBI." alertInfo:alertInfo];
+        [alerts showAlertWorkflowRunningQuit:@"A workflow is still running, if you quit the current workflow will cancel and result in an incomplete NBI." alertInfo:alertInfo];
     } else {
         [self terminateApp];
     }
 } // checkWorkflowRunningQuit
 
 - (void)terminateApp {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Terminating Application");
     NBCHelperConnection *helper = [[NBCHelperConnection alloc] init];
     [helper connectToHelper];
     
     [[helper.connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-        NSLog(@"Error: %@", error);
+        DDLogError(@"Could not connect to helper tool!");
+        DDLogError(@"Error: %@", error);
         [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
     }] quitHelper:^(BOOL success) {
 #pragma unused(success)
@@ -245,6 +318,7 @@ enum {
 #pragma mark -
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsavedQuit] )
     {
@@ -273,8 +347,8 @@ enum {
 #pragma mark Reachability
 #pragma mark -
 
-- (void)testInternetConnection
-{
+- (void)testInternetConnection {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     _internetReachableFoo = [Reachability reachabilityWithHostname:@"github.com"];
     __unsafe_unretained typeof(self) weakSelf = self;
     
@@ -302,6 +376,7 @@ enum {
 #pragma mark -
 
 - (void)addViewToSettingsView:(NSView *)settingsView {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSArray *currentSubviews = [_viewNBISettings subviews];
     for ( NSView *view in currentSubviews ) {
         [view removeFromSuperview];
@@ -326,6 +401,7 @@ enum {
 } // addViewToSettingsView
 
 - (void)addViewToDropView:(NSView *)dropView {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSArray *currentSubviews = [_viewDropView subviews];
     for ( NSView *view in currentSubviews ) {
         [view removeFromSuperview];
@@ -348,6 +424,7 @@ enum {
 } // addViewToDropView
 
 - (void)updateButtonBuild:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL buttonState = [[notification userInfo][NBCNotificationUpdateButtonBuildUserInfoButtonState] boolValue];
     if ( _helperAvailable == YES ) {
         [_buttonBuild setEnabled:buttonState];
@@ -357,10 +434,12 @@ enum {
 } // updateButtonBuild
 
 + (NSSet *)currentDisks {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     return [[NBCDiskArbitrator sharedArbitrator] disks];
 } // currentDisks
 
 + (NBCDisk *)diskFromBSDName:(NSString *)bsdName {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *bsdNameCut = [bsdName lastPathComponent];
     NBCDisk *diskToReturn;
     for (NBCDisk *disk in [[NBCDiskArbitrator sharedArbitrator] disks] ) {
@@ -373,6 +452,7 @@ enum {
 } // diskFromBSDName
 
 + (NBCDisk *)diskFromVolumeURL:(NSURL *)volumeURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDisk *diskToReturn;
     for (NBCDisk *disk in [[NBCDiskArbitrator sharedArbitrator] disks] ) {
         if ( [disk isMounted] ) {
@@ -391,10 +471,10 @@ enum {
 } // diskFromVolumeURL
 
 +(NSArray *)mountedDiskUUUIDs {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *diskUUIDs = [[NSMutableArray alloc] init];
     NSMutableSet *disks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
     for ( NBCDisk *disk in disks ) {
-        NSLog(@"mountedDiskUUUIDs");
         if ([disk isMounted]) {
             NSMutableDictionary *disksDict = [[NSMutableDictionary alloc] initWithObjectsAndKeys:disk, @"disk", nil];
             NSString *uuid = [disk uuid];
@@ -408,6 +488,7 @@ enum {
 } // mountedDiskUUUIDs
 
 - (void)showNoInternetConnection {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_viewNoInternetConnection setTranslatesAutoresizingMaskIntoConstraints:NO];
     [_viewMainWindow addSubview:_viewNoInternetConnection positioned:NSWindowAbove relativeTo:nil];
     
@@ -420,12 +501,14 @@ enum {
 } // showNoInternetConnection
 
 - (void)hideNoInternetConnection {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_viewNoInternetConnection removeFromSuperview];
 } // hideNoInternetConnection
 
 #pragma mark Helper Tool
 
 - (void)showHelperToolInstallBox {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_viewInstallHelper setTranslatesAutoresizingMaskIntoConstraints:NO];
     [_viewMainWindow addSubview:_viewInstallHelper];
     [_viewMainWindow removeConstraint:_constraintBetweenButtonBuildAndViewOutput];
@@ -436,17 +519,20 @@ enum {
 } // showHelperToolInstallBox
 
 - (void)showHelperToolUpgradeBox {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_textFieldInstallHelperText setStringValue:@"To create a NetInstall Image you need to upgrade the helper tool."];
     [_buttonInstallHelper setTitle:@"Upgrade Helper"];
     [self showHelperToolInstallBox];
 } // showHelperToolUpgradeBox
 
 - (void)hideHelperToolInstallBox {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_viewInstallHelper removeFromSuperview];
     [_viewMainWindow addConstraint:_constraintBetweenButtonBuildAndViewOutput];
 } // hideHelperToolInstallBox
 
 - (BOOL)blessHelperWithLabel:(NSString *)label error:(NSError **)errorPtr {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL result = NO;
     NSError *error = nil;
     
@@ -494,12 +580,13 @@ enum {
 
 - (IBAction)buttonInstallHelper:(id)sender {
 #pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     
     NSError *error = nil;
     
     if ( ! [self blessHelperWithLabel:NBCBundleIdentifierHelper error:&error] ) {
-        
-        NSLog(@"Something went wrong! %@ / %d", [error domain], (int) [error code]);
+        DDLogError(@"Could not bless helper tool!");
+        DDLogError(@"Error: %@", [error description]);
     } else {
         [self setHelperAvailable:YES];
         [_currentSettingsController verifyBuildButton];
@@ -507,46 +594,39 @@ enum {
     }
 } // buttonInstallHelper
 
-
 - (IBAction)buttonBuild:(id)sender {
 #pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_currentSettingsController buildNBI];
 } // buttonBuild
 
 - (void)diskDidChange:(NSNotification *)notif {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDisk *disk = [notif object];
-    
-    //NSLog(@"%@", disk);
     if (disk.isMounted) {
         //NSLog(@"IsMounted!");
     }
 }
 
 - (void)didAttemptMount:(NSNotification *)notif {
-    //NSLog(@"DidAttemptMount");
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDisk *disk = [notif object];
-    
-    //NSLog(@"%@", disk);
     if (disk.isMounted) {
         //NSLog(@"IsMounted!");
     }
 }
 
 - (void)didAttemptUnmount:(NSNotification *)notif {
-    //NSLog(@"DidAttemptUnmount");
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDisk *disk = [notif object];
-    
-    //NSLog(@"%@", disk);
     if (disk.isMounted) {
         //NSLog(@"IsMounted!");
     }
 }
 
 - (void)didAttemptEject:(NSNotification *)notif {
-    //NSLog(@"DidAttemptEject");
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDisk *disk = [notif object];
-    
-    //NSLog(@"%@", disk);
     if (disk.isMounted) {
         //NSLog(@"IsMounted!");
     }
@@ -554,24 +634,28 @@ enum {
 
 - (IBAction)menuItemPreferences:(id)sender {
 #pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if (!_preferencesWindow) {
         _preferencesWindow = [[NBCPreferences alloc] initWithWindowNibName:@"NBCPreferences"];
     }
-    
+    [_preferencesWindow updateCacheFolderSize];
     [[_preferencesWindow window] makeKeyAndOrderFront:self];
 } // menuItemPreferences
 
 - (IBAction)segmentedControlNBI:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSSegmentedControl *segmentedControl = (NSSegmentedControl *) sender;
     NSInteger selectedSegment = [segmentedControl selectedSegment];
     [self selectSegmentedControl:selectedSegment];
 } // segmentedControlNBI
 
 - (NSInteger)selectedSegment {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     return [_segmentedControlNBI selectedSegment];
 } // selectedSegment
 
 - (void)selectSegmentedControl:(NSInteger)selectedSegment {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if (selectedSegment == kSegmentedControlNetInstall) {
         if (!_niDropViewController) {
             _niDropViewController = [[NBCNetInstallDropViewController alloc] init];

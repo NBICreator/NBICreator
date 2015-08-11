@@ -33,5 +33,6 @@
 - (NSArray *)cachedVersionsFromResourceFolder:(NSString *)resourceFolder;
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder;
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder;
+- (NSURL *)urlForResourceFolder:(NSString *)resourceFolder;
 
 @end

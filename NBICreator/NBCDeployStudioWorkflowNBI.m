@@ -14,6 +14,9 @@
 
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCDeployStudioWorkflowNBI
 
@@ -22,10 +25,11 @@
 #pragma mark -
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
     _nbiVolumeName = [[workflowItem nbiName] stringByDeletingPathExtension];
-    _progressView = [workflowItem progressView];
+    //_progressView = [workflowItem progressView];
     [self setTemporaryNBIPath:[[workflowItem temporaryNBIURL] path]];
     NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
     
@@ -157,6 +161,7 @@
 
 - (BOOL)prepareDestinationFolder:(NSURL *)destinationFolderURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     #pragma unused(error)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
     // ------------------------------------------------------------------
@@ -170,6 +175,7 @@
 } // prepareDestinationFolder:createCommonURL:workflowItem:error
 
 - (void)removeTemporaryItems:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
     // -------------------------------------------------------------
@@ -185,6 +191,7 @@
 } // removeTemporaryItems
 
 - (void)updateDeployStudioWorkflowStatus:(NSString *)stdOut stdErr:(NSString *)stdErr {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *statusString = stdOut;
     if ( stdOut ) {
         NSLog(@"stdOut=%@", stdOut);
@@ -196,17 +203,20 @@
     
     if ( [statusString containsString:@"Adding lib"] ) {
         statusString = [NSString stringWithFormat:@"Adding Frameworks: %@", [[statusString lastPathComponent] stringByReplacingOccurrencesOfString:@"'" withString:@""]];
-        [[_progressView textFieldStatusInfo] setStringValue:statusString];
+        [_delegate updateProgressStatus:statusString workflow:self];
+        //[[_progressView textFieldStatusInfo] setStringValue:statusString];
     }
     
     if ( [statusString containsString:@"created"] && [statusString containsString:@"NetInstall.sparseimage"] ) {
         statusString = @"Disabling Spotlight Indexing";
-        [[_progressView textFieldStatusInfo] setStringValue:statusString];
+        [_delegate updateProgressStatus:statusString workflow:self];
+        //[[_progressView textFieldStatusInfo] setStringValue:statusString];
     }
     
     if ( [statusString containsString:@"Indexing disabled"] ) {
         statusString = @"Disabling Spotlight Indexing";
-        [[_progressView textFieldStatusInfo] setStringValue:statusString];
+        [_delegate updateProgressStatus:statusString workflow:self];
+        //[[_progressView textFieldStatusInfo] setStringValue:statusString];
     }
     
     if ( ! [statusString containsString:@"<loop"] ) {

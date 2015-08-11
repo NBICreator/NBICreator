@@ -14,6 +14,9 @@
 
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCNetInstallWorkflowNBI
 
@@ -22,10 +25,11 @@
 #pragma mark -
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
     _nbiVolumeName = [[workflowItem nbiName] stringByDeletingPathExtension];
-    _progressView = [workflowItem progressView];
+    //_progressView = [workflowItem progressView];
     _temporaryNBIPath = [[workflowItem temporaryNBIURL] path];
     NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
         
@@ -196,6 +200,7 @@
 #pragma mark -
 
 - (BOOL)prepareDestinationFolder:(NSURL *)destinationFolderURL createCommonURL:(NSURL *)createCommonURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = NO;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -246,6 +251,7 @@
 } // prepareDestinationFolder:createCommonURL:workflowItem:error
 
 - (void)removeTemporaryItems:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
     // -------------------------------------------------------------
@@ -265,6 +271,7 @@
 #pragma mark -
 
 - (void)updateNetInstallWorkflowStatus:(NSString *)outStr stdErr:(NSString *)stdErr {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // -------------------------------------------------------------
     //  Check if string begins with chosen prefix or with PERCENT:
     // -------------------------------------------------------------
@@ -278,7 +285,9 @@
         //  "creatingImage", update progress bar from PERCENT: output
         // -------------------------------------------------------------
         if ( [buildStep isEqualToString:@"creatingImage"] ) {
-            [[_progressView textFieldStatusInfo] setStringValue:@"1/5 Creating disk image"];
+            if ( [_delegate respondsToSelector:@selector(updateProgressStatus:workflow:)] ) {
+                [_delegate updateProgressStatus:@"Creating disk image..." workflow:self];
+            }
             
             // --------------------------------------------------------------------------------------
             //  "copyingSource", update progress bar from looping current file size of target volume
@@ -294,8 +303,8 @@
         } else if ( [buildStep isEqualToString:@"buildingBooter"] ) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self setCopyComplete:YES];
-                [[self->_progressView textFieldStatusInfo] setStringValue:@"3/5 Preparing the kernel and boot loader for the boot image"];
-                [[self->_progressView progressIndicator] setDoubleValue:80];
+                [self->_delegate updateProgressStatus:@"Preparing the kernel and boot loader for the boot image..." workflow:self];
+                [self->_delegate updateProgressBar:80];
             });
             
             // --------------------------------------------------------------------------------------
@@ -303,8 +312,8 @@
             // --------------------------------------------------------------------------------------
         } else if ( [buildStep isEqualToString:@"finishingUp"] ) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[self->_progressView textFieldStatusInfo] setStringValue:@"4/5 Performing post install cleanup"];
-                [[self->_progressView progressIndicator] setDoubleValue:85];
+                [self->_delegate updateProgressStatus:@"Performing post install cleanup..." workflow:self];
+                [self->_delegate updateProgressBar:85];
             });
         }
         
@@ -324,6 +333,7 @@
 } // updateNetInstallWorkflowStatus:stdErr
 
 - (void)checkDiskVolumeName:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // --------------------------------------------------------------------------------
     //  Verify that the volumeName is the expected NBI volume name.
     //  Verify that the disk that's mounting has mounted completely (have a volumeURL)
@@ -345,6 +355,7 @@
 } // checkDiskVolumeName
 
 - (void)updateProgressBarCopy {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ---------------------------------------------------
     //  Loop to check volume size and update progress bar
     // ---------------------------------------------------
@@ -356,6 +367,7 @@
 } // updateProgressBarCopy
 
 -(void)checkCopyProgress:(NSTimer *)timer {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // -------------------------------------------------
     //  Get attributes for volume URL mounted by script
     // -------------------------------------------------
@@ -375,9 +387,8 @@
         } else {
             double precentage = (((40 * volumeCurrentSize)/_netInstallVolumeSize) + 40);
             dispatch_async(dispatch_get_main_queue(), ^{
-                [[self->_progressView textFieldStatusInfo] setStringValue:@"2/5 Copying source"];
-                [[self->_progressView progressIndicator] setDoubleValue: precentage];
-                [[self->_progressView progressIndicator] setNeedsDisplay:YES];
+                [self->_delegate updateProgressStatus:@"Copying source..." workflow:self];
+                [self->_delegate updateProgressBar:precentage];
             });
         }
     } else {
@@ -390,23 +401,17 @@
 } // checkCopyProgress
 
 - (void)updateProgressBar:(double)value {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ---------------------------------------------------
     //  Set progress bar to not be indeterminate if it is
     // ---------------------------------------------------
-    if ( [[_progressView progressIndicator] isIndeterminate] ) {
-        [[_progressView progressIndicator] setDoubleValue:0.0];
-        [[_progressView progressIndicator] setIndeterminate:NO];
-    } else if ( value <= 0 ) {
+
+    if ( value <= 0 ) {
         return;
     }
-    
     double precentage = (40 * value)/[@100 doubleValue];
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [[self->_progressView progressIndicator] setDoubleValue:precentage];
-        [[self->_progressView progressIndicator] setNeedsDisplay:YES];
-    });
-} // updateProgressBar
+    [self->_delegate updateProgressBar:precentage];
 
+} // updateProgressBar
 
 @end

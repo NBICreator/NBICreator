@@ -14,6 +14,9 @@
 #import "NBCDisk.h"
 #import "NBCDiskImageController.h"
 #import "NSString+randomString.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCSourceController
 
@@ -21,6 +24,7 @@
 //  Drop Destination
 // ------------------------------------------------------
 - (BOOL)getInstallESDURLfromSourceURL:(NSURL *)sourceURL source:(NBCSource *)source error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = NO;
     
     NSURL *installESDDiskImageURL;
@@ -36,32 +40,26 @@
             }
             
             installESDDiskImageURL = [[osxInstallerBundle bundleURL] URLByAppendingPathComponent:@"Contents/SharedSupport/InstallESD.dmg"];
-            
             verified = YES;
         } else {
-            
-            NSLog(@"Could not find bundle from source URL");
+            DDLogError(@"Could not find an app bundle from path: %@", [sourceURL path]);
             verified = NO;
         }
     } else if ( [sourceExtension isEqualToString:@"dmg"] ) {
         installESDDiskImageURL = sourceURL;
         [source setSourceType:NBCSourceTypeInstallESDDiskImage];
-        
         verified = YES;
     } else {
-        
-        NSLog(@"Invalid Source Extension!");
+        DDLogError(@"\"%@\" is an invalid file extension!", sourceExtension);
         verified = NO;
     }
     
     if ( verified ) {
         if ( [installESDDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
             [source setInstallESDDiskImageURL:installESDDiskImageURL];
-            
             verified = YES;
         } else {
-            
-            NSLog(@"Install ESD URL is invalid!");
+            DDLogError(@"File doesn't exist: %@", [installESDDiskImageURL path]);
             verified = NO;
         }
     }
@@ -74,6 +72,7 @@
 // ------------------------------------------------------
 
 - (BOOL)verifySystemFromDisk:(NBCDisk *)systemDisk source:(NBCSource *)source error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = NO;
     
     NSURL *systemVolumeURL = [systemDisk volumeURL];
@@ -127,6 +126,7 @@
 }
 
 - (BOOL)verifySystemFromDiskImageURL:(NSURL *)systemDiskImageURL source:(NBCSource *)source error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = NO;
     
     NSURL *systemVolumeURL;
@@ -225,6 +225,7 @@
 // ------------------------------------------------------
 
 - (BOOL)verifyRecoveryPartitionFromSystemDisk:(NBCDisk *)systemDisk source:(NBCSource *)source error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = NO;
     
     NSURL *systemVolumeURL = [systemDisk volumeURL];
@@ -280,6 +281,7 @@
 }
 
 - (BOOL)verifyRecoveryPartitionFromSystemDiskImageURL:(NSURL *)systemDiskImageURL source:(NBCSource *)source error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = NO;
     
     NSURL *systemVolumeURL = [source systemVolumeURL];
@@ -360,9 +362,10 @@
 // ------------------------------------------------------
 
 - (BOOL)verifyBaseSystemFromSource:(NBCSource *)source error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = NO;
-    
     NSURL *baseSystemDiskImageURL = [source baseSystemURL];
+    DDLogInfo(@"Verifying that %@ is a valid BaseSystem.dmg", [baseSystemDiskImageURL path]);
     NSURL *baseSystemVolumeURL;
     
     NBCDisk *baseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:baseSystemDiskImageURL
@@ -455,18 +458,19 @@
 // ------------------------------------------------------
 
 - (BOOL)verifyInstallESDFromDiskImageURL:(NSURL *)installESDDiskImageURL source:(NBCSource *)source error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Verifying that %@ is a valid InstallESD.dmg", [installESDDiskImageURL path]);
     BOOL verified = NO;
-    
     NSURL *installESDVolumeURL;
     
     [source setInstallESDDiskImageURL:installESDDiskImageURL];
     NBCDisk *installESDDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:installESDDiskImageURL
                                                                          imageType:@"InstallESD"];
+    
     if ( installESDDisk != nil ) {
         [source setInstallESDDisk:installESDDisk];
         [source setInstallESDVolumeBSDIdentifier:[installESDDisk BSDName]];
         installESDVolumeURL = [installESDDisk volumeURL];
-        
         verified = YES;
     } else {
         NSDictionary *installESDDiskImageDict;
@@ -519,6 +523,7 @@
 }
 
 - (void)addNTP:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
     NSMutableArray *packageBSDRegexes;
@@ -540,6 +545,7 @@
 }
 
 - (void)addPython:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
     NSMutableArray *packageBSDRegexes;
@@ -564,7 +570,81 @@
     sourceItemsDict[packageBSDPath] = packageBSDDict;
 }
 
+- (void)addSystemUIServer:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil )
+        {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexSystemUIServer = @".*SystemUIServer.*";
+    [packageEssentialsRegexes addObject:regexSystemUIServer];
+    
+    NSString *regexFrameworkMediaControlSender = @".*MediaControlSender.framework.*";
+    [packageEssentialsRegexes addObject:regexFrameworkMediaControlSender];
+    
+    NSString *regexFrameworkSystemUIPlugin = @".*SystemUIPlugin.framework.*";
+    [packageEssentialsRegexes addObject:regexFrameworkSystemUIPlugin];
+    
+    NSString *regexFrameworkICANotifications = @".*ICANotifications.framework.*";
+    [packageEssentialsRegexes addObject:regexFrameworkICANotifications];
+    
+    NSString *regexFrameworkIpod = @".*iPod.framework.*";
+    [packageEssentialsRegexes addObject:regexFrameworkIpod];
+    
+    NSString *regexFrameworkAirPlaySupport = @".*AirPlaySupport.framework.*";
+    [packageEssentialsRegexes addObject:regexFrameworkAirPlaySupport];
+    
+    NSString *regexFrameworkCoreUtils = @".*CoreUtils.framework.*";
+    [packageEssentialsRegexes addObject:regexFrameworkCoreUtils];
+    
+    NSString *regexMenuExtraTextInput = @".*TextInput.menu.*";
+    [packageEssentialsRegexes addObject:regexMenuExtraTextInput];
+    
+    NSString *regexMenuExtraBattery = @".*Battery.menu.*";
+    [packageEssentialsRegexes addObject:regexMenuExtraBattery];
+    
+    NSString *regexMenuExtraClock = @".*Clock.menu.*";
+    [packageEssentialsRegexes addObject:regexMenuExtraClock];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+}
+
+- (void)addSystemkeychain:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil )
+        {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexSystemkeychain = @".*/sbin/systemkeychain.*";
+    [packageEssentialsRegexes addObject:regexSystemkeychain];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+}
+
 - (void)addVNC:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -605,6 +685,7 @@
 }
 
 - (void)addARD:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -626,6 +707,7 @@
 }
 
 - (void)addKerberos:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;

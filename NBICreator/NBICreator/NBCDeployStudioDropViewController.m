@@ -14,6 +14,9 @@
 #import "NBCController.h"
 #import "NBCSourceController.h"
 #import "NBCDiskImageController.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @interface NBCDeployStudioDropViewController ()
 
@@ -40,6 +43,7 @@
 }
 
 - (void)viewDidLoad {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [super viewDidLoad];
     
     // --------------------------------------------------------------
@@ -57,6 +61,15 @@
     _sourceDictLinks = [[NSMutableDictionary alloc] init];
     _sourceDictSources = [[NSMutableDictionary alloc] init];
     
+    // ------------------------------------------------------------------------------
+    //  Add contextual menu to NBI source view to allow to show source in Finder.
+    // -------------------------------------------------------------------------------
+    NSMenu *menu = [[NSMenu alloc] init];
+    NSMenuItem *showInFinderMenuItem = [[NSMenuItem alloc] initWithTitle:NBCMenuItemShowInFinder action:@selector(showSourceInFinder) keyEquivalent:@""];
+    [showInFinderMenuItem setTarget:self];
+    [menu addItem:showInFinderMenuItem];
+    [_viewDropView setMenu:menu];
+    
     // --------------------------------------------------------------
     //  Get all Installers and update the source list
     // --------------------------------------------------------------
@@ -64,17 +77,56 @@
     
 } // viewDidLoad
 
+- (void)showSourceInFinder {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    if ( _source ) {
+        NSURL *sourceURL;
+        
+        id source = _sourceDictLinks[_selectedSource];
+        if ( [source isKindOfClass:[NSURL class]] ) {
+            sourceURL = source;
+        } else if ( [source isKindOfClass:[NBCDisk class]] ) {
+            sourceURL = [source volumeURL];
+        }
+        
+        if ( [sourceURL checkResourceIsReachableAndReturnError:nil] ) {
+            NSArray *fileURLs = @[ sourceURL ];
+            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+        }
+    }
+} // showSourceInFinder
+
+#pragma mark -
+#pragma mark Delegate Methods PopUpButton
+#pragma mark -
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    BOOL retval = YES;
+    
+    if ( [[menuItem title] isEqualToString:NBCMenuItemShowInFinder] ) {
+        if ( ! _source  ) {
+            retval = NO;
+        }
+        return retval;
+    }
+    
+    return YES;
+} // validateMenuItem
+
 #pragma mark -
 #pragma mark Notification Methods
 #pragma mark -
 
 - (void)updateSourceList:(NSNotification *)notification {
     #pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self updatePopUpButtonSource];
     
 } // updateSourceList
 
 - (void)verifyDroppedSource:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *sourceURL = [notification userInfo][NBCNotificationVerifyDroppedSourceUserInfoSourceURL];
     [self verifyDiskImage:sourceURL];
     
@@ -85,6 +137,7 @@
 #pragma mark -
 
 - (void)updateSourceInfo:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDisk *sourceSystemDisk = [source systemDisk];
     NSString *sourceType = [source sourceType];
     NSString *systemOSVersion = [source systemOSVersion];
@@ -156,6 +209,7 @@
 } // updateSourceInfo
 
 - (void)updateRecoveryMismatchInfo:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *systemOSVersion = [source systemOSVersion];
     NSString *systemOSBuild = [source systemOSBuild];
     NSString *baseSystemOSVersion = [source baseSystemOSVersion];
@@ -219,6 +273,7 @@
 #pragma mark -
 
 - (void)showProgress {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Hide and Resize Source PopUpButton
     // ------------------------------------------------------
@@ -254,6 +309,7 @@
 } // showProgress
 
 - (void)showSource {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Resize Source PopUpButton
     // ------------------------------------------------------
@@ -293,6 +349,7 @@
 } // showSource
 
 - (void)showRecoveryVersionMismatch {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Resize Source PopUpButton
     // ------------------------------------------------------
@@ -337,6 +394,7 @@
 } // showRecoveryVersionMismatch
 
 - (void)restoreDropView {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Resize Source PopUpButton
     // ------------------------------------------------------
@@ -389,6 +447,7 @@
 #pragma mark -
 
 - (IBAction)popUpButtonSource:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setSelectedSource:[[sender selectedItem] title]];
     
     // --------------------------------------------------------------------------------------------
@@ -419,13 +478,14 @@
 } // popUpButtonSource
 
 - (void)updatePopUpButtonSource {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_popUpButtonSource removeAllItems];
     [_popUpButtonSource addItemWithTitle:NBCMenuItemNoSelection];
     
     // --------------------------------------------------------------
     //  Add all mounted OS X disks to source popUpButton
     // --------------------------------------------------------------
-    NSSet *currentDisks = [NBCController currentDisks];
+    NSSet *currentDisks = [[NBCController currentDisks] copy];
     for ( NBCDisk *disk in currentDisks ) {
         NSString *volumeName = [disk volumeName];
         if (
@@ -468,6 +528,7 @@
 } // updatePopUpButtonSource
 
 - (void)selecteSourceInPupUpButton:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Update source menu to include the newly mounted disk
     // ------------------------------------------------------
@@ -490,6 +551,7 @@
 } // addSourceToPopUpButton
 
 - (void)verifyPopUpButtonSelection:(NBCDisk *)disk {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *diskVolumeURL = [disk volumeURL];
     NSString *deviceModel = [disk deviceModel];
     if ([deviceModel isEqualToString:NBCDiskDeviceModelDiskImage]) {
@@ -503,7 +565,7 @@
             if ( [disk isMounted] ) {
                 [self verifyDisk:disk];
             } else {
-                NSLog(@"Could not mount disk!");
+                DDLogError(@"Could not mount disk named: %@", [disk volumeName]);
             }
         }
     }
@@ -514,6 +576,7 @@
 #pragma mark -
 
 - (void)verifyDisk:(NBCDisk *)systemDisk {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Disable build button while checking new source
     // ------------------------------------------------------
@@ -551,16 +614,16 @@
                 if ( verified ) {
                     verified = [sourceController verifyBaseSystemFromSource:newSource error:&error];
                     if ( ! verified ) {
-                        NSLog(@"BaseSystem Verify Failed!");
-                        NSLog(@"BaseSystem Error: %@", error);
+                        DDLogError(@"Could not verify BaseSystem!");
+                        DDLogError(@"Error: %@", error);
                     }
                 } else {
-                    NSLog(@"RecoveryPartition Verify Failed!");
-                    NSLog(@"RecoveryPartition Error: %@", error);
+                    DDLogError(@"Could not verify Recovery Partition!");
+                    DDLogError(@"Error: %@", error);
                 }
             } else if ( ! verified ) {
-                NSLog(@"System Verify Failed!");
-                NSLog(@"System Error: %@", error);
+                DDLogError(@"Could not verify System!");
+                DDLogError(@"Error: %@", error);
             }
             
             if ( verified ) {
@@ -585,6 +648,7 @@
 } // verifyDisk
 
 - (void)verifyDiskImage:(NSURL *)diskImageURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Disable build button while checking new source
     // ------------------------------------------------------
@@ -682,6 +746,7 @@
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *draggedFileURL = [self getDraggedSourceURLFromPasteboard:[sender draggingPasteboard]];
     if ( draggedFileURL ) {
         NSDictionary * userInfo = @{ NBCNotificationVerifyDroppedSourceUserInfoSourceURL : draggedFileURL };

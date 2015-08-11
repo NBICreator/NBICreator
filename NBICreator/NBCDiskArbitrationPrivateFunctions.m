@@ -54,7 +54,7 @@ BOOL NBCDiskValidate(DADiskRef diskRef) {
     //		return NO;
     
     CFDictionaryRef desc = DADiskCopyDescription(diskRef);
-    	//CFShow(desc);
+    //CFShow(desc);
     
     // Reject if no key-value for Whole Media
     CFBooleanRef wholeMediaValue = CFDictionaryGetValue(desc, kDADiskDescriptionMediaWholeKey);
@@ -75,7 +75,7 @@ void DiskAppearedCallback(DADiskRef diskRef, void *context) {
     
     if (NBCDiskValidate(diskRef))
     {
-       NBCDisk *disk = [NBCDisk uniqueDiskForDADisk:diskRef create:YES];
+        NBCDisk *disk = [NBCDisk uniqueDiskForDADisk:diskRef create:YES];
         [[NSNotificationCenter defaultCenter] postNotificationName:DADiskDidAppearNotification object:disk];
     }
 }
@@ -93,8 +93,8 @@ void DiskDisappearedCallback(DADiskRef diskRef, void *context) {
 void DiskDescriptionChangedCallback(DADiskRef diskRef, CFArrayRef keys, void *context) {
 #pragma unused(keys)
     if (context != (__bridge void *)([NBCDisk class])) return;
-
-    NSSet *uniqueDisksCopy = uniqueDisks;
+    
+    NSSet *uniqueDisksCopy = [uniqueDisks copy];
     for ( NBCDisk *disk in uniqueDisksCopy ) {
         if ( CFHash(diskRef) == [disk hash] ) {
             CFDictionaryRef desc = DADiskCopyDescription(diskRef);
@@ -104,11 +104,10 @@ void DiskDescriptionChangedCallback(DADiskRef diskRef, CFArrayRef keys, void *co
             [[NSNotificationCenter defaultCenter] postNotificationName:DADiskDidChangeNotification object:disk];
         }
     }
-    //CFRelease(diskRef);
 }
 
 void DiskMountCallback(DADiskRef diskRef, DADissenterRef dissenter, void *context) {
-    #pragma unused(diskRef)
+#pragma unused(diskRef)
     //	Disk *disk = (Disk *)context;
     NSMutableDictionary *info = nil;
     
@@ -130,7 +129,7 @@ void DiskMountCallback(DADiskRef diskRef, DADissenterRef dissenter, void *contex
 }
 
 void DiskUnmountCallback(DADiskRef diskRef, DADissenterRef dissenter, void *context) {
-    #pragma unused(diskRef)
+#pragma unused(diskRef)
     NSDictionary *info = nil;
     
     if (dissenter) {
@@ -151,7 +150,7 @@ void DiskUnmountCallback(DADiskRef diskRef, DADissenterRef dissenter, void *cont
 }
 
 void DiskEjectCallback(DADiskRef diskRef, DADissenterRef dissenter, void *context) {
-    #pragma unused(diskRef)
+#pragma unused(diskRef)
     NSDictionary *info = nil;
     
     if (dissenter) {

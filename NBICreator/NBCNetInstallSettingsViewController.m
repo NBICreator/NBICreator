@@ -16,6 +16,9 @@
 #import "NBCNetInstallWorkflowNBI.h"
 #import "NBCNetInstallWorkflowResources.h"
 #import "NBCNetInstallWorkflowModifyNBI.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCNetInstallSettingsViewController
 
@@ -36,6 +39,7 @@
 }
 
 - (void)viewDidLoad {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [super viewDidLoad];
     
     // --------------------------------------------------------------
@@ -102,6 +106,7 @@
 #pragma mark -
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
     if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalIcon] ) {
@@ -122,7 +127,7 @@
 #pragma mark -
 
 - (void)controlTextDidChange:(NSNotification *)sender {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // --------------------------------------------------------------------
     //  Expand variables for the NBI preview text fields
     // --------------------------------------------------------------------
@@ -173,6 +178,7 @@
 #pragma mark -
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsWarning] ) {
         if ( returnCode == NSAlertSecondButtonReturn ) {        // Continue
@@ -207,6 +213,7 @@
 #pragma mark -
 
 - (void)updateSource:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
         _source = source;
@@ -218,6 +225,7 @@
 
 - (void)removedSource:(NSNotification *)notification {
 #pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( _source ) {
         _source = nil;
     }
@@ -226,6 +234,7 @@
 } // removedSource
 
 - (void)updateNBIIcon:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *nbiIconURL = [notification userInfo][NBCNotificationUpdateNBIIconUserInfoIconURL];
     if ( nbiIconURL != nil ) {
         // To get the view to update I have to first set the nbiIcon property to @""
@@ -237,6 +246,7 @@
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setNbiIconPath:NBCFilePathNBIIconNetInstall];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
@@ -247,6 +257,7 @@
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ([keyPath isEqualToString:NBCUserDefaultsIndexCounter]) {
         NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_siuSource];
         [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
@@ -258,6 +269,7 @@
 #pragma mark -
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setNbiName:settingsDict[NBCSettingsNBIName]];
     [self setNbiIndex:settingsDict[NBCSettingsNBIIndex]];
     [self setNbiProtocol:settingsDict[NBCSettingsNBIProtocol]];
@@ -271,8 +283,8 @@
     [self expandVariablesForCurrentSettings];
 } // updateUISettingsFromDict
 
-- (void)updateUISettingsFromURL:(NSURL *)url
-{
+- (void)updateUISettingsFromURL:(NSURL *)url {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     if ( mainDict ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
@@ -287,6 +299,7 @@
 } // updateUISettingsFromURL
 
 - (NSDictionary *)returnSettingsFromUI {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
     settingsDict[NBCSettingsNBIName] = _nbiName ?: @"";
@@ -310,6 +323,7 @@
 } // returnSettingsFromUI
 
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     NSDictionary *settingsDict;
     if ( mainDict ) {
@@ -320,6 +334,7 @@
 } // returnSettingsFromURL
 
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)url {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *settingsURL = url;
     // -------------------------------------------------------------
     //  Create an empty dict and add template type, name and version
@@ -367,6 +382,7 @@
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCSettingsTypeNetInstallDefaultSettings withExtension:@"plist"];
@@ -406,6 +422,7 @@
 } // haveSettingsChanged
 
 - (void)expandVariablesForCurrentSettings {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // -------------------------------------------------------------
     //  Expand tilde in destination folder path
     // -------------------------------------------------------------
@@ -446,6 +463,7 @@
 
 - (IBAction)buttonChooseDestinationFolder:(id)sender {
 #pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
@@ -473,6 +491,7 @@
 #pragma mark -
 
 - (IBAction)popUpButtonTemplates:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *selectedTemplate = [[sender selectedItem] title];
     BOOL settingsChanged = [self haveSettingsChanged];
     
@@ -496,6 +515,7 @@
 
 
 - (IBAction)buttonPopOver:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 }
 
@@ -504,7 +524,7 @@
 #pragma mark -
 
 - (void)verifyBuildButton {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL buildEnabled = YES;
     
     // -------------------------------------------------------------
@@ -534,6 +554,7 @@
 #pragma mark -
 
 - (void)buildNBI {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeNetInstall];
     [workflowItem setSource:_source];
     [workflowItem setApplicationSource:_siuSource];
@@ -549,7 +570,7 @@
         [workflowItem setUserSettings:userSettings];
         
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
-        NSDictionary *errorInfoDict = [sc verifySettingsNetInstall:workflowItem];
+        NSDictionary *errorInfoDict = [sc verifySettings:workflowItem];
         if ( [errorInfoDict count] != 0 ) {
             BOOL configurationError = NO;
             BOOL configurationWarning = NO;
@@ -599,6 +620,7 @@
 } // buildNBI
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------------------
     //  Instantiate all workflows to be used to create a NetInstall NBI
     // ------------------------------------------------------------------

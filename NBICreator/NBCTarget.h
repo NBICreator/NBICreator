@@ -19,6 +19,10 @@
 
 @property NSURL *nbiURL;
 @property BOOL imagrApplicationExistOnTarget;
+@property NSURL *imagrApplicationURL;
+@property NSURL *imagrConfigurationPlistURL;
+@property NSURL *rcImagingURL;
+@property NSString *rcImagingContent;
 
 // Source NBI NetInstall
 @property NBCDisk *nbiNetInstallDisk;

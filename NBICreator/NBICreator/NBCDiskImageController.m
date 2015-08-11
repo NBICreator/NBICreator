@@ -14,10 +14,14 @@
 #import <DiskArbitration/DiskArbitration.h>
 #import "NSString+randomString.h"
 #import "NBCController.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCDiskImageController
 
 + (BOOL)attachDiskImageAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     NSData *newTaskOutputData;
     NSMutableDictionary *errorInfo;
@@ -73,6 +77,7 @@
 } // attachDiskImageAndReturnPropertyList
 
 + (BOOL)attachDiskImageVolumeByOffsetAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options offset:(NSString *)offset error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     NSData *newTaskOutputData;
     NSMutableDictionary *errorInfo;
@@ -132,6 +137,7 @@
 } // attachDiskImageAndReturnPropertyList
 
 + (BOOL)mountDiskImageVolumeByDeviceAndReturnMountURL:(id *)mountURL deviceName:(NSString *)devName error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     NSData *newTaskOutputData;
     NSMutableDictionary *errorInfo;
@@ -192,6 +198,7 @@
 } // attachDiskImageAndReturnPropertyList
 
 + (BOOL)mountAtPath:(NSString *)path withArguments:(NSArray *)args forDisk:(NSString *)diskID {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DASessionRef session = NULL;
     session = DASessionCreate(kCFAllocatorDefault);
     if (!session) {
@@ -223,6 +230,7 @@
 }
 
 + (BOOL)detachDiskImageAtPath:(NSString *)mountPath {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
     // Setup Task
@@ -263,6 +271,7 @@
 } // detachDiskImageAtPath
 
 + (BOOL)detachDiskImageDevice:(NSString *)devName {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
     // Setup Task
@@ -305,6 +314,7 @@
 } // detachDiskImageDevice
 
 + (BOOL)unmountVolumeAtPath:(NSString *)mountPath {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
     // Setup Task
@@ -325,7 +335,7 @@
         [args addObject:@"-force"];
         
         int maxTries;
-        for( maxTries = 1; maxTries < 5; maxTries = maxTries + 1 ) {
+        for ( maxTries = 1; maxTries < 5; maxTries = maxTries + 1 ) {
             NSTask *forceTask =  [[NSTask alloc] init];
             [forceTask setLaunchPath:@"/usr/bin/hdiutil"];
             [forceTask setArguments:args];
@@ -344,9 +354,54 @@
     return retval;
 } // unmountVolumeAtPath
 
-+ (BOOL)convertDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath {
++ (BOOL)compactDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Compacting disk image...");
     BOOL retval = NO;
-    NSData *newTaskOutputData;
+    
+    NSTask *newTask =  [[NSTask alloc] init];
+    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+    
+    NSArray *args = @[
+                      @"compact", diskImagePath,
+                      @"-shadow", shadowImagePath,
+                      @"-batteryallowed",
+                      @"-puppetstrings",
+                      @"-plist"
+                      ];
+    
+    [newTask setArguments:args];
+    [newTask setStandardOutput:[NSPipe pipe]];
+    [newTask setStandardError:[NSPipe pipe]];
+    
+    // Launch Task
+    [newTask launch];
+    [newTask waitUntilExit];
+    
+    NSData *newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+    NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
+    
+    NSLog(@"standardOutput=%@", standardOutput);
+    
+    NSData *newTaskErrorData = [[newTask.standardError fileHandleForReading] readDataToEndOfFile];
+    NSString *standardError = [[NSString alloc] initWithData:newTaskErrorData encoding:NSUTF8StringEncoding];
+    
+    if ( [newTask terminationStatus] == 0 ) {
+        retval = YES;
+    } else {
+        DDLogError(@"[ERROR] Disk image conversion failed!");
+        DDLogError(@"[ERROR] %@", standardError);
+        retval = NO;
+    }
+    
+    return retval;
+}
+
++ (BOOL)convertDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Converting disk image and shadow file to sparsimage...");
+    BOOL retval = NO;
+    //NSData *newTaskOutputData;
     NSData *newTaskErrorData;
     
     NSTask *newTask =  [[NSTask alloc] init];
@@ -358,7 +413,7 @@
                      @"-shadow", shadowImagePath,
                      @"-o", [diskImagePath stringByDeletingPathExtension],
                      ];
-    NSLog(@"args=%@", args);
+
     [newTask setArguments:args];
     [newTask setStandardOutput:[NSPipe pipe]];
     [newTask setStandardError:[NSPipe pipe]];
@@ -367,21 +422,17 @@
     [newTask launch];
     [newTask waitUntilExit];
     
-    newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-    NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
+    //newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+    //NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
     
     newTaskErrorData = [[newTask.standardError fileHandleForReading] readDataToEndOfFile];
-    NSString *standardError = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
-    
-    NSLog(@"standardOutput=%@", standardOutput);
-    NSLog(@"standardError=%@", standardError);
+    NSString *standardError = [[NSString alloc] initWithData:newTaskErrorData encoding:NSUTF8StringEncoding];
     
     if ( [newTask terminationStatus] == 0 ) {
-        
         retval = YES;
     } else {
-        NSLog(@"Error while converting disk image!");
-        
+        DDLogError(@"[ERROR] Disk image conversion failed!");
+        DDLogError(@"[ERROR] %@", standardError);
         retval = NO;
     }
     
@@ -389,9 +440,11 @@
 } // convertDiskImageAtPath:shadowImagePath
 
 + (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Resizing disk image using shadow file...");
     BOOL retval = NO;
     
-    NSData *newTaskOutputData;
+    //NSData *newTaskOutputData;
     NSData *newTaskErrorData;
     
     NSTask *newTask =  [[NSTask alloc] init];
@@ -412,21 +465,17 @@
     [newTask launch];
     [newTask waitUntilExit];
     
-    newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-    NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
+    //newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+    //NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
     
     newTaskErrorData = [[newTask.standardError fileHandleForReading] readDataToEndOfFile];
-    NSString *standardError = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
-    
-    NSLog(@"standardOutput=%@", standardOutput);
-    NSLog(@"standardError=%@", standardError);
+    NSString *standardError = [[NSString alloc] initWithData:newTaskErrorData encoding:NSUTF8StringEncoding];
     
     if ( [newTask terminationStatus] == 0 ) {
-        
         retval = YES;
     } else {
-        NSLog(@"Error while resizing disk image!");
-        
+        DDLogError(@"[ERROR] Disk image resize failed!");
+        DDLogError(@"[ERROR] %@", standardError);
         retval = NO;
     }
     
@@ -434,6 +483,7 @@
 }
 
 + (BOOL)getOffsetForRecoveryPartitionOnImageDevice:(id *)offset diskIdentifier:(NSString *)diskIdentifier {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = NO;
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/usr/bin/hdiutil"];
@@ -473,6 +523,7 @@
 } // getOffsetForRecoveryPartitionOnImageDevice
 
 + (NSURL *)getMountURLFromHdiutilOutputPropertyList:(NSDictionary *)propertyList {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *mountURL;
     NSArray *systemEntities = [propertyList[@"system-entities"] copy];
     for (NSDictionary *dict in systemEntities) {
@@ -485,6 +536,7 @@
 } // getMountURLFromHdiutilOutputPropertyList
 
 + (NSString *)getRecoveryPartitionIdentifierFromHdiutilOutputPropertyList:(NSDictionary *)propertyList {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *recoveryPartitionIdentifier;
     NSArray *systemEntities = [propertyList[@"system-entities"] copy];
     for (NSDictionary *dict in systemEntities)
@@ -499,6 +551,7 @@
 }
 
 + (NSString *)getRecoveryPartitionIdentifierFromVolumeMountURL:(NSURL *)mountURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *recoveryPartitionIdentifier;
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/bin/bash"];
@@ -526,6 +579,7 @@
 }
 
 + (NSDictionary *)getHdiutilInfoDict {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *hdiutilDict;
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/bin/bash"];
@@ -553,6 +607,7 @@
 }
 
 + (NSURL *)getDiskImageURLFromMountURL:(NSURL *)mountURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *diskImageURL;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
     for (NSDictionary *image in hdiutilDict[@"images"]) {
@@ -574,6 +629,7 @@
 
 
 + (NBCDisk *)getBaseSystemDiskFromDiskImageURL:(NSURL *)diskImageURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDisk *disk;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
     for ( NSDictionary *image in hdiutilDict[@"images"] ) {
@@ -593,6 +649,7 @@
 }
 
 + (NBCDisk *)checkDiskImageAlreadyMounted:(NSURL *)diskImageURL imageType:(NSString *)imageType {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDisk *disk;
     NSString *partitionHint;
     if (

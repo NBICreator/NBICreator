@@ -10,15 +10,20 @@
 
 @class NBCTargetController;
 @class NBCWorkflowItem;
-@class NBCWorkflowProgressViewController;
+
+@protocol NBCNetInstallWorkflowModifyNBIDelegate
+- (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;
+- (void)updateProgressBar:(double)value;
+@end
 
 @interface NBCNetInstallWorkflowModifyNBI : NSObject
+
+@property id delegate;
 
 // ------------------------------------------------------
 //  Class Instance Properties
 // ------------------------------------------------------
 @property NBCTargetController *targetController;
-@property NBCWorkflowProgressViewController *progressView;
 @property NBCWorkflowItem *workflowItem;
 
 // ------------------------------------------------------

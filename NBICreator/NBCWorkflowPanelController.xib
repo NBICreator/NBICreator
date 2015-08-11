@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
     </dependencies>
@@ -7,34 +7,34 @@
         <customObject id="-2" userLabel="File's Owner" customClass="NBCWorkflowPanelController">
             <connections>
                 <outlet property="stackView" destination="OtI-xb-hRg" id="gPD-F0-kVc"/>
-                <outlet property="window" destination="1gE-Ue-pa1" id="Cqb-e3-fYD"/>
+                <outlet property="window" destination="F00-Ef-V42" id="rYt-cp-dHG"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hidesOnDeactivate="YES" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="1gE-Ue-pa1" customClass="NSPanel">
-            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" utility="YES"/>
-            <rect key="contentRect" x="139" y="81" width="497" height="141"/>
+        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="F00-Ef-V42">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
+            <rect key="contentRect" x="283" y="305" width="497" height="141"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
-            <view key="contentView" id="5VA-ud-Lun">
-                <rect key="frame" x="0.0" y="0.0" width="497" height="141"/>
-                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <view key="contentView" id="XRq-w8-dxD">
+                <rect key="frame" x="0.0" y="5" width="497" height="141"/>
+                <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <stackView orientation="vertical" alignment="centerX" horizontalHuggingPriority="249" verticalHuggingPriority="249" translatesAutoresizingMaskIntoConstraints="NO" id="OtI-xb-hRg">
                         <rect key="frame" x="0.0" y="0.0" width="497" height="141"/>
                     </stackView>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="bottom" secondItem="OtI-xb-hRg" secondAttribute="bottom" id="fEv-hC-C2f"/>
-                    <constraint firstItem="OtI-xb-hRg" firstAttribute="leading" secondItem="5VA-ud-Lun" secondAttribute="leading" id="opA-8m-Sw3"/>
-                    <constraint firstItem="OtI-xb-hRg" firstAttribute="top" secondItem="5VA-ud-Lun" secondAttribute="top" id="qqh-7c-vkQ"/>
-                    <constraint firstAttribute="trailing" secondItem="OtI-xb-hRg" secondAttribute="trailing" id="sf8-kc-YP7"/>
+                    <constraint firstAttribute="bottom" secondItem="OtI-xb-hRg" secondAttribute="bottom" id="AWv-1e-XWg"/>
+                    <constraint firstItem="OtI-xb-hRg" firstAttribute="leading" secondItem="XRq-w8-dxD" secondAttribute="leading" id="Oqk-NM-mPt"/>
+                    <constraint firstAttribute="trailing" secondItem="OtI-xb-hRg" secondAttribute="trailing" id="SHV-6Z-IyZ"/>
+                    <constraint firstItem="OtI-xb-hRg" firstAttribute="top" secondItem="XRq-w8-dxD" secondAttribute="top" id="Xfy-L4-W45"/>
                 </constraints>
             </view>
             <connections>
-                <outlet property="delegate" destination="-2" id="1ae-cd-Zy1"/>
+                <outlet property="delegate" destination="-2" id="CTH-Xc-xuj"/>
             </connections>
-            <point key="canvasLocation" x="251.5" y="440.5"/>
+            <point key="canvasLocation" x="302.5" y="507.5"/>
         </window>
     </objects>
 </document>

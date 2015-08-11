@@ -9,6 +9,9 @@
 #import "NBCDeployStudioSource.h"
 
 #import "NBCSource.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCDeployStudioSource
 
@@ -35,7 +38,7 @@
 }
 
 - (NSArray *)deployStudioApplicationURLs {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *deployStudioApplicationURLs = [[NSMutableArray alloc] init];
     
     [deployStudioApplicationURLs addObjectsFromArray:(__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.deploystudio.admin"), NULL))];
@@ -44,6 +47,7 @@
 }
 
 - (void)getDeployStudioURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *error;
     NSArray *deployStudioApplicationURLs = [self deployStudioApplicationURLs];
     
@@ -62,6 +66,7 @@
 }
 
 - (void)deployStudioResourcesFromAdminURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setDeployStudioAdminVersion:[[NSBundle bundleWithURL:_deployStudioAdminURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
     if ( ! [_deployStudioVersionsSupported containsObject:_deployStudioAdminVersion] ) {
         [self setIsSupported:NO];
@@ -87,6 +92,7 @@
 }
 
 - (void)updateSource:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCSource *source = [notification userInfo][@"currentSource"];
     NSString *variableString = @"%OSMAJOR%.%OSMINOR%";
     if ( source != nil ) {
@@ -95,6 +101,7 @@
 }
 
 - (NSString *)expandVariables:(NSString *)string {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *newString = string;
     NSString *variableDSVersion = @"%DSVERSION%";
     NSString *variableDSAdmin = @"%DSADMINURL%";
@@ -127,6 +134,7 @@
 }
 
 + (NSArray *)deployStudioAdminVersions {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSArray *versions;
     return versions;
 }

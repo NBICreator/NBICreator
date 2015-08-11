@@ -43,6 +43,8 @@
 // ------------------------------------------------------
 //  Prepare Workflow
 // ------------------------------------------------------
+- (void)addSystemUIServer:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
+- (void)addSystemkeychain:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addPython:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addNTP:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addVNC:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;

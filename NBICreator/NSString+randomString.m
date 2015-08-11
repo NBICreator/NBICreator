@@ -7,10 +7,14 @@
 //
 
 #import "NSString+randomString.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NSString (NBCrandomString)
 
 + (NSString*)nbc_randomString {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     NSMutableString *randomString = [NSMutableString stringWithCapacity:6];
     for (int i=0; i<6; i++) {

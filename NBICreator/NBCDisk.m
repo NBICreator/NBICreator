@@ -106,12 +106,22 @@
 
 - (NSUInteger)hash
 {
-    return CFHash(_disk);
+    if ( _disk != nil ) {
+        return CFHash(_disk);
+    } else {
+        NSLog(@"***** DISK IS NULL *****");
+        return 0;
+    }
 }
 
 - (BOOL)isEqual:(id)object
 {
-    return (CFHash(_disk) == [object hash]);
+    if ( _disk != nil ) {
+        return (CFHash(_disk) == [object hash]);
+    } else {
+        NSLog(@"***** DISK IS NULL *****");
+        return NO;
+    }
 }
 
 - (NSString *)description
@@ -128,7 +138,7 @@
 {
     NSAssert(self.isMountable, @"Disk isn't mountable.");
     NSAssert(self.isMounted == NO, @"Disk is already mounted.");
-
+    
     self.isMounting = YES;
     
     // ensure arg list is NULL terminated

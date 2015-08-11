@@ -9,6 +9,9 @@
 #import "NBCDownloaderPython.h"
 
 #import "TFHpple.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCDownloaderPython
 
@@ -21,6 +24,7 @@
 }
 
 - (void)getReleaseVersionsAndURLsFromPythonRepository:(NSString *)repositoryURL downloadInfo:(NSDictionary *)downloadInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *pythonUrl = [NSURL URLWithString:repositoryURL];
         
     NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
@@ -28,6 +32,7 @@
 }
 
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *releaseVersions = [[NSMutableArray alloc] init];
     NSMutableDictionary *releaseVersionsURLsDict = [[NSMutableDictionary alloc] init];
     NSString *versionNumber;
@@ -50,6 +55,7 @@
 }
 
 - (NSArray *)parseDownloadData:(NSData *)data {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *pythonDownloadURLs = [[NSMutableArray alloc] init];
     NSString *childElementText;
     

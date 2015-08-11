@@ -17,6 +17,11 @@
 #include <stdlib.h>
 #include <xar/xar.h>
 #include "lzma.h"
+
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
+
 @implementation NBCInstallerPackageController
 
 - (id)initWithDelegate:(id<NBCInstallerPackageDelegate>)delegate {
@@ -27,8 +32,49 @@
     return self;
 }
 
-- (BOOL)installPackageOnTargetVolume:(NSURL *)volumeURL packageURL:(NSURL *)packageURL choiceChangesXML:(NSDictionary *)choiceChangesXML error:(NSError **)retError {
-#pragma unused(retError)
+- (void)installPackagesToVolume:(NSURL *)volumeURL packages:(NSArray *)packages {
+    NSLog(@"installPackagesToVolume");
+    NSLog(@"volumeURL=%@", volumeURL);
+    NSLog(@"packages=%@", packages);
+    if ( [packages count] != 0 ) {
+        [self setVolumeURL:volumeURL];
+        _packagesQueue = [[NSMutableArray alloc] initWithArray:packages];
+        [self runPackageQueue];
+    }
+}
+
+- (void)installSuccessfulForPackage:(NSURL *)packageURL {
+    DDLogInfo(@"%@ installed successfully!", [packageURL lastPathComponent]);
+    [_packagesQueue removeObjectAtIndex:0];
+    [self runPackageQueue];
+}
+
+- (void)runPackageQueue {
+    NSLog(@"runPackageQueue");
+    if ( [_packagesQueue count] != 0 ) {
+        NSDictionary *packageDict = [_packagesQueue firstObject];
+        NSLog(@"packageDict=%@", packageDict);
+        if ( [packageDict count] != 0 ) {
+            NSString *packageName = packageDict[NBCWorkflowInstallerName];
+            NSLog(@"packageName=%@", packageName);
+            NSString *packageSourcePath = packageDict[NBCWorkflowInstallerSourceURL];
+            NSLog(@"packageSourcePath=%@", packageSourcePath);
+            if ( [packageSourcePath length] != 0 ) {
+                NSURL *packageURL = [NSURL fileURLWithPath:packageSourcePath];
+                NSLog(@"packageURL=%@", packageURL);
+                NSDictionary *packageChoiceChangeXML = packageDict[NBCWorkflowInstallerChoiceChangeXML];
+                NSLog(@"packageChoiceChangeXML=%@", packageChoiceChangeXML);
+                //[_delegate updateProgressStatus:[NSString stringWithFormat:@"Installing %@ to BaseSystem.dmg...", packageName] workflow:self];
+                [self installPackageOnTargetVolume:_volumeURL packageURL:packageURL choiceChangesXML:packageChoiceChangeXML];
+            }
+        }
+    } else {
+        [_delegate installSuccessful];
+    }
+}
+
+- (void)installPackageOnTargetVolume:(NSURL *)volumeURL packageURL:(NSURL *)packageURL choiceChangesXML:(NSDictionary *)choiceChangesXML {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSLog(@"installPackageOnTargetVolume");
     BOOL verified = YES;
     
@@ -122,20 +168,17 @@
         if ( terminationStatus == 0 ) {
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            [self->_delegate installSuccessful];
+            [self installSuccessfulForPackage:packageURL];
+            
         } else {
             NSLog(@"Pkg install failed!");
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            [self->_delegate installFailed];
+            if ( [self->_delegate respondsToSelector:@selector(installFailed)] ) {
+                [self->_delegate installFailed];
+            }
         }
-        
-        NSLog(@"Block Finished!");
     }];
-    
-    NSLog(@"Function Return!");
-    
-    return verified;
 }
 
 /*

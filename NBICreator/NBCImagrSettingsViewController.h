@@ -19,7 +19,12 @@
 #import "NBCDownloaderGitHub.h"
 #import "NBCWorkflowResourcesController.h"
 
-@interface NBCImagrSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate>
+#define BasicTableViewDragAndDropDataType @"BasicTableViewDragAndDropDataType"
+
+@interface NBCImagrSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate>
+
+@property NSMutableArray *certificateTableViewContents;
+@property NSMutableArray *packagesTableViewContents;
 
 // ------------------------------------------------------
 //  Constraints
@@ -98,6 +103,22 @@
 @property (weak) IBOutlet NSSecureTextField *secureTextFieldARDPassword;
 @property (weak) IBOutlet NSTextField *textFieldNetworkTimeServer;
 
+// ------------------------------------------------------
+//  TabView Extras
+// ------------------------------------------------------
+@property (weak) IBOutlet NSTableView *tableViewCertificates;
+@property (weak) IBOutlet NSTableView *tableViewPackages;
+@property (weak) IBOutlet NSButton *buttonAddCertificate;
+- (IBAction)buttonAddCertificate:(id)sender;
+@property (weak) IBOutlet NSButton *buttonRemoveCertificate;
+- (IBAction)buttonRemoveCertificate:(id)sender;
+
+@property (weak) IBOutlet NSButton *buttonAddPackage;
+- (IBAction)buttonAddPackage:(id)sender;
+@property (weak) IBOutlet NSButton *buttonRemovePackage;
+- (IBAction)buttonRemovePackage:(id)sender;
+
+
 
 // ------------------------------------------------------
 //  UI Binding Properties
@@ -120,6 +141,7 @@
 
 @property BOOL disableWiFi;
 @property BOOL displaySleep;
+@property BOOL includeSystemUIServer;
 @property NSString *displaySleepMinutes;
 @property NSString *ardLogin;
 @property NSString *ardPassword;

@@ -13,7 +13,14 @@
 #import "NBCWorkflowItem.h"
 #import "NBCTarget.h"
 
+@protocol NBCDeployStudioWorkflowResourcesDelegate
+- (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;
+- (void)updateProgressBar:(double)value;
+@end
+
 @interface NBCDeployStudioWorkflowResources : NSObject
+
+@property id delegate;
 
 // ------------------------------------------------------
 //  Class Instance Properties

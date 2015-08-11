@@ -8,6 +8,9 @@
 
 #import "NBCDownloaderGitHub.h"
 #import "NBCConstants.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCDownloaderGitHub
 
@@ -20,6 +23,7 @@
 }
 
 - (void)getReleaseVersionsAndURLsFromGithubRepository:(NSString *)repository downloadInfo:(NSDictionary *)downloadInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *githubURL = [NSString stringWithFormat:@"https://api.github.com/repos/%@/releases", repository];
     
     NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
@@ -27,6 +31,7 @@
 }
 
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *releaseVersions = [[NSMutableArray alloc] init];
     NSMutableDictionary *releaseVersionsURLsDict = [[NSMutableDictionary alloc] init];
     
@@ -46,6 +51,7 @@
 }
 
 - (NSArray *)convertJSONDataToArray:(NSData *)data {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( data != nil ) {
         NSError *error;
         

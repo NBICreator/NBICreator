@@ -15,6 +15,6 @@
 - (NSArray *)generateScriptArgumentsForCreateNetInstall:(NBCWorkflowItem *)workflowItem;
 - (NSDictionary *)generateEnvironmentVariablesForCreateNetInstall:(NBCWorkflowItem *)workflowItem;
 - (NSArray *)generateScriptArgumentsForSysBuilder:(NBCWorkflowItem *)workflowItem;
-+ (NSString *)generateImagrRCImagingForNBICreator:(NSDictionary *)settingsDict;
++ (NSString *)generateImagrRCImagingForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion;
 
 @end

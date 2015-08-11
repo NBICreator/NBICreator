@@ -13,6 +13,9 @@
 
 #import "NBCHelperProtocol.h"
 #import "NBCHelperConnection.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCWorkflowResourcesController
 
@@ -29,6 +32,7 @@
 }
 
 - (NSURL *)urlForResourceFolder:(NSString *)resourceFolder {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *resourceFolderURL;
     NSFileManager *fm = [NSFileManager defaultManager];
     
@@ -44,6 +48,7 @@
 }
 
 - (NSArray *)cachedVersionsFromResourceFolder:(NSString *)resourceFolder {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSArray *cachedVersions;
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
     
@@ -61,6 +66,7 @@
 }
 
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *cachedDownloadsDict;
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
     
@@ -70,11 +76,12 @@
             return [[NSDictionary alloc] initWithContentsOfURL:currentDownloadsDictURL];
         }
     }
-
+    
     return cachedDownloadsDict;
 }
 
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *cachedDownloadsDictURL;
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
     
@@ -86,8 +93,8 @@
 }
 
 - (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *cachedVersionURL;
-    
     NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
     
     if ( currentResourcesFolder != nil ) {
@@ -108,8 +115,8 @@
 }
 
 - (NSDictionary *)getCachedSourceItemsDict:(NSString *)buildVersion resourcesFolder:(NSString *)resourcesFolder {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *cachedSourceItemsDict;
-    
     NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
     
     if ( currentResourcesFolder != nil ) {
@@ -126,6 +133,7 @@
 }
 
 - (NSURL *)copyFileToResources:(NSURL *)fileURL resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *destinationURL;
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -162,8 +170,11 @@
         }
         
         if ( [resourceDict writeToURL:resourcesDictURL atomically:YES] ) {
-            if ( ! [fileManager removeItemAtURL:fileURL error:&error] ) {
-                NSLog(@"Could not delete downloaded file!: %@", error);
+            if ( ! [[fileURL path] hasPrefix:@"/Volumes"] ) {
+                if ( ! [fileManager removeItemAtURL:fileURL error:&error] ) {
+                    DDLogWarn(@"Could not delete %@!", [fileURL lastPathComponent]);
+                    DDLogError(@"[ERROR] %@", error);
+                }
             }
         } else {
             NSLog(@"Could Not Write Resource Dict at: %@", resourcesDictURL);
@@ -176,6 +187,7 @@
 }
 
 - (NSURL *)copySourceItemToResources:(NSURL *)fileURL sourceItemPath:(NSString *)sourceItemPath resourcesFolder:(NSString *)resourcesFolder sourceBuild:(NSString *)sourceBuild {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *destinationURL;
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -241,7 +253,7 @@
 }
 
 - (void)copySourceRegexToResources:(NBCWorkflowItem *)workflowItem regexArray:(NSArray *)regexArray packagePath:(NSString *)packagePath sourceFolder:(NSString *)sourceFolder resourcesFolder:(NSString *)resourcesFolder sourceBuild:(NSString *)sourceBuild {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     __block NSString *regexString = @"";
     [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
 #pragma unused(stop)
@@ -251,19 +263,17 @@
         } else {
             regexString = [regexString stringByAppendingString:[NSString stringWithFormat:@" -o -regex '%@'", obj]];
         }
-        NSLog(@"regexString=%@", regexString);
     }];
     
     NSError *err;
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    
     NSURL *resouresFolder = [self urlForResourceFolder:resourcesFolder];
     
     // Create resource folder if it does not exist
     NSString *packageName = [[packagePath lastPathComponent] stringByDeletingPathExtension];
     NSString *resourceFolderPathComponent;
     if ( [packageName length] != 0 && [sourceBuild length] != 0 ) {
-         resourceFolderPathComponent = [NSString stringWithFormat:@"%@/%@", sourceBuild, packageName];
+        resourceFolderPathComponent = [NSString stringWithFormat:@"%@/%@", sourceBuild, packageName];
     } else {
         NSLog(@"Could not get packageName or sourceBuild!");
         return;
@@ -281,7 +291,7 @@
     NSMutableArray *scriptArguments = [NSMutableArray arrayWithObjects:@"-c",
                                        [NSString stringWithFormat:@"/usr/bin/find -E . -depth%@ | /usr/bin/cpio -admp --quiet '%@'", regexString, [resourceFolderPackage path]],
                                        nil];
-
+    
     // ------------------------------------------
     //  Setup command to run createNetInstall.sh
     // ------------------------------------------
@@ -296,24 +306,24 @@
     
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                    object:[stdOut fileHandleForReading]
-                     queue:nil
-                usingBlock:^(NSNotification *notification){
-                                    #pragma unused(notification)
-                    
-                    // ------------------------
-                    //  Convert data to string
-                    // ------------------------
-                    NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
-                    NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                    
-                    // -----------------------------------------------------------------------
-                    //  When output data becomes available, pass it to workflow status parser
-                    // -----------------------------------------------------------------------
-                    NSLog(@"outStr=%@", outStr);
-                    
-                    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-                }];
+                                        object:[stdOut fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
+                                        NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When output data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        NSLog(@"outStr=%@", outStr);
+                                        
+                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
     
     // -----------------------------------------------------------------------------------
     //  Create standard error file handle and register for data available notifications.
@@ -323,23 +333,23 @@
     [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
     
     id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                    object:[stdErr fileHandleForReading]
-                     queue:nil
-                usingBlock:^(NSNotification *notification){
-                                                        #pragma unused(notification)
-                    // ------------------------
-                    //  Convert data to string
-                    // ------------------------
-                    NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                    NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
-                    
-                    // -----------------------------------------------------------------------
-                    //  When error data becomes available, pass it to workflow status parser
-                    // -----------------------------------------------------------------------
-                    NSLog(@"errStr=%@", errStr);
-                    
-                    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-                }];
+                                        object:[stdErr fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
+                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When error data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        NSLog(@"errStr=%@", errStr);
+                                        
+                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
     
     // -----------------------------------------------
     //  Connect to helper and run createNetInstall.sh
@@ -360,7 +370,7 @@
         }];
         
     }] runTaskWithCommandAtPath:commandURL arguments:scriptArguments currentDirectory:sourceFolder stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
-                                            #pragma unused(error)
+#pragma unused(error)
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             
             if ( terminationStatus == 0 )
@@ -385,7 +395,7 @@
 }
 
 - (void)copySourceRegexToResourcesComplete:(NBCWorkflowItem *)workflowItem regexArray:(NSArray *)regexArray packagePath:(NSString *)packagePath resourcesFolder:(NSURL *)resourcesFolder resourceFolderPackage:(NSURL *)resourceFolderPackage sourceBuild:(NSString *)sourceBuild {
-
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *resourcesDictURL = [resourcesFolder URLByAppendingPathComponent:NBCFileResourcesDict];
     NSString *packageName = [[packagePath lastPathComponent] stringByDeletingPathExtension];
     NSMutableDictionary *sourceDict;
@@ -430,38 +440,37 @@
     } else {
         NSLog(@"Don't have write persmissions to folder: %@", [[resourcesDictURL path] stringByDeletingLastPathComponent]);
     }
-
+    
     [_delegate copySourceRegexComplete:workflowItem packagePath:packagePath resourceFolderPackageURL:resourceFolderPackage];
 }
 
 - (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *destinationURL;
     
     NSError *error;
-    NSURL *imagrVolumeURL;
-    NSDictionary *imagrDiskImageDict;
+    NSURL *volumeURL;
+    NSDictionary *diskImageDict;
     NSArray *hdiutilOptions = @[
-                               @"-mountRandom", @"/Volumes",
-                               @"-nobrowse",
-                               @"-noverify",
-                               @"-plist",
-                               ];
+                                @"-mountRandom", @"/Volumes",
+                                @"-nobrowse",
+                                @"-noverify",
+                                @"-plist",
+                                ];
     
-    if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&imagrDiskImageDict
-                                                             dmgPath:diskImageURL
-                                                             options:hdiutilOptions
-                                                               error:&error] ) {
-        if ( imagrDiskImageDict ) {
-            imagrVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:imagrDiskImageDict];
-            NSURL *imagrApplicationURL = [imagrVolumeURL URLByAppendingPathComponent:filePath];
+    if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&diskImageDict
+                                                              dmgPath:diskImageURL
+                                                              options:hdiutilOptions
+                                                                error:&error] ) {
+        if ( diskImageDict ) {
+            volumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:diskImageDict];
+            NSURL *imagrApplicationURL = [volumeURL URLByAppendingPathComponent:filePath];
             destinationURL = [self copyFileToResources:imagrApplicationURL resourcesFolder:resourcesFolder version:version];
-            if ( destinationURL ) {
-                NSLog(@"Copy worked!");
-            } else {
+            if ( ! destinationURL ) {
                 NSLog(@"Copy Failed!");
             }
             
-            if ( [NBCDiskImageController detachDiskImageAtPath:[imagrVolumeURL path]] ) {
+            if ( [NBCDiskImageController detachDiskImageAtPath:[volumeURL path]] ) {
                 NSFileManager *fileManager = [NSFileManager defaultManager];
                 if ( ! [fileManager removeItemAtURL:diskImageURL error:&error] ) {
                     NSLog(@"Removing Disk Image Failed! = %@", error);
@@ -469,7 +478,11 @@
             } else {
                 NSLog(@"Detaching Disk Image Failed!");
             }
+        } else {
+            NSLog(@"Got no DiskImageDict!");
         }
+    } else {
+        NSLog(@"Error: %@", error);
     }
     
     return destinationURL;

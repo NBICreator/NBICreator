@@ -45,6 +45,7 @@ NSString *const NBCFileNameImagrDefaults = @"ImagrDefaults";
 NSString *const NBCUserDefaultsIndexCounter = @"NetBootIndexCounter";
 NSString *const NBCUserDefaultsNetBootSelection = @"NetBootSelection";
 NSString *const NBCUserDefaultsDateFormatString = @"DateFormatString";
+NSString *const NBCUserDefaultsLogLevel = @"LogLevel";
 
 // --------------------------------------------------------------
 //  Menu Items
@@ -106,11 +107,18 @@ NSString *const NBCSettingsNBIDestinationFolder = @"DestinationFolder";
 NSString *const NBCSettingsNBIIcon = @"Icon";
 
 // --------------------------------------------------------------
+//  Template Settings Extra
+// --------------------------------------------------------------
+NSString *const NBCSettingsCertificates = @"Certificates";
+NSString *const NBCSettingsPackages = @"Packages";
+
+// --------------------------------------------------------------
 //  Template Settings Options
 // --------------------------------------------------------------
 NSString *const NBCSettingsDisableWiFiKey = @"DisableWiFi";
 NSString *const NBCSettingsDisplaySleepKey = @"DisplaySleep";
 NSString *const NBCSettingsDisplaySleepMinutesKey = @"DisplaySleepMinutes";
+NSString *const NBCSettingsIncludeSystemUIServerKey = @"IncludeSystemUIServer";
 NSString *const NBCSettingsARDLoginKey = @"ARDLogin";
 NSString *const NBCSettingsARDPasswordKey = @"ARDPassword";
 NSString *const NBCSettingsNetworkTimeServerKey = @"NetworkTimeServer";
@@ -129,6 +137,8 @@ NSString *const NBCSettingsImagrRCImagingNBICreator = @"#!/bin/bash\n\n#\n Disab
 NSString *const NBCSettingsImagrUseLocalVersion = @"ImagrUseLocalVersion";
 NSString *const NBCSettingsImagrLocalVersionPath = @"ImagrLocalVersionPath";
 NSString *const NBCSettingsImagrSourceIsNBI = @"IsNBI";
+
+NSString *const NBCSettingsImagrVersionLatest = @"ImagrVersionLatest";
 
 // --------------------------------------------------------------
 //  Template Settings DeployStudio
@@ -186,6 +196,7 @@ NSString *const NBCNotificationWorkflowFailed = @"workflowFailed";
 
 // Workflows UserInfoKeys
 NSString *const NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem = @"WorkflowItem";
+NSString *const NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem = @"RemoveWorkflowItem";
 
 // Imagr
 NSString *const NBCNotificationImagrUpdateSource = @"imagrUpdateSource";
@@ -226,6 +237,25 @@ NSString *const NBCNotificationUpdateNBIIconUserInfoIconURL = @"IconURL";
 
 // Update NBI Background UserInfoKeys
 NSString *const NBCNotificationUpdateNBIBackgroundUserInfoIconURL = @"BackgroundURL";
+
+// --------------------------------------------------------------
+//  Certificate TableView Keys
+// --------------------------------------------------------------
+NSString *const NBCDictionaryKeyCertificate = @"Certificate";
+NSString *const NBCDictionaryKeyCertificateURL = @"CertificateURL";
+NSString *const NBCDictionaryKeyCertificateName = @"CertificateName";
+NSString *const NBCDictionaryKeyCertificateIcon = @"CertificateIcon";
+NSString *const NBCDictionaryKeyCertificateAuthority = @"CertificateAuthority";
+NSString *const NBCDictionaryKeyCertificateSignature = @"CertificateSignature";
+NSString *const NBCDictionaryKeyCertificateSelfSigned = @"CertificateSelfSigned";
+NSString *const NBCDictionaryKeyCertificateSerialNumber = @"CertificateSerialNumber";
+NSString *const NBCDictionaryKeyCertificateNotValidBeforeDate = @"CertificateNotValidBeforeDate";
+NSString *const NBCDictionaryKeyCertificateNotValidAfterDate = @"CertificateNotValidAfterDate";
+NSString *const NBCDictionaryKeyCertificateExpirationString = @"CertificateExpirationString";
+NSString *const NBCDictionaryKeyCertificateExpired = @"CertificateExpired";
+
+NSString *const NBCDictionaryKeyPackagePath = @"PackagePath";
+NSString *const NBCDictionaryKeyPackageName = @"PackageName";
 
 // --------------------------------------------------------------
 //  Imagr
@@ -342,12 +372,24 @@ NSString *const NBCWorkflowInstallerSourceURL = @"workflowInstallerSourceURL";
 NSString *const NBCWorkflowInstallerChoiceChangeXML = @"workflowInstallerChoiceChangeXMLL";
 
 // --------------------------------------------------------------
+//  Workflow Types
+// --------------------------------------------------------------
+NSString *const NBCWorkflowNBI = @"workflowNBI";
+NSString *const NBCWorkflowNBIResources = @"workflowNBIResources";
+NSString *const NBCWorkflowNBIModify = @"workflowNBIModify";
+
+// --------------------------------------------------------------
 //  Python
 // --------------------------------------------------------------
 NSString *const NBCPythonRepositoryURL = @"https://www.python.org/downloads/mac-osx/";
 NSString *const NBCPythonInstallerPathInDiskImage = @"Python.mpkg";
 
 NSString *const NBCNetworkTimeServerDefault = @"time.euro.apple.com";
+
+NSString *const NBCCertificatesNBICreatorTargetURL = @"usr/local/certificates";
+NSString *const NBCCertificatesTargetURL = @"Packages/Certificates";
+NSString *const NBCScriptsNBICreatorTargetPath = @"usr/local/scripts";
+NSString *const NBCScriptsTargetPath = @"Packages/Scripts";
 
 NSString *const NBCErrorDomain = @"com.gihub.NBICreator";
 NSString *const NBCWorkflowNetInstallLogPrefix = @"_progress";
@@ -365,4 +407,13 @@ NSString *const NBCDeployStudioLatestVersionURL = @"http://www.deploystudio.com/
 NSString *const NBCResourcesDeployStudioLatestVersionKey = @"LatestVersion";
 
 NSString *const NBCHelpURL = @"https://github.com/NBICreator/NBICreator/wiki";
+
+NSString *const NBCVariableIndexCounter = @"%COUNTER%";
+
+NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
+NSString *const NBCTableViewIdentifierPackages = @"tableViewPackages";
+
+NSString *const NBCWorkflowTypeNetInstall = @"NetInstall";
+NSString *const NBCWorkflowTypeDeployStudio = @"DeployStudio";
+NSString *const NBCWorkflowTypeImagr = @"Imagr";
 

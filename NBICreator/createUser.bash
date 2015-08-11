@@ -67,7 +67,7 @@ if [[ ${dscl_exit_status} -ne 0 ]]; then
 	exit ${dscl_exit_status}
 fi
 
-#Add NFSHomeDirectory
+# Add NFSHomeDirectory
 printf "%s\n" "Adding user NFSHomeDirectory: /tmp"
 dscl_output=$( /usr/bin/dscl -f "${nbiVolumePath}/var/db/dslocal/nodes/Default" localonly -append ${nbiVolumeDatabasePath} NFSHomeDirectory /tmp )
 dscl_exit_status=${?}
@@ -89,7 +89,7 @@ if [[ ${dscl_exit_status} -ne 0 ]]; then
 	exit ${dscl_exit_status}
 fi
 
-#Add Password
+# Add Password
 printf "%s\n" "Adding user Password: *******"
 dscl_output=$( /usr/bin/dscl -f "${nbiVolumePath}/var/db/dslocal/nodes/Default" localonly -passwd ${nbiVolumeDatabasePath} "${userPassword}" )
 dscl_exit_status=${?}
@@ -113,7 +113,7 @@ if [[ -n ${userGroups} ]]; then
 			dscl_output=$( /usr/bin/dscl -f "${nbiVolumePath}/var/db/dslocal/nodes/Default" localonly -append "${groupDatabasePath}" GroupMembership "${userShortName}" )
 			dscl_exit_status=${?}
 			if [[ ${dscl_exit_status} -ne 0 ]]; then
-				printf "%s\n" "Failed to add user as admin"
+				printf "%s\n" "Failed to add user to group: ${groupName}"
 				printf "%s\n" "dscl_exit_status=${dscl_exit_status}"
 				printf "%s\n" "dscl_output=${dscl_output}"
 				exit ${dscl_exit_status}
@@ -125,6 +125,6 @@ if [[ -n ${userGroups} ]]; then
 	done
 fi
 
-printf "%s\n" "Adding user: ${userShortName} was successful!"
+printf "%s\n" "Adding user ${userShortName} was successful!"
 
 exit 0

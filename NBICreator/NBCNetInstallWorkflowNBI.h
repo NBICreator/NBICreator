@@ -9,14 +9,21 @@
 #import <Foundation/Foundation.h>
 
 #import "NBCWorkflowItem.h"
-#import "NBCWorkflowProgressViewController.h"
+//#import "NBCWorkflowProgressViewController.h"
+
+@protocol NBCNetInstallWorkflowNBIDelegate
+- (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;
+- (void)updateProgressBar:(double)value;
+@end
 
 @interface NBCNetInstallWorkflowNBI : NSObject
+
+@property id delegate;
 
 // ------------------------------------------------------
 //  Class Instance Properties
 // ------------------------------------------------------
-@property NBCWorkflowProgressViewController *progressView;
+//@property NBCWorkflowProgressViewController *progressView;
 
 // ------------------------------------------------------
 //  Properties

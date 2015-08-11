@@ -9,6 +9,9 @@
 #import "NBCSystemImageUtilitySource.h"
 #import "NBCConstants.h"
 #import "NBCWorkflowItem.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCSystemImageUtilitySource
 
@@ -25,7 +28,7 @@
 }
 
 - (NSArray *)systemImageUtilityURLs {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *systemImageUtilityURLs = [[NSMutableArray alloc] init];
     
     [systemImageUtilityURLs addObjectsFromArray:(__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.apple.SystemImageUtility"), NULL))];
@@ -34,6 +37,7 @@
 }
 
 - (void)setSystemImageUtilityURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSArray *systemImageUtilityURLs = [self systemImageUtilityURLs];
     
     NSURL *systemImageUtilityURL = [systemImageUtilityURLs firstObject];
@@ -49,6 +53,7 @@
 }
 
 - (void)systemImageUtilityResourcesFromURL:(NSURL *)systemImageUtilityURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *error;
     
     [self setSystemImageUtilityVersion:[[NSBundle bundleWithURL:systemImageUtilityURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
@@ -79,6 +84,7 @@
 }
 
 - (NSString *)expandVariables:(NSString *)string {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *newString = string;
     NSString *variableSIUVersion = @"%SIUVERSION%";
     
@@ -98,6 +104,7 @@
 }
 
 + (NSArray *)systemImageUtilityVersions {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSArray *versions;
     return versions;
 }

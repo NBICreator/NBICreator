@@ -2,6 +2,10 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>Packages</key>
+	<array/>
+	<key>Certificates</key>
+	<array/>
 	<key>IsNBI</key>
 	<false/>
 	<key>NetworkTimeServer</key>
@@ -26,6 +30,8 @@
 	<string></string>
 	<key>ImagrVersion</key>
 	<string>Latest Release</string>
+	<key>IncludeSystemUIServer</key>
+	<false/>
 	<key>Default</key>
 	<false/>
 	<key>Enabled</key>

@@ -23,10 +23,17 @@
 #import "NBCHelperProtocol.h"
 
 #import "Reachability.h"
+#import "NBCLogging.h"
+#import "NBCCertificateTableCellView.h"
+#import "NBCPackageTableCellView.h"
+#import "NBCDesktopEntity.h"
+
+DDLogLevel ddLogLevel;
 
 @interface NBCImagrSettingsViewController () {
     Reachability *_internetReachableFoo;
 }
+
 @end
 
 @implementation NBCImagrSettingsViewController
@@ -43,12 +50,21 @@
     return self;
 } // init
 
+- (void)awakeFromNib {
+    [_tableViewCertificates registerForDraggedTypes:@[ NSURLPboardType ]];
+    [_tableViewPackages registerForDraggedTypes:@[ NSURLPboardType ]];
+} // awakeFromNib
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
+} // dealloc
 
 - (void)viewDidLoad {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [super viewDidLoad];
+    
+    _certificateTableViewContents = [[NSMutableArray alloc] init];
+    _packagesTableViewContents = [[NSMutableArray alloc] init];
     
     // --------------------------------------------------------------
     //  Add Notification Observers
@@ -67,7 +83,7 @@
     //  Initialize Properties
     // --------------------------------------------------------------
     NSError *error;
-    NSFileManager *fm = [[NSFileManager alloc] init];
+    NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
     if ( userApplicationSupport ) {
         _templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesImagr isDirectory:YES];
@@ -79,12 +95,10 @@
     _templatesDict = [[NSMutableDictionary alloc] init];
     [self setShowARDPassword:NO];
     
+    // --------------------------------------------------------------
+    //  Test Internet Connectivity
+    // --------------------------------------------------------------
     [self testInternetConnection];
-    
-    // --------------------------------------------------------------
-    //  Load saved templates and create the template menu
-    // --------------------------------------------------------------
-    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
     
     // ------------------------------------------------------------------------------
     //  Add contextual menu to NBI Icon image view to allow to restore original icon.
@@ -95,6 +109,11 @@
     [menu addItem:restoreView];
     [_imageViewIcon setMenu:menu];
     
+    // --------------------------------------------------------------
+    //  Load saved templates and create the template menu
+    // --------------------------------------------------------------
+    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
+    
     // ------------------------------------------------------------------------------
     //  Verify build button so It's not enabled by mistake
     // -------------------------------------------------------------------------------
@@ -103,10 +122,412 @@
 } // viewDidLoad
 
 #pragma mark -
+#pragma mark NSTableView DataSource Methods
+#pragma mark -
+
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
+    if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
+        return (NSInteger)[_certificateTableViewContents count];
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
+        return (NSInteger)[_packagesTableViewContents count];
+    } else {
+        return 0;
+    }
+}
+
+- (NSDragOperation)tableView:(NSTableView *)tableView validateDrop:(id<NSDraggingInfo>)info proposedRow:(NSInteger)row proposedDropOperation:(NSTableViewDropOperation)dropOperation {
+#pragma unused(row)
+    if ( dropOperation == NSTableViewDropAbove ) {
+        if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
+            if ( [self containsAcceptableCertificateURLsFromPasteboard:[info draggingPasteboard]] ) {
+                [info setAnimatesToDestination:YES];
+                return NSDragOperationCopy;
+            }
+        } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
+            if ( [self containsAcceptablePackageURLsFromPasteboard:[info draggingPasteboard]] ) {
+                [info setAnimatesToDestination:YES];
+                return NSDragOperationCopy;
+            }
+        }
+    }
+    return NSDragOperationNone;
+}
+
+- (void)tableView:(NSTableView *)tableView updateDraggingItemsForDrag:(id<NSDraggingInfo>)draggingInfo {
+    if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
+        NSArray *classes = @[ [NBCDesktopEntity class], [NSPasteboardItem class] ];
+        __block NBCCertificateTableCellView *cellView = [tableView makeViewWithIdentifier:@"MainCell" owner:self];
+        //__block NSInteger validCount = 0;
+        [draggingInfo enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:nil
+                                             usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
+#pragma unused(idx,stop)
+                                                 if ( [[draggingItem item] isKindOfClass:[NBCDesktopCertificateEntity class]] ) {
+                                                     NBCDesktopCertificateEntity *entity = (NBCDesktopCertificateEntity *)[draggingItem item];
+                                                     [draggingItem setDraggingFrame:[cellView frame]];
+                                                     [draggingItem setImageComponentsProvider:^NSArray * {
+                                                         if ( [entity isKindOfClass:[NBCDesktopCertificateEntity class]] ) {
+                                                             NSData *certificateData = [entity certificate];
+                                                             NSDictionary *certificateDict = [self examineCertificate:certificateData];
+                                                             if ( [certificateDict count] != 0 ) {
+                                                                 cellView = [self populateCertificateCellView:cellView certificateDict:certificateDict];
+                                                             }
+                                                         }
+                                                         [[cellView textFieldCertificateName] setStringValue:[entity name]];
+                                                         return [cellView draggingImageComponents];
+                                                     }];
+                                                 }
+                                             }];
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
+        
+    }
+}
+
+- (BOOL)tableView:(NSTableView *)tableView acceptDrop:(id<NSDraggingInfo>)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)dropOperation {
+#pragma unused(tableView,row,dropOperation, info)
+    if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
+        NSURL *draggedFileURL = [self getDraggedCertificateURLsFromPasteboard:[info draggingPasteboard]];
+        if ( draggedFileURL ) {
+            NSData* certificateData = [NSData dataWithContentsOfURL:draggedFileURL];
+            if ( certificateData != nil ) {
+                NSDictionary *certificateDict = [self examineCertificate:certificateData];
+                if ( [certificateDict count] != 0 ) {
+                    [self insertCertificateInTableView:certificateDict];
+                    return YES;
+                }
+            }
+        }
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
+        NSURL *draggedFileURL = [self getDraggedPackageURLsFromPasteboard:[info draggingPasteboard]];
+        if ( draggedFileURL ) {
+            if ( [self examinePackageAtURL:draggedFileURL] ) {
+                return YES;
+            }
+        }
+    }
+    return NO;
+}
+
+#pragma mark -
+#pragma mark NSTableView Delegate Methods
+#pragma mark -
+
+- (NBCCertificateTableCellView *)populateCertificateCellView:(NBCCertificateTableCellView *)cellView certificateDict:(NSDictionary *)certificateDict {
+    
+    NSMutableAttributedString *certificateName;
+    NSMutableAttributedString *certificateExpirationString;
+    if ( [certificateDict[NBCDictionaryKeyCertificateExpired] boolValue] ) {
+        certificateName = [[NSMutableAttributedString alloc] initWithString:certificateDict[NBCDictionaryKeyCertificateName]];
+        [certificateName addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[certificateName length])];
+        
+        certificateExpirationString = [[NSMutableAttributedString alloc] initWithString:certificateDict[NBCDictionaryKeyCertificateExpirationString]];
+        [certificateExpirationString addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[certificateExpirationString length])];
+    }
+    
+    // --------------------------------------------
+    //  Certificate Icon
+    // --------------------------------------------
+    NSImage *certificateIcon;
+    NSURL *certificateIconURL;
+    
+    if ( [certificateDict[NBCDictionaryKeyCertificateSelfSigned] boolValue] ) {
+        certificateIconURL = [[NSBundle mainBundle] URLForResource:@"IconCertRoot" withExtension:@"png"];
+    } else {
+        certificateIconURL = [[NSBundle mainBundle] URLForResource:@"IconCertStandard" withExtension:@"png"];
+    }
+    
+    if ( [certificateIconURL checkResourceIsReachableAndReturnError:nil] ) {
+        certificateIcon = [[NSImage alloc] initWithContentsOfURL:certificateIconURL];
+        [[cellView imageViewCertificateIcon] setImage:certificateIcon];
+    }
+    
+    // --------------------------------------------
+    //  Certificate Name
+    // --------------------------------------------
+    if ( [certificateName length] != 0 ) {
+        [[cellView textFieldCertificateName] setAttributedStringValue:certificateName];
+    } else {
+        [[cellView textFieldCertificateName] setStringValue:certificateDict[NBCDictionaryKeyCertificateName]];
+    }
+    
+    // --------------------------------------------
+    //  Certificate Expiration String
+    // --------------------------------------------
+    if ( [certificateExpirationString length] != 0 ) {
+        [[cellView textFieldCertificateExpiration] setAttributedStringValue:certificateExpirationString];
+    } else {
+        [[cellView textFieldCertificateExpiration] setStringValue:certificateDict[NBCDictionaryKeyCertificateExpirationString]];
+    }
+
+    return cellView;
+}
+
+- (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
+    if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
+        NSDictionary *certificateDict = _certificateTableViewContents[(NSUInteger)row];
+        NSString *identifier = [tableColumn identifier];
+        if ( [identifier isEqualToString:@"MainCell"] ) {
+            NBCCertificateTableCellView *cellView = [tableView makeViewWithIdentifier:@"MainCell" owner:self];
+            return [self populateCertificateCellView:cellView certificateDict:certificateDict];
+        }
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
+        NSDictionary *packageDict = _packagesTableViewContents[(NSUInteger)row];
+        NSString *identifier = [tableColumn identifier];
+        if ( [identifier isEqualToString:@"MainCell"] ) {
+            NBCPackageTableCellView *cellView = [tableView makeViewWithIdentifier:@"MainCell" owner:self];
+            
+            NSMutableAttributedString *packageName;
+            NSImage *packageIcon;
+            NSURL *packageURL = [NSURL fileURLWithPath:packageDict[NBCDictionaryKeyPackagePath]];
+            if ( [packageURL checkResourceIsReachableAndReturnError:nil] ) {
+                [[cellView textFieldPackageName] setStringValue:packageDict[NBCDictionaryKeyPackageName]];
+                packageIcon = [[NSWorkspace sharedWorkspace] iconForFile:[packageURL path]];
+                [[cellView imageViewPackageIcon] setImage:packageIcon];
+            } else {
+                packageName = [[NSMutableAttributedString alloc] initWithString:packageDict[NBCDictionaryKeyPackageName]];
+                [packageName addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[packageName length])];
+                [[cellView textFieldPackageName] setAttributedStringValue:packageName];
+            }
+            
+            return cellView;
+        }
+    }
+    return nil;
+}
+
+#pragma mark -
+#pragma mark NSTableView Methods
+#pragma mark -
+
+- (NSDictionary *)pasteboardReadingOptionsCertificates {
+    return @{ NSPasteboardURLReadingFileURLsOnlyKey : @YES,
+              NSPasteboardURLReadingContentsConformToTypesKey : @[ @"public.x509-certificate" ] };
+}
+
+- (NSDictionary *)pasteboardReadingOptionsPackages {
+    return @{ NSPasteboardURLReadingFileURLsOnlyKey : @YES,
+              NSPasteboardURLReadingContentsConformToTypesKey : @[ @"com.apple.installer-package-archive" ] };
+}
+
+- (BOOL)containsAcceptableCertificateURLsFromPasteboard:(NSPasteboard *)pasteboard {
+    return [pasteboard canReadObjectForClasses:@[[NSURL class]]
+                                       options:[self pasteboardReadingOptionsCertificates]];
+}
+
+- (BOOL)containsAcceptablePackageURLsFromPasteboard:(NSPasteboard *)pasteboard {
+    return [pasteboard canReadObjectForClasses:@[[NSURL class]]
+                                       options:[self pasteboardReadingOptionsPackages]];
+}
+
+- (NSURL *)getDraggedCertificateURLsFromPasteboard:(NSPasteboard *)pboard {
+    if ( [[pboard types] containsObject:NSFilenamesPboardType] ) {
+        NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
+        if ( [files count] != 1 ) {
+            return nil;
+        } else {
+            NSURL *draggedFileURL = [NSURL fileURLWithPath:[files firstObject]];
+            if ( [[draggedFileURL pathExtension] isEqualToString:@"cer"] ) {
+                return draggedFileURL;
+            } else if ( [[draggedFileURL pathExtension] isEqualToString:@"crt"] ) {
+                return draggedFileURL;
+            }
+            return nil;
+        }
+    }
+    return nil;
+}
+
+- (NSURL *)getDraggedPackageURLsFromPasteboard:(NSPasteboard *)pboard {
+    if ( [[pboard types] containsObject:NSFilenamesPboardType] ) {
+        NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
+        if ( [files count] != 1 ) {
+            return nil;
+        } else {
+            NSURL *draggedFileURL = [NSURL fileURLWithPath:[files firstObject]];
+            if ( [[draggedFileURL pathExtension] isEqualToString:@"pkg"] ) {
+                return draggedFileURL;
+            } else if ( [[draggedFileURL pathExtension] isEqualToString:@"mpkg"] ) {
+                return draggedFileURL;
+            }
+            return nil;
+        }
+    }
+    return nil;
+}
+
+- (BOOL)examinePackageAtURL:(NSURL *)packageURL {
+    BOOL retval = YES;
+    
+    for ( NSDictionary *packageDict in _packagesTableViewContents ) {
+        NSString *existingPackagePath = packageDict[NBCDictionaryKeyPackagePath];
+        if ( [[packageURL path] isEqualToString:existingPackagePath] ) {
+            DDLogWarn(@"Package %@ is already added!", [packageURL lastPathComponent]);
+            return NO;
+        }
+    }
+    
+    NSMutableDictionary *newPackageDict = [[NSMutableDictionary alloc] init];
+    
+    newPackageDict[NBCDictionaryKeyPackagePath] = [packageURL path];
+    newPackageDict[NBCDictionaryKeyPackageName] = [packageURL lastPathComponent];
+    
+    // --------------------------------------------
+    //  Add certificate to tableView
+    // --------------------------------------------
+    [self insertPackageInTableView:newPackageDict];
+    
+    return retval;
+}
+
+- (NSDictionary *)examineCertificate:(NSData *)certificateData {
+    
+    NSMutableDictionary *newCertificateDict = [[NSMutableDictionary alloc] init];
+    
+    SecCertificateRef certificate = nil;
+    NSString *certificateName;
+    NSString *certificateExpirationString;
+    NSString *certificateSerialNumber;
+    NSDate *certificateNotValidBeforeDate;
+    NSDate *certificateNotValidAfterDate;
+    BOOL isSelfSigned = NO;
+    BOOL certificateExpired = NO;
+    
+    certificate = SecCertificateCreateWithData(NULL, CFBridgingRetain(certificateData));
+    if ( ! certificate ) {
+        NSLog(@"Could not get certificate from data!");
+        return nil;
+    }
+    
+    CFErrorRef *error = nil;
+    NSDictionary *certificateValues = (__bridge NSDictionary *)(SecCertificateCopyValues(certificate, (__bridge CFArrayRef)@[
+                                                                                                                             (__bridge id)kSecOIDX509V1ValidityNotBefore,
+                                                                                                                             (__bridge id)kSecOIDX509V1ValidityNotAfter,
+                                                                                                                             (__bridge id)kSecOIDX509V1Signature,
+                                                                                                                             (__bridge id)kSecOIDX509V1SerialNumber,
+                                                                                                                             (__bridge id)kSecOIDTitle
+                                                                                                                             ], error));
+    // --------------------------------------------
+    //  Certificate IsSelfSigned
+    // --------------------------------------------
+    CFDataRef issuerData = SecCertificateCopyNormalizedIssuerContent(certificate, error);
+    CFDataRef subjectData = SecCertificateCopyNormalizedSubjectContent(certificate, error);
+    
+    if ( [(__bridge NSData*)issuerData isEqualToData:(__bridge NSData*)subjectData] ) {
+        isSelfSigned = YES;
+    }
+    newCertificateDict[NBCDictionaryKeyCertificateSelfSigned] = @(isSelfSigned);
+    
+    // --------------------------------------------
+    //  Certificate Name
+    // --------------------------------------------
+    certificateName = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate));
+    newCertificateDict[NBCDictionaryKeyCertificateName] = certificateName;
+    
+    // --------------------------------------------
+    //  Certificate NotValidBefore
+    // --------------------------------------------
+    if ( certificateValues[(__bridge id)kSecOIDX509V1ValidityNotBefore] ) {
+        NSDictionary *notValidBeforeDict = certificateValues[(__bridge id)kSecOIDX509V1ValidityNotBefore];
+        NSNumber *notValidBefore = notValidBeforeDict[@"value"];
+        certificateNotValidBeforeDate = CFBridgingRelease(CFDateCreate(kCFAllocatorDefault, [notValidBefore doubleValue]));
+        
+        if ( [certificateNotValidBeforeDate compare:[NSDate date]] == NSOrderedDescending ) {
+            certificateExpired = YES;
+            certificateExpirationString = [NSString stringWithFormat:@"Not valid before %@", certificateNotValidBeforeDate];
+        }
+        
+        newCertificateDict[NBCDictionaryKeyCertificateNotValidBeforeDate] = certificateNotValidBeforeDate;
+    }
+    
+    // --------------------------------------------
+    //  Certificate NotValidAfter
+    // --------------------------------------------
+    if ( certificateValues[(__bridge id)kSecOIDX509V1ValidityNotAfter] ) {
+        NSDictionary *notValidAfterDict = certificateValues[(__bridge id)kSecOIDX509V1ValidityNotAfter];
+        NSNumber *notValidAfter = notValidAfterDict[@"value"];
+        certificateNotValidAfterDate = CFBridgingRelease(CFDateCreate(kCFAllocatorDefault, [notValidAfter doubleValue]));
+        
+        if ( [certificateNotValidAfterDate compare:[NSDate date]] == NSOrderedAscending && ! certificateExpired ) {
+            certificateExpired = YES;
+            certificateExpirationString = [NSString stringWithFormat:@"Expired %@", certificateNotValidAfterDate];
+        } else {
+            certificateExpirationString = [NSString stringWithFormat:@"Expires %@", certificateNotValidAfterDate];
+        }
+        
+        newCertificateDict[NBCDictionaryKeyCertificateNotValidAfterDate] = certificateNotValidAfterDate;
+    }
+    
+    // --------------------------------------------
+    //  Certificate Expiration String
+    // --------------------------------------------
+    newCertificateDict[NBCDictionaryKeyCertificateExpirationString] = certificateExpirationString;
+    
+    // --------------------------------------------
+    //  Certificate Expired
+    // --------------------------------------------
+    newCertificateDict[NBCDictionaryKeyCertificateExpired] = @(certificateExpired);
+    
+    // --------------------------------------------
+    //  Certificate Serial Number
+    // --------------------------------------------
+    if ( certificateValues[(__bridge id)kSecOIDX509V1SerialNumber] ) {
+        NSDictionary *serialNumber = certificateValues[(__bridge id)kSecOIDX509V1SerialNumber];
+        certificateSerialNumber = serialNumber[@"value"];
+        
+        newCertificateDict[NBCDictionaryKeyCertificateSerialNumber] = certificateSerialNumber;
+    }
+    
+    // --------------------------------------------
+    //  Certificate Signature
+    // --------------------------------------------
+    if ( certificateValues[(__bridge id)kSecOIDX509V1Signature] ) {
+        NSDictionary *signatureDict = certificateValues[(__bridge id)kSecOIDX509V1Signature];
+        newCertificateDict[NBCDictionaryKeyCertificateSignature] = signatureDict[@"value"];
+    }
+    
+    // --------------------------------------------
+    //  Add Certificate
+    // --------------------------------------------
+    newCertificateDict[NBCDictionaryKeyCertificate] = certificateData;
+    
+    return [newCertificateDict copy];
+}
+
+- (void)insertCertificateInTableView:(NSDictionary *)certificateDict {
+    
+    for ( NSDictionary *certDict in _certificateTableViewContents ) {
+        if ( [certificateDict[NBCDictionaryKeyCertificateSignature] isEqualToData:certDict[NBCDictionaryKeyCertificateSignature]] ) {
+            if ( [certificateDict[NBCDictionaryKeyCertificateSerialNumber] isEqualToString:certDict[NBCDictionaryKeyCertificateSerialNumber]] ) {
+                DDLogWarn(@"Certificate %@ is already added!", certificateDict[NBCDictionaryKeyCertificateName]);
+                return;
+            }
+        }
+    }
+    
+    NSInteger index = [_tableViewCertificates selectedRow];
+    index++;
+    [_tableViewCertificates beginUpdates];
+    [_tableViewCertificates insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewCertificates scrollRowToVisible:index];
+    [_certificateTableViewContents insertObject:certificateDict atIndex:(NSUInteger)index];
+    [_tableViewCertificates endUpdates];
+}
+
+- (void)insertPackageInTableView:(NSDictionary *)packageDict {
+    NSInteger index = [_tableViewPackages selectedRow];
+    index++;
+    [_tableViewPackages beginUpdates];
+    [_tableViewPackages insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewPackages scrollRowToVisible:index];
+    [_packagesTableViewContents insertObject:packageDict atIndex:(NSUInteger)index];
+    [_tableViewPackages endUpdates];
+}
+
+#pragma mark -
 #pragma mark Reachability
 #pragma mark -
 
 - (void)testInternetConnection {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     _internetReachableFoo = [Reachability reachabilityWithHostname:@"github.com"];
     __unsafe_unretained typeof(self) weakSelf = self;
     
@@ -136,6 +557,7 @@
 #pragma mark -
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
     if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalIcon] ) {
@@ -157,7 +579,7 @@
 #pragma mark -
 
 - (void)controlTextDidChange:(NSNotification *)sender {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // --------------------------------------------------------------------
     //  Expand variables for the NBI preview text fields
     // --------------------------------------------------------------------
@@ -208,6 +630,7 @@
 #pragma mark -
 
 - (void)githubReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagImagr] ) {
         [self setImagrVersions:versionsArray];
@@ -222,6 +645,7 @@
 #pragma mark -
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsWarning] ) {
         if ( returnCode == NSAlertSecondButtonReturn ) {        // Continue
@@ -278,6 +702,7 @@
 #pragma mark -
 
 - (void)updateSource:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
         [self setSource:source];
@@ -304,6 +729,7 @@
 
 - (void)removedSource:(NSNotification *)notification {
 #pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( _source ) {
         [self setSource:nil];
     }
@@ -315,6 +741,7 @@
 } // removedSource
 
 - (void)updateNBIIcon:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *nbiIconURL = [notification userInfo][NBCNotificationUpdateNBIIconUserInfoIconURL];
     if ( nbiIconURL != nil )
     {
@@ -327,6 +754,7 @@
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setNbiIconPath:NBCFilePathNBIIconImagr];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
@@ -337,6 +765,7 @@
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( [keyPath isEqualToString:NBCUserDefaultsIndexCounter] ) {
         NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_siuSource];
         [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
@@ -348,6 +777,7 @@
 #pragma mark -
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
     [self setNbiName:settingsDict[NBCSettingsNBIName]];
     [self setNbiIndex:settingsDict[NBCSettingsNBIIndex]];
@@ -361,6 +791,7 @@
     [self setDisableWiFi:[settingsDict[NBCSettingsDisableWiFiKey] boolValue]];
     [self setDisplaySleep:[settingsDict[NBCSettingsDisplaySleepKey] boolValue]];
     [self setDisplaySleepMinutes:settingsDict[NBCSettingsDisplaySleepMinutesKey]];
+    [self setIncludeSystemUIServer:[settingsDict[NBCSettingsIncludeSystemUIServerKey] boolValue]];
     [self setArdLogin:settingsDict[NBCSettingsARDLoginKey]];
     [self setArdPassword:settingsDict[NBCSettingsARDPasswordKey]];
     [self setNetworkTimeServer:settingsDict[NBCSettingsNetworkTimeServerKey]];
@@ -400,10 +831,33 @@
         [self showSystemImageUtilityVersion];
     }
     
+    [_certificateTableViewContents removeAllObjects];
+    [_tableViewCertificates reloadData];
+    if ( [settingsDict[NBCSettingsCertificates] count] != 0 ) {
+        NSArray *certificatesArray = settingsDict[NBCSettingsCertificates];
+        for ( NSData *certificate in certificatesArray ) {
+            NSDictionary *certificateDict = [self examineCertificate:certificate];
+            if ( [certificateDict count] != 0 ) {
+                [self insertCertificateInTableView:certificateDict];
+            }
+        }
+    }
+    
+    [_packagesTableViewContents removeAllObjects];
+    [_tableViewPackages reloadData];
+    if ( [settingsDict[NBCSettingsPackages] count] != 0 ) {
+        NSArray *packagesArray = settingsDict[NBCSettingsPackages];
+        for ( NSString *packagePath in packagesArray ) {
+            NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
+            [self examinePackageAtURL:packageURL];
+        }
+    }
+    
     [self expandVariablesForCurrentSettings];
 } // updateUISettingsFromDict
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     if ( mainDict ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
@@ -418,6 +872,7 @@
 } // updateUISettingsFromURL
 
 - (NSDictionary *)returnSettingsFromUI {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"";
@@ -440,6 +895,7 @@
     settingsDict[NBCSettingsDisableWiFiKey] = @(_disableWiFi) ?: @NO;
     settingsDict[NBCSettingsDisplaySleepKey] = @(_displaySleep) ?: @NO;
     settingsDict[NBCSettingsDisplaySleepMinutesKey] = _displaySleepMinutes ?: @"";
+    settingsDict[NBCSettingsIncludeSystemUIServerKey] = @(_includeSystemUIServer) ?: @NO;
     settingsDict[NBCSettingsImagrVersion] = _imagrVersion ?: @"";
     settingsDict[NBCSettingsImagrConfigurationURL] = _imagrConfigurationURL ?: @"";
     settingsDict[NBCSettingsImagrUseLocalVersion] = @(_imagrUseLocalVersion) ?: @NO;
@@ -449,10 +905,29 @@
     settingsDict[NBCSettingsNetworkTimeServerKey] = _networkTimeServer ?: @"";
     settingsDict[NBCSettingsImagrSourceIsNBI] = @(_isNBI) ?: @NO;
     
+    NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
+    for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
+        NSData *certificateData = certificateDict[NBCDictionaryKeyCertificate];
+        if ( certificateData != nil ) {
+            [certificateArray insertObject:certificateData atIndex:0];
+        }
+    }
+    settingsDict[NBCSettingsCertificates] = certificateArray ?: @[];
+    
+    NSMutableArray *packageArray = [[NSMutableArray alloc] init];
+    for ( NSDictionary *packageDict in _packagesTableViewContents ) {
+        NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
+        if ( [packagePath length] != 0 ) {
+            [packageArray insertObject:packagePath atIndex:0];
+        }
+    }
+    settingsDict[NBCSettingsPackages] = packageArray ?: @[];
+    
     return [settingsDict copy];
 } // returnSettingsFromUI
 
 - (void)createSettingsFromNBI:(NSURL *)nbiURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *err;
     if ( ! [nbiURL checkResourceIsReachableAndReturnError:&err] ) {
         NSLog(@"Could not find NBI!");
@@ -550,6 +1025,7 @@
                     NSString *imagrConfigurationURL = nbiImagrConfigurationDict[NBCSettingsImagrServerURLKey];
                     if ( imagrConfigurationURL != nil ) {
                         settingsDict[NBCSettingsImagrConfigurationURL] = imagrConfigurationURL;
+                        [_target setImagrConfigurationPlistURL:nbiImagrConfigurationDictURL];
                         nbiImagrConfigurationDictFound = YES;
                     }
                 }
@@ -561,6 +1037,7 @@
                 if ( [nbiImagrVersion length] != 0 ) {
                     settingsDict[NBCSettingsImagrVersion] = nbiImagrVersion;
                     [_target setImagrApplicationExistOnTarget:YES];
+                    [_target setImagrApplicationURL:nbiApplicationURL];
                     nbiImagrVersionFound = YES;
                 }
             }
@@ -572,6 +1049,7 @@
                     NSString *imagrConfigurationURL = nbiImagrConfigurationDict[NBCSettingsImagrServerURLKey];
                     if ( imagrConfigurationURL != nil ) {
                         settingsDict[NBCSettingsImagrConfigurationURL] = imagrConfigurationURL;
+                        [_target setImagrConfigurationPlistURL:nbiImagrConfigurationDictURL];
                         nbiImagrConfigurationDictFound = YES;
                     }
                 }
@@ -583,6 +1061,7 @@
                 if ( [nbiImagrVersion length] != 0 ) {
                     settingsDict[NBCSettingsImagrVersion] = nbiImagrVersion;
                     [_target setImagrApplicationExistOnTarget:YES];
+                    [_target setImagrApplicationURL:nbiApplicationURL];
                     nbiImagrVersionFound = YES;
                 }
             }
@@ -618,6 +1097,9 @@
                 rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
             }
         }
+        
+        [_target setRcImagingContent:rcImaging];
+        [_target setRcImagingURL:rcImagingURL];
         
         NSString *rcFiles = [NSString stringWithFormat:@"%@\n%@", rcInstall, rcImaging];
         
@@ -837,6 +1319,7 @@
 } // returnSettingsFromUI
 
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     NSDictionary *settingsDict;
     if ( mainDict ) {
@@ -847,6 +1330,7 @@
 } // returnSettingsFromURL
 
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)url {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *settingsURL = url;
     // -------------------------------------------------------------
     //  Create an empty dict and add template type, name and version
@@ -894,6 +1378,7 @@
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCSettingsTypeImagrDefaultSettings withExtension:@"plist"];
@@ -932,7 +1417,7 @@
 } // haveSettingsChanged
 
 - (void)expandVariablesForCurrentSettings {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // -------------------------------------------------------------
     //  Expand tilde in destination folder path
     // -------------------------------------------------------------
@@ -973,6 +1458,7 @@
 
 - (IBAction)buttonChooseDestinationFolder:(id)sender {
 #pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
@@ -1000,6 +1486,7 @@
 #pragma mark -
 
 - (IBAction)popUpButtonTemplates:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *selectedTemplate = [[sender selectedItem] title];
     BOOL settingsChanged = [self haveSettingsChanged];
     
@@ -1024,6 +1511,7 @@
 #pragma mark -
 
 - (void)uppdatePopUpButtonTool {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *systemUtilityVersion = [_siuSource systemImageUtilityVersion];
     if ( ! [_siuSource isSupported] ) {
         //systemUtilityVersion = [systemUtilityVersion stringByAppendingString:@" (Untested)"];
@@ -1034,13 +1522,13 @@
         [_popUpButtonTool removeAllItems];
         [_popUpButtonTool addItemWithTitle:NBCMenuItemNBICreator];
         [_popUpButtonTool addItemWithTitle:NBCMenuItemSystemImageUtility];
-        
         [_popUpButtonTool selectItemWithTitle:_nbiCreationTool];
         [self setNbiCreationTool:[_popUpButtonTool titleOfSelectedItem]];
     }
 } // uppdatePopUpButtonTool
 
 - (IBAction)popUpButtonTool:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *selectedVersion = [[sender selectedItem] title];
     if ( [selectedVersion isEqualToString:NBCMenuItemSystemImageUtility] ) {
         [self showSystemImageUtilityVersion];
@@ -1060,12 +1548,14 @@
 } // popUpButtonTool
 
 - (void)showSystemImageUtilityVersion {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setUseSystemImageUtility:YES];
     [_constraintTemplatesBoxHeight setConstant:93];
     [_constraintSavedTemplatesToTool setConstant:32];
 } // showImagrLocalVersionInput
 
 - (void)hideSystemImageUtilityVersion {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setUseSystemImageUtility:NO];
     [_constraintTemplatesBoxHeight setConstant:70];
     [_constraintSavedTemplatesToTool setConstant:8];
@@ -1076,12 +1566,14 @@
 #pragma mark -
 
 - (void)getImagrVersions {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
     NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagImagr };
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCImagrGitHubRepository downloadInfo:downloadInfo];
 } // getImagrVersions
 
 - (void)updatePopUpButtonImagrVersionsLocal {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( ! _resourcesController ) {
         [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
     }
@@ -1125,6 +1617,7 @@
 }
 
 - (void)updatePopUpButtonImagrVersions {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( _popUpButtonImagrVersion ) {
         [_popUpButtonImagrVersion removeAllItems];
         [_popUpButtonImagrVersion addItemWithTitle:NBCMenuItemImagrVersionLatest];
@@ -1143,21 +1636,33 @@
     [_textFieldNetworkWarning setHidden:YES];
 } // updatePopUpButtonImagrVersions
 
-- (void)updateCachedImagrVersions:(NSDictionary *)imagrVersionsDict
-{
+- (void)updateCachedImagrVersions:(NSDictionary *)imagrVersionsDict {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( ! _resourcesController ) {
         [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
     }
     
     NSURL *imagrDownloadsDictURL = [_resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesImagr];
     if ( imagrDownloadsDictURL != nil ) {
+        NSURL *imagrResourceFolder = [_resourcesController urlForResourceFolder:NBCFolderResourcesImagr];
+        if ( ! [imagrResourceFolder checkResourceIsReachableAndReturnError:nil] ) {
+            NSError *error;
+            NSFileManager *fm = [NSFileManager defaultManager];
+            if ( ! [fm createDirectoryAtURL:imagrResourceFolder withIntermediateDirectories:YES attributes:nil error:&error] ) {
+                DDLogError(@"[ERROR] Could not create Imagr resource folder!");
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                return;
+            }
+        }
+        
         if ( ! [imagrVersionsDict writeToURL:imagrDownloadsDictURL atomically:YES] ) {
-            NSLog(@"Error writing imagr downloads dict to caches");
+            DDLogError(@"[ERROR] Could not write to Imagr downloads cache dict");
         }
     }
 } // updateCachedImagrVersions
 
 - (IBAction)popUpButtonImagrVersion:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *selectedVersion = [[sender selectedItem] title];
     if ( [selectedVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -1168,6 +1673,7 @@
 } // popUpButtonImagrVersion
 
 - (void)showImagrLocalVersionInput {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setImagrUseLocalVersion:YES];
     [_constraintConfigurationURLToImagrVersion setConstant:42];
     [_textFieldImagrLocalPathLabel setHidden:NO];
@@ -1176,6 +1682,7 @@
 } // showImagrLocalVersionInput
 
 - (void)hideImagrLocalVersionInput {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setImagrUseLocalVersion:NO];
     [_constraintConfigurationURLToImagrVersion setConstant:13];
     [_textFieldImagrLocalPathLabel setHidden:YES];
@@ -1185,6 +1692,7 @@
 
 - (IBAction)buttonChooseImagrLocalPath:(id)sender {
 #pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
@@ -1221,6 +1729,7 @@
 #pragma mark -
 
 - (void)verifyBuildButton {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL buildEnabled = YES;
     
     // -------------------------------------------------------------
@@ -1250,6 +1759,7 @@
 #pragma mark -
 
 - (void)buildNBI {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( [self haveSettingsChanged] ) {
         NSDictionary *alertInfo = @{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
                                      NBCAlertUserInfoSelectedTemplate : _selectedTemplate };
@@ -1266,6 +1776,8 @@
 } // buildNBI
 
 - (void)verifySettings {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Verifying settings...");
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeImagr];
     [workflowItem setSource:_source];
     [workflowItem setApplicationSource:_siuSource];
@@ -1276,10 +1788,15 @@
     // ----------------------------------------------------------------
     NSDictionary *userSettings = [self returnSettingsFromUI];
     if ( userSettings ) {
+        
+        // Add userSettings dict to workflowItem
         [workflowItem setUserSettings:userSettings];
         
+        // Instantiate settingsController and run verification
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
-        NSDictionary *errorInfoDict = [sc verifySettingsImagr:workflowItem];
+        //NSDictionary *errorInfoDict = [sc verifySettingsImagr:workflowItem];
+        NSDictionary *errorInfoDict = [sc verifySettings:workflowItem];
+        
         if ( [errorInfoDict count] != 0 ) {
             BOOL configurationError = NO;
             BOOL configurationWarning = NO;
@@ -1322,46 +1839,30 @@
             [self prepareWorkflowItem:workflowItem];
         }
     } else {
-        NSLog(@"Could not get settings from UI");
+        DDLogError(@"Could not get settings from UI");
     }
 } // verifySettings
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
-    NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
-    
-    // -------------------------------------------------------------
-    //  Get selected Imagr download URL
-    // -------------------------------------------------------------
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSDictionary *userSettings = [workflowItem userSettings];
     NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
+    
     NSString *selectedImagrVersion = userSettings[NBCSettingsImagrVersion];
-    if ( [selectedImagrVersion length] == 0 ) {
-        NSLog(@"ImagrVersionError");
-        return;
-        
-    } else if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
-        
-        if ( [_imagrLocalVersionPath length] == 0 ) {
-            NSLog(@"ImagrLocalPathIsEmpty");
+    if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
+        if ( [_imagrVersions count] == 0 ) {
+            DDLogError(@"[ERROR] Imagr versions array is empty!");
             return;
         }
-    } else {
-        if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
-            if ( [_imagrVersions count] == 0 ) {
-                NSLog(@"ImagrVersionsArrayEmpty!");
-                return;
-            }
-            selectedImagrVersion = [_imagrVersions firstObject];
-            userSettings[NBCSettingsImagrVersion] = selectedImagrVersion;
-            [workflowItem setUserSettings:userSettings];
-        }
-        NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
-        if ( [imagrDownloadURL length] == 0 ) {
-            NSLog(@"ImagrDownloadLinkError");
-            return;
-        }
-        resourcesSettings[NBCSettingsImagrDownloadURL] = imagrDownloadURL;
-        [workflowItem setResourcesSettings:resourcesSettings];
+        selectedImagrVersion = [_imagrVersions firstObject];
     }
+    NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
+    if ( [imagrDownloadURL length] == 0 ) {
+        DDLogError(@"[ERROR] Imagr download link is empty!");
+        return;
+    }
+    resourcesSettings[NBCSettingsImagrVersion] = selectedImagrVersion;
+    resourcesSettings[NBCSettingsImagrDownloadURL] = imagrDownloadURL;
     
     // -------------------------------------------------------------
     //  Create list of items to extract from installer
@@ -1375,6 +1876,17 @@
     // - NTP
     [sourceController addNTP:sourceItemsDict source:_source];
     
+    
+    // - SystemUIServer
+    if ( [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
+        [sourceController addSystemUIServer:sourceItemsDict source:_source];
+    }
+    
+    // - systemkeychain
+    if ( [userSettings[NBCSettingsCertificates] count] != 0 ) {
+        [sourceController addSystemkeychain:sourceItemsDict source:_source];
+    }
+    
     // - VNC if an ARD/VNC password has been set
     if ( [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
         [sourceController addVNC:sourceItemsDict source:_source];
@@ -1386,6 +1898,23 @@
     }
     
     resourcesSettings[NBCSettingsSourceItemsKey] = sourceItemsDict;
+    
+    NSMutableArray *certificates = [[NSMutableArray alloc] init];
+    for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
+        NSData *certificate = certificateDict[NBCDictionaryKeyCertificate];
+        [certificates addObject:certificate];
+    }
+    resourcesSettings[NBCSettingsCertificates] = certificates;
+    
+    NSMutableArray *packages = [[NSMutableArray alloc] init];
+    for ( NSDictionary *packageDict in _packagesTableViewContents ) {
+        NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
+        [packages addObject:packagePath];
+    }
+    resourcesSettings[NBCSettingsPackages] = packages;
+    
+    [workflowItem setResourcesSettings:[resourcesSettings copy]];
+    
     // -------------------------------------------------------------
     //  Instantiate all workflows to be used to create a Imagr NBI
     // -------------------------------------------------------------
@@ -1406,4 +1935,67 @@
     
 } // prepareWorkflowItem
 
+- (IBAction)buttonAddCertificate:(id)sender {
+#pragma unused(sender)
+    NSOpenPanel* addCertificates = [NSOpenPanel openPanel];
+    
+    // --------------------------------------------------------------
+    //  Setup open dialog to only allow one folder to be chosen.
+    // --------------------------------------------------------------
+    [addCertificates setTitle:@"Add Certificates"];
+    [addCertificates setPrompt:@"Add"];
+    [addCertificates setCanChooseFiles:YES];
+    [addCertificates setAllowedFileTypes:@[ @"public.x509-certificate" ]];
+    [addCertificates setCanChooseDirectories:NO];
+    [addCertificates setCanCreateDirectories:YES];
+    [addCertificates setAllowsMultipleSelection:YES];
+    
+    if ( [addCertificates runModal] == NSModalResponseOK ) {
+        NSArray* selectedURLs = [addCertificates URLs];
+        for ( NSURL *certificateURL in selectedURLs ) {
+            NSData *certificateData = [[NSData alloc] initWithContentsOfURL:certificateURL];
+            NSDictionary *certificateDict = [self examineCertificate:certificateData];
+            if ( [certificateDict count] != 0 ) {
+                [self insertCertificateInTableView:certificateDict];
+            }
+        }
+    }
+}
+
+- (IBAction)buttonRemoveCertificate:(id)sender {
+#pragma unused(sender)
+    NSIndexSet *indexes = [_tableViewCertificates selectedRowIndexes];
+    [_certificateTableViewContents removeObjectsAtIndexes:indexes];
+    [_tableViewCertificates removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+}
+
+- (IBAction)buttonAddPackage:(id)sender {
+#pragma unused(sender)
+    NSOpenPanel* addPackages = [NSOpenPanel openPanel];
+    
+    // --------------------------------------------------------------
+    //  Setup open dialog to only allow one folder to be chosen.
+    // --------------------------------------------------------------
+    [addPackages setTitle:@"Add Packages"];
+    [addPackages setPrompt:@"Add"];
+    [addPackages setCanChooseFiles:YES];
+    [addPackages setAllowedFileTypes:@[ @"com.apple.installer-package-archive" ]];
+    [addPackages setCanChooseDirectories:NO];
+    [addPackages setCanCreateDirectories:YES];
+    [addPackages setAllowsMultipleSelection:YES];
+    
+    if ( [addPackages runModal] == NSModalResponseOK ) {
+        NSArray* selectedURLs = [addPackages URLs];
+        for ( NSURL *packageURL in selectedURLs ) {
+            [self examinePackageAtURL:packageURL];
+        }
+    }
+}
+
+- (IBAction)buttonRemovePackage:(id)sender {
+#pragma unused(sender)
+    NSIndexSet *indexes = [_tableViewPackages selectedRowIndexes];
+    [_packagesTableViewContents removeObjectsAtIndexes:indexes];
+    [_tableViewPackages removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+}
 @end

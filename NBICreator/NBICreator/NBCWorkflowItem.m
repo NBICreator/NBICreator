@@ -7,6 +7,7 @@
 //
 
 #import "NBCWorkflowItem.h"
+#import "NBCWorkflowProgressViewController.h"
 
 @implementation NBCWorkflowItem
 

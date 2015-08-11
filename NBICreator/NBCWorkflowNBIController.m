@@ -10,10 +10,14 @@
 #import "NBCConstants.h"
 #import "NBCVariables.h"
 #import <SystemConfiguration/SystemConfiguration.h>
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCWorkflowNBIController
 
 - (NSArray *)generateScriptArgumentsForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *createNetInstallArguments = [[NSMutableArray alloc] init];
     
     // -------------------------------------------------------------------
@@ -42,6 +46,7 @@
 } // generateSysBuilderArgumentsFromSettingsDict
 
 - (NSDictionary *)generateEnvironmentVariablesForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *environmentVariables = [[NSMutableDictionary alloc] init];
     NSString *envVariablesContent;
     
@@ -120,7 +125,7 @@
 } // generateEnvironmentVariablesForCreateNetInstall
 
 - (NSArray *)generateScriptArgumentsForSysBuilder:(NBCWorkflowItem *)workflowItem {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *sysBuilderArguments = [[NSMutableArray alloc] init];
     NSLog(@"sysBuilderArguments=%@", sysBuilderArguments);
     // -------------------------------------------------------------------
@@ -163,8 +168,8 @@
     // -------------------------------------------------------------------
     
     NSString *nbiIndex = [NBCVariables expandVariables:userSettings[NBCSettingsNBIIndex]
-                                               source:[workflowItem source]
-                                    applicationSource:[workflowItem applicationSource]];
+                                                source:[workflowItem source]
+                                     applicationSource:[workflowItem applicationSource]];
     if ( [nbiIndex length] != 0 ) {
         [sysBuilderArguments addObject:@"-id"];
         [sysBuilderArguments addObject:nbiIndex];
@@ -177,8 +182,8 @@
     //  Add -name
     // -------------------------------------------------------------------
     NSString *nbiName = [NBCVariables expandVariables:[workflowItem nbiName]
-                                              source:[workflowItem source]
-                                   applicationSource:[workflowItem applicationSource]];
+                                               source:[workflowItem source]
+                                    applicationSource:[workflowItem applicationSource]];
     if ( [nbiName length] != 0 ) {
         [sysBuilderArguments addObject:@"-name"];
         [sysBuilderArguments addObject:[nbiName stringByDeletingPathExtension]];
@@ -263,8 +268,8 @@
     BOOL useCustonRuntimeTitle = [userSettings[NBCSettingsDeployStudioUseCustomRuntimeTitleKey] boolValue];
     if ( useCustonRuntimeTitle == YES ) {
         NSString *customRuntimeTitle = [NBCVariables expandVariables:userSettings[NBCSettingsDeployStudioRuntimeTitleKey]
-                                                             source:[workflowItem source]
-                                                  applicationSource:[workflowItem applicationSource]];
+                                                              source:[workflowItem source]
+                                                   applicationSource:[workflowItem applicationSource]];
         if ( [customRuntimeTitle length] != 0 ) {
             [sysBuilderArguments addObject:@"-customtitle"];
             [sysBuilderArguments addObject:customRuntimeTitle];
@@ -338,7 +343,7 @@
             [sysBuilderArguments addObject:runtimePassword];
         }
     }
-
+    
     // -------------------------------------------------------------------
     //  Add -ardlogin, -ardpassword
     // -------------------------------------------------------------------
@@ -406,7 +411,7 @@
     if ( useSMB1 == YES ) {
         [sysBuilderArguments addObject:@"-smb1only"];
     }
-
+    
     // -------------------------------------------------------------------
     //  Add -custombackground
     // -------------------------------------------------------------------
@@ -426,8 +431,9 @@
     
 } // generateScriptArgumentsForSysBuilder
 
-+ (NSString *)generateImagrRCImagingForNBICreator:(NSDictionary *)settingsDict {
-    NSString *rcImaging = @"";
++ (NSString *)generateImagrRCImagingForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
     
     NSString *setDate = [NSString stringWithFormat:@"\n"
                          "###\n"
@@ -454,23 +460,45 @@
     rcImaging = [rcImaging stringByAppendingString:disableGatekeeper];
     
     if ( settingsDict[NBCSettingsARDPasswordKey] ) {
-        NSString *startScreensharing = [NSString stringWithFormat:@"\n"
-                                        "### \n"
-                                        "### Start Screensharing\n"
-                                        "###\n"
-                                        "if [ -e /Library/Preferences/com.apple.VNCSettings.txt ]; then\n"
-                                        "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.screensharing.MessagesAgent.plist\n"
-                                        "fi\n"];
+        NSString *startScreensharing;
+        if ( osMinorVersion <= 7 ) {
+            startScreensharing = [NSString stringWithFormat:@"\n"
+                                  "### \n"
+                                  "### Start Screensharing\n"
+                                  "###\n"
+                                  "if [ -e /Library/Preferences/com.apple.VNCSettings.txt ]; then\n"
+                                  "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.screensharing.agent.plist\n"
+                                  "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.RemoteDesktop.plist\n"
+                                  "fi\n"];
+        } else if ( osMinorVersion >= 8 ) {
+            startScreensharing = [NSString stringWithFormat:@"\n"
+                                  "### \n"
+                                  "### Start Screensharing\n"
+                                  "###\n"
+                                  "if [ -e /Library/Preferences/com.apple.VNCSettings.txt ]; then\n"
+                                  "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.screensharing.MessagesAgent.plist\n"
+                                  "fi\n"];
+        }
+        
         rcImaging = [rcImaging stringByAppendingString:startScreensharing];
     }
     
     if ( settingsDict[NBCSettingsDisplaySleepKey] ) {
         NSString *displaySleep = settingsDict[NBCSettingsDisplaySleepMinutesKey];
-        NSString *powerManagement = [NSString stringWithFormat:@"\n"
-                                     "###\n"
-                                     "### Set power management policy\n"
-                                     "###\n"
-                                     "(sleep 30; /usr/bin/pmset force -a sleep 0 displaysleep %@ lessbright 0 powerbutton 0 disksleep 0 ) &\n", displaySleep];
+        NSString *powerManagement = @"";
+        if ( osMinorVersion <= 8 ) {
+            powerManagement = [NSString stringWithFormat:@"\n"
+                               "###\n"
+                               "### Set power management policy\n"
+                               "###\n"
+                               "(sleep 30; /usr/bin/pmset force -a sleep 0 displaysleep %@ lessbright 0 powerbutton 0 disksleep 0 ) &\n", displaySleep];
+        } else {
+            powerManagement = [NSString stringWithFormat:@"\n"
+                               "###\n"
+                               "### Set power management policy\n"
+                               "###\n"
+                               "(sleep 30; /usr/bin/pmset force -a sleep 0 displaysleep %@ lessbright 0 disksleep 0 ) &\n", displaySleep];
+        }
         rcImaging = [rcImaging stringByAppendingString:powerManagement];
     }
     
@@ -492,6 +520,26 @@
                                          "###\n"
                                          "/usr/bin/defaults write com.apple.DiskUtility DUShowEveryPartition -bool YES\n"];
     rcImaging = [rcImaging stringByAppendingString:enableDiskUtilDebugMenu];
+    
+    if ( [settingsDict[NBCSettingsCertificates] count] != 0 ) {
+        NSString *createSystemKeychain = [NSString stringWithFormat:@"\n"
+                                          "###\n"
+                                          "### Create System Keychain\n"
+                                          "###\n"
+                                          "if [ -e /usr/sbin/systemkeychain ]; then\n"
+                                          "\t/usr/sbin/systemkeychain -fcC\n"
+                                          "fi\n"];
+        rcImaging = [rcImaging stringByAppendingString:createSystemKeychain];
+        
+        NSString *addCertificates = [NSString stringWithFormat:@"\n"
+                                     "###\n"
+                                     "### Add Certificates\n"
+                                     "###\n"
+                                     "if [ -e /usr/local/certificates ]; then\n"
+                                     "\t/usr/local/scripts/installCertificates.bash\n"
+                                     "fi\n"];
+        rcImaging = [rcImaging stringByAppendingString:addCertificates];
+    }
     
     NSString *startImagr = [NSString stringWithFormat:@"\n"
                             "###\n"

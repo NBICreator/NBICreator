@@ -12,13 +12,17 @@
 #import "NBCSource.h"
 #import "NBCDeployStudioSource.h"
 #import "NBCSystemImageUtilitySource.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCVariables
 
 + (NSString *)expandVariables:(NSString *)string source:(NBCSource *)source applicationSource:(id)applicationSource {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *newString = string;
     NSString *variableDate = @"%DATE%";
-    NSString *variableIndexCounter = @"%COUNTER%";
+    NSString *variableIndexCounter = NBCVariableIndexCounter;
     NSString *variableApplicationResourcesURL = @"%APPLICATIONRESOURCESURL%";
     NSString *variableNBICreatorVersion = @"%NBCVERSION%";
     

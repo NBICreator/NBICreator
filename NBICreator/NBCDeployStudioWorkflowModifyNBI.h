@@ -12,7 +12,14 @@
 @class NBCWorkflowItem;
 @class NBCWorkflowProgressViewController;
 
+@protocol NBCDeployStudioWorkflowModifyNBIDelegate
+- (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;
+- (void)updateProgressBar:(double)value;
+@end
+
 @interface NBCDeployStudioWorkflowModifyNBI : NSObject
+
+@property id delegate;
 
 // ------------------------------------------------------
 //  Class Instance Properties

@@ -10,9 +10,10 @@
 
 #import "NBCSource.h"
 #import "NBCTarget.h"
-#import "NBCWorkflowProgressViewController.h"
 #import "NBCDeployStudioSource.h"
 #import "NBCSystemImageUtilitySource.h"
+
+@class NBCWorkflowProgressViewController;
 
 enum {
     kWorkflowTypeDeployStudio = 0,

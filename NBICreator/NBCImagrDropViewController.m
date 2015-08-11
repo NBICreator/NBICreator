@@ -16,6 +16,9 @@
 #import "NBCController.h"
 #import "NBCSourceController.h"
 #import "NBCDiskImageController.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCImagrDropViewController
 
@@ -36,6 +39,7 @@
 }
 
 - (void)viewDidLoad {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [super viewDidLoad];
     
     // --------------------------------------------------------------
@@ -59,6 +63,15 @@
                                                @"com.apple.InstallAssistant.Lion"
                                                ]];
     
+    // ------------------------------------------------------------------------------
+    //  Add contextual menu to NBI source view to allow to show source in Finder.
+    // -------------------------------------------------------------------------------
+    NSMenu *menu = [[NSMenu alloc] init];
+    NSMenuItem *showInFinderMenuItem = [[NSMenuItem alloc] initWithTitle:NBCMenuItemShowInFinder action:@selector(showSourceInFinder) keyEquivalent:@""];
+    [showInFinderMenuItem setTarget:self];
+    [menu addItem:showInFinderMenuItem];
+    [_viewDropView setMenu:menu];
+    
     // --------------------------------------------------------------
     //  Get all Installers and update the source list
     // --------------------------------------------------------------
@@ -66,17 +79,48 @@
     
 } // viewDidLoad
 
+- (void)showSourceInFinder {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    if ( _source ) {
+        NSURL *sourceURL = _sourceDictLinks[_selectedSource];
+        if ( [sourceURL checkResourceIsReachableAndReturnError:nil] ) {
+            NSArray *fileURLs = @[ sourceURL ];
+            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+        }
+    }
+} // showSourceInFinder
+
+#pragma mark -
+#pragma mark Delegate Methods PopUpButton
+#pragma mark -
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    BOOL retval = YES;
+    
+    if ( [[menuItem title] isEqualToString:NBCMenuItemShowInFinder] ) {
+        if ( ! _source  ) {
+            retval = NO;
+        }
+        return retval;
+    }
+    
+    return YES;
+} // validateMenuItem
+
 #pragma mark -
 #pragma mark Notification Methods
 #pragma mark -
 
 - (void)updateSourceList:(NSNotification *)notification {
 #pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self updatePopUpButtonSource];
     
 } // updateSourceList
 
 - (void)verifyDroppedSource:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *sourceURL = [notification userInfo][NBCNotificationVerifyDroppedSourceUserInfoSourceURL];
     [self verifySource:sourceURL];
     
@@ -87,6 +131,7 @@
 #pragma mark -
 
 - (void)updateSourceInfo:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *sourceType = [source sourceType];
     NSString *baseSystemOSVersion = [source baseSystemOSVersion];
     NSString *baseSystemOSBuild = [source baseSystemOSBuild];
@@ -177,6 +222,7 @@
 #pragma mark -
 
 - (void)showProgress {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Hide and Resize Source PopUpButton
     // ------------------------------------------------------
@@ -213,6 +259,7 @@
 } // showProgress
 
 - (void)showSource {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Resize Source PopUpButton
     // ------------------------------------------------------
@@ -253,6 +300,7 @@
 } // showSource
 
 - (void)restoreDropView {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Resize Source PopUpButton
     // ------------------------------------------------------
@@ -299,6 +347,8 @@
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc postNotificationName:NBCNotificationImagrRemovedSource object:self userInfo:nil];
     
+    [self setSource:nil];
+    
 } // restoreDropView
 
 #pragma mark -
@@ -306,6 +356,7 @@
 #pragma mark -
 
 - (IBAction)popUpButtonSource:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setSelectedSource:[[sender selectedItem] title]];
     
     // --------------------------------------------------------------------------------------------
@@ -336,6 +387,7 @@
 } // popUpButtonSource
 
 - (void)updatePopUpButtonSource {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_popUpButtonSource removeAllItems];
     [_popUpButtonSource addItemWithTitle:NBCMenuItemNoSelection];
     
@@ -402,6 +454,7 @@
 } // updatePopUpButtonSource
 
 - (void)addSourceToPopUpButton:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Update source menu to include the newly mounted disk
     // ------------------------------------------------------
@@ -423,6 +476,7 @@
 } // addSourceToPopUpButton
 
 - (NSArray *)installerApplications {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *installerApplications = [[NSMutableArray alloc] init];
     
     CFErrorRef error = NULL;
@@ -444,6 +498,7 @@
 } // installerApplications
 
 - (void)verifyPopUpButtonSelection:(id)selectedItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // --------------------------------------------------------------------------------------------
     //  If selected item isn't a NSURL, get the NSURL from the disk object to pass to verifySource
     // --------------------------------------------------------------------------------------------
@@ -464,6 +519,7 @@
 #pragma mark -
 
 - (void)verifySource:(NSURL *)sourceURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     
     // ------------------------------------------------------
     //  Disable build button while checking new source
@@ -490,7 +546,7 @@
         
         NSString *sourceExtension = [sourceURL pathExtension];
         if ( [sourceExtension isEqualToString:@"nbi"] ) {
-            NSLog(@"NBI!");
+
             // ----------------------------------------------------------------
             //  If source is an nbi, verify it contains a valid NetInstall.dmg
             // ----------------------------------------------------------------
@@ -564,14 +620,13 @@
                 if ( installESDDiskImageURL != nil ) {
                     verified = [sourceController verifyInstallESDFromDiskImageURL:installESDDiskImageURL source:newSource error:&error];
                     if ( ! verified ) {
-                        NSLog(@"InstallESD Verify Failed!");
-                        NSLog(@"InstallESD Error: %@", error);
+                        DDLogError(@"Error: %@", [error localizedDescription]);
                     }
                 } else {
-                    NSLog(@"installESDURL is nil!");
+                    DDLogError(@"No path returned for InstallESD.dmg!");
                 }
             } else {
-                NSLog(@"Invalid source!");
+                DDLogError(@"Invalid source!");
             }
             
             if ( verified ) {
@@ -580,6 +635,8 @@
                     NSLog(@"BaseSystem Verify Failed!");
                     NSLog(@"BaseSystem Error: %@", error);
                 }
+            } else {
+                DDLogError(@"Verification failed!");
             }
         }
         
@@ -639,8 +696,10 @@
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *draggedFileURL = [self getDraggedSourceURLFromPasteboard:[sender draggingPasteboard]];
     if ( draggedFileURL ) {
+        DDLogInfo(@"%@ was dropped as source", [draggedFileURL lastPathComponent]);
         NSDictionary * userInfo = @{ NBCNotificationVerifyDroppedSourceUserInfoSourceURL : draggedFileURL };
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         [nc postNotificationName:NBCNotificationImagrVerifyDroppedSource object:self userInfo:userInfo];

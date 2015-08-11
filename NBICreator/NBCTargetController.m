@@ -16,11 +16,15 @@
 #import "NBCWorkflowItem.h"
 #import "NBCVariables.h"
 #import "NBCImagrSettingsViewController.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCTargetController
 
 - (BOOL)applyNBISettings:(NSURL *)nbiURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
 #pragma unused(error)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = YES;
     NSURL *nbImageInfoURL = [nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
     
@@ -44,8 +48,6 @@
     
     // Update rc.install
     
-    
-    
     if ( verified ) {
         NSImage *nbiIcon = [workflowItem nbiIcon];
         if ( ! [self updateNBIIcon:nbiIcon nbiURL:nbiURL] ) {
@@ -59,6 +61,7 @@
 }
 
 - (NSMutableDictionary *)getNBImageInfoDict:(NSURL *)nbiImageInfoURL nbiURL:(NSURL *)nbiURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *nbImageInfoDict;
     
     if ( [nbiImageInfoURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -71,6 +74,7 @@
 }
 
 - (NSMutableDictionary *)createDefaultNBImageInfoPlist:(NSURL *)nbiURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *nbImageInfoDict = [[NSMutableDictionary alloc] init];
     
     NSDictionary *platformSupport = [[NSDictionary alloc] initWithContentsOfURL:[nbiURL URLByAppendingPathComponent:@"i386/PlatformSupport.plist"]];
@@ -101,6 +105,7 @@
 
 - (NSMutableDictionary *)updateNBImageInfoDict:(NSMutableDictionary *)nbImageInfoDict nbImageInfoURL:(NSURL *)nbImageInfoURL workflowItem:(NBCWorkflowItem *)workflowItem {
 #pragma unused(nbImageInfoURL)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *newNBImageInfoDict = nbImageInfoDict;
     NSDictionary *workflowSettings = [workflowItem userSettings];
     NBCSource *source = [workflowItem source];
@@ -163,6 +168,7 @@
 }
 
 - (BOOL)updateNBIIcon:(NSImage *)nbiIcon nbiURL:(NSURL *)nbiURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = YES;
     
     if ( nbiIcon && nbiURL ) {
@@ -185,6 +191,7 @@
 #pragma mark -
 
 - (BOOL)attachNetInstallDiskImageWithShadowFile:(NSURL *)netInstallDiskImageURL target:(NBCTarget *)target error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = YES;
     
     NSString *shadowFilePath = [NSString stringWithFormat:@"/tmp/dmg.%@.shadow", [NSString nbc_randomString]];
@@ -242,6 +249,7 @@
 }
 
 - (BOOL)convertNetInstallFromShadow:(NBCTarget *)target error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = YES;
     NSFileManager *fm = [NSFileManager defaultManager];
     
@@ -282,6 +290,7 @@
 #pragma mark -
 
 - (BOOL)attachBaseSystemDiskImageWithShadowFile:(NSURL *)baseSystemDiskImageURL target:(NBCTarget *)target error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = YES;
     
     NSString *shadowFilePath = [target baseSystemShadowPath];
@@ -335,6 +344,7 @@
 }
 
 - (BOOL)convertBaseSystemFromShadow:(NBCTarget *)target error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = YES;
     NSFileManager *fm = [NSFileManager defaultManager];
     
@@ -343,6 +353,7 @@
     NSURL *nbiBaseSystemVolumeURL = [target baseSystemVolumeURL];
     
     if ( [NBCDiskImageController detachDiskImageAtPath:[nbiBaseSystemVolumeURL path]] ) {
+        
         if ( [NBCDiskImageController convertDiskImageAtPath:[baseSystemURL path] shadowImagePath:baseSystemShadowPath] ) {
             NSURL *nbiBaseSystemSparseimageURL = [[baseSystemURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sparseimage"];
             
@@ -379,6 +390,7 @@
 
 - (BOOL)copyResourcesToVolume:(NSURL *)volumeURL resourcesDict:(NSDictionary *)resourcesDict target:(NBCTarget *)target  error:(NSError **)error {
 #pragma unused(target)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = YES;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -428,12 +440,11 @@
             }
         } else if ( [copyType isEqualToString:NBCWorkflowCopyRegex] ) {
             NSString *sourceFolderPath = copyDict[NBCWorkflowCopyRegexSourceFolderURL];
-            NSLog(@"sourceFolderPath=%@", sourceFolderPath);
             NSString *regexString = copyDict[NBCWorkflowCopyRegex];
             NSMutableArray *scriptArguments = [NSMutableArray arrayWithObjects:@"-c",
                                                [NSString stringWithFormat:@"/usr/bin/find -E . -depth -regex '%@' | /usr/bin/cpio -admp --quiet '%@'", regexString, [volumeURL path]],
                                                nil];
-            NSLog(@"scriptArguments=%@", scriptArguments);
+            
             NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
             // -----------------------------------------------------------------------------------
             //  Create standard output file handle and register for data available notifications.
@@ -512,7 +523,143 @@
     return verified;
 }
 
+- (void)modifySettingsForSystemKeychain:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    
+    // --------------------------------------------------------------
+    //  /Library/Security/Trust Settings
+    // --------------------------------------------------------------
+    NSURL *folderLibrarySecurityTrustSettings = [volumeURL URLByAppendingPathComponent:@"Library/Security/Trust Settings" isDirectory:YES];
+    
+    NSDictionary *folderLibrarySecurityTrustSettingsAttributes = @{
+                                                                   NSFileOwnerAccountName : @"root",
+                                                                   NSFileGroupOwnerAccountName : @"wheel",
+                                                                   NSFilePosixPermissions : @0755
+                                                                   };
+    
+    NSDictionary *modifyFolderLibrarySecurityTrustSettings = @{
+                                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                               NBCWorkflowModifyTargetURL : [folderLibrarySecurityTrustSettings path],
+                                                               NBCWorkflowModifyAttributes : folderLibrarySecurityTrustSettingsAttributes
+                                                               };
+    
+    [modifyDictArray addObject:modifyFolderLibrarySecurityTrustSettings];
+    
+    // --------------------------------------------------------------
+    //  /Library/Security/Trust Settings/Admin.plist
+    // --------------------------------------------------------------
+    NSURL *systemKeychainTrustSettingsURL = [volumeURL URLByAppendingPathComponent:@"Library/Security/Trust Settings/Admin.plist"];
+    NSMutableDictionary *systemKeychainTrustSettingsDict;
+    NSDictionary *systemKeychainTrustSettingsAttributes;
+    if ( [systemKeychainTrustSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+        systemKeychainTrustSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:systemKeychainTrustSettingsURL];
+        systemKeychainTrustSettingsAttributes = [fm attributesOfItemAtPath:[systemKeychainTrustSettingsURL path] error:&error];
+    }
+    
+    if ( [systemKeychainTrustSettingsDict count] == 0 ) {
+        systemKeychainTrustSettingsDict = [[NSMutableDictionary alloc] init];
+        systemKeychainTrustSettingsAttributes = @{
+                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileGroupOwnerAccountName : @"wheel",
+                                                  NSFilePosixPermissions : @0600
+                                                  };
+    }
+    
+    systemKeychainTrustSettingsDict[@"trustList"] = @{};
+    systemKeychainTrustSettingsDict[@"trustVersion"] = @0;
+    
+    NSDictionary *modifyDictSystemKeychainTrustSettings = @{
+                                                            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                            NBCWorkflowModifyContent : systemKeychainTrustSettingsDict,
+                                                            NBCWorkflowModifyAttributes : systemKeychainTrustSettingsAttributes,
+                                                            NBCWorkflowModifyTargetURL : [systemKeychainTrustSettingsURL path]
+                                                            };
+    
+    [modifyDictArray addObject:modifyDictSystemKeychainTrustSettings];
+}
+
+- (void)modifySettingsForMenuBar:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    
+    // --------------------------------------------------------------
+    //  /Library/Preferences/com.apple.systemuiserver.plist
+    // --------------------------------------------------------------
+    NSURL *systemUIServerPreferencesURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/com.apple.systemuiserver.plist"];
+    NSMutableDictionary *systemUIServerPreferencesDict;
+    NSDictionary *systemUIServerPreferencesAttributes;
+    if ( [systemUIServerPreferencesURL checkResourceIsReachableAndReturnError:nil] ) {
+        systemUIServerPreferencesDict = [NSMutableDictionary dictionaryWithContentsOfURL:systemUIServerPreferencesURL];
+        systemUIServerPreferencesAttributes = [fm attributesOfItemAtPath:[systemUIServerPreferencesURL path] error:&error];
+    }
+    
+    if ( [systemUIServerPreferencesDict count] == 0 ) {
+        systemUIServerPreferencesDict = [[NSMutableDictionary alloc] init];
+        systemUIServerPreferencesAttributes = @{
+                                                NSFileOwnerAccountName : @"root",
+                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                NSFilePosixPermissions : @0644
+                                                };
+    }
+    
+    systemUIServerPreferencesDict[@"menuExtras"] = @[
+                                                     @"/System/Library/CoreServices/Menu Extras/TextInput.menu",
+                                                     @"/System/Library/CoreServices/Menu Extras/Battery.menu",
+                                                     @"/System/Library/CoreServices/Menu Extras/Clock.menu"
+                                                     ];
+    
+    NSDictionary *modifyDictSystemUIServerPreferences = @{
+                                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                          NBCWorkflowModifyContent : systemUIServerPreferencesDict,
+                                                          NBCWorkflowModifyAttributes : systemUIServerPreferencesAttributes,
+                                                          NBCWorkflowModifyTargetURL : [systemUIServerPreferencesURL path]
+                                                          };
+    
+    [modifyDictArray addObject:modifyDictSystemUIServerPreferences];
+    
+    // --------------------------------------------------------------
+    //  /Library/LaunchAgents/com.apple.SystemUIServer.plist
+    // --------------------------------------------------------------
+    NSURL *systemUIServerLaunchAgentURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchAgents/com.apple.SystemUIServer.plist"];
+    NSURL *systemUIServerLaunchDaemonURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.SystemUIServer.plist"];
+    NSMutableDictionary *systemUIServerDict;
+    NSDictionary *systemUIServerAttributes;
+    if ( [systemUIServerLaunchAgentURL checkResourceIsReachableAndReturnError:nil] ) {
+        systemUIServerDict = [NSMutableDictionary dictionaryWithContentsOfURL:systemUIServerLaunchAgentURL];
+        systemUIServerAttributes = [fm attributesOfItemAtPath:[systemUIServerLaunchAgentURL path] error:&error];
+    }
+    
+    if ( [systemUIServerDict count] == 0 ) {
+        systemUIServerDict = [[NSMutableDictionary alloc] init];
+        systemUIServerAttributes = @{
+                                     NSFileOwnerAccountName : @"root",
+                                     NSFileGroupOwnerAccountName : @"wheel",
+                                     NSFilePosixPermissions : @0644
+                                     };
+    }
+    
+    systemUIServerDict[@"RunAtLoad"] = @YES;
+    systemUIServerDict[@"Disabled"] = @NO;
+    
+    NSDictionary *modifyDictSystemUIServer = @{
+                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                               NBCWorkflowModifyContent : systemUIServerDict,
+                                               NBCWorkflowModifyAttributes : systemUIServerAttributes,
+                                               NBCWorkflowModifyTargetURL : [systemUIServerLaunchDaemonURL path]
+                                               };
+    
+    [modifyDictArray addObject:modifyDictSystemUIServer];
+}
+
 - (void)modifySettingsForVNC:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
@@ -561,6 +708,7 @@
         screensharingLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:screensharingLaunchDaemonURL];
         screensharingLaunchDaemonAttributes = [fm attributesOfItemAtPath:[screensharingLaunchDaemonURL path] error:&error];
     } else {
+        NSLog(@"Could not find %@", screensharingLaunchDaemonURL);
         NSLog(@"This should exist, if not, something went Wrong!");
         NSLog(@"Error: %@", error);
     }
@@ -587,6 +735,7 @@
         remoteDesktopPrivilegeProxyLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:remoteDesktopPrivilegeProxyDaemonURL];
         remoteDesktopPrivilegeProxyLaunchDaemonAttributes = [fm attributesOfItemAtPath:[remoteDesktopPrivilegeProxyDaemonURL path] error:&error];
     } else {
+        NSLog(@"Could not find: %@", remoteDesktopPrivilegeProxyDaemonURL);
         NSLog(@"This should exist, if not, something went Wrong!");
         NSLog(@"Error: %@", error);
     }
@@ -613,6 +762,7 @@
         screensharingAgentLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:screensharingAgentDaemonURL];
         screensharingAgentLaunchDaemonAttributes = [fm attributesOfItemAtPath:[screensharingAgentDaemonURL path] error:&error];
     } else {
+        NSLog(@"Could not find: %@", screensharingAgentDaemonURL);
         NSLog(@"This should exist, if not, something went Wrong!");
         NSLog(@"Error: %@", error);
     }
@@ -632,27 +782,47 @@
     // --------------------------------------------------------------
     //  /System/Library/LaunchAgents/com.apple.screensharing.MessagesAgent.plist
     // --------------------------------------------------------------
-    NSURL *screensharingMessagesAgentDaemonURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchAgents/com.apple.screensharing.MessagesAgent.plist"];
-    NSMutableDictionary *screensharingMessagesAgentLaunchAgentDict;
-    NSDictionary *screensharingMessagesAgentLaunchAgentAttributes;
-    if ( [screensharingMessagesAgentDaemonURL checkResourceIsReachableAndReturnError:&error] ) {
-        screensharingMessagesAgentLaunchAgentDict = [NSMutableDictionary dictionaryWithContentsOfURL:screensharingMessagesAgentDaemonURL];
-        screensharingMessagesAgentLaunchAgentAttributes = [fm attributesOfItemAtPath:[screensharingAgentDaemonURL path] error:&error];
+    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 7 < sourceVersionMinor ) {
+        NSURL *screensharingMessagesAgentDaemonURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchAgents/com.apple.screensharing.MessagesAgent.plist"];
+        NSMutableDictionary *screensharingMessagesAgentLaunchAgentDict;
+        NSDictionary *screensharingMessagesAgentLaunchAgentAttributes;
+        if ( [screensharingMessagesAgentDaemonURL checkResourceIsReachableAndReturnError:&error] ) {
+            screensharingMessagesAgentLaunchAgentDict = [NSMutableDictionary dictionaryWithContentsOfURL:screensharingMessagesAgentDaemonURL];
+            screensharingMessagesAgentLaunchAgentDict[@"RunAtLoad"] = @YES;
+            screensharingMessagesAgentLaunchAgentAttributes = [fm attributesOfItemAtPath:[screensharingAgentDaemonURL path] error:&error];
+        } else if ( 7 < sourceVersionMinor ) {
+            screensharingMessagesAgentLaunchAgentDict = [[NSMutableDictionary alloc] init];
+            screensharingMessagesAgentLaunchAgentDict[@"EnableTransactions"] = @YES;
+            screensharingMessagesAgentLaunchAgentDict[@"Label"] = @"com.apple.screensharing.MessagesAgent";
+            screensharingMessagesAgentLaunchAgentDict[@"ProgramArguments"] = @[ @"/System/Library/CoreServices/RemoteManagement/AppleVNCServer.bundle/Contents/MacOS/AppleVNCServer" ];
+            screensharingMessagesAgentLaunchAgentDict[@"MachServices"] = @{ @"com.apple.screensharing.MessagesAgent" : @YES };
+            screensharingMessagesAgentLaunchAgentDict[@"RunAtLoad"] = @YES;
+        } else {
+            NSLog(@"Could not find: %@", screensharingMessagesAgentDaemonURL);
+            NSLog(@"This should exist, if not, something went Wrong!");
+            NSLog(@"Error: %@", error);
+        }
+        
+        if ( [screensharingMessagesAgentLaunchAgentAttributes count] == 0 ) {
+            screensharingMessagesAgentLaunchAgentAttributes = @{
+                                                                NSFileOwnerAccountName : @"root",
+                                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                                NSFilePosixPermissions : @0644
+                                                                };
+        }
+        
+        NSDictionary *modifyDictScreensharingMessagesAgentLaunchAgent = @{
+                                                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                                          NBCWorkflowModifyContent : screensharingMessagesAgentLaunchAgentDict,
+                                                                          NBCWorkflowModifyTargetURL : [screensharingMessagesAgentDaemonURL path],
+                                                                          NBCWorkflowModifyAttributes : screensharingMessagesAgentLaunchAgentAttributes
+                                                                          };
+        
+        [modifyDictArray addObject:modifyDictScreensharingMessagesAgentLaunchAgent];
     } else {
-        NSLog(@"This should exist, if not, something went Wrong!");
-        NSLog(@"Error: %@", error);
+        NSLog(@"Don't include MessagesAgent in 10.7 or lower.");
     }
-    
-    screensharingMessagesAgentLaunchAgentDict[@"RunAtLoad"] = @YES;
-    
-    NSDictionary *modifyDictScreensharingMessagesAgentLaunchAgent = @{
-                                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                                                      NBCWorkflowModifyContent : screensharingMessagesAgentLaunchAgentDict,
-                                                                      NBCWorkflowModifyTargetURL : [screensharingMessagesAgentDaemonURL path],
-                                                                      NBCWorkflowModifyAttributes : screensharingMessagesAgentLaunchAgentAttributes
-                                                                      };
-    
-    [modifyDictArray addObject:modifyDictScreensharingMessagesAgentLaunchAgent];
     
     // --------------------------------------------------------------
     //  /etc/com.apple.screensharing.agent.launchd
@@ -708,6 +878,7 @@
         remoteDesktopLaunchAgentDict = [NSMutableDictionary dictionaryWithContentsOfURL:remoteDesktopDaemonURL];
         remoteDesktopLaunchAgentAttributes = [fm attributesOfItemAtPath:[remoteDesktopDaemonURL path] error:&error];
     } else {
+        NSLog(@"Could not find: %@", remoteDesktopDaemonURL);
         NSLog(@"This should exist, if not, something went Wrong!");
         NSLog(@"Error: %@", error);
     }
@@ -792,6 +963,9 @@
 }
 
 - (void)modifyNBIRemoveWiFi:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Disabling WiFi in NBI");
+    
     NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
     
     // --------------------------------------------------------------
@@ -807,6 +981,7 @@
 }
 
 - (void)modifyNBINTP:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
     
     // --------------------------------------------------------------
@@ -882,6 +1057,7 @@
 }
 
 - (void)modifySettingsAddFolders:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
     
     // --------------------------------------------------------------
@@ -985,6 +1161,7 @@
 }
 
 - (BOOL)verifyNetInstallFromDiskImageURL:(NSURL *)netInstallDiskImageURL target:(NBCTarget *)target error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = NO;
     NSURL *netInstallVolumeURL;
     
@@ -1048,6 +1225,7 @@
 }
 
 - (BOOL)verifyBaseSystemFromTarget:(NBCTarget *)target source:(NBCSource *)source error:(NSError **)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL verified = NO;
     
     NSURL *baseSystemDiskImageURL = [target baseSystemURL];

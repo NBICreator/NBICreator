@@ -11,17 +11,28 @@
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowProgressViewController.h"
 #import "NBCWorkflowPanelController.h"
+#import "NBCImagrWorkflowNBI.h"
+#import "NBCImagrWorkflowResources.h"
+#import "NBCDeployStudioWorkflowNBI.h"
+#import "NBCNetInstallWorkflowNBI.h"
 
-@interface NBCWorkflowController : NSObject
+@interface NBCWorkflowManager : NSObject
 
 // -------------------------------------------------------------
 //  Unsorted
 // -------------------------------------------------------------
 @property BOOL workflowRunning;
 
-@property BOOL workflowNBIComplete;
-@property BOOL workflowResourcesComplete;
-@property BOOL workflowModifyNBIComplete;
+@property id currentWorkflowNBI;
+@property BOOL currentWorkflowNBIComplete;
+
+@property id currentWorkflowResources;
+@property BOOL currentWorkflowResourcesComplete;
+
+@property id currentWorkflowModifyNBI;
+@property BOOL currentWorkflowModifyNBIComplete;
+
+@property NSString *resourcesLastMessage;
 
 @property NBCWorkflowItem *currentWorkflowItem;
 @property NBCWorkflowPanelController *workflowPanel;
@@ -30,8 +41,14 @@
 @property NSMutableArray *workflowQueue;
 @property NSMutableArray *workflowViewArray;
 
+
 // -------------------------------------------------------------
-//  Public Methods
+//  Class Methods
+// -------------------------------------------------------------
++ (id)sharedManager;
+
+// -------------------------------------------------------------
+//  Instance Methods
 // -------------------------------------------------------------
 - (void)addWorkflowItemToQueue:(NBCWorkflowItem *)workflowItem;
 

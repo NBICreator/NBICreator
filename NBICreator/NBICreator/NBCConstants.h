@@ -15,6 +15,10 @@ extern NSString *const NBCBundleIdentifier;
 extern NSString *const NBCBundleIdentifierHelper;
 
 
+extern NSString *const NBCWorkflowTypeNetInstall;
+extern NSString *const NBCWorkflowTypeDeployStudio;
+extern NSString *const NBCWorkflowTypeImagr;
+
 // --------------------------------------------------------------
 //  Folders
 // --------------------------------------------------------------
@@ -46,6 +50,7 @@ extern NSString *const NBCFileNameImagrDefaults;
 extern NSString *const NBCUserDefaultsIndexCounter;
 extern NSString *const NBCUserDefaultsNetBootSelection;
 extern NSString *const NBCUserDefaultsDateFormatString;
+extern NSString *const NBCUserDefaultsLogLevel;
 
 // --------------------------------------------------------------
 //  Menu Items
@@ -105,10 +110,17 @@ extern NSString *const NBCSettingsNBIIcon;
 extern NSString *const NBCSettingsDisableWiFiKey;
 extern NSString *const NBCSettingsDisplaySleepKey;
 extern NSString *const NBCSettingsDisplaySleepMinutesKey;
+extern NSString *const NBCSettingsIncludeSystemUIServerKey;
 extern NSString *const NBCSettingsARDLoginKey;
 extern NSString *const NBCSettingsARDPasswordKey;
 extern NSString *const NBCSettingsNBICreationToolKey;
 extern NSString *const NBCSettingsNetworkTimeServerKey;
+
+// --------------------------------------------------------------
+//  Template Settings Extra
+// --------------------------------------------------------------
+extern NSString *const NBCSettingsCertificates;
+extern NSString *const NBCSettingsPackages;
 
 // --------------------------------------------------------------
 //  Template Settings Imagr
@@ -124,6 +136,8 @@ extern NSString *const NBCSettingsImagrRCImagingNBICreator;
 extern NSString *const NBCSettingsImagrUseLocalVersion;
 extern NSString *const NBCSettingsImagrLocalVersionPath;
 extern NSString *const NBCSettingsImagrSourceIsNBI;
+
+extern NSString *const NBCSettingsImagrVersionLatest;
 
 // --------------------------------------------------------------
 //  Template Settings DeployStudio
@@ -169,6 +183,13 @@ extern NSString *const NBCNBImageInfoDictLanguageKey;
 extern NSString *const NBCNBImageInfoDictProtocolKey;
 
 // --------------------------------------------------------------
+//  Workflow Types
+// --------------------------------------------------------------
+extern NSString *const NBCWorkflowNBI;
+extern NSString *const NBCWorkflowNBIResources;
+extern NSString *const NBCWorkflowNBIModify;
+
+// --------------------------------------------------------------
 //  Notifications
 // --------------------------------------------------------------
 
@@ -181,6 +202,7 @@ extern NSString *const NBCNotificationWorkflowFailed;
 
 // Workflows UserInfoKeys
 extern NSString *const NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem;
+extern NSString *const NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem;
 
 // Imagr
 extern NSString *const NBCNotificationImagrUpdateSource;
@@ -346,6 +368,32 @@ extern NSString *const NBCImagrRCInstallTargetURL;
 extern NSString *const NBCImagrGitHubRepository;
 
 
+// --------------------------------------------------------------
+//  Certificate TableView Keys
+// --------------------------------------------------------------
+extern NSString *const NBCDictionaryKeyCertificate;
+extern NSString *const NBCDictionaryKeyCertificateURL;
+extern NSString *const NBCDictionaryKeyCertificateName;
+extern NSString *const NBCDictionaryKeyCertificateIcon;
+extern NSString *const NBCDictionaryKeyCertificateAuthority;
+extern NSString *const NBCDictionaryKeyCertificateSignature;
+extern NSString *const NBCDictionaryKeyCertificateSelfSigned;
+extern NSString *const NBCDictionaryKeyCertificateSerialNumber;
+extern NSString *const NBCDictionaryKeyCertificateNotValidBeforeDate;
+extern NSString *const NBCDictionaryKeyCertificateNotValidAfterDate;
+extern NSString *const NBCDictionaryKeyCertificateExpirationString;
+extern NSString *const NBCDictionaryKeyCertificateExpired;
+
+
+extern NSString *const NBCDictionaryKeyPackagePath;
+extern NSString *const NBCDictionaryKeyPackageName;
+
+
+extern NSString *const NBCCertificatesNBICreatorTargetURL;
+extern NSString *const NBCCertificatesTargetURL;
+extern NSString *const NBCScriptsNBICreatorTargetPath;
+extern NSString *const NBCScriptsTargetPath;
+
 
 extern NSString *const NBCNetworkTimeServerDefault;
 
@@ -362,3 +410,8 @@ extern NSString *const NBCResourcesDeployStudioLatestVersionKey;
 extern NSString *const NBCAlertUserInfoBuildNBI;
 
 extern NSString *const NBCHelpURL;
+
+extern NSString *const NBCVariableIndexCounter;
+
+extern NSString *const NBCTableViewIdentifierCertificates;
+extern NSString *const NBCTableViewIdentifierPackages;

@@ -9,19 +9,21 @@
 #import <Foundation/Foundation.h>
 
 @protocol NBCInstallerPackageDelegate
-@optional
 - (void)installSuccessful;
 - (void)installFailed;
 @end
 
-@interface NBCInstallerPackageController : NSObject <NBCInstallerPackageDelegate> {
-    id _delegate;
-}
+@interface NBCInstallerPackageController : NSObject
+
+@property id delegate;
+
+@property NSURL *volumeURL;
+@property NSMutableArray *packagesQueue;
 
 // -------------------------------------------------------------
 //  Public Methods
 // -------------------------------------------------------------
 - (id)initWithDelegate:(id<NBCInstallerPackageDelegate>)delegate;
-- (BOOL)installPackageOnTargetVolume:(NSURL *)volumeURL packageURL:(NSURL *)packageURL choiceChangesXML:(NSDictionary *)choiceChangesXML error:(NSError **)retError;
+- (void)installPackagesToVolume:(NSURL *)volumeURL packages:(NSArray *)packages;
 
 @end

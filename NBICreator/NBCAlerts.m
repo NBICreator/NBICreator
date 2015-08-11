@@ -10,6 +10,9 @@
 #import "NBCAlerts.h"
 #import "NBCConstants.h"
 #import "NBCController.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCAlerts
 
@@ -22,6 +25,7 @@
 }
 
 - (void)showAlertError:(NSError *)error {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [NSAlert alertWithError:error];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         #pragma unused(returnCode)
@@ -30,6 +34,7 @@
 }
 
 + (void)showAlertOKWithTitle:(NSString *)title informativeText:(NSString *)informativeText {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:title];
@@ -42,6 +47,7 @@
 }
 
 + (void)showAlertSettingsUnchangedNBI {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Nothing to update"];
@@ -54,6 +60,7 @@
 }
 
 + (void)showAlertRecoveryVersionMismatch {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Recovery Version Mismatch"];
@@ -66,6 +73,7 @@
 }
 
 + (void)showAlertUnrecognizedImagrApplication {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Imagr Application"];
@@ -77,6 +85,7 @@
 }
 
 + (void)showAlertUnrecognizedSource {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Source"];
@@ -88,6 +97,7 @@
 }
 
 + (void)showAlertSettingsError:(NSString *)informativeText {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *text = [NSString stringWithFormat:@"The current settings contain errors that need to be addressed in order to create a valid NBI.\n%@", informativeText];
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
@@ -100,6 +110,7 @@
 }
 
 - (void)showAlertSettingsWarning:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *text = [NSString stringWithFormat:@"The current settings contain warnings that you need to approve before creating a NBI.\n%@", informativeText];
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleCancel];     // NSAlertFirstButtonReturn
@@ -113,6 +124,7 @@
 }
 
 - (void)showAlertSettingsUnsaved:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleSave];   //NSAlertFirstButton
     [alert addButtonWithTitle:@"Discard"];          //NSAlertSecondButton
@@ -126,6 +138,7 @@
 }
 
 - (void)showAlertSettingsUnsavedBuild:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save and Continue"];    //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleContinue];  //NSAlertSecondButton
@@ -139,6 +152,7 @@
 }
 
 - (void)showAlertSettingsUnsavedQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save and Quit"];        //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleQuit];      //NSAlertSecondButton
@@ -152,6 +166,7 @@
 }
 
 - (void)showAlertWorkflowRunningQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Quit Anyway"];          //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertSecondButton
@@ -164,6 +179,7 @@
 }
 
 - (void)showAlertDeleteTemplate:(NSString *)informativeText templateName:(NSString *)templateName  alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertFirstButton
     [alert addButtonWithTitle:@"Delete"];               //NSAlertSecondButton
