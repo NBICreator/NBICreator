@@ -893,9 +893,11 @@
 				TargetAttributes = {
 					53968C061A8E7A3E0079AA95 = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = Y7QFC8672N;
 					};
 					53968C2D1A8E7B8C0079AA95 = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = Y7QFC8672N;
 					};
 				};
 			};
@@ -1224,6 +1226,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1247,6 +1251,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.NBICreator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = "$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/include";
 			};
 			name = Debug;
@@ -1256,6 +1261,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1279,6 +1286,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.NBICreator;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = "$(BUILD_ROOT)/../IntermediateBuildFilesPath/UninstalledProducts/include";
 			};
 			name = Release;
@@ -1286,6 +1294,8 @@
 		53968C331A8E7B8C0079AA95 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -1303,6 +1313,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.NBICreatorHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -1310,6 +1321,8 @@
 		53968C341A8E7B8C0079AA95 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				INFOPLIST_FILE = "NBICreatorHelper/NBICreatorHelper-Info.plist";
 				OTHER_LDFLAGS = (
 					"-sectcreate",
@@ -1323,6 +1336,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.NBICreatorHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;

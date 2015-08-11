@@ -33,7 +33,7 @@
 	<key>SMPrivilegedExecutables</key>
 	<dict>
 		<key>com.github.NBICreatorHelper</key>
-		<string>identifier com.github.NBICreatorHelper and certificate leaf[subject.CN] = "Mac Developer: Erik Berglund (95S8ZL564K)"</string>
+		<string>identifier com.github.NBICreatorHelper and certificate leaf[subject.CN] = &quot;Mac Developer: Erik Berglund (BXUF2UUW7E)&quot;</string>
 	</dict>
 </dict>
 </plist>
