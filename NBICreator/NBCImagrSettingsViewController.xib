@@ -758,7 +758,7 @@ asdasd</string>
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                                     <tableColumns>
-                                                        <tableColumn identifier="MainCell" width="495" minWidth="40" maxWidth="1000" id="av1-Pd-Iwx">
+                                                        <tableColumn identifier="CertificateTableColumn" width="495" minWidth="40" maxWidth="1000" id="av1-Pd-Iwx">
                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                                 <font key="font" metaFont="smallSystem"/>
                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -771,7 +771,7 @@ asdasd</string>
                                                             </textFieldCell>
                                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             <prototypeCellViews>
-                                                                <tableCellView identifier="MainCell" id="Bzg-Jp-S4I" customClass="NBCCertificateTableCellView">
+                                                                <tableCellView identifier="CertificateCellView" id="Bzg-Jp-S4I" customClass="NBCCertificateTableCellView">
                                                                     <rect key="frame" x="1" y="1" width="495" height="28"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
@@ -887,7 +887,7 @@ asdasd</string>
                                                     <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                                     <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                                     <tableColumns>
-                                                        <tableColumn identifier="MainCell" width="495" minWidth="40" maxWidth="1000" id="EAT-FX-GHr">
+                                                        <tableColumn identifier="PackageTableColumn" width="495" minWidth="40" maxWidth="1000" id="EAT-FX-GHr">
                                                             <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                                                 <font key="font" metaFont="smallSystem"/>
                                                                 <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -900,7 +900,7 @@ asdasd</string>
                                                             </textFieldCell>
                                                             <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                                             <prototypeCellViews>
-                                                                <tableCellView identifier="MainCell" id="yRb-dQ-oMm" customClass="NBCPackageTableCellView">
+                                                                <tableCellView identifier="PackageCellView" id="yRb-dQ-oMm" customClass="NBCPackageTableCellView">
                                                                     <rect key="frame" x="1" y="1" width="495" height="19"/>
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>

@@ -155,54 +155,128 @@ DDLogLevel ddLogLevel;
 
 - (void)tableView:(NSTableView *)tableView updateDraggingItemsForDrag:(id<NSDraggingInfo>)draggingInfo {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
-        NSArray *classes = @[ [NBCDesktopEntity class], [NSPasteboardItem class] ];
-        __block NBCCertificateTableCellView *cellView = [tableView makeViewWithIdentifier:@"MainCell" owner:self];
-        //__block NSInteger validCount = 0;
+        NSArray *classes = @[ [NBCDesktopCertificateEntity class], [NSPasteboardItem class] ];
+        __block NBCCertificateTableCellView *certCellView = [tableView makeViewWithIdentifier:@"CertificateCellView" owner:self];
+        __block NSInteger validCount = 0;
         [draggingInfo enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:nil
                                              usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
                                                  if ( [[draggingItem item] isKindOfClass:[NBCDesktopCertificateEntity class]] ) {
                                                      NBCDesktopCertificateEntity *entity = (NBCDesktopCertificateEntity *)[draggingItem item];
-                                                     [draggingItem setDraggingFrame:[cellView frame]];
+                                                     [draggingItem setDraggingFrame:[certCellView frame]];
                                                      [draggingItem setImageComponentsProvider:^NSArray * {
                                                          if ( [entity isKindOfClass:[NBCDesktopCertificateEntity class]] ) {
                                                              NSData *certificateData = [entity certificate];
                                                              NSDictionary *certificateDict = [self examineCertificate:certificateData];
                                                              if ( [certificateDict count] != 0 ) {
-                                                                 cellView = [self populateCertificateCellView:cellView certificateDict:certificateDict];
+                                                                 certCellView = [self populateCertificateCellView:certCellView certificateDict:certificateDict];
                                                              }
                                                          }
-                                                         [[cellView textFieldCertificateName] setStringValue:[entity name]];
-                                                         return [cellView draggingImageComponents];
+                                                         [[certCellView textFieldCertificateName] setStringValue:[entity name]];
+                                                         return [certCellView draggingImageComponents];
                                                      }];
+                                                     validCount++;
+                                                 } else {
+                                                     [draggingItem setImageComponentsProvider:nil];
                                                  }
                                              }];
-    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
+        [draggingInfo setNumberOfValidItemsForDrop:validCount];
+        [draggingInfo setDraggingFormation:NSDraggingFormationList];
         
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
+        NSArray *classes = @[ [NBCDesktopPackageEntity class], [NSPasteboardItem class] ];
+        __block NBCPackageTableCellView *packageCellView = [tableView makeViewWithIdentifier:@"PackageCellView" owner:self];
+        __block NSInteger validCount = 0;
+        [draggingInfo enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:nil
+                                             usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
+#pragma unused(idx,stop)
+                                                 if ( [[draggingItem item] isKindOfClass:[NBCDesktopPackageEntity class]] ) {
+                                                     NBCDesktopPackageEntity *entity = (NBCDesktopPackageEntity *)[draggingItem item];
+                                                     [draggingItem setDraggingFrame:[packageCellView frame]];
+                                                     [draggingItem setImageComponentsProvider:^NSArray * {
+                                                         if ( [entity isKindOfClass:[NBCDesktopPackageEntity class]] ) {
+                                                             NSDictionary *packageDict = [self examinePackageAtURL:[entity fileURL]];
+                                                             if ( [packageDict count] != 0 ) {
+                                                                 packageCellView = [self populatePackageCellView:packageCellView packageDict:packageDict];
+                                                             }
+                                                         }
+                                                         [[packageCellView textFieldPackageName] setStringValue:[entity name]];
+                                                         return [packageCellView draggingImageComponents];
+                                                     }];
+                                                     validCount++;
+                                                 } else {
+                                                     [draggingItem setImageComponentsProvider:nil];
+                                                 }
+                                             }];
+        [draggingInfo setNumberOfValidItemsForDrop:validCount];
+        [draggingInfo setDraggingFormation:NSDraggingFormationList];
     }
 }
 
+- (void)insertCertificatesInTableView:(NSTableView *)tableView draggingInfo:(id<NSDraggingInfo>)info row:(NSInteger)row {
+    NSArray *classes = @[ [NBCDesktopCertificateEntity class] ];
+    __block NSInteger insertionIndex = row;
+    [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:nil
+                                 usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
+#pragma unused(idx,stop)
+                                     NBCDesktopCertificateEntity *entity = (NBCDesktopCertificateEntity *)[draggingItem item];
+                                     if ( [entity isKindOfClass:[NBCDesktopCertificateEntity class]] ) {
+                                         NSData *certificateData = [entity certificate];
+                                         NSDictionary *certificateDict = [self examineCertificate:certificateData];
+                                         if ( [certificateDict count] != 0 ) {
+                                             
+                                             for ( NSDictionary *certDict in self->_certificateTableViewContents ) {
+                                                 if ( [certificateDict[NBCDictionaryKeyCertificateSignature] isEqualToData:certDict[NBCDictionaryKeyCertificateSignature]] ) {
+                                                     if ( [certificateDict[NBCDictionaryKeyCertificateSerialNumber] isEqualToString:certDict[NBCDictionaryKeyCertificateSerialNumber]] ) {
+                                                         DDLogWarn(@"Certificate %@ is already added!", certificateDict[NBCDictionaryKeyCertificateName]);
+                                                         return;
+                                                     }
+                                                 }
+                                             }
+                                             
+                                             [self->_certificateTableViewContents insertObject:certificateDict atIndex:(NSUInteger)insertionIndex];
+                                             [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
+                                             [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
+                                             insertionIndex++;
+                                         }
+                                     }
+                                 }];
+}
+
+- (void)insertPackagesInTableView:(NSTableView *)tableView draggingInfo:(id<NSDraggingInfo>)info row:(NSInteger)row {
+    NSArray *classes = @[ [NBCDesktopPackageEntity class] ];
+    __block NSInteger insertionIndex = row;
+    [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:nil
+                                 usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
+#pragma unused(idx,stop)
+                                     NBCDesktopPackageEntity *entity = (NBCDesktopPackageEntity *)[draggingItem item];
+                                     if ( [entity isKindOfClass:[NBCDesktopPackageEntity class]] ) {
+                                         NSDictionary *packageDict = [self examinePackageAtURL:[entity fileURL]];
+                                         if ( [packageDict count] != 0 ) {
+                                             
+                                             NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
+                                             for ( NSDictionary *pkgDict in self->_packagesTableViewContents ) {
+                                                 if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPackagePath]] ) {
+                                                     DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
+                                                     return;
+                                                 }
+                                             }
+                                             
+                                             [self->_packagesTableViewContents insertObject:packageDict atIndex:(NSUInteger)insertionIndex];
+                                             [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
+                                             [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
+                                             insertionIndex++;
+                                         }
+                                     }
+                                 }];
+}
+
 - (BOOL)tableView:(NSTableView *)tableView acceptDrop:(id<NSDraggingInfo>)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)dropOperation {
-#pragma unused(tableView,row,dropOperation, info)
+#pragma unused(dropOperation)
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
-        NSURL *draggedFileURL = [self getDraggedCertificateURLsFromPasteboard:[info draggingPasteboard]];
-        if ( draggedFileURL ) {
-            NSData* certificateData = [NSData dataWithContentsOfURL:draggedFileURL];
-            if ( certificateData != nil ) {
-                NSDictionary *certificateDict = [self examineCertificate:certificateData];
-                if ( [certificateDict count] != 0 ) {
-                    [self insertCertificateInTableView:certificateDict];
-                    return YES;
-                }
-            }
-        }
+        [self insertCertificatesInTableView:_tableViewCertificates draggingInfo:info row:row];
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
-        NSURL *draggedFileURL = [self getDraggedPackageURLsFromPasteboard:[info draggingPasteboard]];
-        if ( draggedFileURL ) {
-            if ( [self examinePackageAtURL:draggedFileURL] ) {
-                return YES;
-            }
-        }
+        [self insertPackagesInTableView:_tableViewPackages draggingInfo:info row:row];
     }
     return NO;
 }
@@ -257,38 +331,40 @@ DDLogLevel ddLogLevel;
     } else {
         [[cellView textFieldCertificateExpiration] setStringValue:certificateDict[NBCDictionaryKeyCertificateExpirationString]];
     }
+    
+    return cellView;
+}
 
+- (NBCPackageTableCellView *)populatePackageCellView:(NBCPackageTableCellView *)cellView packageDict:(NSDictionary *)packageDict {
+    
+    NSMutableAttributedString *packageName;
+    NSImage *packageIcon;
+    NSURL *packageURL = [NSURL fileURLWithPath:packageDict[NBCDictionaryKeyPackagePath]];
+    if ( [packageURL checkResourceIsReachableAndReturnError:nil] ) {
+        [[cellView textFieldPackageName] setStringValue:packageDict[NBCDictionaryKeyPackageName]];
+        packageIcon = [[NSWorkspace sharedWorkspace] iconForFile:[packageURL path]];
+        [[cellView imageViewPackageIcon] setImage:packageIcon];
+    } else {
+        packageName = [[NSMutableAttributedString alloc] initWithString:packageDict[NBCDictionaryKeyPackageName]];
+        [packageName addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[packageName length])];
+        [[cellView textFieldPackageName] setAttributedStringValue:packageName];
+    }
+    
     return cellView;
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
         NSDictionary *certificateDict = _certificateTableViewContents[(NSUInteger)row];
-        NSString *identifier = [tableColumn identifier];
-        if ( [identifier isEqualToString:@"MainCell"] ) {
-            NBCCertificateTableCellView *cellView = [tableView makeViewWithIdentifier:@"MainCell" owner:self];
+        if ( [[tableColumn identifier] isEqualToString:@"CertificateTableColumn"] ) {
+            NBCCertificateTableCellView *cellView = [tableView makeViewWithIdentifier:@"CertificateCellView" owner:self];
             return [self populateCertificateCellView:cellView certificateDict:certificateDict];
         }
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
         NSDictionary *packageDict = _packagesTableViewContents[(NSUInteger)row];
-        NSString *identifier = [tableColumn identifier];
-        if ( [identifier isEqualToString:@"MainCell"] ) {
-            NBCPackageTableCellView *cellView = [tableView makeViewWithIdentifier:@"MainCell" owner:self];
-            
-            NSMutableAttributedString *packageName;
-            NSImage *packageIcon;
-            NSURL *packageURL = [NSURL fileURLWithPath:packageDict[NBCDictionaryKeyPackagePath]];
-            if ( [packageURL checkResourceIsReachableAndReturnError:nil] ) {
-                [[cellView textFieldPackageName] setStringValue:packageDict[NBCDictionaryKeyPackageName]];
-                packageIcon = [[NSWorkspace sharedWorkspace] iconForFile:[packageURL path]];
-                [[cellView imageViewPackageIcon] setImage:packageIcon];
-            } else {
-                packageName = [[NSMutableAttributedString alloc] initWithString:packageDict[NBCDictionaryKeyPackageName]];
-                [packageName addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[packageName length])];
-                [[cellView textFieldPackageName] setAttributedStringValue:packageName];
-            }
-            
-            return cellView;
+        if ( [[tableColumn identifier] isEqualToString:@"PackageTableColumn"] ) {
+            NBCPackageTableCellView *cellView = [tableView makeViewWithIdentifier:@"PackageCellView" owner:self];
+            return [self populatePackageCellView:cellView packageDict:packageDict];
         }
     }
     return nil;
@@ -318,64 +394,14 @@ DDLogLevel ddLogLevel;
                                        options:[self pasteboardReadingOptionsPackages]];
 }
 
-- (NSURL *)getDraggedCertificateURLsFromPasteboard:(NSPasteboard *)pboard {
-    if ( [[pboard types] containsObject:NSFilenamesPboardType] ) {
-        NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
-        if ( [files count] != 1 ) {
-            return nil;
-        } else {
-            NSURL *draggedFileURL = [NSURL fileURLWithPath:[files firstObject]];
-            if ( [[draggedFileURL pathExtension] isEqualToString:@"cer"] ) {
-                return draggedFileURL;
-            } else if ( [[draggedFileURL pathExtension] isEqualToString:@"crt"] ) {
-                return draggedFileURL;
-            }
-            return nil;
-        }
-    }
-    return nil;
-}
-
-- (NSURL *)getDraggedPackageURLsFromPasteboard:(NSPasteboard *)pboard {
-    if ( [[pboard types] containsObject:NSFilenamesPboardType] ) {
-        NSArray *files = [pboard propertyListForType:NSFilenamesPboardType];
-        if ( [files count] != 1 ) {
-            return nil;
-        } else {
-            NSURL *draggedFileURL = [NSURL fileURLWithPath:[files firstObject]];
-            if ( [[draggedFileURL pathExtension] isEqualToString:@"pkg"] ) {
-                return draggedFileURL;
-            } else if ( [[draggedFileURL pathExtension] isEqualToString:@"mpkg"] ) {
-                return draggedFileURL;
-            }
-            return nil;
-        }
-    }
-    return nil;
-}
-
-- (BOOL)examinePackageAtURL:(NSURL *)packageURL {
-    BOOL retval = YES;
-    
-    for ( NSDictionary *packageDict in _packagesTableViewContents ) {
-        NSString *existingPackagePath = packageDict[NBCDictionaryKeyPackagePath];
-        if ( [[packageURL path] isEqualToString:existingPackagePath] ) {
-            DDLogWarn(@"Package %@ is already added!", [packageURL lastPathComponent]);
-            return NO;
-        }
-    }
+- (NSDictionary *)examinePackageAtURL:(NSURL *)packageURL {
     
     NSMutableDictionary *newPackageDict = [[NSMutableDictionary alloc] init];
     
     newPackageDict[NBCDictionaryKeyPackagePath] = [packageURL path];
     newPackageDict[NBCDictionaryKeyPackageName] = [packageURL lastPathComponent];
     
-    // --------------------------------------------
-    //  Add certificate to tableView
-    // --------------------------------------------
-    [self insertPackageInTableView:newPackageDict];
-    
-    return retval;
+    return newPackageDict;
 }
 
 - (NSDictionary *)examineCertificate:(NSData *)certificateData {
@@ -513,6 +539,14 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)insertPackageInTableView:(NSDictionary *)packageDict {
+    NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
+    for ( NSDictionary *pkgDict in _packagesTableViewContents ) {
+        if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPackagePath]] ) {
+            DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
+            return;
+        }
+    }
+    
     NSInteger index = [_tableViewPackages selectedRow];
     index++;
     [_tableViewPackages beginUpdates];
@@ -849,7 +883,10 @@ DDLogLevel ddLogLevel;
         NSArray *packagesArray = settingsDict[NBCSettingsPackages];
         for ( NSString *packagePath in packagesArray ) {
             NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
-            [self examinePackageAtURL:packageURL];
+            NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
+            if ( [packageDict count] != 0 ) {
+                [self insertPackageInTableView:packageDict];
+            }
         }
     }
     
@@ -1987,7 +2024,10 @@ DDLogLevel ddLogLevel;
     if ( [addPackages runModal] == NSModalResponseOK ) {
         NSArray* selectedURLs = [addPackages URLs];
         for ( NSURL *packageURL in selectedURLs ) {
-            [self examinePackageAtURL:packageURL];
+            NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
+            if ( [packageDict count] != 0 ) {
+                [self insertPackageInTableView:packageDict];
+            }
         }
     }
 }
