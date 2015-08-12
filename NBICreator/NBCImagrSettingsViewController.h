@@ -26,6 +26,9 @@
 @property NSMutableArray *certificateTableViewContents;
 @property NSMutableArray *packagesTableViewContents;
 
+@property NSMutableDictionary *keyboardLayoutDict;
+@property NSDictionary *languageDict;
+
 // ------------------------------------------------------
 //  Constraints
 // ------------------------------------------------------
@@ -73,6 +76,7 @@
 @property (weak) IBOutlet NSTextField *textFieldDestinationFolder;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonProtocol;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonLanguage;
+@property (weak) IBOutlet NSPopUpButton *popUpButtonKeyboardLayout;
 @property (weak) IBOutlet NSButton *checkboxAvailabilityEnabled;
 @property (weak) IBOutlet NSButton *checkboxAvailabilityDefault;
 @property (weak) IBOutlet NSButton *buttonChooseDestinationFolder;
@@ -136,6 +140,7 @@
 @property NSString *nbiIndex;
 @property NSString *nbiProtocol;
 @property NSString *nbiLanguage;
+@property NSString *nbiKeyboardLayout;
 @property NSString *nbiDescription;
 @property NSString *destinationFolder;
 

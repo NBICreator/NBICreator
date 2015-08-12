@@ -44,6 +44,8 @@
 	<string>Created with NBICreator version %NBCVERSION%</string>
 	<key>Language</key>
 	<string>Current</string>
+	<key>KeyboardLayoutName</key>
+	<string>Current</string>
 	<key>Protocol</key>
 	<string>NFS</string>
 	<key>Index</key>

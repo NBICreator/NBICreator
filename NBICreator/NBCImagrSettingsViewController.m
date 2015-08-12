@@ -6,6 +6,7 @@
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
 
+#import <Carbon/Carbon.h>
 #import "NBCImagrSettingsViewController.h"
 #import "NBCConstants.h"
 #import "NBCVariables.h"
@@ -63,6 +64,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [super viewDidLoad];
     
+    _keyboardLayoutDict = [[NSMutableDictionary alloc] init];
     _certificateTableViewContents = [[NSMutableArray alloc] init];
     _packagesTableViewContents = [[NSMutableArray alloc] init];
     
@@ -99,6 +101,9 @@ DDLogLevel ddLogLevel;
     //  Test Internet Connectivity
     // --------------------------------------------------------------
     [self testInternetConnection];
+    
+    [self populatePopUpButtonLanguage];
+    [self populatePopUpButtonKeyboardLayout];
     
     // ------------------------------------------------------------------------------
     //  Add contextual menu to NBI Icon image view to allow to restore original icon.
@@ -819,6 +824,7 @@ DDLogLevel ddLogLevel;
     [self setNbiEnabled:[settingsDict[NBCSettingsNBIEnabled] boolValue]];
     [self setNbiDefault:[settingsDict[NBCSettingsNBIDefault] boolValue]];
     [self setNbiLanguage:settingsDict[NBCSettingsNBILanguage]];
+    [self setNbiKeyboardLayout:settingsDict[NBCSettingsNBIKeyboardLayoutName]];
     [self setNbiDescription:settingsDict[NBCSettingsNBIDescription]];
     [self setDestinationFolder:settingsDict[NBCSettingsNBIDestinationFolder]];
     [self setNbiIconPath:settingsDict[NBCSettingsNBIIcon]];
@@ -917,6 +923,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsNBIIndex] = _nbiIndex ?: @"";
     settingsDict[NBCSettingsNBIProtocol] = _nbiProtocol ?: @"";
     settingsDict[NBCSettingsNBILanguage] = _nbiLanguage ?: @"";
+    settingsDict[NBCSettingsNBIKeyboardLayoutName] = _nbiKeyboardLayout ?: @"";
     settingsDict[NBCSettingsNBIEnabled] = @(_nbiEnabled) ?: @NO;
     settingsDict[NBCSettingsNBIDefault] = @(_nbiDefault) ?: @NO;
     settingsDict[NBCSettingsNBIDescription] = _nbiDescription ?: @"";
@@ -1893,6 +1900,7 @@ DDLogLevel ddLogLevel;
         }
         selectedImagrVersion = [_imagrVersions firstObject];
     }
+    
     NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
     if ( [imagrDownloadURL length] == 0 ) {
         DDLogError(@"[ERROR] Imagr download link is empty!");
@@ -1900,6 +1908,57 @@ DDLogLevel ddLogLevel;
     }
     resourcesSettings[NBCSettingsImagrVersion] = selectedImagrVersion;
     resourcesSettings[NBCSettingsImagrDownloadURL] = imagrDownloadURL;
+    
+    NSString *selectedLanguage = userSettings[NBCSettingsNBILanguage];
+    NSLog(@"selectedLanguage=%@", selectedLanguage);
+    if ( [selectedLanguage isEqualToString:NBCMenuItemCurrent] ) {
+        NSDictionary *globalPreferencesDict = [NSDictionary dictionaryWithContentsOfFile:NBCPathPreferencesGlobal];
+        NSString *currentLanguageID = globalPreferencesDict[@"AppleLanguages"][0];
+        if ( [currentLanguageID length] != 0 ) {
+            resourcesSettings[NBCSettingsNBILanguage] = currentLanguageID;
+        } else {
+            DDLogError(@"[ERROR] Could not get current language ID!");
+            return;
+        }
+    } else {
+        NSString *languageID = [_languageDict allKeysForObject:selectedLanguage][0];
+        if ( [languageID length] != 0 ) {
+            resourcesSettings[NBCSettingsNBILanguage] = languageID;
+        } else {
+            DDLogError(@"[ERROR] Could not get language ID!");
+            return;
+        }
+    }
+    NSLog(@"resourcesSettings[NBCSettingsNBILanguage]=%@", resourcesSettings[NBCSettingsNBILanguage]);
+    
+    NSDictionary *hiToolboxDict = [NSDictionary dictionaryWithContentsOfFile:NBCPathPreferencesHIToolbox];
+    NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsNBIKeyboardLayoutName];
+    if ( [selectedKeyboardLayoutName isEqualToString:NBCMenuItemCurrent] ) {
+        NSDictionary *appleDefaultAsciiInputSourceDict = hiToolboxDict[@"AppleDefaultAsciiInputSource"];
+        selectedKeyboardLayoutName = appleDefaultAsciiInputSourceDict[@"KeyboardLayout Name"];
+        if ( [selectedKeyboardLayoutName length] != 0 ) {
+            resourcesSettings[NBCSettingsNBIKeyboardLayoutName] = selectedKeyboardLayoutName;
+        } else {
+            DDLogError(@"[ERROR] Could not get current keyboard layout name!");
+            return;
+        }
+    } else {
+        resourcesSettings[NBCSettingsNBIKeyboardLayoutName] = selectedKeyboardLayoutName;
+    }
+    
+    NSString *selectedKeyboardLayout = _keyboardLayoutDict[selectedKeyboardLayoutName];
+    if ( [selectedKeyboardLayout length] == 0 ) {
+        NSString *currentKeyboardLayout = hiToolboxDict[@"AppleCurrentKeyboardLayoutInputSourceID"];
+        if ( [currentKeyboardLayout length] != 0 ) {
+            resourcesSettings[NBCSettingsNBIKeyboardLayout] = currentKeyboardLayout;
+        } else {
+            DDLogError(@"[ERROR] Could not get current keyboard layout!");
+            return;
+        }
+    } else {
+        resourcesSettings[NBCSettingsNBIKeyboardLayout] = selectedKeyboardLayout;
+    }
+    NSLog(@"resourcesSettings[NBCSettingsNBIKeyboardLayout]=%@", resourcesSettings[NBCSettingsNBIKeyboardLayout]);
     
     // -------------------------------------------------------------
     //  Create list of items to extract from installer
@@ -1971,6 +2030,70 @@ DDLogLevel ddLogLevel;
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationAddWorkflowItemToQueue object:self userInfo:userInfo];
     
 } // prepareWorkflowItem
+
+- (void)populatePopUpButtonLanguage {
+    
+    /* Localized Names
+    NSArray *localeIdentifiers = [NSLocale availableLocaleIdentifiers];
+    for ( NSString *identifier in localeIdentifiers ) {
+        
+        NSLocale *tmpLocale = [[NSLocale alloc] initWithLocaleIdentifier:identifier];
+        NSString *localeIdentifier = [tmpLocale objectForKey: NSLocaleIdentifier];
+        NSString *localeIdentifierDisplayName = [tmpLocale displayNameForKey:NSLocaleIdentifier value:localeIdentifier];
+        
+        NSLog(@"localeIdentifierDisplayName = %@", localeIdentifierDisplayName);
+        NSLog(@"localeIdentifier = %@", localeIdentifier);
+    }
+    */
+    
+    /* English Names
+     NSMutableDictionary *mutableLanguageDict = [[NSMutableDictionary alloc] init];
+     NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
+     NSArray *localeIdentifiers = [NSLocale availableLocaleIdentifiers];
+     for ( NSString *identifier in localeIdentifiers ) {
+     mutableLanguageDict[identifier] = [locale displayNameForKey:NSLocaleIdentifier value:identifier];
+     }
+     _languageDict = [mutableLanguageDict mutableCopy];
+     */
+    
+    NSError *error;
+    NSURL *languageStringsFile = [NSURL fileURLWithPath:@"/System/Library/PrivateFrameworks/IntlPreferences.framework/Versions/A/Resources/Language.strings"];
+    if ( [languageStringsFile checkResourceIsReachableAndReturnError:&error] ) {
+        _languageDict = [[NSDictionary dictionaryWithContentsOfURL:languageStringsFile] mutableCopy];
+        NSArray *languageArray = [[_languageDict allValues] sortedArrayUsingSelector:@selector(compare:)];
+        [_popUpButtonLanguage removeAllItems];
+        [_popUpButtonLanguage addItemWithTitle:NBCMenuItemCurrent];
+        [[_popUpButtonLanguage menu] addItem:[NSMenuItem separatorItem]];
+        [_popUpButtonLanguage addItemsWithTitles:languageArray];
+    } else {
+        DDLogError(@"Could not find language strings file!");
+        DDLogError(@"ERROR: %@", error);
+    }
+}
+
+- (void)populatePopUpButtonKeyboardLayout {
+    
+    NSDictionary *ref = @{
+                          (NSString *)kTISPropertyInputSourceType : (NSString *)kTISTypeKeyboardLayout
+                          };
+    
+    CFArrayRef sourceList = TISCreateInputSourceList ((__bridge CFDictionaryRef)(ref),true);
+    for (int i = 0; i < CFArrayGetCount(sourceList); ++i) {
+        TISInputSourceRef source = (TISInputSourceRef)(CFArrayGetValueAtIndex(sourceList, i));
+        if ( ! source) continue;
+        
+        NSString* sourceID = (__bridge NSString *)(TISGetInputSourceProperty(source, kTISPropertyInputSourceID));
+        NSString* localizedName = (__bridge NSString *)(TISGetInputSourceProperty(source, kTISPropertyLocalizedName));
+        
+        _keyboardLayoutDict[localizedName] = sourceID;
+    }
+    
+    NSArray *keyboardLayoutArray = [[_keyboardLayoutDict allKeys] sortedArrayUsingSelector:@selector(compare:)];
+    [_popUpButtonKeyboardLayout removeAllItems];
+    [_popUpButtonKeyboardLayout addItemWithTitle:NBCMenuItemCurrent];
+    [[_popUpButtonKeyboardLayout menu] addItem:[NSMenuItem separatorItem]];
+    [_popUpButtonKeyboardLayout addItemsWithTitles:keyboardLayoutArray];
+}
 
 - (IBAction)buttonAddCertificate:(id)sender {
 #pragma unused(sender)

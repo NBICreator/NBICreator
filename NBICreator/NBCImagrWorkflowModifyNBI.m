@@ -494,39 +494,43 @@ DDLogLevel ddLogLevel;
 
 - (void)modifyFilesInBaseSystem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSLog(@"");
-    BOOL shouldModify = NO;
+    NSLog(@"modifyFilesInBaseSystem");
     BOOL shouldAddUsers = NO;
     NSDictionary *userSettings = [_workflowItem userSettings];
     NSURL *volumeURL = [_target baseSystemVolumeURL];
     NSMutableArray *modifyDictArray = [[NSMutableArray alloc] init];
     
-    [_targetController modifyNBINTP:modifyDictArray workflowItem:_workflowItem];
-    [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
-    [_targetController modifySettingsForSystemKeychain:modifyDictArray workflowItem:_workflowItem];
+    [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
+    
+    if ( [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
+        [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
+    }
+    
+    if ( [userSettings[NBCSettingsNetworkTimeServerKey] length] != 0 ) {
+        [_targetController modifyNBINTP:modifyDictArray workflowItem:_workflowItem];
+    }
+    
+    if ( [userSettings[NBCSettingsCertificates] count] != 0 ) {
+        [_targetController modifySettingsForSystemKeychain:modifyDictArray workflowItem:_workflowItem];
+    }
     
     if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] ) {
         [_targetController modifyNBIRemoveWiFi:modifyDictArray workflowItem:_workflowItem];
-        shouldModify = YES;
     }
     
     if ( [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
         [_targetController modifySettingsAddFolders:modifyDictArray workflowItem:_workflowItem];
         [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem];
-        shouldModify = YES;
         shouldAddUsers = YES;
         
         [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL];
     }
     
-    if ( shouldModify ) {
-        [self modifyBaseSystemFiles:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL shouldAddUsers:shouldAddUsers];
-    } else {
-        [self modifyComplete];
-    }
+    [self modifyBaseSystemFiles:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL shouldAddUsers:shouldAddUsers];
 }
 
 - (void)modifyBaseSystemFiles:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem volumeURL:(NSURL *)volumeURL shouldAddUsers:(BOOL)shouldAddUsers {
+    NSLog(@"modifyBaseSystemFiles");
 #pragma unused(workflowItem)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( [modifyDictArray count] != 0 ) {
@@ -759,6 +763,7 @@ DDLogLevel ddLogLevel;
 
 - (void)copyComplete {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSLog(@"copyComplete");
     [self modifyFilesInBaseSystem];
 }
 

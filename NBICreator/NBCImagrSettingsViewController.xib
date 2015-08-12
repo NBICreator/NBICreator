@@ -23,6 +23,7 @@
                 <outlet property="imageViewIcon" destination="6d7-au-Ch5" id="wRh-Sw-RR2"/>
                 <outlet property="imageViewNetworkWarning" destination="7hf-ex-xpe" id="7Dh-aY-TGm"/>
                 <outlet property="popUpButtonImagrVersion" destination="6FP-um-KYE" id="KdQ-Cl-2mw"/>
+                <outlet property="popUpButtonKeyboardLayout" destination="6hB-DJ-LNZ" id="AjY-9g-XJZ"/>
                 <outlet property="popUpButtonLanguage" destination="Jqe-jq-TVI" id="KhN-gl-Djc"/>
                 <outlet property="popUpButtonProtocol" destination="QEi-LZ-Ohi" id="Oyk-kz-ABe"/>
                 <outlet property="popUpButtonTemplates" destination="xyr-NJ-OJ4" id="dP4-zt-DWY"/>
@@ -315,7 +316,7 @@
                                             <action selector="buttonChooseDestinationFolder:" target="-2" id="gl1-GP-PIN"/>
                                         </connections>
                                     </button>
-                                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jqe-jq-TVI">
+                                    <popUpButton verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jqe-jq-TVI">
                                         <rect key="frame" x="101" y="121" width="139" height="26"/>
                                         <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="eZq-de-1k9" id="qAJ-3v-wxH">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -440,8 +441,41 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XmA-LB-TPl">
+                                        <rect key="frame" x="261" y="127" width="113" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Keyboard Layout:" id="kM8-IB-O1H">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <popUpButton verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6hB-DJ-LNZ">
+                                        <rect key="frame" x="378" y="121" width="139" height="26"/>
+                                        <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="2lb-VC-3qR" id="T9c-D1-tCv">
+                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="menu"/>
+                                            <menu key="menu" id="cJT-0J-OSl">
+                                                <items>
+                                                    <menuItem title="Current" state="on" id="2lb-VC-3qR"/>
+                                                    <menuItem isSeparatorItem="YES" id="SO2-4P-Bws"/>
+                                                    <menuItem title="Canadian French" id="dc4-2j-15Y"/>
+                                                    <menuItem title="English" id="Vna-5y-4N5"/>
+                                                    <menuItem title="French" id="nDr-aC-VjG">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    </menuItem>
+                                                    <menuItem title="German" id="TaE-Rr-LvU">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
+                                        </popUpButtonCell>
+                                        <connections>
+                                            <binding destination="-2" name="selectedValue" keyPath="self.nbiKeyboardLayout" id="OST-c7-T7u"/>
+                                        </connections>
+                                    </popUpButton>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstItem="6hB-DJ-LNZ" firstAttribute="baseline" secondItem="XmA-LB-TPl" secondAttribute="baseline" id="0n8-kk-SZ4"/>
                                     <constraint firstItem="i8P-hz-Zva" firstAttribute="trailing" secondItem="RrQ-Hp-pfP" secondAttribute="trailing" id="5aD-SN-IlK"/>
                                     <constraint firstAttribute="bottom" secondItem="qf7-lf-lTR" secondAttribute="bottom" constant="20" symbolic="YES" id="6Do-dK-XVF"/>
                                     <constraint firstItem="QEi-LZ-Ohi" firstAttribute="baseline" secondItem="RrQ-Hp-pfP" secondAttribute="baseline" id="9Ld-ho-BGq"/>
@@ -450,6 +484,7 @@ asdasd</string>
                                     <constraint firstItem="iA8-CA-5jf" firstAttribute="trailing" secondItem="i8P-hz-Zva" secondAttribute="trailing" id="CwD-Zk-h0b"/>
                                     <constraint firstAttribute="trailing" secondItem="iPa-AM-gEo" secondAttribute="trailing" constant="20" symbolic="YES" id="Deg-A7-On6"/>
                                     <constraint firstItem="RrQ-Hp-pfP" firstAttribute="leading" secondItem="rLh-tm-Kjp" secondAttribute="leading" constant="20" symbolic="YES" id="Dvm-cv-1Nb"/>
+                                    <constraint firstItem="6hB-DJ-LNZ" firstAttribute="baseline" secondItem="Gse-f7-DdT" secondAttribute="baseline" id="GAy-u6-bRV"/>
                                     <constraint firstItem="i8P-hz-Zva" firstAttribute="leading" secondItem="rLh-tm-Kjp" secondAttribute="leading" constant="20" symbolic="YES" id="Gof-3y-Zda"/>
                                     <constraint firstItem="jXt-HY-YLZ" firstAttribute="baseline" secondItem="qf7-lf-lTR" secondAttribute="baseline" id="HSO-IS-Wld"/>
                                     <constraint firstAttribute="trailing" secondItem="IQ4-bf-UuU" secondAttribute="trailing" constant="20" symbolic="YES" id="Ipi-sd-WLC"/>
@@ -471,6 +506,8 @@ asdasd</string>
                                     <constraint firstItem="iPa-AM-gEo" firstAttribute="baseline" secondItem="iA8-CA-5jf" secondAttribute="baseline" id="d1W-g1-4EY"/>
                                     <constraint firstItem="Afi-kT-98c" firstAttribute="top" secondItem="Jqe-jq-TVI" secondAttribute="bottom" constant="8" symbolic="YES" id="d6q-US-Y8c"/>
                                     <constraint firstItem="QEi-LZ-Ohi" firstAttribute="leading" secondItem="RrQ-Hp-pfP" secondAttribute="trailing" constant="8" symbolic="YES" id="dAf-RA-Vpe"/>
+                                    <constraint firstItem="XmA-LB-TPl" firstAttribute="leading" secondItem="Jqe-jq-TVI" secondAttribute="trailing" constant="8" symbolic="YES" id="dUp-Qo-R7d"/>
+                                    <constraint firstItem="iPa-AM-gEo" firstAttribute="trailing" secondItem="6hB-DJ-LNZ" secondAttribute="trailing" id="dx8-Bf-fIz"/>
                                     <constraint firstItem="i8P-hz-Zva" firstAttribute="trailing" secondItem="iA8-CA-5jf" secondAttribute="trailing" id="eGc-h6-Qvg"/>
                                     <constraint firstAttribute="trailing" secondItem="CAI-C8-GHD" secondAttribute="trailing" constant="20" symbolic="YES" id="fPN-eH-4L5"/>
                                     <constraint firstItem="kFx-Ri-40h" firstAttribute="top" secondItem="CAI-C8-GHD" secondAttribute="top" id="guU-Nt-KEF"/>
@@ -479,6 +516,7 @@ asdasd</string>
                                     <constraint firstItem="iA8-CA-5jf" firstAttribute="leading" secondItem="rLh-tm-Kjp" secondAttribute="leading" constant="20" symbolic="YES" id="iq6-m3-NU4"/>
                                     <constraint firstItem="FG3-O7-VtP" firstAttribute="trailing" secondItem="RrQ-Hp-pfP" secondAttribute="trailing" id="jf0-CI-T8I"/>
                                     <constraint firstItem="Gse-f7-DdT" firstAttribute="baseline" secondItem="Jqe-jq-TVI" secondAttribute="baseline" id="jjR-xk-MbX"/>
+                                    <constraint firstItem="6hB-DJ-LNZ" firstAttribute="leading" secondItem="XmA-LB-TPl" secondAttribute="trailing" constant="8" symbolic="YES" id="kt1-Kh-GoK"/>
                                     <constraint firstItem="i8P-hz-Zva" firstAttribute="trailing" secondItem="Gse-f7-DdT" secondAttribute="trailing" id="l5c-Hn-fLt"/>
                                     <constraint firstItem="CAI-C8-GHD" firstAttribute="top" secondItem="Afi-kT-98c" secondAttribute="bottom" constant="8" symbolic="YES" id="maG-wi-SH9"/>
                                     <constraint firstItem="i8P-hz-Zva" firstAttribute="top" secondItem="iA8-CA-5jf" secondAttribute="bottom" constant="10" id="mm5-wa-cz2"/>

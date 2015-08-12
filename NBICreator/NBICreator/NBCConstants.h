@@ -44,6 +44,9 @@ extern NSString *const NBCFilePathNBIIconNetInstall;
 extern NSString *const NBCFilePathNBIIconDeployStudio;
 extern NSString *const NBCFileNameImagrDefaults;
 
+extern NSString *const NBCPathPreferencesGlobal;
+extern NSString *const NBCPathPreferencesHIToolbox;
+
 // --------------------------------------------------------------
 //  User Defaults
 // --------------------------------------------------------------
@@ -69,6 +72,7 @@ extern NSString *const NBCMenuItemRestoreOriginalBackground;
 extern NSString *const NBCMenuItemNoSelection;
 extern NSString *const NBCMenuItemNBICreator;
 extern NSString *const NBCMenuItemSystemImageUtility;
+extern NSString *const NBCMenuItemCurrent;
 
 // --------------------------------------------------------------
 //  Template
@@ -100,9 +104,12 @@ extern NSString *const NBCSettingsNBIProtocol;
 extern NSString *const NBCSettingsNBIEnabled;
 extern NSString *const NBCSettingsNBIDefault;
 extern NSString *const NBCSettingsNBILanguage;
+extern NSString *const NBCSettingsNBIKeyboardLayout;
 extern NSString *const NBCSettingsNBIDescription;
 extern NSString *const NBCSettingsNBIDestinationFolder;
 extern NSString *const NBCSettingsNBIIcon;
+
+extern NSString *const NBCSettingsNBIKeyboardLayoutName;
 
 // --------------------------------------------------------------
 //  Template Settings Options

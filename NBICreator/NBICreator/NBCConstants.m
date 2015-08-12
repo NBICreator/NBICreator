@@ -39,6 +39,9 @@ NSString *const NBCFilePathNBIIconNetInstall = @"%APPLICATIONRESOURCESURL%/IconN
 NSString *const NBCFilePathNBIIconDeployStudio = @"%APPLICATIONRESOURCESURL%/IconDeployStudioNBI.icns";
 NSString *const NBCFileNameImagrDefaults = @"ImagrDefaults";
 
+NSString *const NBCPathPreferencesGlobal = @"/Library/Preferences/.GlobalPreferences.plist";
+NSString *const NBCPathPreferencesHIToolbox = @"/Library/Preferences/com.apple.HIToolbox.plist";
+
 // --------------------------------------------------------------
 //  User Defaults
 // --------------------------------------------------------------
@@ -64,6 +67,7 @@ NSString *const NBCMenuItemRestoreOriginalBackground = @"Restore Original Backgr
 NSString *const NBCMenuItemNoSelection = @"No Selection";
 NSString *const NBCMenuItemNBICreator = @"NBICreator";
 NSString *const NBCMenuItemSystemImageUtility = @"System Image Utility";
+NSString *const NBCMenuItemCurrent = @"Current";
 
 // --------------------------------------------------------------
 //  Template
@@ -102,9 +106,12 @@ NSString *const NBCSettingsNBIProtocol = @"Protocol";
 NSString *const NBCSettingsNBIEnabled = @"Enabled";
 NSString *const NBCSettingsNBIDefault = @"Default";
 NSString *const NBCSettingsNBILanguage = @"Language";
+NSString *const NBCSettingsNBIKeyboardLayout = @"KeyboardLayout";
 NSString *const NBCSettingsNBIDescription = @"Description";
 NSString *const NBCSettingsNBIDestinationFolder = @"DestinationFolder";
 NSString *const NBCSettingsNBIIcon = @"Icon";
+
+NSString *const NBCSettingsNBIKeyboardLayoutName = @"KeyboardLayoutName";
 
 // --------------------------------------------------------------
 //  Template Settings Extra

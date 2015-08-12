@@ -582,6 +582,109 @@ DDLogLevel ddLogLevel;
     [modifyDictArray addObject:modifyDictSystemKeychainTrustSettings];
 }
 
+- (NSNumber *)keyboardLayoutIDFromSourceID:(NSString *)sourceID {
+#pragma unused(sourceID)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
+    NSNumber *keyboardLayoutID;
+    keyboardLayoutID = [NSNumber numberWithInt:7];
+    
+    return keyboardLayoutID;
+    
+}
+
+
+- (void)modifySettingsForLanguageAndKeyboardLayout:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    NSDictionary *resourceSettings = [workflowItem resourcesSettings];
+    
+    // ------------------------------------------------------------------
+    //  /Library/Preferences/com.apple.HIToolbox.plist (Keyboard Layout)
+    // ------------------------------------------------------------------
+    NSURL *hiToolboxPreferencesURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/com.apple.HIToolbox.plist"];
+    NSMutableDictionary *hiToolboxPreferencesDict;
+    NSDictionary *hiToolboxPreferencesAttributes;
+    if ( [hiToolboxPreferencesURL checkResourceIsReachableAndReturnError:nil] ) {
+        hiToolboxPreferencesDict = [NSMutableDictionary dictionaryWithContentsOfURL:hiToolboxPreferencesURL];
+        hiToolboxPreferencesAttributes = [fm attributesOfItemAtPath:[hiToolboxPreferencesURL path] error:&error];
+    }
+    
+    if ( [hiToolboxPreferencesDict count] == 0 ) {
+        hiToolboxPreferencesDict = [[NSMutableDictionary alloc] init];
+        hiToolboxPreferencesAttributes = @{
+                                           NSFileOwnerAccountName : @"root",
+                                           NSFileGroupOwnerAccountName : @"wheel",
+                                           NSFilePosixPermissions : @0644
+                                           };
+    }
+    
+    NSString *selectedKeyboardLayoutSourceID = resourceSettings[NBCSettingsNBIKeyboardLayout];
+    NSString *selectedKeyboardName = resourceSettings[NBCSettingsNBIKeyboardLayoutName];
+    NSLog(@"selectedKeyboardLayoutSourceID=%@", selectedKeyboardLayoutSourceID);
+    NSLog(@"selectedKeyboardName=%@", selectedKeyboardName);
+    NSNumber *keyboardLayoutID = [self keyboardLayoutIDFromSourceID:selectedKeyboardLayoutSourceID];
+    NSLog(@"keyboardLayoutID=%@", keyboardLayoutID);
+    NSDictionary *keyboardDict = @{
+                                   @"InputSourceKind" : @"Keyboard Layout",
+                                   //@"KeyboardLayout ID" : keyboardLayoutID,
+                                   @"KeyboardLayout Name" : selectedKeyboardName
+                                   };
+    NSLog(@"keyboardDict=%@", keyboardDict);
+    hiToolboxPreferencesDict[@"AppleCurrentKeyboardLayoutInputSourceID"] = selectedKeyboardLayoutSourceID;
+    hiToolboxPreferencesDict[@"AppleDefaultAsciiInputSource"] = keyboardDict;
+    hiToolboxPreferencesDict[@"AppleEnabledInputSources"] = @[ keyboardDict ];
+    hiToolboxPreferencesDict[@"AppleInputSourceHistory"] = @[ keyboardDict ];
+    hiToolboxPreferencesDict[@"AppleSelectedInputSources"] = @[ keyboardDict ];
+    NSLog(@"hiToolboxPreferencesDict=%@", hiToolboxPreferencesDict);
+    NSDictionary *modifyDictHiToolboxPreferences = @{
+                                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                     NBCWorkflowModifyContent : hiToolboxPreferencesDict,
+                                                     NBCWorkflowModifyAttributes : hiToolboxPreferencesAttributes,
+                                                     NBCWorkflowModifyTargetURL : [hiToolboxPreferencesURL path]
+                                                     };
+    
+    [modifyDictArray addObject:modifyDictHiToolboxPreferences];
+    
+    // --------------------------------------------------------------
+    //  /Library/Preferences/.GlobalPreferences.plist (Language)
+    // --------------------------------------------------------------
+    NSURL *globalPreferencesURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/.GlobalPreferences.plist"];
+    NSMutableDictionary *globalPreferencesDict;
+    NSDictionary *globalPreferencesAttributes;
+    if ( [globalPreferencesURL checkResourceIsReachableAndReturnError:nil] ) {
+        globalPreferencesDict = [NSMutableDictionary dictionaryWithContentsOfURL:globalPreferencesURL];
+        globalPreferencesAttributes = [fm attributesOfItemAtPath:[globalPreferencesURL path] error:&error];
+    }
+    
+    if ( [globalPreferencesDict count] == 0 ) {
+        globalPreferencesDict = [[NSMutableDictionary alloc] init];
+        globalPreferencesAttributes = @{
+                                        NSFileOwnerAccountName : @"root",
+                                        NSFileGroupOwnerAccountName : @"wheel",
+                                        NSFilePosixPermissions : @0644
+                                        };
+    }
+    
+    NSString *selectedLanguage = resourceSettings[NBCSettingsNBILanguage];
+    NSLog(@"selectedLanguage=%@", selectedLanguage);
+    globalPreferencesDict[@"AppleLanguages"] = @[ selectedLanguage ];
+    globalPreferencesDict[@"AppleLocale"] = @"sv_SE";
+    
+    NSLog(@"globalPreferencesDict=%@", globalPreferencesDict);
+    NSDictionary *modifyDictGlobalPreferences = @{
+                                                  NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                  NBCWorkflowModifyContent : globalPreferencesDict,
+                                                  NBCWorkflowModifyAttributes : globalPreferencesAttributes,
+                                                  NBCWorkflowModifyTargetURL : [globalPreferencesURL path]
+                                                  };
+    
+    [modifyDictArray addObject:modifyDictGlobalPreferences];
+}
+
 - (void)modifySettingsForMenuBar:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     
