@@ -580,15 +580,15 @@ DDLogLevel ddLogLevel;
             
             if ( [error count] != 0 ) {
                 configurationError = YES;
-                for (NSString *errorString in error) {
-                    [alertInformativeText appendString:[NSString stringWithFormat:@"\n%@", errorString]];
+                for ( NSString *errorString in error ) {
+                    [alertInformativeText appendString:[NSString stringWithFormat:@"\n• %@", errorString]];
                 }
             }
             
             if ( [warning count] != 0 ) {
                 configurationWarning = YES;
-                for (NSString *warningString in warning) {
-                    [alertInformativeText appendString:[NSString stringWithFormat:@"\n%@", warningString]];
+                for ( NSString *warningString in warning ) {
+                    [alertInformativeText appendString:[NSString stringWithFormat:@"\n• %@", warningString]];
                 }
             }
             

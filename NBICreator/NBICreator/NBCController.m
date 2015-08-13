@@ -533,6 +533,7 @@ enum {
 
 - (BOOL)blessHelperWithLabel:(NSString *)label error:(NSError **)errorPtr {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSLog(@"blessHelperWithLabel");
     BOOL result = NO;
     NSError *error = nil;
     
@@ -549,14 +550,14 @@ enum {
     
     OSStatus status = AuthorizationCopyRights(_authRef, &authRights, kAuthorizationEmptyEnvironment, flags, NULL);
     if ( status != errAuthorizationSuccess ) {
-        
+        NSLog(@"Authorization failed!");
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
     } else {
         
         CFErrorRef  cfError;
         
         // Install NBICreatorHelper.
-        
+        NSLog(@"Running SMJobBless");
         result = (BOOL) SMJobBless(kSMDomainSystemLaunchd,
                                    (__bridge CFStringRef)label,
                                    _authRef,
@@ -581,7 +582,6 @@ enum {
 - (IBAction)buttonInstallHelper:(id)sender {
 #pragma unused(sender)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    
     NSError *error = nil;
     
     if ( ! [self blessHelperWithLabel:NBCBundleIdentifierHelper error:&error] ) {
