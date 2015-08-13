@@ -605,7 +605,7 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------------------------------
     //  /Library/Preferences/com.apple.HIToolbox.plist (Keyboard Layout)
     // ------------------------------------------------------------------
-    NSURL *hiToolboxPreferencesURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/com.apple.HIToolbox.plist"];
+    NSURL *hiToolboxPreferencesURL = [volumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.HIToolbox.plist"];
     NSMutableDictionary *hiToolboxPreferencesDict;
     NSDictionary *hiToolboxPreferencesAttributes;
     if ( [hiToolboxPreferencesURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -630,7 +630,7 @@ DDLogLevel ddLogLevel;
     NSLog(@"keyboardLayoutID=%@", keyboardLayoutID);
     NSDictionary *keyboardDict = @{
                                    @"InputSourceKind" : @"Keyboard Layout",
-                                   //@"KeyboardLayout ID" : keyboardLayoutID,
+                                   @"KeyboardLayout ID" : keyboardLayoutID,
                                    @"KeyboardLayout Name" : selectedKeyboardName
                                    };
     NSLog(@"keyboardDict=%@", keyboardDict);
@@ -671,7 +671,9 @@ DDLogLevel ddLogLevel;
     
     NSString *selectedLanguage = resourceSettings[NBCSettingsNBILanguage];
     NSLog(@"selectedLanguage=%@", selectedLanguage);
-    globalPreferencesDict[@"AppleLanguages"] = @[ selectedLanguage ];
+    globalPreferencesDict[@"AppleLanguages"] = @[
+                                                 selectedLanguage,
+                                                 @"sv" ];
     globalPreferencesDict[@"AppleLocale"] = @"sv_SE";
     
     NSLog(@"globalPreferencesDict=%@", globalPreferencesDict);

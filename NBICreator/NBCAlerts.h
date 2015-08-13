@@ -21,7 +21,7 @@
 + (void)showAlertOKWithTitle:(NSString *)title informativeText:(NSString *)informativeText;
 + (void)showAlertUnrecognizedImagrApplication;
 + (void)showAlertRecoveryVersionMismatch;
-+ (void)showAlertUnrecognizedSource;
++ (void)showAlertUnrecognizedSourceForWorkflow:(int)workflowType errorMessage:(NSString *)errorMessage;
 + (void)showAlertSettingsUnchangedNBI;
 + (void)showAlertSettingsError:(NSString *)informativeText;
 - (void)showAlertSettingsWarning:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo;

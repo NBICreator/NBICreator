@@ -17,6 +17,7 @@
 #import "NBCSourceController.h"
 #import "NBCDiskImageController.h"
 #import "NBCLogging.h"
+#import "NBCWorkflowItem.h"
 
 DDLogLevel ddLogLevel;
 
@@ -543,6 +544,7 @@ DDLogLevel ddLogLevel;
         
         BOOL verified = YES;
         NSError *error;
+        NSString *errorMessage;
         
         NSString *sourceExtension = [sourceURL pathExtension];
         if ( [sourceExtension isEqualToString:@"nbi"] ) {
@@ -558,11 +560,13 @@ DDLogLevel ddLogLevel;
                     [newSource setNbImageInfo:nbImageInfoDict];
                     rootPath = nbImageInfoDict[@"RootPath"];
                 } else {
+                    errorMessage = @"Could not read NBImageInfo.plist dict";
                     NSLog(@"Could not read NBImageInfo.plist dict");
                     verified = NO;
                 }
             } else {
-                NSLog(@"Coul not find NBImageInfo.plist from dropped NBI");
+                errorMessage = @"Could not find NBImageInfo.plist from dropped NBI";
+                NSLog(@"Could not find NBImageInfo.plist from dropped NBI");
                 NSLog(@"Error: %@", error);
                 verified = NO;
             }
@@ -580,10 +584,12 @@ DDLogLevel ddLogLevel;
                             [newSource setSourceURL:sourceURL];
                             [newSource setSourceType:NBCSourceTypeNBI];
                         } else {
+                            errorMessage = @"BaseSystem Verify Failed!";
                             NSLog(@"BaseSystem Verify Failed!");
                             NSLog(@"BaseSystem Error: %@", error);
                         }
                     } else {
+                        errorMessage = @"NetInstall Verify Failed!";
                         NSLog(@"NetInstall Verify Failed!");
                         NSLog(@"NetInstall Error: %@", error);
                         newTarget = nil;
@@ -591,16 +597,17 @@ DDLogLevel ddLogLevel;
                         [newTarget setNbiURL:sourceURL];
                         [newTarget setBaseSystemURL:nbiNetInstallURL];
                         verified = [targetController verifyBaseSystemFromTarget:newTarget source:newSource error:&error];
-                        NSLog(@"verified=%hhd", verified);
                         if ( verified ) {
                             [newSource setSourceURL:sourceURL];
                             [newSource setSourceType:NBCSourceTypeNBI];
                         } else {
+                            errorMessage = @"BaseSystem Verify Failed!";
                             NSLog(@"BaseSystem Verify Failed!");
                             NSLog(@"BaseSystem Error: %@", error);
                         }
                     }
                 } else {
+                    errorMessage = @"Could not find nbiNetInstallURL in NBI!";
                     NSLog(@"Could not find nbiNetInstallURL in NBI!");
                     verified = NO;
                 }
@@ -620,9 +627,11 @@ DDLogLevel ddLogLevel;
                 if ( installESDDiskImageURL != nil ) {
                     verified = [sourceController verifyInstallESDFromDiskImageURL:installESDDiskImageURL source:newSource error:&error];
                     if ( ! verified ) {
+                        errorMessage = [error localizedDescription];
                         DDLogError(@"Error: %@", [error localizedDescription]);
                     }
                 } else {
+                    errorMessage = @"No path returned for InstallESD.dmg!";
                     DDLogError(@"No path returned for InstallESD.dmg!");
                 }
             } else {
@@ -632,6 +641,7 @@ DDLogLevel ddLogLevel;
             if ( verified ) {
                 verified = [sourceController verifyBaseSystemFromSource:newSource error:&error];
                 if ( ! verified ) {
+                    errorMessage = @"BaseSystem Verify Failed!";
                     NSLog(@"BaseSystem Verify Failed!");
                     NSLog(@"BaseSystem Error: %@", error);
                 }
@@ -664,7 +674,7 @@ DDLogLevel ddLogLevel;
             }
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self restoreDropView];
-                [NBCAlerts showAlertUnrecognizedSource];
+                [NBCAlerts showAlertUnrecognizedSourceForWorkflow:kWorkflowTypeImagr errorMessage:errorMessage];
             });
         }
     });

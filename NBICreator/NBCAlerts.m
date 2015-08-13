@@ -11,6 +11,7 @@
 #import "NBCConstants.h"
 #import "NBCController.h"
 #import "NBCLogging.h"
+#import "NBCWorkflowItem.h"
 
 DDLogLevel ddLogLevel;
 
@@ -84,12 +85,32 @@ DDLogLevel ddLogLevel;
     }];
 }
 
-+ (void)showAlertUnrecognizedSource {
++ (void)showAlertUnrecognizedSourceForWorkflow:(int)workflowType errorMessage:(NSString *)errorMessage {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
+    NSString *informativeText;
+    switch ( workflowType ) {
+        case kWorkflowTypeNetInstall:
+        {
+            informativeText = @"NetInstall only accepts the following sources:\n\n• Install OS X Application\n• InstallESD.dmg";
+            break;
+        }
+        case kWorkflowTypeDeployStudio:
+        {
+            informativeText = @"Deploy Studio only accepts the following sources:\n\n• OS X System Volume and Recovery Partition";
+            break;
+        }
+        case kWorkflowTypeImagr:
+        {
+            informativeText = @"Imagr only accepts the following sources:\n\n• Install OS X Application\n• InstallESD.dmg\n• NetInstall Image";
+            break;
+        }
+    }
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Source"];
-    [alert setInformativeText:[NSString stringWithFormat:@"Imagr only accepts the following sources:\n\nInstall OS X Application\nInstallESD.dmg\nNetInstall Image"]];
+    [alert setInformativeText:[NSString stringWithFormat:@"%@\n\n%@", errorMessage, informativeText]];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
                 #pragma unused(returnCode)

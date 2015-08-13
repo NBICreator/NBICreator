@@ -15,6 +15,7 @@
 #import "NBCSourceController.h"
 #import "NBCDiskImageController.h"
 #import "NBCLogging.h"
+#import "NBCWorkflowItem.h"
 
 DDLogLevel ddLogLevel;
 
@@ -507,6 +508,7 @@ DDLogLevel ddLogLevel;
         
         BOOL verified = YES;
         NSError *error;
+        NSString *errorMessage;
         
         // ------------------------------------------------------
         //  If source is an installer app, get URL to InstallESD
@@ -523,12 +525,15 @@ DDLogLevel ddLogLevel;
                 if ( verified ) {
                     verified = [sourceController verifyBaseSystemFromSource:newSource error:&error];
                     if ( ! verified ) {
+                        errorMessage = @"BaseSystem Verify Failed!";
                         NSLog(@"BaseSystem Verify Failed!");
                     }
                 } else {
+                    errorMessage = @"InstallESD Verify Failed!";
                     NSLog(@"InstallESD Verify Failed!");
                 }
             } else {
+                errorMessage = @"installESDURL is nil!";
                 NSLog(@"installESDURL is nil!");
             }
         } else {
@@ -549,7 +554,7 @@ DDLogLevel ddLogLevel;
             [newSource detachAll];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self restoreDropView];
-                [NBCAlerts showAlertUnrecognizedSource];
+                [NBCAlerts showAlertUnrecognizedSourceForWorkflow:kWorkflowTypeNetInstall errorMessage:errorMessage];
             });
         }
     });

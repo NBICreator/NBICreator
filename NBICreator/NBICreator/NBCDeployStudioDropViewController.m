@@ -15,6 +15,7 @@
 #import "NBCSourceController.h"
 #import "NBCDiskImageController.h"
 #import "NBCLogging.h"
+#import "NBCWorkflowItem.h"
 
 DDLogLevel ddLogLevel;
 
@@ -598,6 +599,7 @@ DDLogLevel ddLogLevel;
         
         BOOL verified = YES;
         NSError *error;
+        NSString *errorMessage;
         
         // ------------------------------------------------------
         //  Verify the source is a valid OS X System
@@ -614,15 +616,18 @@ DDLogLevel ddLogLevel;
                 if ( verified ) {
                     verified = [sourceController verifyBaseSystemFromSource:newSource error:&error];
                     if ( ! verified ) {
+                        errorMessage = @"Could not verify BaseSystem!";
                         DDLogError(@"Could not verify BaseSystem!");
                         DDLogError(@"Error: %@", error);
                     }
                 } else {
+                    errorMessage = @"Could not verify Recovery Partition!";
                     DDLogError(@"Could not verify Recovery Partition!");
                     DDLogError(@"Error: %@", error);
                 }
             } else if ( ! verified ) {
-                DDLogError(@"Could not verify System!");
+                errorMessage = @"Could not verify System Partition!";
+                DDLogError(@"Could not verify System Partition!");
                 DDLogError(@"Error: %@", error);
             }
             
@@ -640,7 +645,7 @@ DDLogLevel ddLogLevel;
                 [newSource detachAll];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self restoreDropView];
-                    [NBCAlerts showAlertUnrecognizedSource];
+                    [NBCAlerts showAlertUnrecognizedSourceForWorkflow:kWorkflowTypeDeployStudio errorMessage:errorMessage];
                 });
             }
         }
@@ -670,6 +675,7 @@ DDLogLevel ddLogLevel;
         
         BOOL verified = NO;
         NSError *error;
+        NSString *errorMessage;
         
         // ------------------------------------------------------
         //  Verify the source is a valid OS X System Disk Image
@@ -685,18 +691,22 @@ DDLogLevel ddLogLevel;
                 if ( verified ) {
                     verified = [sourceController verifyBaseSystemFromSource:newSource error:&error];
                     if ( ! verified ) {
+                        errorMessage = @"BaseSystem Verify Failed!";
                         NSLog(@"BaseSystem Verify Failed!");
                         NSLog(@"BaseSystem Error: %@", error);
                     }
                 } else {
+                    errorMessage = @"RecoveryPartition Verify Failed!";
                     NSLog(@"RecoveryPartition Verify Failed!");
                     NSLog(@"RecoveryPartition Error: %@", error);
                 }
             } else if ( ! verified ) {
+                errorMessage = @"System Disk Image Verify Failed!";
                 NSLog(@"System Disk Image Verify Failed!");
                 NSLog(@"System Error: %@", error);
             }
         } else {
+            errorMessage = @"System Disk Image Not Found!";
             NSLog(@"System Disk Image Not Found!");
             NSLog(@"System Error: %@", error);
         }
@@ -714,7 +724,7 @@ DDLogLevel ddLogLevel;
             [newSource detachAll];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self restoreDropView];
-                [NBCAlerts showAlertUnrecognizedSource];
+                [NBCAlerts showAlertUnrecognizedSourceForWorkflow:kWorkflowTypeDeployStudio errorMessage:errorMessage];
             });
         }
     });

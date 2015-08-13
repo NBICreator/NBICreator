@@ -231,7 +231,7 @@
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gse-f7-DdT">
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="Gse-f7-DdT">
                                         <rect key="frame" x="18" y="127" width="79" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Language:" id="Pqb-rZ-hbb">
                                             <font key="font" metaFont="system"/>
@@ -316,8 +316,8 @@
                                             <action selector="buttonChooseDestinationFolder:" target="-2" id="gl1-GP-PIN"/>
                                         </connections>
                                     </button>
-                                    <popUpButton verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Jqe-jq-TVI">
-                                        <rect key="frame" x="101" y="121" width="139" height="26"/>
+                                    <popUpButton horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="Jqe-jq-TVI">
+                                        <rect key="frame" x="101" y="121" width="148" height="26"/>
                                         <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="eZq-de-1k9" id="qAJ-3v-wxH">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
@@ -441,16 +441,16 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XmA-LB-TPl">
-                                        <rect key="frame" x="261" y="127" width="113" height="17"/>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="XmA-LB-TPl">
+                                        <rect key="frame" x="252" y="127" width="113" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Keyboard Layout:" id="kM8-IB-O1H">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <popUpButton verticalHuggingPriority="750" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6hB-DJ-LNZ">
-                                        <rect key="frame" x="378" y="121" width="139" height="26"/>
+                                    <popUpButton horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="6hB-DJ-LNZ">
+                                        <rect key="frame" x="369" y="121" width="148" height="26"/>
                                         <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="2lb-VC-3qR" id="T9c-D1-tCv">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
@@ -521,6 +521,7 @@ asdasd</string>
                                     <constraint firstItem="CAI-C8-GHD" firstAttribute="top" secondItem="Afi-kT-98c" secondAttribute="bottom" constant="8" symbolic="YES" id="maG-wi-SH9"/>
                                     <constraint firstItem="i8P-hz-Zva" firstAttribute="top" secondItem="iA8-CA-5jf" secondAttribute="bottom" constant="10" id="mm5-wa-cz2"/>
                                     <constraint firstItem="CAI-C8-GHD" firstAttribute="leading" secondItem="Afi-kT-98c" secondAttribute="leading" id="nUP-L7-z3o"/>
+                                    <constraint firstItem="6hB-DJ-LNZ" firstAttribute="width" secondItem="Jqe-jq-TVI" secondAttribute="width" id="pvG-IT-S4u"/>
                                     <constraint firstItem="Jem-YH-NJE" firstAttribute="top" secondItem="rLh-tm-Kjp" secondAttribute="top" constant="10" id="qBM-qD-gtE"/>
                                     <constraint firstItem="uBE-Fx-sNU" firstAttribute="baseline" secondItem="Afi-kT-98c" secondAttribute="baseline" id="uG7-NJ-SLi"/>
                                     <constraint firstItem="uIY-db-Don" firstAttribute="leading" secondItem="i8P-hz-Zva" secondAttribute="trailing" constant="8" symbolic="YES" id="vpo-DE-DfG"/>

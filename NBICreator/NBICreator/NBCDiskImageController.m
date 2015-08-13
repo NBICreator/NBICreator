@@ -526,12 +526,18 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSURL *mountURL;
     NSArray *systemEntities = [propertyList[@"system-entities"] copy];
-    for (NSDictionary *dict in systemEntities) {
+    for ( NSDictionary *dict in systemEntities ) {
         NSString *contentHint = dict[@"content-hint"];
         if ( [contentHint isEqualTo:@"Apple_HFS"] ) {
             mountURL = [NSURL fileURLWithPath:dict[@"mount-point"]];
         }
     }
+    
+    if ( mountURL == nil && [systemEntities count] == 1 ) {
+        NSDictionary *dict = systemEntities[0];
+        mountURL = [NSURL fileURLWithPath:dict[@"mount-point"]];
+    }
+    
     return mountURL;
 } // getMountURLFromHdiutilOutputPropertyList
 
@@ -670,10 +676,14 @@ DDLogLevel ddLogLevel;
     }
     NSMutableArray *diskImageUUIDs = [[NSMutableArray alloc] init];
     NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/bin/bash"];
-    NSMutableArray *args = [NSMutableArray arrayWithObjects:@"-c",
-                            [NSString stringWithFormat:@"hdiutil imageinfo -plist %@", [diskImageURL path]],
-                            nil];
+    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+    NSArray *args = @[
+                      @"imageinfo",
+                      @"-plist",
+                      [diskImageURL path]
+                      ];
+    //NSMutableArray *args = [NSMutableArray arrayWithObjects:@"-c", [NSString stringWithFormat:@"hdiutil imageinfo -plist \"%@\"", [diskImageURL path]], nil];
+    NSLog(@"args=%@", args);
     [newTask setArguments:args];
     [newTask setStandardOutput:[NSPipe pipe]];
     [newTask launch];

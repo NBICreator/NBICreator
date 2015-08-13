@@ -36,6 +36,8 @@
 		53383D121AFA9CA100C041F9 /* NBCDownloaderGitHub.m in Sources */ = {isa = PBXBuildFile; fileRef = 53383D111AFA9CA100C041F9 /* NBCDownloaderGitHub.m */; };
 		53383D151AFA9D3000C041F9 /* NBCConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53383D141AFA9D3000C041F9 /* NBCConstants.m */; };
 		534C66A31AE37422004A6DEE /* NBCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 534C66A21AE37422004A6DEE /* NBCSettingsController.m */; };
+		534DFB241B7C988800C9CE0E /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; };
+		534DFB261B7C9E3B00C9CE0E /* CocoaLumberjack.framework in Copy CocoaLumberjack */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		534FA9ED1AF4B39D005B40F6 /* NBCSourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 534FA9EC1AF4B39D005B40F6 /* NBCSourceController.m */; };
 		53546DC31AA9EE7C00564A3D /* NBCDeployStudioSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 53546DC21AA9EE7C00564A3D /* NBCDeployStudioSource.m */; };
 		5359BB9B1B2AE87F00839417 /* IconElCapitanBeta.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5359BB9A1B2AE87F00839417 /* IconElCapitanBeta.icns */; };
@@ -109,12 +111,18 @@
 		53E5CE881ADE8C7C0014A379 /* NBCSystemImageUtilitySource.m in Sources */ = {isa = PBXBuildFile; fileRef = 53E5CE871ADE8C7C0014A379 /* NBCSystemImageUtilitySource.m */; };
 		53EFC5141A9DF304005A68E6 /* NBCDiskImageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53EFC5131A9DF304005A68E6 /* NBCDiskImageController.m */; };
 		53EFC5181A9E00E1005A68E6 /* NBCSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 53EFC5171A9E00E1005A68E6 /* NBCSource.m */; };
-		53F229EC1B68384100CC0B09 /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; };
 		53F33A881B08C3D50022C68F /* NBCAlerts.m in Sources */ = {isa = PBXBuildFile; fileRef = 53F33A871B08C3D50022C68F /* NBCAlerts.m */; };
 		53F6122F1AFFEA3B00CFD435 /* NBCWorkflowResourcesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53F6122E1AFFEA3B00CFD435 /* NBCWorkflowResourcesController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		534DFB221B7C986400C9CE0E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 53F229CC1B6837E200CC0B09 /* Lumberjack.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = DCB3185014EB418E001CFBEE;
+			remoteInfo = CocoaLumberjack;
+		};
 		53968C351A8E7C910079AA95 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 53968BFF1A8E7A3E0079AA95 /* Project object */;
@@ -185,16 +193,20 @@
 			remoteGlobalIDString = 18F3BFF21A81E0C700692297;
 			remoteInfo = iOSLibStaticTest;
 		};
-		53F229ED1B68384700CC0B09 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 53F229CC1B6837E200CC0B09 /* Lumberjack.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = DCB3185014EB418E001CFBEE;
-			remoteInfo = CocoaLumberjack;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		534DFB251B7C9E0600C9CE0E /* Copy CocoaLumberjack */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				534DFB261B7C9E3B00C9CE0E /* CocoaLumberjack.framework in Copy CocoaLumberjack */,
+			);
+			name = "Copy CocoaLumberjack";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		53968C371A8E7CCB0079AA95 /* Copy Helper */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -400,7 +412,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				53F229EC1B68384100CC0B09 /* CocoaLumberjack.framework in Frameworks */,
+				534DFB241B7C988800C9CE0E /* CocoaLumberjack.framework in Frameworks */,
 				532A67901B18D98C007528AE /* SystemConfiguration.framework in Frameworks */,
 				53C97F9C1B07D31600034B60 /* liblzma.5.dylib in Frameworks */,
 				53C97F991B07D2D100034B60 /* libxar.1.dylib in Frameworks */,
@@ -853,11 +865,12 @@
 				53968C041A8E7A3E0079AA95 /* Frameworks */,
 				53968C051A8E7A3E0079AA95 /* Resources */,
 				53968C371A8E7CCB0079AA95 /* Copy Helper */,
+				534DFB251B7C9E0600C9CE0E /* Copy CocoaLumberjack */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				53F229EE1B68384700CC0B09 /* PBXTargetDependency */,
+				534DFB231B7C986400C9CE0E /* PBXTargetDependency */,
 				53968C361A8E7C910079AA95 /* PBXTargetDependency */,
 			);
 			name = NBICreator;
@@ -1119,15 +1132,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		534DFB231B7C986400C9CE0E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CocoaLumberjack;
+			targetProxy = 534DFB221B7C986400C9CE0E /* PBXContainerItemProxy */;
+		};
 		53968C361A8E7C910079AA95 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 53968C2D1A8E7B8C0079AA95 /* com.github.NBICreatorHelper */;
 			targetProxy = 53968C351A8E7C910079AA95 /* PBXContainerItemProxy */;
-		};
-		53F229EE1B68384700CC0B09 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = CocoaLumberjack;
-			targetProxy = 53F229ED1B68384700CC0B09 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

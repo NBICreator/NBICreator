@@ -145,11 +145,11 @@ DDLogLevel ddLogLevel;
     } else {
         NSDictionary *systemDiskImageDict;
         NSArray *hdiutilOptions = @[
-                                   @"-mountRandom", @"/Volumes",
-                                   @"-nobrowse",
-                                   @"-noverify",
-                                   @"-plist",
-                                   ];
+                                    @"-mountRandom", @"/Volumes",
+                                    @"-nobrowse",
+                                    @"-noverify",
+                                    @"-plist",
+                                    ];
         
         if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&systemDiskImageDict
                                                                   dmgPath:systemDiskImageURL
@@ -158,16 +158,21 @@ DDLogLevel ddLogLevel;
             if ( systemDiskImageDict ) {
                 [source setSystemDiskImageDict:systemDiskImageDict];
                 systemVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:systemDiskImageDict];
-                systemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:systemDiskImageURL
-                                                                        imageType:@"System"];
-                if ( systemDisk ) {
-                    [source setSystemDisk:systemDisk];
-                    [source setSystemVolumeBSDIdentifier:[systemDisk BSDName]];
-                    [systemDisk setIsMountedByNBICreator:YES];
-                    
-                    verified = YES;
+                
+                if ( systemVolumeURL != nil ) {
+                    systemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:systemDiskImageURL
+                                                                            imageType:@"System"];
+                    if ( systemDisk ) {
+                        [source setSystemDisk:systemDisk];
+                        [source setSystemVolumeBSDIdentifier:[systemDisk BSDName]];
+                        [systemDisk setIsMountedByNBICreator:YES];
+                        
+                        verified = YES;
+                    } else {
+                        NSLog(@"No System Disk");
+                    }
                 } else {
-                    NSLog(@"No System Disk");
+                    NSLog(@"Could not get systemVolumeURL");
                 }
             } else {
                 NSLog(@"No System Disk Image Dict");
@@ -245,11 +250,11 @@ DDLogLevel ddLogLevel;
             } else {
                 recoveryVolumeURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/Volumes/dmg.%@", [NSString nbc_randomString]]];
                 NSArray *diskutilOptions = @[
-                                            @"rdonly",
-                                            @"noowners",
-                                            @"nobrowse",
-                                            @"-j",
-                                            ];
+                                             @"rdonly",
+                                             @"noowners",
+                                             @"nobrowse",
+                                             @"-j",
+                                             ];
                 
                 if ( [recoveryPartitionDiskIdentifier length] != 0 && [NBCDiskImageController mountAtPath:[recoveryVolumeURL path]
                                                                                             withArguments:diskutilOptions
@@ -322,11 +327,11 @@ DDLogLevel ddLogLevel;
             } else {
                 recoveryVolumeURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/Volumes/dmg.%@", [NSString nbc_randomString]]];
                 NSArray *diskutilOptions = @[
-                                            @"rdonly",
-                                            @"noowners",
-                                            @"nobrowse",
-                                            @"-j",
-                                            ];
+                                             @"rdonly",
+                                             @"noowners",
+                                             @"nobrowse",
+                                             @"-j",
+                                             ];
                 
                 if ( [recoveryPartitionDiskIdentifier length] != 0 && [NBCDiskImageController mountAtPath:[recoveryVolumeURL path]
                                                                                             withArguments:diskutilOptions
@@ -378,11 +383,11 @@ DDLogLevel ddLogLevel;
     } else {
         NSDictionary *baseSystemImageDict;
         NSArray *hdiutilOptions = @[
-                                   @"-mountRandom", @"/Volumes",
-                                   @"-nobrowse",
-                                   @"-noverify",
-                                   @"-plist",
-                                   ];
+                                    @"-mountRandom", @"/Volumes",
+                                    @"-nobrowse",
+                                    @"-noverify",
+                                    @"-plist",
+                                    ];
         
         if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&baseSystemImageDict
                                                                   dmgPath:baseSystemDiskImageURL
@@ -391,16 +396,21 @@ DDLogLevel ddLogLevel;
             if ( baseSystemImageDict ) {
                 [source setBaseSystemDiskImageDict:baseSystemImageDict];
                 baseSystemVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:baseSystemImageDict];
-                baseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:baseSystemDiskImageURL
-                                                                            imageType:@"BaseSystem"];
-                if ( baseSystemDisk ) {
-                    [source setBaseSystemDisk:baseSystemDisk];
-                    [source setBaseSystemVolumeBSDIdentifier:[baseSystemDisk BSDName]];
-                    [baseSystemDisk setIsMountedByNBICreator:YES];
-                    
-                    verified = YES;
+                
+                if ( baseSystemVolumeURL != nil ) {
+                    baseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:baseSystemDiskImageURL
+                                                                                imageType:@"BaseSystem"];
+                    if ( baseSystemDisk ) {
+                        [source setBaseSystemDisk:baseSystemDisk];
+                        [source setBaseSystemVolumeBSDIdentifier:[baseSystemDisk BSDName]];
+                        [baseSystemDisk setIsMountedByNBICreator:YES];
+                        
+                        verified = YES;
+                    } else {
+                        NSLog(@"No Base System Disk");
+                    }
                 } else {
-                    NSLog(@"No Base System Disk");
+                    NSLog(@"Could not get baseSystemVolumeURL");
                 }
             } else {
                 NSLog(@"No Base System Image Dict");
@@ -468,6 +478,7 @@ DDLogLevel ddLogLevel;
                                                                          imageType:@"InstallESD"];
     
     if ( installESDDisk != nil ) {
+        NSLog(@"installESDDisk=%@", installESDDisk);
         [source setInstallESDDisk:installESDDisk];
         [source setInstallESDVolumeBSDIdentifier:[installESDDisk BSDName]];
         installESDVolumeURL = [installESDDisk volumeURL];
@@ -475,11 +486,11 @@ DDLogLevel ddLogLevel;
     } else {
         NSDictionary *installESDDiskImageDict;
         NSArray *hdiutilOptions = @[
-                                   @"-mountRandom", @"/Volumes",
-                                   @"-nobrowse",
-                                   @"-noverify",
-                                   @"-plist",
-                                   ];
+                                    @"-mountRandom", @"/Volumes",
+                                    @"-nobrowse",
+                                    @"-noverify",
+                                    @"-plist",
+                                    ];
         
         if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&installESDDiskImageDict
                                                                   dmgPath:installESDDiskImageURL
@@ -488,16 +499,21 @@ DDLogLevel ddLogLevel;
             if ( installESDDiskImageDict ) {
                 [source setInstallESDDiskImageDict:installESDDiskImageDict];
                 installESDVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:installESDDiskImageDict];
-                installESDDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:installESDDiskImageURL
-                                                                            imageType:@"InstallESD"];
-                if ( installESDDisk ) {
-                    [source setInstallESDDisk:installESDDisk];
-                    [source setInstallESDVolumeBSDIdentifier:[installESDDisk BSDName]];
-                    [installESDDisk setIsMountedByNBICreator:YES];
-                    
-                    verified = YES;
+                
+                if ( installESDVolumeURL != nil ) {
+                    installESDDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:installESDDiskImageURL
+                                                                                imageType:@"InstallESD"];
+                    if ( installESDDisk ) {
+                        [source setInstallESDDisk:installESDDisk];
+                        [source setInstallESDVolumeBSDIdentifier:[installESDDisk BSDName]];
+                        [installESDDisk setIsMountedByNBICreator:YES];
+                        
+                        verified = YES;
+                    } else {
+                        NSLog(@"No Install ESD Disk");
+                    }
                 } else {
-                    NSLog(@"No Install ESD Disk");
+                    NSLog(@"Could not get InstallESDVolumeURL");
                 }
             } else {
                 NSLog(@"No Install ESD Dict");
@@ -518,7 +534,7 @@ DDLogLevel ddLogLevel;
             NSLog(@"Found no BaseSystem.dmg!");
         }
     }
-    
+
     return verified;
 }
 
