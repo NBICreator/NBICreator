@@ -71,9 +71,11 @@ enum {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark NSApplicationDelegate methods
+#pragma mark Delegate Methods NSApplicationDelegate
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
 #pragma unused(notification)
@@ -179,12 +181,70 @@ enum {
     [_window makeKeyAndOrderFront:self];
 } // applicationDidFinishLaunching
 
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
+#pragma unused(sender)
+    return YES;
+} // applicationShouldTerminateAfterLastWindowClosed
+
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
+#pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [self checkUnsavedSettingsQuit];
+    return NSTerminateLater;
+} // applicationShouldTerminate
+
+- (void)applicationWillTerminate:(NSNotification *)notification {
+#pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSSet *mountedDisks = [[_arbitrator disks] copy];
+    for ( NBCDisk *disk in mountedDisks ) {
+        if ( [disk isMountedByNBICreator] && [disk isMounted] ) {
+            [disk unmountWithOptions:kDADiskUnmountOptionDefault];
+            if ( [[disk deviceModel] isEqualToString:NBCDiskDeviceModelDiskImage] ) {
+                [NBCDiskImageController detachDiskImageDevice:[disk BSDName]];
+            }
+        }
+    }
+} // applicationWillTerminate
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Delegate Methods NBCAlertsDelegate
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *alertTag = alertInfo[NBCAlertTagKey];
+    if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsavedQuit] )
+    {
+        if ( returnCode == NSAlertFirstButtonReturn ) {             // Save and Quit
+            NSString *selectedTemplate = [_currentSettingsController selectedTemplate];
+            NSDictionary *templatesDict = [_currentSettingsController templatesDict];
+            [_currentSettingsController saveUISettingsWithName:selectedTemplate atUrl:templatesDict[selectedTemplate]];
+            [self checkWorkflowRunningQuit];
+        } else if ( returnCode == NSAlertSecondButtonReturn ) {     // Quit
+            [self checkWorkflowRunningQuit];
+        } else if ( returnCode == NSAlertThirdButtonReturn ) {      // Cancel
+            [NSApp replyToApplicationShouldTerminate:NO];
+        }
+    } else if ( [alertTag isEqualToString:NBCAlertTagWorkflowRunningQuit] )
+    {
+        if ( returnCode == NSAlertFirstButtonReturn ) {             // Quit Anyway
+            NSLog(@"Canceling Workflow..."); // Need to Cancel Gracefully!
+            [self terminateApp];
+        } else if ( returnCode == NSAlertSecondButtonReturn ) {     // Cancel
+            [NSApp replyToApplicationShouldTerminate:NO];
+        }
+    }
+} // alertReturnCode:alertInfo
+
+
+
+
+
+
 - (void)configureCocoaLumberjack {
-    
-    // --------------------------------------------------------------
-    //  Log to ASL
-    // --------------------------------------------------------------
-    //[DDLog addLogger:[DDASLLogger sharedInstance]];
     
     // --------------------------------------------------------------
     //  Log to Console (Xcode)
@@ -243,35 +303,11 @@ enum {
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NBCHelpURL]];
 }
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-#pragma unused(sender)
-    return YES;
-} // applicationShouldTerminateAfterLastWindowClosed
-
-- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
-#pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    [self checkUnsavedSettingsQuit];
-    return NSTerminateLater;
-} // applicationShouldTerminate
-
-- (void)applicationWillTerminate:(NSNotification *)notification {
-#pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSSet *mountedDisks = [[_arbitrator disks] copy];
-    for ( NBCDisk *disk in mountedDisks ) {
-        if ( [disk isMountedByNBICreator] && [disk isMounted] ) {
-            [disk unmountWithOptions:kDADiskUnmountOptionDefault];
-            if ( [[disk deviceModel] isEqualToString:NBCDiskDeviceModelDiskImage] ) {
-                [NBCDiskImageController detachDiskImageDevice:[disk BSDName]];
-            }
-        }
-    }
-} // applicationWillTerminate
-
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Application Termination Checks
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkUnsavedSettingsQuit {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -313,39 +349,11 @@ enum {
     }];
 }
 
-#pragma mark -
-#pragma mark Delegate Methods NBCAlertsDelegate
-#pragma mark -
-
-- (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSString *alertTag = alertInfo[NBCAlertTagKey];
-    if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsavedQuit] )
-    {
-        if ( returnCode == NSAlertFirstButtonReturn ) {             // Save and Quit
-            NSString *selectedTemplate = [_currentSettingsController selectedTemplate];
-            NSDictionary *templatesDict = [_currentSettingsController templatesDict];
-            [_currentSettingsController saveUISettingsWithName:selectedTemplate atUrl:templatesDict[selectedTemplate]];
-            [self checkWorkflowRunningQuit];
-        } else if ( returnCode == NSAlertSecondButtonReturn ) {     // Quit
-            [self checkWorkflowRunningQuit];
-        } else if ( returnCode == NSAlertThirdButtonReturn ) {      // Cancel
-            [NSApp replyToApplicationShouldTerminate:NO];
-        }
-    } else if ( [alertTag isEqualToString:NBCAlertTagWorkflowRunningQuit] )
-    {
-        if ( returnCode == NSAlertFirstButtonReturn ) {             // Quit Anyway
-            NSLog(@"Canceling Workflow..."); // Need to Cancel Gracefully!
-            [self terminateApp];
-        } else if ( returnCode == NSAlertSecondButtonReturn ) {     // Cancel
-            [NSApp replyToApplicationShouldTerminate:NO];
-        }
-    }
-} // alertReturnCode:alertInfo
-
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Reachability
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)testInternetConnection {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -505,7 +513,11 @@ enum {
     [_viewNoInternetConnection removeFromSuperview];
 } // hideNoInternetConnection
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark Helper Tool
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)showHelperToolInstallBox {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -577,7 +589,11 @@ enum {
     return result;
 } // blessHelperWithLabel
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark IBActions
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction)buttonInstallHelper:(id)sender {
 #pragma unused(sender)

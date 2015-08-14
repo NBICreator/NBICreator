@@ -135,6 +135,7 @@ extern NSString *const NBCSettingsPackages;
 extern NSString *const NBCSettingsImagrVersion;
 extern NSString *const NBCSettingsImagrIncludePreReleaseVersions;
 extern NSString *const NBCSettingsImagrConfigurationURL;
+extern NSString *const NBCSettingsImagrReportingURL;
 extern NSString *const NBCSettingsImagrServerURLKey;
 extern NSString *const NBCSettingsImagrDownloadURL;
 extern NSString *const NBCSettingsImagrDownloadPython;
@@ -210,6 +211,7 @@ extern NSString *const NBCNotificationWorkflowFailed;
 // Workflows UserInfoKeys
 extern NSString *const NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem;
 extern NSString *const NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem;
+extern NSString *const NBCUserInfoNSErrorKey;
 
 // Imagr
 extern NSString *const NBCNotificationImagrUpdateSource;

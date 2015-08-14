@@ -28,7 +28,7 @@
 //  Properties
 // ------------------------------------------------------
 @property NSString *nbiVolumeName;
-@property NSString *temporaryNBIPath;
+@property NSURL *temporaryNBIURL;
 @property NSString *temporaryNBIBaseSystemPath;
 @property double temporaryNBIBaseSystemSize;
 @property NSString *diskVolumePath;

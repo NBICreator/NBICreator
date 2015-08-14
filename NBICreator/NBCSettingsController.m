@@ -68,8 +68,17 @@ DDLogLevel ddLogLevel;
             NSDictionary *settingsTabExtra = [self verifySettingsTabExtra:workflowItem];
             [settings addObject:settingsTabExtra];
             
+            // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Imagr"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsLocalImagrURL = [self verifySettingsLocalImagrURL:workflowItem];
+            [settings addObject:settingsLocalImagrURL];
+            
             NSDictionary *settingsConfigurationURL = [self verifySettingsConfigurationURL:workflowItem];
             [settings addObject:settingsConfigurationURL];
+            
+            NSDictionary *settingsReportingURL = [self verifySettingsReportingURL:workflowItem];
+            [settings addObject:settingsReportingURL];
             
             NSDictionary *settingsRemoteManagement = [self verifySettingsRemoteManagement:workflowItem];
             [settings addObject:settingsRemoteManagement];
@@ -147,7 +156,7 @@ DDLogLevel ddLogLevel;
             [settingsWarnings addObjectsFromArray:warningArr];
         }
     }
-        
+    
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];;
 } // verifySettingsTabGeneral
 
@@ -172,7 +181,7 @@ DDLogLevel ddLogLevel;
             [settingsWarnings addObjectsFromArray:warningArr];
         }
     }
-
+    
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 } // verifySettingsTabOptions
 
@@ -496,6 +505,52 @@ DDLogLevel ddLogLevel;
         [settingsErrors addObject:@"\"Configuration URL\" cannot be empty"];
     }
     
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsReportingURL:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    NSString *imagrConfigurationURLString = userSettings[NBCSettingsImagrReportingURL];
+    NSURL *imagrConfigurationURL = [NSURL URLWithString:imagrConfigurationURLString];
+    if ( [imagrConfigurationURLString length] != 0 ) {
+        if ( [imagrConfigurationURLString hasPrefix:@"http://"] || [imagrConfigurationURLString hasPrefix:@"https://"] ) {
+            if ( imagrConfigurationURL != nil ) {
+                NSString *imagrConfigurationURLHost = [imagrConfigurationURL host];
+                if ( [imagrConfigurationURLHost length] == 0 ) {
+                    [settingsErrors addObject:@"\"Reporting URL\" hostname or IP cannot be empty"];
+                }
+            } else {
+                [settingsErrors addObject:@"\"Reporting URL\" is not a valid URL"];
+            }
+        } else {
+            [settingsErrors addObject:@"\"Reporting URL\" need to use http:// or https://"];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsLocalImagrURL:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    if ( [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
+        NSString *imagrLocalVersionURLString = userSettings[NBCSettingsImagrLocalVersionPath];
+        if ( [imagrLocalVersionURLString length] != 0 ) {
+            NSURL *imagrLocalVersionURL = [NSURL URLWithString:imagrLocalVersionURLString];
+            if ( ! [imagrLocalVersionURL checkResourceIsReachableAndReturnError:nil] ) {
+                [settingsErrors addObject:@"\"Local Version URL\" is not valid"];
+            }
+        } else {
+            [settingsErrors addObject:@"\"Local Version URL\" cannot be empty"];
+        }
+    }
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 

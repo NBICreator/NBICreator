@@ -136,6 +136,7 @@ NSString *const NBCSettingsNetworkTimeServerKey = @"NetworkTimeServer";
 NSString *const NBCSettingsImagrVersion = @"ImagrVersion";
 NSString *const NBCSettingsImagrIncludePreReleaseVersions = @"ImagrIncludePreReleaseVersions";
 NSString *const NBCSettingsImagrConfigurationURL = @"ImagrConfigurationURL";
+NSString *const NBCSettingsImagrReportingURL = @"ImagrReportingURL";
 NSString *const NBCSettingsImagrServerURLKey = @"serverurl";
 NSString *const NBCSettingsImagrDownloadURL = @"ImagrDownloadURL";
 NSString *const NBCSettingsImagrDownloadPython = @"ImagrDownloadPython";
@@ -200,6 +201,8 @@ NSString *const NBCNotificationWorkflowCompleteNBI = @"workflowCompleteNBI";
 NSString *const NBCNotificationWorkflowCompleteResources = @"workflowCompleteResources";
 NSString *const NBCNotificationWorkflowCompleteModifyNBI = @"workflowCompleteModifyNBI";
 NSString *const NBCNotificationWorkflowFailed = @"workflowFailed";
+
+NSString *const NBCUserInfoNSErrorKey = @"NSError";
 
 // Workflows UserInfoKeys
 NSString *const NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem = @"WorkflowItem";
@@ -398,7 +401,7 @@ NSString *const NBCCertificatesTargetURL = @"Packages/Certificates";
 NSString *const NBCScriptsNBICreatorTargetPath = @"usr/local/scripts";
 NSString *const NBCScriptsTargetPath = @"Packages/Scripts";
 
-NSString *const NBCErrorDomain = @"com.gihub.NBICreator";
+NSString *const NBCErrorDomain = @"com.gihub.NBICreator.ErrorDomain";
 NSString *const NBCWorkflowNetInstallLogPrefix = @"_progress";
 
 NSString *const NBCTargetFolderMinFreeSizeInGB = @"10";

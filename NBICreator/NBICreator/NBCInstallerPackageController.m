@@ -160,7 +160,8 @@ DDLogLevel ddLogLevel;
         NSLog(@"ProxyError? %@", proxyError);
         [nc removeObserver:stdOutObserver];
         [nc removeObserver:stdErrObserver];
-        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
+        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         
     }] runTaskWithCommandAtPath:commandURL arguments:installerArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)

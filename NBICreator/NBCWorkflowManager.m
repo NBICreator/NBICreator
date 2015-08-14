@@ -188,7 +188,7 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowFailed:(NSNotification *)notification {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSError *error = [notification userInfo][@"error"];
+    NSError *error = [notification userInfo][NBCUserInfoNSErrorKey];
     NSString *progressViewErrorMessage = nil;
     if ( error ) {
         progressViewErrorMessage = [error localizedDescription];

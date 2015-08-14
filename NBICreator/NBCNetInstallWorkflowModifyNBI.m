@@ -48,8 +48,8 @@ DDLogLevel ddLogLevel;
             NSLog(@"Error when applying NBImageInfo settings");
             NSLog(@"Error: %@", error);
             
-            NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         }
     } else {
         NSLog(@"Could not get temporary NBI url from workflowItem");

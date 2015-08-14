@@ -94,6 +94,10 @@
 @property (weak) IBOutlet NSButton *buttonChooseImagrLocalPath;
 - (IBAction)buttonChooseImagrLocalPath:(id)sender;
 @property (weak) IBOutlet NSTextField *textFieldConfigurationURL;
+
+@property (weak) IBOutlet NSTextField *textFieldReportingURL;
+
+
 @property (weak) IBOutlet NSButton *checkboxDisableWiFi;
 
 @property (weak) IBOutlet NSImageView *imageViewNetworkWarning;
@@ -158,6 +162,7 @@
 @property BOOL includeImagrPreReleaseVersions;
 @property NSString *imagrVersion;
 @property NSString *imagrConfigurationURL;
+@property NSString *imagrReportingURL;
 @property BOOL imagrUseLocalVersion;
 @property NSString *imagrLocalVersionPath;
 

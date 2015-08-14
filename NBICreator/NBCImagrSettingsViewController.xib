@@ -45,6 +45,7 @@
                 <outlet property="textFieldNBINamePreview" destination="guD-Ne-m0K" id="aJa-Yj-TTv"/>
                 <outlet property="textFieldNetworkTimeServer" destination="ng4-VJ-jJ3" id="h9w-3o-Bwj"/>
                 <outlet property="textFieldNetworkWarning" destination="39O-iR-ITG" id="fOK-cF-Ot0"/>
+                <outlet property="textFieldReportingURL" destination="kCs-xy-MZx" id="UlH-Zh-8kh"/>
                 <outlet property="textFieldSIUVersionLabel" destination="fiB-Ot-zWb" id="RmZ-gY-Yck"/>
                 <outlet property="textFieldSIUVersionString" destination="95e-4J-jZL" id="K0K-LS-lwT"/>
                 <outlet property="view" destination="1FD-oy-yMF" id="7Sw-5Y-J1y"/>
@@ -1058,7 +1059,7 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4Vf-Sb-oV1">
+                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4Vf-Sb-oV1" userLabel="Configuration URL">
                                         <rect key="frame" x="146" y="254" width="368" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="http://192.168.178.135/imagr_config.plist" drawsBackground="YES" id="LIr-q5-tzm">
                                             <font key="font" metaFont="system"/>
@@ -1149,23 +1150,53 @@ asdasd</string>
                                             <binding destination="-2" name="selectedValue" keyPath="self.imagrVersion" id="0K2-dj-KLV"/>
                                         </connections>
                                     </popUpButton>
+                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kCs-xy-MZx" userLabel="Reporting URL">
+                                        <rect key="frame" x="146" y="225" width="368" height="22"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="http://192.168.178.135/report" drawsBackground="YES" id="w9M-gS-xkr">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.imagrReportingURL" id="Kzx-oj-nzb">
+                                                <dictionary key="options">
+                                                    <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                                    <string key="NSNullPlaceholder">http://192.168.178.135/imagr_config.plist</string>
+                                                </dictionary>
+                                            </binding>
+                                            <outlet property="delegate" destination="-2" id="OH3-vs-mli"/>
+                                        </connections>
+                                    </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="2dk-vD-S0N">
+                                        <rect key="frame" x="41" y="227" width="99" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Reporting URL:" id="A9u-7Y-P9D">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="cci-zg-MbN" firstAttribute="top" secondItem="aaI-WA-eJT" secondAttribute="bottom" constant="14" id="3PO-ug-TH2"/>
                                     <constraint firstItem="cci-zg-MbN" firstAttribute="leading" secondItem="TPA-g0-kla" secondAttribute="leading" constant="20" symbolic="YES" id="7Fs-xL-LWY"/>
                                     <constraint firstItem="6FP-um-KYE" firstAttribute="baseline" secondItem="aaI-WA-eJT" secondAttribute="baseline" id="850-ry-0ZN"/>
                                     <constraint firstAttribute="trailing" secondItem="4Vf-Sb-oV1" secondAttribute="trailing" constant="20" symbolic="YES" id="8sS-Wk-w5i"/>
+                                    <constraint firstItem="kCs-xy-MZx" firstAttribute="width" secondItem="4Vf-Sb-oV1" secondAttribute="width" id="CKT-lm-U9s"/>
                                     <constraint firstItem="cci-zg-MbN" firstAttribute="baseline" secondItem="4Vf-Sb-oV1" secondAttribute="baseline" id="E2r-ld-12E"/>
                                     <constraint firstItem="zgU-AT-JbX" firstAttribute="baseline" secondItem="reX-9N-ZAQ" secondAttribute="baseline" id="ENK-gm-BCQ"/>
+                                    <constraint firstItem="kCs-xy-MZx" firstAttribute="leading" secondItem="2dk-vD-S0N" secondAttribute="trailing" constant="8" symbolic="YES" id="FNd-w4-W4t"/>
                                     <constraint firstAttribute="trailing" secondItem="39O-iR-ITG" secondAttribute="trailing" constant="20" symbolic="YES" id="GYP-lj-Uah"/>
                                     <constraint firstItem="7hf-ex-xpe" firstAttribute="leading" secondItem="6FP-um-KYE" secondAttribute="trailing" constant="8" symbolic="YES" id="JaR-JD-d7F"/>
                                     <constraint firstItem="39O-iR-ITG" firstAttribute="baseline" secondItem="6FP-um-KYE" secondAttribute="baseline" id="Kjd-cn-REA"/>
+                                    <constraint firstItem="kCs-xy-MZx" firstAttribute="baseline" secondItem="2dk-vD-S0N" secondAttribute="baseline" id="LbI-yV-P6A"/>
                                     <constraint firstItem="reX-9N-ZAQ" firstAttribute="leading" secondItem="zgU-AT-JbX" secondAttribute="trailing" constant="8" symbolic="YES" id="Mrh-nJ-iLs"/>
                                     <constraint firstItem="7hf-ex-xpe" firstAttribute="centerY" secondItem="6FP-um-KYE" secondAttribute="centerY" id="NXf-No-wUf"/>
                                     <constraint firstItem="Hu4-ry-ucH" firstAttribute="centerY" secondItem="reX-9N-ZAQ" secondAttribute="centerY" id="PCz-yA-vul"/>
+                                    <constraint firstItem="2dk-vD-S0N" firstAttribute="top" secondItem="cci-zg-MbN" secondAttribute="bottom" constant="12" id="QWq-r3-q8o"/>
                                     <constraint firstItem="6FP-um-KYE" firstAttribute="leading" secondItem="aaI-WA-eJT" secondAttribute="trailing" constant="8" symbolic="YES" id="UCn-oB-szO"/>
                                     <constraint firstItem="39O-iR-ITG" firstAttribute="leading" secondItem="7hf-ex-xpe" secondAttribute="trailing" constant="5" id="UUg-OR-wrW"/>
                                     <constraint firstItem="aaI-WA-eJT" firstAttribute="top" secondItem="TPA-g0-kla" secondAttribute="top" constant="20" symbolic="YES" id="Umo-IT-E4G"/>
+                                    <constraint firstItem="cci-zg-MbN" firstAttribute="trailing" secondItem="2dk-vD-S0N" secondAttribute="trailing" id="eaD-s1-PZR"/>
                                     <constraint firstItem="6FP-um-KYE" firstAttribute="leading" secondItem="aaI-WA-eJT" secondAttribute="trailing" constant="8" symbolic="YES" id="lBJ-vr-zcN"/>
                                     <constraint firstItem="4Vf-Sb-oV1" firstAttribute="leading" secondItem="cci-zg-MbN" secondAttribute="trailing" constant="8" symbolic="YES" id="lfi-YL-Z5U"/>
                                     <constraint firstItem="aaI-WA-eJT" firstAttribute="trailing" secondItem="zgU-AT-JbX" secondAttribute="trailing" id="rrb-Jr-mKO"/>

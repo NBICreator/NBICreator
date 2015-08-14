@@ -67,14 +67,13 @@ DDLogLevel ddLogLevel;
             NSLog(@"Error when applying NBImageInfo settings");
             NSLog(@"Error: %@", error);
             
-            NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         }
     } else {
         NSLog(@"Could not get temporary NBI url from workflowItem");
         
-        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
 } // runWorkflow
 
@@ -135,7 +134,8 @@ DDLogLevel ddLogLevel;
         NSLog(@"Converting BaseSystem from shadow failed!");
         NSLog(@"Error: %@", error);
         
-        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
+        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         return;
     }
     
@@ -153,7 +153,8 @@ DDLogLevel ddLogLevel;
             NSLog(@"Converting NetIstall from shadow failed!");
             NSLog(@"Error: %@", error);
             
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
+            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
             return;
         }
     } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
@@ -179,7 +180,8 @@ DDLogLevel ddLogLevel;
         } else {
             NSLog(@"Could not rename BaseSystem to NetInstall");
             NSLog(@"Error: %@", error);
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
+            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         }
     } else {
         NSLog(@"Unknown creationTool!?");

@@ -28,6 +28,8 @@
 	<false/>
 	<key>ImagrConfigurationURL</key>
 	<string></string>
+	<key>ImagrReportingURL</key>
+	<string></string>
 	<key>ImagrVersion</key>
 	<string>Latest Release</string>
 	<key>IncludeSystemUIServer</key>

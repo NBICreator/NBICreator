@@ -77,15 +77,22 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *nbImageInfoDict = [[NSMutableDictionary alloc] init];
     
+    NSArray *disabledSystemIdentifiers;
     NSDictionary *platformSupport = [[NSDictionary alloc] initWithContentsOfURL:[nbiURL URLByAppendingPathComponent:@"i386/PlatformSupport.plist"]];
-    NSArray *disabledSystemIdentifiers = platformSupport[@"SupportedModelProperties"];
-    disabledSystemIdentifiers = [disabledSystemIdentifiers sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+    if ( [platformSupport count] != 0 ) {
+        disabledSystemIdentifiers = platformSupport[@"SupportedModelProperties"];
+        if ( [disabledSystemIdentifiers count] != 0 ) {
+            disabledSystemIdentifiers = [disabledSystemIdentifiers sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+        } else {
+            DDLogWarn(@"Could not get any DisabledSystemIdentifiers from ");
+        }
+    }
     
     nbImageInfoDict[@"Architectures"] = @[ @"i386" ];
     nbImageInfoDict[@"BackwardCompatible"] = @NO;
     nbImageInfoDict[@"BootFile"] = @"booter";
     nbImageInfoDict[@"Description"] = @"";
-    nbImageInfoDict[@"DisabledSystemIdentifiers"] = disabledSystemIdentifiers;
+    nbImageInfoDict[@"DisabledSystemIdentifiers"] = disabledSystemIdentifiers ? : @[];
     nbImageInfoDict[@"EnabledSystemIdentifiers"] = @[];
     nbImageInfoDict[@"Index"] = @1;
     nbImageInfoDict[@"IsDefault"] = @NO;
