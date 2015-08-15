@@ -670,7 +670,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="374" width="600" height="434"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" verticalCompressionResistancePriority="250" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="600" height="434"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -689,10 +689,10 @@
                         <rect key="frame" x="20" y="277" width="560" height="137"/>
                     </customView>
                     <customView horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" placeholderIntrinsicWidth="560" placeholderIntrinsicHeight="157" translatesAutoresizingMaskIntoConstraints="NO" id="ngY-aB-lRp">
-                        <rect key="frame" x="20" y="61" width="560" height="175"/>
+                        <rect key="frame" x="20" y="53" width="560" height="179"/>
                     </customView>
                     <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uL8-j3-eig">
-                        <rect key="frame" x="178" y="234" width="244" height="24"/>
+                        <rect key="frame" x="178" y="242" width="244" height="24"/>
                         <segmentedCell key="cell" refusesFirstResponder="YES" borderStyle="border" alignment="left" identifier="netinstall" style="rounded" trackingMode="selectOne" id="cuq-FX-eII">
                             <font key="font" metaFont="system"/>
                             <segments>
@@ -710,11 +710,11 @@
                 <constraints>
                     <constraint firstAttribute="centerX" secondItem="6Ox-EY-Fwk" secondAttribute="centerX" id="1IS-1c-oc7"/>
                     <constraint firstAttribute="trailing" secondItem="ngY-aB-lRp" secondAttribute="trailing" constant="20" symbolic="YES" id="FcS-1V-U6y"/>
-                    <constraint firstItem="ngY-aB-lRp" firstAttribute="top" secondItem="uL8-j3-eig" secondAttribute="bottom" id="H8B-Yo-que"/>
+                    <constraint firstItem="ngY-aB-lRp" firstAttribute="top" secondItem="uL8-j3-eig" secondAttribute="bottom" constant="12" id="H8B-Yo-que"/>
                     <constraint firstAttribute="centerX" secondItem="uL8-j3-eig" secondAttribute="centerX" id="IjG-cj-4Tz"/>
                     <constraint firstAttribute="bottom" secondItem="6Ox-EY-Fwk" secondAttribute="bottom" constant="20" symbolic="YES" id="NMT-Y8-L4x"/>
-                    <constraint firstItem="uL8-j3-eig" firstAttribute="top" secondItem="ajs-UB-tQp" secondAttribute="bottom" constant="20" id="bSs-kV-N0u"/>
-                    <constraint firstItem="6Ox-EY-Fwk" firstAttribute="top" secondItem="ngY-aB-lRp" secondAttribute="bottom" constant="20" symbolic="YES" id="giT-kZ-uUz"/>
+                    <constraint firstItem="uL8-j3-eig" firstAttribute="top" secondItem="ajs-UB-tQp" secondAttribute="bottom" constant="12" id="bSs-kV-N0u"/>
+                    <constraint firstItem="6Ox-EY-Fwk" firstAttribute="top" secondItem="ngY-aB-lRp" secondAttribute="bottom" constant="12" id="giT-kZ-uUz"/>
                     <constraint firstAttribute="trailing" secondItem="ajs-UB-tQp" secondAttribute="trailing" constant="20" symbolic="YES" id="hbT-hk-Weu"/>
                     <constraint firstItem="ajs-UB-tQp" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" symbolic="YES" id="oP2-5G-QHx"/>
                     <constraint firstItem="ngY-aB-lRp" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" symbolic="YES" id="qec-lS-5zE"/>

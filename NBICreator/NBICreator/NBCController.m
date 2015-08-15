@@ -274,7 +274,7 @@ enum {
     }
     
     DDLogError(@"");
-    DDLogError(@"Starting NBICreator version %@...", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]);
+    DDLogError(@"Starting NBICreator version %@ (build %@)...", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
     NSString *logLevelName;
     switch (ddLogLevel) {
         case 1:

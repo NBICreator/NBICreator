@@ -656,8 +656,12 @@ DDLogLevel ddLogLevel;
 
 + (NBCDisk *)checkDiskImageAlreadyMounted:(NSURL *)diskImageURL imageType:(NSString *)imageType {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Checking if %@ is already mounted...", [diskImageURL path]);
+    DDLogDebug(@"diskImageURL=%@", diskImageURL);
+    DDLogDebug(@"imageType=%@", imageType);
     NBCDisk *disk;
     NSString *partitionHint;
+    
     if (
         [imageType isEqualToString:@"System"]
         ) {
@@ -682,8 +686,6 @@ DDLogLevel ddLogLevel;
                       @"-plist",
                       [diskImageURL path]
                       ];
-    //NSMutableArray *args = [NSMutableArray arrayWithObjects:@"-c", [NSString stringWithFormat:@"hdiutil imageinfo -plist \"%@\"", [diskImageURL path]], nil];
-    NSLog(@"args=%@", args);
     [newTask setArguments:args];
     [newTask setStandardOutput:[NSPipe pipe]];
     [newTask launch];

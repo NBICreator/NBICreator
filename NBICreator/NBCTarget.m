@@ -15,18 +15,18 @@ DDLogLevel ddLogLevel;
 
 - (void)printAllVariables
 {
-    NSLog(@"resourcesNetInstallDict=%@", _resourcesNetInstallDict);
-    NSLog(@"resourcesBaseSystemDict=%@", _resourcesBaseSystemDict);
-    NSLog(@"nbiNetInstallDisk=%@", _nbiNetInstallDisk);
-    NSLog(@"nbiNetInstallURL=%@", _nbiNetInstallURL);
-    NSLog(@"nbiNetInstallVolumeURL=%@", _nbiNetInstallVolumeURL);
-    NSLog(@"nbiNetInstallDiskImageDict=%@", _nbiNetInstallDiskImageDict);
-    NSLog(@"nbiNetInstallVolumeBSDIdentifier=%@", _nbiNetInstallVolumeBSDIdentifier);
-    NSLog(@"baseSystemDisk=%@", _baseSystemDisk);
-    NSLog(@"baseSystemURL=%@", _baseSystemURL);
-    NSLog(@"baseSystemVolumeURL=%@", _baseSystemVolumeURL);
-    NSLog(@"baseSystemDiskImageDict=%@", _baseSystemDiskImageDict);
-    NSLog(@"baseSystemVolumeBSDIdentifier=%@", _baseSystemVolumeBSDIdentifier);
+    DDLogDebug(@"resourcesNetInstallDict=%@", _resourcesNetInstallDict);
+    DDLogDebug(@"resourcesBaseSystemDict=%@", _resourcesBaseSystemDict);
+    DDLogDebug(@"nbiNetInstallDisk=%@", _nbiNetInstallDisk);
+    DDLogDebug(@"nbiNetInstallURL=%@", _nbiNetInstallURL);
+    DDLogDebug(@"nbiNetInstallVolumeURL=%@", _nbiNetInstallVolumeURL);
+    DDLogDebug(@"nbiNetInstallDiskImageDict=%@", _nbiNetInstallDiskImageDict);
+    DDLogDebug(@"nbiNetInstallVolumeBSDIdentifier=%@", _nbiNetInstallVolumeBSDIdentifier);
+    DDLogDebug(@"baseSystemDisk=%@", _baseSystemDisk);
+    DDLogDebug(@"baseSystemURL=%@", _baseSystemURL);
+    DDLogDebug(@"baseSystemVolumeURL=%@", _baseSystemVolumeURL);
+    DDLogDebug(@"baseSystemDiskImageDict=%@", _baseSystemDiskImageDict);
+    DDLogDebug(@"baseSystemVolumeBSDIdentifier=%@", _baseSystemVolumeBSDIdentifier);
 }
 
 @end

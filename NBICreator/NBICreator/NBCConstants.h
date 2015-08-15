@@ -139,8 +139,6 @@ extern NSString *const NBCSettingsImagrReportingURL;
 extern NSString *const NBCSettingsImagrServerURLKey;
 extern NSString *const NBCSettingsImagrDownloadURL;
 extern NSString *const NBCSettingsImagrDownloadPython;
-extern NSString *const NBCSettingsImagrRCImaging;
-extern NSString *const NBCSettingsImagrRCImagingNBICreator;
 extern NSString *const NBCSettingsImagrUseLocalVersion;
 extern NSString *const NBCSettingsImagrLocalVersionPath;
 extern NSString *const NBCSettingsImagrSourceIsNBI;

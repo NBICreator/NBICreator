@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
@@ -30,17 +30,17 @@
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="cm7-G4-YB2">
-            <rect key="frame" x="0.0" y="0.0" width="540" height="110"/>
+            <rect key="frame" x="0.0" y="0.0" width="540" height="98"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <box autoresizesSubviews="NO" wantsLayer="YES" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" title="DropImageView" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="BIM-UH-vPd" customClass="NBCNetInstallDropViewBox">
-                    <rect key="frame" x="-3" y="-4" width="546" height="116"/>
+                    <rect key="frame" x="-3" y="-4" width="546" height="104"/>
                     <view key="contentView">
-                        <rect key="frame" x="1" y="1" width="544" height="114"/>
+                        <rect key="frame" x="1" y="1" width="544" height="102"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6g3-d9-bEq">
-                                <rect key="frame" x="17" y="45" width="240" height="26"/>
+                                <rect key="frame" x="17" y="39" width="240" height="26"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="235" id="i1S-bm-uBN"/>
                                 </constraints>
@@ -70,13 +70,13 @@
                                 </textFieldCell>
                             </textField>
                             <box horizontalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="qhs-Ww-8RX">
-                                <rect key="frame" x="269" y="32" width="6" height="70"/>
+                                <rect key="frame" x="269" y="32" width="6" height="58"/>
                                 <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                 <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 <font key="titleFont" metaFont="system"/>
                             </box>
                             <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="utX-mW-gTS">
-                                <rect key="frame" x="16" y="27" width="512" height="19"/>
+                                <rect key="frame" x="16" y="21" width="512" height="19"/>
                                 <textFieldCell key="cell" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="center" title="Progress Status" id="H94-cP-IKQ">
                                     <font key="font" metaFont="systemBold" size="16"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -84,7 +84,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="h8W-ry-Oti">
-                                <rect key="frame" x="478" y="44" width="50" height="16"/>
+                                <rect key="frame" x="468" y="37" width="60" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="&quot;Source Field 1&quot;" id="YWg-Du-wET">
                                     <font key="font" metaFont="cellTitle"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -92,7 +92,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="HwF-Ai-C5E">
-                                <rect key="frame" x="478" y="24" width="50" height="16"/>
+                                <rect key="frame" x="468" y="17" width="60" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="&quot;Source Field 2&quot;" id="Flf-Q9-EWg">
                                     <font key="font" metaFont="cellTitle"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -100,21 +100,20 @@
                                 </textFieldCell>
                             </textField>
                             <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="B8U-QU-1jc" customClass="NBCNetInstallDropViewImageView">
-                                <rect key="frame" x="278" y="15" width="89" height="89"/>
+                                <rect key="frame" x="278" y="13" width="79" height="79"/>
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="B8U-QU-1jc" secondAttribute="height" multiplier="1:1" id="29t-1o-ujC"/>
-                                    <constraint firstAttribute="width" constant="89" id="jAI-Ni-nAw"/>
                                 </constraints>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="IconDMG" id="dwN-b2-f6D"/>
                             </imageView>
                             <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="wPo-NN-2FX">
-                                <rect key="frame" x="256" y="56" width="32" height="32"/>
+                                <rect key="frame" x="256" y="50" width="32" height="32"/>
                             </progressIndicator>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="Q56-Yn-6IM" customClass="NBCNetInstallDropViewImageView">
-                                <rect key="frame" x="372" y="33" width="69" height="69"/>
+                                <rect key="frame" x="376" y="31" width="61" height="61"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="69" id="Iz3-Wk-Qw1"/>
-                                    <constraint firstAttribute="height" constant="69" id="om2-sd-iCd"/>
+                                    <constraint firstAttribute="width" secondItem="Q56-Yn-6IM" secondAttribute="height" multiplier="1:1" id="G3y-5I-BwN"/>
+                                    <constraint firstAttribute="width" constant="61" id="pLe-md-7D2"/>
                                 </constraints>
                                 <contentFilters>
                                     <ciFilter name="CIGaussianBlur">
@@ -127,7 +126,7 @@
                                 <imageCell key="cell" continuous="YES" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconDMG" id="a3N-Qm-9ii"/>
                             </imageView>
                             <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="5ov-rO-2si">
-                                <rect key="frame" x="379" y="24" width="95" height="16"/>
+                                <rect key="frame" x="369" y="17" width="95" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Source Field 2:" id="wa6-rT-tNe">
                                     <font key="font" metaFont="systemBold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -143,7 +142,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="RCT-bW-zla">
-                                <rect key="frame" x="379" y="44" width="95" height="16"/>
+                                <rect key="frame" x="369" y="37" width="95" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Source Field 1:" id="Pbb-r5-RY2">
                                     <font key="font" metaFont="systemBold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -151,7 +150,7 @@
                                 </textFieldCell>
                             </textField>
                             <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VSP-EM-K09" customClass="NBCImagrDropViewImageView">
-                                <rect key="frame" x="335" y="15" width="32" height="32"/>
+                                <rect key="frame" x="325" y="13" width="32" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="32" id="6Ia-Fb-8fv"/>
                                     <constraint firstAttribute="height" constant="32" id="zXS-gr-umo"/>
@@ -159,7 +158,7 @@
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="IconDMG" id="fCH-gC-eno"/>
                             </imageView>
                             <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ESd-KQ-ZPL">
-                                <rect key="frame" x="390" y="65" width="138" height="29"/>
+                                <rect key="frame" x="380" y="58" width="148" height="29"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Source Title" id="Shn-yb-cmF">
                                     <font key="font" metaFont="systemBold" size="24"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -170,6 +169,7 @@
                     </view>
                     <constraints>
                         <constraint firstItem="5ov-rO-2si" firstAttribute="baseline" secondItem="HwF-Ai-C5E" secondAttribute="baseline" id="0lQ-TQ-jpm"/>
+                        <constraint firstItem="B8U-QU-1jc" firstAttribute="top" secondItem="BIM-UH-vPd" secondAttribute="top" constant="9" id="1Iw-9e-HBs"/>
                         <constraint firstItem="HwF-Ai-C5E" firstAttribute="leading" secondItem="h8W-ry-Oti" secondAttribute="leading" id="1mh-xs-epf"/>
                         <constraint firstAttribute="width" constant="540" id="2mz-Yx-A7i"/>
                         <constraint firstItem="ESd-KQ-ZPL" firstAttribute="leading" secondItem="B8U-QU-1jc" secondAttribute="trailing" constant="25" id="39s-zS-Lez"/>
@@ -179,8 +179,8 @@
                         <constraint firstAttribute="centerY" secondItem="wPo-NN-2FX" secondAttribute="centerY" constant="14" id="Czx-O6-GTr"/>
                         <constraint firstItem="h8W-ry-Oti" firstAttribute="leading" secondItem="ESd-KQ-ZPL" secondAttribute="leading" constant="88" id="DWI-Gd-ftw"/>
                         <constraint firstItem="RCT-bW-zla" firstAttribute="top" secondItem="ESd-KQ-ZPL" secondAttribute="bottom" constant="5" id="DgB-2s-5Md"/>
-                        <constraint firstItem="f3t-QH-oHY" firstAttribute="top" secondItem="Q56-Yn-6IM" secondAttribute="bottom" constant="2" id="GoH-mC-pSb"/>
-                        <constraint firstAttribute="height" constant="110" id="Hck-Ft-20n"/>
+                        <constraint firstItem="f3t-QH-oHY" firstAttribute="top" secondItem="Q56-Yn-6IM" secondAttribute="bottom" id="GoH-mC-pSb"/>
+                        <constraint firstAttribute="height" constant="98" id="Hck-Ft-20n"/>
                         <constraint firstItem="HwF-Ai-C5E" firstAttribute="leading" secondItem="5ov-rO-2si" secondAttribute="trailing" constant="8" symbolic="YES" id="JVl-cN-ZfG"/>
                         <constraint firstAttribute="trailing" secondItem="h8W-ry-Oti" secondAttribute="trailing" constant="16" id="JZ9-Jd-eW2"/>
                         <constraint firstItem="6g3-d9-bEq" firstAttribute="centerX" secondItem="6zr-sT-e5F" secondAttribute="centerX" id="KOy-ek-fU2"/>
@@ -199,8 +199,8 @@
                         <constraint firstItem="B8U-QU-1jc" firstAttribute="centerY" secondItem="ESd-KQ-ZPL" secondAttribute="centerY" constant="20" id="cdX-t1-hRh"/>
                         <constraint firstAttribute="centerX" secondItem="wPo-NN-2FX" secondAttribute="centerX" id="crG-Ya-hRT"/>
                         <constraint firstAttribute="centerX" secondItem="TPA-GW-T5w" secondAttribute="centerX" id="dUm-Uf-pWQ"/>
-                        <constraint firstItem="B8U-QU-1jc" firstAttribute="centerY" secondItem="6g3-d9-bEq" secondAttribute="centerY" constant="-1" id="ebh-lO-lw3"/>
-                        <constraint firstItem="Q56-Yn-6IM" firstAttribute="top" secondItem="BIM-UH-vPd" secondAttribute="top" constant="11" id="hZw-PA-6fh"/>
+                        <constraint firstItem="B8U-QU-1jc" firstAttribute="centerY" secondItem="6g3-d9-bEq" secondAttribute="centerY" id="ebh-lO-lw3"/>
+                        <constraint firstItem="Q56-Yn-6IM" firstAttribute="top" secondItem="BIM-UH-vPd" secondAttribute="top" constant="9" id="hZw-PA-6fh"/>
                         <constraint firstItem="5ov-rO-2si" firstAttribute="top" secondItem="RCT-bW-zla" secondAttribute="bottom" constant="4" id="hlN-gW-Px3"/>
                         <constraint firstItem="RCT-bW-zla" firstAttribute="width" secondItem="5ov-rO-2si" secondAttribute="width" id="i9q-iF-l7P"/>
                         <constraint firstAttribute="trailing" secondItem="ESd-KQ-ZPL" secondAttribute="trailing" constant="16" id="pgg-ne-mmQ"/>
@@ -222,7 +222,7 @@
                 <constraint firstAttribute="trailing" secondItem="BIM-UH-vPd" secondAttribute="trailing" id="tZp-fP-0R1"/>
                 <constraint firstItem="BIM-UH-vPd" firstAttribute="top" secondItem="cm7-G4-YB2" secondAttribute="top" id="x2N-G4-fNV"/>
             </constraints>
-            <point key="canvasLocation" x="-1575" y="546"/>
+            <point key="canvasLocation" x="-1430" y="336"/>
         </customView>
     </objects>
     <resources>

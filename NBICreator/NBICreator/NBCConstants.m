@@ -140,8 +140,6 @@ NSString *const NBCSettingsImagrReportingURL = @"ImagrReportingURL";
 NSString *const NBCSettingsImagrServerURLKey = @"serverurl";
 NSString *const NBCSettingsImagrDownloadURL = @"ImagrDownloadURL";
 NSString *const NBCSettingsImagrDownloadPython = @"ImagrDownloadPython";
-NSString *const NBCSettingsImagrRCImaging = @"#!/bin/bash\n\n/System/Installation/Packages/Imagr.app/Contents/MacOS/Imagr\n";
-NSString *const NBCSettingsImagrRCImagingNBICreator = @"#!/bin/bash\n\n#\n Disable assessments checks\n#\n/usr/sbin/spctl --master-disable\n\n#\n# Fix system date\n#\nif [ -e /etc/ntp.conf ]; then\nNTP_SERVERS=$( cat /etc/ntp.conf | awk '{ print $NF }' )\nfor NTP_SERVER in ${NTP_SERVERS}; do\nntpdate -u \"${NTP_SERVER}\" 2>/dev/null\nif [ ${?} -eq 0 ]; then\nbreak\nfi\ndone\nfi\n\nif [ -e /Library/Preferences/com.apple.VNCSettings.txt ]; then\nlaunchctl load /System/Library/LaunchAgents/com.apple.screensharing.MessagesAgent.plist\nfi\n\n#\n# Enable DiskUtility Debug menu\n#\ndefaults write com.apple.DiskUtility DUShowEveryPartition -bool YES\n\n/Applications/Imagr.app/Contents/MacOS/Imagr\n";
 NSString *const NBCSettingsImagrUseLocalVersion = @"ImagrUseLocalVersion";
 NSString *const NBCSettingsImagrLocalVersionPath = @"ImagrLocalVersionPath";
 NSString *const NBCSettingsImagrSourceIsNBI = @"IsNBI";

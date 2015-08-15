@@ -504,7 +504,7 @@ DDLogLevel ddLogLevel;
     
     NSString *hostname = [NSString stringWithFormat:@"\n"
                           "###\n"
-                          "### Set Hostname\n"
+                          "### Set Temporary Hostname\n"
                           "###\n"
                           "computer_name=Mac-$( /usr/sbin/ioreg -rd1 -c IOPlatformExpertDevice | /usr/bin/awk -F'\"' '/IOPlatformSerialNumber/ { print $4 }' )\n"
                           "if [[ -n ${computer_name} ]]; then\n"
@@ -547,6 +547,16 @@ DDLogLevel ddLogLevel;
                             "###\n"
                             "/Applications/Imagr.app/Contents/MacOS/Imagr\n"];
     rcImaging = [rcImaging stringByAppendingString:startImagr];
+    
+    if ( [settingsDict[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
+        
+        NSString *stopSystemUIServer = [NSString stringWithFormat:@"\n"
+                                        "###\n"
+                                        "### Stop systemUIServer\n"
+                                        "###\n"
+                                        "/bin/launchctl unload /System/Library/LaunchDaemons/com.apple.SystemUIServer.plist\n"];
+        rcImaging = [rcImaging stringByAppendingString:stopSystemUIServer];
+    }
     
     return rcImaging;
 }

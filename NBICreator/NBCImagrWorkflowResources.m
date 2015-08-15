@@ -1019,16 +1019,15 @@ DDLogLevel ddLogLevel;
     NSError *error;
     NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
     DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
-    NSString *imagrRCImagingContent;
     NSString *imagrRCImagingTargetPath;
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
+    NSString *imagrRCImagingContent = [NBCWorkflowNBIController generateImagrRCImagingForNBICreator:[workflowItem userSettings] osMinorVersion:sourceVersionMinor];
+    DDLogDebug(@"imagrRCImagingContent=%@", imagrRCImagingContent);
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         imagrRCImagingTargetPath = NBCImagrRCImagingNBICreatorTargetURL;
-        imagrRCImagingContent = [NBCWorkflowNBIController generateImagrRCImagingForNBICreator:[workflowItem userSettings] osMinorVersion:sourceVersionMinor];
     } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         imagrRCImagingTargetPath = NBCImagrRCImagingTargetURL;
-        imagrRCImagingContent = NBCSettingsImagrRCImaging;
     } else {
         if ( [_target rcImagingURL] != nil ) {
             imagrRCImagingTargetPath = [[_target rcImagingURL] path];

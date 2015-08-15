@@ -27,7 +27,7 @@
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customView id="wMx-9w-VcQ">
-            <rect key="frame" x="0.0" y="0.0" width="540" height="468"/>
+            <rect key="frame" x="0.0" y="0.0" width="540" height="436"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <tabView translatesAutoresizingMaskIntoConstraints="NO" id="Jkr-W2-481">
@@ -384,7 +384,7 @@ asdasd</string>
                     </tabViewItems>
                 </tabView>
                 <box autoresizesSubviews="NO" title="Box" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="bTS-LS-Vgg">
-                    <rect key="frame" x="-3" y="374" width="546" height="76"/>
+                    <rect key="frame" x="-3" y="362" width="546" height="76"/>
                     <view key="contentView">
                         <rect key="frame" x="1" y="1" width="544" height="74"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -453,8 +453,8 @@ asdasd</string>
                 <constraint firstItem="bTS-LS-Vgg" firstAttribute="leading" secondItem="wMx-9w-VcQ" secondAttribute="leading" id="3W9-3H-9Ef"/>
                 <constraint firstAttribute="trailing" secondItem="bTS-LS-Vgg" secondAttribute="trailing" id="9h9-Ni-cE4"/>
                 <constraint firstItem="Jkr-W2-481" firstAttribute="leading" secondItem="wMx-9w-VcQ" secondAttribute="leading" id="E5R-8U-TFD"/>
-                <constraint firstItem="bTS-LS-Vgg" firstAttribute="top" secondItem="wMx-9w-VcQ" secondAttribute="top" constant="20" symbolic="YES" id="K4r-2J-ckj"/>
-                <constraint firstItem="Jkr-W2-481" firstAttribute="top" secondItem="bTS-LS-Vgg" secondAttribute="bottom" constant="24" id="L2C-dC-DfL"/>
+                <constraint firstItem="bTS-LS-Vgg" firstAttribute="top" secondItem="wMx-9w-VcQ" secondAttribute="top" id="K4r-2J-ckj"/>
+                <constraint firstItem="Jkr-W2-481" firstAttribute="top" secondItem="bTS-LS-Vgg" secondAttribute="bottom" constant="12" id="L2C-dC-DfL"/>
                 <constraint firstAttribute="bottom" secondItem="Jkr-W2-481" secondAttribute="bottom" id="w9s-Rx-JsR"/>
             </constraints>
             <point key="canvasLocation" x="-1105" y="59"/>
