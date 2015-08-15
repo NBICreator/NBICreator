@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+#  createUser.bash
+#  NBICreator
+#
+#  Created by Erik Berglund.
+#  Copyright (c) 2015 NBICreator. All rights reserved.
+#
 
 if [[ $# -ne 5 ]]; then
 	printf "%s\n" "Script needs exactly 6 input variables"

@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+#  installCertificates.bash
+#  NBICreator
+#
+#  Created by Erik Berglund.
+#  Copyright (c) 2015 NBICreator. All rights reserved.
+#
 
 ###
 ### VARIABLES
@@ -7,7 +14,7 @@
 path_keychain_system="/Library/Keychains/System.keychain"
 path_keychain_trust_plist="/Library/Security/Trust Settings/Admin.plist"
 path_certificates_system="/usr/local/certificates"
-path_certificates_netinstall="/usr/local/certificates2"
+path_certificates_netinstall="/Volumes/Image Volume/Packages/Certificates"
 
 declare -a certificate_stores=( "${path_certificates_system}"\
                                 "${path_certificates_netinstall}" )

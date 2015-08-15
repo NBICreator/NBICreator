@@ -58,7 +58,7 @@ DDLogLevel ddLogLevel;
             NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
             DDLogDebug(@"nbiCreationTool=%@", nbiCreationTool);
             if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-                [self modifyNBISystemImageUtility];
+                [self modifyNetInstall];
             } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
                 [self modifyBaseSystem];
             }
@@ -77,26 +77,17 @@ DDLogLevel ddLogLevel;
 - (void)modifyNBISystemImageUtility {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     
-    // ---------------------------------------------------------------
-    //  Modify netInstall using resources settings for NetInstall
-    // ---------------------------------------------------------------
-    if ( [self modifyNetInstall] ) {
+    if ( [self resizeAndMountBaseSystemWithShadow:[_target baseSystemURL] target:_target] ) {
         
-        if ( [self resizeAndMountBaseSystemWithShadow:[_target baseSystemURL] target:_target] ) {
-            
-            // ---------------------------------------------------------------
-            //  Modify BaseSystem using resources settings for BaseSystem
-            // ---------------------------------------------------------------
-            [self modifyBaseSystem];
-            
-        } else {
-            DDLogError(@"[ERROR] Error when resizing BaseSystem!");
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            
-        }
+        // ---------------------------------------------------------------
+        //  Modify BaseSystem using resources settings for BaseSystem
+        // ---------------------------------------------------------------
+        [self modifyBaseSystem];
+        
     } else {
-        DDLogError(@"[ERROR] Error when modifying NBI NetInstall");
+        DDLogError(@"[ERROR] Error when resizing BaseSystem!");
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        
     }
 } // modifyNBISystemImageUtility
 
@@ -241,19 +232,8 @@ DDLogLevel ddLogLevel;
             // ------------------------------------------------------------------
             //  Remove Packages folder in NetInstall and create an empty folder
             // ------------------------------------------------------------------
-            if ( [self replacePackagesFolderInNetInstall] ) {
-                
-                // ---------------------------------------------------------------------
-                //  Copy all files to NetInstall using resourcesSettings for NetInstall
-                // ---------------------------------------------------------------------
-                if ( ! [self copyFilesToNetInstall] ) {
-                    DDLogError(@"[ERROR] Error while copying files to NBI NetInstall volume!");
-                    verified = NO;
-                }
-            } else {
-                DDLogError(@"[ERROR] Could not replace Packages folder in NetInstall");
-                verified = NO;
-            }
+            [self removePackagesFolderInNetInstall];
+            
         } else {
             DDLogError(@"[ERROR] Attaching NetInstall Failed!");
             DDLogError(@"%@", error);
@@ -267,11 +247,8 @@ DDLogLevel ddLogLevel;
     return verified;
 } // modifyNetInstall
 
-- (BOOL)replacePackagesFolderInNetInstall {
+- (void)removePackagesFolderInNetInstall {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    BOOL verified = YES;
-    NSError *error;
-    NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *nbiNetInstallVolumeURL = [_target nbiNetInstallVolumeURL];
     DDLogDebug(@"nbiNetInstallVolumeURL=%@", nbiNetInstallVolumeURL);
     if ( nbiNetInstallVolumeURL ) {
@@ -281,55 +258,119 @@ DDLogLevel ddLogLevel;
         // --------------------------------------
         NSURL *packagesFolderURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:@"Packages"];
         DDLogDebug(@"packagesFolderURL=%@", packagesFolderURL);
-        if ( ! [fm removeItemAtURL:packagesFolderURL error:&error] ) {
-            DDLogError(@"[ERROR] Could not remove Packages folder from NetInstall!");
-            DDLogError(@"%@", error);
-            verified = NO;
-            return verified;
+        
+        if ( [packagesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+                [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                    
+                    // ------------------------------------------------------------------
+                    //  If task failed, post workflow failed notification
+                    // ------------------------------------------------------------------
+                    DDLogError(@"%@", proxyError);
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                }];
+                
+            }] removeItemAtURL:packagesFolderURL withReply:^(NSError *error, int terminationStatus) {
+                [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                    DDLogDebug(@"terminationStatus=%d", terminationStatus);
+                    if ( terminationStatus != 0 ) {
+                        DDLogError(@"[ERROR] Delete Packages folder in NetInstall failed!");
+                        DDLogError(@"%@", error);
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                    } else {
+                        [self createFoldersInNetInstall];
+                    }
+                }];
+            }];
+        } else {
+            DDLogInfo(@"Packages folder doesn't exist in NetInstall!");
+            [self createFoldersInNetInstall];
         }
-        
-        NSURL *extrasFolderURL = [packagesFolderURL URLByAppendingPathComponent:@"Extras"];
-        DDLogDebug(@"extrasFolderURL=%@", extrasFolderURL);
-        
-        // ---------------------------------------------
-        //  Create Packages/Extras folder in NetInstall
-        // ---------------------------------------------
-        if ( ! [packagesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+    } else {
+        DDLogError(@"[ERROR] nbiNetInstallVolumeURL is nil!");
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+    }
+} // removePackagesFolderInNetInstall
+
+- (void)createFoldersInNetInstall {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *nbiNetInstallVolumeURL = [_target nbiNetInstallVolumeURL];
+    DDLogDebug(@"nbiNetInstallVolumeURL=%@", nbiNetInstallVolumeURL);
+    if ( nbiNetInstallVolumeURL ) {
+        NSURL *packagesFolderURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:@"Packages"];
+        DDLogDebug(@"packagesFolderURL=%@", packagesFolderURL);
+        if ( ! [packagesFolderURL checkResourceIsReachableAndReturnError:&error] ) {
+            
+            // ---------------------------------------------
+            //  Create Packages/Extras folder in NetInstall
+            // ---------------------------------------------
+            NSURL *extrasFolderURL = [packagesFolderURL URLByAppendingPathComponent:@"Extras"];
+            DDLogDebug(@"extrasFolderURL=%@", extrasFolderURL);
             if ( [fm createDirectoryAtURL:extrasFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
                 [self->_delegate updateProgressBar:94];
+                
+                // ---------------------------------------------------------------------
+                //  Copy all files to NetInstall using resourcesSettings for NetInstall
+                // ---------------------------------------------------------------------
+                [self copyFilesToNetInstall];
             } else {
                 DDLogError(@"[ERROR] Could not create Packages and Extras folder in NetInstall");
                 DDLogError(@"%@", error);
-                verified = NO;
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             }
+        } else {
+            DDLogError(@"[ERROR] Packages folder already exist in NetInstall!");
+            DDLogError(@"%@", error);
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
         }
     } else {
-        DDLogError(@"[ERROR] Could not get netInstallVolumeURL form target");
-        verified = NO;
+        DDLogError(@"[ERROR] nbiNetInstallVolumeURL is nil!");
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
-    
-    return verified;
-} // replacePackagesFolderInNetInstall
+}
 
-- (BOOL)copyFilesToNetInstall {
+- (void)copyFilesToNetInstall {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    BOOL verified = YES;
-    NSError *error;
+    DDLogInfo(@"Copying files to NetInstall volume...");
+    [_delegate updateProgressStatus:@"Copying files to NetInstall..." workflow:self];
     
     // ---------------------------------------------------------
-    //  Copy all files in resourcesNetInstallDict to NetInstall
+    //  Copy all files in resourcesBaseSystemDict to BaseSystem
     // ---------------------------------------------------------
     NSDictionary *resourcesNetInstallDict = [_target resourcesNetInstallDict];
     DDLogDebug(@"resourcesNetInstallDict=%@", resourcesNetInstallDict);
     NSURL *volumeURL = [_target nbiNetInstallVolumeURL];
     DDLogDebug(@"volumeURL=%@", volumeURL);
-    if ( ! [_targetController copyResourcesToVolume:volumeURL resourcesDict:resourcesNetInstallDict target:_target error:&error] ) {
-        DDLogError(@"[ERROR] Error while copying resources to NetInstall volume!");
-        DDLogError(@"%@", error);
-        verified = NO;
-    }
     
-    return verified;
+    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+    [helperConnector connectToHelper];
+    
+    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            
+            // ------------------------------------------------------------------
+            //  If task failed, post workflow failed notification
+            // ------------------------------------------------------------------
+            DDLogError(@"%@", proxyError);
+            [self copyFailed];
+        }];
+        
+    }] copyResourcesToVolume:volumeURL resourcesDict:resourcesNetInstallDict withReply:^(NSError *error, int terminationStatus) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            DDLogDebug(@"terminationStatus=%d", terminationStatus);
+            if ( terminationStatus == 0 ) {
+                [self modifyNBISystemImageUtility];
+            } else {
+                DDLogError(@"[ERROR] Error while copying resources to NetInstall volume!");
+                DDLogError(@"%@", error);
+                [self copyFailed];
+            }
+        }];
+    }];
 } // copyFilesToNetInstall
 
 ////////////////////////////////////////////////////////////////////////////////

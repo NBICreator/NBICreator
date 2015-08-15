@@ -629,7 +629,7 @@ asdasd</string>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ep3-FH-vz8">
                                         <rect key="frame" x="18" y="85" width="137" height="17"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="ARD/VNC password:" id="f4o-xO-tfo">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="ARD password:" id="f4o-xO-tfo">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1158,10 +1158,10 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
-                                            <binding destination="-2" name="value" keyPath="self.imagrReportingURL" id="Kzx-oj-nzb">
+                                            <binding destination="-2" name="value" keyPath="self.imagrReportingURL" id="lXh-7T-y6P">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                                    <string key="NSNullPlaceholder">http://192.168.178.135/imagr_config.plist</string>
+                                                    <string key="NSNullPlaceholder">http://192.168.178.135/report</string>
                                                 </dictionary>
                                             </binding>
                                             <outlet property="delegate" destination="-2" id="OH3-vs-mli"/>

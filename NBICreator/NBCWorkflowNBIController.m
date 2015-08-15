@@ -440,13 +440,15 @@ DDLogLevel ddLogLevel;
                          "### Set Date\n"
                          "###\n"
                          "if [ -e /etc/ntp.conf ]; then\n"
-                         "\tNTP_SERVERS=$( /bin/cat /etc/ntp.conf | /usr/bin/awk '{ print $NF }' )\n"
+                         "{"
+                         "\tNTP_SERVERS=$( /usr/bin/awk '{ print $NF }' /etc/ntp.conf )\n"
                          "\tfor NTP_SERVER in ${NTP_SERVERS}; do\n"
                          "\t\t/usr/sbin/ntpdate -u \"${NTP_SERVER}\" 2>/dev/null\n"
                          "\t\tif [ ${?} -eq 0 ]; then\n"
                          "\t\t\tbreak\n"
                          "\t\tfi\n"
                          "\tdone\n"
+                         "} &"
                          "fi\n"];
     rcImaging = [rcImaging stringByAppendingString:setDate];
     
@@ -541,15 +543,23 @@ DDLogLevel ddLogLevel;
         rcImaging = [rcImaging stringByAppendingString:addCertificates];
     }
     
-    NSString *startImagr = [NSString stringWithFormat:@"\n"
-                            "###\n"
-                            "### Start Imagr\n"
-                            "###\n"
-                            "/Applications/Imagr.app/Contents/MacOS/Imagr\n"];
+    NSString *startImagr;
+    if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemNBICreator] ) {
+        startImagr = [NSString stringWithFormat:@"\n"
+                      "###\n"
+                      "### Start Imagr\n"
+                      "###\n"
+                      "/Applications/Imagr.app/Contents/MacOS/Imagr\n"];
+    } else if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
+        startImagr = [NSString stringWithFormat:@"\n"
+                      "###\n"
+                      "### Start Imagr\n"
+                      "###\n"
+                      "/Volumes/Image\\ Volume/Packages/Imagr.app/Contents/MacOS/Imagr\n"];
+    }
     rcImaging = [rcImaging stringByAppendingString:startImagr];
     
     if ( [settingsDict[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
-        
         NSString *stopSystemUIServer = [NSString stringWithFormat:@"\n"
                                         "###\n"
                                         "### Stop systemUIServer\n"

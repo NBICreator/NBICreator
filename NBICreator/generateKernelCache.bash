@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+#  generateKernelCache.bash
+#  NBICreator
+#
+#  Created by Erik Berglund.
+#  Copyright (c) 2015 NBICreator. All rights reserved.
+#
 
 if [[ $# -ne 3 ]]; then
 	printf "%s\n" "Script needs exactly 3 input variables"

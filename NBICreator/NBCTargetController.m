@@ -802,7 +802,9 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  /Library/Preferences/.GlobalPreferences.plist (Language)
     // --------------------------------------------------------------
-    NSURL *globalPreferencesURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/.GlobalPreferences.plist"];
+    NSURL *globalPreferencesRootURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/.GlobalPreferences.plist"];
+    DDLogDebug(@"globalPreferencesRootURL=%@", globalPreferencesRootURL);
+    NSURL *globalPreferencesURL = [volumeURL URLByAppendingPathComponent:@"Library/Preferences/.GlobalPreferences.plist"];
     DDLogDebug(@"globalPreferencesURL=%@", globalPreferencesURL);
     NSMutableDictionary *globalPreferencesDict;
     NSDictionary *globalPreferencesAttributes;
@@ -825,7 +827,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"selectedLanguage=%@", selectedLanguage);
     globalPreferencesDict[@"AppleLanguages"] = @[
                                                  selectedLanguage,
-                                                 @"sv" ];
+                                                 ];
     globalPreferencesDict[@"AppleLocale"] = @"sv_SE";
     DDLogDebug(@"globalPreferencesDict=%@", globalPreferencesDict);
     NSDictionary *modifyDictGlobalPreferences = @{
@@ -836,6 +838,15 @@ DDLogLevel ddLogLevel;
                                                   };
     DDLogDebug(@"modifyDictGlobalPreferences=%@", modifyDictGlobalPreferences);
     [modifyDictArray addObject:modifyDictGlobalPreferences];
+    
+    NSDictionary *modifyDictGlobalPreferencesRoot = @{
+                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                      NBCWorkflowModifyContent : globalPreferencesDict,
+                                                      NBCWorkflowModifyAttributes : globalPreferencesAttributes,
+                                                      NBCWorkflowModifyTargetURL : [globalPreferencesRootURL path]
+                                                      };
+    DDLogDebug(@"modifyDictGlobalPreferencesRoot=%@", modifyDictGlobalPreferencesRoot);
+    [modifyDictArray addObject:modifyDictGlobalPreferencesRoot];
     
     return retval;
 } // modifySettingsForLanguageAndKeyboardLayout
