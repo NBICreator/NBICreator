@@ -269,8 +269,7 @@ DDLogLevel ddLogLevel;
         [[NSApp mainWindow] endSheet:_windowDeployStudioDownloadProgress];
         
         if ( url ) {
-            NSArray *currentDownloadURLArray = @[ url ];
-            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:currentDownloadURLArray];
+            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ url ]];
         }
         [self setDeployStudioDownloader:nil];
     }

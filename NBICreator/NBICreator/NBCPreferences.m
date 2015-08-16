@@ -12,6 +12,8 @@
 #import "NBCWorkflowResourcesController.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
+#import "NBCController.h"
+#import "NBCUpdater.h"
 
 DDLogLevel ddLogLevel;
 
@@ -21,9 +23,10 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCPreferences
 
-- (id)init {
-    self = [super init];
-    if (self) {
+- (id)initWithWindowNibName:(NSString *)windowNibName {
+    self = [super initWithWindowNibName:windowNibName];
+    if (self != nil) {
+        [self window];
         
     }
     return self;
@@ -35,6 +38,10 @@ DDLogLevel ddLogLevel;
     //  Add KVO Observers
     // --------------------------------------------------------------
     [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:NBCUserDefaultsLogLevel options:NSKeyValueObservingOptionNew context:nil];
+    
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(startSearchingForUpdates:) name:NBCNotificationStartSearchingForUpdates object:nil];
+    [center addObserver:self selector:@selector(stopSearchingForUpdates:) name:NBCNotificationStopSearchingForUpdates object:nil];
     
     [self createPopUpButtonDateFormats];
     [self updateLogWarningLabel];
@@ -196,6 +203,30 @@ DDLogLevel ddLogLevel;
         [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:currentTemplateURLArray];
     }
     
+}
+
+- (void)startSearchingForUpdates:(NSNotification *)notification {
+#pragma unused(notification)
+    [self setCheckingForApplicationUpdates:YES];
+    [_textFieldUpdateStatus setStringValue:@"Searching..."];
+}
+
+- (void)stopSearchingForUpdates:(NSNotification *)notification {
+    [self setCheckingForApplicationUpdates:NO];
+    
+    NSDictionary *userInfo = [notification userInfo];
+    if ( [userInfo[@"UpdateAvailable"] boolValue] ) {
+        NSString *latestVersion = userInfo[@"LatestVersion"];
+        DDLogInfo(@"latestVersion=%@", latestVersion);
+        [_textFieldUpdateStatus setStringValue:@"There is an update available!"];
+    } else {
+        [_textFieldUpdateStatus setStringValue:@"You already have the latest version."];
+    }
+}
+
+- (IBAction)buttonCheckForUpdatesNow:(id)sender {
+#pragma unused(sender)
+    [[NBCUpdater sharedUpdater] checkForUpdates];
 }
 
 @end

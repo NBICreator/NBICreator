@@ -49,6 +49,7 @@ NSString *const NBCUserDefaultsIndexCounter = @"NetBootIndexCounter";
 NSString *const NBCUserDefaultsNetBootSelection = @"NetBootSelection";
 NSString *const NBCUserDefaultsDateFormatString = @"DateFormatString";
 NSString *const NBCUserDefaultsLogLevel = @"LogLevel";
+NSString *const NBCUserDefaultsCheckForUpdates = @"CheckForUpdates";
 
 // --------------------------------------------------------------
 //  Menu Items
@@ -246,6 +247,11 @@ NSString *const NBCNotificationUpdateNBIIconUserInfoIconURL = @"IconURL";
 // Update NBI Background UserInfoKeys
 NSString *const NBCNotificationUpdateNBIBackgroundUserInfoIconURL = @"BackgroundURL";
 
+
+NSString *const NBCNotificationStartSearchingForUpdates = @"StartSearchingForUpdates";
+NSString *const NBCNotificationStopSearchingForUpdates = @"StopSearchingForUpdates";
+
+
 // --------------------------------------------------------------
 //  Certificate TableView Keys
 // --------------------------------------------------------------
@@ -337,6 +343,8 @@ NSString *const NBCImagrRCImagingNBICreatorTargetURL = @"etc/rc.imaging";
 NSString *const NBCImagrRCInstallTargetURL = @"etc/rc.install";
 NSString *const NBCImagrGitHubRepository = @"grahamgilbert/imagr";
 
+NSString *const NBCNBICreatorGitHubRepository = @"NBICreator/NBICreator";
+
 // --------------------------------------------------------------
 //  NBCDownloader
 // --------------------------------------------------------------
@@ -344,6 +352,7 @@ NSString *const NBCDownloaderTag = @"Tag";
 NSString *const NBCDownloaderTagPython = @"NBCDownloaderTagPython";
 NSString *const NBCDownloaderTagImagr = @"NBCDownloaderTagImagr";
 NSString *const NBCDownloaderTagDeployStudio = @"NBCDownloaderTagDeployStudio";
+NSString *const NBCDownloaderTagNBICreator = @"NBCDownloaderTagNBICreator";
 NSString *const NBCDownloaderVersion = @"Version";
 
 // --------------------------------------------------------------

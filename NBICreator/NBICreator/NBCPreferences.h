@@ -10,6 +10,11 @@
 
 @interface NBCPreferences : NSWindowController
 
+@property BOOL checkingForApplicationUpdates;
+
+@property (weak) IBOutlet NSButton *buttonCheckForUpdatesNow;
+- (IBAction)buttonCheckForUpdatesNow:(id)sender;
+
 @property (weak) IBOutlet NSImageView *imageViewLogWarning;
 @property (weak) IBOutlet NSTextField *textFieldLogWarning;
 
@@ -27,5 +32,7 @@
 - (IBAction)buttonShowCache:(id)sender;
 
 - (void)updateCacheFolderSize;
+
+@property (weak) IBOutlet NSTextField *textFieldUpdateStatus;
 
 @end

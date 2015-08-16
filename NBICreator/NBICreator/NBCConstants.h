@@ -54,6 +54,7 @@ extern NSString *const NBCUserDefaultsIndexCounter;
 extern NSString *const NBCUserDefaultsNetBootSelection;
 extern NSString *const NBCUserDefaultsDateFormatString;
 extern NSString *const NBCUserDefaultsLogLevel;
+extern NSString *const NBCUserDefaultsCheckForUpdates;
 
 // --------------------------------------------------------------
 //  Menu Items
@@ -251,6 +252,9 @@ extern NSString *const NBCNotificationUpdateNBIIconUserInfoIconURL;
 // Update NBI Background UserInfoKeys
 extern NSString *const NBCNotificationUpdateNBIBackgroundUserInfoIconURL;
 
+extern NSString *const NBCNotificationStartSearchingForUpdates;
+extern NSString *const NBCNotificationStopSearchingForUpdates;
+
 // --------------------------------------------------------------
 //  Imagr
 // --------------------------------------------------------------
@@ -324,6 +328,7 @@ extern NSString *const NBCDownloaderTag;
 extern NSString *const NBCDownloaderTagPython;
 extern NSString *const NBCDownloaderTagImagr;
 extern NSString *const NBCDownloaderTagDeployStudio;
+extern NSString *const NBCDownloaderTagNBICreator;
 extern NSString *const NBCDownloaderVersion;
 
 extern NSString *const NBCTargetFolderMinFreeSizeInGB;
@@ -373,6 +378,9 @@ extern NSString *const NBCImagrRCImagingTargetURL;
 extern NSString *const NBCImagrRCImagingNBICreatorTargetURL;
 extern NSString *const NBCImagrRCInstallTargetURL;
 extern NSString *const NBCImagrGitHubRepository;
+
+
+extern NSString *const NBCNBICreatorGitHubRepository;
 
 
 // --------------------------------------------------------------

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NBCUpdater">
+            <connections>
+                <outlet property="buttonCancel" destination="b69-GH-wxQ" id="YeM-SI-64L"/>
+                <outlet property="buttonDownload" destination="Gvv-qp-kOm" id="q9W-WN-fjw"/>
+                <outlet property="textFieldMessage" destination="4OI-CP-paD" id="j5l-W6-P1a"/>
+                <outlet property="textFieldTitle" destination="8eg-ER-Pb0" id="Skq-NI-AVg"/>
+                <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
+                <outlet property="windowUpdates" destination="F0z-JX-Cv5" id="mk8-ic-HW5"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <window title="NBICreator Updater" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="F0z-JX-Cv5">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
+            <rect key="contentRect" x="196" y="885" width="385" height="118"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <view key="contentView" id="se5-gp-TjO">
+                <rect key="frame" x="0.0" y="0.0" width="385" height="118"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="b69-GH-wxQ">
+                        <rect key="frame" x="186" y="13" width="83" height="32"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Zi9-1A-qbT">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="buttonCancel:" target="-2" id="Sgp-yv-ZgB"/>
+                        </connections>
+                    </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8eg-ER-Pb0">
+                        <rect key="frame" x="18" y="80" width="349" height="18"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="An update to NBICreator is available!" id="Asb-Y7-ALU">
+                            <font key="font" metaFont="systemBold" size="15"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4OI-CP-paD">
+                        <rect key="frame" x="18" y="55" width="349" height="17"/>
+                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="center" title="Version x is available on GitHub!" id="GAD-2a-pHb">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Gvv-qp-kOm">
+                        <rect key="frame" x="269" y="13" width="102" height="32"/>
+                        <buttonCell key="cell" type="push" title="Download" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="S6A-yc-fQU">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="buttonDownload:" target="-2" id="YoQ-jx-g6R"/>
+                            <binding destination="-2" name="enabled" keyPath="self.isDownloading" id="Rg3-gU-jbt">
+                                <dictionary key="options">
+                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                </dictionary>
+                            </binding>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="Gvv-qp-kOm" secondAttribute="bottom" constant="20" symbolic="YES" id="8Ws-fl-FzD"/>
+                    <constraint firstItem="4OI-CP-paD" firstAttribute="top" secondItem="8eg-ER-Pb0" secondAttribute="bottom" constant="8" symbolic="YES" id="9wk-Nw-KdP"/>
+                    <constraint firstItem="4OI-CP-paD" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="F2z-QH-Vx0"/>
+                    <constraint firstItem="8eg-ER-Pb0" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="20" symbolic="YES" id="GFy-10-nJx"/>
+                    <constraint firstItem="Gvv-qp-kOm" firstAttribute="leading" secondItem="b69-GH-wxQ" secondAttribute="trailing" constant="12" symbolic="YES" id="IaX-YL-jUd"/>
+                    <constraint firstItem="8eg-ER-Pb0" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="Mzs-oT-6z9"/>
+                    <constraint firstItem="b69-GH-wxQ" firstAttribute="top" secondItem="4OI-CP-paD" secondAttribute="bottom" constant="14" id="XZa-VG-f75"/>
+                    <constraint firstItem="Gvv-qp-kOm" firstAttribute="baseline" secondItem="b69-GH-wxQ" secondAttribute="baseline" id="gJw-B9-6Xa"/>
+                    <constraint firstAttribute="trailing" secondItem="Gvv-qp-kOm" secondAttribute="trailing" constant="20" symbolic="YES" id="mvP-rm-P3O"/>
+                    <constraint firstAttribute="trailing" secondItem="4OI-CP-paD" secondAttribute="trailing" constant="20" symbolic="YES" id="uVD-I1-K9g"/>
+                    <constraint firstAttribute="trailing" secondItem="8eg-ER-Pb0" secondAttribute="trailing" constant="20" symbolic="YES" id="xWo-KM-dwk"/>
+                </constraints>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
+            </connections>
+            <point key="canvasLocation" x="142.5" y="277"/>
+        </window>
+    </objects>
+</document>

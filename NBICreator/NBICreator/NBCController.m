@@ -37,6 +37,7 @@
 
 #import "Reachability.h"
 #import "NBCLogging.h"
+#import "NBCUpdater.h"
 
 DDLogLevel ddLogLevel;
 
@@ -111,6 +112,12 @@ enum {
     // --------------------------------------------------------------
     [self configureCocoaLumberjack];
     
+    
+    if ( ! _preferencesWindow ) {
+        NSLog(@"Should INIT!");
+        _preferencesWindow = [[NBCPreferences alloc] initWithWindowNibName:@"NBCPreferences"];
+    }
+    
     //
     [self testInternetConnection];
     
@@ -177,8 +184,11 @@ enum {
     [_menuItemHelp setAction:@selector(openHelpURL)];
     [_menuItemHelp setTarget:self];
     
-    // Display Main Window
+    // --------------------------------------------------------------
+    //  Display Main Window
+    // --------------------------------------------------------------
     [_window makeKeyAndOrderFront:self];
+    
 } // applicationDidFinishLaunching
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
@@ -365,6 +375,12 @@ enum {
 #pragma unused(reach)
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf hideNoInternetConnection];
+            // --------------------------------------------------------------
+            //  Check for application updates
+            // --------------------------------------------------------------
+            if ( [[[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsCheckForUpdates] boolValue] ) {
+                [[NBCUpdater sharedUpdater] checkForUpdates];
+            }
         });
     };
     
