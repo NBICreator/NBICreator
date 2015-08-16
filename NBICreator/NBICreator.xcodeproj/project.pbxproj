@@ -329,21 +329,6 @@
 		53BC04011AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NBCDiskArbitrationPrivateFunctions.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53BC04041AD278230037DCBA /* NBCDiskArbitrator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = NBCDiskArbitrator.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53BC04051AD278230037DCBA /* NBCDiskArbitrator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NBCDiskArbitrator.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		53C97F891B07D15E00034B60 /* base.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base.h; sourceTree = "<group>"; };
-		53C97F8A1B07D15E00034B60 /* bcj.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bcj.h; sourceTree = "<group>"; };
-		53C97F8B1B07D15E00034B60 /* block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = block.h; sourceTree = "<group>"; };
-		53C97F8C1B07D15E00034B60 /* check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = check.h; sourceTree = "<group>"; };
-		53C97F8D1B07D15E00034B60 /* container.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = container.h; sourceTree = "<group>"; };
-		53C97F8E1B07D15E00034B60 /* delta.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = delta.h; sourceTree = "<group>"; };
-		53C97F8F1B07D15E00034B60 /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
-		53C97F901B07D15E00034B60 /* hardware.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hardware.h; sourceTree = "<group>"; };
-		53C97F911B07D15E00034B60 /* index.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = index.h; sourceTree = "<group>"; };
-		53C97F921B07D15E00034B60 /* index_hash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = index_hash.h; sourceTree = "<group>"; };
-		53C97F931B07D15E00034B60 /* lzma12.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzma12.h; sourceTree = "<group>"; };
-		53C97F941B07D15E00034B60 /* stream_flags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stream_flags.h; sourceTree = "<group>"; };
-		53C97F951B07D15E00034B60 /* version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = version.h; sourceTree = "<group>"; };
-		53C97F961B07D15E00034B60 /* vli.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vli.h; sourceTree = "<group>"; };
-		53C97F971B07D15E00034B60 /* lzma.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzma.h; sourceTree = "<group>"; };
 		53C97F981B07D2D100034B60 /* libxar.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxar.1.dylib; path = usr/lib/libxar.1.dylib; sourceTree = SDKROOT; };
 		53C97F9B1B07D31600034B60 /* liblzma.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblzma.5.dylib; path = usr/lib/liblzma.5.dylib; sourceTree = SDKROOT; };
 		53C97F9F1B07DEEF00034B60 /* pbzx */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = pbzx; sourceTree = "<group>"; };
@@ -430,7 +415,6 @@
 				53F229CB1B6837C900CC0B09 /* Frameworks */,
 				53C97F9E1B07DEDC00034B60 /* Binaries */,
 				53A643401B1A585C003BFF71 /* Scripts */,
-				53C97F871B07D14F00034B60 /* lzma */,
 				53CBA9621ADE552000385C89 /* Libraries */,
 				531F1D1A1A99A45200C8B6A8 /* Graphics */,
 			);
@@ -681,36 +665,6 @@
 			);
 			name = "NBICreator DiskArbitration";
 			path = NBICreator;
-			sourceTree = "<group>";
-		};
-		53C97F871B07D14F00034B60 /* lzma */ = {
-			isa = PBXGroup;
-			children = (
-				53C97F881B07D15E00034B60 /* lzma */,
-				53C97F971B07D15E00034B60 /* lzma.h */,
-			);
-			name = lzma;
-			sourceTree = "<group>";
-		};
-		53C97F881B07D15E00034B60 /* lzma */ = {
-			isa = PBXGroup;
-			children = (
-				53C97F891B07D15E00034B60 /* base.h */,
-				53C97F8A1B07D15E00034B60 /* bcj.h */,
-				53C97F8B1B07D15E00034B60 /* block.h */,
-				53C97F8C1B07D15E00034B60 /* check.h */,
-				53C97F8D1B07D15E00034B60 /* container.h */,
-				53C97F8E1B07D15E00034B60 /* delta.h */,
-				53C97F8F1B07D15E00034B60 /* filter.h */,
-				53C97F901B07D15E00034B60 /* hardware.h */,
-				53C97F911B07D15E00034B60 /* index.h */,
-				53C97F921B07D15E00034B60 /* index_hash.h */,
-				53C97F931B07D15E00034B60 /* lzma12.h */,
-				53C97F941B07D15E00034B60 /* stream_flags.h */,
-				53C97F951B07D15E00034B60 /* version.h */,
-				53C97F961B07D15E00034B60 /* vli.h */,
-			);
-			path = lzma;
 			sourceTree = "<group>";
 		};
 		53C97F9E1B07DEDC00034B60 /* Binaries */ = {
