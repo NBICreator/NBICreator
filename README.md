@@ -11,7 +11,7 @@ The design and idea of the application is to be able to create different types o
 
 # Important
 
-This project is currently considered to be in alpha stage, so major changes will occur between builds that may break previously saved templates for example.
+This project is currently considered to be in beta, so major changes will occur between builds that may break previously saved templates for example.
 
 The code will also see major changes as some parts is being restructured.
 
