@@ -124,7 +124,7 @@
         NSString *latestBuildGitHub = [[latestVersion componentsSeparatedByString:@"."] lastObject];
         DDLogDebug(@"latestBuildGitHub=%@", latestBuildGitHub);
         NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
-        if ( [currentVersion isEqualToString:latestVersionGitHub] || ! [currentBuild isEqualToString:latestBuildGitHub] ) {
+        if ( ! [currentVersion isEqualToString:latestVersionGitHub] || ! [currentBuild isEqualToString:latestBuildGitHub] ) {
             _updateMessage = [NSString stringWithFormat:@"Version %@ is available on GitHub!", latestVersion];
             [_textFieldMessage setStringValue:_updateMessage];
             [_textFieldTitle setStringValue:@"An update to NBICreator is available!"];
