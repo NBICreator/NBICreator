@@ -112,13 +112,16 @@ enum {
     // --------------------------------------------------------------
     [self configureCocoaLumberjack];
     
-    
+    // --------------------------------------------------------------
+    //  Setup Preferences Window to recieve notification of updates
+    // --------------------------------------------------------------
     if ( ! _preferencesWindow ) {
-        NSLog(@"Should INIT!");
         _preferencesWindow = [[NBCPreferences alloc] initWithWindowNibName:@"NBCPreferences"];
     }
     
-    //
+    // --------------------------------------------------------------
+    //  Test reachability to the internet
+    // --------------------------------------------------------------
     [self testInternetConnection];
     
     // --------------------------------------------------------------
