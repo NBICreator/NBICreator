@@ -7,7 +7,7 @@ Currently it supports the following NetInstall images:
 * DeployStudio
 * Imagr
 
-The design and idea of the application is to be able to create different types of NetBoot sets in one single application, and to save the configuration in a template to be reused when the NetBoot set need to be updated for newer versions of the OS.
+The design and idea of the application is to be able to create different types of NetInstall images in one single application, and to save the configuration in a template to be reused when the NetInstall image need to be updated for newer versions of the OS.
 
 # Important
 
