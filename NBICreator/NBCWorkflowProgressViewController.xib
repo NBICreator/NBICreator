@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NBCWorkflowProgressViewController">
+            <connections>
+                <outlet property="buttonCancel" destination="OCM-Cq-6q3" id="kes-2D-vaq"/>
+                <outlet property="buttonOpenLog" destination="6s6-PX-ioV" id="Uw7-Te-SfN"/>
+                <outlet property="buttonShowInFinder" destination="x75-uz-1IE" id="asi-1D-g1r"/>
+                <outlet property="layoutContraintStatusInfoLeading" destination="JKg-Z3-V8G" id="NuI-LE-lm6"/>
+                <outlet property="nbiIcon" destination="dl5-Dn-LjZ" id="5Lp-F4-csm"/>
+                <outlet property="progressIndicator" destination="uBP-ur-nNv" id="Gbi-yA-V2n"/>
+                <outlet property="progressIndicatorSpinner" destination="McW-gO-jJv" id="iLr-U6-g7E"/>
+                <outlet property="textFieldStatusInfo" destination="60L-Th-Xvx" id="C71-cQ-MgO"/>
+                <outlet property="textFieldTitle" destination="bI5-Ub-8db" id="hBn-Zv-coj"/>
+                <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customView id="Hz6-mo-xeY">
+            <rect key="frame" x="0.0" y="0.0" width="410" height="72"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="dl5-Dn-LjZ">
+                    <rect key="frame" x="12" y="12" width="48" height="48"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="48" id="Mzf-le-gSn"/>
+                        <constraint firstAttribute="width" constant="48" id="w50-Op-Pcs"/>
+                    </constraints>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="IconNetBootNBI" id="vzl-Dt-ils"/>
+                </imageView>
+                <progressIndicator horizontalHuggingPriority="1000" verticalHuggingPriority="1000" maxValue="100" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="uBP-ur-nNv">
+                    <rect key="frame" x="68" y="26" width="300" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="300" id="55I-jk-Hbv"/>
+                    </constraints>
+                    <connections>
+                        <binding destination="-2" name="isIndeterminate" keyPath="self.isRunning" id="ZW4-rK-zNi">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </progressIndicator>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bI5-Ub-8db">
+                    <rect key="frame" x="66" y="45" width="33" height="17"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="17" id="6f1-0D-yGZ"/>
+                    </constraints>
+                    <textFieldCell key="cell" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="left" title="Title" id="zdO-GO-mp9">
+                        <font key="font" metaFont="systemBold"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="60L-Th-Xvx">
+                    <rect key="frame" x="67" y="9" width="53" height="14"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="14" id="LKh-i0-4sg"/>
+                    </constraints>
+                    <textFieldCell key="cell" controlSize="mini" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="left" title="Status Info" id="W1t-r5-Yuf">
+                        <font key="font" metaFont="miniSystem"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OCM-Cq-6q3">
+                    <rect key="frame" x="376" y="29" width="14" height="14"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="14" id="9fD-0u-vbu"/>
+                        <constraint firstAttribute="width" constant="14" id="Iew-08-2Kn"/>
+                    </constraints>
+                    <buttonCell key="cell" type="bevel" bezelStyle="circular" image="WorkflowCancel" imagePosition="above" alignment="left" controlSize="small" refusesFirstResponder="YES" imageScaling="proportionallyDown" id="v9l-hb-mOe">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="buttonCancel:" target="-2" id="KNF-Lu-TKN"/>
+                    </connections>
+                </button>
+                <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="McW-gO-jJv">
+                    <rect key="frame" x="68" y="9" width="16" height="16"/>
+                    <connections>
+                        <binding destination="-2" name="animate" keyPath="self.isRunning" id="xB8-vz-Uif"/>
+                    </connections>
+                </progressIndicator>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6s6-PX-ioV">
+                    <rect key="frame" x="164" y="26" width="68" height="16"/>
+                    <buttonCell key="cell" type="push" title="Open Log" bezelStyle="rounded" alignment="center" controlSize="mini" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="krQ-nt-GD6">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="miniSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="buttonOpenLog:" target="-2" id="mnz-Do-HJW"/>
+                        <binding destination="-2" name="hidden" keyPath="self.workflowComplete" id="quO-kv-shL">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </button>
+                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="x75-uz-1IE">
+                    <rect key="frame" x="67" y="26" width="91" height="16"/>
+                    <buttonCell key="cell" type="push" title="Show in Finder" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="BXt-cn-WgP">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="miniSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="buttonShowInFinder:" target="-2" id="5VK-VM-p22"/>
+                        <binding destination="-2" name="hidden" keyPath="self.workflowComplete" id="tey-Lp-LmN">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </button>
+            </subviews>
+            <constraints>
+                <constraint firstItem="dl5-Dn-LjZ" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="12" id="09s-0i-FgE"/>
+                <constraint firstItem="x75-uz-1IE" firstAttribute="top" secondItem="bI5-Ub-8db" secondAttribute="bottom" constant="3" id="5hh-dZ-Qoz"/>
+                <constraint firstItem="McW-gO-jJv" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" constant="-1" id="HLP-Nm-lNb"/>
+                <constraint firstItem="dl5-Dn-LjZ" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="12" id="HiP-nI-gsi"/>
+                <constraint firstItem="60L-Th-Xvx" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" constant="1" id="JKg-Z3-V8G"/>
+                <constraint firstAttribute="bottom" secondItem="dl5-Dn-LjZ" secondAttribute="bottom" constant="12" id="Keg-Jo-GnF"/>
+                <constraint firstItem="McW-gO-jJv" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="leading" id="MHP-vE-cBO"/>
+                <constraint firstItem="dl5-Dn-LjZ" firstAttribute="top" secondItem="bI5-Ub-8db" secondAttribute="top" constant="2" id="Qtw-Vu-vD0"/>
+                <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="trailing" constant="8" symbolic="YES" id="RVW-NN-8Ik"/>
+                <constraint firstItem="6s6-PX-ioV" firstAttribute="leading" secondItem="x75-uz-1IE" secondAttribute="trailing" constant="8" symbolic="YES" id="V7G-PJ-e1E"/>
+                <constraint firstItem="6s6-PX-ioV" firstAttribute="centerY" secondItem="x75-uz-1IE" secondAttribute="centerY" id="VQc-07-Vz7"/>
+                <constraint firstItem="uBP-ur-nNv" firstAttribute="leading" secondItem="dl5-Dn-LjZ" secondAttribute="trailing" constant="8" symbolic="YES" id="WT5-bj-RDA"/>
+                <constraint firstItem="x75-uz-1IE" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" id="ZNr-cX-GqQ"/>
+                <constraint firstAttribute="bottom" secondItem="60L-Th-Xvx" secondAttribute="bottom" constant="9" id="eTe-zv-1J0"/>
+                <constraint firstAttribute="trailing" secondItem="OCM-Cq-6q3" secondAttribute="trailing" constant="20" symbolic="YES" id="srK-Bu-2aA"/>
+                <constraint firstItem="uBP-ur-nNv" firstAttribute="centerY" secondItem="OCM-Cq-6q3" secondAttribute="centerY" id="stM-Pk-aHt"/>
+                <constraint firstItem="dl5-Dn-LjZ" firstAttribute="centerY" secondItem="uBP-ur-nNv" secondAttribute="centerY" id="vb8-aR-ww1"/>
+                <constraint firstItem="bI5-Ub-8db" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="leading" id="wJX-qP-5i8"/>
+            </constraints>
+            <point key="canvasLocation" x="-219" y="241"/>
+        </customView>
+    </objects>
+    <resources>
+        <image name="IconNetBootNBI" width="512" height="512"/>
+        <image name="WorkflowCancel" width="14" height="14"/>
+    </resources>
+</document>

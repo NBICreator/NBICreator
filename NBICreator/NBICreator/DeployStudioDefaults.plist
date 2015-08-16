@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Default</key>
+	<false/>
+	<key>Enabled</key>
+	<true/>
+	<key>Icon</key>
+	<string>%APPLICATIONRESOURCESURL%/IconDeployStudioNBI.icns</string>
+	<key>UseCustomBackgroundImage</key>
+	<false/>
+	<key>CustomBackgroundImage</key>
+	<string>%DSADMINURL%/Contents/Applications/DeployStudio Assistant.app/Contents/Resources/sysBuilder/common/DefaultDesktop.jpg</string>
+	<key>RuntimeTitle</key>
+	<string></string>
+	<key>UseCustomRuntimeTitle</key>
+	<false/>
+	<key>UseSMB1</key>
+	<true/>
+	<key>DisableWirelessSupport</key>
+	<true/>
+	<key>UseCustomTCPStack</key>
+	<false/>
+	<key>IncludeRuby</key>
+	<false/>
+	<key>IncludePython</key>
+	<false/>
+	<key>RebootDelay</key>
+	<string>30</string>
+	<key>Reboot</key>
+	<true/>
+	<key>SleepDelay</key>
+	<string>10</string>
+	<key>Sleep</key>
+	<true/>
+	<key>DisplayLogWindow</key>
+	<false/>
+	<key>ARDPassword</key>
+	<string></string>
+	<key>ARDLogin</key>
+	<string></string>
+	<key>RuntimePassword</key>
+	<string></string>
+	<key>RuntimeLogin</key>
+	<string></string>
+	<key>DisableVersionMismatchAlerts</key>
+	<false/>
+	<key>ServerURL2</key>
+	<string></string>
+	<key>ServerURL1</key>
+	<string></string>
+	<key>UseCustomServers</key>
+	<false/>
+	<key>DestinationFolder</key>
+	<string>~/Desktop</string>
+	<key>Description</key>
+	<string>Created with DeployStudio version %DSVERSION%</string>
+	<key>NetworkTimeServer</key>
+	<string>time.euro.apple.com</string>
+	<key>Language</key>
+	<string>Current</string>
+	<key>Protocol</key>
+	<string>NFS</string>
+	<key>Index</key>
+	<string>%COUNTER%</string>
+	<key>Name</key>
+	<string>%OSVERSION%_%OSBUILD%_DS</string>
+</dict>
+</plist>
