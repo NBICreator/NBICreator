@@ -15,7 +15,9 @@ The design and idea of the application is to be able to create different types o
 
 This project is currently considered to be in beta, so major changes will occur between builds that may break previously saved templates for example.
 
-The code will also see major changes as some parts is being restructured.
+The code will also see major changes as some parts are being restructured.
+
+Passwords will currently be saved in clear text in the template file, so if you need to keep the passwords secure you have to enter them each time you select a template, and remember to not save when asked! Later they will most likely be stored in an application keychain, but that code isn't implemented yet.
 
 # System Requirements
 
