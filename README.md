@@ -2,6 +2,8 @@
 
 NBICreator is a NetInstall image creation tool written in Objective-C.
 
+![Main Window](https://raw.github.com/NBICreator/NBICreator/master/GitHub%20Resources/NBICreatorApplication.png)
+
 Currently it supports the following NetInstall images:
 * NetInstall
 * DeployStudio
