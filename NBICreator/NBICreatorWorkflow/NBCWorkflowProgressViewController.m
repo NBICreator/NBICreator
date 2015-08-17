@@ -91,16 +91,23 @@ DDLogLevel ddLogLevel;
 #pragma unused(sender)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( _nbiURL ) {
-        NSArray *fileURLs = @[ _nbiURL ];
-        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+        NSString *destinationFileName = [_nbiURL lastPathComponent];
+        if ( [destinationFileName containsString:@" "] ) {
+            destinationFileName = [destinationFileName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
+            _nbiURL = [[_nbiURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:destinationFileName];
+            if ( ! _nbiURL ) {
+                DDLogError(@"[ERROR] NBI URL is nil, cannot open in Finder!");
+                return;
+            }
+        }
+        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ _nbiURL ]];
     }
 }
 - (IBAction)buttonOpenLog:(id)sender {
 #pragma unused(sender)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( _nbiLogURL ) {
-        NSArray *fileURLs = @[ _nbiLogURL ];
-        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ _nbiLogURL ]];
     }
 }
 
