@@ -566,13 +566,13 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
-                                            <binding destination="-2" name="enabled" keyPath="self.useNetworkTimeServer" id="Rv4-WN-XOJ"/>
                                             <binding destination="-2" name="value" keyPath="self.networkTimeServer" id="61a-be-B0a">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
                                                     <string key="NSNullPlaceholder">time.apple.com</string>
                                                 </dictionary>
                                             </binding>
+                                            <binding destination="-2" name="enabled" keyPath="self.useNetworkTimeServer" id="Rv4-WN-XOJ"/>
                                         </connections>
                                     </textField>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="AE8-iw-fSx">
@@ -596,6 +596,7 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.displaySleep" id="rIw-h8-3Tj"/>
                                             <binding destination="-2" name="value" keyPath="self.displaySleepMinutes" id="erm-2X-aoD">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>

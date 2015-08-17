@@ -488,24 +488,29 @@ DDLogLevel ddLogLevel;
         rcImaging = [rcImaging stringByAppendingString:startScreensharing];
     }
     
-    if ( settingsDict[NBCSettingsDisplaySleepKey] ) {
-        NSString *displaySleep = settingsDict[NBCSettingsDisplaySleepMinutesKey];
-        NSString *powerManagement = @"";
-        if ( osMinorVersion <= 8 ) {
-            powerManagement = [NSString stringWithFormat:@"\n"
-                               "###\n"
-                               "### Set power management policy\n"
-                               "###\n"
-                               "(sleep 30; /usr/bin/pmset force -a sleep 0 displaysleep %@ lessbright 0 powerbutton 0 disksleep 0 ) &\n", displaySleep];
-        } else {
-            powerManagement = [NSString stringWithFormat:@"\n"
-                               "###\n"
-                               "### Set power management policy\n"
-                               "###\n"
-                               "(sleep 30; /usr/bin/pmset force -a sleep 0 displaysleep %@ lessbright 0 disksleep 0 ) &\n", displaySleep];
-        }
-        rcImaging = [rcImaging stringByAppendingString:powerManagement];
+    NSString *displaySleepMinutes;
+    if ( [settingsDict[NBCSettingsDisplaySleepKey] boolValue] ) {
+        displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
+    } else {
+        displaySleepMinutes = @"0";
     }
+    
+    NSString *powerManagement = @"";
+    if ( osMinorVersion <= 8 ) {
+        powerManagement = [NSString stringWithFormat:@"\n"
+                           "###\n"
+                           "### Set power management policy\n"
+                           "###\n"
+                           "(sleep 30; /usr/bin/pmset force -a sleep 0 displaysleep %@ lessbright 0 powerbutton 0 disksleep 0 ) &\n", displaySleepMinutes];
+    } else {
+        powerManagement = [NSString stringWithFormat:@"\n"
+                           "###\n"
+                           "### Set power management policy\n"
+                           "###\n"
+                           "(sleep 30; /usr/bin/pmset force -a sleep 0 displaysleep %@ lessbright 0 disksleep 0 ) &\n", displaySleepMinutes];
+    }
+    
+    rcImaging = [rcImaging stringByAppendingString:powerManagement];
     
     NSString *hostname = [NSString stringWithFormat:@"\n"
                           "###\n"
