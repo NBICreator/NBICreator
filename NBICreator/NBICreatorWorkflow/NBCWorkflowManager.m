@@ -10,16 +10,12 @@
 #import "NBCConstants.h"
 #import "NBCVariables.h"
 #import "NSString+randomString.h"
-
 #import "NBCImagrWorkflowResources.h"
 #import "NBCImagrWorkflowModifyNBI.h"
-
 #import "NBCDeployStudioWorkflowResources.h"
 #import "NBCDeployStudioWorkflowModifyNBI.h"
-
 #import "NBCNetInstallWorkflowResources.h"
 #import "NBCNetInstallWorkflowModifyNBI.h"
-
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCLogging.h"
@@ -35,7 +31,7 @@ DDLogLevel ddLogLevel;
         sharedManager = [[self alloc] init];
     });
     return sharedManager;
-}
+} // sharedManager
 
 #pragma mark -
 #pragma mark Initialization
@@ -57,7 +53,7 @@ DDLogLevel ddLogLevel;
         _workflowViewArray = [[NSMutableArray alloc] init];
     }
     return self;
-}
+} // init
 
 - (void)dealloc {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -82,12 +78,13 @@ DDLogLevel ddLogLevel;
     NBCWorkflowProgressViewController *progressView = [[NBCWorkflowProgressViewController alloc] init];
     [[progressView view] setTranslatesAutoresizingMaskIntoConstraints:NO];
     
+    // ---------------------------------
+    //  Add NBI name to progress view
+    // ---------------------------------
     NSString *nbiName = [workflowItem nbiName];
     if ( nbiName ) {
         [[progressView textFieldTitle] setStringValue:nbiName];
     }
-    
-    //[progressView updateProgressStatus:@"Waiting..."];
     
     NSError *error;
     NSDictionary *userSettings = [workflowItem userSettings];
@@ -147,35 +144,35 @@ DDLogLevel ddLogLevel;
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"[Workflow: NBI] Base NBI created successfully!");
+    DDLogInfo(@"Base NBI created successfully!");
     [self setCurrentWorkflowNBIComplete:YES];
     
     if ( _currentWorkflowNBIComplete && _currentWorkflowResourcesComplete ) {
         [self workflowQueueRunWorkflowPostprocessing];
     } else {
-        DDLogInfo(@"[Workflow: NBI] Waiting for additional resources to be prepared");
+        DDLogInfo(@"Waiting for additional resources to be prepared...");
     }
-}
+} // workflowCompleteNBI
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
     #pragma unused(notification)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"[Workflow: Resources] All resources prepared!");
+    DDLogInfo(@"All resources prepared!");
     [self setCurrentWorkflowResourcesComplete:YES];
     
     if ( _currentWorkflowNBIComplete && _currentWorkflowResourcesComplete ) {
         [self workflowQueueRunWorkflowPostprocessing];
     } else {
-        DDLogInfo(@"[Workflow: Resources] Waiting for base NBI to be created");
+        DDLogInfo(@"Waiting for base NBI to be created...");
     }
-}
+} // workflowCompleteResources
 
 - (void)workflowCompleteModifyNBI:(NSNotification *)notification {
     #pragma unused(notification)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"[Workflow: Modify] NBI modifications complete!");
+    DDLogInfo(@"NBI modifications complete!");
     [self moveNBIToDestination:[_currentWorkflowItem temporaryNBIURL] destinationURL:[_currentWorkflowItem nbiURL]];
-}
+} // workflowCompleteModifyNBI
 
 - (void)endWorkflow {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -184,7 +181,7 @@ DDLogLevel ddLogLevel;
     [self removeTemporaryFolder];
     [_workflowQueue removeObject:_currentWorkflowItem];
     [self workflowQueueRunWorkflow];
-}
+} // endWorkflow
 
 - (void)workflowFailed:(NSNotification *)notification {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -201,7 +198,7 @@ DDLogLevel ddLogLevel;
     
     [_workflowQueue removeObject:_currentWorkflowItem];
     [self workflowQueueRunWorkflow];
-}
+} // workflowFailed
 
 - (void)removeWorkflowItem:(NSNotification *)notification {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -209,7 +206,7 @@ DDLogLevel ddLogLevel;
     NBCWorkflowItem *workflowItem = [notification userInfo][NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem];
     [[_workflowPanel stackView] removeView:[workflowView view]];
     [_workflowQueue removeObject:workflowItem];
-}
+} // removeWorkflowItem
 
 - (void)removeTemporaryFolder {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -219,7 +216,7 @@ DDLogLevel ddLogLevel;
     if ( ! [fileManager removeItemAtURL:temporaryFolderURL error:&error] ) {
         DDLogError(@"%@", [error localizedDescription]);
     }
-}
+} // removeTemporaryFolder
 
 #pragma mark -
 #pragma mark Progress View Status Methods
@@ -228,9 +225,8 @@ DDLogLevel ddLogLevel;
 - (void)updateWorkflowStatusComplete {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_currentWorkflowProgressView workflowCompleted];
-    
     [self endWorkflow];
-}
+} // updateWorkflowStatusComplete
 
 - (void)updateWorkflowStatusErrorWithMessage:(NSString *)errorMessage {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -240,7 +236,7 @@ DDLogLevel ddLogLevel;
     }
     [_currentWorkflowProgressView workflowFailedWithError:errorString];
     [self endWorkflow];
-}
+} // updateWorkflowStatusErrorWithMessage
 
 #pragma mark -
 #pragma mark
@@ -274,23 +270,40 @@ DDLogLevel ddLogLevel;
         // -------------------------------------------------------------
         //  Create a path to a unique temporary folder
         // -------------------------------------------------------------
+        BOOL temporaryFolderCreated = NO;
         NSURL *temporaryFolderURL = [self temporaryFolderURL];
+        DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
         if ( temporaryFolderURL ) {
             [_currentWorkflowItem setTemporaryFolderURL:temporaryFolderURL];
             NSString *nbiName = [_currentWorkflowItem nbiName];
+            DDLogInfo(@"Starting workflow for: %@", nbiName);
             if ( [nbiName length] != 0 ) {
                 NSURL *temporaryNBIURL = [temporaryFolderURL URLByAppendingPathComponent:nbiName];
+                DDLogDebug(@"temporaryNBIURL=%@", temporaryNBIURL);
                 if ( temporaryNBIURL ) {
                     [_currentWorkflowItem setTemporaryNBIURL:temporaryNBIURL];
                     
                     NSError *error;
                     NSFileManager *fileManager = [NSFileManager defaultManager];
-                    if ( ! [fileManager createDirectoryAtURL:temporaryNBIURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                        DDLogError(@"Failed to create temporary NBI directory at: %@", [temporaryNBIURL path]);
-                        DDLogError(@"Error: %@", [error localizedDescription]);
+                    if ( [fileManager createDirectoryAtURL:temporaryNBIURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
+                        temporaryFolderCreated = YES;
+                    } else {
+                        DDLogError(@"[ERROR] Failed to create temporary NBI directory at: %@", [temporaryNBIURL path]);
+                        DDLogError(@"%@", error);
                     }
+                } else {
+                    DDLogError(@"[ERROR] temporaryNBIURL was nil!");
                 }
+            } else {
+                DDLogError(@"[ERROR] nbiName was empty!");
             }
+        } else {
+            DDLogError(@"[ERROR] temporaryFolderURL was nil!");
+        }
+        
+        if ( ! temporaryFolderCreated ) {
+            DDLogError(@"[ERROR] Could not create temporary NBI folder!");
+            [self updateWorkflowStatusErrorWithMessage:@"Could not create temporary NBI folder!"];
         }
         
         // -------------------------------------------------------------
@@ -306,6 +319,7 @@ DDLogLevel ddLogLevel;
         //  Run workflows. Don't create NBI if source is a NBI itself.
         // -------------------------------------------------------------
         NSString *sourceType = [[_currentWorkflowItem source] sourceType];
+        DDLogDebug(@"sourceType=%@", sourceType);
         if ( ! [sourceType isEqualToString:NBCSourceTypeNBI] ) {
             [self setCurrentWorkflowNBI:[_currentWorkflowItem workflowNBI]];
             if ( _currentWorkflowNBI ) {
@@ -322,7 +336,7 @@ DDLogLevel ddLogLevel;
             [_currentWorkflowResources runWorkflow:_currentWorkflowItem];
         }
     }
-}
+} // workflowQueueRunWorkflow
 
 - (void)workflowQueueRunWorkflowPostprocessing {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -331,9 +345,9 @@ DDLogLevel ddLogLevel;
         [_currentWorkflowModifyNBI setDelegate:_currentWorkflowProgressView];
         [_currentWorkflowModifyNBI runWorkflow:_currentWorkflowItem];
     } else {
-        NSLog(@"workflowModifyNBI is nil");
+        DDLogError(@"[ERROR] workflowModifyNBI is nil");
     }
-}
+} // workflowQueueRunWorkflowPostprocessing
 
 #pragma mark -
 #pragma mark
@@ -349,20 +363,25 @@ DDLogLevel ddLogLevel;
     NSNumber *newIndex = @([currentIndex intValue] + 1);
     [ud setObject:newIndex forKey:NBCUserDefaultsIndexCounter];
     DDLogDebug(@"Updated NBI Index counter from %@ to %@", currentIndex, newIndex);
-}
+} // incrementIndexCounter
 
 - (void)moveNBIToDestination:(NSURL *)sourceURL destinationURL:(NSURL *)destinationURL {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *err;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
-    //Sanity Checking
+    // -------------------------------------------------------------
+    //  Verify that destination has an nbi-extension
+    // -------------------------------------------------------------
     NSString *destinationExtension = [destinationURL pathExtension];
     if ( ! [destinationExtension isEqualToString:@"nbi"] ) {
         [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
         return;
     }
     
+    // -----------------------------------------------------------------------------
+    //  Replace spaces with "-" in NBI filename to prevent problems when NetBooting
+    // -----------------------------------------------------------------------------
     NSString *destinationFileName = [destinationURL lastPathComponent];
     if ( [destinationFileName containsString:@" "] ) {
         destinationFileName = [destinationFileName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
@@ -380,10 +399,10 @@ DDLogLevel ddLogLevel;
         [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                 
-                // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
-                // ------------------------------------------------------------------
-                NSLog(@"ProxyError? %@", proxyError);
+                // ----------------------------------------------------
+                //  If task failed, post workflow failed notification
+                // ----------------------------------------------------
+                DDLogError(@"%@", proxyError);
                 [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
             }];
             
@@ -394,28 +413,28 @@ DDLogLevel ddLogLevel;
                     if ( [fileManager moveItemAtURL:sourceURL toURL:destinationURL error:&blockError] ) {
                         [self updateWorkflowStatusComplete];
                     } else {
-                        NSLog(@"Could not move file");
-                        NSLog(@"Error: %@", blockError);
+                        DDLogError(@"[ERROR] Moving NBI to destination failed!");
+                        DDLogError(@"%@", blockError);
                         [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
                     }
                 } else {
-                    NSLog(@"Delete Destination NBI Failed");
-                    NSLog(@"Error: %@", error);
+                    DDLogError(@"[ERROR] Deleteing existing NBI at destination failed");
+                    DDLogError(@"%@", error);
                     [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
                 }
             }];
         }];
     } else {
         if ( [fileManager moveItemAtURL:sourceURL toURL:destinationURL error:&err] ) {
-            NSLog(@"Move Successful!");
+            DDLogInfo(@"Moving NBI to destination successful!");
             [self updateWorkflowStatusComplete];
         } else {
-            NSLog(@"Moving NBI Failed!");
-            NSLog(@"Error: %@", err);
+            DDLogError(@"[ERROR] Moving NBI to destination failed!");
+            DDLogError(@"%@", err);
             [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
         }
     }
-}
+} // moveNBIToDestination:destinationURL
 
 - (NSURL *)temporaryFolderURL {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
