@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
@@ -84,7 +84,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="h8W-ry-Oti">
-                                <rect key="frame" x="468" y="37" width="60" height="16"/>
+                                <rect key="frame" x="468" y="38" width="60" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="&quot;Source Field 1&quot;" id="YWg-Du-wET">
                                     <font key="font" metaFont="cellTitle"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -92,7 +92,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="HwF-Ai-C5E">
-                                <rect key="frame" x="468" y="17" width="60" height="16"/>
+                                <rect key="frame" x="468" y="18" width="60" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="&quot;Source Field 2&quot;" id="Flf-Q9-EWg">
                                     <font key="font" metaFont="cellTitle"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -126,7 +126,7 @@
                                 <imageCell key="cell" continuous="YES" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconDMG" id="a3N-Qm-9ii"/>
                             </imageView>
                             <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="5ov-rO-2si">
-                                <rect key="frame" x="369" y="17" width="95" height="16"/>
+                                <rect key="frame" x="369" y="18" width="95" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Source Field 2:" id="wa6-rT-tNe">
                                     <font key="font" metaFont="systemBold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -142,7 +142,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="RCT-bW-zla">
-                                <rect key="frame" x="369" y="37" width="95" height="16"/>
+                                <rect key="frame" x="369" y="38" width="95" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Source Field 1:" id="Pbb-r5-RY2">
                                     <font key="font" metaFont="systemBold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -178,7 +178,7 @@
                         <constraint firstItem="f3t-QH-oHY" firstAttribute="leading" secondItem="TPA-GW-T5w" secondAttribute="trailing" constant="8" id="7vg-Db-vdE"/>
                         <constraint firstAttribute="centerY" secondItem="wPo-NN-2FX" secondAttribute="centerY" constant="14" id="Czx-O6-GTr"/>
                         <constraint firstItem="h8W-ry-Oti" firstAttribute="leading" secondItem="ESd-KQ-ZPL" secondAttribute="leading" constant="88" id="DWI-Gd-ftw"/>
-                        <constraint firstItem="RCT-bW-zla" firstAttribute="top" secondItem="ESd-KQ-ZPL" secondAttribute="bottom" constant="5" id="DgB-2s-5Md"/>
+                        <constraint firstItem="RCT-bW-zla" firstAttribute="top" secondItem="ESd-KQ-ZPL" secondAttribute="bottom" constant="4" id="DgB-2s-5Md"/>
                         <constraint firstItem="f3t-QH-oHY" firstAttribute="top" secondItem="Q56-Yn-6IM" secondAttribute="bottom" id="GoH-mC-pSb"/>
                         <constraint firstAttribute="height" constant="98" id="Hck-Ft-20n"/>
                         <constraint firstItem="HwF-Ai-C5E" firstAttribute="leading" secondItem="5ov-rO-2si" secondAttribute="trailing" constant="8" symbolic="YES" id="JVl-cN-ZfG"/>

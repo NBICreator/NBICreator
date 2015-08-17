@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
@@ -84,7 +84,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="zcK-Ix-f8S">
-                                <rect key="frame" x="468" y="37" width="60" height="16"/>
+                                <rect key="frame" x="468" y="38" width="60" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="&quot;Source Field 1&quot;" id="Z5M-QS-Vn6">
                                     <font key="font" metaFont="cellTitle"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -126,7 +126,7 @@
                                 <imageCell key="cell" continuous="YES" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconDMG" id="uD8-5z-yoY"/>
                             </imageView>
                             <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="tAC-9S-YSM">
-                                <rect key="frame" x="369" y="17" width="95" height="16"/>
+                                <rect key="frame" x="369" y="18" width="95" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Source Field 2:" id="OSI-bL-ENC">
                                     <font key="font" metaFont="systemBold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -141,14 +141,6 @@
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
                             </textField>
-                            <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="6vc-oI-7lC">
-                                <rect key="frame" x="369" y="37" width="95" height="16"/>
-                                <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Source Field 1:" id="rUU-jU-rjF">
-                                    <font key="font" metaFont="systemBold" size="12"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                             <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ayM-bM-kec" customClass="NBCDeployStudioDropViewImageView">
                                 <rect key="frame" x="325" y="13" width="32" height="32"/>
                                 <constraints>
@@ -158,9 +150,17 @@
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="IconDMG" id="edV-5w-Cwx"/>
                             </imageView>
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="sFd-Hm-SIG">
-                                <rect key="frame" x="468" y="17" width="60" height="16"/>
+                                <rect key="frame" x="468" y="18" width="60" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="&quot;Source Field 2&quot;" id="16E-XA-iHJ">
                                     <font key="font" metaFont="cellTitle"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
+                            </textField>
+                            <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="6vc-oI-7lC">
+                                <rect key="frame" x="369" y="38" width="95" height="16"/>
+                                <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Source Field 1:" id="rUU-jU-rjF">
+                                    <font key="font" metaFont="systemBold" size="12"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -174,7 +174,7 @@
                         <constraint firstAttribute="centerX" secondItem="dKB-32-6vC" secondAttribute="centerX" id="89W-o1-6O1"/>
                         <constraint firstItem="hab-3x-LQl" firstAttribute="centerY" secondItem="0Kz-E1-GnJ" secondAttribute="centerY" constant="20" id="8RG-rF-cpe"/>
                         <constraint firstItem="sUV-9R-uN7" firstAttribute="top" secondItem="KDh-6z-WZ5" secondAttribute="bottom" id="8c0-GY-hiG"/>
-                        <constraint firstItem="6vc-oI-7lC" firstAttribute="top" secondItem="0Kz-E1-GnJ" secondAttribute="bottom" constant="5" id="BkD-bl-Ui9"/>
+                        <constraint firstItem="6vc-oI-7lC" firstAttribute="top" secondItem="0Kz-E1-GnJ" secondAttribute="bottom" constant="4" id="BkD-bl-Ui9"/>
                         <constraint firstAttribute="centerY" secondItem="GUW-Kh-DjO" secondAttribute="centerY" id="By1-b8-JRP"/>
                         <constraint firstItem="dKB-32-6vC" firstAttribute="top" secondItem="JEC-MT-jUY" secondAttribute="bottom" constant="10" id="C2Q-gY-NCP"/>
                         <constraint firstItem="zcK-Ix-f8S" firstAttribute="leading" secondItem="0Kz-E1-GnJ" secondAttribute="leading" constant="88" id="EZy-TZ-s59"/>
