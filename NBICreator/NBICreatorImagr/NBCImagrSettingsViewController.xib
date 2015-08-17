@@ -795,19 +795,6 @@ asdasd</string>
                                             <action selector="buttonAddCertificate:" target="-2" id="3f7-3v-z3e"/>
                                         </connections>
                                     </button>
-                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QuY-Kq-kYJ">
-                                        <rect key="frame" x="79" y="166" width="60" height="16"/>
-                                        <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Y3S-RH-NhF">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="miniSystem"/>
-                                            <string key="keyEquivalent" base64-UTF8="YES">
-CA
-</string>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="buttonRemoveCertificate:" target="-2" id="Geg-1o-OQ2"/>
-                                        </connections>
-                                    </button>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UBT-OQ-O35">
                                         <rect key="frame" x="18" y="129" width="498" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Packages to install in the NetBoot Image:" id="zh8-PI-CjH">
@@ -919,9 +906,6 @@ CA
                                         <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mpH-5U-V8X">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
-                                            <string key="keyEquivalent" base64-UTF8="YES">
-CA
-</string>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttonRemovePackage:" target="-2" id="qhs-gE-ToS"/>
@@ -1022,6 +1006,16 @@ CA
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                     </scrollView>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QuY-Kq-kYJ">
+                                        <rect key="frame" x="79" y="166" width="60" height="16"/>
+                                        <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Y3S-RH-NhF">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="miniSystem"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="buttonRemoveCertificate:" target="-2" id="Geg-1o-OQ2"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="bVf-Oq-lLF" firstAttribute="leading" secondItem="Wk2-ZM-AtK" secondAttribute="leading" constant="20" symbolic="YES" id="1Kp-wJ-NLF"/>
