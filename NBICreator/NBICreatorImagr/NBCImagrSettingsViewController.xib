@@ -612,8 +612,8 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="a5G-lr-wTv">
-                                        <rect key="frame" x="18" y="287" width="254" height="17"/>
-                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Optional settings for the NetBoot Image:" id="d11-jd-eEe">
+                                        <rect key="frame" x="18" y="287" width="261" height="17"/>
+                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Optional settings for the NetInstall Image:" id="d11-jd-eEe">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -779,7 +779,7 @@ asdasd</string>
                                 <subviews>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="yGH-X8-ur8">
                                         <rect key="frame" x="18" y="287" width="498" height="17"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Certificates to trust in the NetBoot Image:" id="mhm-uB-x3k">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Certificates to trust in the NetInstall Image:" id="mhm-uB-x3k">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -797,7 +797,7 @@ asdasd</string>
                                     </button>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UBT-OQ-O35">
                                         <rect key="frame" x="18" y="129" width="498" height="17"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Packages to install in the NetBoot Image:" id="zh8-PI-CjH">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Packages to install in the NetInstall Image:" id="zh8-PI-CjH">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
