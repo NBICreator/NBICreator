@@ -340,10 +340,6 @@ DDLogLevel ddLogLevel;
             [settingsWarnings addObject:@"\"Name\" might contain an uncomplete variable"];
         }
         
-        if ( [nbiName containsString:@" "] ) {
-            [settingsWarnings addObject:@"\"Name\" cannot contains spaces if it will be served from NetSUS or BSDPy"];
-        }
-        
         [workflowItem setNbiName:[NSString stringWithFormat:@"%@.nbi", nbiName]];
     } else {
         [settingsErrors addObject:@"\"Name\" cannot be empty"];

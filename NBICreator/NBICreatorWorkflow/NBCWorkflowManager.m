@@ -363,6 +363,16 @@ DDLogLevel ddLogLevel;
         return;
     }
     
+    NSString *destinationFileName = [destinationURL lastPathComponent];
+    if ( [destinationFileName containsString:@" "] ) {
+        destinationFileName = [destinationFileName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
+        destinationURL = [[destinationURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:destinationFileName];
+        if ( ! destinationURL ) {
+            [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
+            return;
+        }
+    }
+    
     if ( [destinationURL checkResourceIsReachableAndReturnError:nil] ) {
         NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
         [helperConnector connectToHelper];
