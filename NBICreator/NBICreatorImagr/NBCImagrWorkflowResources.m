@@ -385,7 +385,7 @@ DDLogLevel ddLogLevel;
         [self setImagrVersion:selectedImagrVersion];
         NSURL *imagrCachedVersionURL = [_resourcesController cachedVersionURL:selectedImagrVersion resourcesFolder:NBCFolderResourcesImagr];
         DDLogDebug(@"imagrCachedVersionURL=%@", imagrCachedVersionURL);
-        if ( imagrCachedVersionURL ) {
+        if ( [imagrCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *imagrCachedVersionAttributes  = @{
                                                             NSFileOwnerAccountName : @"root",
                                                             NSFileGroupOwnerAccountName : @"wheel",
@@ -462,10 +462,11 @@ DDLogLevel ddLogLevel;
                                                              };
         DDLogDebug(@"imagrDownloadedVersionCopySettings=%@", imagrDownloadedVersionCopySettings);
         if ( [_target nbiNetInstallURL] ) {
-            [_resourcesNetInstallCopy addObject:imagrDownloadedVersionCopySettings];
+            [self updateNetInstallCopyDict:imagrDownloadedVersionCopySettings];
         } else if ( [_target baseSystemURL] ) {
-            [_resourcesBaseSystemCopy addObject:imagrDownloadedVersionCopySettings];
+            [self updateBaseSystemCopyDict:imagrDownloadedVersionCopySettings];
         }
+        [self checkCompletedResources];
     } else {
         DDLogError(@"Got no URL to copied Imagr item, something went wrong!");
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
@@ -814,7 +815,7 @@ DDLogLevel ddLogLevel;
                                                                          sourceBuild:[[workflowItem source] sourceBuild]];
                     DDLogDebug(@"destinationURL=%@", destinationURL);
                 } else {
-                    NSLog(@"Could not get itemSourceURL for itemPath=%@", itemPath);
+                    DDLogError(@"[ERROR] Could not get itemSourceURL for itemPath=%@", itemPath);
                     return;
                 }
                 
