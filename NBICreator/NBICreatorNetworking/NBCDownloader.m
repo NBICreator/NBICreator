@@ -13,9 +13,11 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCDownloader
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Initialization
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (id)initWithDelegate:(id<NBCDownloaderDelegate>)delegate {
     self = [super init];
@@ -25,9 +27,11 @@ DDLogLevel ddLogLevel;
     return self;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Methods
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)downloadPageAsData:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -53,9 +57,11 @@ DDLogLevel ddLogLevel;
     [_delegate downloadCanceled:_downloadInfo];
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods NSURLConnection
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
     #pragma unused(connection, response)
@@ -77,9 +83,11 @@ DDLogLevel ddLogLevel;
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods NSURLDownload
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)download:(NSURLDownload *)download didReceiveResponse:(NSURLResponse *)response {
     #pragma unused(download)

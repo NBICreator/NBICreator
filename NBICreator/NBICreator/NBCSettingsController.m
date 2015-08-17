@@ -122,9 +122,11 @@ DDLogLevel ddLogLevel;
     return [errorInfoDict copy];
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Settings Tabs
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsTabGeneral:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

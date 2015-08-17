@@ -20,9 +20,11 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCDeployStudioWorkflowNBI
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Run Workflow
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -155,9 +157,11 @@ DDLogLevel ddLogLevel;
     }];
 } // runWorkflow
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Pre-/Post Workflow Methods
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)prepareDestinationFolder:(NSURL *)destinationFolderURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     #pragma unused(error)

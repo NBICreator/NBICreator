@@ -545,8 +545,8 @@
 			children = (
 				53B9CEBA1A95DFD600C8015E /* NBCController.h */,
 				53B9CEBB1A95DFD600C8015E /* NBCController.m */,
-				5332628F1B794A9E00BA7EC9 /* NBCDesktopEntity.m */,
 				5332628E1B794A9E00BA7EC9 /* NBCDesktopEntity.h */,
+				5332628F1B794A9E00BA7EC9 /* NBCDesktopEntity.m */,
 				5318EF6C1B729B3400F818FC /* NBCCertificateTableCellView.h */,
 				5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */,
 				53D34D9E1B740D7F00F11CFF /* NBCPackageTableCellView.h */,

@@ -40,9 +40,11 @@
     // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods NBCDownloader
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)fileDownloadCompleted:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

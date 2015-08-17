@@ -33,9 +33,11 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCDeployStudioSettingsViewController
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Initialization
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (id)init {
     self = [super initWithNibName:@"NBCDeployStudioSettingsViewController" bundle:nil];
@@ -135,9 +137,11 @@ DDLogLevel ddLogLevel;
     
 } // viewDidLoad
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Reachability
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)testInternetConnection {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -165,9 +169,11 @@ DDLogLevel ddLogLevel;
     [_internetReachableFoo startNotifier];
 } // testInternetConnection
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods PopUpButton
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -205,9 +211,11 @@ DDLogLevel ddLogLevel;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods TextField
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)controlTextDidChange:(NSNotification *)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -256,9 +264,11 @@ DDLogLevel ddLogLevel;
     
 } // controlTextDidChange
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods NBCDownloader
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)fileDownloadCompleted:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -320,9 +330,11 @@ DDLogLevel ddLogLevel;
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods NBCDownloaderDeployStudio
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)dsReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -335,10 +347,11 @@ DDLogLevel ddLogLevel;
     }
 } // dsReleaseVersionsArray:downloadDict:downloadInfo
 
-
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods NBCAlert
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -371,9 +384,11 @@ DDLogLevel ddLogLevel;
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods ComboBox
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox {
 #pragma unused(aComboBox)
@@ -385,9 +400,11 @@ DDLogLevel ddLogLevel;
     return _discoveredServers[(NSUInteger)index];
 } // comboBox:objectValueForItemAtIndex
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods TabView
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)tabView:(NSTabView *)tabView willSelectTabViewItem:(NSTabViewItem *)tabViewItem {
 #pragma unused(tabView)
@@ -404,9 +421,11 @@ DDLogLevel ddLogLevel;
     }
 } // tabView
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Notification Methods
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateSource:(NSNotification *)notification {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -528,9 +547,11 @@ DDLogLevel ddLogLevel;
     
 } // removeBonjourService
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Key/Value Observing
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
@@ -541,9 +562,11 @@ DDLogLevel ddLogLevel;
     }
 } // observeValueForKeyPath:ofObject:change:context
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Settings
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -794,9 +817,11 @@ DDLogLevel ddLogLevel;
     
 } // expandVariablesForCurrentSettings
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark IBAction Buttons
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction)buttonChooseDestinationFolder:(id)sender {
 #pragma unused(sender)
@@ -837,9 +862,11 @@ DDLogLevel ddLogLevel;
     }
 } // matrixUseCustomServers
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark PopUpButton DeployStudio Version
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)getDeployStudioVersions {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -1024,9 +1051,11 @@ DDLogLevel ddLogLevel;
     [_textFieldDeployStudioVersion setHidden:NO];
 } // hidePopUpButtonDeployStudioVersion
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark IBAction PopUpButtons
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction)popUpButtonTemplates:(id)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -1051,9 +1080,11 @@ DDLogLevel ddLogLevel;
     }
 } // popUpButtonTemplates
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Verify Build Button
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifyBuildButton {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -1081,9 +1112,11 @@ DDLogLevel ddLogLevel;
     
 } // verifyBuildButton
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Build NBI
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

@@ -398,9 +398,11 @@ enum {
     [_internetReachableFoo startNotifier];
 } // testInternetConnection
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)addViewToSettingsView:(NSView *)settingsView {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

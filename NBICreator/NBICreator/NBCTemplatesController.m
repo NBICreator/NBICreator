@@ -51,9 +51,11 @@ enum {
     [super windowDidLoad];
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods NBCAlert
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -332,9 +334,11 @@ enum {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark MenuItem Actions
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)menuItemNew:(NSNotification *)notification {
 #pragma unused(notification)
@@ -431,9 +435,11 @@ enum {
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Sheets
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)showSheetSaveUntitled:(NSString *)senderTitle buildNBI:(BOOL)buildNBI {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

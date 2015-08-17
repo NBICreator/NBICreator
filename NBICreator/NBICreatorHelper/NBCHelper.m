@@ -57,7 +57,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark NSXPCConnectionDelegate methods
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
 #pragma unused(listener)
@@ -77,7 +81,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     return YES;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark NBCHelperProtocol methods
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)getVersionWithReply:(void(^)(NSString *version))reply {
     
