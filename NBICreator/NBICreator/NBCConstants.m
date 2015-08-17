@@ -129,6 +129,7 @@ NSString *const NBCSettingsDisplaySleepMinutesKey = @"DisplaySleepMinutes";
 NSString *const NBCSettingsIncludeSystemUIServerKey = @"IncludeSystemUIServer";
 NSString *const NBCSettingsARDLoginKey = @"ARDLogin";
 NSString *const NBCSettingsARDPasswordKey = @"ARDPassword";
+NSString *const NBCSettingsUseNetworkTimeServerKey = @"UseNetworkTimeServer";
 NSString *const NBCSettingsNetworkTimeServerKey = @"NetworkTimeServer";
 
 // --------------------------------------------------------------
@@ -144,7 +145,6 @@ NSString *const NBCSettingsImagrDownloadPython = @"ImagrDownloadPython";
 NSString *const NBCSettingsImagrUseLocalVersion = @"ImagrUseLocalVersion";
 NSString *const NBCSettingsImagrLocalVersionPath = @"ImagrLocalVersionPath";
 NSString *const NBCSettingsImagrSourceIsNBI = @"IsNBI";
-
 NSString *const NBCSettingsImagrVersionLatest = @"ImagrVersionLatest";
 
 // --------------------------------------------------------------

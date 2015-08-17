@@ -435,22 +435,25 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
     
-    NSString *setDate = [NSString stringWithFormat:@"\n"
-                         "###\n"
-                         "### Set Date\n"
-                         "###\n"
-                         "if [ -e /etc/ntp.conf ]; then\n"
-                         "{"
-                         "\tNTP_SERVERS=$( /usr/bin/awk '{ print $NF }' /etc/ntp.conf )\n"
-                         "\tfor NTP_SERVER in ${NTP_SERVERS}; do\n"
-                         "\t\t/usr/sbin/ntpdate -u \"${NTP_SERVER}\" 2>/dev/null\n"
-                         "\t\tif [ ${?} -eq 0 ]; then\n"
-                         "\t\t\tbreak\n"
-                         "\t\tfi\n"
-                         "\tdone\n"
-                         "} &"
-                         "fi\n"];
-    rcImaging = [rcImaging stringByAppendingString:setDate];
+    if ( [settingsDict[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
+        NSString *setDate = [NSString stringWithFormat:@"\n"
+                             "###\n"
+                             "### Set Date\n"
+                             "###\n"
+                             "if [ -e /etc/ntp.conf ]; then\n"
+                             "{"
+                             "\tNTP_SERVERS=$( /usr/bin/awk '{ print $NF }' /etc/ntp.conf )\n"
+                             "\tfor NTP_SERVER in ${NTP_SERVERS}; do\n"
+                             "\t\t/usr/sbin/ntpdate -u \"${NTP_SERVER}\" 2>/dev/null\n"
+                             "\t\tif [ ${?} -eq 0 ]; then\n"
+                             "\t\t\tbreak\n"
+                             "\t\tfi\n"
+                             "\tdone\n"
+                             "} &\n"
+                             "fi\n"];
+        
+        rcImaging = [rcImaging stringByAppendingString:setDate];
+    }
     
     NSString *disableGatekeeper = [NSString stringWithFormat:@"\n"
                                    "###\n"
@@ -562,7 +565,7 @@ DDLogLevel ddLogLevel;
     if ( [settingsDict[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
         NSString *stopSystemUIServer = [NSString stringWithFormat:@"\n"
                                         "###\n"
-                                        "### Stop systemUIServer\n"
+                                        "### Stop SystemUIServer\n"
                                         "###\n"
                                         "/bin/launchctl unload /System/Library/LaunchDaemons/com.apple.SystemUIServer.plist\n"];
         rcImaging = [rcImaging stringByAppendingString:stopSystemUIServer];

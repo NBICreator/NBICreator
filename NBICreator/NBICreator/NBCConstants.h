@@ -122,6 +122,7 @@ extern NSString *const NBCSettingsIncludeSystemUIServerKey;
 extern NSString *const NBCSettingsARDLoginKey;
 extern NSString *const NBCSettingsARDPasswordKey;
 extern NSString *const NBCSettingsNBICreationToolKey;
+extern NSString *const NBCSettingsUseNetworkTimeServerKey;
 extern NSString *const NBCSettingsNetworkTimeServerKey;
 
 // --------------------------------------------------------------

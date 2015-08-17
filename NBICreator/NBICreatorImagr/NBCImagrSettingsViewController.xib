@@ -566,6 +566,7 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.useNetworkTimeServer" id="Rv4-WN-XOJ"/>
                                             <binding destination="-2" name="value" keyPath="self.networkTimeServer" id="61a-be-B0a">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
@@ -619,16 +620,8 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="YKc-Yl-H3X">
-                                        <rect key="frame" x="18" y="48" width="188" height="17"/>
-                                        <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Define a Network Time Server" id="Va2-r5-WNY">
-                                            <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                        </textFieldCell>
-                                    </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ep3-FH-vz8">
-                                        <rect key="frame" x="18" y="85" width="137" height="17"/>
+                                        <rect key="frame" x="18" y="84" width="137" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="ARD password:" id="f4o-xO-tfo">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -636,7 +629,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="FMB-Sz-PUq">
-                                        <rect key="frame" x="161" y="108" width="292" height="22"/>
+                                        <rect key="frame" x="161" y="107" width="292" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="tPf-kz-bGG">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -653,7 +646,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <secureTextField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="R4V-bE-WQo">
-                                        <rect key="frame" x="161" y="83" width="292" height="22"/>
+                                        <rect key="frame" x="161" y="82" width="292" height="22"/>
                                         <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesSingleLineMode="YES" id="85H-ig-gGc">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -673,7 +666,7 @@ asdasd</string>
                                         </connections>
                                     </secureTextField>
                                     <button translatesAutoresizingMaskIntoConstraints="NO" id="czc-3w-Cgp">
-                                        <rect key="frame" x="459" y="84" width="57" height="18"/>
+                                        <rect key="frame" x="459" y="83" width="57" height="18"/>
                                         <buttonCell key="cell" type="check" title="Show" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="5ic-kZ-7dK">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -683,7 +676,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ulR-LX-e1A">
-                                        <rect key="frame" x="161" y="83" width="292" height="22"/>
+                                        <rect key="frame" x="161" y="82" width="292" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="GzG-Xq-fpW">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -704,7 +697,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="le5-Gh-tjW">
-                                        <rect key="frame" x="18" y="142" width="414" height="17"/>
+                                        <rect key="frame" x="18" y="141" width="414" height="17"/>
                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Choose a username and password to enable remote management:" id="hb7-rK-Ugy">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -712,7 +705,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OXa-Ei-ogf">
-                                        <rect key="frame" x="18" y="110" width="137" height="17"/>
+                                        <rect key="frame" x="18" y="109" width="137" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="ARD user login:" id="6T5-bH-zLe">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -729,13 +722,22 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.includeSystemUIServer" id="duX-Fq-vT0"/>
                                         </connections>
                                     </button>
+                                    <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="BgM-LU-gAy">
+                                        <rect key="frame" x="18" y="46" width="195" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Use a Network Time Server:" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="1vC-IN-CzO">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.useNetworkTimeServer" id="Xw6-E7-ft5"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="LuM-gP-Ek6" firstAttribute="top" secondItem="AE8-iw-fSx" secondAttribute="bottom" constant="9" id="0Th-IF-g8i"/>
                                     <constraint firstItem="4eo-Ew-vtt" firstAttribute="leading" secondItem="AE8-iw-fSx" secondAttribute="trailing" constant="8" symbolic="YES" id="1Q0-GE-ad1"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="leading" secondItem="AE8-iw-fSx" secondAttribute="leading" id="1xp-Ac-Rqc"/>
                                     <constraint firstItem="FMB-Sz-PUq" firstAttribute="width" secondItem="ulR-LX-e1A" secondAttribute="width" id="2go-7J-3AX"/>
-                                    <constraint firstItem="ng4-VJ-jJ3" firstAttribute="top" secondItem="YKc-Yl-H3X" secondAttribute="bottom" constant="8" symbolic="YES" id="3Ov-Xi-7mg"/>
                                     <constraint firstItem="AE8-iw-fSx" firstAttribute="baseline" secondItem="4eo-Ew-vtt" secondAttribute="baseline" id="604-AG-TBt"/>
                                     <constraint firstItem="ng4-VJ-jJ3" firstAttribute="leading" secondItem="ewi-2M-r1K" secondAttribute="trailing" constant="8" symbolic="YES" id="6Kx-WR-pxL"/>
                                     <constraint firstItem="LuM-gP-Ek6" firstAttribute="leading" secondItem="a5G-lr-wTv" secondAttribute="leading" id="7ak-o5-4dO"/>
@@ -747,17 +749,17 @@ asdasd</string>
                                     <constraint firstItem="le5-Gh-tjW" firstAttribute="leading" secondItem="a5G-lr-wTv" secondAttribute="leading" id="C5q-eW-DKd"/>
                                     <constraint firstItem="FMB-Sz-PUq" firstAttribute="baseline" secondItem="OXa-Ei-ogf" secondAttribute="baseline" id="Enn-Ot-Vs5"/>
                                     <constraint firstItem="lSG-mW-c27" firstAttribute="leading" secondItem="4eo-Ew-vtt" secondAttribute="trailing" constant="8" symbolic="YES" id="FIc-Wc-It1"/>
+                                    <constraint firstItem="ng4-VJ-jJ3" firstAttribute="top" secondItem="BgM-LU-gAy" secondAttribute="bottom" constant="8" symbolic="YES" id="Oi3-A5-YYS"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="leading" secondItem="amG-dw-kSU" secondAttribute="leading" constant="20" symbolic="YES" id="Tra-UI-3i1"/>
-                                    <constraint firstItem="YKc-Yl-H3X" firstAttribute="top" secondItem="ep3-FH-vz8" secondAttribute="bottom" constant="20" id="WSG-uO-Td5"/>
                                     <constraint firstAttribute="trailing" secondItem="czc-3w-Cgp" secondAttribute="trailing" constant="20" symbolic="YES" id="WW4-cY-MKK"/>
                                     <constraint firstItem="AE8-iw-fSx" firstAttribute="baseline" secondItem="lSG-mW-c27" secondAttribute="baseline" id="ZJN-30-mGA"/>
                                     <constraint firstAttribute="bottom" secondItem="ewi-2M-r1K" secondAttribute="bottom" constant="20" symbolic="YES" id="aQf-jU-eqb"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="top" secondItem="amG-dw-kSU" secondAttribute="top" constant="20" symbolic="YES" id="at7-kP-eYC"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="leading" secondItem="IKx-1c-tDW" secondAttribute="leading" id="auv-WM-uDL"/>
-                                    <constraint firstItem="a5G-lr-wTv" firstAttribute="leading" secondItem="YKc-Yl-H3X" secondAttribute="leading" id="fXL-b3-O0s"/>
                                     <constraint firstItem="AE8-iw-fSx" firstAttribute="top" secondItem="IKx-1c-tDW" secondAttribute="bottom" constant="9" id="g3N-L0-D1K"/>
                                     <constraint firstItem="ep3-FH-vz8" firstAttribute="top" secondItem="OXa-Ei-ogf" secondAttribute="bottom" constant="8" symbolic="YES" id="hXp-I6-fU3"/>
                                     <constraint firstItem="le5-Gh-tjW" firstAttribute="leading" secondItem="ep3-FH-vz8" secondAttribute="leading" id="hvT-nj-M1g"/>
+                                    <constraint firstItem="BgM-LU-gAy" firstAttribute="top" secondItem="ulR-LX-e1A" secondAttribute="bottom" constant="20" id="j4B-B6-IEq"/>
                                     <constraint firstItem="IKx-1c-tDW" firstAttribute="top" secondItem="a5G-lr-wTv" secondAttribute="bottom" constant="8" symbolic="YES" id="lyJ-df-hgC"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="centerX" secondItem="R4V-bE-WQo" secondAttribute="centerX" id="mRR-QG-BR7"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="leading" secondItem="ng4-VJ-jJ3" secondAttribute="leading" id="mq8-ta-HRi"/>
@@ -767,6 +769,7 @@ asdasd</string>
                                     <constraint firstItem="FMB-Sz-PUq" firstAttribute="leading" secondItem="OXa-Ei-ogf" secondAttribute="trailing" constant="8" symbolic="YES" id="qrU-ri-YzX"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="width" secondItem="ng4-VJ-jJ3" secondAttribute="width" id="rzC-2g-mLj"/>
                                     <constraint firstItem="czc-3w-Cgp" firstAttribute="leading" secondItem="ulR-LX-e1A" secondAttribute="trailing" constant="8" symbolic="YES" id="uXG-Nk-hvi"/>
+                                    <constraint firstItem="BgM-LU-gAy" firstAttribute="leading" secondItem="LuM-gP-Ek6" secondAttribute="leading" id="uj0-ZD-pG3"/>
                                     <constraint firstItem="OXa-Ei-ogf" firstAttribute="top" secondItem="le5-Gh-tjW" secondAttribute="bottom" constant="15" id="v7G-uh-7X1"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="baseline" secondItem="czc-3w-Cgp" secondAttribute="baseline" id="wvT-CY-uP0"/>
                                 </constraints>

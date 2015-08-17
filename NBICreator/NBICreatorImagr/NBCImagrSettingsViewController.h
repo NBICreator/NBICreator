@@ -155,8 +155,8 @@
 @property NSString *ardLogin;
 @property NSString *ardPassword;
 @property BOOL showARDPassword;
+@property BOOL useNetworkTimeServer;
 @property NSString *networkTimeServer;
-
 
 @property BOOL includeImagrPreReleaseVersionsEnabled;
 @property BOOL includeImagrPreReleaseVersions;

@@ -10,6 +10,8 @@
 	<false/>
 	<key>NetworkTimeServer</key>
 	<string>time.apple.com</string>
+	<key>UseNetworkTimeServerKey</key>
+	<false/>
 	<key>DisplaySleepMinutes</key>
 	<string>30</string>
 	<key>DisplaySleep</key>

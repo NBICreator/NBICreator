@@ -834,6 +834,7 @@ DDLogLevel ddLogLevel;
     [self setIncludeSystemUIServer:[settingsDict[NBCSettingsIncludeSystemUIServerKey] boolValue]];
     [self setArdLogin:settingsDict[NBCSettingsARDLoginKey]];
     [self setArdPassword:settingsDict[NBCSettingsARDPasswordKey]];
+    [self setUseNetworkTimeServer:[settingsDict[NBCSettingsUseNetworkTimeServerKey] boolValue]];
     [self setNetworkTimeServer:settingsDict[NBCSettingsNetworkTimeServerKey]];
     [self setImagrVersion:settingsDict[NBCSettingsImagrVersion]];
     [self setIncludeImagrPreReleaseVersions:[settingsDict[NBCSettingsImagrIncludePreReleaseVersions] boolValue]];
@@ -948,6 +949,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsImagrLocalVersionPath] = _imagrLocalVersionPath ?: @"";
     settingsDict[NBCSettingsARDLoginKey] = _ardLogin ?: @"";
     settingsDict[NBCSettingsARDPasswordKey] = _ardPassword ?: @"";
+    settingsDict[NBCSettingsUseNetworkTimeServerKey] = @(_useNetworkTimeServer) ?: @NO;
     settingsDict[NBCSettingsNetworkTimeServerKey] = _networkTimeServer ?: @"";
     settingsDict[NBCSettingsImagrSourceIsNBI] = @(_isNBI) ?: @NO;
     
@@ -1972,8 +1974,9 @@ DDLogLevel ddLogLevel;
     [sourceController addPython:sourceItemsDict source:_source];
     
     // - NTP
-    [sourceController addNTP:sourceItemsDict source:_source];
-    
+    if ( [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
+        [sourceController addNTP:sourceItemsDict source:_source];
+    }
     
     // - SystemUIServer
     if ( [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
