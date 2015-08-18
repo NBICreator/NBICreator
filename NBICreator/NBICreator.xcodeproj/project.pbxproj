@@ -72,6 +72,7 @@
 		53A9B9941AAB2804000E06BA /* NBCNetInstallDropViewImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A9B9931AAB2804000E06BA /* NBCNetInstallDropViewImage.m */; };
 		53AF66611AF95E860093DD26 /* IconImagr.icns in Resources */ = {isa = PBXBuildFile; fileRef = 53AF66601AF95E860093DD26 /* IconImagr.icns */; };
 		53B05C091B0CBA89000C7D67 /* NBCDownloaderDeployStudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B05C081B0CBA89000C7D67 /* NBCDownloaderDeployStudio.m */; };
+		53B2B2771B83BED80062F6A2 /* NBICreatorDesktopViewer.app in Resources */ = {isa = PBXBuildFile; fileRef = 53B2B2761B83BED80062F6A2 /* NBICreatorDesktopViewer.app */; };
 		53B9CEB81A95D68700C8015E /* NBCDeployStudioSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B9CEB61A95D68700C8015E /* NBCDeployStudioSettingsViewController.m */; };
 		53B9CEB91A95D68700C8015E /* NBCDeployStudioSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53B9CEB71A95D68700C8015E /* NBCDeployStudioSettingsViewController.xib */; };
 		53B9CEBC1A95DFD600C8015E /* NBCController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B9CEBB1A95DFD600C8015E /* NBCController.m */; };
@@ -322,6 +323,7 @@
 		53AF66601AF95E860093DD26 /* IconImagr.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconImagr.icns; sourceTree = "<group>"; };
 		53B05C071B0CBA89000C7D67 /* NBCDownloaderDeployStudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCDownloaderDeployStudio.h; path = NBICreatorNetworking/NBCDownloaderDeployStudio.h; sourceTree = "<group>"; };
 		53B05C081B0CBA89000C7D67 /* NBCDownloaderDeployStudio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCDownloaderDeployStudio.m; path = NBICreatorNetworking/NBCDownloaderDeployStudio.m; sourceTree = "<group>"; };
+		53B2B2761B83BED80062F6A2 /* NBICreatorDesktopViewer.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = NBICreatorDesktopViewer.app; path = "Supporting Files/Applications/NBICreatorDesktopViewer.app"; sourceTree = "<group>"; };
 		53B9CEB51A95D68700C8015E /* NBCDeployStudioSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCDeployStudioSettingsViewController.h; path = NBICreatorDeployStudio/NBCDeployStudioSettingsViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53B9CEB61A95D68700C8015E /* NBCDeployStudioSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCDeployStudioSettingsViewController.m; path = NBICreatorDeployStudio/NBCDeployStudioSettingsViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53B9CEB71A95D68700C8015E /* NBCDeployStudioSettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCDeployStudioSettingsViewController.xib; path = NBICreatorDeployStudio/NBCDeployStudioSettingsViewController.xib; sourceTree = "<group>"; };
@@ -417,6 +419,7 @@
 		531F1D191A99A43C00C8B6A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				53B2B26D1B83BEC70062F6A2 /* Applications */,
 				53BD1F891B80A99E004391D6 /* Property Lists */,
 				53F229CB1B6837C900CC0B09 /* Frameworks */,
 				53C97F9E1B07DEDC00034B60 /* Binaries */,
@@ -629,6 +632,14 @@
 				53D34D941B73F7E900F11CFF /* installCertificates.bash */,
 			);
 			name = Scripts;
+			sourceTree = "<group>";
+		};
+		53B2B26D1B83BEC70062F6A2 /* Applications */ = {
+			isa = PBXGroup;
+			children = (
+				53B2B2761B83BED80062F6A2 /* NBICreatorDesktopViewer.app */,
+			);
+			name = Applications;
 			sourceTree = "<group>";
 		};
 		53B91EE41AD9BDDC0056CFC0 /* NBICreator Categories */ = {
@@ -968,6 +979,7 @@
 				53F3B2871B7D1A54005BEAD3 /* IconCertPersonal.png in Resources */,
 				53E5B8651B06FE1500A771F7 /* NBCTemplatesController.xib in Resources */,
 				53346BD71AD657DF00C3831B /* NBCNetInstallDropViewController.xib in Resources */,
+				53B2B2771B83BED80062F6A2 /* NBICreatorDesktopViewer.app in Resources */,
 				53AF66611AF95E860093DD26 /* IconImagr.icns in Resources */,
 				53F3B2891B7D1A54005BEAD3 /* IconCertStandard.png in Resources */,
 				53695BB41B80A6510038F3DD /* generateKernelCache.bash in Resources */,
