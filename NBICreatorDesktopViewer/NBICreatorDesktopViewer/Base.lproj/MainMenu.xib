@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
+            <connections>
+                <outlet property="delegate" destination="Voe-Tx-rLC" id="GzC-gU-4Uq"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application" customClass="NSObject"/>
+        <customObject id="Voe-Tx-rLC" customClass="AppDelegate">
+            <connections>
+                <outlet property="imageViewBackgroundImage" destination="hLI-XY-JOR" id="jm5-t5-fpH"/>
+                <outlet property="window" destination="QvC-M9-y7g" id="gIp-Ho-8D9"/>
+                <outlet property="windowMainWindow" destination="QvC-M9-y7g" id="YL3-qL-qjT"/>
+            </connections>
+        </customObject>
+        <window title="NBICreatorDesktopViewer" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" hasShadow="NO" releasedWhenClosed="NO" showsToolbarButton="NO" animationBehavior="none" id="QvC-M9-y7g">
+            <windowCollectionBehavior key="collectionBehavior" ignoresCycle="YES"/>
+            <rect key="contentRect" x="335" y="390" width="286" height="151"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <view key="contentView" id="EiT-Mj-1SZ">
+                <rect key="frame" x="0.0" y="0.0" width="286" height="151"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hLI-XY-JOR">
+                        <rect key="frame" x="0.0" y="0.0" width="286" height="151"/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="ZrT-Qy-n8v"/>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="hLI-XY-JOR" secondAttribute="trailing" id="Rnb-aC-X6f"/>
+                    <constraint firstItem="hLI-XY-JOR" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" id="a4I-Pv-nDD"/>
+                    <constraint firstAttribute="bottom" secondItem="hLI-XY-JOR" secondAttribute="bottom" id="kJj-NJ-gy8"/>
+                    <constraint firstItem="hLI-XY-JOR" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" id="wYj-ET-hsv"/>
+                </constraints>
+            </view>
+            <point key="canvasLocation" x="112" y="207.5"/>
+        </window>
+    </objects>
+</document>
