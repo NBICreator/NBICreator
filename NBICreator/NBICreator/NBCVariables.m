@@ -30,7 +30,7 @@ DDLogLevel ddLogLevel;
     //  Expand variables for current application version
     // -------------------------------------------------------------
     NSDictionary *NBICreatorInfoDict = [[NSBundle mainBundle] infoDictionary];
-    NSString *NBICreatorVersion = NBICreatorInfoDict[@"CFBundleVersion"];
+    NSString *NBICreatorVersion = NBICreatorInfoDict[@"CFBundleShortVersionString"];
     newString = [newString stringByReplacingOccurrencesOfString:variableNBICreatorVersion
                                                      withString:NBICreatorVersion];
     

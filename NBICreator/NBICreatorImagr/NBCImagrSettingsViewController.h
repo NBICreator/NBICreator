@@ -126,7 +126,9 @@
 @property (weak) IBOutlet NSButton *buttonRemovePackage;
 - (IBAction)buttonRemovePackage:(id)sender;
 
-
+// Pop Over
+@property (weak) IBOutlet NSPopover *popOverVariables;
+- (IBAction)buttonPopOver:(id)sender;
 
 // ------------------------------------------------------
 //  UI Binding Properties
@@ -166,6 +168,16 @@
 @property BOOL imagrUseLocalVersion;
 @property NSString *imagrLocalVersionPath;
 
+@property NSString *popOverOSVersion;
+@property NSString *popOverOSMajor;
+@property NSString *popOverOSMinor;
+@property NSString *popOverOSPatch;
+@property NSString *popOverOSBuild;
+@property NSString *popOverDate;
+@property NSString *popOverIndexCounter;
+@property NSString *popOverOSIndex;
+@property NSString *nbcVersion;
+@property NSString *siuVersion;
 
 // ------------------------------------------------------
 //  Instance Methods

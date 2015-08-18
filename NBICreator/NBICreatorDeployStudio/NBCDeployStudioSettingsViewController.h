@@ -135,6 +135,10 @@
 @property (weak) IBOutlet NSButton *checkboxDisableWirelessSupport;
 @property (weak) IBOutlet NSButton *checkboxUseSMB1;
 
+// Pop Over
+@property (weak) IBOutlet NSPopover *popOverVariables;
+- (IBAction)buttonPopOver:(id)sender;
+
 // ------------------------------------------------------
 //  UI Binding Properties
 // ------------------------------------------------------
@@ -179,6 +183,16 @@
 @property BOOL useCustomBackgroundImage;
 @property NSString *imageBackgroundURL;
 @property NSString *imageBackground;
+
+@property NSString *popOverOSVersion;
+@property NSString *popOverOSMajor;
+@property NSString *popOverOSMinor;
+@property NSString *popOverOSPatch;
+@property NSString *popOverOSBuild;
+@property NSString *popOverDate;
+@property NSString *popOverIndexCounter;
+@property NSString *popOverOSIndex;
+@property NSString *nbcVersion;
 
 // ------------------------------------------------------
 //  Instance Methods

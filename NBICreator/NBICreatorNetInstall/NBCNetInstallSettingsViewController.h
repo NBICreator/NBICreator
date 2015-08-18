@@ -82,7 +82,10 @@
 @property NSString *popOverOSMinor;
 @property NSString *popOverOSPatch;
 @property NSString *popOverOSBuild;
-@property NSString *popOverIndex;
+@property NSString *popOverDate;
+@property NSString *popOverIndexCounter;
+@property NSString *popOverOSIndex;
+@property NSString *nbcVersion;
 @property NSString *siuVersion;
 
 // ------------------------------------------------------

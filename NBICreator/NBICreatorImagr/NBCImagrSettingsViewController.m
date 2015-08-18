@@ -784,6 +784,8 @@ DDLogLevel ddLogLevel;
         [self expandVariablesForCurrentSettings];
         [self verifyBuildButton];
     }
+    
+    [self updatePopOver];
 } // updateSource
 
 - (void)removedSource:(NSNotification *)notification {
@@ -797,6 +799,7 @@ DDLogLevel ddLogLevel;
     [_buttonChooseDestinationFolder setEnabled:YES];
     [_popUpButtonTool setEnabled:YES];
     [self verifyBuildButton];
+    [self updatePopOver];
 } // removedSource
 
 - (void)updateNBIIcon:(NSNotification *)notification {
@@ -1554,6 +1557,83 @@ DDLogLevel ddLogLevel;
         [self setDestinationFolder:[selectedURL path]];
     }
 } // buttonChooseDestinationFolder
+
+- (IBAction)buttonPopOver:(id)sender {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [self updatePopOver];
+    [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
+} // buttonPopOver
+
+- (void)updatePopOver {
+    NSString *separator = @";";
+    NSString *variableString = [NSString stringWithFormat:@"%%OSVERSION%%%@"
+                                "%%OSMAJOR%%%@"
+                                "%%OSMINOR%%%@"
+                                "%%OSPATCH%%%@"
+                                "%%OSBUILD%%%@"
+                                "%%DATE%%%@"
+                                "%%OSINDEX%%%@"
+                                ,separator, separator, separator, separator, separator, separator, separator
+                                ];
+    NSString *expandedVariables = [NBCVariables expandVariables:variableString source:_source applicationSource:_siuSource];
+    NSArray *expandedVariablesArray = [expandedVariables componentsSeparatedByString:separator];
+    
+    // %OSVERSION%
+    if ( 1 <= [expandedVariablesArray count] ) {
+        NSString *osVersion = expandedVariablesArray[0];
+        if ( [osVersion length] != 0 ) {
+            [self setPopOverOSVersion:osVersion];
+        }
+    }
+    // %OSMAJOR%
+    if ( 2 <= [expandedVariablesArray count] ) {
+        NSString *osMajor = expandedVariablesArray[1];
+        if ( [osMajor length] != 0 ) {
+            [self setPopOverOSMajor:osMajor];
+        }
+    }
+    // %OSMINOR%
+    if ( 3 <= [expandedVariablesArray count] ) {
+        NSString *osMinor = expandedVariablesArray[2];
+        if ( [osMinor length] != 0 ) {
+            [self setPopOverOSMinor:osMinor];
+        }
+    }
+    // %OSPATCH%
+    if ( 4 <= [expandedVariablesArray count] ) {
+        NSString *osPatch = expandedVariablesArray[3];
+        if ( [osPatch length] != 0 ) {
+            [self setPopOverOSPatch:osPatch];
+        }
+    }
+    // %OSBUILD%
+    if ( 5 <= [expandedVariablesArray count] ) {
+        NSString *osBuild = expandedVariablesArray[4];
+        if ( [osBuild length] != 0 ) {
+            [self setPopOverOSBuild:osBuild];
+        }
+    }
+    // %DATE%
+    if ( 6 <= [expandedVariablesArray count] ) {
+        NSString *date = expandedVariablesArray[5];
+        if ( [date length] != 0 ) {
+            [self setPopOverDate:date];
+        }
+    }
+    // %OSINDEX%
+    if ( 7 <= [expandedVariablesArray count] ) {
+        NSString *osIndex = expandedVariablesArray[6];
+        if ( [osIndex length] != 0 ) {
+            [self setPopOverOSIndex:osIndex];
+        }
+    }
+    // %COUNTER%
+    [self setPopOverIndexCounter:[[[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsIndexCounter] stringValue]];
+    // %NBCVERSION%
+    [self setNbcVersion:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
+    // %SIUVERSION%
+    [self setSiuVersion:[_siuSource systemImageUtilityVersion]];
+} // updatePopOver
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
