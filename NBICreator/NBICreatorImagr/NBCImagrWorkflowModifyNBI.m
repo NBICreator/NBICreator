@@ -141,44 +141,58 @@ DDLogLevel ddLogLevel;
             return;
         }
     } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-        NSURL *baseSystemDiskImageTargetURL = [[baseSystemDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"NetInstall.sparseimage"];
-        DDLogDebug(@"baseSystemDiskImageTargetURL=%@", baseSystemDiskImageTargetURL);
-        if ( [[NSFileManager defaultManager] moveItemAtURL:baseSystemDiskImageURL toURL:baseSystemDiskImageTargetURL error:&error] ) {
-            NSTask *newTask =  [[NSTask alloc] init];
-            [newTask setLaunchPath:@"/bin/ln"];
-            DDLogDebug(@"launchPath=%@", [newTask launchPath]);
-            NSMutableArray *args = [NSMutableArray arrayWithObjects:@"-s", @"NetInstall.sparseimage", @"NetInstall.dmg", nil];
-            DDLogDebug(@"args=%@", args);
-            NSString *nbiFolder = [[_workflowItem temporaryNBIURL] path];
-            DDLogDebug(@"nbiFolder=%@", nbiFolder);
-            if ( [nbiFolder length] != 0 ) {
-                [newTask setCurrentDirectoryPath:nbiFolder];
-                [newTask setArguments:args];
-                dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
-                dispatch_async(taskQueue, ^{
-                    [newTask launch];
-                    [newTask waitUntilExit];
-                    
-                    DDLogDebug(@"terminationStatus=%d", [newTask terminationStatus]);
-                    if ( [newTask terminationStatus] == 0 ) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
-                        });
-                    } else {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-                        });
-                    }
-                });
+        
+        /* THIS IS HERE TO POSSIBLY ALLOW TO CREATE A LINK FROM .DMG -> .SPARSEIMAGE INSTEAD OF DIRECTLY CREATING A DMG */
+        
+        if ( @YES ) {
+            NSURL *baseSystemDiskImageTargetURL = [[baseSystemDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"NetInstall.dmg"];
+            DDLogDebug(@"baseSystemDiskImageTargetURL=%@", baseSystemDiskImageTargetURL);
+            if ( [[NSFileManager defaultManager] moveItemAtURL:baseSystemDiskImageURL toURL:baseSystemDiskImageTargetURL error:&error] ) {
+                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
             } else {
-                DDLogError(@"[ERROR] Got no path to NBI Folder!");
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                DDLogError(@"[ERROR] Could not rename BaseSystem to NetInstall");
+                DDLogError(@"%@", error);
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
             }
         } else {
-            DDLogError(@"[ERROR] Could not rename BaseSystem to NetInstall");
-            DDLogError(@"%@", error);
-            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+            NSURL *baseSystemDiskImageTargetURL = [[baseSystemDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"NetInstall.sparseimage"];
+            DDLogDebug(@"baseSystemDiskImageTargetURL=%@", baseSystemDiskImageTargetURL);
+            if ( [[NSFileManager defaultManager] moveItemAtURL:baseSystemDiskImageURL toURL:baseSystemDiskImageTargetURL error:&error] ) {
+                NSTask *newTask =  [[NSTask alloc] init];
+                [newTask setLaunchPath:@"/bin/ln"];
+                DDLogDebug(@"launchPath=%@", [newTask launchPath]);
+                NSMutableArray *args = [NSMutableArray arrayWithObjects:@"-s", @"NetInstall.sparseimage", @"NetInstall.dmg", nil];
+                DDLogDebug(@"args=%@", args);
+                NSString *nbiFolder = [[_workflowItem temporaryNBIURL] path];
+                DDLogDebug(@"nbiFolder=%@", nbiFolder);
+                if ( [nbiFolder length] != 0 ) {
+                    [newTask setCurrentDirectoryPath:nbiFolder];
+                    [newTask setArguments:args];
+                    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+                    dispatch_async(taskQueue, ^{
+                        [newTask launch];
+                        [newTask waitUntilExit];
+                        
+                        DDLogDebug(@"terminationStatus=%d", [newTask terminationStatus]);
+                        if ( [newTask terminationStatus] == 0 ) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
+                            });
+                        } else {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                            });
+                        }
+                    });
+                } else {
+                    DDLogError(@"[ERROR] Got no path to NBI Folder!");
+                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                }
+            } else {
+                DDLogError(@"[ERROR] Could not rename BaseSystem to NetInstall");
+                DDLogError(@"%@", error);
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+            }
         }
     } else {
         DDLogError(@"[ERROR] Unknown creation tool");
@@ -537,7 +551,7 @@ DDLogLevel ddLogLevel;
         [newTask waitUntilExit];
         
         NSData *newTaskStandardOutputData = [[[newTask standardOutput] fileHandleForReading] readDataToEndOfFile];
-
+        
         DDLogDebug(@"terminationStatus=%d", [newTask terminationStatus]);
         if ( [newTask terminationStatus] == 0 ) {
             NSString *vncPasswordHash = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
