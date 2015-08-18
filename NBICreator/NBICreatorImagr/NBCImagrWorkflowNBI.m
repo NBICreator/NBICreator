@@ -814,6 +814,8 @@ DDLogLevel ddLogLevel;
         double maxSize = [volumeAttributes[NSFileSystemSize] doubleValue];
         double freeSize = [volumeAttributes[NSFileSystemFreeSize] doubleValue];
         double volumeCurrentSize = ( maxSize - freeSize );
+        NSString *fileSizeString = [NSByteCountFormatter stringFromByteCount:(long long)volumeCurrentSize countStyle:NSByteCountFormatterCountStyleDecimal];
+        NSString *fileSizeOriginal = [NSByteCountFormatter stringFromByteCount:(long long)_netInstallVolumeSize countStyle:NSByteCountFormatterCountStyleDecimal];
         
         if ( _netInstallVolumeSize <= volumeCurrentSize || _copyComplete == YES ) {
             [timer invalidate];
@@ -821,7 +823,7 @@ DDLogLevel ddLogLevel;
         } else {
             double precentage = (((40 * volumeCurrentSize)/_netInstallVolumeSize) + 40);
             dispatch_async(dispatch_get_main_queue(), ^{
-                [self->_delegate updateProgressStatus:@"Copying source..." workflow:self];
+                [self->_delegate updateProgressStatus:[NSString stringWithFormat:@"Copying BaseSystem.dmg... %@/%@", fileSizeString, fileSizeOriginal] workflow:self];
                 [self->_delegate updateProgressBar:precentage];
             });
         }
@@ -876,6 +878,7 @@ DDLogLevel ddLogLevel;
     }
     
     double precentage = (40 * value)/[@100 doubleValue];
+    [self->_delegate updateProgressStatus:[NSString stringWithFormat:@"Creating disk image... %d%%", (int)value] workflow:self];
     [self->_delegate updateProgressBar:precentage];
 } // updateProgressBar
 
