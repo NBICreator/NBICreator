@@ -14,9 +14,11 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCNetInstallWorkflowResources
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Run Workflow
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -42,9 +44,11 @@ DDLogLevel ddLogLevel;
     }
 } // runWorkflow
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Update Resource Dicts
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkCompletedResources {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

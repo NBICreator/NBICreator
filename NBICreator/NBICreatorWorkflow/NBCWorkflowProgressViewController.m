@@ -19,6 +19,12 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCWorkflowProgressViewController
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Initialization
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 - (id)init {
     self = [super initWithNibName:@"NBCWorkflowProgressViewController" bundle:nil];
     if (self != nil) {

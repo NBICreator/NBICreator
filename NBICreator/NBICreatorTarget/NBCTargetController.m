@@ -255,13 +255,11 @@ DDLogLevel ddLogLevel;
     return verified;
 } // updateNBIIcon
 
-// ------------------------------------------------------
-//  NetInstall
-// ------------------------------------------------------
-
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark NetInstall
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)attachNetInstallDiskImageWithShadowFile:(NSURL *)netInstallDiskImageURL target:(NBCTarget *)target error:(NSError **)error {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -375,13 +373,11 @@ DDLogLevel ddLogLevel;
     return verified;
 } // convertNetInstallFromShadow:error
 
-// ------------------------------------------------------
-//  BaseSystem
-// ------------------------------------------------------
-
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark BaseSystem
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)attachBaseSystemDiskImageWithShadowFile:(NSURL *)baseSystemDiskImageURL target:(NBCTarget *)target error:(NSError **)error {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -489,13 +485,11 @@ DDLogLevel ddLogLevel;
     return verified;
 } // convertBaseSystemFromShadow:error
 
-// ------------------------------------------------------
-//  Copy
-// ------------------------------------------------------
-
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Copy
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)copyResourcesToVolume:(NSURL *)volumeURL resourcesDict:(NSDictionary *)resourcesDict target:(NBCTarget *)target  error:(NSError **)error {
 #pragma unused(target)

@@ -22,9 +22,11 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCNetInstallSettingsViewController
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Initialization
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (id)init {
     self = [super initWithNibName:@"NBCNetInstallSettingsViewController" bundle:nil];
@@ -101,9 +103,11 @@ DDLogLevel ddLogLevel;
     
 } // viewDidLoad
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods PopUpButton
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -122,9 +126,11 @@ DDLogLevel ddLogLevel;
     return YES;
 } // validateMenuItem
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods TextField
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)controlTextDidChange:(NSNotification *)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -173,9 +179,11 @@ DDLogLevel ddLogLevel;
     
 } // controlTextDidChange
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Delegate Methods NBCAlert
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -208,9 +216,11 @@ DDLogLevel ddLogLevel;
     }
 } // alertReturnCode:alertInfo
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Notification Methods
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateSource:(NSNotification *)notification {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -251,9 +261,11 @@ DDLogLevel ddLogLevel;
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Key/Value Observing
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
@@ -264,9 +276,11 @@ DDLogLevel ddLogLevel;
     }
 } // observeValueForKeyPath:ofObject:change:context
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Settings
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -457,9 +471,11 @@ DDLogLevel ddLogLevel;
     
 } // expandVariablesForCurrentSettings
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark IBAction Buttons
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction)buttonChooseDestinationFolder:(id)sender {
 #pragma unused(sender)
@@ -486,9 +502,11 @@ DDLogLevel ddLogLevel;
     }
 } // buttonChooseDestinationFolder
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark IBAction PopUpButtons
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction)popUpButtonTemplates:(id)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -519,9 +537,11 @@ DDLogLevel ddLogLevel;
     [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Verify Build Button
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifyBuildButton {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -549,9 +569,11 @@ DDLogLevel ddLogLevel;
     
 } // verifyBuildButton
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Build NBI
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

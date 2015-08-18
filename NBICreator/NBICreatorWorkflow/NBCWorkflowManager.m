@@ -24,6 +24,12 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCWorkflowManager
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Initialization
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 + (id)sharedManager {
     static NBCWorkflowManager *sharedManager = nil;
     static dispatch_once_t onceToken;
@@ -32,10 +38,6 @@ DDLogLevel ddLogLevel;
     });
     return sharedManager;
 } // sharedManager
-
-#pragma mark -
-#pragma mark Initialization
-#pragma mark -
 
 - (id)init {
     self = [super init];
@@ -60,9 +62,11 @@ DDLogLevel ddLogLevel;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Notification Methods
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)addWorkflowItemToQueue:(NSNotification *)notification {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -218,9 +222,11 @@ DDLogLevel ddLogLevel;
     }
 } // removeTemporaryFolder
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Progress View Status Methods
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateWorkflowStatusComplete {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -238,9 +244,11 @@ DDLogLevel ddLogLevel;
     [self endWorkflow];
 } // updateWorkflowStatusErrorWithMessage
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)workflowQueueRunWorkflow {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -349,9 +357,11 @@ DDLogLevel ddLogLevel;
     }
 } // workflowQueueRunWorkflowPostprocessing
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)incrementIndexCounter {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

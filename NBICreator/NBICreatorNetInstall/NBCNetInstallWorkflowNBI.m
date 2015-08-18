@@ -20,9 +20,11 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCNetInstallWorkflowNBI
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Run Workflow
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -197,9 +199,11 @@ DDLogLevel ddLogLevel;
     }];
 } // runWorkflow
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Pre-/Post Workflow Methods
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)prepareDestinationFolder:(NSURL *)destinationFolderURL createCommonURL:(NSURL *)createCommonURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -268,9 +272,11 @@ DDLogLevel ddLogLevel;
     }
 } // removeTemporaryItems
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Progress Updates
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateNetInstallWorkflowStatus:(NSString *)outStr stdErr:(NSString *)stdErr {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

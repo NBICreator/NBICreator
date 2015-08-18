@@ -22,9 +22,11 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCNetInstallWorkflowModifyNBI
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Workflow
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

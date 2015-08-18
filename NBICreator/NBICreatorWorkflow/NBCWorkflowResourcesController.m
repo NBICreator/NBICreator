@@ -19,9 +19,11 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCWorkflowResourcesController
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Initialization
 #pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (id)initWithDelegate:(id<NBCResourcesControllerDelegate>)delegate {
     self = [super init];
@@ -47,45 +49,55 @@ DDLogLevel ddLogLevel;
     return resourceFolderURL;
 }
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Cached Resources
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 - (NSArray *)cachedVersionsFromResourceFolder:(NSString *)resourceFolder {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSArray *cachedVersions;
+    DDLogDebug(@"resourceFolder=%@", resourceFolder);
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
-    
-    if ( currentResourceFolder != nil ) {
+    DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
+    if ( currentResourceFolder ) {
         NSURL *currentResourceDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileResourcesDict];
+        DDLogDebug(@"currentResourceDictURL=%@", currentResourceDictURL);
         if ( [currentResourceDictURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *resourceDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourceDictURL];
-            if ( resourceDict != nil ) {
+            DDLogDebug(@"resourceDict=%@", resourceDict);
+            if ( resourceDict ) {
                 return [resourceDict allKeys];
             }
         }
     }
     
-    return cachedVersions;
+    return @[];
 }
 
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSDictionary *cachedDownloadsDict;
+    DDLogDebug(@"resourceFolder=%@", resourceFolder);
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
-    
-    if ( currentResourceFolder != nil ) {
+    DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
+    if ( currentResourceFolder ) {
         NSURL *currentDownloadsDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileDownloadsDict];
+        DDLogDebug(@"currentDownloadsDictURL=%@", currentDownloadsDictURL);
         if ( [currentDownloadsDictURL checkResourceIsReachableAndReturnError:nil] ) {
             return [[NSDictionary alloc] initWithContentsOfURL:currentDownloadsDictURL];
         }
     }
     
-    return cachedDownloadsDict;
+    return @{};
 }
 
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"resourceFolder=%@", resourceFolder);
     NSURL *cachedDownloadsDictURL;
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
-    
-    if ( currentResourceFolder != nil ) {
+    DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
+    if ( currentResourceFolder ) {
         return [currentResourceFolder URLByAppendingPathComponent:NBCFileDownloadsDict];
     }
     
@@ -94,23 +106,28 @@ DDLogLevel ddLogLevel;
 
 - (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"resourcesFolder=%@", resourcesFolder);
     NSURL *cachedVersionURL;
     NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
-    
-    if ( currentResourcesFolder != nil ) {
+    DDLogDebug(@"currentResourcesFolder=%@", currentResourcesFolder);
+    if ( currentResourcesFolder ) {
         NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileResourcesDict];
+        DDLogDebug(@"currentResourcesDictURL=%@", currentResourcesDictURL);
         if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *resourcesDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourcesDictURL];
+            DDLogDebug(@"resourcesDict=%@", resourcesDict);
             if ( resourcesDict ) {
                 NSString *resourcePath = resourcesDict[version];
+                DDLogDebug(@"resourcePath=%@", resourcePath);
                 if ( [resourcePath length] != 0 ) {
                     cachedVersionURL = [NSURL fileURLWithPath:resourcePath];
                 } else {
-                    NSLog(@"Could not get resource path");
+                    DDLogError(@"[ERROR] Resource path is empty!");
                 }
             }
         }
     }
+    
     return cachedVersionURL;
 }
 
@@ -131,6 +148,12 @@ DDLogLevel ddLogLevel;
     }
     return cachedSourceItemsDict;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Copy Resources
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (NSURL *)copyFileToResources:(NSURL *)fileURL resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
