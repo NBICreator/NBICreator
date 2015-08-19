@@ -942,6 +942,39 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"modifyDictSystemUIServer=%@", modifyDictSystemUIServer);
     [modifyDictArray addObject:modifyDictSystemUIServer];
     
+    // --------------------------------------------------------------
+    //  /Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist
+    // --------------------------------------------------------------
+    NSURL *iconservicesdLaunchDaemonURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist"];
+
+    NSMutableDictionary *iconservicesdLaunchDaemonDict;
+    NSDictionary *iconservicesdLaunchDaemonAttributes;
+    if ( [iconservicesdLaunchDaemonURL checkResourceIsReachableAndReturnError:nil] ) {
+        iconservicesdLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:iconservicesdLaunchDaemonURL];
+        iconservicesdLaunchDaemonAttributes = [fm attributesOfItemAtPath:[iconservicesdLaunchDaemonURL path] error:&error];
+    }
+    
+    if ( [iconservicesdLaunchDaemonDict count] == 0 ) {
+        iconservicesdLaunchDaemonDict = [[NSMutableDictionary alloc] init];
+        iconservicesdLaunchDaemonAttributes = @{
+                                     NSFileOwnerAccountName : @"root",
+                                     NSFileGroupOwnerAccountName : @"wheel",
+                                     NSFilePosixPermissions : @0644
+                                     };
+    }
+
+    iconservicesdLaunchDaemonDict[@"RunAtLoad"] = @NO;
+    iconservicesdLaunchDaemonDict[@"Disabled"] = @YES;
+
+    NSDictionary *modifyIconservicesdLaunchDaemon = @{
+                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                               NBCWorkflowModifyContent : iconservicesdLaunchDaemonDict,
+                                               NBCWorkflowModifyAttributes : iconservicesdLaunchDaemonAttributes,
+                                               NBCWorkflowModifyTargetURL : [iconservicesdLaunchDaemonURL path]
+                                               };
+
+    [modifyDictArray addObject:modifyIconservicesdLaunchDaemon];
+    
     return retval;
 } // modifySettingsForMenuBar
 
@@ -1296,6 +1329,8 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"modifyWifiKext=%@", modifyWifiKext);
     [modifyDictArray addObject:modifyWifiKext];
     
+    
+    
     return retval;
 } // modifyNBIRemoveWiFi
 
@@ -1405,6 +1440,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"modifyFolderLibraryCache=%@", modifyFolderLibraryCache);
     [modifyDictArray addObject:modifyFolderLibraryCache];
     
+    /*
     // --------------------------------------------------------------
     //  /Library/Caches/com.apple.iconservices.store
     // --------------------------------------------------------------
@@ -1423,7 +1459,8 @@ DDLogLevel ddLogLevel;
                                                            };
     DDLogDebug(@"modifyFolderLibraryCacheIconservices=%@", modifyFolderLibraryCacheIconservices);
     [modifyDictArray addObject:modifyFolderLibraryCacheIconservices];
-    
+    */
+     
     // --------------------------------------------------------------
     //  /System/Library/Caches
     // --------------------------------------------------------------
