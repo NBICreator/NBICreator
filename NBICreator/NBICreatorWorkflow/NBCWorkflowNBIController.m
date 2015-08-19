@@ -59,7 +59,6 @@ DDLogLevel ddLogLevel;
     NSString *uidString = [NSString stringWithFormat:@"%u", uid];
     NSString *gidString = [NSString stringWithFormat:@"%u", gid];
     
-    
     NSURL *createVariablesURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"createVariables.sh"];
     
     envVariablesContent = @"#!/bin/sh -p\n\nset +xv\n";
@@ -415,9 +414,9 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------------
     //  Add -custombackground
     // -------------------------------------------------------------------
-    BOOL useCustomBackground = [userSettings[NBCSettingsDeployStudioUseCustomBackgroundImageKey] boolValue];
+    BOOL useCustomBackground = [userSettings[NBCSettingsUseBackgroundImageKey] boolValue];
     if ( useCustomBackground == YES ) {
-        NSString *customBackgroundPath = userSettings[NBCSettingsDeployStudioCustomBackgroundImageKey];
+        NSString *customBackgroundPath = userSettings[NBCSettingsBackgroundImageKey];
         if ( [customBackgroundPath length] != 0 ) {
             [sysBuilderArguments addObject:@"-custombackground"];
             [sysBuilderArguments addObject:customBackgroundPath];
@@ -549,6 +548,16 @@ DDLogLevel ddLogLevel;
                                      "\t/usr/local/scripts/installCertificates.bash\n"
                                      "fi\n"];
         rcImaging = [rcImaging stringByAppendingString:addCertificates];
+    }
+    
+    
+    if ( [settingsDict[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+        NSString *startDesktopViewer = [NSString stringWithFormat:@"\n"
+                                        "###\n"
+                                        "### Start NBICreatorDesktopViewer\n"
+                                        "###\n"
+                                        "/Applications/NBICreatorDesktopViewer.app/Contents/MacOS/NBICreatorDesktopViewer &\n"];
+        rcImaging = [rcImaging stringByAppendingString:startDesktopViewer];
     }
     
     NSString *startImagr;

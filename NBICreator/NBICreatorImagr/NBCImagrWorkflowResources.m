@@ -11,7 +11,7 @@
 #import "NSString+randomString.h"
 
 #import "NBCDiskImageController.h"
-
+#import "NBCVariables.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCWorkflowNBIController.h"
@@ -83,37 +83,169 @@ DDLogLevel ddLogLevel;
             [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
             DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
         }
+        if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+            [self setResourcesCount:( _resourcesCount + 2 )];
+            DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
+        }
     }
     
     if ( _userSettings ) {
-        if ( [self preparePackages:workflowItem] ) {
-            if ( [self prepareCertificates:workflowItem] ) {
-                if ( [self getImagrApplication:workflowItem] ) {
-                    if ( [self createImagrSettingsPlist:workflowItem] ) {
-                        if ( [self createImagrRCImaging:workflowItem] ) {
-                            [self getItemsFromSource:workflowItem];
-                        }
-                    } else {
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-                    }
-                } else {
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-                }
-            } else {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            }
-        } else {
+        if ( ! [self preparePackages:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
         }
+        
+        if ( ! [self prepareCertificates:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self getImagrApplication:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self createImagrSettingsPlist:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self prepareDesktopViewer:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self createImagrRCImaging:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        [self getItemsFromSource:workflowItem];
     } else {
         DDLogError(@"[ERROR] Settings are empty!");
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
 } // runWorkflow
 
+- (BOOL)prepareDesktopViewer:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Preparing desktop viewer...");
+    BOOL retval = YES;
+    NSDictionary *userSettings = [workflowItem userSettings];
+    if ( [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+        
+        // NBCDesktopViewer.app
+        NSURL *desktopViewerURL = [[NSBundle mainBundle] URLForResource:@"NBICreatorDesktopViewer" withExtension:@"app"];
+        DDLogDebug(@"desktopViewerURL=%@", desktopViewerURL);
+        NSString *desktopViewerTargetPath = [NSString stringWithFormat:@"%@/NBICreatorDesktopViewer.app", NBCApplicationsTargetPath];
+        DDLogDebug(@"desktopViewerTargetPath=%@", desktopViewerTargetPath);
+        NSDictionary *desktopViewerAttributes  = @{
+                                                   NSFileOwnerAccountName : @"root",
+                                                   NSFileGroupOwnerAccountName : @"wheel",
+                                                   NSFilePosixPermissions : @0755
+                                                   };
+        
+        NSDictionary *desktopViewerCopySetting = @{
+                                                   NBCWorkflowCopyType : NBCWorkflowCopy,
+                                                   NBCWorkflowCopySourceURL : [desktopViewerURL path],
+                                                   NBCWorkflowCopyTargetURL : desktopViewerTargetPath,
+                                                   NBCWorkflowCopyAttributes : desktopViewerAttributes
+                                                   };
+        DDLogDebug(@"desktopViewerCopySetting=%@", desktopViewerCopySetting);
+        [self updateBaseSystemCopyDict:desktopViewerCopySetting];
+        
+        // Background Image
+        if ( [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
+            NSString *backgroundImagePath = [NBCVariables expandVariables:NBCBackgroundImageDefaultPath source:[workflowItem source] applicationSource:[workflowItem applicationSource]];
+            NSString *backgroundImageURL = [backgroundImagePath stringByResolvingSymlinksInPath];
+            if ( [backgroundImageURL length] != 0 ) {
+                NSError *error;
+                NSFileManager *fm = [NSFileManager defaultManager];
+                NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
+                DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
+                NSURL *temporaryBackgroundImageURL = [temporaryFolderURL URLByAppendingPathComponent:[backgroundImageURL lastPathComponent]];
+                DDLogDebug(@"temporaryBackgroundImageURL=%@", temporaryBackgroundImageURL);
+                if ( [fm copyItemAtURL:[NSURL fileURLWithPath:backgroundImageURL] toURL:temporaryBackgroundImageURL error:&error] ) {
+                    NSString *backgroundTargetPath = @"System/Library/CoreServices/DefaultDesktop.jpg";
+                    DDLogDebug(@"backgroundTargetPath=%@", backgroundTargetPath);
+                    NSDictionary *backgroundImageAttributes  = @{
+                                                                 NSFileOwnerAccountName : @"root",
+                                                                 NSFileGroupOwnerAccountName : @"wheel",
+                                                                 NSFilePosixPermissions : @0644
+                                                                 };
+                    
+                    NSDictionary *backgroundImageCopySetting = @{
+                                                                 NBCWorkflowCopyType : NBCWorkflowCopy,
+                                                                 NBCWorkflowCopySourceURL : [temporaryBackgroundImageURL path],
+                                                                 NBCWorkflowCopyTargetURL : backgroundTargetPath,
+                                                                 NBCWorkflowCopyAttributes : backgroundImageAttributes
+                                                                 };
+                    
+                    [self updateBaseSystemCopyDict:backgroundImageCopySetting];
+                } else {
+                    DDLogError(@"Could not copy %@ to temporary folder at path %@", [backgroundImageURL lastPathComponent], [temporaryBackgroundImageURL path]);
+                    DDLogError(@"%@", error);
+                    retval = NO;
+                }
+            } else {
+                DDLogError(@"[ERROR] backgroundImageURL was empty!");
+                retval = NO;
+            }
+        } else {
+            NSString *backgroundImageURL = userSettings[NBCSettingsBackgroundImageKey];
+            if ( [backgroundImageURL length] != 0 ) {
+                NSError *error;
+                NSFileManager *fm = [NSFileManager defaultManager];
+                NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
+                DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
+                NSURL *temporaryBackgroundImageURL = [temporaryFolderURL URLByAppendingPathComponent:[backgroundImageURL lastPathComponent]];
+                DDLogDebug(@"temporaryBackgroundImageURL=%@", temporaryBackgroundImageURL);
+                if ( [fm copyItemAtURL:[NSURL fileURLWithPath:backgroundImageURL] toURL:temporaryBackgroundImageURL error:&error] ) {
+                    NSString *backgroundTargetPath;
+                    if ( [_target nbiNetInstallURL] ) {
+                        backgroundTargetPath = @"Packages/Background.jpg";
+                    } else if ( [_target baseSystemURL] ) {
+                        backgroundTargetPath = @"Library/Application Support/NBICreator/Background.jpg";
+                    }
+                    DDLogDebug(@"backgroundTargetPath=%@", backgroundTargetPath);
+                    NSDictionary *backgroundImageAttributes  = @{
+                                                                 NSFileOwnerAccountName : @"root",
+                                                                 NSFileGroupOwnerAccountName : @"wheel",
+                                                                 NSFilePosixPermissions : @0644
+                                                                 };
+                    
+                    NSDictionary *backgroundImageCopySetting = @{
+                                                                 NBCWorkflowCopyType : NBCWorkflowCopy,
+                                                                 NBCWorkflowCopySourceURL : [temporaryBackgroundImageURL path],
+                                                                 NBCWorkflowCopyTargetURL : backgroundTargetPath,
+                                                                 NBCWorkflowCopyAttributes : backgroundImageAttributes
+                                                                 };
+                    if ( [_target nbiNetInstallURL] != nil ) {
+                        [self updateNetInstallCopyDict:backgroundImageCopySetting];
+                    } else if ( [_target baseSystemURL] ) {
+                        [self updateBaseSystemCopyDict:backgroundImageCopySetting];
+                    }
+                } else {
+                    DDLogError(@"Could not copy %@ to temporary folder at path %@", [backgroundImageURL lastPathComponent], [temporaryBackgroundImageURL path]);
+                    DDLogError(@"%@", error);
+                    retval = NO;
+                }
+            } else {
+                DDLogError(@"[ERROR] backgroundImageURL was empty!");
+                retval = NO;
+            }
+        }
+    } else {
+        DDLogInfo(@"Use background not selected!");
+    }
+    
+    return retval;
+}
+
 - (BOOL)preparePackages:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Preparing packages...");
     BOOL retval = YES;
     NSError *error;
     NSArray *packagesArray = _resourcesSettings[NBCSettingsPackages];
@@ -144,6 +276,8 @@ DDLogLevel ddLogLevel;
                 retval = NO;
             }
         }
+    } else {
+        DDLogInfo(@"No packages found!");
     }
     return retval;
 } // preparePackages
@@ -1025,60 +1159,65 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
     NSString *imagrRCImagingContent = [NBCWorkflowNBIController generateImagrRCImagingForNBICreator:[workflowItem userSettings] osMinorVersion:sourceVersionMinor];
     DDLogDebug(@"imagrRCImagingContent=%@", imagrRCImagingContent);
-    if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-        imagrRCImagingTargetPath = NBCImagrRCImagingNBICreatorTargetURL;
-    } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-        imagrRCImagingTargetPath = NBCImagrRCImagingTargetURL;
-    } else {
-        if ( [_target rcImagingURL] != nil ) {
-            imagrRCImagingTargetPath = [[_target rcImagingURL] path];
+    if ( [imagrRCImagingContent length] != 0 ) {
+        if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
+            imagrRCImagingTargetPath = NBCImagrRCImagingNBICreatorTargetURL;
+        } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+            imagrRCImagingTargetPath = NBCImagrRCImagingTargetURL;
         } else {
-            DDLogError(@"Found no rc.imaging URL from target settings!");
-            return NO;
-        }
-        
-        if ( [[_target rcImagingContent] length] != 0 ) {
-            imagrRCImagingContent = [_target rcImagingContent];
-        } else {
-            DDLogError(@"Found no rc.imaging content form target settings!");
-            return NO;
-        }
-    }
-    DDLogDebug(@"imagrRCImagingTargetPath=%@", imagrRCImagingTargetPath);
-    if ( temporaryFolderURL ) {
-        // ---------------------------------------------------
-        //  Create Imagr rc.imaging and add to copy resources
-        // ---------------------------------------------------
-        NSURL *rcImagingURL = [temporaryFolderURL URLByAppendingPathComponent:@"rc.imaging"];
-        DDLogDebug(@"rcImagingURL=%@", rcImagingURL);
-        if ( [imagrRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:&error] ) {
-            NSDictionary *copyAttributes  = @{
-                                              NSFileOwnerAccountName : @"root",
-                                              NSFileGroupOwnerAccountName : @"wheel",
-                                              NSFilePosixPermissions : @0755
-                                              };
-            
-            NSDictionary *copySettings = @{
-                                           NBCWorkflowCopyType : NBCWorkflowCopy,
-                                           NBCWorkflowCopySourceURL : [rcImagingURL path],
-                                           NBCWorkflowCopyTargetURL : imagrRCImagingTargetPath,
-                                           NBCWorkflowCopyAttributes : copyAttributes
-                                           };
-            DDLogDebug(@"copySettings=%@", copySettings);
-            if ( [_target nbiNetInstallURL] != nil ) {
-                [_resourcesNetInstallCopy addObject:copySettings];
-            } else if ( [_target baseSystemURL] ) {
-                [_resourcesBaseSystemCopy addObject:copySettings];
+            if ( [_target rcImagingURL] != nil ) {
+                imagrRCImagingTargetPath = [[_target rcImagingURL] path];
+            } else {
+                DDLogError(@"Found no rc.imaging URL from target settings!");
+                return NO;
             }
             
-            [self checkCompletedResources];
+            if ( [[_target rcImagingContent] length] != 0 ) {
+                imagrRCImagingContent = [_target rcImagingContent];
+            } else {
+                DDLogError(@"Found no rc.imaging content form target settings!");
+                return NO;
+            }
+        }
+        DDLogDebug(@"imagrRCImagingTargetPath=%@", imagrRCImagingTargetPath);
+        if ( temporaryFolderURL ) {
+            // ---------------------------------------------------
+            //  Create Imagr rc.imaging and add to copy resources
+            // ---------------------------------------------------
+            NSURL *rcImagingURL = [temporaryFolderURL URLByAppendingPathComponent:@"rc.imaging"];
+            DDLogDebug(@"rcImagingURL=%@", rcImagingURL);
+            if ( [imagrRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:&error] ) {
+                NSDictionary *copyAttributes  = @{
+                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileGroupOwnerAccountName : @"wheel",
+                                                  NSFilePosixPermissions : @0755
+                                                  };
+                
+                NSDictionary *copySettings = @{
+                                               NBCWorkflowCopyType : NBCWorkflowCopy,
+                                               NBCWorkflowCopySourceURL : [rcImagingURL path],
+                                               NBCWorkflowCopyTargetURL : imagrRCImagingTargetPath,
+                                               NBCWorkflowCopyAttributes : copyAttributes
+                                               };
+                DDLogDebug(@"copySettings=%@", copySettings);
+                if ( [_target nbiNetInstallURL] != nil ) {
+                    [_resourcesNetInstallCopy addObject:copySettings];
+                } else if ( [_target baseSystemURL] ) {
+                    [_resourcesBaseSystemCopy addObject:copySettings];
+                }
+                
+                [self checkCompletedResources];
+            } else {
+                DDLogError(@"[ERROR] Could not write rc.imaging to url: %@", rcImagingURL);
+                DDLogError(@"%@", error);
+                retval = NO;
+            }
         } else {
-            DDLogError(@"[ERROR] Could not write rc.imaging to url: %@", rcImagingURL);
-            DDLogError(@"%@", error);
+            DDLogError(@"[ERROR] Could not get temporaryFolderURL from workflow item!");
             retval = NO;
         }
     } else {
-        DDLogError(@"[ERROR] Could not get temporaryFolderURL from workflow item!");
+        DDLogError(@"[ERROR] rcImagingContent is empty!");
         retval = NO;
     }
     return retval;

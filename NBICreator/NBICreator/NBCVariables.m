@@ -85,7 +85,6 @@ DDLogLevel ddLogLevel;
     
     newString = [newString stringByReplacingOccurrencesOfString:variableDate
                                                      withString:formattedDate];
-    
     return newString;
 } // expandVariables
 

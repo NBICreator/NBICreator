@@ -602,8 +602,8 @@ DDLogLevel ddLogLevel;
     [self setUseSMB1:[settingsDict[NBCSettingsDeployStudioUseSMB1Key] boolValue]];
     [self setUseCustomRuntimeTitle:[settingsDict[NBCSettingsDeployStudioUseCustomRuntimeTitleKey] boolValue]];
     [self setCustomRuntimeTitle:settingsDict[NBCSettingsDeployStudioRuntimeTitleKey]];
-    [self setUseCustomBackgroundImage:[settingsDict[NBCSettingsDeployStudioUseCustomBackgroundImageKey] boolValue]];
-    [self setImageBackgroundURL:settingsDict[NBCSettingsDeployStudioCustomBackgroundImageKey]];
+    [self setUseCustomBackgroundImage:[settingsDict[NBCSettingsUseBackgroundImageKey] boolValue]];
+    [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
     
     [self expandVariablesForCurrentSettings];
 } // updateUISettingsFromDict
@@ -664,8 +664,8 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsDeployStudioUseSMB1Key] = @(_useSMB1) ?: @NO;
     settingsDict[NBCSettingsDeployStudioUseCustomRuntimeTitleKey] = @(_useCustomRuntimeTitle) ?: @NO;
     settingsDict[NBCSettingsDeployStudioRuntimeTitleKey] = _customRuntimeTitle ?: @"";
-    settingsDict[NBCSettingsDeployStudioUseCustomBackgroundImageKey] = @(_useCustomBackgroundImage) ?: @NO;
-    settingsDict[NBCSettingsDeployStudioCustomBackgroundImageKey] = _imageBackgroundURL ?: @"";
+    settingsDict[NBCSettingsUseBackgroundImageKey] = @(_useCustomBackgroundImage) ?: @NO;
+    settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"";
     
     return [settingsDict copy];
 } // returnSettingsFromUI
@@ -740,7 +740,7 @@ DDLogLevel ddLogLevel;
             NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
             if ( currentSettings && defaultSettings ) {
                 NSMutableDictionary *defaultSettingsOSBackground = [defaultSettings mutableCopy];
-                defaultSettingsOSBackground[NBCSettingsDeployStudioCustomBackgroundImageKey] = NBCDeployStudioBackgroundImageDefaultPath;
+                defaultSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundImageDefaultPath;
                 if ( [currentSettings isEqualToDictionary:defaultSettings] || [currentSettings isEqualToDictionary:defaultSettingsOSBackground] ) {
                     return NO;
                 }
@@ -758,10 +758,10 @@ DDLogLevel ddLogLevel;
         NSDictionary *savedSettings = [self returnSettingsFromURL:savedSettingsURL];
         if ( currentSettings && savedSettings ) {
             NSMutableDictionary *currentSettingsOSBackground = [currentSettings mutableCopy];
-            if ( [currentSettings[NBCSettingsDeployStudioCustomBackgroundImageKey] isEqualToString:NBCDeployStudioBackgroundImageDefaultPath] ) {
-                currentSettingsOSBackground[NBCSettingsDeployStudioCustomBackgroundImageKey] = NBCDeployStudioBackgroundDefaultPath;
+            if ( [currentSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCDeployStudioBackgroundImageDefaultPath] ) {
+                currentSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundDefaultPath;
             } else {
-                currentSettingsOSBackground[NBCSettingsDeployStudioCustomBackgroundImageKey] = NBCDeployStudioBackgroundImageDefaultPath;
+                currentSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundImageDefaultPath;
             }
             
             if ( [currentSettings isEqualToDictionary:savedSettings] || [currentSettingsOSBackground isEqualToDictionary:savedSettings] ) {

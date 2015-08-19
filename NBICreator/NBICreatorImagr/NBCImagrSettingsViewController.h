@@ -130,6 +130,8 @@
 @property (weak) IBOutlet NSPopover *popOverVariables;
 - (IBAction)buttonPopOver:(id)sender;
 
+@property (weak) IBOutlet NBCImagrDropViewImageBackground *imageViewBackgroundImage;
+
 // ------------------------------------------------------
 //  UI Binding Properties
 // ------------------------------------------------------
@@ -167,6 +169,9 @@
 @property NSString *imagrReportingURL;
 @property BOOL imagrUseLocalVersion;
 @property NSString *imagrLocalVersionPath;
+@property BOOL useBackgroundImage;
+@property NSString *imageBackgroundURL;
+@property NSString *imageBackground;
 
 @property NSString *popOverOSVersion;
 @property NSString *popOverOSMajor;

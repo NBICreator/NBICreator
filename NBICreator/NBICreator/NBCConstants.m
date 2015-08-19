@@ -169,8 +169,10 @@ NSString *const NBCSettingsDeployStudioDisableWirelessSupportKey = @"DisableWire
 NSString *const NBCSettingsDeployStudioUseSMB1Key = @"UseSMB1";
 NSString *const NBCSettingsDeployStudioUseCustomRuntimeTitleKey = @"UseCustomRuntimeTitle";
 NSString *const NBCSettingsDeployStudioRuntimeTitleKey = @"RuntimeTitle";
-NSString *const NBCSettingsDeployStudioUseCustomBackgroundImageKey = @"UseCustomBackgroundImage";
-NSString *const NBCSettingsDeployStudioCustomBackgroundImageKey = @"CustomBackgroundImage";
+
+
+NSString *const NBCSettingsUseBackgroundImageKey = @"UseBackgroundImage";
+NSString *const NBCSettingsBackgroundImageKey = @"BackgroundImage";
 
 // --------------------------------------------------------------
 //  Template Settings Python
@@ -211,6 +213,7 @@ NSString *const NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem = @"Remove
 NSString *const NBCNotificationImagrUpdateSource = @"imagrUpdateSource";
 NSString *const NBCNotificationImagrRemovedSource = @"imagrRemovedSource";
 NSString *const NBCNotificationImagrUpdateNBIIcon = @"imagrUpdateNBIIcon";
+NSString *const NBCNotificationImagrUpdateNBIBackground = @"imagrUpdateNBIBackground";
 NSString *const NBCNotificationImagrVerifyDroppedSource = @"imagrVerifyDroppedSource";
 
 // DeployStudio
@@ -330,6 +333,8 @@ NSString *const NBCDeployStudioBackgroundDefaultPath = @"%DSADMINURL%/Contents/A
 NSString *const NBCDeployStudioBackgroundImageDefaultPath = @"%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg";
 NSString *const NBCDeployStudioRepository = @"http://www.deploystudio.com/Downloads";
 
+NSString *const NBCBackgroundImageDefaultPath = @"%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg";
+
 // --------------------------------------------------------------
 //  Imagr
 // --------------------------------------------------------------
@@ -407,6 +412,7 @@ NSString *const NBCCertificatesNBICreatorTargetURL = @"usr/local/certificates";
 NSString *const NBCCertificatesTargetURL = @"Packages/Certificates";
 NSString *const NBCScriptsNBICreatorTargetPath = @"usr/local/scripts";
 NSString *const NBCScriptsTargetPath = @"Packages/Scripts";
+NSString *const NBCApplicationsTargetPath = @"Applications";
 
 NSString *const NBCErrorDomain = @"com.gihub.NBICreator.ErrorDomain";
 NSString *const NBCWorkflowNetInstallLogPrefix = @"_progress";

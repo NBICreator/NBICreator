@@ -169,8 +169,11 @@ extern NSString *const NBCSettingsDeployStudioDisableWirelessSupportKey;
 extern NSString *const NBCSettingsDeployStudioUseSMB1Key;
 extern NSString *const NBCSettingsDeployStudioUseCustomRuntimeTitleKey;
 extern NSString *const NBCSettingsDeployStudioRuntimeTitleKey;
-extern NSString *const NBCSettingsDeployStudioUseCustomBackgroundImageKey;
-extern NSString *const NBCSettingsDeployStudioCustomBackgroundImageKey;
+
+extern NSString *const NBCSettingsUseBackgroundImageKey;
+extern NSString *const NBCSettingsBackgroundImageKey;
+
+extern NSString *const NBCBackgroundImageDefaultPath;
 
 // --------------------------------------------------------------
 //  Template Settings Python
@@ -217,6 +220,7 @@ extern NSString *const NBCUserInfoNSErrorKey;
 extern NSString *const NBCNotificationImagrUpdateSource;
 extern NSString *const NBCNotificationImagrRemovedSource;
 extern NSString *const NBCNotificationImagrUpdateNBIIcon;
+extern NSString *const NBCNotificationImagrUpdateNBIBackground;
 extern NSString *const NBCNotificationImagrVerifyDroppedSource;
 
 // DeployStudio
@@ -409,6 +413,7 @@ extern NSString *const NBCCertificatesNBICreatorTargetURL;
 extern NSString *const NBCCertificatesTargetURL;
 extern NSString *const NBCScriptsNBICreatorTargetPath;
 extern NSString *const NBCScriptsTargetPath;
+extern NSString *const NBCApplicationsTargetPath;
 
 
 extern NSString *const NBCNetworkTimeServerDefault;

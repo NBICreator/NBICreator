@@ -77,6 +77,7 @@ DDLogLevel ddLogLevel;
     [nc addObserver:self selector:@selector(updateSource:) name:NBCNotificationImagrUpdateSource object:nil];
     [nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationImagrRemovedSource object:nil];
     [nc addObserver:self selector:@selector(updateNBIIcon:) name:NBCNotificationImagrUpdateNBIIcon object:nil];
+    [nc addObserver:self selector:@selector(updateNBIBackground:) name:NBCNotificationImagrUpdateNBIBackground object:nil];
     
     // --------------------------------------------------------------
     //  Add KVO Observers
@@ -120,6 +121,14 @@ DDLogLevel ddLogLevel;
     //  Load saved templates and create the template menu
     // --------------------------------------------------------------
     [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
+    
+    // ------------------------------------------------------------------------------------------
+    //  Add contextual menu to NBI background image view to allow to restore original background.
+    // ------------------------------------------------------------------------------------------
+    NSMenu *backgroundImageMenu = [[NSMenu alloc] init];
+    NSMenuItem *restoreViewBackground = [[NSMenuItem alloc] initWithTitle:NBCMenuItemRestoreOriginalBackground action:@selector(restoreNBIBackground:) keyEquivalent:@""];
+    [backgroundImageMenu addItem:restoreViewBackground];
+    [_imageViewBackgroundImage setMenu:backgroundImageMenu];
     
     // ------------------------------------------------------------------------------
     //  Verify build button so It's not enabled by mistake
@@ -620,6 +629,14 @@ DDLogLevel ddLogLevel;
             retval = NO;
         }
         return retval;
+    } else if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalBackground] ) {
+        // -------------------------------------------------------------------
+        //  No need to restore original background if it's already being used
+        // -------------------------------------------------------------------
+        if ( [_imageBackgroundURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
+            retval = NO;
+        }
+        return retval;
     }
     
     return YES;
@@ -767,6 +784,13 @@ DDLogLevel ddLogLevel;
         [self setSource:source];
     }
     
+    NSString *currentBackgroundImageURL = _imageBackgroundURL;
+    if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
+        [self setImageBackground:@""];
+        [self setImageBackground:NBCBackgroundImageDefaultPath];
+        [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
+    }
+    
     NBCTarget *target = [notification userInfo][NBCNotificationUpdateSourceUserInfoTarget];
     if ( target != nil ) {
         [self setTarget:target];
@@ -794,6 +818,14 @@ DDLogLevel ddLogLevel;
     if ( _source ) {
         [self setSource:nil];
     }
+    
+    NSString *currentBackgroundImageURL = _imageBackgroundURL;
+    if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
+        [self setImageBackground:@""];
+        [self setImageBackground:NBCBackgroundImageDefaultPath];
+        [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
+    }
+    
     [self setIsNBI:NO];
     [_textFieldDestinationFolder setEnabled:YES];
     [_buttonChooseDestinationFolder setEnabled:YES];
@@ -820,6 +852,25 @@ DDLogLevel ddLogLevel;
     [self setNbiIconPath:NBCFilePathNBIIconImagr];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
+
+- (void)updateNBIBackground:(NSNotification *)notification {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSURL *nbiBackgroundURL = [notification userInfo][NBCNotificationUpdateNBIBackgroundUserInfoIconURL];
+    if ( nbiBackgroundURL != nil ) {
+        // To get the view to update I have to first set the nbiIcon property to @""
+        // It only happens when it recieves a dropped image, not when setting in code.
+        [self setImageBackground:@""];
+        [self setImageBackgroundURL:[nbiBackgroundURL path]];
+    }
+} // updateImageBackground
+
+- (void)restoreNBIBackground:(NSNotification *)notification {
+#pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [self setImageBackground:@""];
+    [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
+    [self expandVariablesForCurrentSettings];
+} // restoreNBIBackground
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -870,6 +921,8 @@ DDLogLevel ddLogLevel;
     [self setImagrUseLocalVersion:[settingsDict[NBCSettingsImagrUseLocalVersion] boolValue]];
     [self setImagrLocalVersionPath:settingsDict[NBCSettingsImagrLocalVersionPath]];
     [self setIsNBI:[settingsDict[NBCSettingsImagrSourceIsNBI] boolValue]];
+    [self setUseBackgroundImage:[settingsDict[NBCSettingsUseBackgroundImageKey] boolValue]];
+    [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -979,6 +1032,9 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsUseNetworkTimeServerKey] = @(_useNetworkTimeServer) ?: @NO;
     settingsDict[NBCSettingsNetworkTimeServerKey] = _networkTimeServer ?: @"";
     settingsDict[NBCSettingsImagrSourceIsNBI] = @(_isNBI) ?: @NO;
+    settingsDict[NBCSettingsUseBackgroundImageKey] = @(_useBackgroundImage) ?: @NO;
+    settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"";
+    
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -1524,6 +1580,12 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     NSString *nbiIconPath = [NBCVariables expandVariables:_nbiIconPath source:_source applicationSource:_siuSource];
     [self setNbiIcon:nbiIconPath];
+    
+    // -------------------------------------------------------------
+    //  Expand variables in Image Background Path
+    // -------------------------------------------------------------
+    NSString *customBackgroundPath = [NBCVariables expandVariables:_imageBackgroundURL source:_source applicationSource:_siuSource];
+    [self setImageBackground:customBackgroundPath];
     
 } // expandVariablesForCurrentSettings
 

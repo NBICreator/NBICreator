@@ -1120,6 +1120,16 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
                                             <binding destination="-2" name="value" keyPath="self.includePython" id="7es-He-bJK"/>
                                         </connections>
                                     </button>
+                                    <button translatesAutoresizingMaskIntoConstraints="NO" id="MUE-b1-mmK">
+                                        <rect key="frame" x="18" y="128" width="360" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Use custom DeployStudio Runtime background image:" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="R2D-n7-W2l">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.useCustomBackgroundImage" id="gcV-tE-s43"/>
+                                        </connections>
+                                    </button>
                                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="t0A-q8-THI" customClass="NBCDeployStudioDropViewImageBackground">
                                         <rect key="frame" x="17" y="17" width="176" height="108"/>
                                         <constraints>
@@ -1131,16 +1141,6 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
                                             <binding destination="-2" name="valuePath" keyPath="self.imageBackground" id="5YW-Mm-ees"/>
                                         </connections>
                                     </imageView>
-                                    <button translatesAutoresizingMaskIntoConstraints="NO" id="MUE-b1-mmK">
-                                        <rect key="frame" x="18" y="128" width="360" height="18"/>
-                                        <buttonCell key="cell" type="check" title="Use custom DeployStudio Runtime background image:" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="R2D-n7-W2l">
-                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <binding destination="-2" name="value" keyPath="self.useCustomBackgroundImage" id="gcV-tE-s43"/>
-                                        </connections>
-                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="n6m-FW-E6o" firstAttribute="top" secondItem="QzU-RT-ESc" secondAttribute="top" constant="20" symbolic="YES" id="38G-QI-SaS"/>
@@ -1197,7 +1197,7 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="283" y="305" width="540" height="101"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" id="z7O-sr-p7n">
                 <rect key="frame" x="0.0" y="0.0" width="540" height="101"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -1269,7 +1269,7 @@ Gw
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="283" y="305" width="540" height="110"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" id="28H-Xd-MRP">
                 <rect key="frame" x="0.0" y="0.0" width="540" height="110"/>
                 <autoresizingMask key="autoresizingMask"/>

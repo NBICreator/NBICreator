@@ -8,6 +8,10 @@
 
 #import <Cocoa/Cocoa.h>
 
+@interface NBCImagrDropViewImageBackground : NSImageView <NSDraggingDestination>
+
+@end
+
 @interface NBCImagrDropViewImageIcon : NSImageView <NSDraggingDestination>
 
 @end
