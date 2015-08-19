@@ -236,7 +236,7 @@ DDLogLevel ddLogLevel;
                 } else {
                     DDLogDebug(@"[DEBUG] kernelCacheSourceURL=%@", kernelCacheSourceURL);
                     if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
-                        [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
+                        [self generateKernelCacheForNBI:workflowItem];
                     } else {
                         DDLogError(@"[ERROR] Error while copying kernel cache file");
                         DDLogError(@"[ERROR] %@", error);
@@ -247,7 +247,7 @@ DDLogLevel ddLogLevel;
             } else {
                 DDLogDebug(@"[DEBUG] kernelCacheSourceURL=%@", kernelCacheSourceURL);
                 if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
-                    [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
+                    [self generateKernelCacheForNBI:workflowItem];
                 } else {
                     DDLogError(@"[ERROR] Error while copying kernel cache file");
                     DDLogError(@"[ERROR] %@", error);
@@ -264,7 +264,6 @@ DDLogLevel ddLogLevel;
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
 }
-
 - (void)generateKernelCacheForNBI:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Generating kernel cache files...");
@@ -285,7 +284,8 @@ DDLogLevel ddLogLevel;
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
         return;
     }
-    
+
+    /*
     // --------------------------------------------------------------------------
     //  Get path to BaseSystem.dmg volume
     // --------------------------------------------------------------------------
@@ -315,7 +315,7 @@ DDLogLevel ddLogLevel;
                 [[workflowItem source] setSystemDiskImageDict:systemDiskImageDict];
                 sourceVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:systemDiskImageDict];
                 DDLogDebug(@"[DEBUG] sourceVolumeURL=%@", sourceVolumeURL);
-                if ( ! sourceVolumeURL ) {
+                if ( sourceVolumeURL ) {
                     sourceBaseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:sourceBaseSystemURL
                                                                                       imageType:@"BaseSystem"];
                     if ( sourceBaseSystemDisk ) {
@@ -346,10 +346,12 @@ DDLogLevel ddLogLevel;
         }
     }
     
+     
     if ( sourceVolumeURL ) {
         [generateKernelCacheVariables addObject:[sourceVolumeURL path]];
     }
-    
+    */
+    [generateKernelCacheVariables addObject:[[[workflowItem target] baseSystemVolumeURL] path]];
     [generateKernelCacheVariables addObject:[_temporaryNBIURL path]];
     
     NSString *osVersionMinor = [[workflowItem source] expandVariables:@"%OSMINOR%"];
@@ -383,7 +385,7 @@ DDLogLevel ddLogLevel;
                                         //  When output data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
                                         DDLogInfo(@"%@", outStr);
-                                        
+
                                         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
     
@@ -429,8 +431,7 @@ DDLogLevel ddLogLevel;
                 DDLogError(@"%@", proxyError);
                 [nc removeObserver:stdOutObserver];
                 [nc removeObserver:stdErrObserver];
-                NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
             }];
             
         }] runTaskWithCommandAtPath:commandURL arguments:generateKernelCacheVariables currentDirectory:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
@@ -444,8 +445,7 @@ DDLogLevel ddLogLevel;
                     DDLogError(@"%@", error);
                     [nc removeObserver:stdOutObserver];
                     [nc removeObserver:stdErrObserver];
-                    NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
-                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
                 }
             }];
         }];

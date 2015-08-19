@@ -1329,8 +1329,6 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"modifyWifiKext=%@", modifyWifiKext);
     [modifyDictArray addObject:modifyWifiKext];
     
-    
-    
     return retval;
 } // modifyNBIRemoveWiFi
 
