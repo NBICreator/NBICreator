@@ -8,9 +8,9 @@
 	<true/>
 	<key>Icon</key>
 	<string>%APPLICATIONRESOURCESURL%/IconDeployStudioNBI.icns</string>
-	<key>UseCustomBackgroundImage</key>
+	<key>UseBackgroundImage</key>
 	<false/>
-	<key>CustomBackgroundImage</key>
+	<key>BackgroundImage</key>
 	<string>%DSADMINURL%/Contents/Applications/DeployStudio Assistant.app/Contents/Resources/sysBuilder/common/DefaultDesktop.jpg</string>
 	<key>RuntimeTitle</key>
 	<string></string>

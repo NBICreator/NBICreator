@@ -6,6 +6,10 @@
 	<array/>
 	<key>Certificates</key>
 	<array/>
+	<key>UseBackgroundImage</key>
+	<true/>
+	<key>BackgroundImage</key>
+	<string>%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg</string>
 	<key>IsNBI</key>
 	<false/>
 	<key>NetworkTimeServer</key>
