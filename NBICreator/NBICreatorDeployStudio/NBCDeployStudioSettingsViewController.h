@@ -193,6 +193,7 @@
 @property NSString *popOverIndexCounter;
 @property NSString *popOverOSIndex;
 @property NSString *nbcVersion;
+@property NSString *popOverDSVersion;
 
 // ------------------------------------------------------
 //  Instance Methods

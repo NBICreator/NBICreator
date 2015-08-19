@@ -1188,6 +1188,12 @@ DDLogLevel ddLogLevel;
     [self setPopOverIndexCounter:[[[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsIndexCounter] stringValue]];
     // %NBCVERSION%
     [self setNbcVersion:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
+    // %NBCVERSION%
+    if ( [_deployStudioVersion length] != 0 ) {
+        [self setPopOverDSVersion:_deployStudioVersion];
+    } else {
+        [self setPopOverDSVersion:@"Not Installed"];
+    }
 } // updatePopOver
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1609,7 +1609,7 @@ Gw
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                     <connections>
-                        <binding destination="-2" name="value" keyPath="self.deployStudioVersion" id="3e2-wu-RKB">
+                        <binding destination="-2" name="value" keyPath="self.popOverDSVersion" id="1rh-jZ-haI">
                             <dictionary key="options">
                                 <bool key="NSContinuouslyUpdatesValue" value="YES"/>
                             </dictionary>
