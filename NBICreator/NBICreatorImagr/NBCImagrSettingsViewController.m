@@ -441,7 +441,7 @@ DDLogLevel ddLogLevel;
     
     certificate = SecCertificateCreateWithData(NULL, CFBridgingRetain(certificateData));
     if ( ! certificate ) {
-        NSLog(@"Could not get certificate from data!");
+        DDLogError(@"[ERROR] Could not get certificate from data!");
         return nil;
     }
     
@@ -453,91 +453,103 @@ DDLogLevel ddLogLevel;
                                                                                                                              (__bridge id)kSecOIDX509V1SerialNumber,
                                                                                                                              (__bridge id)kSecOIDTitle
                                                                                                                              ], error));
-    // --------------------------------------------
-    //  Certificate IsSelfSigned
-    // --------------------------------------------
-    CFDataRef issuerData = SecCertificateCopyNormalizedIssuerContent(certificate, error);
-    CFDataRef subjectData = SecCertificateCopyNormalizedSubjectContent(certificate, error);
-    
-    if ( [(__bridge NSData*)issuerData isEqualToData:(__bridge NSData*)subjectData] ) {
-        isSelfSigned = YES;
-    }
-    newCertificateDict[NBCDictionaryKeyCertificateSelfSigned] = @(isSelfSigned);
-    
-    // --------------------------------------------
-    //  Certificate Name
-    // --------------------------------------------
-    certificateName = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate));
-    newCertificateDict[NBCDictionaryKeyCertificateName] = certificateName;
-    
-    // --------------------------------------------
-    //  Certificate NotValidBefore
-    // --------------------------------------------
-    if ( certificateValues[(__bridge id)kSecOIDX509V1ValidityNotBefore] ) {
-        NSDictionary *notValidBeforeDict = certificateValues[(__bridge id)kSecOIDX509V1ValidityNotBefore];
-        NSNumber *notValidBefore = notValidBeforeDict[@"value"];
-        certificateNotValidBeforeDate = CFBridgingRelease(CFDateCreate(kCFAllocatorDefault, [notValidBefore doubleValue]));
+    DDLogDebug(@"certificateValues=%@", certificateValues);
+    if ( [certificateValues count] != 0 ) {
+        // --------------------------------------------
+        //  Certificate IsSelfSigned
+        // --------------------------------------------
+        CFDataRef issuerData = SecCertificateCopyNormalizedIssuerContent(certificate, error);
+        CFDataRef subjectData = SecCertificateCopyNormalizedSubjectContent(certificate, error);
         
-        if ( [certificateNotValidBeforeDate compare:[NSDate date]] == NSOrderedDescending ) {
-            certificateExpired = YES;
-            certificateExpirationString = [NSString stringWithFormat:@"Not valid before %@", certificateNotValidBeforeDate];
+        if ( [(__bridge NSData*)issuerData isEqualToData:(__bridge NSData*)subjectData] ) {
+            isSelfSigned = YES;
         }
+        newCertificateDict[NBCDictionaryKeyCertificateSelfSigned] = @(isSelfSigned);
         
-        newCertificateDict[NBCDictionaryKeyCertificateNotValidBeforeDate] = certificateNotValidBeforeDate;
-    }
-    
-    // --------------------------------------------
-    //  Certificate NotValidAfter
-    // --------------------------------------------
-    if ( certificateValues[(__bridge id)kSecOIDX509V1ValidityNotAfter] ) {
-        NSDictionary *notValidAfterDict = certificateValues[(__bridge id)kSecOIDX509V1ValidityNotAfter];
-        NSNumber *notValidAfter = notValidAfterDict[@"value"];
-        certificateNotValidAfterDate = CFBridgingRelease(CFDateCreate(kCFAllocatorDefault, [notValidAfter doubleValue]));
-        
-        if ( [certificateNotValidAfterDate compare:[NSDate date]] == NSOrderedAscending && ! certificateExpired ) {
-            certificateExpired = YES;
-            certificateExpirationString = [NSString stringWithFormat:@"Expired %@", certificateNotValidAfterDate];
+        // --------------------------------------------
+        //  Certificate Name
+        // --------------------------------------------
+        certificateName = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate));
+        DDLogDebug(@"certificateName=%@", certificateName);
+        if ( [certificateName length] != 0 ) {
+            newCertificateDict[NBCDictionaryKeyCertificateName] = certificateName ?: @"";
         } else {
-            certificateExpirationString = [NSString stringWithFormat:@"Expires %@", certificateNotValidAfterDate];
+            DDLogError(@"[ERROR] Could not get certificateName!");
+            return nil;
         }
         
-        newCertificateDict[NBCDictionaryKeyCertificateNotValidAfterDate] = certificateNotValidAfterDate;
-    }
-    
-    // --------------------------------------------
-    //  Certificate Expiration String
-    // --------------------------------------------
-    newCertificateDict[NBCDictionaryKeyCertificateExpirationString] = certificateExpirationString;
-    
-    // --------------------------------------------
-    //  Certificate Expired
-    // --------------------------------------------
-    newCertificateDict[NBCDictionaryKeyCertificateExpired] = @(certificateExpired);
-    
-    // --------------------------------------------
-    //  Certificate Serial Number
-    // --------------------------------------------
-    if ( certificateValues[(__bridge id)kSecOIDX509V1SerialNumber] ) {
-        NSDictionary *serialNumber = certificateValues[(__bridge id)kSecOIDX509V1SerialNumber];
-        certificateSerialNumber = serialNumber[@"value"];
+        // --------------------------------------------
+        //  Certificate NotValidBefore
+        // --------------------------------------------
+        if ( certificateValues[(__bridge id)kSecOIDX509V1ValidityNotBefore] ) {
+            NSDictionary *notValidBeforeDict = certificateValues[(__bridge id)kSecOIDX509V1ValidityNotBefore];
+            NSNumber *notValidBefore = notValidBeforeDict[@"value"];
+            certificateNotValidBeforeDate = CFBridgingRelease(CFDateCreate(kCFAllocatorDefault, [notValidBefore doubleValue]));
+            
+            if ( [certificateNotValidBeforeDate compare:[NSDate date]] == NSOrderedDescending ) {
+                certificateExpired = YES;
+                certificateExpirationString = [NSString stringWithFormat:@"Not valid before %@", certificateNotValidBeforeDate];
+            }
+            
+            newCertificateDict[NBCDictionaryKeyCertificateNotValidBeforeDate] = certificateNotValidBeforeDate;
+        }
         
-        newCertificateDict[NBCDictionaryKeyCertificateSerialNumber] = certificateSerialNumber;
+        // --------------------------------------------
+        //  Certificate NotValidAfter
+        // --------------------------------------------
+        if ( certificateValues[(__bridge id)kSecOIDX509V1ValidityNotAfter] ) {
+            NSDictionary *notValidAfterDict = certificateValues[(__bridge id)kSecOIDX509V1ValidityNotAfter];
+            NSNumber *notValidAfter = notValidAfterDict[@"value"];
+            certificateNotValidAfterDate = CFBridgingRelease(CFDateCreate(kCFAllocatorDefault, [notValidAfter doubleValue]));
+            
+            if ( [certificateNotValidAfterDate compare:[NSDate date]] == NSOrderedAscending && ! certificateExpired ) {
+                certificateExpired = YES;
+                certificateExpirationString = [NSString stringWithFormat:@"Expired %@", certificateNotValidAfterDate];
+            } else {
+                certificateExpirationString = [NSString stringWithFormat:@"Expires %@", certificateNotValidAfterDate];
+            }
+            
+            newCertificateDict[NBCDictionaryKeyCertificateNotValidAfterDate] = certificateNotValidAfterDate;
+        }
+        
+        // --------------------------------------------
+        //  Certificate Expiration String
+        // --------------------------------------------
+        newCertificateDict[NBCDictionaryKeyCertificateExpirationString] = certificateExpirationString;
+        
+        // --------------------------------------------
+        //  Certificate Expired
+        // --------------------------------------------
+        newCertificateDict[NBCDictionaryKeyCertificateExpired] = @(certificateExpired);
+        
+        // --------------------------------------------
+        //  Certificate Serial Number
+        // --------------------------------------------
+        if ( certificateValues[(__bridge id)kSecOIDX509V1SerialNumber] ) {
+            NSDictionary *serialNumber = certificateValues[(__bridge id)kSecOIDX509V1SerialNumber];
+            certificateSerialNumber = serialNumber[@"value"];
+            
+            newCertificateDict[NBCDictionaryKeyCertificateSerialNumber] = certificateSerialNumber;
+        }
+        
+        // --------------------------------------------
+        //  Certificate Signature
+        // --------------------------------------------
+        if ( certificateValues[(__bridge id)kSecOIDX509V1Signature] ) {
+            NSDictionary *signatureDict = certificateValues[(__bridge id)kSecOIDX509V1Signature];
+            newCertificateDict[NBCDictionaryKeyCertificateSignature] = signatureDict[@"value"];
+        }
+        
+        // --------------------------------------------
+        //  Add Certificate
+        // --------------------------------------------
+        newCertificateDict[NBCDictionaryKeyCertificate] = certificateData;
+        
+        return [newCertificateDict copy];
+    } else {
+        DDLogError(@"[ERROR] SecCertificateCopyValues returned nil, possibly PEM-encoded?");
+        return nil;
     }
-    
-    // --------------------------------------------
-    //  Certificate Signature
-    // --------------------------------------------
-    if ( certificateValues[(__bridge id)kSecOIDX509V1Signature] ) {
-        NSDictionary *signatureDict = certificateValues[(__bridge id)kSecOIDX509V1Signature];
-        newCertificateDict[NBCDictionaryKeyCertificateSignature] = signatureDict[@"value"];
-    }
-    
-    // --------------------------------------------
-    //  Add Certificate
-    // --------------------------------------------
-    newCertificateDict[NBCDictionaryKeyCertificate] = certificateData;
-    
-    return [newCertificateDict copy];
 }
 
 - (void)insertCertificateInTableView:(NSDictionary *)certificateDict {
@@ -2217,17 +2229,17 @@ DDLogLevel ddLogLevel;
 - (void)populatePopUpButtonLanguage {
     
     /* Localized Names
-    NSArray *localeIdentifiers = [NSLocale availableLocaleIdentifiers];
-    for ( NSString *identifier in localeIdentifiers ) {
-        
-        NSLocale *tmpLocale = [[NSLocale alloc] initWithLocaleIdentifier:identifier];
-        NSString *localeIdentifier = [tmpLocale objectForKey: NSLocaleIdentifier];
-        NSString *localeIdentifierDisplayName = [tmpLocale displayNameForKey:NSLocaleIdentifier value:localeIdentifier];
-        
-        NSLog(@"localeIdentifierDisplayName = %@", localeIdentifierDisplayName);
-        NSLog(@"localeIdentifier = %@", localeIdentifier);
-    }
-    */
+     NSArray *localeIdentifiers = [NSLocale availableLocaleIdentifiers];
+     for ( NSString *identifier in localeIdentifiers ) {
+     
+     NSLocale *tmpLocale = [[NSLocale alloc] initWithLocaleIdentifier:identifier];
+     NSString *localeIdentifier = [tmpLocale objectForKey: NSLocaleIdentifier];
+     NSString *localeIdentifierDisplayName = [tmpLocale displayNameForKey:NSLocaleIdentifier value:localeIdentifier];
+     
+     NSLog(@"localeIdentifierDisplayName = %@", localeIdentifierDisplayName);
+     NSLog(@"localeIdentifier = %@", localeIdentifier);
+     }
+     */
     
     /* English Names
      NSMutableDictionary *mutableLanguageDict = [[NSMutableDictionary alloc] init];
