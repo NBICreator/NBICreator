@@ -24,8 +24,11 @@
         backgroundImageURL = customBackgroundImageURL;
     } else if ( [defaultBackgroundImageURL checkResourceIsReachableAndReturnError:nil] ) {
         backgroundImageURL = defaultBackgroundImageURL;
-    } else {
+    }
+    
+    if ( ! backgroundImageURL ) {
         [NSApp performSelector:@selector(terminate:) withObject:nil afterDelay:0.0];
+        return;
     }
     
     NSImage *backgroundImage = [[NSImage alloc] initWithContentsOfURL:backgroundImageURL];
@@ -39,7 +42,6 @@
 }
 
 - (NSURL *)customImageURL {
-    
     NSURL *baseSystemImageURL = [NSURL fileURLWithPath:@"/Library/Application Support/NBICreator/Background.jpg"];
     if ( [baseSystemImageURL checkResourceIsReachableAndReturnError:nil] ) {
         return baseSystemImageURL;
