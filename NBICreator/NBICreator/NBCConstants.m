@@ -192,6 +192,11 @@ NSString *const NBCNBImageInfoDictIsEnabledKey = @"IsEnabled";
 NSString *const NBCNBImageInfoDictLanguageKey = @"Language";
 NSString *const NBCNBImageInfoDictProtocolKey = @"Type";
 
+
+NSString *const NBCSettingsLocale = @"NBCSettingsLocale";
+NSString *const NBCSettingsCountry = @"NBCSettingsCountry";
+
+
 // --------------------------------------------------------------
 //  Notifications
 // --------------------------------------------------------------

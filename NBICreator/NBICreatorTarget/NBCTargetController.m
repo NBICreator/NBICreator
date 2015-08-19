@@ -363,7 +363,7 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] Detaching NetInstall Failed!");
         verified = NO;
     }
-
+    
     if ( ! [fm removeItemAtPath:netInstallShadowPath error:error] ) {
         DDLogError(@"[ERROR] Deleteing NetInstall shadow file failed!");
         DDLogError(@"%@", *error);
@@ -822,7 +822,17 @@ DDLogLevel ddLogLevel;
     globalPreferencesDict[@"AppleLanguages"] = @[
                                                  selectedLanguage,
                                                  ];
-    globalPreferencesDict[@"AppleLocale"] = @"sv_SE";
+    
+    if ( [resourceSettings[NBCSettingsCountry] length] != 0 ) {
+        globalPreferencesDict[@"Country"] = resourceSettings[NBCSettingsCountry];
+    }
+    
+    if ( [resourceSettings[NBCSettingsLocale] length] != 0 ) {
+        globalPreferencesDict[@"AppleLocale"] = resourceSettings[NBCSettingsLocale];
+    } else {
+        globalPreferencesDict[@"AppleLocale"] = selectedLanguage;
+    }
+    
     DDLogDebug(@"globalPreferencesDict=%@", globalPreferencesDict);
     NSDictionary *modifyDictGlobalPreferences = @{
                                                   NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
@@ -1394,6 +1404,25 @@ DDLogLevel ddLogLevel;
                                                };
     DDLogDebug(@"modifyFolderLibraryCache=%@", modifyFolderLibraryCache);
     [modifyDictArray addObject:modifyFolderLibraryCache];
+    
+    // --------------------------------------------------------------
+    //  /Library/Caches/com.apple.iconservices.store
+    // --------------------------------------------------------------
+    NSURL *folderLibraryCacheIconservices = [volumeURL URLByAppendingPathComponent:@"Library/Caches/com.apple.iconservices.store" isDirectory:YES];
+    DDLogDebug(@"folderLibraryCacheIconservices=%@", folderLibraryCacheIconservices);
+    NSDictionary *folderLibraryCacheIconservicesAttributes = @{
+                                                               NSFileOwnerAccountName : @"root",
+                                                               NSFileGroupOwnerAccountName : @"wheel",
+                                                               NSFilePosixPermissions : @0755
+                                                               };
+    DDLogDebug(@"folderLibraryCacheIconservicesAttributes=%@", folderLibraryCacheIconservicesAttributes);
+    NSDictionary *modifyFolderLibraryCacheIconservices = @{
+                                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                           NBCWorkflowModifyTargetURL : [folderLibraryCacheIconservices path],
+                                                           NBCWorkflowModifyAttributes : folderLibraryCacheIconservicesAttributes
+                                                           };
+    DDLogDebug(@"modifyFolderLibraryCacheIconservices=%@", modifyFolderLibraryCacheIconservices);
+    [modifyDictArray addObject:modifyFolderLibraryCacheIconservices];
     
     // --------------------------------------------------------------
     //  /System/Library/Caches

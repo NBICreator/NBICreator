@@ -2108,11 +2108,24 @@ DDLogLevel ddLogLevel;
     if ( [selectedLanguage isEqualToString:NBCMenuItemCurrent] ) {
         NSDictionary *globalPreferencesDict = [NSDictionary dictionaryWithContentsOfFile:NBCPathPreferencesGlobal];
         NSString *currentLanguageID = globalPreferencesDict[@"AppleLanguages"][0];
+        DDLogInfo(@"Current Language ID: %@", currentLanguageID);
         if ( [currentLanguageID length] != 0 ) {
             resourcesSettings[NBCSettingsNBILanguage] = currentLanguageID;
         } else {
             DDLogError(@"[ERROR] Could not get current language ID!");
             return;
+        }
+        
+        NSString *currentLocale = globalPreferencesDict[@"AppleLocale"];
+        DDLogInfo(@"currentLocale=%@", currentLocale);
+        if ( [currentLocale length] != 0 ) {
+            resourcesSettings[NBCSettingsLocale] = currentLocale;
+        }
+        
+        NSString *currentCountry = globalPreferencesDict[@"Country"];
+        DDLogInfo(@"currentCountry=%@", currentCountry);
+        if ( [currentCountry length] != 0 ) {
+            resourcesSettings[NBCSettingsCountry] = currentCountry;
         }
     } else {
         NSString *languageID = [_languageDict allKeysForObject:selectedLanguage][0];
@@ -2122,6 +2135,24 @@ DDLogLevel ddLogLevel;
             DDLogError(@"[ERROR] Could not get language ID!");
             return;
         }
+        
+        if ( [languageID containsString:@"-"] ) {
+            NSString *localeFromLanguage = [languageID stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
+            DDLogDebug(@"localeFromLanguage=%@", localeFromLanguage);
+            NSLog(@"localeFromLanguage=%@", localeFromLanguage);
+            if ( [localeFromLanguage length] != 0 ) {
+                resourcesSettings[NBCSettingsLocale] = localeFromLanguage;
+                
+                NSLocale *locale = [NSLocale localeWithLocaleIdentifier:localeFromLanguage];
+                NSString *country = [locale objectForKey:NSLocaleCountryCode];
+                DDLogDebug(@"country=%@", country);
+                NSLog(@"country=%@", country);
+                if ( [country length] != 0 ) {
+                    resourcesSettings[NBCSettingsCountry] = country;
+                }
+            }
+        }
+        
     }
     NSLog(@"resourcesSettings[NBCSettingsNBILanguage]=%@", resourcesSettings[NBCSettingsNBILanguage]);
     
@@ -2162,6 +2193,8 @@ DDLogLevel ddLogLevel;
     
     // - Python is required for Imagr
     [sourceController addPython:sourceItemsDict source:_source];
+    
+    [sourceController addNSURLStoraged:sourceItemsDict source:_source];
     
     // - NTP
     if ( [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
@@ -2261,8 +2294,8 @@ DDLogLevel ddLogLevel;
         [[_popUpButtonLanguage menu] addItem:[NSMenuItem separatorItem]];
         [_popUpButtonLanguage addItemsWithTitles:languageArray];
     } else {
-        DDLogError(@"Could not find language strings file!");
-        DDLogError(@"ERROR: %@", error);
+        DDLogError(@"[ERROR] Could not find language strings file!");
+        DDLogError(@"%@", error);
     }
 }
 
