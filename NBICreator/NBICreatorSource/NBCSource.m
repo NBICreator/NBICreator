@@ -174,7 +174,13 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
     //  Expand %OSINDEX%
     // --------------------------------------------------------------
     NSString *osIndex;
-    osIndex = [NSString stringWithFormat:@"%@%@%@", [osMajorVersion substringToIndex:1], osMinorVersion, osPatchVersion];
+    NSUInteger substringIndex;
+    if ( [osMinorVersion integerValue] <= 9 ) {
+        substringIndex=(NSUInteger)2;
+    } else {
+        substringIndex=(NSUInteger)1;
+    }
+    osIndex = [NSString stringWithFormat:@"%@%@%@", [osMajorVersion substringToIndex:substringIndex], osMinorVersion, osPatchVersion];
     
     newString = [newString stringByReplacingOccurrencesOfString:variableOSIndex
                                                withString:osIndex];
