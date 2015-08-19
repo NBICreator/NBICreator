@@ -655,6 +655,47 @@ DDLogLevel ddLogLevel;
     sourceItemsDict[packageBSDPath] = packageBSDDict;
 }
 
+- (void)addNSURLStoraged:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
+    NSMutableArray *packageBSDRegexes;
+    if ( [packageBSDDict count] != 0 ) {
+        packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageBSDRegexes == nil ) {
+            packageBSDRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageBSDDict = [[NSMutableDictionary alloc] init];
+        packageBSDRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexNSURLStoraged = @".*nsurlstoraged.*";
+    [packageBSDRegexes addObject:regexNSURLStoraged];
+    
+    packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
+    sourceItemsDict[packageBSDPath] = packageBSDDict;
+    
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil )
+        {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    [packageEssentialsRegexes addObject:regexNSURLStoraged];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+}
+
 - (void)addPython:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
@@ -673,6 +714,9 @@ DDLogLevel ddLogLevel;
     NSString *regexPython = @".*/[Pp]ython.*";
     DDLogDebug(@"regexPython=%@", regexPython);
     [packageBSDRegexes addObject:regexPython];
+    
+    NSString *regexNSURLStoraged = @".*nsurlstoraged.*";
+    [packageBSDRegexes addObject:regexNSURLStoraged];
     
     NSString *regexSpctl = @".*spctl.*"; // Should be moved to it's own method
     DDLogDebug(@"regexSpctl=%@", regexSpctl);
