@@ -12,9 +12,9 @@ if [[ $# -ne 3 ]]; then
 	exit 1
 fi
 
-sourceVolumePath="${1}"
-if [[ -z ${sourceVolumePath} ]] || ! [[ -d ${sourceVolumePath} ]]; then
-    printf "%s\n" "Input variable 1 sourceVolumePath=${sourceVolumePath} is not valid!";
+targetVolumePath="${1}"
+if [[ -z ${targetVolumePath} ]] || ! [[ -d ${targetVolumePath} ]]; then
+    printf "%s\n" "Input variable 1 targetVolumePath=${targetVolumePath} is not valid!";
     exit 1
 fi
 
@@ -37,64 +37,64 @@ case ${osVersionMinor} in
 							-L \
 							-m "${nbiVolumePath}/i386/mach.macosx.mkext" \
 							-K "${nbiVolumePath}/i386/booter" \
-							"${sourceVolumePath}/System/Library/Extensions"
+							"${targetVolumePath}/System/Library/Extensions"
 	
 		/usr/sbin/kextcache -a x86_64 \
 							-N \
 							-L \
 							-m "${sourceVolumePath}/i386/x86_64/mach.macosx.mkext" \
 							-K "${nbiVolumePath}/i386/x86_64/booter" \
-							"${sourceVolumePath}/System/Library/Extensions"
+							"${targetVolumePath}/System/Library/Extensions"
 	;;
 	7)
 		/usr/sbin/kextcache -a i386 \
 							-N \
 							-L \
 							-z \
-							-K "${sourceVolumePath}/mach_kernel" \
+							-K "${targetVolumePath}/mach_kernel" \
 							-c "${nbiVolumePath}/i386/kernelcache" \
-							"${sourceVolumePath}/System/Library/Extensions"
+							"${targetVolumePath}/System/Library/Extensions"
 		
 		/usr/sbin/kextcache -a x86_64 \
 							-N \
 							-L \
 							-z \
-							-K "${sourceVolumePath}/mach_kernel" \
+							-K "${targetVolumePath}/mach_kernel" \
 							-c "${nbiVolumePath}/i386/x86_64/kernelcache" \
-							"${sourceVolumePath}/System/Library/Extensions"
+							"${targetVolumePath}/System/Library/Extensions"
 	;;
 	[8-9])
-		/usr/sbin/kextcache -update-volume "${nbiVolumePath}"
+		/usr/sbin/kextcache -update-volume "${targetVolumePath}"
 		/usr/sbin/kextcache -a x86_64 \
 							-N \
 							-L \
 							-z \
-							-K "${sourceVolumePath}/mach_kernel" \
+							-K "${targetVolumePath}/mach_kernel" \
 							-c "${nbiVolumePath}/i386/x86_64/kernelcache" \
-							"${sourceVolumePath}/System/Library/Extensions"
-		/usr/bin/update_dyld_shared_cache -root "${sourceVolumePath}" -arch x86_64 -force
+							"${targetVolumePath}/System/Library/Extensions"
+		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
 	;;
 	10)
-		/usr/sbin/kextcache -update-volume "${nbiVolumePath}"
+		/usr/sbin/kextcache -update-volume "${targetVolumePath}"
 		/usr/sbin/kextcache -a x86_64 \
 							-N \
 							-L \
 							-z \
-							-K "${sourceVolumePath}/System/Library/Kernels/kernel" \
+							-K "${targetVolumePath}/System/Library/Kernels/kernel" \
 							-c "${nbiVolumePath}/i386/x86_64/kernelcache" \
-							"${sourceVolumePath}/System/Library/Extensions"
-		/usr/bin/update_dyld_shared_cache -root "${sourceVolumePath}" -arch x86_64 -force
+							"${targetVolumePath}/System/Library/Extensions"
+		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
 	;;
 	11)
-        /usr/sbin/kextcache -update-volume "${nbiVolumePath}"
+        /usr/sbin/kextcache -update-volume "${targetVolumePath}"
         /usr/sbin/kextcache -a x86_64 \
-                            -N \
-                            -L \
+                            -N \ # Only include extensions required for network disk boot
+                            -L \ # Only include extensions required for local disk boot
                             -z \
-                            -K "${sourceVolumePath}/System/Library/Kernels/kernel" \
+                            -K "${targetVolumePath}/System/Library/Kernels/kernel" \
                             -c "${nbiVolumePath}/i386/x86_64/kernelcache" \
-                            "${sourceVolumePath}/System/Library/Extensions"
-        /usr/bin/update_dyld_shared_cache -root "${sourceVolumePath}" -arch x86_64 -force
+                            "${targetVolumePath}/System/Library/Extensions"
+        /usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
 	;;
 	*)
 	;;
