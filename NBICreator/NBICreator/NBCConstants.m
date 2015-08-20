@@ -112,6 +112,9 @@ NSString *const NBCSettingsNBIDescription = @"Description";
 NSString *const NBCSettingsNBIDestinationFolder = @"DestinationFolder";
 NSString *const NBCSettingsNBIIcon = @"Icon";
 
+
+NSString *const NBCSettingsUseVerboseBoot = @"UseVerboseBoot";
+
 NSString *const NBCSettingsNBIKeyboardLayoutName = @"KeyboardLayoutName";
 
 // --------------------------------------------------------------

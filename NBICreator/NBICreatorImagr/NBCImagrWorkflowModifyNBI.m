@@ -595,12 +595,16 @@ DDLogLevel ddLogLevel;
     NSMutableArray *modifyDictArray = [[NSMutableArray alloc] init];
     
     verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
-    
+    verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
     /*
     if ( verified ) {
         verified = [_targetController modifySettingsForFindMyDeviced:modifyDictArray workflowItem:_workflowItem];
     }
     */
+    
+    if ( verified && userSettings[NBCSettingsUseVerboseBoot] ) {
+        verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
+    }
     
     if ( verified && [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
         verified = [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
@@ -1092,6 +1096,114 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] spotlightSettings is nil!");
         [self modifyFailed];
     }
+}
+
+- (void)generateBootCachePlaylist {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Generating BootCache.playlist...");
+    [_delegate updateProgressStatus:@"Generating BootCache.playlist..." workflow:self];
+    NSDictionary *userSettings = [_workflowItem userSettings];
+    DDLogDebug(@"userSettings=%@", userSettings);
+    NSString *baseSystemPath = [[[_workflowItem target] baseSystemVolumeURL] path];
+    DDLogDebug(@"baseSystemPath=%@", baseSystemPath);
+    NSString *playlistPath = [baseSystemPath stringByAppendingPathComponent:@"var/db/BootCache.playlist"];
+    DDLogDebug(@"playlistPath=%@", playlistPath);
+    NSArray *commandAgruments;
+    if ( [baseSystemPath length] != 0 ) {
+        commandAgruments = @[ @"-f", playlistPath, @"generate", baseSystemPath ];
+    } else {
+        DDLogError(@"[ERROR] baseSystemPath is nil!");
+        [self modifyFailed];
+    }
+    
+    NSURL *commandURL = [NSURL fileURLWithPath:@"/usr/sbin/BootCacheControl"];
+    NSLog(@"%@ %@", commandURL, commandAgruments);
+    // -----------------------------------------------------------------------------------
+    //  Create standard output file handle and register for data available notifications.
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdOut = [[NSPipe alloc] init];
+    NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
+    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+    
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdOut fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
+                                        NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When output data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        DDLogInfo(@"%@", outStr);
+                                        
+                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    // -----------------------------------------------------------------------------------
+    //  Create standard error file handle and register for data available notifications.
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdErr = [[NSPipe alloc] init];
+    NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
+    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+    
+    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdErr fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
+                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When error data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        DDLogError(@"[ERROR] %@", errStr);
+                                        
+                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+    [helperConnector connectToHelper];
+    
+    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            
+            // ------------------------------------------------------------------
+            //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+            // ------------------------------------------------------------------
+            DDLogError(@"%@", proxyError);
+            [nc removeObserver:stdOutObserver];
+            [nc removeObserver:stdErrObserver];
+            [self modifyFailed];
+        }];
+        
+    }] runTaskWithCommandAtPath:commandURL arguments:commandAgruments currentDirectory:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            DDLogDebug(@"terminationStatus=%d", terminationStatus);
+            if ( terminationStatus == 0 ) {
+                [nc removeObserver:stdOutObserver];
+                [nc removeObserver:stdErrObserver];
+                [self finalizeWorkflow];
+            } else {
+                DDLogError(@"[ERROR] Creating user failed!");
+                DDLogError(@"%@", error);
+                [nc removeObserver:stdOutObserver];
+                [nc removeObserver:stdErrObserver];
+                [self modifyFailed];
+            }
+        }];
+    }];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

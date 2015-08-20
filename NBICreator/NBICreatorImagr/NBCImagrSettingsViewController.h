@@ -161,6 +161,7 @@
 @property BOOL showARDPassword;
 @property BOOL useNetworkTimeServer;
 @property NSString *networkTimeServer;
+@property BOOL useVerboseBoot;
 
 @property BOOL includeImagrPreReleaseVersionsEnabled;
 @property BOOL includeImagrPreReleaseVersions;

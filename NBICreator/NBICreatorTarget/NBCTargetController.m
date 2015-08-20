@@ -770,6 +770,56 @@ DDLogLevel ddLogLevel;
     return retval;
 } // modifySettingsForSystemKeychain:workflowItem
 
+- (BOOL)modifySettingsForBootPlist:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    BOOL retval = YES;
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSURL *volumeURL = [workflowItem temporaryNBIURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // ---------------------------------------------------------------
+    //  /Library/Preferences/SystemConfiguration/com.apple.Boot.plist
+    // ---------------------------------------------------------------
+    
+    NSURL *bootSettingsURL = [volumeURL URLByAppendingPathComponent:@"i386/com.apple.Boot.plist"];
+    DDLogDebug(@"bootSettingsURL=%@", bootSettingsURL);
+    NSDictionary *bootSettingsAttributes;
+    NSMutableDictionary *bootSettingsDict;
+    if ( [bootSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+        bootSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:bootSettingsURL];
+        bootSettingsAttributes = [fm attributesOfItemAtPath:[bootSettingsURL path] error:&error];
+    }
+    
+    if ( [bootSettingsDict count] == 0 ) {
+        bootSettingsDict = [[NSMutableDictionary alloc] init];
+        bootSettingsAttributes = @{
+                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileGroupOwnerAccountName : @"wheel",
+                                                  NSFilePosixPermissions : @0644
+                                                  };
+    }
+    DDLogDebug(@"bootSettingsDict=%@", bootSettingsDict);
+    DDLogDebug(@"bootSettingsAttributes=%@", bootSettingsAttributes);
+    bootSettingsDict[@"Kernel Flags"] = @"-v";
+    DDLogDebug(@"bootSettingsDict=%@", bootSettingsDict);
+    NSDictionary *modifyBootSettings = @{
+                                                            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                            NBCWorkflowModifyContent : bootSettingsDict,
+                                                            NBCWorkflowModifyAttributes : bootSettingsAttributes,
+                                                            NBCWorkflowModifyTargetURL : [bootSettingsURL path]
+                                                            };
+    DDLogDebug(@"modifyBootSettings=%@", modifyBootSettings);
+    [modifyDictArray addObject:modifyBootSettings];
+    
+    return retval;
+} // modifySettingsForBootPlist
+
 - (BOOL)modifySettingsForSystemKeychain:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;

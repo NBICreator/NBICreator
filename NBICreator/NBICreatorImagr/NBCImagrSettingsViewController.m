@@ -935,6 +935,7 @@ DDLogLevel ddLogLevel;
     [self setIsNBI:[settingsDict[NBCSettingsImagrSourceIsNBI] boolValue]];
     [self setUseBackgroundImage:[settingsDict[NBCSettingsUseBackgroundImageKey] boolValue]];
     [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
+    [self setUseVerboseBoot:[settingsDict[NBCSettingsUseVerboseBoot] boolValue]];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -1046,7 +1047,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsImagrSourceIsNBI] = @(_isNBI) ?: @NO;
     settingsDict[NBCSettingsUseBackgroundImageKey] = @(_useBackgroundImage) ?: @NO;
     settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"";
-    
+    settingsDict[NBCSettingsUseVerboseBoot] = @(_useVerboseBoot) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2115,7 +2116,7 @@ DDLogLevel ddLogLevel;
             DDLogError(@"[ERROR] Could not get current language ID!");
             return;
         }
-
+        
         NSString *currentLocaleIdentifier = [currentLocale localeIdentifier];
         DDLogDebug(@"currentLocaleIdentifier=%@", currentLocaleIdentifier);
         if ( [currentLocaleIdentifier length] != 0 ) {

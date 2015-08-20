@@ -6,6 +6,8 @@
 	<array/>
 	<key>Certificates</key>
 	<array/>
+	<key>UseVerboseBoot</key>
+	<false/>
 	<key>UseBackgroundImage</key>
 	<true/>
 	<key>BackgroundImage</key>

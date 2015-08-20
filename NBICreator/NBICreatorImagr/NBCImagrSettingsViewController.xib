@@ -747,6 +747,16 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.useNetworkTimeServer" id="Xw6-E7-ft5"/>
                                         </connections>
                                     </button>
+                                    <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GsR-k3-fV3">
+                                        <rect key="frame" x="18" y="194" width="132" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Use verbose boot" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="aSk-6u-rJj">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.useVerboseBoot" id="OLR-1W-sMh"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="LuM-gP-Ek6" firstAttribute="top" secondItem="AE8-iw-fSx" secondAttribute="bottom" constant="9" id="0Th-IF-g8i"/>
@@ -762,8 +772,10 @@ asdasd</string>
                                     <constraint firstItem="ng4-VJ-jJ3" firstAttribute="baseline" secondItem="ewi-2M-r1K" secondAttribute="baseline" id="Aeo-Cb-Np2"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="leading" secondItem="ewi-2M-r1K" secondAttribute="leading" id="B1Y-k8-UDL"/>
                                     <constraint firstItem="le5-Gh-tjW" firstAttribute="leading" secondItem="a5G-lr-wTv" secondAttribute="leading" id="C5q-eW-DKd"/>
+                                    <constraint firstItem="LuM-gP-Ek6" firstAttribute="leading" secondItem="GsR-k3-fV3" secondAttribute="leading" id="CxT-fX-NDA"/>
                                     <constraint firstItem="FMB-Sz-PUq" firstAttribute="baseline" secondItem="OXa-Ei-ogf" secondAttribute="baseline" id="Enn-Ot-Vs5"/>
                                     <constraint firstItem="lSG-mW-c27" firstAttribute="leading" secondItem="4eo-Ew-vtt" secondAttribute="trailing" constant="8" symbolic="YES" id="FIc-Wc-It1"/>
+                                    <constraint firstItem="GsR-k3-fV3" firstAttribute="top" secondItem="LuM-gP-Ek6" secondAttribute="bottom" constant="9" id="IP6-Mm-4pF"/>
                                     <constraint firstItem="ng4-VJ-jJ3" firstAttribute="top" secondItem="BgM-LU-gAy" secondAttribute="bottom" constant="8" symbolic="YES" id="Oi3-A5-YYS"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="leading" secondItem="amG-dw-kSU" secondAttribute="leading" constant="20" symbolic="YES" id="Tra-UI-3i1"/>
                                     <constraint firstAttribute="trailing" secondItem="czc-3w-Cgp" secondAttribute="trailing" constant="20" symbolic="YES" id="WW4-cY-MKK"/>

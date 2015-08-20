@@ -113,6 +113,8 @@ extern NSString *const NBCSettingsNBIIcon;
 extern NSString *const NBCSettingsNBIKeyboardLayoutName;
 
 
+extern NSString *const NBCSettingsUseVerboseBoot;
+
 extern NSString *const NBCSettingsLocale;
 extern NSString *const NBCSettingsCountry;
 
