@@ -872,7 +872,7 @@ DDLogLevel ddLogLevel;
 - (void)modifyComplete {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Modifications Complete!");
-    [self finalizeWorkflow];
+    [self disableSpotlight];
 } // modifyComplete
 
 - (void)modifyFailed {
@@ -892,6 +892,201 @@ DDLogLevel ddLogLevel;
     DDLogError(@"Copy Failed!");
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
 } // copyFailed
+
+- (BOOL)modifySettingsForSpotlight:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    BOOL retval = YES;
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // --------------------------------------------------------------
+    //  /.Spotlight-V100/_IndexPolicy.plist
+    // --------------------------------------------------------------
+    NSURL *spotlightIndexingSettingsURL = [volumeURL URLByAppendingPathComponent:@".Spotlight-V100/_IndexPolicy.plist"];
+    DDLogDebug(@"spotlightIndexingSettingsURL=%@", spotlightIndexingSettingsURL);
+    NSDictionary *spotlightIndexingSettingsAttributes;
+    NSMutableDictionary *spotlightIndexingSettingsDict;
+    if ( [spotlightIndexingSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+        spotlightIndexingSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:spotlightIndexingSettingsURL];
+        spotlightIndexingSettingsAttributes = [fm attributesOfItemAtPath:[spotlightIndexingSettingsURL path] error:&error];
+    }
+    
+    if ( [spotlightIndexingSettingsDict count] == 0 ) {
+        spotlightIndexingSettingsDict = [[NSMutableDictionary alloc] init];
+        spotlightIndexingSettingsAttributes = @{
+                                                NSFileOwnerAccountName : @"root",
+                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                NSFilePosixPermissions : @0600
+                                                };
+    }
+    DDLogDebug(@"spotlightIndexingSettingsDict=%@", spotlightIndexingSettingsDict);
+    DDLogDebug(@"spotlightIndexingSettingsAttributes=%@", spotlightIndexingSettingsAttributes);
+    spotlightIndexingSettingsDict[@"Policy"] = @3;
+    DDLogDebug(@"spotlightIndexingSettingsDict=%@", spotlightIndexingSettingsDict);
+    NSDictionary *modifySpotlightIndexingSettings = @{
+                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                      NBCWorkflowModifyContent : spotlightIndexingSettingsDict,
+                                                      NBCWorkflowModifyAttributes : spotlightIndexingSettingsAttributes,
+                                                      NBCWorkflowModifyTargetURL : [spotlightIndexingSettingsURL path]
+                                                      };
+    DDLogDebug(@"modifySpotlightIndexingSettings=%@", modifySpotlightIndexingSettings);
+    [modifyDictArray addObject:modifySpotlightIndexingSettings];
+    
+    return retval;
+} // modifySettingsForSpotlight
+
+- (void)disableSpotlight {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Disabling Spotlight on NBI...");
+    [_delegate updateProgressStatus:@"Disabling Spotlight..." workflow:self];
+    NSDictionary *userSettings = [_workflowItem userSettings];
+    DDLogDebug(@"userSettings=%@", userSettings);
+    NSString *baseSystemPath = [[[_workflowItem target] baseSystemVolumeURL] path];
+    DDLogDebug(@"baseSystemPath=%@", baseSystemPath);
+    NSArray *commandAgruments;
+    if ( [baseSystemPath length] != 0 ) {
+        commandAgruments = @[ @"-Edi", @"off", baseSystemPath ];
+    } else {
+        DDLogError(@"[ERROR] baseSystemPath is nil!");
+        [self modifyFailed];
+    }
+    
+    NSURL *commandURL = [NSURL fileURLWithPath:@"/usr/bin/mdutil"];
+    
+    // -----------------------------------------------------------------------------------
+    //  Create standard output file handle and register for data available notifications.
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdOut = [[NSPipe alloc] init];
+    NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
+    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+    
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdOut fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
+                                        NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When output data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        DDLogInfo(@"%@", outStr);
+                                        
+                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    // -----------------------------------------------------------------------------------
+    //  Create standard error file handle and register for data available notifications.
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdErr = [[NSPipe alloc] init];
+    NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
+    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+    
+    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdErr fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
+                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When error data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        DDLogError(@"[ERROR] %@", errStr);
+                                        
+                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                
+                // ------------------------------------------------------------------
+                //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+                // ------------------------------------------------------------------
+                DDLogError(@"%@", proxyError);
+                [nc removeObserver:stdOutObserver];
+                [nc removeObserver:stdErrObserver];
+                [self modifyFailed];
+            }];
+            
+        }] runTaskWithCommandAtPath:commandURL arguments:commandAgruments currentDirectory:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                DDLogDebug(@"terminationStatus=%d", terminationStatus);
+                if ( terminationStatus == 0 ) {
+                    [nc removeObserver:stdOutObserver];
+                    [nc removeObserver:stdErrObserver];
+                    [self disableSpotlightIndex];
+                } else {
+                    DDLogError(@"[ERROR] Creating user failed!");
+                    DDLogError(@"%@", error);
+                    [nc removeObserver:stdOutObserver];
+                    [nc removeObserver:stdErrObserver];
+                    [self modifyFailed];
+                }
+            }];
+        }];
+}
+
+- (void)disableSpotlightIndex {
+    NSMutableArray *spotlightSettings = [[NSMutableArray alloc] init];
+    if ( ! [self modifySettingsForSpotlight:spotlightSettings workflowItem:_workflowItem] ) {
+        DDLogError(@"[ERROR] modifySettingsForSpotlight returned nil!");
+        [self modifyFailed];
+    }
+    
+    NSURL *volumeURL = [[_workflowItem target] baseSystemVolumeURL];
+    
+    if ( [spotlightSettings count] != 0 ) {
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                
+                // ------------------------------------------------------------------
+                //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+                // ------------------------------------------------------------------
+                DDLogError(@"%@", proxyError);
+                [self modifyFailed];
+            }];
+            
+        }] modifyResourcesOnVolume:volumeURL resourcesDictArray:spotlightSettings withReply:^(NSError *error, int terminationStatus) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                DDLogDebug(@"terminationStatus=%d", terminationStatus);
+                if ( terminationStatus == 0 ) {
+                    [self finalizeWorkflow];
+                } else {
+                    DDLogError(@"%@", error);
+                    [self modifyFailed];
+                }
+            }];
+        }];
+    } else {
+        DDLogError(@"[ERROR] spotlightSettings is nil!");
+        [self modifyFailed];
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
