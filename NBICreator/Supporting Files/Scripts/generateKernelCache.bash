@@ -76,13 +76,13 @@ case ${osVersionMinor} in
 	;;
 	10)
 		/usr/sbin/kextcache -update-volume "${targetVolumePath}"
-		/usr/sbin/kextcache -a x86_64 \
+		/usr/sbin/kextcache -prelinked-kernel "${nbiVolumePath}/i386/x86_64/kernelcache" \
+                            -a x86_64 \
 							-N \
-							-L \
+                            -L \
 							-z \
 							-K "${targetVolumePath}/System/Library/Kernels/kernel" \
-							-c "${nbiVolumePath}/i386/x86_64/kernelcache" \
-							"${targetVolumePath}/System/Library/Extensions"
+							-- "${targetVolumePath}/System/Library/Extensions"
 		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
 	;;
 	11)
