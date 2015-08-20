@@ -901,7 +901,7 @@ asdasd</string>
                                             <constraint firstAttribute="height" constant="87" id="zxr-O6-Bcl"/>
                                         </constraints>
                                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="Kob-Oi-BU1">
-                                            <rect key="frame" x="1" y="116.89017474651337" width="233.5" height="15"/>
+                                            <rect key="frame" x="1" y="116.89017474651337" width="234" height="15"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                         <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="9RE-qV-Ibq">
@@ -1016,7 +1016,7 @@ asdasd</string>
                                             <constraint firstAttribute="height" constant="92" id="ZZf-wo-eSI"/>
                                         </constraints>
                                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="PbA-HV-3ub">
-                                            <rect key="frame" x="1" y="116.89017474651337" width="233.5" height="15"/>
+                                            <rect key="frame" x="1" y="116.89017474651337" width="234" height="15"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                         </scroller>
                                         <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="fhH-oC-hFA">

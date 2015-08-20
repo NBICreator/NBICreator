@@ -2106,6 +2106,29 @@ DDLogLevel ddLogLevel;
     NSString *selectedLanguage = userSettings[NBCSettingsNBILanguage];
     NSLog(@"selectedLanguage=%@", selectedLanguage);
     if ( [selectedLanguage isEqualToString:NBCMenuItemCurrent] ) {
+        NSLocale *currentLocale = [NSLocale currentLocale];
+        NSString *currentLanguageID = [NSLocale preferredLanguages][0];
+        NSLog(@"currentLanguageID=%@", currentLanguageID);
+        if ( [currentLanguageID length] != 0 ) {
+            resourcesSettings[NBCSettingsNBILanguage] = currentLanguageID;
+        } else {
+            DDLogError(@"[ERROR] Could not get current language ID!");
+            return;
+        }
+
+        NSString *currentLocaleIdentifier = [currentLocale localeIdentifier];
+        DDLogDebug(@"currentLocaleIdentifier=%@", currentLocaleIdentifier);
+        if ( [currentLocaleIdentifier length] != 0 ) {
+            resourcesSettings[NBCSettingsLocale] = currentLocaleIdentifier;
+        }
+        
+        NSString *currentCountry = [currentLocale objectForKey:NSLocaleCountryCode];
+        DDLogDebug(@"currentCountry=%@", currentCountry);
+        if ( [currentCountry length] != 0 ) {
+            resourcesSettings[NBCSettingsCountry] = currentCountry;
+        }
+        
+        /* Should not access property lists directly, keeping it around for now
         NSDictionary *globalPreferencesDict = [NSDictionary dictionaryWithContentsOfFile:NBCPathPreferencesGlobal];
         NSString *currentLanguageID = globalPreferencesDict[@"AppleLanguages"][0];
         DDLogInfo(@"Current Language ID: %@", currentLanguageID);
@@ -2116,10 +2139,10 @@ DDLogLevel ddLogLevel;
             return;
         }
         
-        NSString *currentLocale = globalPreferencesDict[@"AppleLocale"];
-        DDLogInfo(@"currentLocale=%@", currentLocale);
-        if ( [currentLocale length] != 0 ) {
-            resourcesSettings[NBCSettingsLocale] = currentLocale;
+        NSString *currentLocaleIdentifier = globalPreferencesDict[@"AppleLocale"];
+        DDLogInfo(@"currentLocaleIdentifier=%@", currentLocaleIdentifier);
+        if ( [currentLocaleIdentifier length] != 0 ) {
+            resourcesSettings[NBCSettingsLocale] = currentLocaleIdentifier;
         }
         
         NSString *currentCountry = globalPreferencesDict[@"Country"];
@@ -2127,6 +2150,7 @@ DDLogLevel ddLogLevel;
         if ( [currentCountry length] != 0 ) {
             resourcesSettings[NBCSettingsCountry] = currentCountry;
         }
+        */
     } else {
         NSString *languageID = [_languageDict allKeysForObject:selectedLanguage][0];
         if ( [languageID length] != 0 ) {
