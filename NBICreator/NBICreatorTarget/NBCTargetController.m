@@ -646,6 +646,130 @@ DDLogLevel ddLogLevel;
     return verified;
 }
 
+- (BOOL)modifySettingsForFindMyDeviced:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    BOOL retval = YES;
+    //NSError *error;
+    //NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.plist
+    // --------------------------------------------------------------
+    NSURL *findmydevicedSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.plist"];
+    DDLogDebug(@"findmydevicedSettingsURL=%@", findmydevicedSettingsURL);
+    NSDictionary *modifyFindmydevicedSettings = @{
+                                                  NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                                  NBCWorkflowModifyTargetURL : [findmydevicedSettingsURL path]
+                                                  };
+    DDLogDebug(@"modifyFindmydevicedSettings=%@", modifyFindmydevicedSettings);
+    [modifyDictArray addObject:modifyFindmydevicedSettings];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.FMM_recovery.plist
+    // --------------------------------------------------------------
+    NSURL *findmydevicedFMMRecoverySettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.FMM_recovery.plist"];
+    DDLogDebug(@"findmydevicedFMMRecoverySettingsURL=%@", findmydevicedFMMRecoverySettingsURL);
+    NSDictionary *modifyFindmydevicedFMMRecoverySettings = @{
+                                                             NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                                             NBCWorkflowModifyTargetURL : [findmydevicedFMMRecoverySettingsURL path]
+                                                             };
+    DDLogDebug(@"modifyFindmydevicedFMMRecoverySettings=%@", modifyFindmydevicedFMMRecoverySettings);
+    [modifyDictArray addObject:modifyFindmydevicedFMMRecoverySettings];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.findmymac.plist
+    // --------------------------------------------------------------
+    NSURL *findmymacSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.findmymac.plist"];
+    DDLogDebug(@"findmymacSettingsURL=%@", findmymacSettingsURL);
+    NSDictionary *modifyFindmymacSettings = @{
+                                              NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                              NBCWorkflowModifyTargetURL : [findmymacSettingsURL path]
+                                              };
+    DDLogDebug(@"modifyFindmymacSettings=%@", modifyFindmymacSettings);
+    [modifyDictArray addObject:modifyFindmymacSettings];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.findmymacmessenger.plist
+    // --------------------------------------------------------------
+    NSURL *findmymacmessengerSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.findmymacmessenger.plist"];
+    DDLogDebug(@"findmymacmessengerSettingsURL=%@", findmymacmessengerSettingsURL);
+    NSDictionary *modifyFindmymacMessengerSettings = @{
+                                                       NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                                       NBCWorkflowModifyTargetURL : [findmymacmessengerSettingsURL path]
+                                                       };
+    DDLogDebug(@"modifyFindmymacMessengerSettings=%@", modifyFindmymacMessengerSettings);
+    [modifyDictArray addObject:modifyFindmymacMessengerSettings];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/PrivateFrameworks/FindMyDevice.framework
+    // --------------------------------------------------------------
+    NSURL *findmydeviceFrameworkURL = [volumeURL URLByAppendingPathComponent:@"System/Library/PrivateFrameworks/FindMyDevice.framework"];
+    DDLogDebug(@"findmydeviceFrameworkURL=%@", findmydeviceFrameworkURL);
+    NSDictionary *modifyFindmydeviceFramework = @{
+                                                  NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                                  NBCWorkflowModifyTargetURL : [findmydeviceFrameworkURL path]
+                                                  };
+    DDLogDebug(@"modifyFindmydeviceFramework=%@", modifyFindmydeviceFramework);
+    [modifyDictArray addObject:modifyFindmydeviceFramework];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/PrivateFrameworks/FindMyMac.framework
+    // --------------------------------------------------------------
+    NSURL *findmymacFrameworkURL = [volumeURL URLByAppendingPathComponent:@"System/Library/PrivateFrameworks/FindMyMac.framework"];
+    DDLogDebug(@"findmymacFrameworkURL=%@", findmymacFrameworkURL);
+    NSDictionary *modifyFindmymacFramework = @{
+                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                               NBCWorkflowModifyTargetURL : [findmymacFrameworkURL path]
+                                               };
+    DDLogDebug(@"modifyFindmymacFramework=%@", modifyFindmymacFramework);
+    [modifyDictArray addObject:modifyFindmymacFramework];
+    
+    /*
+     // --------------------------------------------------------------
+     //  /System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.plist
+     // --------------------------------------------------------------
+     NSURL *findmydevicedSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.plist"];
+     DDLogDebug(@"findmydevicedSettingsURL=%@", findmydevicedSettingsURL);
+     NSDictionary *findmydevicedSettingsAttributes;
+     NSMutableDictionary *findmydevicedSettingsDict;
+     if ( [findmydevicedSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+     findmydevicedSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:findmydevicedSettingsURL];
+     findmydevicedSettingsAttributes = [fm attributesOfItemAtPath:[findmydevicedSettingsURL path] error:&error];
+     }
+     
+     if ( [findmydevicedSettingsDict count] == 0 ) {
+     findmydevicedSettingsDict = [[NSMutableDictionary alloc] init];
+     findmydevicedSettingsAttributes = @{
+     NSFileOwnerAccountName : @"root",
+     NSFileGroupOwnerAccountName : @"wheel",
+     NSFilePosixPermissions : @0644
+     };
+     }
+     DDLogDebug(@"findmydevicedSettingsDict=%@", findmydevicedSettingsDict);
+     DDLogDebug(@"findmydevicedSettingsAttributes=%@", findmydevicedSettingsAttributes);
+     findmydevicedSettingsDict[@"RunAtLoad"] = @NO;
+     findmydevicedSettingsDict[@"Disabled"] = @YES;
+     [findmydevicedSettingsDict removeObjectForKey:@"KeepAlive"];
+     DDLogDebug(@"findmydevicedSettingsDict=%@", findmydevicedSettingsDict);
+     NSDictionary *modifyFindmydevicedSettings = @{
+     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+     NBCWorkflowModifyContent : findmydevicedSettingsDict,
+     NBCWorkflowModifyAttributes : findmydevicedSettingsAttributes,
+     NBCWorkflowModifyTargetURL : [findmydevicedSettingsURL path]
+     };
+     DDLogDebug(@"modifyFindmydevicedSettings=%@", modifyFindmydevicedSettings);
+     [modifyDictArray addObject:modifyFindmydevicedSettings];
+     */
+    return retval;
+} // modifySettingsForSystemKeychain:workflowItem
+
 - (BOOL)modifySettingsForSystemKeychain:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
@@ -852,6 +976,30 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"modifyDictGlobalPreferencesRoot=%@", modifyDictGlobalPreferencesRoot);
     [modifyDictArray addObject:modifyDictGlobalPreferencesRoot];
     
+    // --------------------------------------------------------------
+    //  /private/var/log/CDIS.custom (Setup Assistant Language)
+    // --------------------------------------------------------------
+    NSURL *csdisURL = [volumeURL URLByAppendingPathComponent:@"private/var/log/CDIS.custom"];
+    DDLogDebug(@"csdisURL=%@", csdisURL);
+    NSString *canonicalLanguage = [NSLocale canonicalLanguageIdentifierFromString:selectedLanguage];
+    if ( [canonicalLanguage length] != 0 ) {
+        NSData *cdisContentData = [canonicalLanguage dataUsingEncoding:NSUTF8StringEncoding];
+        
+        NSDictionary *cdisAttributes = @{
+                                                NSFileOwnerAccountName : @"root",
+                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                NSFilePosixPermissions : @0644
+                                                };
+        
+        NSDictionary *modifyCdis = @{
+                                            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
+                                            NBCWorkflowModifyContent : cdisContentData,
+                                            NBCWorkflowModifyTargetURL : [csdisURL path],
+                                            NBCWorkflowModifyAttributes : cdisAttributes
+                                            };
+        DDLogDebug(@"modifyCdis=%@", modifyCdis);
+        [modifyDictArray addObject:modifyCdis];
+    }
     return retval;
 } // modifySettingsForLanguageAndKeyboardLayout
 
@@ -946,7 +1094,7 @@ DDLogLevel ddLogLevel;
     //  /Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist
     // --------------------------------------------------------------
     NSURL *iconservicesdLaunchDaemonURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist"];
-
+    
     NSMutableDictionary *iconservicesdLaunchDaemonDict;
     NSDictionary *iconservicesdLaunchDaemonAttributes;
     if ( [iconservicesdLaunchDaemonURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -957,22 +1105,22 @@ DDLogLevel ddLogLevel;
     if ( [iconservicesdLaunchDaemonDict count] == 0 ) {
         iconservicesdLaunchDaemonDict = [[NSMutableDictionary alloc] init];
         iconservicesdLaunchDaemonAttributes = @{
-                                     NSFileOwnerAccountName : @"root",
-                                     NSFileGroupOwnerAccountName : @"wheel",
-                                     NSFilePosixPermissions : @0644
-                                     };
+                                                NSFileOwnerAccountName : @"root",
+                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                NSFilePosixPermissions : @0644
+                                                };
     }
-
+    
     iconservicesdLaunchDaemonDict[@"RunAtLoad"] = @NO;
     iconservicesdLaunchDaemonDict[@"Disabled"] = @YES;
-
+    
     NSDictionary *modifyIconservicesdLaunchDaemon = @{
-                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                               NBCWorkflowModifyContent : iconservicesdLaunchDaemonDict,
-                                               NBCWorkflowModifyAttributes : iconservicesdLaunchDaemonAttributes,
-                                               NBCWorkflowModifyTargetURL : [iconservicesdLaunchDaemonURL path]
-                                               };
-
+                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                      NBCWorkflowModifyContent : iconservicesdLaunchDaemonDict,
+                                                      NBCWorkflowModifyAttributes : iconservicesdLaunchDaemonAttributes,
+                                                      NBCWorkflowModifyTargetURL : [iconservicesdLaunchDaemonURL path]
+                                                      };
+    
     [modifyDictArray addObject:modifyIconservicesdLaunchDaemon];
     
     return retval;
@@ -1439,26 +1587,26 @@ DDLogLevel ddLogLevel;
     [modifyDictArray addObject:modifyFolderLibraryCache];
     
     /*
-    // --------------------------------------------------------------
-    //  /Library/Caches/com.apple.iconservices.store
-    // --------------------------------------------------------------
-    NSURL *folderLibraryCacheIconservices = [volumeURL URLByAppendingPathComponent:@"Library/Caches/com.apple.iconservices.store" isDirectory:YES];
-    DDLogDebug(@"folderLibraryCacheIconservices=%@", folderLibraryCacheIconservices);
-    NSDictionary *folderLibraryCacheIconservicesAttributes = @{
-                                                               NSFileOwnerAccountName : @"root",
-                                                               NSFileGroupOwnerAccountName : @"wheel",
-                                                               NSFilePosixPermissions : @0755
-                                                               };
-    DDLogDebug(@"folderLibraryCacheIconservicesAttributes=%@", folderLibraryCacheIconservicesAttributes);
-    NSDictionary *modifyFolderLibraryCacheIconservices = @{
-                                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
-                                                           NBCWorkflowModifyTargetURL : [folderLibraryCacheIconservices path],
-                                                           NBCWorkflowModifyAttributes : folderLibraryCacheIconservicesAttributes
-                                                           };
-    DDLogDebug(@"modifyFolderLibraryCacheIconservices=%@", modifyFolderLibraryCacheIconservices);
-    [modifyDictArray addObject:modifyFolderLibraryCacheIconservices];
-    */
-     
+     // --------------------------------------------------------------
+     //  /Library/Caches/com.apple.iconservices.store
+     // --------------------------------------------------------------
+     NSURL *folderLibraryCacheIconservices = [volumeURL URLByAppendingPathComponent:@"Library/Caches/com.apple.iconservices.store" isDirectory:YES];
+     DDLogDebug(@"folderLibraryCacheIconservices=%@", folderLibraryCacheIconservices);
+     NSDictionary *folderLibraryCacheIconservicesAttributes = @{
+     NSFileOwnerAccountName : @"root",
+     NSFileGroupOwnerAccountName : @"wheel",
+     NSFilePosixPermissions : @0755
+     };
+     DDLogDebug(@"folderLibraryCacheIconservicesAttributes=%@", folderLibraryCacheIconservicesAttributes);
+     NSDictionary *modifyFolderLibraryCacheIconservices = @{
+     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+     NBCWorkflowModifyTargetURL : [folderLibraryCacheIconservices path],
+     NBCWorkflowModifyAttributes : folderLibraryCacheIconservicesAttributes
+     };
+     DDLogDebug(@"modifyFolderLibraryCacheIconservices=%@", modifyFolderLibraryCacheIconservices);
+     [modifyDictArray addObject:modifyFolderLibraryCacheIconservices];
+     */
+    
     // --------------------------------------------------------------
     //  /System/Library/Caches
     // --------------------------------------------------------------

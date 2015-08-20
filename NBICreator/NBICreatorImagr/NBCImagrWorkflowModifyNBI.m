@@ -596,7 +596,13 @@ DDLogLevel ddLogLevel;
     
     verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
     
-    if ( [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
+    /*
+    if ( verified ) {
+        verified = [_targetController modifySettingsForFindMyDeviced:modifyDictArray workflowItem:_workflowItem];
+    }
+    */
+    
+    if ( verified && [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
         verified = [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
     }
     
