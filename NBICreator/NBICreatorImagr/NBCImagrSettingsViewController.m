@@ -2194,7 +2194,10 @@ DDLogLevel ddLogLevel;
     // - Python is required for Imagr
     [sourceController addPython:sourceItemsDict source:_source];
     
-    [sourceController addNSURLStoraged:sourceItemsDict source:_source];
+    // - spctl
+    [sourceController addSpctl:sourceItemsDict source:_source];
+    
+    //[sourceController addNSURLStoraged:sourceItemsDict source:_source];
     
     // - NTP
     if ( [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
