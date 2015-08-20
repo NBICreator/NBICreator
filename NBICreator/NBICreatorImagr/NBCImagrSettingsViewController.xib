@@ -748,8 +748,8 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GsR-k3-fV3">
-                                        <rect key="frame" x="18" y="194" width="132" height="18"/>
-                                        <buttonCell key="cell" type="check" title="Use verbose boot" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="aSk-6u-rJj">
+                                        <rect key="frame" x="18" y="194" width="293" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Always boot in verbose mode (Command-V)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="aSk-6u-rJj">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
