@@ -236,7 +236,8 @@ DDLogLevel ddLogLevel;
                 } else {
                     DDLogDebug(@"[DEBUG] kernelCacheSourceURL=%@", kernelCacheSourceURL);
                     if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
-                        [self generateKernelCacheForNBI:workflowItem];
+                        //[self generateKernelCacheForNBI:workflowItem];
+                        [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
                     } else {
                         DDLogError(@"[ERROR] Error while copying kernel cache file");
                         DDLogError(@"[ERROR] %@", error);
@@ -247,7 +248,8 @@ DDLogLevel ddLogLevel;
             } else {
                 DDLogDebug(@"[DEBUG] kernelCacheSourceURL=%@", kernelCacheSourceURL);
                 if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
-                    [self generateKernelCacheForNBI:workflowItem];
+                    //[self generateKernelCacheForNBI:workflowItem];
+                    [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
                 } else {
                     DDLogError(@"[ERROR] Error while copying kernel cache file");
                     DDLogError(@"[ERROR] %@", error);
