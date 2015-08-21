@@ -2380,7 +2380,6 @@ DDLogLevel ddLogLevel;
                 timeZoneCity = timeZone[1];
             }
             
-            NSLog(@"timeZoneCity=%@", timeZoneCity);
             if ( [timeZoneRegion isEqualToString:@"Africa"] ) {
                 [menuAfrica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"America"] ) {
