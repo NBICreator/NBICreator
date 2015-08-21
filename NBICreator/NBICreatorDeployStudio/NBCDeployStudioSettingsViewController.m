@@ -1130,7 +1130,8 @@ DDLogLevel ddLogLevel;
                                 "%%OSBUILD%%%@"
                                 "%%DATE%%%@"
                                 "%%OSINDEX%%%@"
-                                ,separator, separator, separator, separator, separator, separator, separator
+                                "%%NBCVERSION%%%@"
+                                ,separator, separator, separator, separator, separator, separator, separator, separator
                                 ];
     NSString *expandedVariables = [NBCVariables expandVariables:variableString source:_source applicationSource:_dsSource];
     NSArray *expandedVariablesArray = [expandedVariables componentsSeparatedByString:separator];
@@ -1184,11 +1185,16 @@ DDLogLevel ddLogLevel;
             [self setPopOverOSIndex:osIndex];
         }
     }
+    // %NBCVERSION%
+    if ( 8 <= [expandedVariablesArray count] ) {
+        NSString *nbcVersion = expandedVariablesArray[7];
+        if ( [nbcVersion length] != 0 ) {
+            [self setNbcVersion:nbcVersion];
+        }
+    }
     // %COUNTER%
     [self setPopOverIndexCounter:[[[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsIndexCounter] stringValue]];
-    // %NBCVERSION%
-    [self setNbcVersion:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
-    // %NBCVERSION%
+    // %DSVERSION%
     if ( [_deployStudioVersion length] != 0 ) {
         [self setPopOverDSVersion:_deployStudioVersion];
     } else {
