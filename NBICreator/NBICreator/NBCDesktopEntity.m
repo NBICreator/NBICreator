@@ -71,7 +71,15 @@
 
 - (NSData *)certificate {
     if ( !_certificate ) {
-        _certificate = [[NSData alloc] initWithContentsOfURL:self.fileURL];
+        NSError *error;
+        NSMutableString *certificateString = [NSMutableString stringWithContentsOfURL:self.fileURL encoding:NSUTF8StringEncoding error:&error];
+        if ( [certificateString length] != 0 ) {
+            [certificateString setString:[certificateString stringByReplacingOccurrencesOfString:@"-----BEGIN CERTIFICATE-----" withString:@""]];
+            [certificateString setString:[certificateString stringByReplacingOccurrencesOfString:@"-----END CERTIFICATE-----" withString:@""]];
+            _certificate = [[NSData alloc] initWithBase64EncodedString:certificateString options:NSDataBase64DecodingIgnoreUnknownCharacters];
+        } else {
+            _certificate = [[NSData alloc] initWithContentsOfURL:self.fileURL];
+        }
     }
     return _certificate;
 }

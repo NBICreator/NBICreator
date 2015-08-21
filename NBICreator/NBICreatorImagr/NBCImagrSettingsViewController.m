@@ -439,8 +439,9 @@ DDLogLevel ddLogLevel;
     NSDate *certificateNotValidAfterDate;
     BOOL isSelfSigned = NO;
     BOOL certificateExpired = NO;
-    
+        
     certificate = SecCertificateCreateWithData(NULL, CFBridgingRetain(certificateData));
+
     if ( ! certificate ) {
         DDLogError(@"[ERROR] Could not get certificate from data!");
         return nil;
