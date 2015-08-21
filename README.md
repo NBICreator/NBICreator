@@ -11,6 +11,10 @@ It currently supports the following NetInstall images:
 
 The design and idea of the application is to be able to create different types of NetInstall images in one single application, and to save the configuration in a template to be reused when the NetInstall image need to be updated for newer versions of the OS.
 
+# Download
+
+You can download the latest version the the [Releases](https://github.com/NBICreator/NBICreator/releases) page.
+
 # Important
 
 This project is currently considered to be in beta, so major changes will occur between builds that may require manual action or reinstall.
