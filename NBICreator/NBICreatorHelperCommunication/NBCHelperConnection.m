@@ -20,25 +20,18 @@
 @implementation NBCHelperConnection
 
 - (void)connectToHelper {
-    
-    // Ensure the connection to the helper tool.
-    
-    if (_connection == nil) {
+    if ( _connection == nil ) {
         _connection = [[NSXPCConnection alloc] initWithMachServiceName:NBCBundleIdentifierHelper
                                                                options:NSXPCConnectionPrivileged];
         
         [_connection setRemoteObjectInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCHelperProtocol)]];
         
-        // Ignore retain cycle warnings.
-        
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-retain-cycles"
-        
         // If the connection gets invalidated set it to nil on the main thread.
         // This ensures that we attempt to rebuild it the next time around.
         
         [_connection setInvalidationHandler:^{
-            
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-retain-cycles"
             [self->_connection setInvalidationHandler:nil];
             
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
@@ -46,15 +39,10 @@
                 
                 NSLog(@"connection invalidated");
             }];
-            
+#pragma clang diagnostic pop
         }];
         
-        // Restore retain cycle warnings.
-        
-#pragma clang diagnostic pop
-        
-        // Start connection
-        
+        [_connection setExportedObject:self];
         [_connection resume];
     }
 }

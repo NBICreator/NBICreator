@@ -22,7 +22,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 @property (atomic, strong, readwrite) NSXPCListener *listener;
 @property (readonly) NSXPCConnection *connection;
 @property (weak) NSXPCConnection *relayConnection;
-
 @property (strong, nonatomic) NSMutableArray *connections;
 @property (nonatomic, assign) BOOL helperToolShouldQuit;
 
@@ -35,26 +34,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 - (id)init {
     self = [super init];
     if (self != nil) {
-        
-        // Set up the XPC listener to handle incoming requests.
-        
         self->_listener = [[NSXPCListener alloc] initWithMachServiceName:NBCBundleIdentifierHelper];
-        [self->_listener setDelegate:self];
+        self->_listener.delegate = self;
         self->_connections = [[NSMutableArray alloc] init];
     }
     return self;
 }
 
 - (void)run {
-    
-    // Tell the XPC listener to start processing requests.
-    
     [_listener resume];
-
     while ( ! _helperToolShouldQuit ) {
         NSLog(@"_helperToolShouldQuit=%hhd", _helperToolShouldQuit);
+        NSLog(@"_connections=%@", _connections);
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:kHelperCheckInterval]];
     }
+    NSLog(@"Quitting helper!");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,15 +62,27 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     // This is called by the XPC listener when there is a new connection.
     
+    //NBCHelper *ncHelper = [[NBCHelper alloc] init];
+    
     [newConnection setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCHelperProtocol)]];
+    [newConnection setExportedObject:self];
     
-    NBCHelper *ncHelper = [[NBCHelper alloc] init];
-    [newConnection setExportedObject:ncHelper];
     
-    // Start connection
+    __weak typeof(newConnection) weakConnection = newConnection;
+    [newConnection setInvalidationHandler:^() {
+        if ( [weakConnection isEqualTo:_relayConnection] && _resign) {
+            _resign(YES);
+        }
+        
+        [self->_connections removeObject:weakConnection];
+        if ( ! [self->_connections count] ) {
+            [self quitHelper:^(BOOL success){
+            }];
+        }
+    }];
     
-    [newConnection resume];
     [_connections addObject:newConnection];
+    [newConnection resume];
     
     return YES;
 }
@@ -88,28 +94,20 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)getVersionWithReply:(void(^)(NSString *version))reply {
-    
-    // Return bundle version of NBICreatorHelper
-    
     reply([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
 }
 
 - (void)quitHelper:(void (^)(BOOL success))reply {
-    NSLog(@"quitHelper");
     for ( NSXPCConnection *connection in _connections ) {
-        NSLog(@"connection=%@", connection);
         [connection invalidate];
     }
     
-    if (_resign) {
+    if ( _resign ) {
         _resign(YES);
     }
     
     [_connections removeAllObjects];
-    NSLog(@"setting helperToolShouldQuit");
-    NSLog(@"_helperToolShouldQuit=%hhd", _helperToolShouldQuit);
     [self setHelperToolShouldQuit:YES];
-    NSLog(@"_helperToolShouldQuit=%hhd", _helperToolShouldQuit);
     reply(YES);
 }
 
@@ -227,6 +225,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     reply([newTask terminationStatus]);
 }
+
 - (void)registerMainApplication:(void (^)(BOOL resign))resign; {
     if(!self.relayConnection){
         self.relayConnection = self.connection;
@@ -440,6 +439,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         NSLog(@"modifyDict=%@", modifyDict);
         NSString *filePath = modifyDict[NBCWorkflowModifyTargetURL];
         NSLog(@"filePath=%@", filePath);
+        NSString *sourceFilePath = modifyDict[NBCWorkflowModifySourceURL];
+        NSLog(@"sourceFilePath");
         NSString *fileType = modifyDict[NBCWorkflowModifyFileType];
         NSLog(@"fileType=%@", fileType);
         if ( [filePath length] != 0 ) {
@@ -475,6 +476,25 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                 if ( ! [fm removeItemAtPath:filePath error:&error] ) {
                     NSLog(@"Error removing item!");
                 }
+            } else if ( [fileType isEqualToString:NBCWorkflowModifyFileTypeLink] ) {
+                NSURL *sourceFileURL = [NSURL fileURLWithPath:sourceFilePath];
+                if ( sourceFileURL ) {
+                    if ( [sourceFileURL checkResourceIsReachableAndReturnError:nil] ) {
+                        if ( ! [fm removeItemAtURL:sourceFileURL error:&error] ) {
+                            NSLog(@"Remove failed!");
+                            NSLog(@"%@", error);
+                            continue;
+                        }
+                        
+                        if ( ! [fm createSymbolicLinkAtPath:sourceFilePath withDestinationPath:filePath error:&error] ) {
+                            NSLog(@"Create symbolic link failed!");
+                            NSLog(@"%@", error);
+                        }
+                    }
+                    
+                } else {
+                    NSLog(@"sourceFileURL=%@", sourceFileURL);
+                }
             }
         } else {
             NSLog(@"ERROR: filePath is nil!");
@@ -484,6 +504,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     reply(nil, 0);
 }
 
+
+ // Unused atm
 #define SALTED_SHA1_LEN 48
 #define SALTED_SHA1_OFFSET (64 + 40 + 64)
 #define SHADOW_HASH_LEN 1240

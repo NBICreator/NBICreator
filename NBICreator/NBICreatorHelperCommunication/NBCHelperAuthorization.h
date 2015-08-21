@@ -10,7 +10,7 @@
 
 @interface NBCHelperAuthorization : NSObject
 
-+(NSError *)checkAuthorization:(NSData *)authData command:(SEL)command;
-+(NSData *)authorizeHelper;
++ (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command;
++ (NSData *)authorizeHelper;
 
 @end

@@ -41,14 +41,13 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
 
 
 + (void)enumerateRightsUsingBlock:( void (^)(NSString * authRightName, id authRightDefault, NSString * authRightDesc))block {
-// Calls the supplied block with information about each known authorization right..
     [self.commandInfo enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
 #pragma unused(key)
 #pragma unused(stop)
-        NSDictionary *  commandDict;
-        NSString *      authRightName;
+        NSDictionary    *commandDict;
+        NSString        *authRightName;
         id              authRightDefault;
-        NSString *      authRightDesc;
+        NSString        *authRightDesc;
         
         // If any of the following asserts fire it's likely that you've got a bug
         // in sCommandInfo.
@@ -71,7 +70,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
 
 + (void)setupAuthorizationRights:(AuthorizationRef)authRef {
     assert(authRef != NULL);
-    [NBCHelperAuthorization enumerateRightsUsingBlock:^(NSString * authRightName, id authRightDefault, NSString * authRightDesc) {
+    [[self class] enumerateRightsUsingBlock:^(NSString * authRightName, id authRightDefault, NSString * authRightDesc) {
         OSStatus    blockErr;
         
         // First get the right.  If we get back errAuthorizationDenied that means there's
@@ -97,10 +96,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     }];
 }
 
-+ (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command
-// Check that the client denoted by authData is allowed to run the specified command.
-// authData is expected to be an NSData with an AuthorizationExternalForm embedded inside.
-{
++ (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command {
 #pragma unused(authData)
     NSError *                   error;
     OSStatus                    err;
@@ -141,7 +137,8 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                           );
         }
         if (err != errAuthorizationSuccess) {
-            error = [NSError errorWithDomain:NSOSStatusErrorDomain code:err userInfo:nil];
+            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
+            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
         }
     }
     
@@ -153,8 +150,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     return error;
 }
 
-+ (NSData *)authorizeHelper
-{
++ (NSData *)authorizeHelper {
     OSStatus err;
     AuthorizationExternalForm extForm;
     AuthorizationRef authRef;
