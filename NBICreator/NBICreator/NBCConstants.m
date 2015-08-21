@@ -107,6 +107,7 @@ NSString *const NBCSettingsNBIProtocol = @"Protocol";
 NSString *const NBCSettingsNBIEnabled = @"Enabled";
 NSString *const NBCSettingsNBIDefault = @"Default";
 NSString *const NBCSettingsNBILanguage = @"Language";
+NSString *const NBCSettingsNBITimeZone = @"TimeZone";
 NSString *const NBCSettingsNBIKeyboardLayout = @"KeyboardLayout";
 NSString *const NBCSettingsNBIDescription = @"Description";
 NSString *const NBCSettingsNBIDestinationFolder = @"DestinationFolder";
@@ -386,12 +387,14 @@ NSString *const NBCWorkflowCopyRegexTargetFolderURL = @"workflowCopyRegexTargetF
 NSString *const NBCWorkflowModify = @"workflowModify";
 NSString *const NBCWorkflowModifyAttributes = @"workflowModifyAttributes";
 NSString *const NBCWorkflowModifyTargetURL = @"workflowModifyTargetURL";
+NSString *const NBCWorkflowModifySourceURL = @"workflowModifySourceURL";
 NSString *const NBCWorkflowModifyContent = @"workflowModifyContent";
 NSString *const NBCWorkflowModifyFileType = @"workflowModifyFileType";
 NSString *const NBCWorkflowModifyFileTypePlist = @"workflowModifyFileTypePlist";
 NSString *const NBCWorkflowModifyFileTypeGeneric = @"workflowModifyFileTypeGeneric";
 NSString *const NBCWorkflowModifyFileTypeFolder = @"workflowModifyFileTypeFolder";
 NSString *const NBCWorkflowModifyFileTypeDelete = @"workflowModifyFileTypeDelete";
+NSString *const NBCWorkflowModifyFileTypeLink = @"workflowModifyFileTypeLink";
 
 // --------------------------------------------------------------
 //  Workflow Install

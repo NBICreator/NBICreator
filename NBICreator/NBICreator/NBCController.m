@@ -129,7 +129,7 @@ enum {
     // --------------------------------------------------------------
     _arbitrator = [NBCDiskArbitrator sharedArbitrator];
     
-    NSString *requiredVersion = @"1.0";
+    NSString *requiredVersion = @"1.0.1";
     
     OSStatus                    err;
     AuthorizationExternalForm   extForm;
@@ -348,19 +348,8 @@ enum {
 
 - (void)terminateApp {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"Terminating Application");
-    NBCHelperConnection *helper = [[NBCHelperConnection alloc] init];
-    [helper connectToHelper];
-    
-    [[helper.connection remoteObjectProxyWithErrorHandler:^(NSError *error) {
-        DDLogError(@"Could not connect to helper tool!");
-        DDLogError(@"Error: %@", error);
-        [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
-    }] quitHelper:^(BOOL success) {
-#pragma unused(success)
-        [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
-    }];
-}
+    [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
+} // terminateApp
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -553,12 +542,12 @@ enum {
 
 - (void)showHelperToolUpgradeBox {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    [_textFieldInstallHelperText setStringValue:@"To create a NetInstall Image you need to upgrade the helper tool."];
+    [_textFieldInstallHelperText setStringValue:@"To create a NetInstall Image you need to upgrade the helper"];
     [_buttonInstallHelper setTitle:@"Upgrade Helper"];
     [self showHelperToolInstallBox];
 } // showHelperToolUpgradeBox
 
-- (void)hideHelperToolInstallBox {
+- (void)hideHelperToolInstallBox {  
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_viewInstallHelper removeFromSuperview];
     [_viewMainWindow addConstraint:_constraintBetweenButtonBuildAndViewOutput];

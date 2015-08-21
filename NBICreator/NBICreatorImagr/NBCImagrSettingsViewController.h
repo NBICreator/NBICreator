@@ -28,6 +28,8 @@
 
 @property NSMutableDictionary *keyboardLayoutDict;
 @property NSDictionary *languageDict;
+@property NSArray *timeZoneArray;
+@property NSMenuItem *selectedMenuItem;
 
 // ------------------------------------------------------
 //  Constraints
@@ -76,6 +78,7 @@
 @property (weak) IBOutlet NSTextField *textFieldDestinationFolder;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonProtocol;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonLanguage;
+@property (weak) IBOutlet NSPopUpButton *popUpButtonTimeZone;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonKeyboardLayout;
 @property (weak) IBOutlet NSButton *checkboxAvailabilityEnabled;
 @property (weak) IBOutlet NSButton *checkboxAvailabilityDefault;
@@ -148,6 +151,7 @@
 @property NSString *nbiIndex;
 @property NSString *nbiProtocol;
 @property NSString *nbiLanguage;
+@property NSString *nbiTimeZone;
 @property NSString *nbiKeyboardLayout;
 @property NSString *nbiDescription;
 @property NSString *destinationFolder;

@@ -806,7 +806,12 @@ DDLogLevel ddLogLevel;
     }
     DDLogDebug(@"bootSettingsDict=%@", bootSettingsDict);
     DDLogDebug(@"bootSettingsAttributes=%@", bootSettingsAttributes);
-    bootSettingsDict[@"Kernel Flags"] = @"-v";
+    if ( [bootSettingsDict[@"Kernel Flags"] length] != 0 ) {
+        NSString *currentKernelFlags = bootSettingsDict[@"Kernel Flags"];
+        bootSettingsDict[@"Kernel Flags"] = [NSString stringWithFormat:@"%@ -v", currentKernelFlags];
+    } else {
+        bootSettingsDict[@"Kernel Flags"] = @"-v";
+    }
     DDLogDebug(@"bootSettingsDict=%@", bootSettingsDict);
     NSDictionary *modifyBootSettings = @{
                                                             NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
@@ -999,6 +1004,8 @@ DDLogLevel ddLogLevel;
     
     if ( [resourceSettings[NBCSettingsCountry] length] != 0 ) {
         globalPreferencesDict[@"Country"] = resourceSettings[NBCSettingsCountry];
+    } else if ( [globalPreferencesDict[@"AppleLocale"] containsString:@"_"] ) {
+        globalPreferencesDict[@"Country"] = [globalPreferencesDict[@"AppleLocale"] componentsSeparatedByString:@"_"][2];
     }
     
     if ( [resourceSettings[NBCSettingsLocale] length] != 0 ) {
@@ -1053,6 +1060,7 @@ DDLogLevel ddLogLevel;
     return retval;
 } // modifySettingsForLanguageAndKeyboardLayout
 
+
 - (BOOL)modifySettingsForMenuBar:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogDebug(@"modifyDictArray=%@", modifyDictArray);
@@ -1068,6 +1076,9 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] volumeURL is nil");
         return NO;
     }
+    
+    NSDictionary *resourceSettings = [workflowItem resourcesSettings];
+    DDLogDebug(@"resourceSettings=%@", resourceSettings);
     
     // --------------------------------------------------------------
     //  /Library/Preferences/com.apple.systemuiserver.plist
@@ -1141,6 +1152,38 @@ DDLogLevel ddLogLevel;
     [modifyDictArray addObject:modifyDictSystemUIServer];
     
     // --------------------------------------------------------------
+    //  /etc/localtime -> /usr/share/zoneinfo/...
+    // --------------------------------------------------------------
+    NSURL *localtimeURL = [volumeURL URLByAppendingPathComponent:@"etc/localtime"];
+    NSDictionary *localtimeAttributes;
+    if ( [localtimeURL checkResourceIsReachableAndReturnError:nil] ) {
+        localtimeAttributes = [fm attributesOfItemAtPath:[localtimeURL path] error:&error];
+    }
+    
+    if ( ! localtimeURL ) {
+        localtimeAttributes = @{
+                                     NSFileOwnerAccountName : @"root",
+                                     NSFileGroupOwnerAccountName : @"wheel",
+                                     NSFilePosixPermissions : @0644
+                                     };
+    }
+    
+    NSString *selectedTimeZone = resourceSettings[NBCSettingsNBITimeZone];
+    NSLog(@"selectedTimeZone=%@", selectedTimeZone);
+    if ( [selectedTimeZone length] != 0 ) {
+        NSURL *localtimeTargetURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/usr/share/zoneinfo/%@", selectedTimeZone]];
+        
+        NSDictionary *modifyLocaltime = @{
+                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeLink,
+                                          NBCWorkflowModifySourceURL : [localtimeURL path],
+                                          NBCWorkflowModifyTargetURL : [localtimeTargetURL path]
+                                          };
+        
+        [modifyDictArray addObject:modifyLocaltime];
+    }
+    
+    /*
+    // --------------------------------------------------------------
     //  /Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist
     // --------------------------------------------------------------
     NSURL *iconservicesdLaunchDaemonURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist"];
@@ -1172,6 +1215,46 @@ DDLogLevel ddLogLevel;
                                                       };
     
     [modifyDictArray addObject:modifyIconservicesdLaunchDaemon];
+    */
+    
+    /*
+    // --------------------------------------------------------------
+    //  /System/Library/Frameworks/PreferencePanes.framework/Resources/global.defaults
+    // --------------------------------------------------------------
+    NSURL *globalDefaultsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/Frameworks/PreferencePanes.framework/Resources/global.defaults"];
+    
+    NSMutableDictionary *globalDefaultsDict;
+    NSDictionary *globalDefaultsAttributes;
+    if ( [globalDefaultsURL checkResourceIsReachableAndReturnError:nil] ) {
+        globalDefaultsDict = [NSMutableDictionary dictionaryWithContentsOfURL:globalDefaultsURL];
+        globalDefaultsAttributes = [fm attributesOfItemAtPath:[globalDefaultsURL path] error:&error];
+    }
+    
+    if ( [globalDefaultsDict count] == 0 ) {
+        globalDefaultsDict = [[NSMutableDictionary alloc] init];
+        globalDefaultsAttributes = @{
+                                                NSFileOwnerAccountName : @"root",
+                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                NSFilePosixPermissions : @0644
+                                                };
+    }
+    NSDictionary *resourceSettings = [workflowItem resourcesSettings];
+    DDLogDebug(@"resourceSettings=%@", resourceSettings);
+    NSString *selectedTimeZone = resourceSettings[NBCSettingsNBITimeZone];
+    NSLog(@"selectedTimeZone=%@", selectedTimeZone);
+    if ( [selectedTimeZone length] != 0 ) {
+        globalDefaultsDict[@"TimeZoneLabel"] = selectedTimeZone;
+    }
+    
+    NSDictionary *modifyGlobalDefaults = @{
+                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                      NBCWorkflowModifyContent : globalDefaultsDict,
+                                                      NBCWorkflowModifyAttributes : globalDefaultsAttributes,
+                                                      NBCWorkflowModifyTargetURL : [globalDefaultsURL path]
+                                                      };
+    
+    [modifyDictArray addObject:modifyGlobalDefaults];
+    */
     
     return retval;
 } // modifySettingsForMenuBar

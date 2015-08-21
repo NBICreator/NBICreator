@@ -105,6 +105,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     [self testInternetConnection];
     
+    [self populatePopUpButtonTimeZone];
     [self populatePopUpButtonLanguage];
     [self populatePopUpButtonKeyboardLayout];
     
@@ -991,6 +992,21 @@ DDLogLevel ddLogLevel;
         }
     }
     
+    NSString *selectedTimeZone = settingsDict[NBCSettingsNBITimeZone];
+    if ( [selectedTimeZone isEqualToString:NBCMenuItemCurrent] ) {
+        [self selectTimeZone:[_popUpButtonTimeZone itemWithTitle:NBCMenuItemCurrent]];
+    } else {
+        NSString *selectedTimeZoneRegion = [selectedTimeZone componentsSeparatedByString:@"/"][0];
+        NSString *selectedTimeZoneCity = [selectedTimeZone componentsSeparatedByString:@"/"][1];
+        NSArray *regionArray = [[[_popUpButtonTimeZone itemWithTitle:selectedTimeZoneRegion] submenu] itemArray];
+        for ( NSMenuItem *menuItem in regionArray ) {
+            if ( [[menuItem title] isEqualToString:selectedTimeZoneCity] ) {
+                [self selectTimeZone:menuItem];
+                break;
+            }
+        }
+    }
+    
     [self expandVariablesForCurrentSettings];
 } // updateUISettingsFromDict
 
@@ -1066,6 +1082,16 @@ DDLogLevel ddLogLevel;
         }
     }
     settingsDict[NBCSettingsPackages] = packageArray ?: @[];
+    
+    NSString *selectedTimeZone;
+    NSString *selectedTimeZoneCity = [_selectedMenuItem title];
+    if ( [selectedTimeZoneCity isEqualToString:NBCMenuItemCurrent] ) {
+        selectedTimeZone = selectedTimeZoneCity;
+    } else {
+        NSString *selectedTimeZoneRegion = [[_selectedMenuItem menu] title];
+        selectedTimeZone = [NSString stringWithFormat:@"%@/%@", selectedTimeZoneRegion, selectedTimeZoneCity];
+    }
+    settingsDict[NBCSettingsNBITimeZone] = selectedTimeZone ?: NBCMenuItemCurrent;
     
     return [settingsDict copy];
 } // returnSettingsFromUI
@@ -2130,28 +2156,28 @@ DDLogLevel ddLogLevel;
         }
         
         /* Should not access property lists directly, keeping it around for now
-        NSDictionary *globalPreferencesDict = [NSDictionary dictionaryWithContentsOfFile:NBCPathPreferencesGlobal];
-        NSString *currentLanguageID = globalPreferencesDict[@"AppleLanguages"][0];
-        DDLogInfo(@"Current Language ID: %@", currentLanguageID);
-        if ( [currentLanguageID length] != 0 ) {
-            resourcesSettings[NBCSettingsNBILanguage] = currentLanguageID;
-        } else {
-            DDLogError(@"[ERROR] Could not get current language ID!");
-            return;
-        }
-        
-        NSString *currentLocaleIdentifier = globalPreferencesDict[@"AppleLocale"];
-        DDLogInfo(@"currentLocaleIdentifier=%@", currentLocaleIdentifier);
-        if ( [currentLocaleIdentifier length] != 0 ) {
-            resourcesSettings[NBCSettingsLocale] = currentLocaleIdentifier;
-        }
-        
-        NSString *currentCountry = globalPreferencesDict[@"Country"];
-        DDLogInfo(@"currentCountry=%@", currentCountry);
-        if ( [currentCountry length] != 0 ) {
-            resourcesSettings[NBCSettingsCountry] = currentCountry;
-        }
-        */
+         NSDictionary *globalPreferencesDict = [NSDictionary dictionaryWithContentsOfFile:NBCPathPreferencesGlobal];
+         NSString *currentLanguageID = globalPreferencesDict[@"AppleLanguages"][0];
+         DDLogInfo(@"Current Language ID: %@", currentLanguageID);
+         if ( [currentLanguageID length] != 0 ) {
+         resourcesSettings[NBCSettingsNBILanguage] = currentLanguageID;
+         } else {
+         DDLogError(@"[ERROR] Could not get current language ID!");
+         return;
+         }
+         
+         NSString *currentLocaleIdentifier = globalPreferencesDict[@"AppleLocale"];
+         DDLogInfo(@"currentLocaleIdentifier=%@", currentLocaleIdentifier);
+         if ( [currentLocaleIdentifier length] != 0 ) {
+         resourcesSettings[NBCSettingsLocale] = currentLocaleIdentifier;
+         }
+         
+         NSString *currentCountry = globalPreferencesDict[@"Country"];
+         DDLogInfo(@"currentCountry=%@", currentCountry);
+         if ( [currentCountry length] != 0 ) {
+         resourcesSettings[NBCSettingsCountry] = currentCountry;
+         }
+         */
     } else {
         NSString *languageID = [_languageDict allKeysForObject:selectedLanguage][0];
         if ( [languageID length] != 0 ) {
@@ -2209,6 +2235,21 @@ DDLogLevel ddLogLevel;
         resourcesSettings[NBCSettingsNBIKeyboardLayout] = selectedKeyboardLayout;
     }
     NSLog(@"resourcesSettings[NBCSettingsNBIKeyboardLayout]=%@", resourcesSettings[NBCSettingsNBIKeyboardLayout]);
+    
+    NSString *selectedTimeZone = [self timeZoneFromMenuItem:_selectedMenuItem];
+    if ( [selectedTimeZone length] != 0 ) {
+        if ( [selectedTimeZone isEqualToString:NBCMenuItemCurrent] ) {
+            NSTimeZone *currentTimeZone = [NSTimeZone defaultTimeZone];
+            NSString *currentTimeZoneName = [currentTimeZone name];
+            NSLog(@"currentTimeZoneName=%@", currentTimeZoneName);
+            resourcesSettings[NBCSettingsNBITimeZone] = currentTimeZoneName;
+        } else {
+            resourcesSettings[NBCSettingsNBITimeZone] = selectedTimeZone;
+        }
+    } else {
+        DDLogError(@"[ERROR] selectedTimeZone is nil!");
+        return;
+    }
     
     // -------------------------------------------------------------
     //  Create list of items to extract from installer
@@ -2286,6 +2327,168 @@ DDLogLevel ddLogLevel;
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationAddWorkflowItemToQueue object:self userInfo:userInfo];
     
 } // prepareWorkflowItem
+
+- (NSString *)timeZoneFromMenuItem:(NSMenuItem *)menuItem {
+    NSString *timeZone;
+    
+    NSString *selectedTimeZoneCity = [menuItem title];
+    if ( [selectedTimeZoneCity isEqualToString:NBCMenuItemCurrent] ) {
+        timeZone = selectedTimeZoneCity;
+    } else {
+        NSString *selectedTimeZoneRegion = [[menuItem menu] title];
+        timeZone = [NSString stringWithFormat:@"%@/%@", selectedTimeZoneRegion, selectedTimeZoneCity];
+    }
+    
+    return timeZone;
+}
+
+- (void)populatePopUpButtonTimeZone {
+    
+    _timeZoneArray = [NSTimeZone knownTimeZoneNames];
+    if ( [_timeZoneArray count] != 0 ) {
+        NSMenu *menuAfrica = [[NSMenu alloc] initWithTitle:@"Africa"];
+        NSMenu *menuAmerica = [[NSMenu alloc] initWithTitle:@"America"];
+        NSMenu *menuAntarctica = [[NSMenu alloc] initWithTitle:@"Antarctica"];
+        NSMenu *menuArctic = [[NSMenu alloc] initWithTitle:@"Arctic"];
+        NSMenu *menuAsia = [[NSMenu alloc] initWithTitle:@"Asia"];
+        NSMenu *menuAtlantic = [[NSMenu alloc] initWithTitle:@"Atlantic"];
+        NSMenu *menuAustralia = [[NSMenu alloc] initWithTitle:@"Australia"];
+        NSMenu *menuEurope = [[NSMenu alloc] initWithTitle:@"Europe"];
+        NSMenu *menuIndian = [[NSMenu alloc] initWithTitle:@"Indian"];
+        NSMenu *menuPacific = [[NSMenu alloc] initWithTitle:@"Pacific"];
+        for ( NSString *timeZoneName in _timeZoneArray ) {
+            if ( [timeZoneName isEqualToString:@"GMT"] ) {
+                continue;
+            }
+            
+            NSArray *timeZone = [timeZoneName componentsSeparatedByString:@"/"];
+            NSString *timeZoneRegion = timeZone[0];
+            __block NSString *timeZoneCity = @"";
+            if ( 2 < [timeZone count] ) {
+                NSRange range;
+                range.location = 1;
+                range.length = ( [timeZone count] -1 );
+                [timeZone enumerateObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:range] options:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+#pragma unused(idx,stop)
+                    if ( [timeZoneCity length] == 0 ) {
+                        timeZoneCity = obj;
+                    } else {
+                        timeZoneCity = [NSString stringWithFormat:@"%@/%@", timeZoneCity, obj];
+                    }
+                }];
+            } else {
+                timeZoneCity = timeZone[1];
+            }
+            
+            NSLog(@"timeZoneCity=%@", timeZoneCity);
+            if ( [timeZoneRegion isEqualToString:@"Africa"] ) {
+                [menuAfrica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            } else if ( [timeZoneRegion isEqualToString:@"America"] ) {
+                [menuAmerica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            } else if ( [timeZoneRegion isEqualToString:@"Antarctica"] ) {
+                [menuAntarctica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            } else if ( [timeZoneRegion isEqualToString:@"Arctic"] ) {
+                [menuArctic addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            } else if ( [timeZoneRegion isEqualToString:@"Asia"] ) {
+                [menuAsia addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            } else if ( [timeZoneRegion isEqualToString:@"Atlantic"] ) {
+                [menuAtlantic addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            } else if ( [timeZoneRegion isEqualToString:@"Australia"] ) {
+                [menuAustralia addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            } else if ( [timeZoneRegion isEqualToString:@"Europe"] ) {
+                [menuEurope addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            } else if ( [timeZoneRegion isEqualToString:@"Indian"] ) {
+                [menuIndian addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            } else if ( [timeZoneRegion isEqualToString:@"Pacific"] ) {
+                [menuPacific addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            }
+        }
+        
+        [_popUpButtonTimeZone removeAllItems];
+        [_popUpButtonTimeZone addItemWithTitle:NBCMenuItemCurrent];
+        [[_popUpButtonTimeZone menu] addItem:[NSMenuItem separatorItem]];
+        
+        NSMenuItem *menuItemAfrica = [[NSMenuItem alloc] initWithTitle:@"Africa" action:nil keyEquivalent:@""];
+        [menuItemAfrica setSubmenu:menuAfrica];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAfrica];
+        
+        NSMenuItem *menuItemAmerica = [[NSMenuItem alloc] initWithTitle:@"America" action:nil keyEquivalent:@""];
+        [menuItemAmerica setSubmenu:menuAmerica];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAmerica];
+        
+        NSMenuItem *menuItemAntarctica = [[NSMenuItem alloc] initWithTitle:@"Antarctica" action:nil keyEquivalent:@""];
+        [menuItemAntarctica setSubmenu:menuAntarctica];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAntarctica];
+        
+        NSMenuItem *menuItemArctic = [[NSMenuItem alloc] initWithTitle:@"Arctic" action:nil keyEquivalent:@""];
+        [menuItemArctic setSubmenu:menuArctic];
+        [[_popUpButtonTimeZone menu] addItem:menuItemArctic];
+        
+        NSMenuItem *menuItemAsia = [[NSMenuItem alloc] initWithTitle:@"Asia" action:nil keyEquivalent:@""];
+        [menuItemAsia setSubmenu:menuAsia];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAsia];
+        
+        NSMenuItem *menuItemAtlantic = [[NSMenuItem alloc] initWithTitle:@"Atlantic" action:nil keyEquivalent:@""];
+        [menuItemAtlantic setSubmenu:menuAtlantic];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAtlantic];
+        
+        NSMenuItem *menuItemAustralia = [[NSMenuItem alloc] initWithTitle:@"Australia" action:nil keyEquivalent:@""];
+        [menuItemAustralia setSubmenu:menuAustralia];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAustralia];
+        
+        NSMenuItem *menuItemEurope = [[NSMenuItem alloc] initWithTitle:@"Europe" action:nil keyEquivalent:@""];
+        [menuItemEurope setSubmenu:menuEurope];
+        [[_popUpButtonTimeZone menu] addItem:menuItemEurope];
+        
+        NSMenuItem *menuItemIndian = [[NSMenuItem alloc] initWithTitle:@"Indian" action:nil keyEquivalent:@""];
+        [menuItemIndian setSubmenu:menuIndian];
+        [[_popUpButtonTimeZone menu] addItem:menuItemIndian];
+        
+        NSMenuItem *menuItemPacific = [[NSMenuItem alloc] initWithTitle:@"Pacific" action:nil keyEquivalent:@""];
+        [menuItemPacific setSubmenu:menuPacific];
+        [[_popUpButtonTimeZone menu] addItem:menuItemPacific];
+        
+        [self setSelectedMenuItem:[_popUpButtonTimeZone selectedItem]];
+    } else {
+        DDLogError(@"[ERROR] Could not find language strings file!");
+    }
+}
+
+- (void)selectTimeZone:(id)sender {
+    if ( ! [sender isKindOfClass:[NSMenuItem class]] ) {
+        return;
+    }
+    
+    [_selectedMenuItem setState:NSOffState];
+    
+    _selectedMenuItem = (NSMenuItem *)sender;
+    [_selectedMenuItem setState:NSOnState];
+    
+    NSMenuItem *newMenuItem = [_selectedMenuItem copy];
+    
+    NSInteger selectedMenuItemIndex = [_popUpButtonTimeZone indexOfSelectedItem];
+    
+    if ( selectedMenuItemIndex == 0 ) {
+        if ( ! [[_popUpButtonTimeZone itemAtIndex:1] isSeparatorItem] ) {
+            [_popUpButtonTimeZone removeItemAtIndex:1];
+        }
+    } else {
+        [_popUpButtonTimeZone removeItemAtIndex:selectedMenuItemIndex];
+    }
+    
+    for ( NSMenuItem *menuItem in [[_popUpButtonTimeZone menu] itemArray] ) {
+        if ( [[menuItem title] isEqualToString:NBCMenuItemCurrent] ) {
+            [_popUpButtonTimeZone removeItemWithTitle:NBCMenuItemCurrent];
+            break;
+        }
+    }
+    [[_popUpButtonTimeZone menu] insertItem:newMenuItem atIndex:0];
+    
+    if ( ! [[_selectedMenuItem title] isEqualToString:NBCMenuItemCurrent] ) {
+        [[_popUpButtonTimeZone menu] insertItemWithTitle:NBCMenuItemCurrent action:@selector(selectTimeZone:) keyEquivalent:@"" atIndex:0];
+    }
+    [_popUpButtonTimeZone selectItem:newMenuItem];
+}
 
 - (void)populatePopUpButtonLanguage {
     

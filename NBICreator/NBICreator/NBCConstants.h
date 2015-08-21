@@ -105,6 +105,7 @@ extern NSString *const NBCSettingsNBIProtocol;
 extern NSString *const NBCSettingsNBIEnabled;
 extern NSString *const NBCSettingsNBIDefault;
 extern NSString *const NBCSettingsNBILanguage;
+extern NSString *const NBCSettingsNBITimeZone;
 extern NSString *const NBCSettingsNBIKeyboardLayout;
 extern NSString *const NBCSettingsNBIDescription;
 extern NSString *const NBCSettingsNBIDestinationFolder;
@@ -363,12 +364,14 @@ extern NSString *const NBCWorkflowCopyRegexTargetFolderURL;
 extern NSString *const NBCWorkflowModify;
 extern NSString *const NBCWorkflowModifyAttributes;
 extern NSString *const NBCWorkflowModifyTargetURL;
+extern NSString *const NBCWorkflowModifySourceURL;
 extern NSString *const NBCWorkflowModifyContent;
 extern NSString *const NBCWorkflowModifyFileType;
 extern NSString *const NBCWorkflowModifyFileTypePlist;
 extern NSString *const NBCWorkflowModifyFileTypeGeneric;
 extern NSString *const NBCWorkflowModifyFileTypeFolder;
 extern NSString *const NBCWorkflowModifyFileTypeDelete;
+extern NSString *const NBCWorkflowModifyFileTypeLink;
 
 // --------------------------------------------------------------
 //  Workflow Install
