@@ -13,7 +13,7 @@ The design and idea of the application is to be able to create different types o
 
 # Download
 
-You can download the latest version the the [Releases](https://github.com/NBICreator/NBICreator/releases) page.
+You can download the latest version from the [Releases](https://github.com/NBICreator/NBICreator/releases) page.
 
 # Important
 
