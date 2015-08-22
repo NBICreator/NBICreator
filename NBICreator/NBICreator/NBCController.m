@@ -252,11 +252,6 @@ enum {
     }
 } // alertReturnCode:alertInfo
 
-
-
-
-
-
 - (void)configureCocoaLumberjack {
     
     // --------------------------------------------------------------

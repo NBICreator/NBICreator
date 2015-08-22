@@ -59,6 +59,7 @@ enum {
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"alertInfo=%@", alertInfo);
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     
     if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsaved] ) {
@@ -75,7 +76,6 @@ enum {
             return;
         }
     } else if ( [alertTag isEqualToString:NBCAlertTagDeleteTemplate] ) {
-        
         if ( returnCode == NSAlertSecondButtonReturn ) {        // Delete
             NSURL *templateURL = alertInfo[NBCAlertUserInfoTemplateURL];
             [self deleteTemplateAtURL:templateURL];
@@ -124,18 +124,20 @@ enum {
 
 - (void)deleteTemplateAtURL:(NSURL *)templateURL {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"templateURL=%@", templateURL);
+    DDLogInfo(@"Deleting template: %@", [templateURL lastPathComponent]);
     NSError *error;
-    NSFileManager *fm = [NSFileManager defaultManager];
-    if ( [fm trashItemAtURL:templateURL resultingItemURL:nil error:&error] ) {
+    if ( [[NSFileManager defaultManager] trashItemAtURL:templateURL resultingItemURL:nil error:&error] ) {
         [self updateTemplateListForPopUpButton:_popUpButton title:nil];
     } else {
-        NSLog(@"Could not move %@ to the trash", templateURL);
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR] Could not move %@ to the trash", templateURL);
+        DDLogError(@"[ERROR] %@", error);
     }
 }
 
 - (void)controlTextDidChange:(NSNotification *)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -----------------------------------------------------------------------
     //  Don't allow empty template names or names that are already being used
     // -----------------------------------------------------------------------
@@ -158,47 +160,55 @@ enum {
 
 - (void)disableTemplateAtURL:(NSURL *)templateURL {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"templateURL=%@", templateURL);
+    DDLogError(@"[ERROR] Disabling template: %@", [templateURL lastPathComponent]);
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
     
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
+    DDLogDebug(@"userApplicationSupport=%@", userApplicationSupport);
     NSURL *templatesDisabledFolderURL;
     if ( userApplicationSupport ) {
         templatesDisabledFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesDisabled isDirectory:YES];
+        DDLogDebug(@"templatesDisabledFolderURL=%@", templatesDisabledFolderURL);
     } else {
-        NSLog(@"Could not find user Application Support Folder");
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR] No Application Support Folder returned!");
+        DDLogError(@"[ERROR] %@", error);
         return;
     }
     
     if ( ! [templatesDisabledFolderURL checkResourceIsReachableAndReturnError:nil] ) {
         if ( ! [fm createDirectoryAtURL:templatesDisabledFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-            NSLog(@"Could not create disabled directory!");
+            DDLogError(@"[ERROR] Could not create directory for disabled templates!");
             return;
         }
     }
     
     NSURL *templateTargetURL = [templatesDisabledFolderURL URLByAppendingPathComponent:[templateURL lastPathComponent]];
+    DDLogDebug(@"templateTargetURL=%@", templateTargetURL);
     if ( ! [fm moveItemAtURL:templateURL toURL:templateTargetURL error:&error] ) {
-        NSLog(@"Could not move template to disabled directory!");
+        DDLogError(@"[ERROR] Could not move template to disabled directory!");
     }
 }
 
 - (void)updateTemplateListForPopUpButton:(NSPopUpButton *)popUpButton title:(NSString *)title {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"popUpButton=%@", popUpButton);
+    DDLogDebug(@"title=%@", title);
+    
     if ( ! _popUpButton ) {
         _popUpButton = popUpButton;
     }
     
-    if ( popUpButton ) {
-        [popUpButton removeAllItems];
+    if ( _popUpButton ) {
+        [_popUpButton removeAllItems];
     }
     
     // -------------------------------------------------------------
     //  Add new template with passed title at the top of template list.
     // -------------------------------------------------------------
-    if ( title != nil ) {
-        [popUpButton addItemWithTitle:title];
+    if ( [title length] != 0 ) {
+        [_popUpButton addItemWithTitle:title];
     }
     
     // -------------------------------------------------------------
@@ -208,10 +218,12 @@ enum {
     BOOL userTemplateFolderExists = NO;
     NSFileManager *fm = [[NSFileManager alloc] init];
     NSMutableArray *templates = [[NSMutableArray alloc] init];
-    NSURL *defaultSettingsPath = [[NSBundle mainBundle] URLForResource:_templateDefaultSettings withExtension:@"plist"];
     
+    NSURL *defaultSettingsPath = [[NSBundle mainBundle] URLForResource:_templateDefaultSettings withExtension:@"plist"];
+    DDLogDebug(@"defaultSettingsPath=%@", defaultSettingsPath);
     if ( [[_settingsViewController templatesFolderURL] checkResourceIsReachableAndReturnError:nil] ) {
         userTemplateFolderExists = YES;
+        DDLogDebug(@"userTemplateFolderExists=%hhd", userTemplateFolderExists);
         NSArray *contents = [fm contentsOfDirectoryAtURL:[_settingsViewController templatesFolderURL]
                               includingPropertiesForKeys:@[]
                                                  options:NSDirectoryEnumerationSkipsHiddenFiles
@@ -219,30 +231,41 @@ enum {
         
         NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'nbic'"];
         for ( NSURL *fileURL in [contents filteredArrayUsingPredicate:predicate] ) {
-            NSDictionary *dict = [[NSDictionary alloc] initWithContentsOfURL:fileURL];
-            
-            NSString *templateType = dict[NBCSettingsTypeKey];
-            if ( [templateType isEqualToString:_templateType] ) {
-                NSString *templateName = dict[NBCSettingsNameKey];
-                if ( [templateName isEqualToString:NBCMenuItemUntitled] ) {
-                    [self disableTemplateAtURL:fileURL];
+            DDLogDebug(@"fileURL=%@", fileURL);
+            NSDictionary *templateDict = [[NSDictionary alloc] initWithContentsOfURL:fileURL];
+            DDLogDebug(@"templateDict=%@", templateDict);
+            if ( [templateDict count] != 0 ) {
+                NSString *templateType = templateDict[NBCSettingsTypeKey];
+                DDLogDebug(@"templateType=%@", templateType);
+                if ( [templateType isEqualToString:_templateType] ) {
+                    NSString *templateName = templateDict[NBCSettingsNameKey];
+                    DDLogDebug(@"templateName=%@", templateName);
+                    if ( [templateName isEqualToString:NBCMenuItemUntitled] ) {
+                        [self disableTemplateAtURL:fileURL];
+                    } else {
+                        [templates addObject:templateName];
+                        [[_settingsViewController templatesDict] setValue:fileURL forKey:templateName];
+                    }
                 } else {
-                    [templates addObject:templateName];
-                    [[_settingsViewController templatesDict] setValue:fileURL forKey:templateName];
+                    DDLogDebug(@"Template not correct type!");
+                    DDLogDebug(@"_templateType=%@", _templateType);
                 }
+            } else {
+                DDLogError(@"[ERROR] Could not read template: %@", [fileURL path]);
             }
         }
         
+        DDLogDebug(@"templates=%@", templates);
         if ( [templates count] == 0 ) {
             if ( [title length] == 0 ) {
                 if ( [defaultSettingsPath checkResourceIsReachableAndReturnError:&error] ) {
                     NSDictionary *defaultSettingsDict = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsPath];
-                    if ( defaultSettingsDict ) {
+                    if ( [defaultSettingsDict count] != 0 ) {
                         [_settingsViewController updateUISettingsFromDict:defaultSettingsDict];
                     }
                 } else {
-                    NSLog(@"Could not find default settings file");
-                    NSLog(@"Error: %@", error);
+                    DDLogError(@"[ERROR] Could not find default settings file!");
+                    DDLogError(@"[ERROR] %@", error);
                 }
                 [popUpButton addItemWithTitle:NBCMenuItemUntitled];
             }
@@ -302,10 +325,12 @@ enum {
     //  Update settings from the selected template
     // -------------------------------------------------------------
     NSString *selectedTemplate = [popUpButton titleOfSelectedItem];
+    DDLogDebug(@"selectedTemplate=%@", selectedTemplate);
     [_settingsViewController setSelectedTemplate:selectedTemplate];
     
     if ( ! [selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
         NSURL *selectionURL = [_settingsViewController templatesDict][selectedTemplate];
+        DDLogDebug(@"selectionURL=%@", selectionURL);
         if ( selectionURL ) {
             [_settingsViewController updateUISettingsFromURL:selectionURL];
         }

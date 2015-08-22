@@ -610,16 +610,17 @@ DDLogLevel ddLogLevel;
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"url=%@", url);
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
-    if ( mainDict ) {
+    if ( [mainDict count] != 0 ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
-        if ( settingsDict ) {
+        if ( [settingsDict count] != 0 ) {
             [self updateUISettingsFromDict:settingsDict];
         } else {
-            NSLog(@"No key named Settings i plist at URL: %@", url);
+            DDLogError(@"[ERROR] No key named \"Settings\" in template: %@", [url path]);
         }
     } else {
-        NSLog(@"Could not read plist at URL: %@", url);
+        DDLogError(@"[ERROR] Could not read template: %@", [url path]);
     }
 } // updateUISettingsFromURL
 
@@ -672,9 +673,10 @@ DDLogLevel ddLogLevel;
 
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"url=%@", url);
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     NSDictionary *settingsDict;
-    if ( mainDict ) {
+    if ( [mainDict count] != 0 ) {
         settingsDict = mainDict[NBCSettingsSettingsKey];
     }
     
@@ -683,6 +685,9 @@ DDLogLevel ddLogLevel;
 
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"name=%@", name);
+    DDLogDebug(@"settingsURL=%@", settingsURL);
+    
     NSURL *targetURL = settingsURL;
     // -------------------------------------------------------------
     //  Create an empty dict and add template type, name and version
@@ -711,21 +716,21 @@ DDLogLevel ddLogLevel;
     //  Create the template folder if it doesn't exist.
     // -------------------------------------------------------------
     NSError *error;
-    NSFileManager *fm = [[NSFileManager alloc] init];
-    
     if ( ! [_templatesFolderURL checkResourceIsReachableAndReturnError:&error] ) {
-        if ( ! [fm createDirectoryAtURL:_templatesFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-            NSLog(@"DeployStudio template folder create failed: %@", error);
+        if ( ! [[NSFileManager defaultManager] createDirectoryAtURL:_templatesFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
+            DDLogError(@"[ERROR] Creating template folder for DeployStudio failed: %@", error);
+            DDLogError(@"[ERROR] %@", error);
         }
     }
     
+    DDLogInfo(@"Saving template \"%@\" at %@", name, [targetURL path]);
     // -------------------------------------------------------------
     //  Write settings to url and update _templatesDict
     // -------------------------------------------------------------
     if ( [mainDict writeToURL:targetURL atomically:NO] ) {
         [_templatesDict setValue:targetURL forKey:name];
     } else {
-        NSLog(@"Writing DeployStudio template to disk failed!");
+        DDLogError(@"[ERROR] Writing DeployStudio template to disk failed!");
     }
 } // saveUISettingsWithName:atUrl
 

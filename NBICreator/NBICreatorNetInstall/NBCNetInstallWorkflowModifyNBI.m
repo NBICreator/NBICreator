@@ -63,8 +63,7 @@ DDLogLevel ddLogLevel;
 
 - (void)finalizeWorkflow {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
     
 } // finalizeWorkflow
 

@@ -208,7 +208,7 @@ DDLogLevel ddLogLevel;
 
 - (void)installSuccessful {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"Install Successful!");
+    DDLogInfo(@"All packages installed successfuly!");
     
     // -------------------------------------------------------------------------
     //  Copy items to Base System using info from resourcesBaseSystemDict
@@ -216,10 +216,11 @@ DDLogLevel ddLogLevel;
     [self copyFilesToBaseSystem];
 } // installSuccessful
 
-- (void)installFailed {
+- (void)installFailed:(NSError *)error {
+#pragma unused(error)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogError(@"[ERROR] Install Failed!");
-    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
 } // installFailed
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -282,8 +283,8 @@ DDLogLevel ddLogLevel;
                     // ------------------------------------------------------------------
                     //  If task failed, post workflow failed notification
                     // ------------------------------------------------------------------
-                    DDLogError(@"%@", proxyError);
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                    DDLogError(@"[ERROR] %@", proxyError);
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
                 }];
                 
             }] removeItemAtURL:packagesFolderURL withReply:^(NSError *error, int terminationStatus) {
@@ -291,8 +292,8 @@ DDLogLevel ddLogLevel;
                     DDLogDebug(@"terminationStatus=%d", terminationStatus);
                     if ( terminationStatus != 0 ) {
                         DDLogError(@"[ERROR] Delete Packages folder in NetInstall failed!");
-                        DDLogError(@"%@", error);
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                        DDLogError(@"[ERROR] %@", error);
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
                     } else {
                         [self createFoldersInNetInstall];
                     }
@@ -365,12 +366,7 @@ DDLogLevel ddLogLevel;
     
     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-            
-            // ------------------------------------------------------------------
-            //  If task failed, post workflow failed notification
-            // ------------------------------------------------------------------
-            DDLogError(@"%@", proxyError);
-            [self copyFailed];
+            [self copyFailed:proxyError];
         }];
         
     }] copyResourcesToVolume:volumeURL resourcesDict:resourcesNetInstallDict withReply:^(NSError *error, int terminationStatus) {
@@ -380,8 +376,7 @@ DDLogLevel ddLogLevel;
                 [self modifyNBISystemImageUtility];
             } else {
                 DDLogError(@"[ERROR] Error while copying resources to NetInstall volume!");
-                DDLogError(@"%@", error);
-                [self copyFailed];
+                [self copyFailed:error];
             }
         }];
     }];
@@ -502,12 +497,7 @@ DDLogLevel ddLogLevel;
     
     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-            
-            // ------------------------------------------------------------------
-            //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
-            // ------------------------------------------------------------------
-            DDLogError(@"%@", proxyError);
-            [self copyFailed];
+            [self copyFailed:proxyError];
         }];
         
     }] copyResourcesToVolume:volumeURL resourcesDict:resourcesBaseSystemDict withReply:^(NSError *error, int terminationStatus) {
@@ -516,8 +506,7 @@ DDLogLevel ddLogLevel;
             if ( terminationStatus == 0 ) {
                 [self copyComplete];
             } else {
-                DDLogError(@"%@", error);
-                [self copyFailed];
+                [self copyFailed:error];
             }
         }];
     }];
@@ -729,7 +718,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When output data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogInfo(@"%@", outStr);
+                                        DDLogDebug(@"[createUser.bash] %@", outStr);
                                         
                                         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -756,7 +745,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogError(@"[ERROR] %@", errStr);
+                                        DDLogError(@"[createUser.bash][ERROR] %@", errStr);
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -897,9 +886,12 @@ DDLogLevel ddLogLevel;
     [self modifyFilesInBaseSystem];
 } // copyComplete
 
-- (void)copyFailed {
+- (void)copyFailed:(NSError *)error {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogError(@"Copy Failed!");
+    DDLogError(@"[ERROR] Copy Failed!");
+    if ( error ) {
+        DDLogError(@"[ERROR] %@", error);
+    }
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
 } // copyFailed
 
@@ -993,7 +985,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When output data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogInfo(@"%@", outStr);
+                                        DDLogDebug(@"[mdutil] %@", outStr);
                                         
                                         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -1020,7 +1012,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogError(@"[ERROR] %@", errStr);
+                                        DDLogError(@"[mdutil][ERROR] %@", errStr);
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -1141,7 +1133,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When output data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogInfo(@"%@", outStr);
+                                        DDLogDebug(@"[BootCacheControl] %@", outStr);
                                         
                                         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -1168,7 +1160,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogError(@"[ERROR] %@", errStr);
+                                        DDLogError(@"[BootCacheControl][ERROR] %@", errStr);
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];

@@ -25,24 +25,27 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)installPackagesToVolume:(NSURL *)volumeURL packages:(NSArray *)packages {
-    NSLog(@"installPackagesToVolume");
-    NSLog(@"volumeURL=%@", volumeURL);
-    NSLog(@"packages=%@", packages);
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    DDLogDebug(@"packages=%@", packages);
     if ( [packages count] != 0 ) {
         [self setVolumeURL:volumeURL];
-        _packagesQueue = [[NSMutableArray alloc] initWithArray:packages];
+        [self setPackagesQueue:[[NSMutableArray alloc] initWithArray:packages]];
         [self runPackageQueue];
+    } else {
+        [_delegate installSuccessful];
     }
 }
 
 - (void)installSuccessfulForPackage:(NSURL *)packageURL {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"%@ installed successfully!", [packageURL lastPathComponent]);
     [_packagesQueue removeObjectAtIndex:0];
     [self runPackageQueue];
 }
 
 - (void)runPackageQueue {
-    NSLog(@"runPackageQueue");
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( [_packagesQueue count] != 0 ) {
         NSDictionary *packageDict = [_packagesQueue firstObject];
         NSLog(@"packageDict=%@", packageDict);
@@ -67,20 +70,18 @@ DDLogLevel ddLogLevel;
 
 - (void)installPackageOnTargetVolume:(NSURL *)volumeURL packageURL:(NSURL *)packageURL choiceChangesXML:(NSDictionary *)choiceChangesXML {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSLog(@"installPackageOnTargetVolume");
-    BOOL verified = YES;
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    DDLogDebug(@"packageURL=%@", packageURL);
+    DDLogDebug(@"choiceChangesXML=%@", choiceChangesXML);
+    DDLogInfo(@"Installing %@ on volume %@...", [packageURL lastPathComponent], [volumeURL path]);
     
     NSURL *commandURL = [NSURL fileURLWithPath:@"/usr/sbin/installer"];
-    
-    NSLog(@"commandURL=%@", commandURL);
-    
-    NSMutableArray *installerArguments;
-    installerArguments = [[NSMutableArray alloc] initWithObjects:
-                          @"-verboseR",
-                          @"-allowUntrusted",
-                          @"-plist",
-                          nil];
-    
+    NSMutableArray *installerArguments = [[NSMutableArray alloc] initWithObjects:
+                                          @"-verboseR",
+                                          @"-allowUntrusted",
+                                          @"-plist",
+                                          nil];
+
     if ( choiceChangesXML ) {
         [installerArguments addObject:@"-applyChoiceChangesXML"];
         [installerArguments addObject:choiceChangesXML];
@@ -90,19 +91,23 @@ DDLogLevel ddLogLevel;
         [installerArguments addObject:@"-package"];
         [installerArguments addObject:[packageURL path]];
     } else {
-        NSLog(@"No package URL passed!");
-        verified = NO;
+        DDLogError(@"[ERROR] No package URL passed!");
+        if ( [self->_delegate respondsToSelector:@selector(installFailed:)] ) {
+            [self->_delegate installFailed:nil];
+        }
+        return;
     }
     
     if ( volumeURL ) {
         [installerArguments addObject:@"-target"];
         [installerArguments addObject:[volumeURL path]];
     } else {
-        NSLog(@"No volume URL passed!");
-        verified = NO;
+        DDLogError(@"[ERROR] No volume URL passed!");
+        [self->_delegate installFailed:nil];
+        return;
     }
     
-    NSLog(@"installerArguments=%@", installerArguments);
+    DDLogDebug(@"%@ %@", commandURL, installerArguments);
     
     // -----------------------------------------------------------------------------------
     //  Create standard output file handle and register for data available notifications.
@@ -113,17 +118,17 @@ DDLogLevel ddLogLevel;
     [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                                      object:[stdOut fileHandleForReading]
-                                                       queue:nil
-                                                  usingBlock:^(NSNotification *notification){
-                                                      #pragma unused(notification)
-                                                      NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
-                                                      NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                                      
-                                                      NSLog(@"stdout: %@", outStr);
-                                                      
-                                                      [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                                  }];
+                                        object:[stdOut fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
+                                        NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        
+                                        DDLogDebug(@"[installer] %@", outStr);
+                                        
+                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
     
     // -----------------------------------------------------------------------------------
     //  Create standard error file handle and register for data available notifications.
@@ -133,43 +138,38 @@ DDLogLevel ddLogLevel;
     NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
     [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
     id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                                      object:[stdErr fileHandleForReading]
-                                                       queue:nil
-                                                  usingBlock:^(NSNotification *notification){
-                                                      #pragma unused(notification)
-                                                      NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                                      NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
-                                                      
-                                                      NSLog(@"stderr: %@", errStr);
-                                                      
-                                                      [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                                  }];
+                                        object:[stdErr fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
+                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        
+                                        DDLogError(@"[installer][ERROR] %@", errStr);
+                                        
+                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
     
     NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
     [helperConnector connectToHelper];
     
     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-        NSLog(@"ProxyError? %@", proxyError);
+        DDLogError(@"[installer][ERROR] %@", proxyError);
         [nc removeObserver:stdOutObserver];
         [nc removeObserver:stdErrObserver];
-        NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
-        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
         
     }] runTaskWithCommandAtPath:commandURL arguments:installerArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
-        
+        DDLogDebug(@"terminationStatus=%d", terminationStatus);
         if ( terminationStatus == 0 ) {
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
             [self installSuccessfulForPackage:packageURL];
-            
         } else {
-            NSLog(@"Pkg install failed!");
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            if ( [self->_delegate respondsToSelector:@selector(installFailed)] ) {
-                [self->_delegate installFailed];
-            }
+            [self->_delegate installFailed:error];
         }
     }];
 }

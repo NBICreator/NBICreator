@@ -386,7 +386,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When output data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogInfo(@"%@", outStr);
+                                        DDLogDebug(@"[generateKernelCache.bash] %@", outStr);
 
                                         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -413,7 +413,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogError(@"[ERROR] %@", errStr);
+                                        DDLogError(@"[generateKernelCache.bash][ERROR] %@", errStr);
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -707,6 +707,8 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateNetInstallWorkflowStatus:(NSString *)outStr stdErr:(NSString *)stdErr {
+    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"[createNetInstall.sh] %@", outStr);
     
     // -------------------------------------------------------------
     //  Check if string begins with chosen prefix or with PERCENT:

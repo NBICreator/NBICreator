@@ -96,7 +96,7 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------
     //  Setup command to run createNetInstall.sh
     // ------------------------------------------
-    NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/sh"];
+    NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
     
     // -----------------------------------------------------------------------------------
     //  Create standard output file handle and register for data available notifications.
@@ -280,10 +280,15 @@ DDLogLevel ddLogLevel;
 
 - (void)updateNetInstallWorkflowStatus:(NSString *)outStr stdErr:(NSString *)stdErr {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"[createNetInstall.sh] %@", outStr);
+    
     // -------------------------------------------------------------
     //  Check if string begins with chosen prefix or with PERCENT:
     // -------------------------------------------------------------
     if ( [outStr hasPrefix:NBCWorkflowNetInstallLogPrefix] ) {
+        
+        
+        
         // ----------------------------------------------------------------------------------------------
         //  Check for build steps in output, then try to update UI with a meaningful message or progress
         // ----------------------------------------------------------------------------------------------

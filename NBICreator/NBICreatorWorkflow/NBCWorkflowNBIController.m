@@ -190,7 +190,7 @@ DDLogLevel ddLogLevel;
         NSLog(@"Could not get nbiName form workflowItem!");
         return nil;
     }
-    NSLog(@"sysBuilderArgumentsAAA=%@", sysBuilderArguments);
+
     // -------------------------------------------------------------------
     //  Add -dest
     // -------------------------------------------------------------------
@@ -260,7 +260,7 @@ DDLogLevel ddLogLevel;
             return nil;
         }
     }
-    NSLog(@"sysBuilderArgumentsBBB=%@", sysBuilderArguments);
+
     // -------------------------------------------------------------------
     //  Add -customtitle
     // -------------------------------------------------------------------

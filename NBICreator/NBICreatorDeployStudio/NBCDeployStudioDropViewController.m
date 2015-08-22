@@ -248,7 +248,7 @@ DDLogLevel ddLogLevel;
     [_textFieldSourceField2Label setStringValue:@"Recovery:"];
     
     if ( ! [systemOSVersion isEqualToString:baseSystemOSVersion] ) {
-        [_textFieldSourceTitle setStringValue:@"OS Version Mismatch!"];
+        [_textFieldSourceTitle setStringValue:@"Recovery Version Mismatch!"];
         NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:recoveryVersionString];
         [string addAttribute:NSFontAttributeName value:[NSFont systemFontOfSize:12] range:NSMakeRange(0, string.length)];
         //[string applyFontTraits:NSBoldFontMask range:NSMakeRange(0,[string length])];
@@ -257,7 +257,7 @@ DDLogLevel ddLogLevel;
         [string addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(9,(NSUInteger)len)];
         [_textFieldSourceField2 setAttributedStringValue:string];
     } else if ( ! [systemOSBuild isEqualToString:baseSystemOSBuild] ) {
-        [_textFieldSourceTitle setStringValue:@"Build Version Mismatch!"];
+        [_textFieldSourceTitle setStringValue:@"Recovery Version Mismatch!"];
         NSMutableAttributedString *recoveryVersionStringAttributed = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"Mac OS X %@ (", baseSystemOSVersion]];
         NSMutableAttributedString *string = [[NSMutableAttributedString alloc] initWithString:baseSystemOSBuild];
         [string addAttribute:NSFontAttributeName value:[NSFont systemFontOfSize:12] range:NSMakeRange(0, string.length)];

@@ -384,13 +384,12 @@ DDLogLevel ddLogLevel;
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             
             // ------------------------------------------------------------------
-            //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+            //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
-            NSLog(@"ProxyError? %@", proxyError);
+            DDLogError(@"[ERROR] %@", proxyError);
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
         }];
         
     }] runTaskWithCommandAtPath:commandURL arguments:scriptArguments currentDirectory:sourceFolder stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {

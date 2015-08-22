@@ -10,7 +10,7 @@
 
 @protocol NBCInstallerPackageDelegate
 - (void)installSuccessful;
-- (void)installFailed;
+- (void)installFailed:(NSError *)error;
 @end
 
 @interface NBCInstallerPackageController : NSObject

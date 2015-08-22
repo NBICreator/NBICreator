@@ -50,9 +50,13 @@ DDLogLevel ddLogLevel;
         [self setWorkflowNBIComplete:YES];
         if ( ! _workflowNBIResourcesComplete ) {
             if ( [_workflowNBIResourcesLastStatus length] == 0 ) {
-                [_textFieldStatusInfo setStringValue:@"Preparing Resources to be added to NBI..."];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self->_textFieldStatusInfo setStringValue:@"Preparing Resources to be added to NBI..."];
+                });
             } else {
-                [_textFieldStatusInfo setStringValue:_workflowNBIResourcesLastStatus];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self->_textFieldStatusInfo setStringValue:self->_workflowNBIResourcesLastStatus];
+                });
             }
         }
     }
@@ -67,22 +71,29 @@ DDLogLevel ddLogLevel;
 - (IBAction)buttonCancel:(id)sender {
 #pragma unused(sender)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSDictionary * userInfo = @{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem };
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
                                                         object:self
-                                                      userInfo:userInfo];
+                                                      userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
 }
 
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
     
     if ( [workflow isEqualTo:[_workflowItem workflowNBI]] && ! _workflowNBIComplete ) {
-        [_textFieldStatusInfo setStringValue:statusMessage];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:statusMessage];
+        });
     } else if ( [workflow isEqualTo:[_workflowItem workflowResources]] && _workflowNBIComplete ) {
-        [_textFieldStatusInfo setStringValue:statusMessage];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:statusMessage];
+        });
     } else if ( [workflow isEqualTo:[_workflowItem workflowResources]] && ! _workflowNBIComplete ) {
-        [self setWorkflowNBIResourcesLastStatus:statusMessage];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self setWorkflowNBIResourcesLastStatus:statusMessage];
+        });
     } else if ( [workflow isEqualTo:[_workflowItem workflowModifyNBI]] ) {
-        [_textFieldStatusInfo setStringValue:statusMessage];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:statusMessage];
+        });
     }
 }
 
@@ -118,7 +129,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem {
-    
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setWorkflowItem:workflowItem];
     [self setNbiURL:[_workflowItem nbiURL]];
     [self setIsRunning:YES];
@@ -128,10 +139,12 @@ DDLogLevel ddLogLevel;
 - (void)workflowFailedWithError:(NSString *)errorMessage {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_layoutContraintStatusInfoLeading setConstant:1.0];
-    [_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"ERROR: %@", errorMessage]];
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
     [self setIsRunning:NO];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"ERROR: %@", errorMessage]];
+    });
 }
 
 - (void)workflowCompleted {
@@ -149,11 +162,13 @@ DDLogLevel ddLogLevel;
     dateComponentsFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyleFull;
     dateComponentsFormatter.calendar = calendarUS;
     
-    [_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"NBI created successfully in %@!", [dateComponentsFormatter stringFromTimeInterval:secondsBetween]]];
     [self setWorkflowComplete:YES];
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
     [self setIsRunning:NO];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"NBI created successfully in %@!", [dateComponentsFormatter stringFromTimeInterval:secondsBetween]]];
+    });
 }
 
 @end

@@ -32,7 +32,7 @@ DDLogLevel ddLogLevel;
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *error;
-    _workflowItem = workflowItem;
+    [self setWorkflowItem:workflowItem];
     _targetController = [[NBCTargetController alloc] init];
     _progressView = [workflowItem progressView];
     

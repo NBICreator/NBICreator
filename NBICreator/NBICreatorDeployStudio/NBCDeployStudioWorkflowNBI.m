@@ -8,10 +8,8 @@
 
 #import "NBCDeployStudioWorkflowNBI.h"
 #import "NBCConstants.h"
-
 #import "NBCController.h"
 #import "NBCWorkflowNBIController.h"
-
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCLogging.h"
@@ -30,20 +28,23 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
-    _nbiVolumeName = [[workflowItem nbiName] stringByDeletingPathExtension];
-    //_progressView = [workflowItem progressView];
+    [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
+    DDLogDebug(@"_nbiVolumeName=%@", _nbiVolumeName);
     [self setTemporaryNBIPath:[[workflowItem temporaryNBIURL] path]];
+    DDLogDebug(@"_temporaryNBIPath=%@", _temporaryNBIPath);
     NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     
     // -------------------------------------------------------------
     //  Create arguments array for sys_builder.sh
     // -------------------------------------------------------------
     NSArray *sysBuilderArguments = [nbiController generateScriptArgumentsForSysBuilder:workflowItem];
+    DDLogDebug(@"sysBuilderArguments=%@", sysBuilderArguments);
     if ( [sysBuilderArguments count] != 0 ) {
-        NSLog(@"sysBuilderArguments=%@", sysBuilderArguments);
         [workflowItem setScriptArguments:sysBuilderArguments];
     } else {
-        NSLog(@"Error, no argumets for sysBuilderArguments");
+        DDLogError(@"[ERROR] No argumets returned for sys_builder.sh");
+        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
         return;
     }
     
@@ -51,15 +52,16 @@ DDLogLevel ddLogLevel;
     //  Prepare destination folder
     // -------------------------------------------------------------
     if ( ! [self prepareDestinationFolder:[workflowItem temporaryNBIURL] workflowItem:workflowItem error:&err] ) {
-        NSLog(@"Errror preparing destination folder");
-        NSLog(@"Error: %@", err);
+        DDLogError(@"[ERROR] Prepare destination folder failed!");
+        DDLogError(@"[ERROR] %@", err);
+        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
         return;
     }
     
     // ------------------------------------------
     //  Setup command to run sys_builder.sh
     // ------------------------------------------
-    NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/sh"];
+    NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
     
     // -----------------------------------------------------------------------------------
     //  Create standard output file handle and register for data available notifications.
@@ -68,7 +70,6 @@ DDLogLevel ddLogLevel;
     NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
     [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
     
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
                                         object:[stdOut fileHandleForReading]
                                          queue:nil
@@ -80,6 +81,8 @@ DDLogLevel ddLogLevel;
                                         // ------------------------
                                         NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
                                         NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        
+                                        DDLogDebug(@"[sys_builder.sh] %@", outStr);
                                         
                                         // -----------------------------------------------------------------------
                                         //  When output data becomes available, pass it to workflow status parser
@@ -108,6 +111,8 @@ DDLogLevel ddLogLevel;
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
                                         NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
                                         
+                                        DDLogError(@"[sys_builder.sh][ERROR] %@", errStr);
+                                        
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
@@ -126,12 +131,12 @@ DDLogLevel ddLogLevel;
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             
             // ------------------------------------------------------------------
-            //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+            //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
-            NSLog(@"ProxyError? %@", proxyError);
+            DDLogError(@"[ERROR] %@", proxyError);
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
         }];
         
     }] runTaskWithCommandAtPath:commandURL arguments:sysBuilderArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
@@ -180,6 +185,7 @@ DDLogLevel ddLogLevel;
 
 - (void)removeTemporaryItems:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
     // -------------------------------------------------------------
@@ -188,44 +194,40 @@ DDLogLevel ddLogLevel;
     for ( NSURL *temporaryItemURL in temporaryItemsNBI ) {
         NSFileManager *fileManager = [NSFileManager defaultManager];
         if ( ! [fileManager removeItemAtURL:temporaryItemURL error:&error] ) {
-            NSLog(@"Failed Deleting file: %@", [temporaryItemURL path] );
-            NSLog(@"Error: %@", error);
+            DDLogError(@"[ERROR] Failed Deleting file: %@", [temporaryItemURL path] );
+            DDLogError(@"[ERROR] %@", error);
         }
     }
 } // removeTemporaryItems
 
 - (void)updateDeployStudioWorkflowStatus:(NSString *)stdOut stdErr:(NSString *)stdErr {
+#pragma unused(stdErr)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *statusString = stdOut;
-    if ( stdOut ) {
-        NSLog(@"stdOut=%@", stdOut);
-    }
     
-    if ( stdErr ) {
-        NSLog(@"stdErr=%@", stdErr);
-    }
-    
-    if ( [statusString containsString:@"Adding lib"] ) {
-        statusString = [NSString stringWithFormat:@"Adding Frameworks: %@", [[statusString lastPathComponent] stringByReplacingOccurrencesOfString:@"'" withString:@""]];
+    if ( [stdOut containsString:@"Adding lib"] ) {
+        statusString = [NSString stringWithFormat:@"Adding Framework: %@...", [[statusString lastPathComponent] stringByReplacingOccurrencesOfString:@"'" withString:@""]];
         [_delegate updateProgressStatus:statusString workflow:self];
-        //[[_progressView textFieldStatusInfo] setStringValue:statusString];
     }
     
-    if ( [statusString containsString:@"created"] && [statusString containsString:@"NetInstall.sparseimage"] ) {
-        statusString = @"Disabling Spotlight Indexing";
+    if ( [stdOut containsString:@"created"] && [stdOut containsString:@"NetInstall.sparseimage"] ) {
+        statusString = @"Disabling Spotlight Indexing...";
         [_delegate updateProgressStatus:statusString workflow:self];
-        //[[_progressView textFieldStatusInfo] setStringValue:statusString];
     }
     
-    if ( [statusString containsString:@"Indexing disabled"] ) {
-        statusString = @"Disabling Spotlight Indexing";
+    if ( [stdOut containsString:@"Indexing disabled"] ) {
+        statusString = @"Disabling Spotlight Indexing...";
         [_delegate updateProgressStatus:statusString workflow:self];
-        //[[_progressView textFieldStatusInfo] setStringValue:statusString];
     }
     
-    if ( ! [statusString containsString:@"<loop"] ) {
-        //[[_view textFieldStatusInfo] setStringValue:outStr];
-        //NSLog(@"%@", stdOut);
+    if ( [stdOut containsString:@"mounted"] ) {
+        statusString = @"Determining Recovery Partition...";
+        [_delegate updateProgressStatus:statusString workflow:self];
+    }
+    
+    if ( [stdOut containsString:@"rsync"] || [stdOut containsString:@"ditto"] ) {
+        statusString = @"Copying files to NBI...";
+        [_delegate updateProgressStatus:statusString workflow:self];
     }
     
 } // updateDeployStudioWorkflowStatus

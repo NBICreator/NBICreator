@@ -1341,7 +1341,7 @@ DDLogLevel ddLogLevel;
                 // ------------------------------------------------------------------
                 //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
                 // ------------------------------------------------------------------
-                NSLog(@"ProxyError? %@", proxyError);
+                DDLogError(@"[ERROR] %@", proxyError);
             }];
             
         }] readSettingsFromNBI:nbiBaseSystemVolumeURL settingsDict:[settingsDict copy] withReply:^(NSError *error, BOOL success, NSDictionary *newSettingsDict) {

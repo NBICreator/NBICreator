@@ -8,12 +8,12 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
+#import "NBCAlerts.h"
 
 @class NBCDisk;
 @class NBCSource;
 @class NBCPreferences;
 @class NBCDiskArbitrator;
-#import "NBCAlerts.h"
 
 @interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate>
 

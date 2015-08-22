@@ -819,7 +819,7 @@ DDLogLevel ddLogLevel;
                                                 // -----------------------------------------------------------------------
                                                 //  When output data becomes available, pass it to workflow status parser
                                                 // -----------------------------------------------------------------------
-                                                DDLogInfo(@"%@", outStr);
+                                                DDLogDebug(@"%@", outStr);
                                                 
                                                 [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
                                             }];
@@ -862,11 +862,10 @@ DDLogLevel ddLogLevel;
                     // ------------------------------------------------------------------
                     //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
                     // ------------------------------------------------------------------
-                    DDLogError(@"%@", proxyError);
+                    DDLogError(@"[ERROR] %@", proxyError);
                     [nc removeObserver:stdOutObserver];
                     [nc removeObserver:stdErrObserver];
-                    NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
-                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
                 }];
                 
             }] runTaskWithCommandAtPath:commandURL arguments:scriptArguments currentDirectory:[packageTemporaryFolder path] stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
@@ -890,8 +889,7 @@ DDLogLevel ddLogLevel;
                         DDLogError(@"%@", error);
                         [nc removeObserver:stdOutObserver];
                         [nc removeObserver:stdErrObserver];
-                        NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
-                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
                     }
                 }];
             }];

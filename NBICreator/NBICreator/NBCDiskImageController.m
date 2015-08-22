@@ -151,7 +151,6 @@ DDLogLevel ddLogLevel;
         return retval;
     }
     
-    // Setup Task
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/usr/sbin/diskutil"];
     
@@ -166,8 +165,6 @@ DDLogLevel ddLogLevel;
     [newTask setArguments:args];
     [newTask setStandardOutput:[NSPipe pipe]];
     [newTask setStandardError:[NSPipe pipe]];
-    
-    // Launch Task
     [newTask launch];
     [newTask waitUntilExit];
     
@@ -179,7 +176,6 @@ DDLogLevel ddLogLevel;
         
     } else {
         
-        // Add error if hdiutil exited with non-zero exit status
         failureReason = NSLocalizedString(@"hdiutil exited with non-zero exit status.", nil);
         retval = NO;
     }
@@ -201,20 +197,23 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DASessionRef session = NULL;
     session = DASessionCreate(kCFAllocatorDefault);
-    if (!session) {
-        NSLog(@"Can't create DiskArb session");
+    if ( ! session ) {
+        DDLogError(@"[ERROR] Can't create Disk Arbitration session");
+        return NO;
     }
     
     DADiskRef disk = NULL;
     disk = DADiskCreateFromBSDName(kCFAllocatorDefault, session, [diskID UTF8String]);
-    if (!disk) {
-        NSLog(@"DADiskCreateFromBSDName(%s) failed", [diskID UTF8String]);
+    if ( ! disk ) {
+        DDLogError(@"[ERROR] DADiskCreateFromBSDName(%s) failed", [diskID UTF8String]);
+        return NO;
     }
     
     CFDictionaryRef dd = NULL;
     dd = DADiskCopyDescription(disk);
-    if (!dd) {
-        NSLog(@"DADiskCopyDescription(%s) failed", [diskID UTF8String]);
+    if ( ! dd ) {
+        DDLogError(@"[ERROR] DADiskCopyDescription(%s) failed", [diskID UTF8String]);
+        return NO;
     }
     
     CFStringRef *argv = calloc(args.count + 1, sizeof(CFStringRef));
@@ -233,7 +232,6 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
-    // Setup Task
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSMutableArray *args = [NSMutableArray arrayWithObjects:@"detach",
@@ -242,8 +240,6 @@ DDLogLevel ddLogLevel;
     [newTask setArguments:args];
     [newTask setStandardOutput:[NSPipe pipe]];
     [newTask setStandardError:[NSPipe pipe]];
-    
-    // Launch Task
     [newTask launch];
     [newTask waitUntilExit];
     
