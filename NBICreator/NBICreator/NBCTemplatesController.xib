@@ -6,11 +6,14 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NBCTemplatesController">
             <connections>
+                <outlet property="buttonSheetRenameRename" destination="GnA-20-HEe" id="ntg-WR-zeJ"/>
                 <outlet property="buttonSheetSaveAsSaveAs" destination="JQh-rk-NWa" id="uia-KP-0X5"/>
                 <outlet property="buttonSheetSaveUntitledSaveAs" destination="l9w-Np-JFi" id="o7q-TU-gk7"/>
                 <outlet property="checkboxExportPanelIncludeResources" destination="aFk-ik-6cc" id="QS5-9H-jhm"/>
+                <outlet property="sheetRename" destination="t8L-xN-IPM" id="gNx-2p-QXR"/>
                 <outlet property="sheetSaveAs" destination="fa1-5l-zJo" id="ipi-yj-kx7"/>
                 <outlet property="sheetSaveUntitled" destination="ex7-Cc-mAb" id="wun-fV-P5f"/>
+                <outlet property="textFieldSheetRenameName" destination="bcD-bL-LRL" id="Ccy-i7-tb1"/>
                 <outlet property="textFieldSheetSaveAsName" destination="eRn-Y7-VQr" id="GW4-Z0-mh8"/>
                 <outlet property="textFieldSheetSaveUntitledName" destination="4wj-9g-UTt" id="CNf-R4-NxB"/>
                 <outlet property="viewExportPanel" destination="LZB-W8-bk8" id="PKY-xr-S6C"/>
@@ -74,7 +77,7 @@ Gw
                     </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="-2680" y="510.5"/>
+            <point key="canvasLocation" x="-2131" y="244.5"/>
         </window>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" visibleAtLaunch="NO" animationBehavior="default" id="ex7-Cc-mAb">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
@@ -192,7 +195,68 @@ Gw
                 <constraint firstAttribute="trailing" secondItem="nnp-g1-j0P" secondAttribute="trailing" constant="20" symbolic="YES" id="lTM-0t-Lnh"/>
                 <constraint firstAttribute="bottom" secondItem="nnp-g1-j0P" secondAttribute="bottom" constant="20" symbolic="YES" id="rhp-ft-aiH"/>
             </constraints>
-            <point key="canvasLocation" x="-2142" y="511"/>
+            <point key="canvasLocation" x="-1602" y="224"/>
         </customView>
+        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" visibleAtLaunch="NO" animationBehavior="default" id="t8L-xN-IPM">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="196" y="240" width="392" height="91"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <view key="contentView" id="NyV-pz-ydA">
+                <rect key="frame" x="0.0" y="5" width="392" height="91"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GnA-20-HEe">
+                        <rect key="frame" x="287" y="13" width="91" height="32"/>
+                        <buttonCell key="cell" type="push" title="Rename" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="8jV-6H-Rwz">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+DQ
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="buttonSheetRenameRename:" target="-2" id="8m6-tp-cyg"/>
+                        </connections>
+                    </button>
+                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bcD-bL-LRL">
+                        <rect key="frame" x="160" y="49" width="212" height="22"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="sqk-Hv-Xpp">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                        <connections>
+                            <outlet property="delegate" destination="-2" id="GO3-lL-MGQ"/>
+                        </connections>
+                    </textField>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xzg-Ld-uOu">
+                        <rect key="frame" x="18" y="51" width="136" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="New Template Name:" id="5nw-SZ-Qgh">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="C2v-TX-BcM">
+                        <rect key="frame" x="204" y="13" width="83" height="32"/>
+                        <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="jAH-bh-YX9">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                            <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                        </buttonCell>
+                        <connections>
+                            <action selector="buttonSheetRenameCancel:" target="-2" id="yT6-Nc-s9G"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="GnA-20-HEe" firstAttribute="leading" secondItem="C2v-TX-BcM" secondAttribute="trailing" constant="12" symbolic="YES" id="4lt-eq-lIy"/>
+                </constraints>
+            </view>
+            <point key="canvasLocation" x="-2680" y="509.5"/>
+        </window>
     </objects>
 </document>

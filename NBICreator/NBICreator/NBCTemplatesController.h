@@ -23,6 +23,14 @@
 @property NSString *templateDefaultSettings;
 @property NSPopUpButton *popUpButton;
 
+@property (strong) IBOutlet NSWindow *sheetRename;
+@property (weak) IBOutlet NSButton *buttonSheetRenameRename;
+- (IBAction)buttonSheetRenameRename:(id)sender;
+- (IBAction)buttonSheetRenameCancel:(id)sender;
+
+@property (weak) IBOutlet NSTextField *textFieldSheetRenameName;
+
+
 // ------------------------------------------------------
 //  IBOutlets/Actions Sheet Save
 // ------------------------------------------------------

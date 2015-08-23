@@ -64,6 +64,7 @@ extern NSString *const NBCMenuItemNew;
 extern NSString *const NBCMenuItemSave;
 extern NSString *const NBCMenuItemSaveAs;
 extern NSString *const NBCMenuItemExport;
+extern NSString *const NBCMenuItemRename;
 extern NSString *const NBCMenuItemDelete;
 extern NSString *const NBCMenuItemShowInFinder;
 extern NSString *const NBCMenuItemImagrVersionLatest;

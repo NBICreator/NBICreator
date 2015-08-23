@@ -59,6 +59,7 @@ NSString *const NBCMenuItemNew = @"New";
 NSString *const NBCMenuItemSave = @"Save...";
 NSString *const NBCMenuItemSaveAs = @"Save As...";
 NSString *const NBCMenuItemExport = @"Export...";
+NSString *const NBCMenuItemRename = @"Rename";
 NSString *const NBCMenuItemDelete = @"Delete";
 NSString *const NBCMenuItemShowInFinder = @"Show in Finder...";
 NSString *const NBCMenuItemImagrVersionLatest = @"Latest Release";

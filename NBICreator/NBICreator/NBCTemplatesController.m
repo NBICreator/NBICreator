@@ -19,6 +19,7 @@ enum {
     kTemplateSelectionSave,
     kTemplateSelectionSaveAs,
     kTemplateSelectionExport,
+    kTemplateSelectionRename,
     kTemplateSelectionDelete,
     kTemplateSelectionShowInFinder
 };
@@ -88,7 +89,7 @@ enum {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
-    if ( [menuItem tag] == kTemplateSelectionSave || [[menuItem title] isEqualToString:@"Save…"] ) {
+    if ( [menuItem tag] == kTemplateSelectionSave || [[menuItem title] isEqualToString:NBCMenuItemSave] ) {
         // -------------------------------------------------------------------------
         //  Don't allow "Save" until template has been saved once with "Save As..."
         // -------------------------------------------------------------------------
@@ -105,7 +106,7 @@ enum {
         }
         
         return retval;
-    } else if ( [menuItem tag] == kTemplateSelectionShowInFinder || [[menuItem title] isEqualToString:@"Show in Finder…"] ) {
+    } else if ( [menuItem tag] == kTemplateSelectionShowInFinder || [[menuItem title] isEqualToString:NBCMenuItemShowInFinder] ) {
         // --------------------------------------------------------------------
         //  If template have not been saved yet, can't show it in finder either
         // --------------------------------------------------------------------
@@ -114,7 +115,11 @@ enum {
         }
         
         return retval;
-    } else if ( [menuItem tag] == kTemplateSelectionDelete || [[menuItem title] isEqualToString:@"Delete"] ) {
+    } else if ( [menuItem tag] == kTemplateSelectionRename || [[menuItem title] isEqualToString:NBCMenuItemRename] ) {
+        if ( [[_settingsViewController selectedTemplate] isEqualToString:NBCMenuItemUntitled] ) {
+            return NO;
+        }
+    } else if ( [menuItem tag] == kTemplateSelectionDelete || [[menuItem title] isEqualToString:NBCMenuItemDelete] ) {
         if ( [[_settingsViewController selectedTemplate] isEqualToString:NBCMenuItemUntitled] ) {
             retval = NO;
         }
@@ -148,9 +153,15 @@ enum {
         } else {
             [_buttonSheetSaveAsSaveAs setEnabled:YES];
         }
-    }
+    } else if ( [sender object] == _textFieldSheetRenameName ) {
+            if ( [[_textFieldSheetRenameName stringValue] length] == 0 || [[_popUpButton itemTitles] containsObject:[_textFieldSheetRenameName stringValue]] ) {
+                [_buttonSheetRenameRename setEnabled:NO];
+            } else {
+                [_buttonSheetRenameRename setEnabled:YES];
+            }
+        }
     
-    if ( [sender object] == _textFieldSheetSaveUntitledName ) {
+    else if ( [sender object] == _textFieldSheetSaveUntitledName ) {
         if ( [[_textFieldSheetSaveUntitledName stringValue] length] == 0 ) {
             [_buttonSheetSaveUntitledSaveAs setEnabled:NO];
         } else {
@@ -325,6 +336,11 @@ enum {
     [menuItemSaveAs setTag:kTemplateSelectionSaveAs];
     [menuItemSaveAs setTarget:self];
     [[popUpButton menu] addItem:menuItemSaveAs];
+    
+    NSMenuItem *menuItemRename = [[NSMenuItem alloc] initWithTitle:NBCMenuItemRename action:@selector(menuItemRename:) keyEquivalent:@""];
+    [menuItemRename setTag:kTemplateSelectionRename];
+    [menuItemRename setTarget:self];
+    [[popUpButton menu] addItem:menuItemRename];
     
     [[popUpButton menu] addItem:[NSMenuItem separatorItem]];
     
@@ -542,11 +558,17 @@ enum {
     [self showSheetSaveAs];
 } // menuItemSaveAs
 
+- (void)menuItemRename:(NSNotification *)notification {
+#pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [self showSheetRename];
+} // menuItemRename
+
 - (void)menuItemExport:(NSNotification *)notification {
 #pragma unused(notification)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self showSheetExport];
-} // menuItemSaveAs
+} // menuItemExport
 
 - (void)menuItemShowInFinder:(NSNotification *)notification {
 #pragma unused(notification)
@@ -555,6 +577,8 @@ enum {
     if ( currentTemplateURL ) {
         NSArray *currentTemplateURLArray = @[ currentTemplateURL ];
         [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:currentTemplateURLArray];
+        [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
+    } else {
         [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     }
 } // menuItemShowInFinder
@@ -609,6 +633,14 @@ enum {
         if ( returnCode == NSModalResponseOK ) {
             [self->_settingsViewController saveUISettingsWithName:[self->_textFieldSheetSaveAsName stringValue] atUrl:nil];
         }
+    }];
+} // showSheetSaveAs
+
+- (void)showSheetRename {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [_textFieldSheetRenameName setStringValue:@""];
+    [[NSApp mainWindow] beginSheet:_sheetRename completionHandler:^(NSModalResponse returnCode) {
+#pragma unused(returnCode)
     }];
 } // showSheetSaveAs
 
@@ -699,5 +731,41 @@ enum {
     [_popUpButton removeItemWithTitle:NBCMenuItemUntitled];
     [[NSApp mainWindow] endSheet:_sheetSaveUntitled returnCode:NSModalResponseContinue];
 } // buttonSaveUntitledDelete
+
+- (IBAction)buttonSheetRenameRename:(id)sender {
+#pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *newName = [_textFieldSheetRenameName stringValue];
+    NSString *selectedTemplate = [_settingsViewController selectedTemplate];
+    if ( [selectedTemplate length] != 0 ) {
+        NSURL *selectedTemplateURL = [_settingsViewController templatesDict][selectedTemplate];
+        if ( selectedTemplateURL ) {
+            NSMutableDictionary *templateDict = [NSMutableDictionary dictionaryWithContentsOfURL:selectedTemplateURL];
+            if ( [templateDict count] != 0 ) {
+                templateDict[NBCSettingsNameKey] = newName;
+                if ( [templateDict writeToURL:selectedTemplateURL atomically:YES] ) {
+                    [_settingsViewController templatesDict][newName] = selectedTemplateURL;
+                } else {
+                    DDLogError(@"[ERROR] Could not rename template!");
+                    return;
+                }
+            }
+        }
+    }
+    [_popUpButton insertItemWithTitle:newName atIndex:0];
+    [_popUpButton selectItemWithTitle:newName];
+    if ( [[_popUpButton itemTitles] containsObject:[_textFieldSheetSaveAsName stringValue]] ) {
+        [_popUpButton removeItemWithTitle:[_settingsViewController selectedTemplate]];
+    }
+    [_settingsViewController setSelectedTemplate:newName];
+    [[NSApp mainWindow] endSheet:_sheetRename returnCode:NSModalResponseOK];
+} // buttonSheetRenameRename
+
+- (IBAction)buttonSheetRenameCancel:(id)sender {
+#pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
+    [[NSApp mainWindow] endSheet:_sheetRename returnCode:NSModalResponseCancel];
+} // buttonSheetRenameCancel
 
 @end
