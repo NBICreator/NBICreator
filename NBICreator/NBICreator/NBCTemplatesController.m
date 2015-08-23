@@ -225,13 +225,31 @@ enum {
     if ( [[_settingsViewController templatesFolderURL] checkResourceIsReachableAndReturnError:nil] ) {
         userTemplateFolderExists = YES;
         DDLogDebug(@"userTemplateFolderExists=%hhd", userTemplateFolderExists);
+        
+         /*///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+         //// Code to rename all existing template files with the old nbic extension to the new extension nbictemplate ///
+         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
         NSArray *contents = [fm contentsOfDirectoryAtURL:[_settingsViewController templatesFolderURL]
                               includingPropertiesForKeys:@[]
                                                  options:NSDirectoryEnumerationSkipsHiddenFiles
                                                    error:nil];
+
+        NSPredicate *predicateNbic = [NSPredicate predicateWithFormat:@"pathExtension == 'nbic'"];
+        for ( NSURL *fileURL in [contents filteredArrayUsingPredicate:predicateNbic] ) {
+            if ( ! [fm moveItemAtURL:fileURL toURL:[[fileURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"nbictemplate"] error:&error] ) {
+                DDLogError(@"[ERROR] Renaming file %@ failed!", [fileURL lastPathComponent]);
+                DDLogError(@"[ERROR] %@", error);
+            }
+        }
+        /*//////////////////////////////////////////////////////////////////////////////////////////////////////////////*/
         
-        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'nbic'"];
-        for ( NSURL *fileURL in [contents filteredArrayUsingPredicate:predicate] ) {
+        contents = [fm contentsOfDirectoryAtURL:[_settingsViewController templatesFolderURL]
+                     includingPropertiesForKeys:@[]
+                                        options:NSDirectoryEnumerationSkipsHiddenFiles
+                                          error:nil];
+        
+        NSPredicate *predicateNbictemplate = [NSPredicate predicateWithFormat:@"pathExtension == 'nbictemplate'"];
+        for ( NSURL *fileURL in [contents filteredArrayUsingPredicate:predicateNbictemplate] ) {
             DDLogDebug(@"fileURL=%@", fileURL);
             NSDictionary *templateDict = [[NSDictionary alloc] initWithContentsOfURL:fileURL];
             DDLogDebug(@"templateDict=%@", templateDict);

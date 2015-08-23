@@ -369,7 +369,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     if ( settingsURL == nil ) {
         NSString *uuid = [[NSUUID UUID] UUIDString];
-        settingsURL = [_templatesFolderURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.nbic", uuid]];
+        settingsURL = [_templatesFolderURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.nbictemplate", uuid]];
     }
     
     // -------------------------------------------------------------
