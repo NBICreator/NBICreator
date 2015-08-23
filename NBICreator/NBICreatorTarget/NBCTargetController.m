@@ -1135,7 +1135,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  /Library/Preferences/com.apple.systemuiserver.plist
     // --------------------------------------------------------------
-    NSURL *systemUIServerPreferencesURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/com.apple.systemuiserver.plist"];
+    NSURL *systemUIServerPreferencesURL = [volumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.systemuiserver.plist"];
     DDLogDebug(@"systemUIServerPreferencesURL=%@", systemUIServerPreferencesURL);
     if ( [systemUIServerPreferencesURL checkResourceIsReachableAndReturnError:nil] ) {
         systemUIServerPreferencesDict = [NSMutableDictionary dictionaryWithContentsOfURL:systemUIServerPreferencesURL];
@@ -1650,6 +1650,7 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] volumeURL is nil");
         return NO;
     }
+    
     // --------------------------------------------------------------
     //  /System/Library/Extensions/IO80211Family.kext
     // --------------------------------------------------------------
@@ -1661,6 +1662,18 @@ DDLogLevel ddLogLevel;
                                      };
     DDLogDebug(@"modifyWifiKext=%@", modifyWifiKext);
     [modifyDictArray addObject:modifyWifiKext];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/CoreServices/Menu Extras/AirPort.menu
+    // --------------------------------------------------------------
+    NSURL *airPortMenuURL = [volumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/Menu Extras/AirPort.menu"];
+    DDLogDebug(@"airPortMenuURL=%@", airPortMenuURL);
+    NSDictionary *modifyAirPortMenu = @{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                     NBCWorkflowModifyTargetURL : [airPortMenuURL path]
+                                     };
+    DDLogDebug(@"modifyAirPortMenu=%@", modifyAirPortMenu);
+    [modifyDictArray addObject:modifyAirPortMenu];
     
     return retval;
 } // modifyNBIRemoveWiFi
