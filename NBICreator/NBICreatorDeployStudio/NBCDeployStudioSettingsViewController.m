@@ -73,7 +73,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     NSError *error;
     NSFileManager *fm = [[NSFileManager alloc] init];
-    NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error]; // Unused error
+    NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
     if ( userApplicationSupport ) {
         _templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesDeployStudio isDirectory:YES];
     } else {
@@ -102,7 +102,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  Load saved templates and create the template menu
     // --------------------------------------------------------------
-    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
+    [self updatePopUpButtonTemplates];
     
     // --------------------------------------------------------------
     //  Update default Deploy Studio Version in UI.
@@ -1063,6 +1063,17 @@ DDLogLevel ddLogLevel;
 #pragma mark IBAction PopUpButtons
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+- (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSLog(@"Importing %@", url);
+    NSLog(@"templateInfo=%@", templateInfo);
+} // importTemplateAtURL
+
+- (void)updatePopUpButtonTemplates {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
+} // updatePopUpButtonTemplates
 
 - (IBAction)popUpButtonTemplates:(id)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

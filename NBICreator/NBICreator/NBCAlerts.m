@@ -130,6 +130,17 @@ DDLogLevel ddLogLevel;
     }];
 }
 
++ (void)showAlertImportTemplateDuplicate:(NSString *)informativeText {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:NBCButtonTitleOK];
+    [alert setMessageText:@"Template already exist!"];
+    [alert setInformativeText:informativeText];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+#pragma unused(returnCode)
+    }];
+}
+
 - (void)showAlertSettingsWarning:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *text = [NSString stringWithFormat:@"The current settings contain warnings that you need to approve before creating a NBI.\n%@", informativeText];

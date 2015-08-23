@@ -198,6 +198,7 @@
 - (BOOL)haveSettingsChanged;
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict;
 - (void)updateUISettingsFromURL:(NSURL *)url;
+- (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo;
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL;
 - (void)expandVariablesForCurrentSettings;
 

@@ -23,6 +23,7 @@
 + (void)showAlertRecoveryVersionMismatch;
 + (void)showAlertUnrecognizedSourceForWorkflow:(int)workflowType errorMessage:(NSString *)errorMessage;
 + (void)showAlertSettingsUnchangedNBI;
++ (void)showAlertImportTemplateDuplicate:(NSString *)informativeText;
 + (void)showAlertSettingsError:(NSString *)informativeText;
 - (void)showAlertSettingsWarning:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo;
 - (void)showAlertSettingsUnsaved:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo;

@@ -98,5 +98,6 @@
 - (void)updateUISettingsFromURL:(NSURL *)url;
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL;
 - (void)expandVariablesForCurrentSettings;
+- (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo;
 
 @end

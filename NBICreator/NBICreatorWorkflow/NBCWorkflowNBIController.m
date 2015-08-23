@@ -126,7 +126,6 @@ DDLogLevel ddLogLevel;
 - (NSArray *)generateScriptArgumentsForSysBuilder:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableArray *sysBuilderArguments = [[NSMutableArray alloc] init];
-    NSLog(@"sysBuilderArguments=%@", sysBuilderArguments);
     // -------------------------------------------------------------------
     //  Retrieve user settings from workflowItem
     // -------------------------------------------------------------------

@@ -78,7 +78,7 @@ enum {
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)applicationDidFinishLaunching:(NSNotification *)notification {
+- (void)applicationWillFinishLaunching:(NSNotification *)notification {
 #pragma unused(notification)
     
     // --------------------------------------------------------------
@@ -219,6 +219,79 @@ enum {
         }
     }
 } // applicationWillTerminate
+
+- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"filename=%@", filename);
+    DDLogInfo(@"Template file sent to application: %@", filename);
+#pragma unused(theApplication)
+    NSError *error;
+    NSURL *fileURL = [NSURL fileURLWithPath:filename];
+    NSDictionary *templateInfo = [NBCTemplatesController templateInfoFromTemplateAtURL:fileURL error:&error];
+    if ( [templateInfo count] != 0 ) {
+        NSString *name = templateInfo[NBCSettingsNameKey];
+        NSString *type = templateInfo[NBCSettingsTypeKey];
+        
+        if ( [NBCTemplatesController templateIsDuplicate:fileURL] ) {
+            [NBCAlerts showAlertImportTemplateDuplicate:@"Template already imported!"];
+            return NO;
+        }
+        
+        if ( [type isEqualToString:NBCSettingsTypeNetInstall] ) {
+            
+        } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
+
+        } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
+
+        }
+        
+        
+        NSString *importTitle = [NSString stringWithFormat:@"Import %@ Template?", type];
+        NSString *importMessage = [NSString stringWithFormat:@"Do you want to import the %@ template \"%@\"?", type, name];
+        
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"Import"];
+        [alert addButtonWithTitle:NBCButtonTitleCancel];
+        [alert setMessageText:importTitle];
+        [alert setInformativeText:importMessage];
+        [alert setAlertStyle:NSInformationalAlertStyle];
+        [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+#pragma unused(returnCode)
+            if ( returnCode == NSAlertFirstButtonReturn ) {
+                if ( [type isEqualToString:NBCSettingsTypeNetInstall] ) {
+                    [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlNetInstall];
+                    [self selectSegmentedControl:kSegmentedControlNetInstall];
+                    if ( self->_currentSettingsController ) {
+                        [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
+                    } else {
+                        NSLog(@"ERROR! Could not import template, internal error!");
+                    }
+                } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
+                    [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlDeployStudio];
+                    [self selectSegmentedControl:kSegmentedControlDeployStudio];
+                    if ( self->_currentSettingsController ) {
+                        [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
+                    } else {
+                        NSLog(@"ERROR! Could not import template, internal error!");
+                    }
+                } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
+                    [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlImagr];
+                    [self selectSegmentedControl:kSegmentedControlImagr];
+                    if ( self->_currentSettingsController ) {
+                        [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
+                    } else {
+                        NSLog(@"ERROR! Could not import template, internal error!");
+                    }
+                }
+            }
+        }];
+        return YES;
+    } else {
+        DDLogError(@"[ERROR] Could not read template!");
+        DDLogError(@"[ERROR] %@", error);
+        return NO;
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -542,7 +615,7 @@ enum {
     [self showHelperToolInstallBox];
 } // showHelperToolUpgradeBox
 
-- (void)hideHelperToolInstallBox {  
+- (void)hideHelperToolInstallBox {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_viewInstallHelper removeFromSuperview];
     [_viewMainWindow addConstraint:_constraintBetweenButtonBuildAndViewOutput];

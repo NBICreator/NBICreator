@@ -206,6 +206,7 @@
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL;
 - (void)expandVariablesForCurrentSettings;
 - (void)updateDeployStudioVersion;
+- (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo;
 - (NSInteger)numberOfItemsInComboBox:(NSComboBox *)aComboBox;
 - (id)comboBox:(NSComboBox *)aComboBox objectValueForItemAtIndex:(NSInteger)index;
 

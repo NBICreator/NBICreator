@@ -121,7 +121,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  Load saved templates and create the template menu
     // --------------------------------------------------------------
-    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
+    [self updatePopUpButtonTemplates];
     
     // ------------------------------------------------------------------------------------------
     //  Add contextual menu to NBI background image view to allow to restore original background.
@@ -1748,6 +1748,17 @@ DDLogLevel ddLogLevel;
 #pragma mark IBAction PopUpButtons
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+- (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSLog(@"Importing %@", url);
+    NSLog(@"templateInfo=%@", templateInfo);
+} // importTemplateAtURL
+
+- (void)updatePopUpButtonTemplates {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
+} // updatePopUpButtonTemplates
 
 - (IBAction)popUpButtonTemplates:(id)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

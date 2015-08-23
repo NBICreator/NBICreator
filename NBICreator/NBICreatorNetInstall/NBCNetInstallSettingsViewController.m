@@ -76,7 +76,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  Load saved templates and create the template menu
     // --------------------------------------------------------------
-    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
+    [self updatePopUpButtonTemplates];
     
     // --------------------------------------------------------------
     //  Update default System Image Utility Version in UI.
@@ -192,10 +192,7 @@ DDLogLevel ddLogLevel;
             NBCWorkflowItem *workflowItem = alertInfo[NBCAlertWorkflowItemKey];
             [self prepareWorkflowItem:workflowItem];
         }
-    }
-    
-    alertTag = alertInfo[NBCAlertTagKey];
-    if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsaved] ) {
+    } else if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsaved] ) {
         NSString *selectedTemplate = alertInfo[NBCAlertUserInfoSelectedTemplate];
         if ( returnCode == NSAlertFirstButtonReturn ) {         // Save
             [self saveUISettingsWithName:_selectedTemplate atUrl:_templatesDict[_selectedTemplate]];
@@ -593,6 +590,29 @@ DDLogLevel ddLogLevel;
 #pragma mark IBAction PopUpButtons
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+- (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    BOOL settingsChanged = [self haveSettingsChanged];
+    
+    if ( settingsChanged ) {
+        NSDictionary *alertInfo = @{
+                                    NBCAlertTagKey : NBCAlertTagSettingsUnsaved,
+                                    NBCAlertUserInfoSelectedTemplate : _selectedTemplate
+                                    };
+        
+        NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
+        [alert showAlertSettingsUnsaved:@"You have unsaved settings, do you want to discard changes and continue?"
+                              alertInfo:alertInfo];
+    }
+    NSLog(@"Importing %@", url);
+    NSLog(@"templateInfo=%@", templateInfo);
+} // importTemplateAtURL
+
+- (void)updatePopUpButtonTemplates {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
+} // updatePopUpButtonTemplates
 
 - (IBAction)popUpButtonTemplates:(id)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
