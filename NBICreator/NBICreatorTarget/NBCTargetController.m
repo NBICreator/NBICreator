@@ -907,6 +907,58 @@ DDLogLevel ddLogLevel;
     return keyboardLayoutID;
 } // keyboardLayoutIDFromSourceID
 
+- (BOOL)modifySettingsForKextd:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Adding language and keyboard settings...");
+    BOOL retval = YES;
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // ------------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.kextd.plist
+    // ------------------------------------------------------------------
+    NSDictionary *kextdLaunchDaemonAttributes;
+    NSMutableDictionary *kextdLaunchDaemonDict;
+    NSURL *kextdLaunchDaemonURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.kextd.plist"];
+    DDLogDebug(@"kextdLaunchDaemonURL=%@", kextdLaunchDaemonURL);
+    
+    if ( [kextdLaunchDaemonURL checkResourceIsReachableAndReturnError:nil] ) {
+        kextdLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:kextdLaunchDaemonURL];
+        kextdLaunchDaemonAttributes = [fm attributesOfItemAtPath:[kextdLaunchDaemonURL path] error:&error];
+    }
+    
+    if ( [kextdLaunchDaemonDict count] == 0 ) {
+        kextdLaunchDaemonDict = [[NSMutableDictionary alloc] init];
+        kextdLaunchDaemonAttributes = @{
+                                           NSFileOwnerAccountName : @"root",
+                                           NSFileGroupOwnerAccountName : @"wheel",
+                                           NSFilePosixPermissions : @0644
+                                           };
+    }
+    DDLogDebug(@"kextdLaunchDaemonDict=%@", kextdLaunchDaemonDict);
+    DDLogDebug(@"kextdLaunchDaemonAttributes=%@", kextdLaunchDaemonAttributes);
+    NSMutableArray *kextdProgramArguments = [NSMutableArray arrayWithArray:kextdLaunchDaemonDict[@"ProgramArguments"]];
+    [kextdProgramArguments addObject:@"-no-caches"];
+    kextdLaunchDaemonDict[@"ProgramArguments"] = kextdProgramArguments;
+
+    NSDictionary *modifyKextdLauncDaemon = @{
+                                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                     NBCWorkflowModifyContent : kextdLaunchDaemonDict,
+                                                     NBCWorkflowModifyAttributes : kextdLaunchDaemonAttributes,
+                                                     NBCWorkflowModifyTargetURL : [kextdLaunchDaemonURL path]
+                                                     };
+    DDLogDebug(@"modifyKextdLauncDaemon=%@", modifyKextdLauncDaemon);
+    [modifyDictArray addObject:modifyKextdLauncDaemon];
+
+    return retval;
+} // modifySettingsForKextd:workflowItem
+
 - (BOOL)modifySettingsForLanguageAndKeyboardLayout:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Adding language and keyboard settings...");

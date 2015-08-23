@@ -584,7 +584,15 @@ DDLogLevel ddLogLevel;
     NSMutableArray *modifyDictArray = [[NSMutableArray alloc] init];
     
     verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
-    verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
+    
+    if ( verified ) {
+        verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
+    }
+    
+    if ( verified ) {
+        verified = [_targetController modifySettingsForKextd:modifyDictArray workflowItem:_workflowItem];
+    }
+    
     /*
     if ( verified ) {
         verified = [_targetController modifySettingsForFindMyDeviced:modifyDictArray workflowItem:_workflowItem];
