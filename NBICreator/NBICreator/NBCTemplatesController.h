@@ -33,6 +33,11 @@
 - (IBAction)buttonSheetSaveAsSaveAs:(id)sender;
 - (IBAction)buttonSheetSaveAsCancel:(id)sender;
 
+@property (strong) IBOutlet NSView *viewExportPanel;
+@property (weak) IBOutlet NSButton *checkboxExportPanelIncludeResources;
+
+
+
 // ------------------------------------------------------
 //  IBOutlets/Actions Sheet Save Untitled
 // ------------------------------------------------------
@@ -49,9 +54,10 @@
 - (void)menuItemSave:(NSNotification *)notification;
 - (void)menuItemSaveAs:(NSNotification *)notification;
 - (void)menuItemShowInFinder:(NSNotification *)notification;
-
++ (BOOL)templateIsDuplicate:(NSURL *)templateURL;
 - (void)showSheetSaveUntitled:(NSString *)senderTitle buildNBI:(BOOL)buildNBI;
 - (id)initWithSettingsViewController:(id)settingsViewController templateType:(NSString *)templateType delegate:(id<NBCTemplatesDelegate>)delegate;
 - (void)updateTemplateListForPopUpButton:(NSPopUpButton *)popUpButton title:(NSString *)title;
++ (NSDictionary *)templateInfoFromTemplateAtURL:(NSURL *)templateURL error:(NSError **)error;
 
 @end

@@ -18,6 +18,7 @@ enum {
     kTemplateSelectionNew = 100,
     kTemplateSelectionSave,
     kTemplateSelectionSaveAs,
+    kTemplateSelectionExport,
     kTemplateSelectionDelete,
     kTemplateSelectionShowInFinder
 };
@@ -309,6 +310,13 @@ enum {
     
     [[popUpButton menu] addItem:[NSMenuItem separatorItem]];
     
+    NSMenuItem *menuItemExport = [[NSMenuItem alloc] initWithTitle:NBCMenuItemExport action:@selector(menuItemExport:) keyEquivalent:@""];
+    [menuItemExport setTag:kTemplateSelectionExport];
+    [menuItemExport setTarget:self];
+    [[popUpButton menu] addItem:menuItemExport];
+    
+    [[popUpButton menu] addItem:[NSMenuItem separatorItem]];
+    
     NSMenuItem *menuItemDelete = [[NSMenuItem alloc] initWithTitle:NBCMenuItemDelete action:@selector(menuItemDelete:) keyEquivalent:@""];
     [menuItemDelete setTag:kTemplateSelectionDelete];
     [menuItemDelete setTarget:self];
@@ -337,6 +345,65 @@ enum {
     }
 }
 
++ (BOOL)templateIsDuplicate:(NSURL *)templateURL {
+    BOOL retval = NO;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSError *error;
+    
+    NSDictionary *templateDict = [NSDictionary dictionaryWithContentsOfURL:templateURL];
+    if ( [templateDict count] == 0 ) {
+        DDLogError(@"[ERROR] Could not read template: %@", [templateURL path]);
+        return NO;
+    }
+    
+    NSURL *templatesFolderURL;
+    NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
+    if ( ! userApplicationSupport ) {
+        NSLog(@"Could not get Application Support folder for current User");
+        NSLog(@"Error: %@", error);
+        return NO;
+    }
+    
+    NSString *type = templateDict[NBCSettingsTypeKey];
+    
+    if ( [type isEqualToString:NBCSettingsTypeNetInstall] ) {
+        templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesNetInstall isDirectory:YES];
+        if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+            return NO;
+        }
+    } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
+        templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesDeployStudio isDirectory:YES];
+        if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+            return NO;
+        }
+    } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
+        templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesImagr isDirectory:YES];
+        if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+            return NO;
+        }
+    } else {
+        DDLogError(@"[ERROR] Unknown template type: %@", type);
+        return NO;
+    }
+    
+    NSArray *contents = [fm contentsOfDirectoryAtURL:templatesFolderURL
+                          includingPropertiesForKeys:@[]
+                                             options:NSDirectoryEnumerationSkipsHiddenFiles
+                                               error:nil];
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'nbic'"];
+    for ( NSURL *fileURL in [contents filteredArrayUsingPredicate:predicate] ) {
+        NSDictionary *currentTemplateDict = [[NSDictionary alloc] initWithContentsOfURL:fileURL];
+        if ( [currentTemplateDict count] != 0 ) {
+            if ( [currentTemplateDict isEqualToDictionary:templateDict] ) {
+                retval = YES;
+            }
+        }
+    }
+    
+    return retval;
+}
+
 - (void)addUntitledTemplate {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_popUpButton insertItemWithTitle:NBCMenuItemUntitled atIndex:0];
@@ -356,6 +423,31 @@ enum {
     } else {
         NSLog(@"Could not find default template file for %@!", _templateType);
         NSLog(@"Error: %@", error);
+    }
+}
+
++ (NSDictionary *)templateInfoFromTemplateAtURL:(NSURL *)templateURL error:(NSError **)error {
+#pragma unused(error)
+    NSMutableDictionary *templateInfoDict = [[NSMutableDictionary alloc] init];
+    
+    NSDictionary *templateDict = [NSDictionary dictionaryWithContentsOfURL:templateURL];
+    if ( [templateDict count] != 0 ) {
+        NSString *name = templateDict[NBCSettingsNameKey];
+        if ( [name length] != 0 ) {
+            templateInfoDict[NBCSettingsNameKey] = name;
+        }
+        NSString *type = templateDict[NBCSettingsTypeKey];
+        if ( [type length] != 0 ) {
+            templateInfoDict[NBCSettingsTypeKey] = type;
+        }
+        NSString *version = templateDict[NBCSettingsVersionKey];
+        if ( [version length] != 0 ) {
+            templateInfoDict[NBCSettingsVersionKey] = version;
+        }
+        return [templateInfoDict copy];
+    } else {
+        NSLog(@"Could not open template!");
+        return nil;
     }
 }
 
@@ -432,6 +524,12 @@ enum {
     [self showSheetSaveAs];
 } // menuItemSaveAs
 
+- (void)menuItemExport:(NSNotification *)notification {
+#pragma unused(notification)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    [self showSheetExport];
+} // menuItemSaveAs
+
 - (void)menuItemShowInFinder:(NSNotification *)notification {
 #pragma unused(notification)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -495,6 +593,39 @@ enum {
         }
     }];
 } // showSheetSaveAs
+
+- (void)showSheetExport {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    // create the save panel
+    NSSavePanel *panel = [NSSavePanel savePanel];
+    NSURL *selectedTemplateURL = [self->_settingsViewController templatesDict][[self->_settingsViewController selectedTemplate]];
+    NSDictionary *selectedTemplateDict = [NSDictionary dictionaryWithContentsOfURL:selectedTemplateURL];
+    if ( [selectedTemplateDict count] != 0 ) {
+        NSString *templateName = selectedTemplateDict[NBCSettingsNameKey] ?: @"";
+        
+        //[panel setAccessoryView:_viewExportPanel]; // Activate later for bundle export support
+        [panel setAllowedFileTypes:@[ @"com.github.NBICreator.template" ]];
+        [panel setCanCreateDirectories:YES];
+        [panel setTitle:@"Export Template"];
+        [panel setPrompt:@"Export"];
+        [panel setNameFieldStringValue:[NSString stringWithFormat:@"%@", templateName]];
+        [panel beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger result) {
+            
+            if (result == NSFileHandlingPanelOKButton) {
+                
+                // create a file namaner and grab the save panel's returned URL
+                NSFileManager *fm = [NSFileManager defaultManager];
+                NSURL *saveURL = [panel URL];
+                
+                // then copy a previous file to the new location
+                [fm copyItemAtURL:selectedTemplateURL toURL:saveURL error:nil];
+            }
+            [self->_popUpButton selectItemWithTitle:[self->_settingsViewController selectedTemplate]];
+        }];
+    } else {
+        [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
+    }
+} // showSheetExport
 
 - (IBAction)buttonSheetSaveAsCancel:(id)sender {
 #pragma unused(sender)

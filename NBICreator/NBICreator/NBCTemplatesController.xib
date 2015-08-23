@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14D136" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
     </dependencies>
@@ -8,10 +8,12 @@
             <connections>
                 <outlet property="buttonSheetSaveAsSaveAs" destination="JQh-rk-NWa" id="uia-KP-0X5"/>
                 <outlet property="buttonSheetSaveUntitledSaveAs" destination="l9w-Np-JFi" id="o7q-TU-gk7"/>
+                <outlet property="checkboxExportPanelIncludeResources" destination="aFk-ik-6cc" id="QS5-9H-jhm"/>
                 <outlet property="sheetSaveAs" destination="fa1-5l-zJo" id="ipi-yj-kx7"/>
                 <outlet property="sheetSaveUntitled" destination="ex7-Cc-mAb" id="wun-fV-P5f"/>
                 <outlet property="textFieldSheetSaveAsName" destination="eRn-Y7-VQr" id="GW4-Z0-mh8"/>
                 <outlet property="textFieldSheetSaveUntitledName" destination="4wj-9g-UTt" id="CNf-R4-NxB"/>
+                <outlet property="viewExportPanel" destination="LZB-W8-bk8" id="PKY-xr-S6C"/>
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
@@ -72,7 +74,7 @@ Gw
                     </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="-2454" y="644.5"/>
+            <point key="canvasLocation" x="-2680" y="510.5"/>
         </window>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" visibleAtLaunch="NO" animationBehavior="default" id="ex7-Cc-mAb">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
@@ -161,7 +163,36 @@ Gw
                     </button>
                 </subviews>
             </view>
-            <point key="canvasLocation" x="-2463.5" y="441"/>
+            <point key="canvasLocation" x="-2679.5" y="281"/>
         </window>
+        <customView id="LZB-W8-bk8">
+            <rect key="frame" x="-5" y="0.0" width="352" height="90"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <button translatesAutoresizingMaskIntoConstraints="NO" id="aFk-ik-6cc">
+                    <rect key="frame" x="18" y="54" width="316" height="18"/>
+                    <buttonCell key="cell" type="check" title="Include external resources in exported template" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="lDs-R1-Sat">
+                        <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                </button>
+                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="nnp-g1-j0P">
+                    <rect key="frame" x="32" y="20" width="302" height="28"/>
+                    <textFieldCell key="cell" controlSize="small" sendsActionOnEndEditing="YES" title="This option creates a template bundle with the template settings and all added resources embedded." id="OX9-lx-mVJ">
+                        <font key="font" metaFont="smallSystem"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+            </subviews>
+            <constraints>
+                <constraint firstItem="aFk-ik-6cc" firstAttribute="top" secondItem="LZB-W8-bk8" secondAttribute="top" constant="20" symbolic="YES" id="9hB-Xu-WPr"/>
+                <constraint firstAttribute="trailing" secondItem="aFk-ik-6cc" secondAttribute="trailing" constant="20" symbolic="YES" id="e2E-Yw-ThF"/>
+                <constraint firstItem="nnp-g1-j0P" firstAttribute="top" secondItem="aFk-ik-6cc" secondAttribute="bottom" constant="8" symbolic="YES" id="efg-bM-EJ7"/>
+                <constraint firstAttribute="trailing" secondItem="nnp-g1-j0P" secondAttribute="trailing" constant="20" symbolic="YES" id="lTM-0t-Lnh"/>
+                <constraint firstAttribute="bottom" secondItem="nnp-g1-j0P" secondAttribute="bottom" constant="20" symbolic="YES" id="rhp-ft-aiH"/>
+            </constraints>
+            <point key="canvasLocation" x="-2142" y="511"/>
+        </customView>
     </objects>
 </document>
