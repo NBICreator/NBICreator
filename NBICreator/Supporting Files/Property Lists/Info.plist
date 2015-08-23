@@ -4,6 +4,23 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>nbic</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>NBICreator Template</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.github.NBICreator.template</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
@@ -35,5 +52,27 @@
 		<key>com.github.NBICreatorHelper</key>
 		<string>identifier com.github.NBICreatorHelper and certificate leaf[subject.OU] = Y7QFC8672N</string>
 	</dict>
+	<key>UTExportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.data</string>
+				<string>public.content</string>
+				<string>com.apple.property-list</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>NBICreator Template</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.github.NBICreator.template</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>nbic</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
 </dict>
 </plist>
