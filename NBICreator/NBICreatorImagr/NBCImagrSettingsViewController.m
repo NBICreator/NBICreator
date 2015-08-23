@@ -994,7 +994,7 @@ DDLogLevel ddLogLevel;
     }
     
     NSString *selectedTimeZone = settingsDict[NBCSettingsNBITimeZone];
-    if ( [selectedTimeZone isEqualToString:NBCMenuItemCurrent] ) {
+    if ( [selectedTimeZone length] == 0 || [selectedTimeZone isEqualToString:NBCMenuItemCurrent] ) {
         [self selectTimeZone:[_popUpButtonTimeZone itemWithTitle:NBCMenuItemCurrent]];
     } else {
         NSString *selectedTimeZoneRegion = [selectedTimeZone componentsSeparatedByString:@"/"][0];
@@ -1352,7 +1352,7 @@ DDLogLevel ddLogLevel;
                     NSLog(@"Success");
                     NSLog(@"newSettingsDict=%@", newSettingsDict);
                     [self updateUISettingsFromDict:newSettingsDict];
-                    [self saveUISettingsWithName:nbiName atUrl:[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%@.nbic", NSTemporaryDirectory(), [[NSUUID UUID] UUIDString]]]]; // Temporary, to test
+                    [self saveUISettingsWithName:nbiName atUrl:[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%@.nbictemplate", NSTemporaryDirectory(), [[NSUUID UUID] UUIDString]]]]; // Temporary, to test
                     [self->_templates updateTemplateListForPopUpButton:self->_popUpButtonTemplates title:nbiName];
                     [self verifyBuildButton];
                 } else {
@@ -1523,7 +1523,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     if ( settingsURL == nil ) {
         NSString *uuid = [[NSUUID UUID] UUIDString];
-        settingsURL = [_templatesFolderURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.nbic", uuid]];
+        settingsURL = [_templatesFolderURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.nbictemplate", uuid]];
     }
     
     // -------------------------------------------------------------
