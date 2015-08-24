@@ -530,15 +530,6 @@ DDLogLevel ddLogLevel;
     rcImaging = [rcImaging stringByAppendingString:enableDiskUtilDebugMenu];
     
     if ( [settingsDict[NBCSettingsCertificates] count] != 0 ) {
-        NSString *createSystemKeychain = [NSString stringWithFormat:@"\n"
-                                          "###\n"
-                                          "### Create System Keychain\n"
-                                          "###\n"
-                                          "if [ -e /usr/sbin/systemkeychain ]; then\n"
-                                          "\t/usr/sbin/systemkeychain -fcC\n"
-                                          "fi\n"];
-        rcImaging = [rcImaging stringByAppendingString:createSystemKeychain];
-        
         NSString *addCertificates = [NSString stringWithFormat:@"\n"
                                      "###\n"
                                      "### Add Certificates\n"
