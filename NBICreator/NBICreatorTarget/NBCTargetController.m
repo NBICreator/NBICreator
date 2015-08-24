@@ -646,6 +646,94 @@ DDLogLevel ddLogLevel;
     return verified;
 }
 
+- (BOOL)settingsToRemove:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    BOOL retval = YES;
+    //NSError *error;
+    //NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.FMM_recovery.plist
+    // --------------------------------------------------------------
+    NSURL *findmydevicedFMMRecoverySettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.FMM_recovery.plist"];
+    DDLogDebug(@"findmydevicedFMMRecoverySettingsURL=%@", findmydevicedFMMRecoverySettingsURL);
+    NSDictionary *modifyFindmydevicedFMMRecoverySettings = @{
+                                                             NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                                             NBCWorkflowModifyTargetURL : [findmydevicedFMMRecoverySettingsURL path]
+                                                             };
+    DDLogDebug(@"modifyFindmydevicedFMMRecoverySettings=%@", modifyFindmydevicedFMMRecoverySettings);
+    [modifyDictArray addObject:modifyFindmydevicedFMMRecoverySettings];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.webcontentfilter.RecoveryOS.plist
+    // --------------------------------------------------------------
+    NSURL *webcontentfilterRecoverySettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.webcontentfilter.RecoveryOS.plist"];
+    DDLogDebug(@"webcontentfilterRecoverySettingsURL=%@", webcontentfilterRecoverySettingsURL);
+    NSDictionary *modifyWebcontentfilterRecoverySettings = @{
+                                                             NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                                             NBCWorkflowModifyTargetURL : [webcontentfilterRecoverySettingsURL path]
+                                                             };
+    DDLogDebug(@"modifyWebcontentfilterRecoverySettings=%@", modifyWebcontentfilterRecoverySettings);
+    [modifyDictArray addObject:modifyWebcontentfilterRecoverySettings];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.VoiceOver.plist
+    // --------------------------------------------------------------
+    NSURL *voiceoverSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.VoiceOver.plist"];
+    DDLogDebug(@"voiceoverSettingsURL=%@", voiceoverSettingsURL);
+    NSDictionary *modifyVoiceoverSettings = @{
+                                                             NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                                             NBCWorkflowModifyTargetURL : [voiceoverSettingsURL path]
+                                                             };
+    DDLogDebug(@"modifyVoiceoverSettings=%@", modifyVoiceoverSettings);
+    [modifyDictArray addObject:modifyVoiceoverSettings];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.sbd.plist
+    // --------------------------------------------------------------
+    NSURL *sbdSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.sbd.plist"];
+    DDLogDebug(@"sbdSettingsURL=%@", sbdSettingsURL);
+    NSDictionary *modifySbdSettings = @{
+                                              NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                              NBCWorkflowModifyTargetURL : [sbdSettingsURL path]
+                                              };
+    DDLogDebug(@"modifySbdSettings=%@", modifySbdSettings);
+    [modifyDictArray addObject:modifySbdSettings];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.scrod.plist
+    // --------------------------------------------------------------
+    NSURL *scrodSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.scrod.plist"];
+    DDLogDebug(@"scrodSettingsURL=%@", scrodSettingsURL);
+    NSDictionary *modifyScrodSettings = @{
+                                        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                        NBCWorkflowModifyTargetURL : [scrodSettingsURL path]
+                                        };
+    DDLogDebug(@"modifyScrodSettings=%@", modifyScrodSettings);
+    [modifyDictArray addObject:modifyScrodSettings];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.tccd.system.plist
+    // --------------------------------------------------------------
+    NSURL *tccdSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.tccd.system.plist"];
+    DDLogDebug(@"tccdSettingsURL=%@", tccdSettingsURL);
+    NSDictionary *modifyTccdSettings = @{
+                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                          NBCWorkflowModifyTargetURL : [tccdSettingsURL path]
+                                          };
+    DDLogDebug(@"modifyTccdSettings=%@", modifyTccdSettings);
+    [modifyDictArray addObject:modifyTccdSettings];
+    
+    return retval;
+}
+
 - (BOOL)modifySettingsForFindMyDeviced:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
@@ -670,18 +758,6 @@ DDLogLevel ddLogLevel;
                                                   };
     DDLogDebug(@"modifyFindmydevicedSettings=%@", modifyFindmydevicedSettings);
     [modifyDictArray addObject:modifyFindmydevicedSettings];
-    
-    // --------------------------------------------------------------
-    //  /System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.FMM_recovery.plist
-    // --------------------------------------------------------------
-    NSURL *findmydevicedFMMRecoverySettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.icloud.findmydeviced.FMM_recovery.plist"];
-    DDLogDebug(@"findmydevicedFMMRecoverySettingsURL=%@", findmydevicedFMMRecoverySettingsURL);
-    NSDictionary *modifyFindmydevicedFMMRecoverySettings = @{
-                                                             NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
-                                                             NBCWorkflowModifyTargetURL : [findmydevicedFMMRecoverySettingsURL path]
-                                                             };
-    DDLogDebug(@"modifyFindmydevicedFMMRecoverySettings=%@", modifyFindmydevicedFMMRecoverySettings);
-    [modifyDictArray addObject:modifyFindmydevicedFMMRecoverySettings];
     
     // --------------------------------------------------------------
     //  /System/Library/LaunchDaemons/com.apple.findmymac.plist
@@ -1192,6 +1268,8 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"systemUIServerAttributes=%@", systemUIServerAttributes);
     systemUIServerDict[@"RunAtLoad"] = @YES;
     systemUIServerDict[@"Disabled"] = @NO;
+    systemUIServerDict[@"POSIXSpawnType"] = @"Interactive";
+    [systemUIServerDict removeObjectForKey:@"KeepAlive"];
     DDLogDebug(@"systemUIServerDict=%@", systemUIServerDict);
     NSDictionary *modifyDictSystemUIServer = @{
                                                NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
