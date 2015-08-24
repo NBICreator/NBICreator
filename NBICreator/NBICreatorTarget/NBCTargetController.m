@@ -1894,7 +1894,7 @@ DDLogLevel ddLogLevel;
     NSDictionary *folderLibraryCacheAttributes = @{
                                                    NSFileOwnerAccountName : @"root",
                                                    NSFileGroupOwnerAccountName : @"wheel",
-                                                   NSFilePosixPermissions : @0755
+                                                   NSFilePosixPermissions : @0777
                                                    };
     DDLogDebug(@"folderLibraryCacheAttributes=%@", folderLibraryCacheAttributes);
     NSDictionary *modifyFolderLibraryCache = @{
