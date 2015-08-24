@@ -113,7 +113,9 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------------------
     //  Convert and rename BaseSystem image from shadow file
     // ------------------------------------------------------
-    [_delegate updateProgressStatus:@"Converting BaseSystem.dmg and shadow file to sparseimage..." workflow:self];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_delegate updateProgressStatus:@"Converting BaseSystem.dmg and shadow file to sparseimage..." workflow:self];
+    });
     if ( ! [_targetController convertBaseSystemFromShadow:_target error:&error] ) {
         DDLogError(@"[ERROR] Converting BaseSystem from shadow failed!");
         DDLogError(@"%@", error);
@@ -602,10 +604,10 @@ DDLogLevel ddLogLevel;
     }
     
     /*
-    if ( verified ) {
-        verified = [_targetController modifySettingsForFindMyDeviced:modifyDictArray workflowItem:_workflowItem];
-    }
-    */
+     if ( verified ) {
+     verified = [_targetController modifySettingsForFindMyDeviced:modifyDictArray workflowItem:_workflowItem];
+     }
+     */
     
     if ( verified && userSettings[NBCSettingsUseVerboseBoot] ) {
         verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
@@ -916,8 +918,6 @@ DDLogLevel ddLogLevel;
     
     NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
     
-    NSLog(@"%@ %@", commandURL, generateKernelCacheVariables);
-    
     // -----------------------------------------------------------------------------------
     //  Create standard output file handle and register for data available notifications.
     // -----------------------------------------------------------------------------------
@@ -1163,37 +1163,37 @@ DDLogLevel ddLogLevel;
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
     
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
+    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+    [helperConnector connectToHelper];
+    
+    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            
+            // ------------------------------------------------------------------
+            //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+            // ------------------------------------------------------------------
+            DDLogError(@"%@", proxyError);
+            [nc removeObserver:stdOutObserver];
+            [nc removeObserver:stdErrObserver];
+            [self modifyFailed];
+        }];
         
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                
-                // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
-                // ------------------------------------------------------------------
-                DDLogError(@"%@", proxyError);
+    }] runTaskWithCommandAtPath:commandURL arguments:commandAgruments currentDirectory:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            DDLogDebug(@"terminationStatus=%d", terminationStatus);
+            if ( terminationStatus == 0 ) {
+                [nc removeObserver:stdOutObserver];
+                [nc removeObserver:stdErrObserver];
+                [self disableSpotlightIndex];
+            } else {
+                DDLogError(@"[ERROR] Creating user failed!");
+                DDLogError(@"%@", error);
                 [nc removeObserver:stdOutObserver];
                 [nc removeObserver:stdErrObserver];
                 [self modifyFailed];
-            }];
-            
-        }] runTaskWithCommandAtPath:commandURL arguments:commandAgruments currentDirectory:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
-            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                DDLogDebug(@"terminationStatus=%d", terminationStatus);
-                if ( terminationStatus == 0 ) {
-                    [nc removeObserver:stdOutObserver];
-                    [nc removeObserver:stdErrObserver];
-                    [self disableSpotlightIndex];
-                } else {
-                    DDLogError(@"[ERROR] Creating user failed!");
-                    DDLogError(@"%@", error);
-                    [nc removeObserver:stdOutObserver];
-                    [nc removeObserver:stdErrObserver];
-                    [self modifyFailed];
-                }
-            }];
+            }
         }];
+    }];
 }
 
 - (void)disableSpotlightIndex {

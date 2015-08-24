@@ -20,6 +20,14 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCDiskImageController
 
+- (id)initWithDelegate:(id<NBCAlertDelegate>)delegate {
+    self = [super init];
+    if (self) {
+        _delegate = delegate;
+    }
+    return self;
+}
+
 + (BOOL)attachDiskImageAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options error:(NSError **)error {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
@@ -36,7 +44,7 @@ DDLogLevel ddLogLevel;
     
     [newTask setArguments:args];
     [newTask setStandardOutput:[NSPipe pipe]];
-
+    
     [newTask launch];
     [newTask waitUntilExit];
     
@@ -155,12 +163,12 @@ DDLogLevel ddLogLevel;
     [newTask setLaunchPath:@"/usr/sbin/diskutil"];
     
     NSArray *args = @[
-                     @"quiet",
-                     @"mount",
-                     @"readOnly",
-                     @"-mountPoint", [*mountURL path],
-                     devName,
-                     ];
+                      @"quiet",
+                      @"mount",
+                      @"readOnly",
+                      @"-mountPoint", [*mountURL path],
+                      devName,
+                      ];
     
     [newTask setArguments:args];
     [newTask setStandardOutput:[NSPipe pipe]];
@@ -404,12 +412,12 @@ DDLogLevel ddLogLevel;
     [newTask setLaunchPath:@"/usr/bin/hdiutil"];
     
     NSArray *args = @[
-                     @"convert", diskImagePath,
-                     @"-format", @"UDSP",
-                     @"-shadow", shadowImagePath,
-                     @"-o", [diskImagePath stringByDeletingPathExtension],
-                     ];
-
+                      @"convert", diskImagePath,
+                      @"-format", @"UDSP",
+                      @"-shadow", shadowImagePath,
+                      @"-o", [diskImagePath stringByDeletingPathExtension],
+                      ];
+    
     [newTask setArguments:args];
     [newTask setStandardOutput:[NSPipe pipe]];
     [newTask setStandardError:[NSPipe pipe]];
@@ -435,6 +443,51 @@ DDLogLevel ddLogLevel;
     return retval;
 } // convertDiskImageAtPath:shadowImagePath
 
+- (void)convertDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Converting disk image and shadow file to sparsimage...");
+    //NSData *newTaskOutputData;
+    __block NSData *newTaskErrorData;
+    
+    NSTask *newTask =  [[NSTask alloc] init];
+    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+    
+    NSArray *args = @[
+                      @"convert", diskImagePath,
+                      @"-format", @"UDSP",
+                      @"-shadow", shadowImagePath,
+                      @"-o", [diskImagePath stringByDeletingPathExtension],
+                      ];
+    
+    [newTask setArguments:args];
+    [newTask setStandardOutput:[NSPipe pipe]];
+    [newTask setStandardError:[NSPipe pipe]];
+    
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+    dispatch_async(taskQueue, ^{
+        [newTask launch];
+        [newTask waitUntilExit];
+        
+        //newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+        //NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
+        
+        newTaskErrorData = [[newTask.standardError fileHandleForReading] readDataToEndOfFile];
+        NSString *standardError = [[NSString alloc] initWithData:newTaskErrorData encoding:NSUTF8StringEncoding];
+        
+        if ( [newTask terminationStatus] == 0 ) {
+            if ( [self->_delegate respondsToSelector:@selector(diskImageOperationStatus:imageInfo:)] ) {
+                [self->_delegate diskImageOperationStatus:YES imageInfo:nil];
+            }
+        } else {
+            DDLogError(@"[ERROR] Disk image conversion failed!");
+            DDLogError(@"[ERROR] %@", standardError);
+            if ( [self->_delegate respondsToSelector:@selector(diskImageOperationStatus:imageInfo:)] ) {
+                [self->_delegate diskImageOperationStatus:NO imageInfo:nil];
+            }
+        }
+    });
+} // convertDiskImageAtPath:shadowImagePath
+
 + (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Resizing disk image using shadow file...");
@@ -447,11 +500,11 @@ DDLogLevel ddLogLevel;
     [newTask setLaunchPath:@"/usr/bin/hdiutil"];
     
     NSArray *args = @[
-                     @"resize",
-                     @"-size", @"10G",
-                     @"-shadow", shadowImagePath,
-                     [diskImageURL path],
-                     ];
+                      @"resize",
+                      @"-size", @"10G",
+                      @"-shadow", shadowImagePath,
+                      [diskImageURL path],
+                      ];
     
     [newTask setArguments:args];
     [newTask setStandardOutput:[NSPipe pipe]];

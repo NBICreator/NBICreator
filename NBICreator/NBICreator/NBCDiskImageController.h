@@ -9,7 +9,16 @@
 #import <Foundation/Foundation.h>
 @class NBCDisk;
 
-@interface NBCDiskImageController : NSObject
+@protocol NBCDiskImageDelegate
+@optional
+- (void)diskImageOperationStatus:(BOOL)status imageInfo:(NSDictionary *)imageInfo;
+@end
+
+@interface NBCDiskImageController : NSObject {
+    id _delegate;
+}
+
+- (id)initWithDelegate:(id<NBCDiskImageDelegate>)delegate;
 
 // Attaching
 + (BOOL)attachDiskImageAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options error:(NSError **)error;
