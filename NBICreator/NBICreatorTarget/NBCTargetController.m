@@ -563,6 +563,7 @@ DDLogLevel ddLogLevel;
             DDLogDebug(@"scriptArguments=%@", scriptArguments);
             NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
             DDLogDebug(@"commandURL=%@", commandURL);
+            
             // -----------------------------------------------------------------------------------
             //  Create standard output file handle and register for data available notifications.
             // -----------------------------------------------------------------------------------
@@ -689,9 +690,9 @@ DDLogLevel ddLogLevel;
     NSURL *voiceoverSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.VoiceOver.plist"];
     DDLogDebug(@"voiceoverSettingsURL=%@", voiceoverSettingsURL);
     NSDictionary *modifyVoiceoverSettings = @{
-                                                             NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
-                                                             NBCWorkflowModifyTargetURL : [voiceoverSettingsURL path]
-                                                             };
+                                              NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                              NBCWorkflowModifyTargetURL : [voiceoverSettingsURL path]
+                                              };
     DDLogDebug(@"modifyVoiceoverSettings=%@", modifyVoiceoverSettings);
     [modifyDictArray addObject:modifyVoiceoverSettings];
     
@@ -701,9 +702,9 @@ DDLogLevel ddLogLevel;
     NSURL *sbdSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.sbd.plist"];
     DDLogDebug(@"sbdSettingsURL=%@", sbdSettingsURL);
     NSDictionary *modifySbdSettings = @{
-                                              NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
-                                              NBCWorkflowModifyTargetURL : [sbdSettingsURL path]
-                                              };
+                                        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                        NBCWorkflowModifyTargetURL : [sbdSettingsURL path]
+                                        };
     DDLogDebug(@"modifySbdSettings=%@", modifySbdSettings);
     [modifyDictArray addObject:modifySbdSettings];
     
@@ -713,9 +714,9 @@ DDLogLevel ddLogLevel;
     NSURL *scrodSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.scrod.plist"];
     DDLogDebug(@"scrodSettingsURL=%@", scrodSettingsURL);
     NSDictionary *modifyScrodSettings = @{
-                                        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
-                                        NBCWorkflowModifyTargetURL : [scrodSettingsURL path]
-                                        };
+                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                          NBCWorkflowModifyTargetURL : [scrodSettingsURL path]
+                                          };
     DDLogDebug(@"modifyScrodSettings=%@", modifyScrodSettings);
     [modifyDictArray addObject:modifyScrodSettings];
     
@@ -725,9 +726,9 @@ DDLogLevel ddLogLevel;
     NSURL *tccdSettingsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.tccd.system.plist"];
     DDLogDebug(@"tccdSettingsURL=%@", tccdSettingsURL);
     NSDictionary *modifyTccdSettings = @{
-                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
-                                          NBCWorkflowModifyTargetURL : [tccdSettingsURL path]
-                                          };
+                                         NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                         NBCWorkflowModifyTargetURL : [tccdSettingsURL path]
+                                         };
     DDLogDebug(@"modifyTccdSettings=%@", modifyTccdSettings);
     [modifyDictArray addObject:modifyTccdSettings];
     
@@ -1279,6 +1280,13 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"modifyDictSystemUIServer=%@", modifyDictSystemUIServer);
     [modifyDictArray addObject:modifyDictSystemUIServer];
     
+    NSDictionary *modifySystemUIServerLaunchAgent = @{
+                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                                      NBCWorkflowModifyTargetURL : [systemUIServerLaunchAgentURL path]
+                                                      };
+    DDLogDebug(@"modifySystemUIServerLaunchAgent=%@", modifySystemUIServerLaunchAgent);
+    [modifyDictArray addObject:modifySystemUIServerLaunchAgent];
+    
     // --------------------------------------------------------------
     //  /etc/localtime -> /usr/share/zoneinfo/...
     // --------------------------------------------------------------
@@ -1310,6 +1318,40 @@ DDLogLevel ddLogLevel;
         [modifyDictArray addObject:modifyLocaltime];
     }
     
+    /*
+    // --------------------------------------------------------------
+    //  /Library/Preferences/com.apple.menuextra.textinput.plist
+    // --------------------------------------------------------------
+    NSURL *menuextraTextinputSettingsURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/com.apple.menuextra.textinput.plist"];
+    DDLogDebug(@"menuextraTextinputSettingsURL=%@", menuextraTextinputSettingsURL);
+    NSMutableDictionary *menuextraTextinputSettingsDict;
+    NSDictionary *menuextraTextinputSettingsAttributes;
+    if ( [menuextraTextinputSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+        menuextraTextinputSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:menuextraTextinputSettingsURL];
+        menuextraTextinputSettingsAttributes = [fm attributesOfItemAtPath:[menuextraTextinputSettingsURL path] error:&error];
+    }
+    
+    if ( [menuextraTextinputSettingsDict count] == 0 ) {
+        menuextraTextinputSettingsDict = [[NSMutableDictionary alloc] init];
+        menuextraTextinputSettingsAttributes = @{
+                                                 NSFileOwnerAccountName : @"root",
+                                                 NSFileGroupOwnerAccountName : @"wheel",
+                                                 NSFilePosixPermissions : @0644
+                                                 };
+    }
+    DDLogDebug(@"menuextraTextinputSettingsDict=%@", menuextraTextinputSettingsDict);
+    DDLogDebug(@"menuextraTextinputSettingsAttributes=%@", menuextraTextinputSettingsAttributes);
+    menuextraTextinputSettingsDict[@"ModeNameVisible"] = @NO;
+    DDLogDebug(@"menuextraTextinputSettingsDict=%@", menuextraTextinputSettingsDict);
+    NSDictionary *modifyMenuextraTextinputSettings = @{
+                                                       NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                       NBCWorkflowModifyContent : menuextraTextinputSettingsDict,
+                                                       NBCWorkflowModifyAttributes : menuextraTextinputSettingsAttributes,
+                                                       NBCWorkflowModifyTargetURL : [menuextraTextinputSettingsURL path]
+                                                       };
+    DDLogDebug(@"modifyMenuextraTextinputSettings=%@", modifyMenuextraTextinputSettings);
+    [modifyDictArray addObject:modifyMenuextraTextinputSettings];
+    */
     /*
      // --------------------------------------------------------------
      //  /Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist
@@ -1815,17 +1857,17 @@ DDLogLevel ddLogLevel;
         NSData *rcCdmCdromData = [rcCdmCdrom dataUsingEncoding:NSUTF8StringEncoding];
         
         NSDictionary *rcCdmCdromAttributes = @{
-                                                NSFileOwnerAccountName : @"root",
-                                                NSFileGroupOwnerAccountName : @"wheel",
-                                                NSFilePosixPermissions : @0555
-                                                };
+                                               NSFileOwnerAccountName : @"root",
+                                               NSFileGroupOwnerAccountName : @"wheel",
+                                               NSFilePosixPermissions : @0555
+                                               };
         
         NSDictionary *modifyRcCdmCdrom = @{
-                                            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
-                                            NBCWorkflowModifyContent : rcCdmCdromData,
-                                            NBCWorkflowModifyTargetURL : [rcCdmCdromURL path],
-                                            NBCWorkflowModifyAttributes : rcCdmCdromAttributes
-                                            };
+                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
+                                           NBCWorkflowModifyContent : rcCdmCdromData,
+                                           NBCWorkflowModifyTargetURL : [rcCdmCdromURL path],
+                                           NBCWorkflowModifyAttributes : rcCdmCdromAttributes
+                                           };
         DDLogDebug(@"modifyRcCdmCdrom=%@", modifyRcCdmCdrom);
         [modifyDictArray addObject:modifyRcCdmCdrom];
     } else {
