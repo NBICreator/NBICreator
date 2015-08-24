@@ -831,11 +831,30 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
-    NSString *regexSystemkeychain = @".*/sbin/systemkeychain.*";
+    NSString *regexSystemkeychain = @".*systemkeychain.*";
     [packageEssentialsRegexes addObject:regexSystemkeychain];
     
     packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
     sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+    
+    NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
+    NSMutableArray *packageBSDRegexes;
+    if ( [packageBSDDict count] != 0 ) {
+        packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageBSDRegexes == nil ) {
+            packageBSDRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageBSDDict = [[NSMutableDictionary alloc] init];
+        packageBSDRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexSecurityChecksystem = @".*security-checksystem.*";
+    [packageBSDRegexes addObject:regexSecurityChecksystem];
+    
+    packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
+    sourceItemsDict[packageBSDPath] = packageBSDDict;
 }
 
 - (void)addVNC:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {

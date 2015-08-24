@@ -936,7 +936,6 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  /Library/Security/Trust Settings/Admin.plist
     // --------------------------------------------------------------
-    
     NSURL *systemKeychainTrustSettingsURL = [volumeURL URLByAppendingPathComponent:@"Library/Security/Trust Settings/Admin.plist"];
     DDLogDebug(@"systemKeychainTrustSettingsURL=%@", systemKeychainTrustSettingsURL);
     NSDictionary *systemKeychainTrustSettingsAttributes;
