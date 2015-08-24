@@ -632,6 +632,29 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void)addKernel:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil )
+        {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexkernel = @".*/Kernels/.*";
+    DDLogDebug(@"regexkernel=%@", regexkernel);
+    [packageEssentialsRegexes addObject:regexkernel];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+}
+
 - (void)addNTP:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];

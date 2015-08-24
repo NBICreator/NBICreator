@@ -75,19 +75,22 @@ case ${osVersionMinor} in
 		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
 	;;
 	10)
-		/usr/sbin/kextcache -update-volume "${targetVolumePath}"
-		/usr/sbin/kextcache -prelinked-kernel "${nbiVolumePath}/i386/x86_64/kernelcache" \
-                            -a x86_64 \
+		/usr/sbin/kextcache -update-volume "${targetVolumePath}" -verbose 2
+		/usr/sbin/kextcache -a x86_64 \
+                            -verbose 2 \
 							-N \
                             -L \
 							-z \
 							-K "${targetVolumePath}/System/Library/Kernels/kernel" \
-							-- "${targetVolumePath}/System/Library/Extensions"
+                            -c "${nbiVolumePath}/i386/x86_64/kernelcache" \
+							"${targetVolumePath}/System/Library/Extensions"
 		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
 	;;
 	11)
-        /usr/sbin/kextcache -update-volume "${targetVolumePath}"
+
+        /usr/sbin/kextcache -update-volume "${targetVolumePath}" -verbose 2
         /usr/sbin/kextcache -a x86_64 \
+                            -verbose 2 \
                             -N \ # Only include extensions required for network disk boot
                             -L \ # Only include extensions required for local disk boot
                             -z \

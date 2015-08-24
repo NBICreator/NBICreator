@@ -586,6 +586,10 @@ DDLogLevel ddLogLevel;
     verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
     
     if ( verified ) {
+        verified = [_targetController settingsToRemove:modifyDictArray workflowItem:_workflowItem];
+    }
+    
+    if ( verified ) {
         verified = [_targetController modifySettingsForRCCdrom:modifyDictArray workflowItem:_workflowItem];
     }
     
@@ -880,10 +884,140 @@ DDLogLevel ddLogLevel;
     return [userVariables copy];
 } // generateUserVariablesForCreateUsers
 
+- (void)generateKernelCacheForNBI:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Generating kernel cache files...");
+    [_delegate updateProgressStatus:@"Generating kernel cache files..." workflow:self];
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    NSMutableArray *generateKernelCacheVariables = [[NSMutableArray alloc] init];
+    
+    // --------------------------------------------------------------------------
+    //  Get path to generateKernelCache script
+    // --------------------------------------------------------------------------
+    NSString *generateKernelCacheScriptPath = [[NSBundle mainBundle] pathForResource:@"generateKernelCache" ofType:@"bash"];
+    DDLogDebug(@"[DEBUG] generateKernelCacheScriptPath=%@", generateKernelCacheScriptPath);
+    if ( [generateKernelCacheScriptPath length] != 0 ) {
+        [generateKernelCacheVariables addObject:generateKernelCacheScriptPath];
+        DDLogDebug(@"[DEBUG] generateKernelCacheVariables=%@", generateKernelCacheVariables);
+    } else {
+        DDLogError(@"[ERROR] generateKernelCache script doesn't exist at path: %@", generateKernelCacheScriptPath);
+        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        return;
+    }
+    
+    [generateKernelCacheVariables addObject:[[[workflowItem target] baseSystemVolumeURL] path]];
+    [generateKernelCacheVariables addObject:[[workflowItem temporaryNBIURL] path]];
+    
+    NSString *osVersionMinor = [[workflowItem source] expandVariables:@"%OSMINOR%"];
+    DDLogDebug(@"[DEBUG] osVersionMinor=%@", osVersionMinor);
+    if ( [osVersionMinor length] != 0 ) {
+        [generateKernelCacheVariables addObject:osVersionMinor];
+    }
+    
+    NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
+    
+    NSLog(@"%@ %@", commandURL, generateKernelCacheVariables);
+    
+    // -----------------------------------------------------------------------------------
+    //  Create standard output file handle and register for data available notifications.
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdOut = [[NSPipe alloc] init];
+    NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
+    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+    
+    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdOut fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
+                                        NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When output data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        DDLogDebug(@"[generateKernelCache.bash] %@", outStr);
+                                        
+                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    // -----------------------------------------------------------------------------------
+    //  Create standard error file handle and register for data available notifications.
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdErr = [[NSPipe alloc] init];
+    NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
+    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+    
+    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdErr fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
+                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When error data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        DDLogError(@"[generateKernelCache.bash][ERROR] %@", errStr);
+                                        
+                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    
+    DDLogDebug(@"[DEBUG] generateKernelCacheVariables=%@", generateKernelCacheVariables);
+    if ( [generateKernelCacheVariables count] == 4 ) {
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                
+                // ------------------------------------------------------------------
+                //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+                // ------------------------------------------------------------------
+                DDLogError(@"%@", proxyError);
+                [nc removeObserver:stdOutObserver];
+                [nc removeObserver:stdErrObserver];
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
+            }];
+            
+        }] runTaskWithCommandAtPath:commandURL arguments:generateKernelCacheVariables currentDirectory:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                DDLogDebug(@"[DEBUG] terminationStatus=%d", terminationStatus);
+                if ( terminationStatus == 0 ) {
+                    [nc removeObserver:stdOutObserver];
+                    [nc removeObserver:stdErrObserver];
+                    [self disableSpotlight];
+                } else {
+                    DDLogError(@"%@", error);
+                    [nc removeObserver:stdOutObserver];
+                    [nc removeObserver:stdErrObserver];
+                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                }
+            }];
+        }];
+    } else {
+        DDLogError(@"[ERROR] Variable count to be passed to script is %lu, script requires exactly 4", (unsigned long)[generateKernelCacheVariables count]);
+    }
+}
+
 - (void)modifyComplete {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Modifications Complete!");
-    [self disableSpotlight];
+    if ( [[_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] ) {
+        [self generateKernelCacheForNBI:_workflowItem];
+    } else {
+        [self disableSpotlight];
+    }
 } // modifyComplete
 
 - (void)modifyFailed {

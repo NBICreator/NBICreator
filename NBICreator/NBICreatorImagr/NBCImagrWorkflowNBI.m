@@ -232,23 +232,21 @@ DDLogLevel ddLogLevel;
                 kernelCacheSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"];
                 if ( ! [kernelCacheSourceURL checkResourceIsReachableAndReturnError:nil] ) {
                     DDLogInfo(@"Found no precompiled kernel cache files!");
-                    [self generateKernelCacheForNBI:workflowItem];
+                    //[self generateKernelCacheForNBI:workflowItem];
+                    
                 } else {
                     DDLogDebug(@"[DEBUG] kernelCacheSourceURL=%@", kernelCacheSourceURL);
                     if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
-                        //[self generateKernelCacheForNBI:workflowItem];
                         [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
                     } else {
                         DDLogError(@"[ERROR] Error while copying kernel cache file");
                         DDLogError(@"[ERROR] %@", error);
-                        NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
-                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
                     }
                 }
             } else {
                 DDLogDebug(@"[DEBUG] kernelCacheSourceURL=%@", kernelCacheSourceURL);
                 if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
-                    //[self generateKernelCacheForNBI:workflowItem];
                     [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
                 } else {
                     DDLogError(@"[ERROR] Error while copying kernel cache file");
@@ -264,195 +262,6 @@ DDLogLevel ddLogLevel;
     } else {
         DDLogError(@"Resizing BaseSystem.dmg failed!");
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-    }
-}
-- (void)generateKernelCacheForNBI:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"Generating kernel cache files...");
-    [_delegate updateProgressStatus:@"Generating kernel cache files..." workflow:self];
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    NSMutableArray *generateKernelCacheVariables = [[NSMutableArray alloc] init];
-    
-    // --------------------------------------------------------------------------
-    //  Get path to generateKernelCache script
-    // --------------------------------------------------------------------------
-    NSString *generateKernelCacheScriptPath = [[NSBundle mainBundle] pathForResource:@"generateKernelCache" ofType:@"bash"];
-    DDLogDebug(@"[DEBUG] generateKernelCacheScriptPath=%@", generateKernelCacheScriptPath);
-    if ( [generateKernelCacheScriptPath length] != 0 ) {
-        [generateKernelCacheVariables addObject:generateKernelCacheScriptPath];
-        DDLogDebug(@"[DEBUG] generateKernelCacheVariables=%@", generateKernelCacheVariables);
-    } else {
-        DDLogError(@"[ERROR] generateKernelCache script doesn't exist at path: %@", generateKernelCacheScriptPath);
-        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-        return;
-    }
-
-    /*
-    // --------------------------------------------------------------------------
-    //  Get path to BaseSystem.dmg volume
-    // --------------------------------------------------------------------------
-    NSURL *sourceVolumeURL;
-    NBCDisk *sourceBaseSystemDisk = [[workflowItem source] baseSystemDisk];
-    if ( [sourceBaseSystemDisk isMounted] ) {
-        sourceVolumeURL = [[workflowItem source] baseSystemVolumeURL];
-        DDLogDebug(@"[DEBUG] sourceVolumeURL=%@", sourceVolumeURL);
-    } else {
-        NSError *error;
-        NSDictionary *systemDiskImageDict;
-        NSURL *sourceBaseSystemURL = [[workflowItem source] baseSystemURL];
-        DDLogDebug(@"[DEBUG] sourceBaseSystemURL=%@", sourceBaseSystemURL);
-        NSArray *hdiutilOptions = @[
-                                    @"-mountRandom", @"/Volumes",
-                                    @"-nobrowse",
-                                    @"-owners", @"on",
-                                    @"-noverify",
-                                    @"-plist",
-                                    ];
-        DDLogDebug(@"[DEBUG] hdiutilOptions=%@", hdiutilOptions);
-        if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&systemDiskImageDict
-                                                                  dmgPath:sourceBaseSystemURL
-                                                                  options:hdiutilOptions
-                                                                    error:&error] ) {
-            if ( systemDiskImageDict ) {
-                [[workflowItem source] setSystemDiskImageDict:systemDiskImageDict];
-                sourceVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:systemDiskImageDict];
-                DDLogDebug(@"[DEBUG] sourceVolumeURL=%@", sourceVolumeURL);
-                if ( sourceVolumeURL ) {
-                    sourceBaseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:sourceBaseSystemURL
-                                                                                      imageType:@"BaseSystem"];
-                    if ( sourceBaseSystemDisk ) {
-                        [[workflowItem source] setSystemDisk:sourceBaseSystemDisk];
-                        [[workflowItem source] setSystemVolumeBSDIdentifier:[sourceBaseSystemDisk BSDName]];
-                        [sourceBaseSystemDisk setIsMountedByNBICreator:YES];
-                    } else {
-                        DDLogError(@"[ERROR] Could not find BaseSystem volume!");
-                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-                        return;
-                    }
-                } else {
-                    DDLogError(@"[ERROR] No path for source volume!");
-                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-                    return;
-                }
-            } else {
-                DDLogError(@"[ERROR] No info returned returned from hdiutil");
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-                return;
-            }
-        } else {
-            DDLogError(@"[ERROR] Attach failed!");
-            DDLogError(@"%@", error);
-            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
-            return;
-        }
-    }
-    
-     
-    if ( sourceVolumeURL ) {
-        [generateKernelCacheVariables addObject:[sourceVolumeURL path]];
-    }
-    */
-    [generateKernelCacheVariables addObject:[[[workflowItem target] baseSystemVolumeURL] path]];
-    [generateKernelCacheVariables addObject:[_temporaryNBIURL path]];
-    
-    NSString *osVersionMinor = [[workflowItem source] expandVariables:@"%OSMINOR%"];
-    DDLogDebug(@"[DEBUG] osVersionMinor=%@", osVersionMinor);
-    if ( [osVersionMinor length] != 0 ) {
-        [generateKernelCacheVariables addObject:osVersionMinor];
-    }
-    
-    NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
-    
-    // -----------------------------------------------------------------------------------
-    //  Create standard output file handle and register for data available notifications.
-    // -----------------------------------------------------------------------------------
-    NSPipe *stdOut = [[NSPipe alloc] init];
-    NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
-    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-    
-    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                        object:[stdOut fileHandleForReading]
-                                         queue:nil
-                                    usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                        
-                                        // ------------------------
-                                        //  Convert data to string
-                                        // ------------------------
-                                        NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
-                                        NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                        
-                                        // -----------------------------------------------------------------------
-                                        //  When output data becomes available, pass it to workflow status parser
-                                        // -----------------------------------------------------------------------
-                                        DDLogDebug(@"[generateKernelCache.bash] %@", outStr);
-
-                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                    }];
-    
-    // -----------------------------------------------------------------------------------
-    //  Create standard error file handle and register for data available notifications.
-    // -----------------------------------------------------------------------------------
-    NSPipe *stdErr = [[NSPipe alloc] init];
-    NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
-    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-    
-    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                        object:[stdErr fileHandleForReading]
-                                         queue:nil
-                                    usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                        
-                                        // ------------------------
-                                        //  Convert data to string
-                                        // ------------------------
-                                        NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
-                                        
-                                        // -----------------------------------------------------------------------
-                                        //  When error data becomes available, pass it to workflow status parser
-                                        // -----------------------------------------------------------------------
-                                        DDLogError(@"[generateKernelCache.bash][ERROR] %@", errStr);
-                                        
-                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                    }];
-    
-    
-    DDLogDebug(@"[DEBUG] generateKernelCacheVariables=%@", generateKernelCacheVariables);
-    if ( [generateKernelCacheVariables count] == 4 ) {
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                
-                // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
-                // ------------------------------------------------------------------
-                DDLogError(@"%@", proxyError);
-                [nc removeObserver:stdOutObserver];
-                [nc removeObserver:stdErrObserver];
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
-            }];
-            
-        }] runTaskWithCommandAtPath:commandURL arguments:generateKernelCacheVariables currentDirectory:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
-            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                DDLogDebug(@"[DEBUG] terminationStatus=%d", terminationStatus);
-                if ( terminationStatus == 0 ) {
-                    [nc removeObserver:stdOutObserver];
-                    [nc removeObserver:stdErrObserver];
-                    [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
-                } else {
-                    DDLogError(@"%@", error);
-                    [nc removeObserver:stdOutObserver];
-                    [nc removeObserver:stdErrObserver];
-                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
-                }
-            }];
-        }];
-    } else {
-        DDLogError(@"[ERROR] Variable count to be passed to script is %lu, script requires exactly 4", (unsigned long)[generateKernelCacheVariables count]);
     }
 }
 

@@ -2283,6 +2283,11 @@ DDLogLevel ddLogLevel;
     
     //[sourceController addNSURLStoraged:sourceItemsDict source:_source];
     
+    // - Kernel
+    if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] ) {
+        [sourceController addKernel:sourceItemsDict source:_source];
+    }
+    
     // - NTP
     if ( [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
         [sourceController addNTP:sourceItemsDict source:_source];
