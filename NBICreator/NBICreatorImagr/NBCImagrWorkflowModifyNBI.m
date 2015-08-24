@@ -586,6 +586,10 @@ DDLogLevel ddLogLevel;
     verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
     
     if ( verified ) {
+        verified = [_targetController modifySettingsForRCCdrom:modifyDictArray workflowItem:_workflowItem];
+    }
+    
+    if ( verified ) {
         verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
     }
     

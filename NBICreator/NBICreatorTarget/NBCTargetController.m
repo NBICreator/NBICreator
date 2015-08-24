@@ -799,10 +799,10 @@ DDLogLevel ddLogLevel;
     if ( [bootSettingsDict count] == 0 ) {
         bootSettingsDict = [[NSMutableDictionary alloc] init];
         bootSettingsAttributes = @{
-                                                  NSFileOwnerAccountName : @"root",
-                                                  NSFileGroupOwnerAccountName : @"wheel",
-                                                  NSFilePosixPermissions : @0644
-                                                  };
+                                   NSFileOwnerAccountName : @"root",
+                                   NSFileGroupOwnerAccountName : @"wheel",
+                                   NSFilePosixPermissions : @0644
+                                   };
     }
     DDLogDebug(@"bootSettingsDict=%@", bootSettingsDict);
     DDLogDebug(@"bootSettingsAttributes=%@", bootSettingsAttributes);
@@ -814,11 +814,11 @@ DDLogLevel ddLogLevel;
     }
     DDLogDebug(@"bootSettingsDict=%@", bootSettingsDict);
     NSDictionary *modifyBootSettings = @{
-                                                            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                                            NBCWorkflowModifyContent : bootSettingsDict,
-                                                            NBCWorkflowModifyAttributes : bootSettingsAttributes,
-                                                            NBCWorkflowModifyTargetURL : [bootSettingsURL path]
-                                                            };
+                                         NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                         NBCWorkflowModifyContent : bootSettingsDict,
+                                         NBCWorkflowModifyAttributes : bootSettingsAttributes,
+                                         NBCWorkflowModifyTargetURL : [bootSettingsURL path]
+                                         };
     DDLogDebug(@"modifyBootSettings=%@", modifyBootSettings);
     [modifyDictArray addObject:modifyBootSettings];
     
@@ -936,26 +936,26 @@ DDLogLevel ddLogLevel;
     if ( [kextdLaunchDaemonDict count] == 0 ) {
         kextdLaunchDaemonDict = [[NSMutableDictionary alloc] init];
         kextdLaunchDaemonAttributes = @{
-                                           NSFileOwnerAccountName : @"root",
-                                           NSFileGroupOwnerAccountName : @"wheel",
-                                           NSFilePosixPermissions : @0644
-                                           };
+                                        NSFileOwnerAccountName : @"root",
+                                        NSFileGroupOwnerAccountName : @"wheel",
+                                        NSFilePosixPermissions : @0644
+                                        };
     }
     DDLogDebug(@"kextdLaunchDaemonDict=%@", kextdLaunchDaemonDict);
     DDLogDebug(@"kextdLaunchDaemonAttributes=%@", kextdLaunchDaemonAttributes);
     NSMutableArray *kextdProgramArguments = [NSMutableArray arrayWithArray:kextdLaunchDaemonDict[@"ProgramArguments"]];
     [kextdProgramArguments addObject:@"-no-caches"];
     kextdLaunchDaemonDict[@"ProgramArguments"] = kextdProgramArguments;
-
+    
     NSDictionary *modifyKextdLauncDaemon = @{
-                                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                                     NBCWorkflowModifyContent : kextdLaunchDaemonDict,
-                                                     NBCWorkflowModifyAttributes : kextdLaunchDaemonAttributes,
-                                                     NBCWorkflowModifyTargetURL : [kextdLaunchDaemonURL path]
-                                                     };
+                                             NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                             NBCWorkflowModifyContent : kextdLaunchDaemonDict,
+                                             NBCWorkflowModifyAttributes : kextdLaunchDaemonAttributes,
+                                             NBCWorkflowModifyTargetURL : [kextdLaunchDaemonURL path]
+                                             };
     DDLogDebug(@"modifyKextdLauncDaemon=%@", modifyKextdLauncDaemon);
     [modifyDictArray addObject:modifyKextdLauncDaemon];
-
+    
     return retval;
 } // modifySettingsForKextd:workflowItem
 
@@ -1095,23 +1095,22 @@ DDLogLevel ddLogLevel;
         NSData *cdisContentData = [canonicalLanguage dataUsingEncoding:NSUTF8StringEncoding];
         
         NSDictionary *cdisAttributes = @{
-                                                NSFileOwnerAccountName : @"root",
-                                                NSFileGroupOwnerAccountName : @"wheel",
-                                                NSFilePosixPermissions : @0644
-                                                };
+                                         NSFileOwnerAccountName : @"root",
+                                         NSFileGroupOwnerAccountName : @"wheel",
+                                         NSFilePosixPermissions : @0644
+                                         };
         
         NSDictionary *modifyCdis = @{
-                                            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
-                                            NBCWorkflowModifyContent : cdisContentData,
-                                            NBCWorkflowModifyTargetURL : [csdisURL path],
-                                            NBCWorkflowModifyAttributes : cdisAttributes
-                                            };
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
+                                     NBCWorkflowModifyContent : cdisContentData,
+                                     NBCWorkflowModifyTargetURL : [csdisURL path],
+                                     NBCWorkflowModifyAttributes : cdisAttributes
+                                     };
         DDLogDebug(@"modifyCdis=%@", modifyCdis);
         [modifyDictArray addObject:modifyCdis];
     }
     return retval;
 } // modifySettingsForLanguageAndKeyboardLayout
-
 
 - (BOOL)modifySettingsForMenuBar:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -1214,10 +1213,10 @@ DDLogLevel ddLogLevel;
     
     if ( ! localtimeURL ) {
         localtimeAttributes = @{
-                                     NSFileOwnerAccountName : @"root",
-                                     NSFileGroupOwnerAccountName : @"wheel",
-                                     NSFilePosixPermissions : @0644
-                                     };
+                                NSFileOwnerAccountName : @"root",
+                                NSFileGroupOwnerAccountName : @"wheel",
+                                NSFilePosixPermissions : @0644
+                                };
     }
     
     NSString *selectedTimeZone = resourceSettings[NBCSettingsNBITimeZone];
@@ -1235,78 +1234,78 @@ DDLogLevel ddLogLevel;
     }
     
     /*
-    // --------------------------------------------------------------
-    //  /Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist
-    // --------------------------------------------------------------
-    NSURL *iconservicesdLaunchDaemonURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist"];
-    
-    NSMutableDictionary *iconservicesdLaunchDaemonDict;
-    NSDictionary *iconservicesdLaunchDaemonAttributes;
-    if ( [iconservicesdLaunchDaemonURL checkResourceIsReachableAndReturnError:nil] ) {
-        iconservicesdLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:iconservicesdLaunchDaemonURL];
-        iconservicesdLaunchDaemonAttributes = [fm attributesOfItemAtPath:[iconservicesdLaunchDaemonURL path] error:&error];
-    }
-    
-    if ( [iconservicesdLaunchDaemonDict count] == 0 ) {
-        iconservicesdLaunchDaemonDict = [[NSMutableDictionary alloc] init];
-        iconservicesdLaunchDaemonAttributes = @{
-                                                NSFileOwnerAccountName : @"root",
-                                                NSFileGroupOwnerAccountName : @"wheel",
-                                                NSFilePosixPermissions : @0644
-                                                };
-    }
-    
-    iconservicesdLaunchDaemonDict[@"RunAtLoad"] = @NO;
-    iconservicesdLaunchDaemonDict[@"Disabled"] = @YES;
-    
-    NSDictionary *modifyIconservicesdLaunchDaemon = @{
-                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                                      NBCWorkflowModifyContent : iconservicesdLaunchDaemonDict,
-                                                      NBCWorkflowModifyAttributes : iconservicesdLaunchDaemonAttributes,
-                                                      NBCWorkflowModifyTargetURL : [iconservicesdLaunchDaemonURL path]
-                                                      };
-    
-    [modifyDictArray addObject:modifyIconservicesdLaunchDaemon];
-    */
+     // --------------------------------------------------------------
+     //  /Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist
+     // --------------------------------------------------------------
+     NSURL *iconservicesdLaunchDaemonURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist"];
+     
+     NSMutableDictionary *iconservicesdLaunchDaemonDict;
+     NSDictionary *iconservicesdLaunchDaemonAttributes;
+     if ( [iconservicesdLaunchDaemonURL checkResourceIsReachableAndReturnError:nil] ) {
+     iconservicesdLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:iconservicesdLaunchDaemonURL];
+     iconservicesdLaunchDaemonAttributes = [fm attributesOfItemAtPath:[iconservicesdLaunchDaemonURL path] error:&error];
+     }
+     
+     if ( [iconservicesdLaunchDaemonDict count] == 0 ) {
+     iconservicesdLaunchDaemonDict = [[NSMutableDictionary alloc] init];
+     iconservicesdLaunchDaemonAttributes = @{
+     NSFileOwnerAccountName : @"root",
+     NSFileGroupOwnerAccountName : @"wheel",
+     NSFilePosixPermissions : @0644
+     };
+     }
+     
+     iconservicesdLaunchDaemonDict[@"RunAtLoad"] = @NO;
+     iconservicesdLaunchDaemonDict[@"Disabled"] = @YES;
+     
+     NSDictionary *modifyIconservicesdLaunchDaemon = @{
+     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+     NBCWorkflowModifyContent : iconservicesdLaunchDaemonDict,
+     NBCWorkflowModifyAttributes : iconservicesdLaunchDaemonAttributes,
+     NBCWorkflowModifyTargetURL : [iconservicesdLaunchDaemonURL path]
+     };
+     
+     [modifyDictArray addObject:modifyIconservicesdLaunchDaemon];
+     */
     
     /*
-    // --------------------------------------------------------------
-    //  /System/Library/Frameworks/PreferencePanes.framework/Resources/global.defaults
-    // --------------------------------------------------------------
-    NSURL *globalDefaultsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/Frameworks/PreferencePanes.framework/Resources/global.defaults"];
-    
-    NSMutableDictionary *globalDefaultsDict;
-    NSDictionary *globalDefaultsAttributes;
-    if ( [globalDefaultsURL checkResourceIsReachableAndReturnError:nil] ) {
-        globalDefaultsDict = [NSMutableDictionary dictionaryWithContentsOfURL:globalDefaultsURL];
-        globalDefaultsAttributes = [fm attributesOfItemAtPath:[globalDefaultsURL path] error:&error];
-    }
-    
-    if ( [globalDefaultsDict count] == 0 ) {
-        globalDefaultsDict = [[NSMutableDictionary alloc] init];
-        globalDefaultsAttributes = @{
-                                                NSFileOwnerAccountName : @"root",
-                                                NSFileGroupOwnerAccountName : @"wheel",
-                                                NSFilePosixPermissions : @0644
-                                                };
-    }
-    NSDictionary *resourceSettings = [workflowItem resourcesSettings];
-    DDLogDebug(@"resourceSettings=%@", resourceSettings);
-    NSString *selectedTimeZone = resourceSettings[NBCSettingsNBITimeZone];
-    NSLog(@"selectedTimeZone=%@", selectedTimeZone);
-    if ( [selectedTimeZone length] != 0 ) {
-        globalDefaultsDict[@"TimeZoneLabel"] = selectedTimeZone;
-    }
-    
-    NSDictionary *modifyGlobalDefaults = @{
-                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                                      NBCWorkflowModifyContent : globalDefaultsDict,
-                                                      NBCWorkflowModifyAttributes : globalDefaultsAttributes,
-                                                      NBCWorkflowModifyTargetURL : [globalDefaultsURL path]
-                                                      };
-    
-    [modifyDictArray addObject:modifyGlobalDefaults];
-    */
+     // --------------------------------------------------------------
+     //  /System/Library/Frameworks/PreferencePanes.framework/Resources/global.defaults
+     // --------------------------------------------------------------
+     NSURL *globalDefaultsURL = [volumeURL URLByAppendingPathComponent:@"System/Library/Frameworks/PreferencePanes.framework/Resources/global.defaults"];
+     
+     NSMutableDictionary *globalDefaultsDict;
+     NSDictionary *globalDefaultsAttributes;
+     if ( [globalDefaultsURL checkResourceIsReachableAndReturnError:nil] ) {
+     globalDefaultsDict = [NSMutableDictionary dictionaryWithContentsOfURL:globalDefaultsURL];
+     globalDefaultsAttributes = [fm attributesOfItemAtPath:[globalDefaultsURL path] error:&error];
+     }
+     
+     if ( [globalDefaultsDict count] == 0 ) {
+     globalDefaultsDict = [[NSMutableDictionary alloc] init];
+     globalDefaultsAttributes = @{
+     NSFileOwnerAccountName : @"root",
+     NSFileGroupOwnerAccountName : @"wheel",
+     NSFilePosixPermissions : @0644
+     };
+     }
+     NSDictionary *resourceSettings = [workflowItem resourcesSettings];
+     DDLogDebug(@"resourceSettings=%@", resourceSettings);
+     NSString *selectedTimeZone = resourceSettings[NBCSettingsNBITimeZone];
+     NSLog(@"selectedTimeZone=%@", selectedTimeZone);
+     if ( [selectedTimeZone length] != 0 ) {
+     globalDefaultsDict[@"TimeZoneLabel"] = selectedTimeZone;
+     }
+     
+     NSDictionary *modifyGlobalDefaults = @{
+     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+     NBCWorkflowModifyContent : globalDefaultsDict,
+     NBCWorkflowModifyAttributes : globalDefaultsAttributes,
+     NBCWorkflowModifyTargetURL : [globalDefaultsURL path]
+     };
+     
+     [modifyDictArray addObject:modifyGlobalDefaults];
+     */
     
     return retval;
 } // modifySettingsForMenuBar
@@ -1639,6 +1638,128 @@ DDLogLevel ddLogLevel;
     return retval;
 } // modifySettingsForVNC:workflowItem
 
+- (BOOL)modifySettingsForRCCdrom:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+#pragma unused(modifyDictArray)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Disabling WiFi in NBI...");
+    BOOL retval = YES;
+    NSError *error;
+    
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // --------------------------------------------------------------
+    //  /etc/rc.cdm.cdrom
+    // --------------------------------------------------------------
+    NSURL *rcCdromURL = [volumeURL URLByAppendingPathComponent:@"etc/rc.cdrom"];
+    NSURL *rcCdmCdromURL = [volumeURL URLByAppendingPathComponent:@"etc/rc.cdm.cdrom"];
+    DDLogDebug(@"rcCdromURL=%@", rcCdromURL);
+    
+    if ( [rcCdromURL checkResourceIsReachableAndReturnError:nil] ) {
+        
+        NSString *rcCdromOriginal = [NSString stringWithContentsOfURL:rcCdromURL encoding:NSUTF8StringEncoding error:&error];
+        DDLogDebug(@"rcCdromOriginal=%@", rcCdromOriginal);
+        
+        __block NSMutableString *rcCdmCdrom = [[NSMutableString alloc] init];
+        __block BOOL inspectNextLine = NO;
+        __block BOOL copyNextLine = NO;
+        [rcCdromOriginal enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
+#pragma unused(stop)
+            if ( copyNextLine ) {
+                if ( [line hasPrefix:@"fi"] ) {
+                    *stop = YES;
+                    return;
+                }
+                
+                NSRange range = [line rangeOfString:@"^\\s*" options:NSRegularExpressionSearch];
+                line = [line stringByReplacingCharactersInRange:range withString:@""];
+                
+                if ( [line hasPrefix:@"RAMDisk"] ) {
+                    NSMutableArray *lineArray = [NSMutableArray arrayWithArray:[line componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
+                    NSString *path = lineArray[1];
+                    
+                    // These are a copy of what DeployStudio sets
+                    if ( [path isEqualToString:@"/Volumes"] ) {
+                        lineArray[2] = @"2048";
+                    } else if ( [path isEqualToString:@"/var/tmp"] ) {
+                        lineArray[2] = @"32768";
+                    } else if ( [path isEqualToString:@"/var/run"] ) {
+                        lineArray[2] = @"4096";
+                    } else if ( [path isEqualToString:@"/var/db"] ) {
+                        lineArray[2] = @"4096";
+                    } else if ( [path isEqualToString:@"/var/root/Library"] ) {
+                        lineArray[2] = @"32768";
+                    } else if ( [path isEqualToString:@"/Library/ColorSync/Profiles/Displays"] ) {
+                        lineArray[2] = @"4096";
+                    } else if ( [path isEqualToString:@"/Library/Preferences"] ) {
+                        lineArray[2] = @"4096";
+                    } else if ( [path isEqualToString:@"/Library/Preferences/SystemConfiguration"] ) {
+                        lineArray[2] = @"4096";
+                    }
+                    
+                    line = [lineArray componentsJoinedByString:@" "];
+                }
+                [rcCdmCdrom appendString:[NSString stringWithFormat:@"%@\n", line]];
+                return;
+            }
+            
+            if ( inspectNextLine ) {
+                if ( [line hasPrefix:@"else"] ) {
+                    copyNextLine = YES;
+                    return;
+                }
+            }
+            
+            if ( [line hasPrefix:@"if [ -f \"/etc/rc.cdm.cdrom\" ]; then"] ) {
+                inspectNextLine = YES;
+            }
+        }];
+        
+        if ( [rcCdmCdrom length] != 0 ) {
+            [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches 32768\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches/com.apple.CVMS 32768\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /var/db/launchd.db 2048\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /var/db/launchd.db/com.apple.launchd 2048\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /var/db/dslocal/nodes/Default/users 2048\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /var/folders 12288\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /var/root 32768\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /Library/Logs 16384\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /Library/Logs/DiagnosticReports 4096\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /Library/Caches 65536\n"];
+        } else {
+            DDLogError(@"[ERROR] rcCdmCdrom is nil!");
+            return NO;
+        }
+        
+        NSData *rcCdmCdromData = [rcCdmCdrom dataUsingEncoding:NSUTF8StringEncoding];
+        
+        NSDictionary *rcCdmCdromAttributes = @{
+                                                NSFileOwnerAccountName : @"root",
+                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                NSFilePosixPermissions : @0555
+                                                };
+        
+        NSDictionary *modifyRcCdmCdrom = @{
+                                            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
+                                            NBCWorkflowModifyContent : rcCdmCdromData,
+                                            NBCWorkflowModifyTargetURL : [rcCdmCdromURL path],
+                                            NBCWorkflowModifyAttributes : rcCdmCdromAttributes
+                                            };
+        DDLogDebug(@"modifyRcCdmCdrom=%@", modifyRcCdmCdrom);
+        [modifyDictArray addObject:modifyRcCdmCdrom];
+    } else {
+        DDLogError(@"[ERROR] rcCdromURL doesn't exist!");
+        DDLogError(@"[ERROR] %@", error);
+        return NO;
+    }
+    
+    return retval;
+}
+
 - (BOOL)modifyNBIRemoveWiFi:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Disabling WiFi in NBI...");
@@ -1669,9 +1790,9 @@ DDLogLevel ddLogLevel;
     NSURL *airPortMenuURL = [volumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/Menu Extras/AirPort.menu"];
     DDLogDebug(@"airPortMenuURL=%@", airPortMenuURL);
     NSDictionary *modifyAirPortMenu = @{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
-                                     NBCWorkflowModifyTargetURL : [airPortMenuURL path]
-                                     };
+                                        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
+                                        NBCWorkflowModifyTargetURL : [airPortMenuURL path]
+                                        };
     DDLogDebug(@"modifyAirPortMenu=%@", modifyAirPortMenu);
     [modifyDictArray addObject:modifyAirPortMenu];
     
