@@ -646,9 +646,20 @@ enum {
 
 - (void)showSheetExport {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    // create the save panel
+    
+    __block NSError *error;
+    NSURL *selectedTemplateURL;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSString *selectedTemplate = [_settingsViewController selectedTemplate];
+    if ( [[_settingsViewController selectedTemplate] isEqualToString:NBCMenuItemUntitled] ) {
+        selectedTemplateURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/tmp/%@", selectedTemplate]];
+        [_settingsViewController saveUISettingsWithName:selectedTemplate atUrl:selectedTemplateURL];
+    } else {
+        selectedTemplateURL = [_settingsViewController templatesDict][selectedTemplate];
+    }
+    
     NSSavePanel *panel = [NSSavePanel savePanel];
-    NSURL *selectedTemplateURL = [self->_settingsViewController templatesDict][[self->_settingsViewController selectedTemplate]];
     NSDictionary *selectedTemplateDict = [NSDictionary dictionaryWithContentsOfURL:selectedTemplateURL];
     if ( [selectedTemplateDict count] != 0 ) {
         NSString *templateName = selectedTemplateDict[NBCSettingsNameKey] ?: @"";
@@ -660,20 +671,28 @@ enum {
         [panel setPrompt:@"Export"];
         [panel setNameFieldStringValue:[NSString stringWithFormat:@"%@", templateName]];
         [panel beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger result) {
-            
             if (result == NSFileHandlingPanelOKButton) {
-                
-                // create a file namaner and grab the save panel's returned URL
-                NSFileManager *fm = [NSFileManager defaultManager];
                 NSURL *saveURL = [panel URL];
-                
-                // then copy a previous file to the new location
                 [fm copyItemAtURL:selectedTemplateURL toURL:saveURL error:nil];
             }
-            [self->_popUpButton selectItemWithTitle:[self->_settingsViewController selectedTemplate]];
+            [self->_popUpButton selectItemWithTitle:selectedTemplate];
+            
+            if ( [[self->_settingsViewController selectedTemplate] isEqualToString:NBCMenuItemUntitled] ) {
+                if ( ! [fm removeItemAtURL:selectedTemplateURL error:&error] ) {
+                    DDLogError(@"[ERROR] Could not remove temporary template file");
+                    DDLogError(@"[ERROR] %@", error);
+                }
+            }
         }];
     } else {
-        [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
+        [_popUpButton selectItemWithTitle:selectedTemplate];
+        
+        if ( [[_settingsViewController selectedTemplate] isEqualToString:NBCMenuItemUntitled] ) {
+            if ( ! [fm removeItemAtURL:selectedTemplateURL error:&error] ) {
+                DDLogError(@"[ERROR] Could not remove temporary template file");
+                DDLogError(@"[ERROR] %@", error);
+            }
+        }
     }
 } // showSheetExport
 
