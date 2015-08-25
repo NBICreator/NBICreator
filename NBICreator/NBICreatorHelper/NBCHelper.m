@@ -495,6 +495,25 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                 } else {
                     NSLog(@"sourceFileURL=%@", sourceFileURL);
                 }
+            } else if ( [fileType isEqualToString:NBCWorkflowModifyFileTypeMove] ) {
+                NSURL *targetFolderURL = [NSURL fileURLWithPath:[filePath stringByDeletingLastPathComponent]];
+                if ( ! [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+                    NSDictionary *defaultAttributes = @{
+                                                        NSFileOwnerAccountName : @"root",
+                                                        NSFileGroupOwnerAccountName : @"wheel",
+                                                        NSFilePosixPermissions : @0755
+                                                        };
+                    if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES attributes:defaultAttributes error:&error] ) {
+                        NSLog(@"Creating target folder failed!");
+                        NSLog(@"%@", error);
+                        continue;
+                    }
+                }
+                
+                if ( ! [fm moveItemAtPath:sourceFilePath toPath:filePath error:&error] ) {
+                    NSLog(@"Failed to move file!");
+                    NSLog(@"[ERROR] %@", error);
+                }
             }
         } else {
             NSLog(@"ERROR: filePath is nil!");
@@ -505,7 +524,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 }
 
 
- // Unused atm
+// Unused atm
 #define SALTED_SHA1_LEN 48
 #define SALTED_SHA1_OFFSET (64 + 40 + 64)
 #define SHADOW_HASH_LEN 1240

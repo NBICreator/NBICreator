@@ -129,7 +129,7 @@ enum {
     // --------------------------------------------------------------
     _arbitrator = [NBCDiskArbitrator sharedArbitrator];
     
-    NSString *requiredVersion = @"1.0.1";
+    NSString *requiredVersion = @"1.0.2";
     
     OSStatus                    err;
     AuthorizationExternalForm   extForm;
@@ -610,7 +610,7 @@ enum {
 
 - (void)showHelperToolUpgradeBox {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    [_textFieldInstallHelperText setStringValue:@"To create a NetInstall Image you need to upgrade the helper"];
+    [_textFieldInstallHelperText setStringValue:@"To create a NetInstall Image you need to upgrade the helper."];
     [_buttonInstallHelper setTitle:@"Upgrade Helper"];
     [self showHelperToolInstallBox];
 } // showHelperToolUpgradeBox
