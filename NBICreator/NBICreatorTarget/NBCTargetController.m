@@ -1894,11 +1894,13 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  /System/Library/Extensions/IO80211Family.kext
     // --------------------------------------------------------------
-    NSURL *wifiKext = [volumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IO80211Family.kext"];
-    DDLogDebug(@"wifiKext=%@", wifiKext);
+    NSURL *wifiKextSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IO80211Family.kext"];
+    DDLogDebug(@"wifiKextSourceURL=%@", wifiKextSourceURL);
+    NSURL *wifiKextTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IO80211Family.kext"];
     NSDictionary *modifyWifiKext = @{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeDelete,
-                                     NBCWorkflowModifyTargetURL : [wifiKext path]
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [wifiKextSourceURL path],
+                                     NBCWorkflowModifyTargetURL : [wifiKextTargetURL path]
                                      };
     DDLogDebug(@"modifyWifiKext=%@", modifyWifiKext);
     [modifyDictArray addObject:modifyWifiKext];

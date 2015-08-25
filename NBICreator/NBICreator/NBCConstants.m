@@ -397,6 +397,7 @@ NSString *const NBCWorkflowModifyFileTypeGeneric = @"workflowModifyFileTypeGener
 NSString *const NBCWorkflowModifyFileTypeFolder = @"workflowModifyFileTypeFolder";
 NSString *const NBCWorkflowModifyFileTypeDelete = @"workflowModifyFileTypeDelete";
 NSString *const NBCWorkflowModifyFileTypeLink = @"workflowModifyFileTypeLink";
+NSString *const NBCWorkflowModifyFileTypeMove = @"workflowModifyFileTypeMove";
 
 // --------------------------------------------------------------
 //  Workflow Install

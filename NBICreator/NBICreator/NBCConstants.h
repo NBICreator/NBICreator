@@ -374,6 +374,7 @@ extern NSString *const NBCWorkflowModifyFileTypeGeneric;
 extern NSString *const NBCWorkflowModifyFileTypeFolder;
 extern NSString *const NBCWorkflowModifyFileTypeDelete;
 extern NSString *const NBCWorkflowModifyFileTypeLink;
+extern NSString *const NBCWorkflowModifyFileTypeMove;
 
 // --------------------------------------------------------------
 //  Workflow Install
