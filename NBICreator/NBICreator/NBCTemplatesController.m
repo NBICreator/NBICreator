@@ -274,7 +274,10 @@ enum {
                      /////////////////////////////////////////////////////////*/
                     if ( templateName == nil ) {
                         templateName = templateDict[@"Name"];
-                        [_settingsViewController saveUISettingsWithName:templateName atUrl:fileURL];
+                        NSMutableDictionary *newTemplateDict = [NSMutableDictionary dictionaryWithDictionary:[templateDict copy]];
+                        [newTemplateDict removeObjectForKey:@"Name"];
+                        newTemplateDict[NBCSettingsTitleKey] = templateName;
+                        [newTemplateDict writeToURL:fileURL atomically:YES];
                     }
                     /* ------------------------------------------------------ */
                     DDLogDebug(@"templateName=%@", templateName);
@@ -382,8 +385,6 @@ enum {
         NSURL *selectionURL = [_settingsViewController templatesDict][selectedTemplate];
         DDLogDebug(@"selectionURL=%@", selectionURL);
         if ( selectionURL ) {
-            NSLog(@"[_settingsViewController updateUISettingsFromURL:selectionURL]");
-            NSLog(@"selectionURL=%@", selectionURL);
             [_settingsViewController updateUISettingsFromURL:selectionURL];
         }
     }
