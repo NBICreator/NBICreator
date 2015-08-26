@@ -59,7 +59,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark 
+#pragma mark
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -117,7 +117,7 @@
         if ( [certificateString length] != 0 ) {
             
             // --------------------------------------------------------------
-            //  Remove beginnign and end lines from certificate
+            //  Remove "begin" and "end" lines from certificate
             // --------------------------------------------------------------
             [certificateString setString:[certificateString stringByReplacingOccurrencesOfString:@"-----BEGIN CERTIFICATE-----" withString:@""]];
             [certificateString setString:[certificateString stringByReplacingOccurrencesOfString:@"-----END CERTIFICATE-----" withString:@""]];
@@ -129,7 +129,7 @@
         } else {
             
             // --------------------------------------------------------------
-            //  Read in file contents as certificate data
+            //  Read in file contents as certificate data (DER-encoding)
             // --------------------------------------------------------------
             _certificate = [[NSData alloc] initWithContentsOfURL:self.fileURL];
         }
