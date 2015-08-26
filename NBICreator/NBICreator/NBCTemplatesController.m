@@ -37,11 +37,11 @@ enum {
         _settingsViewController = settingsViewController;
         _templateType = templateType;
         if ( [_templateType isEqualToString:NBCSettingsTypeImagr] ) {
-            _templateDefaultSettings = NBCSettingsTypeImagrDefaultSettings;
+            _templateDefaultSettings = NBCFileNameImagrDefaults;
         } else if ( [_templateType isEqualToString:NBCSettingsTypeNetInstall] ) {
-            _templateDefaultSettings = NBCSettingsTypeNetInstallDefaultSettings;
+            _templateDefaultSettings = NBCFileNameNetInstallDefaults;
         } else if ( [_templateType isEqualToString:NBCSettingsTypeDeployStudio] ) {
-            _templateDefaultSettings = NBCSettingsTypeDeployStudioDefaultSettings;
+            _templateDefaultSettings = NBCFileNameDeployStudioDefaults;
         }
         
         _delegate = delegate;
@@ -268,7 +268,15 @@ enum {
                 NSString *templateType = templateDict[NBCSettingsTypeKey];
                 DDLogDebug(@"templateType=%@", templateType);
                 if ( [templateType isEqualToString:_templateType] ) {
-                    NSString *templateName = templateDict[NBCSettingsNameKey];
+                    NSString *templateName = templateDict[NBCSettingsTitleKey];
+                    /*//////////////////////////////////////////////////////////
+                     /// TEMPORARY FIX WHILE CHANGING WORKFLOW NAME -> TITLE ///
+                     /////////////////////////////////////////////////////////*/
+                    if ( templateName == nil ) {
+                        templateName = templateDict[@"Name"];
+                        [_settingsViewController saveUISettingsWithName:templateName atUrl:fileURL];
+                    }
+                    /* ------------------------------------------------------ */
                     DDLogDebug(@"templateName=%@", templateName);
                     if ( [templateName isEqualToString:NBCMenuItemUntitled] ) {
                         [self disableTemplateAtURL:fileURL];
@@ -374,6 +382,8 @@ enum {
         NSURL *selectionURL = [_settingsViewController templatesDict][selectedTemplate];
         DDLogDebug(@"selectionURL=%@", selectionURL);
         if ( selectionURL ) {
+            NSLog(@"[_settingsViewController updateUISettingsFromURL:selectionURL]");
+            NSLog(@"selectionURL=%@", selectionURL);
             [_settingsViewController updateUISettingsFromURL:selectionURL];
         }
     }
@@ -466,9 +476,9 @@ enum {
     
     NSDictionary *templateDict = [NSDictionary dictionaryWithContentsOfURL:templateURL];
     if ( [templateDict count] != 0 ) {
-        NSString *name = templateDict[NBCSettingsNameKey];
+        NSString *name = templateDict[NBCSettingsTitleKey];
         if ( [name length] != 0 ) {
-            templateInfoDict[NBCSettingsNameKey] = name;
+            templateInfoDict[NBCSettingsTitleKey] = name;
         }
         NSString *type = templateDict[NBCSettingsTypeKey];
         if ( [type length] != 0 ) {
@@ -662,7 +672,7 @@ enum {
     NSSavePanel *panel = [NSSavePanel savePanel];
     NSDictionary *selectedTemplateDict = [NSDictionary dictionaryWithContentsOfURL:selectedTemplateURL];
     if ( [selectedTemplateDict count] != 0 ) {
-        NSString *templateName = selectedTemplateDict[NBCSettingsNameKey] ?: @"";
+        NSString *templateName = selectedTemplateDict[NBCSettingsTitleKey] ?: @"";
         
         //[panel setAccessoryView:_viewExportPanel]; // Activate later for bundle export support
         [panel setAllowedFileTypes:@[ @"com.github.NBICreator.template" ]];
@@ -761,7 +771,7 @@ enum {
         if ( selectedTemplateURL ) {
             NSMutableDictionary *templateDict = [NSMutableDictionary dictionaryWithContentsOfURL:selectedTemplateURL];
             if ( [templateDict count] != 0 ) {
-                templateDict[NBCSettingsNameKey] = newName;
+                templateDict[NBCSettingsTitleKey] = newName;
                 if ( [templateDict writeToURL:selectedTemplateURL atomically:YES] ) {
                     [_settingsViewController templatesDict][newName] = selectedTemplateURL;
                 } else {
