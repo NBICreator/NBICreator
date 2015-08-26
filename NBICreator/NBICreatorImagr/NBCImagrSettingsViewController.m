@@ -908,7 +908,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
-    NSLog(@"settingsDict=%@", settingsDict);
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
     [self setNbiName:settingsDict[NBCSettingsNBIName]];
@@ -1026,7 +1025,6 @@ DDLogLevel ddLogLevel;
 - (void)updateUISettingsFromURL:(NSURL *)url {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
-    NSLog(@"mainDict=%@", mainDict);
     if ( mainDict ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
         if ( settingsDict ) {
