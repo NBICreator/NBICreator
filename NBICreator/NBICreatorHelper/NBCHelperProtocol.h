@@ -8,7 +8,7 @@
 
 @class NBCTarget;
 
-@protocol NBCHelperProtocol
+@protocol NBCHelperProtocol <NSObject>
 
 @required
 
@@ -50,8 +50,6 @@
 
 - (void)removeItemAtURL:(NSURL *)itemURL
               withReply:(void(^)(NSError *error, int terminationStatus))reply;
-
-- (void)registerMainApplication:(void (^)(BOOL resign))resign;
 
 - (void)sendMessageToMainApplication:(NSString *)message;
 

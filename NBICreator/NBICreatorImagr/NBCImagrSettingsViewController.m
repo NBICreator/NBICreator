@@ -1339,7 +1339,7 @@ DDLogLevel ddLogLevel;
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                 
                 // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+                //  If task failed, post workflow failed notification  
                 // ------------------------------------------------------------------
                 DDLogError(@"[ERROR] %@", proxyError);
             }];
@@ -1453,7 +1453,7 @@ DDLogLevel ddLogLevel;
          [[NSOperationQueue mainQueue]addOperationWithBlock:^{
          
          // ------------------------------------------------------------------
-         //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+         //  If task failed, post workflow failed notification  
          // ------------------------------------------------------------------
          NSLog(@"ProxyError? %@", proxyError);
          [nc removeObserver:stdOutObserver];
