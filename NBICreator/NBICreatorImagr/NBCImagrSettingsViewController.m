@@ -916,7 +916,7 @@ DDLogLevel ddLogLevel;
     [self setNbiEnabled:[settingsDict[NBCSettingsNBIEnabled] boolValue]];
     [self setNbiDefault:[settingsDict[NBCSettingsNBIDefault] boolValue]];
     [self setNbiLanguage:settingsDict[NBCSettingsNBILanguage]];
-    [self setNbiKeyboardLayout:settingsDict[NBCSettingsNBIKeyboardLayoutName]];
+    [self setNbiKeyboardLayout:settingsDict[NBCSettingsNBIKeyboardLayoutKey]];
     [self setNbiDescription:settingsDict[NBCSettingsNBIDescription]];
     [self setDestinationFolder:settingsDict[NBCSettingsNBIDestinationFolder]];
     [self setNbiIconPath:settingsDict[NBCSettingsNBIIcon]];
@@ -1009,6 +1009,18 @@ DDLogLevel ddLogLevel;
     }
     
     [self expandVariablesForCurrentSettings];
+    
+    /*/////////////////////////////////////////////////////////////////////////
+     /// TEMPORARY FIX WHEN CHANGING KEY FOR KEYBOARD_LAYOUT IN TEMPLATE    ///
+     ////////////////////////////////////////////////////////////////////////*/
+    if ( [settingsDict[NBCSettingsNBIKeyboardLayoutKey] length] == 0 ) {
+        NSString *valueFromOldKeyboardLayoutKey = settingsDict[@"KeyboardLayoutName"];
+        if ( [valueFromOldKeyboardLayoutKey length] != 0 ) {
+            [self setNbiKeyboardLayout:valueFromOldKeyboardLayoutKey];
+            [self saveUISettingsWithName:_selectedTemplate atUrl:_templatesDict[_selectedTemplate]];
+        }
+    }
+    /* --------------------------------------------------------------------- */
 } // updateUISettingsFromDict
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
@@ -1030,12 +1042,12 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
-    settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"";
+    settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
     settingsDict[NBCSettingsNBIName] = _nbiName ?: @"";
-    settingsDict[NBCSettingsNBIIndex] = _nbiIndex ?: @"";
-    settingsDict[NBCSettingsNBIProtocol] = _nbiProtocol ?: @"";
-    settingsDict[NBCSettingsNBILanguage] = _nbiLanguage ?: @"";
-    settingsDict[NBCSettingsNBIKeyboardLayoutName] = _nbiKeyboardLayout ?: @"";
+    settingsDict[NBCSettingsNBIIndex] = _nbiIndex ?: @"1";
+    settingsDict[NBCSettingsNBIProtocol] = _nbiProtocol ?: @"NFS";
+    settingsDict[NBCSettingsNBILanguage] = _nbiLanguage ?: @"Current";
+    settingsDict[NBCSettingsNBIKeyboardLayoutKey] = _nbiKeyboardLayout ?: @"Current";
     settingsDict[NBCSettingsNBIEnabled] = @(_nbiEnabled) ?: @NO;
     settingsDict[NBCSettingsNBIDefault] = @(_nbiDefault) ?: @NO;
     settingsDict[NBCSettingsNBIDescription] = _nbiDescription ?: @"";
@@ -1043,16 +1055,16 @@ DDLogLevel ddLogLevel;
         NSString *currentUserHome = NSHomeDirectory();
         if ( [_destinationFolder hasPrefix:currentUserHome] ) {
             NSString *destinationFolderPath = [_destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
-            settingsDict[NBCSettingsNBIDestinationFolder] = destinationFolderPath ?: @"";
+            settingsDict[NBCSettingsNBIDestinationFolder] = destinationFolderPath ?: @"~/Desktop";
         } else {
-            settingsDict[NBCSettingsNBIDestinationFolder] = _destinationFolder ?: @""; }
+            settingsDict[NBCSettingsNBIDestinationFolder] = _destinationFolder ?: @"~/Desktop"; }
     }
-    settingsDict[NBCSettingsNBIIcon] = _nbiIconPath ?: @"";
+    settingsDict[NBCSettingsNBIIcon] = _nbiIconPath ?: @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
     settingsDict[NBCSettingsDisableWiFiKey] = @(_disableWiFi) ?: @NO;
     settingsDict[NBCSettingsDisplaySleepKey] = @(_displaySleep) ?: @NO;
-    settingsDict[NBCSettingsDisplaySleepMinutesKey] = _displaySleepMinutes ?: @"";
+    settingsDict[NBCSettingsDisplaySleepMinutesKey] = _displaySleepMinutes ?: @"30";
     settingsDict[NBCSettingsIncludeSystemUIServerKey] = @(_includeSystemUIServer) ?: @NO;
-    settingsDict[NBCSettingsImagrVersion] = _imagrVersion ?: @"";
+    settingsDict[NBCSettingsImagrVersion] = _imagrVersion ?: @"Latest Release";
     settingsDict[NBCSettingsImagrConfigurationURL] = _imagrConfigurationURL ?: @"";
     settingsDict[NBCSettingsImagrReportingURL] = _imagrReportingURL ?: @"";
     settingsDict[NBCSettingsImagrUseLocalVersion] = @(_imagrUseLocalVersion) ?: @NO;
@@ -1060,10 +1072,10 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsARDLoginKey] = _ardLogin ?: @"";
     settingsDict[NBCSettingsARDPasswordKey] = _ardPassword ?: @"";
     settingsDict[NBCSettingsUseNetworkTimeServerKey] = @(_useNetworkTimeServer) ?: @NO;
-    settingsDict[NBCSettingsNetworkTimeServerKey] = _networkTimeServer ?: @"";
+    settingsDict[NBCSettingsNetworkTimeServerKey] = _networkTimeServer ?: @"time.apple.com";
     settingsDict[NBCSettingsImagrSourceIsNBI] = @(_isNBI) ?: @NO;
     settingsDict[NBCSettingsUseBackgroundImageKey] = @(_useBackgroundImage) ?: @NO;
-    settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"";
+    settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg";
     settingsDict[NBCSettingsUseVerboseBoot] = @(_useVerboseBoot) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
@@ -1552,7 +1564,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
-    NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCSettingsTypeImagrDefaultSettings withExtension:@"plist"];
+    NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameImagrDefaults withExtension:@"plist"];
     if ( defaultSettingsURL ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -2174,7 +2186,7 @@ DDLogLevel ddLogLevel;
         }
         
         /* Should not access property lists directly, keeping it around for now
-         NSDictionary *globalPreferencesDict = [NSDictionary dictionaryWithContentsOfFile:NBCPathPreferencesGlobal];
+         NSDictionary *globalPreferencesDict = [NSDictionary dictionaryWithContentsOfFile:NBCFilePathPreferencesGlobal];
          NSString *currentLanguageID = globalPreferencesDict[@"AppleLanguages"][0];
          DDLogInfo(@"Current Language ID: %@", currentLanguageID);
          if ( [currentLanguageID length] != 0 ) {
@@ -2225,19 +2237,19 @@ DDLogLevel ddLogLevel;
     }
     NSLog(@"resourcesSettings[NBCSettingsNBILanguage]=%@", resourcesSettings[NBCSettingsNBILanguage]);
     
-    NSDictionary *hiToolboxDict = [NSDictionary dictionaryWithContentsOfFile:NBCPathPreferencesHIToolbox];
-    NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsNBIKeyboardLayoutName];
+    NSDictionary *hiToolboxDict = [NSDictionary dictionaryWithContentsOfFile:NBCFilePathPreferencesHIToolbox];
+    NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsNBIKeyboardLayoutKey];
     if ( [selectedKeyboardLayoutName isEqualToString:NBCMenuItemCurrent] ) {
         NSDictionary *appleDefaultAsciiInputSourceDict = hiToolboxDict[@"AppleDefaultAsciiInputSource"];
         selectedKeyboardLayoutName = appleDefaultAsciiInputSourceDict[@"KeyboardLayout Name"];
         if ( [selectedKeyboardLayoutName length] != 0 ) {
-            resourcesSettings[NBCSettingsNBIKeyboardLayoutName] = selectedKeyboardLayoutName;
+            resourcesSettings[NBCSettingsNBIKeyboardLayoutKey] = selectedKeyboardLayoutName;
         } else {
             DDLogError(@"[ERROR] Could not get current keyboard layout name!");
             return;
         }
     } else {
-        resourcesSettings[NBCSettingsNBIKeyboardLayoutName] = selectedKeyboardLayoutName;
+        resourcesSettings[NBCSettingsNBIKeyboardLayoutKey] = selectedKeyboardLayoutName;
     }
     
     NSString *selectedKeyboardLayout = _keyboardLayoutDict[selectedKeyboardLayoutName];
