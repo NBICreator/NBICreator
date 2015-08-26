@@ -157,20 +157,20 @@ DDLogLevel ddLogLevel;
         return nil;
     }
     
-    availabilityEnabled = [workflowSettings[NBCSettingsNBIEnabled] boolValue];
+    availabilityEnabled = [workflowSettings[NBCSettingsEnabledKey] boolValue];
     DDLogDebug(@"availabilityEnabled=%hhd", availabilityEnabled);
     
-    availabilityDefault = [workflowSettings[NBCSettingsNBIDefault] boolValue];
+    availabilityDefault = [workflowSettings[NBCSettingsDefaultKey] boolValue];
     DDLogDebug(@"availabilityDefault=%hhd", availabilityDefault);
     
-    nbiLanguage = workflowSettings[NBCSettingsNBILanguage];
+    nbiLanguage = workflowSettings[NBCSettingsLanguageKey];
     DDLogDebug(@"nbiLanguage=%@", nbiLanguage);
     if ( [nbiLanguage length] == 0 ) {
         DDLogError(@"[ERROR] Language setting is empty!");
         return nil;
     }
     
-    nbiType = workflowSettings[NBCSettingsNBIProtocol];
+    nbiType = workflowSettings[NBCSettingsProtocolKey];
     DDLogDebug(@"nbiType=%@", nbiType);
     if ( [nbiType length] == 0 ) {
         DDLogError(@"[ERROR] Protocol setting is empty!");
@@ -185,12 +185,12 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] NBI name setting is empty!");
         return nil;
     }
-    nbiDescription = [NBCVariables expandVariables:workflowSettings[NBCSettingsNBIDescription]
+    nbiDescription = [NBCVariables expandVariables:workflowSettings[NBCSettingsDescriptionKey]
                                             source:source
                                  applicationSource:applicationSource];
     DDLogDebug(@"nbiDescription=%@", nbiDescription);
     
-    nbiIndexString = [NBCVariables expandVariables:workflowSettings[NBCSettingsNBIIndex]
+    nbiIndexString = [NBCVariables expandVariables:workflowSettings[NBCSettingsIndexKey]
                                             source:source
                                  applicationSource:applicationSource];
     DDLogDebug(@"nbiIndexString=%@", nbiIndexString);
@@ -1075,7 +1075,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"hiToolboxPreferencesAttributes=%@", hiToolboxPreferencesAttributes);
     NSString *selectedKeyboardLayoutSourceID = resourceSettings[NBCSettingsNBIKeyboardLayout];
     DDLogDebug(@"selectedKeyboardLayoutSourceID=%@", selectedKeyboardLayoutSourceID);
-    NSString *selectedKeyboardName = resourceSettings[NBCSettingsNBIKeyboardLayoutName];
+    NSString *selectedKeyboardName = resourceSettings[NBCSettingsKeyboardLayoutKey];
     DDLogDebug(@"selectedKeyboardName=%@", selectedKeyboardName);
     NSNumber *keyboardLayoutID = [self keyboardLayoutIDFromSourceID:selectedKeyboardLayoutSourceID];
     DDLogDebug(@"keyboardLayoutID=%@", keyboardLayoutID);
@@ -1124,7 +1124,7 @@ DDLogLevel ddLogLevel;
     }
     DDLogDebug(@"globalPreferencesDict=%@", globalPreferencesDict);
     DDLogDebug(@"globalPreferencesAttributes=%@", globalPreferencesAttributes);
-    NSString *selectedLanguage = resourceSettings[NBCSettingsNBILanguage];
+    NSString *selectedLanguage = resourceSettings[NBCSettingsLanguageKey];
     DDLogDebug(@"selectedLanguage=%@", selectedLanguage);
     globalPreferencesDict[@"AppleLanguages"] = @[
                                                  selectedLanguage,
@@ -1304,7 +1304,7 @@ DDLogLevel ddLogLevel;
                                 };
     }
     
-    NSString *selectedTimeZone = resourceSettings[NBCSettingsNBITimeZone];
+    NSString *selectedTimeZone = resourceSettings[NBCSettingsTimeZoneKey];
     NSLog(@"selectedTimeZone=%@", selectedTimeZone);
     if ( [selectedTimeZone length] != 0 ) {
         NSURL *localtimeTargetURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/usr/share/zoneinfo/%@", selectedTimeZone]];
@@ -1410,7 +1410,7 @@ DDLogLevel ddLogLevel;
      }
      NSDictionary *resourceSettings = [workflowItem resourcesSettings];
      DDLogDebug(@"resourceSettings=%@", resourceSettings);
-     NSString *selectedTimeZone = resourceSettings[NBCSettingsNBITimeZone];
+     NSString *selectedTimeZone = resourceSettings[NBCSettingsTimeZoneKey];
      NSLog(@"selectedTimeZone=%@", selectedTimeZone);
      if ( [selectedTimeZone length] != 0 ) {
      globalDefaultsDict[@"TimeZoneLabel"] = selectedTimeZone;

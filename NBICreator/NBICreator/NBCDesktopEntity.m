@@ -17,8 +17,19 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Imports
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 #import "NBCDesktopEntity.h"
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark NBCDesktopEntity
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 @implementation NBCDesktopEntity
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +126,10 @@
         // --------------------------------------------------------------
         NSMutableString *certificateString = [NSMutableString stringWithContentsOfURL:[self fileURL] encoding:NSUTF8StringEncoding error:&error];
         if ( [certificateString length] != 0 ) {
+            
+            /*/////////////////////////////////////////////////////////////////////////////////
+             /// FUTURE FUNCTIONALITY - CHECK IF FILE/STRING CONTAINS MULTIPLE CERTIFICATES ///
+             ////////////////////////////////////////////////////////////////////////////////*/
             
             // --------------------------------------------------------------
             //  Remove "begin" and "end" lines from certificate

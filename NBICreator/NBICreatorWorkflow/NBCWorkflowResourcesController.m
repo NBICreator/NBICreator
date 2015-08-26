@@ -61,7 +61,7 @@ DDLogLevel ddLogLevel;
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
     DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
     if ( currentResourceFolder ) {
-        NSURL *currentResourceDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileResourcesDict];
+        NSURL *currentResourceDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         DDLogDebug(@"currentResourceDictURL=%@", currentResourceDictURL);
         if ( [currentResourceDictURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *resourceDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourceDictURL];
@@ -81,7 +81,7 @@ DDLogLevel ddLogLevel;
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
     DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
     if ( currentResourceFolder ) {
-        NSURL *currentDownloadsDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileDownloadsDict];
+        NSURL *currentDownloadsDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileNameDownloadsDict];
         DDLogDebug(@"currentDownloadsDictURL=%@", currentDownloadsDictURL);
         if ( [currentDownloadsDictURL checkResourceIsReachableAndReturnError:nil] ) {
             return [[NSDictionary alloc] initWithContentsOfURL:currentDownloadsDictURL];
@@ -98,7 +98,7 @@ DDLogLevel ddLogLevel;
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
     DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
     if ( currentResourceFolder ) {
-        return [currentResourceFolder URLByAppendingPathComponent:NBCFileDownloadsDict];
+        return [currentResourceFolder URLByAppendingPathComponent:NBCFileNameDownloadsDict];
     }
     
     return cachedDownloadsDictURL;
@@ -111,7 +111,7 @@ DDLogLevel ddLogLevel;
     NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
     DDLogDebug(@"currentResourcesFolder=%@", currentResourcesFolder);
     if ( currentResourcesFolder ) {
-        NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileResourcesDict];
+        NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         DDLogDebug(@"currentResourcesDictURL=%@", currentResourcesDictURL);
         if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *resourcesDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourcesDictURL];
@@ -138,7 +138,7 @@ DDLogLevel ddLogLevel;
     
     if ( currentResourcesFolder != nil ) {
         NSDictionary *resourcesDict;
-        NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileResourcesDict];
+        NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
             resourcesDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourcesDictURL];
             if ( resourcesDict ) {
@@ -183,7 +183,7 @@ DDLogLevel ddLogLevel;
     // Copy file
     if ( [fileManager copyItemAtURL:fileURL toURL:targetFileURL error:&error] ) {
         destinationURL = targetFileURL;
-        NSURL *resourcesDictURL = [resouresFolder URLByAppendingPathComponent:NBCFileResourcesDict];
+        NSURL *resourcesDictURL = [resouresFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         NSMutableDictionary *resourceDict = [[[NSDictionary alloc] initWithContentsOfURL:resourcesDictURL] mutableCopy];
         if ( resourceDict ) {
             resourceDict[version] = [targetFileURL path];
@@ -244,7 +244,7 @@ DDLogLevel ddLogLevel;
     // Copy file
     if ( [fileManager copyItemAtURL:fileURL toURL:targetItemURL error:&error] ) {
         destinationURL = targetItemURL;
-        NSURL *resourcesDictURL = [resouresFolder URLByAppendingPathComponent:NBCFileResourcesDict];
+        NSURL *resourcesDictURL = [resouresFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         NSMutableDictionary *sourceDict;
         NSMutableDictionary *resourceDict = [[[NSDictionary alloc] initWithContentsOfURL:resourcesDictURL] mutableCopy];
         if ( [resourceDict count] != 0 ) {
@@ -419,7 +419,7 @@ DDLogLevel ddLogLevel;
 
 - (void)copySourceRegexToResourcesComplete:(NBCWorkflowItem *)workflowItem regexArray:(NSArray *)regexArray packagePath:(NSString *)packagePath resourcesFolder:(NSURL *)resourcesFolder resourceFolderPackage:(NSURL *)resourceFolderPackage sourceBuild:(NSString *)sourceBuild {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSURL *resourcesDictURL = [resourcesFolder URLByAppendingPathComponent:NBCFileResourcesDict];
+    NSURL *resourcesDictURL = [resourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
     NSString *packageName = [[packagePath lastPathComponent] stringByDeletingPathExtension];
     NSMutableDictionary *sourceDict;
     NSMutableDictionary *packageDict;

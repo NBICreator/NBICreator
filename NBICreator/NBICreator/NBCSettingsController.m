@@ -356,7 +356,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
     NSDictionary *userSettings = [workflowItem userSettings];
-    NSString *nbiIndexString = [NBCVariables expandVariables:userSettings[NBCSettingsNBIIndex]
+    NSString *nbiIndexString = [NBCVariables expandVariables:userSettings[NBCSettingsIndexKey]
                                                       source:[workflowItem source]
                                            applicationSource:[workflowItem applicationSource]];
     
@@ -386,7 +386,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
     NSDictionary *userSettings = [workflowItem userSettings];
-    NSString *destinationFolderPath = [userSettings[NBCSettingsNBIDestinationFolder] stringByExpandingTildeInPath];
+    NSString *destinationFolderPath = [userSettings[NBCSettingsDestinationFolderKey] stringByExpandingTildeInPath];
     NSURL *destinationFolderURL = [NSURL fileURLWithPath:destinationFolderPath];
     if ( destinationFolderPath != nil ) {
         if ( [destinationFolderURL checkResourceIsReachableAndReturnError:nil] ) {

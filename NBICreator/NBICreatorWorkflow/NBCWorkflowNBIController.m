@@ -165,7 +165,7 @@ DDLogLevel ddLogLevel;
     //  Add -id
     // -------------------------------------------------------------------
     
-    NSString *nbiIndex = [NBCVariables expandVariables:userSettings[NBCSettingsNBIIndex]
+    NSString *nbiIndex = [NBCVariables expandVariables:userSettings[NBCSettingsIndexKey]
                                                 source:[workflowItem source]
                                      applicationSource:[workflowItem applicationSource]];
     if ( [nbiIndex length] != 0 ) {
@@ -205,7 +205,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------------
     //  Add -protocol
     // -------------------------------------------------------------------
-    NSString *nbiProtocol = userSettings[NBCSettingsNBIProtocol];
+    NSString *nbiProtocol = userSettings[NBCSettingsProtocolKey];
     if ( [nbiProtocol length] != 0 ) {
         [sysBuilderArguments addObject:@"-protocol"];
         [sysBuilderArguments addObject:nbiProtocol];
@@ -217,7 +217,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------------
     //  Add -loc
     // -------------------------------------------------------------------
-    NSString *nbiLanguage = userSettings[NBCSettingsNBILanguage];
+    NSString *nbiLanguage = userSettings[NBCSettingsLanguageKey];
     if ( [nbiLanguage length] != 0 ) {
         [sysBuilderArguments addObject:@"-loc"];
         [sysBuilderArguments addObject:nbiLanguage];

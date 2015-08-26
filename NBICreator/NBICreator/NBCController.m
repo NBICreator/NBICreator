@@ -17,6 +17,12 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Imports
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 // Main
 #import "NBCController.h"
 #import "NBCLogging.h"
@@ -50,14 +56,30 @@
 #import "Reachability.h"
 #import "NBCUpdater.h"
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Constants
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 DDLogLevel ddLogLevel;
 
+// --------------------------------------------------------------
+//  Enum corresponding to segmented control position
+// --------------------------------------------------------------
 enum {
     kSegmentedControlNetInstall = 0,
     kSegmentedControlDeployStudio,
     kSegmentedControlImagr,
+    kSegmentedControlCasper,
     kSegmentedControlCustom
 };
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark NBCController Interface
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 @interface NBCController() {
     AuthorizationRef _authRef;
@@ -68,6 +90,11 @@ enum {
 
 @end
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark NBCController Implementation
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 @implementation NBCController
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +345,7 @@ DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // --------------------------------------------------------------
     NSDictionary *templateInfo = [NBCTemplatesController templateInfoFromTemplateAtURL:fileURL error:&error];
     if ( [templateInfo count] != 0 ) {
-        NSString *name = templateInfo[NBCSettingsNameKey];
+        NSString *title = templateInfo[NBCSettingsTitleKey];
         NSString *type = templateInfo[NBCSettingsTypeKey];
         
         // --------------------------------------------------------------
@@ -338,7 +365,7 @@ DDLogDebug(@"%@", NSStringFromSelector(_cmd));
         }
         
         NSString *importTitle = [NSString stringWithFormat:@"Import %@ Template?", type];
-        NSString *importMessage = [NSString stringWithFormat:@"Do you want to import the %@ template \"%@\"?", type, name];
+        NSString *importMessage = [NSString stringWithFormat:@"Do you want to import the %@ template \"%@\"?", type, title];
         
         NSAlert *alert = [[NSAlert alloc] init];
         [alert addButtonWithTitle:@"Import"];

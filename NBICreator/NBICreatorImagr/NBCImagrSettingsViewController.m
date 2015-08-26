@@ -908,18 +908,19 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
+    NSLog(@"settingsDict=%@", settingsDict);
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
     [self setNbiName:settingsDict[NBCSettingsNBIName]];
-    [self setNbiIndex:settingsDict[NBCSettingsNBIIndex]];
-    [self setNbiProtocol:settingsDict[NBCSettingsNBIProtocol]];
-    [self setNbiEnabled:[settingsDict[NBCSettingsNBIEnabled] boolValue]];
-    [self setNbiDefault:[settingsDict[NBCSettingsNBIDefault] boolValue]];
-    [self setNbiLanguage:settingsDict[NBCSettingsNBILanguage]];
-    [self setNbiKeyboardLayout:settingsDict[NBCSettingsNBIKeyboardLayoutKey]];
-    [self setNbiDescription:settingsDict[NBCSettingsNBIDescription]];
-    [self setDestinationFolder:settingsDict[NBCSettingsNBIDestinationFolder]];
-    [self setNbiIconPath:settingsDict[NBCSettingsNBIIcon]];
+    [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
+    [self setNbiProtocol:settingsDict[NBCSettingsProtocolKey]];
+    [self setNbiEnabled:[settingsDict[NBCSettingsEnabledKey] boolValue]];
+    [self setNbiDefault:[settingsDict[NBCSettingsDefaultKey] boolValue]];
+    [self setNbiLanguage:settingsDict[NBCSettingsLanguageKey]];
+    [self setNbiKeyboardLayout:settingsDict[NBCSettingsKeyboardLayoutKey]];
+    [self setNbiDescription:settingsDict[NBCSettingsDescriptionKey]];
+    [self setDestinationFolder:settingsDict[NBCSettingsDestinationFolderKey]];
+    [self setNbiIconPath:settingsDict[NBCSettingsIconKey]];
     [self setDisableWiFi:[settingsDict[NBCSettingsDisableWiFiKey] boolValue]];
     [self setDisplaySleep:[settingsDict[NBCSettingsDisplaySleepKey] boolValue]];
     [self setDisplaySleepMinutes:settingsDict[NBCSettingsDisplaySleepMinutesKey]];
@@ -993,7 +994,7 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    NSString *selectedTimeZone = settingsDict[NBCSettingsNBITimeZone];
+    NSString *selectedTimeZone = settingsDict[NBCSettingsTimeZoneKey];
     if ( [selectedTimeZone length] == 0 || [selectedTimeZone isEqualToString:NBCMenuItemCurrent] ) {
         [self selectTimeZone:[_popUpButtonTimeZone itemWithTitle:NBCMenuItemCurrent]];
     } else {
@@ -1013,11 +1014,10 @@ DDLogLevel ddLogLevel;
     /*/////////////////////////////////////////////////////////////////////////
      /// TEMPORARY FIX WHEN CHANGING KEY FOR KEYBOARD_LAYOUT IN TEMPLATE    ///
      ////////////////////////////////////////////////////////////////////////*/
-    if ( [settingsDict[NBCSettingsNBIKeyboardLayoutKey] length] == 0 ) {
+    if ( [settingsDict[NBCSettingsKeyboardLayoutKey] length] == 0 ) {
         NSString *valueFromOldKeyboardLayoutKey = settingsDict[@"KeyboardLayoutName"];
         if ( [valueFromOldKeyboardLayoutKey length] != 0 ) {
             [self setNbiKeyboardLayout:valueFromOldKeyboardLayoutKey];
-            [self saveUISettingsWithName:_selectedTemplate atUrl:_templatesDict[_selectedTemplate]];
         }
     }
     /* --------------------------------------------------------------------- */
@@ -1026,6 +1026,7 @@ DDLogLevel ddLogLevel;
 - (void)updateUISettingsFromURL:(NSURL *)url {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
+    NSLog(@"mainDict=%@", mainDict);
     if ( mainDict ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
         if ( settingsDict ) {
@@ -1044,22 +1045,22 @@ DDLogLevel ddLogLevel;
     
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
     settingsDict[NBCSettingsNBIName] = _nbiName ?: @"";
-    settingsDict[NBCSettingsNBIIndex] = _nbiIndex ?: @"1";
-    settingsDict[NBCSettingsNBIProtocol] = _nbiProtocol ?: @"NFS";
-    settingsDict[NBCSettingsNBILanguage] = _nbiLanguage ?: @"Current";
-    settingsDict[NBCSettingsNBIKeyboardLayoutKey] = _nbiKeyboardLayout ?: @"Current";
-    settingsDict[NBCSettingsNBIEnabled] = @(_nbiEnabled) ?: @NO;
-    settingsDict[NBCSettingsNBIDefault] = @(_nbiDefault) ?: @NO;
-    settingsDict[NBCSettingsNBIDescription] = _nbiDescription ?: @"";
+    settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"1";
+    settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"NFS";
+    settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: @"Current";
+    settingsDict[NBCSettingsKeyboardLayoutKey] = _nbiKeyboardLayout ?: @"Current";
+    settingsDict[NBCSettingsEnabledKey] = @(_nbiEnabled) ?: @NO;
+    settingsDict[NBCSettingsDefaultKey] = @(_nbiDefault) ?: @NO;
+    settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
     if ( _destinationFolder != nil ) {
         NSString *currentUserHome = NSHomeDirectory();
         if ( [_destinationFolder hasPrefix:currentUserHome] ) {
             NSString *destinationFolderPath = [_destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
-            settingsDict[NBCSettingsNBIDestinationFolder] = destinationFolderPath ?: @"~/Desktop";
+            settingsDict[NBCSettingsDestinationFolderKey] = destinationFolderPath ?: @"~/Desktop";
         } else {
-            settingsDict[NBCSettingsNBIDestinationFolder] = _destinationFolder ?: @"~/Desktop"; }
+            settingsDict[NBCSettingsDestinationFolderKey] = _destinationFolder ?: @"~/Desktop"; }
     }
-    settingsDict[NBCSettingsNBIIcon] = _nbiIconPath ?: @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
+    settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
     settingsDict[NBCSettingsDisableWiFiKey] = @(_disableWiFi) ?: @NO;
     settingsDict[NBCSettingsDisplaySleepKey] = @(_displaySleep) ?: @NO;
     settingsDict[NBCSettingsDisplaySleepMinutesKey] = _displaySleepMinutes ?: @"30";
@@ -1104,7 +1105,7 @@ DDLogLevel ddLogLevel;
         NSString *selectedTimeZoneRegion = [[_selectedMenuItem menu] title];
         selectedTimeZone = [NSString stringWithFormat:@"%@/%@", selectedTimeZoneRegion, selectedTimeZoneCity];
     }
-    settingsDict[NBCSettingsNBITimeZone] = selectedTimeZone ?: NBCMenuItemCurrent;
+    settingsDict[NBCSettingsTimeZoneKey] = selectedTimeZone ?: NBCMenuItemCurrent;
     
     return [settingsDict copy];
 } // returnSettingsFromUI
@@ -1139,61 +1140,61 @@ DDLogLevel ddLogLevel;
     
     NSNumber *nbiIndex = nbImageInfoDict[NBCNBImageInfoDictIndexKey];
     if ( nbiIndex != nil ) {
-        settingsDict[NBCSettingsNBIIndex] = [nbiIndex stringValue];
+        settingsDict[NBCSettingsIndexKey] = [nbiIndex stringValue];
     } else if ( _nbiIndex != nil ) {
-        settingsDict[NBCSettingsNBIIndex] = _nbiIndex;
+        settingsDict[NBCSettingsIndexKey] = _nbiIndex;
     }
     
     NSString *nbiProtocol = nbImageInfoDict[NBCNBImageInfoDictProtocolKey];
     if ( nbiProtocol != nil ) {
-        settingsDict[NBCSettingsNBIProtocol] = nbiProtocol;
+        settingsDict[NBCSettingsProtocolKey] = nbiProtocol;
     } else {
-        settingsDict[NBCSettingsNBIProtocol] = _nbiProtocol ?: @"NFS";
+        settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"NFS";
     }
     
     NSString *nbiLanguage = nbImageInfoDict[NBCNBImageInfoDictLanguageKey];
     if ( nbiLanguage != nil ) {
-        settingsDict[NBCSettingsNBILanguage] = nbiLanguage;
+        settingsDict[NBCSettingsLanguageKey] = nbiLanguage;
     } else {
-        settingsDict[NBCSettingsNBILanguage] = _nbiLanguage ?: @"Current";
+        settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: @"Current";
     }
     
     BOOL nbiEnabled = [nbImageInfoDict[NBCNBImageInfoDictIsEnabledKey] boolValue];
     if ( @(nbiEnabled) != nil ) {
-        settingsDict[NBCSettingsNBIEnabled] = @(nbiEnabled);
+        settingsDict[NBCSettingsEnabledKey] = @(nbiEnabled);
     } else {
-        settingsDict[NBCSettingsNBIEnabled] = @(_nbiEnabled) ?: @NO;
+        settingsDict[NBCSettingsEnabledKey] = @(_nbiEnabled) ?: @NO;
     }
     
     BOOL nbiDefault = [nbImageInfoDict[NBCNBImageInfoDictIsDefaultKey] boolValue];
     if ( @(nbiDefault) != nil ) {
-        settingsDict[NBCSettingsNBIDefault] = @(nbiDefault);
+        settingsDict[NBCSettingsDefaultKey] = @(nbiDefault);
     } else {
-        settingsDict[NBCSettingsNBIDefault] = @(_nbiDefault) ?: @NO;
+        settingsDict[NBCSettingsDefaultKey] = @(_nbiDefault) ?: @NO;
     }
     
     NSString *nbiDescription = nbImageInfoDict[NBCNBImageInfoDictDescriptionKey];
     if ( [nbiDescription length] != 0 ) {
-        settingsDict[NBCSettingsNBIDescription] = nbiDescription;
+        settingsDict[NBCSettingsDescriptionKey] = nbiDescription;
     } else {
-        settingsDict[NBCSettingsNBIDescription] = _nbiDescription ?: @"";
+        settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
     }
     
     NSURL *destinationFolderURL = [_source sourceURL];
     if ( destinationFolderURL != nil ) {
-        settingsDict[NBCSettingsNBIDestinationFolder] = [destinationFolderURL path];
+        settingsDict[NBCSettingsDestinationFolderKey] = [destinationFolderURL path];
     } else if ( _destinationFolder != nil ) {
         NSString *currentUserHome = NSHomeDirectory();
         if ( [_destinationFolder hasPrefix:currentUserHome] ) {
             NSString *destinationFolderPath = [_destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
-            settingsDict[NBCSettingsNBIDestinationFolder] = destinationFolderPath;
+            settingsDict[NBCSettingsDestinationFolderKey] = destinationFolderPath;
         } else {
-            settingsDict[NBCSettingsNBIDestinationFolder] = _destinationFolder; }
+            settingsDict[NBCSettingsDestinationFolderKey] = _destinationFolder; }
     }
     
     //NSImage *nbiIcon = [[NSWorkspace sharedWorkspace] iconForFile:[nbiURL path]]; // To be fixed later
     
-    settingsDict[NBCSettingsNBIIcon] = _nbiIconPath ?: @"";
+    settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"";
     
     BOOL nbiImagrConfigurationDictFound = NO;
     BOOL nbiImagrVersionFound = NO;
@@ -1519,7 +1520,7 @@ DDLogLevel ddLogLevel;
     //  Create an empty dict and add template type, name and version
     // -------------------------------------------------------------
     NSMutableDictionary *mainDict = [[NSMutableDictionary alloc] init];
-    mainDict[NBCSettingsNameKey] = name;
+    mainDict[NBCSettingsTitleKey] = name;
     mainDict[NBCSettingsTypeKey] = NBCSettingsTypeImagr;
     mainDict[NBCSettingsVersionKey] = NBCSettingsFileVersion;
     
@@ -2160,14 +2161,14 @@ DDLogLevel ddLogLevel;
     resourcesSettings[NBCSettingsImagrVersion] = selectedImagrVersion;
     resourcesSettings[NBCSettingsImagrDownloadURL] = imagrDownloadURL;
     
-    NSString *selectedLanguage = userSettings[NBCSettingsNBILanguage];
+    NSString *selectedLanguage = userSettings[NBCSettingsLanguageKey];
     NSLog(@"selectedLanguage=%@", selectedLanguage);
     if ( [selectedLanguage isEqualToString:NBCMenuItemCurrent] ) {
         NSLocale *currentLocale = [NSLocale currentLocale];
         NSString *currentLanguageID = [NSLocale preferredLanguages][0];
         NSLog(@"currentLanguageID=%@", currentLanguageID);
         if ( [currentLanguageID length] != 0 ) {
-            resourcesSettings[NBCSettingsNBILanguage] = currentLanguageID;
+            resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
         } else {
             DDLogError(@"[ERROR] Could not get current language ID!");
             return;
@@ -2190,7 +2191,7 @@ DDLogLevel ddLogLevel;
          NSString *currentLanguageID = globalPreferencesDict[@"AppleLanguages"][0];
          DDLogInfo(@"Current Language ID: %@", currentLanguageID);
          if ( [currentLanguageID length] != 0 ) {
-         resourcesSettings[NBCSettingsNBILanguage] = currentLanguageID;
+         resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
          } else {
          DDLogError(@"[ERROR] Could not get current language ID!");
          return;
@@ -2211,7 +2212,7 @@ DDLogLevel ddLogLevel;
     } else {
         NSString *languageID = [_languageDict allKeysForObject:selectedLanguage][0];
         if ( [languageID length] != 0 ) {
-            resourcesSettings[NBCSettingsNBILanguage] = languageID;
+            resourcesSettings[NBCSettingsLanguageKey] = languageID;
         } else {
             DDLogError(@"[ERROR] Could not get language ID!");
             return;
@@ -2235,21 +2236,21 @@ DDLogLevel ddLogLevel;
         }
         
     }
-    NSLog(@"resourcesSettings[NBCSettingsNBILanguage]=%@", resourcesSettings[NBCSettingsNBILanguage]);
+    NSLog(@"resourcesSettings[NBCSettingsLanguageKey]=%@", resourcesSettings[NBCSettingsLanguageKey]);
     
     NSDictionary *hiToolboxDict = [NSDictionary dictionaryWithContentsOfFile:NBCFilePathPreferencesHIToolbox];
-    NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsNBIKeyboardLayoutKey];
+    NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsKeyboardLayoutKey];
     if ( [selectedKeyboardLayoutName isEqualToString:NBCMenuItemCurrent] ) {
         NSDictionary *appleDefaultAsciiInputSourceDict = hiToolboxDict[@"AppleDefaultAsciiInputSource"];
         selectedKeyboardLayoutName = appleDefaultAsciiInputSourceDict[@"KeyboardLayout Name"];
         if ( [selectedKeyboardLayoutName length] != 0 ) {
-            resourcesSettings[NBCSettingsNBIKeyboardLayoutKey] = selectedKeyboardLayoutName;
+            resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
         } else {
             DDLogError(@"[ERROR] Could not get current keyboard layout name!");
             return;
         }
     } else {
-        resourcesSettings[NBCSettingsNBIKeyboardLayoutKey] = selectedKeyboardLayoutName;
+        resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
     }
     
     NSString *selectedKeyboardLayout = _keyboardLayoutDict[selectedKeyboardLayoutName];
@@ -2272,9 +2273,9 @@ DDLogLevel ddLogLevel;
             NSTimeZone *currentTimeZone = [NSTimeZone defaultTimeZone];
             NSString *currentTimeZoneName = [currentTimeZone name];
             NSLog(@"currentTimeZoneName=%@", currentTimeZoneName);
-            resourcesSettings[NBCSettingsNBITimeZone] = currentTimeZoneName;
+            resourcesSettings[NBCSettingsTimeZoneKey] = currentTimeZoneName;
         } else {
-            resourcesSettings[NBCSettingsNBITimeZone] = selectedTimeZone;
+            resourcesSettings[NBCSettingsTimeZoneKey] = selectedTimeZone;
         }
     } else {
         DDLogError(@"[ERROR] selectedTimeZone is nil!");

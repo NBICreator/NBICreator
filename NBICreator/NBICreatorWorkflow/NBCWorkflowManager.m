@@ -96,14 +96,14 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     //  Incremet global index counter if %COUNTER% is used.
     // -------------------------------------------------------------
-    if ( [userSettings[NBCSettingsNBIIndex] isEqualToString:NBCVariableIndexCounter] ) {
+    if ( [userSettings[NBCSettingsIndexKey] isEqualToString:NBCVariableIndexCounter] ) {
         [self incrementIndexCounter];
     }
 
     // -------------------------------------------------------------
     //  Add NBI icon to workflow item and progress view
     // -------------------------------------------------------------
-    NSString *nbiIconPath = [NBCVariables expandVariables:userSettings[NBCSettingsNBIIcon]
+    NSString *nbiIconPath = [NBCVariables expandVariables:userSettings[NBCSettingsIconKey]
                                                    source:[workflowItem source]
                                         applicationSource:[workflowItem applicationSource]];
     

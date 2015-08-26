@@ -284,14 +284,14 @@ DDLogLevel ddLogLevel;
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setNbiName:settingsDict[NBCSettingsNBIName]];
-    [self setNbiIndex:settingsDict[NBCSettingsNBIIndex]];
-    [self setNbiProtocol:settingsDict[NBCSettingsNBIProtocol]];
-    [self setNbiEnabled:[settingsDict[NBCSettingsNBIEnabled] boolValue]];
-    [self setNbiDefault:[settingsDict[NBCSettingsNBIDefault] boolValue]];
-    [self setNbiLanguage:settingsDict[NBCSettingsNBILanguage]];
-    [self setNbiDescription:settingsDict[NBCSettingsNBIDescription]];
-    [self setDestinationFolder:settingsDict[NBCSettingsNBIDestinationFolder]];
-    [self setNbiIconPath:settingsDict[NBCSettingsNBIIcon]];
+    [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
+    [self setNbiProtocol:settingsDict[NBCSettingsProtocolKey]];
+    [self setNbiEnabled:[settingsDict[NBCSettingsEnabledKey] boolValue]];
+    [self setNbiDefault:[settingsDict[NBCSettingsDefaultKey] boolValue]];
+    [self setNbiLanguage:settingsDict[NBCSettingsLanguageKey]];
+    [self setNbiDescription:settingsDict[NBCSettingsDescriptionKey]];
+    [self setDestinationFolder:settingsDict[NBCSettingsDestinationFolderKey]];
+    [self setNbiIconPath:settingsDict[NBCSettingsIconKey]];
     
     [self expandVariablesForCurrentSettings];
 } // updateUISettingsFromDict
@@ -316,21 +316,21 @@ DDLogLevel ddLogLevel;
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
     settingsDict[NBCSettingsNBIName] = _nbiName ?: @"";
-    settingsDict[NBCSettingsNBIIndex] = _nbiIndex ?: @"";
-    settingsDict[NBCSettingsNBIProtocol] = _nbiProtocol ?: @"";
-    settingsDict[NBCSettingsNBILanguage] = _nbiLanguage ?: @"";
-    settingsDict[NBCSettingsNBIEnabled] = @(_nbiEnabled) ?: @NO;
-    settingsDict[NBCSettingsNBIDefault] = @(_nbiDefault) ?: @NO;
-    settingsDict[NBCSettingsNBIDescription] = _nbiDescription ?: @"";
+    settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"";
+    settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"";
+    settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: @"";
+    settingsDict[NBCSettingsEnabledKey] = @(_nbiEnabled) ?: @NO;
+    settingsDict[NBCSettingsDefaultKey] = @(_nbiDefault) ?: @NO;
+    settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
     if ( _destinationFolder != nil ) {
         NSString *currentUserHome = NSHomeDirectory();
         if ( [_destinationFolder hasPrefix:currentUserHome] ) {
             NSString *destinationFolderPath = [_destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
-            settingsDict[NBCSettingsNBIDestinationFolder] = destinationFolderPath ?: @"";
+            settingsDict[NBCSettingsDestinationFolderKey] = destinationFolderPath ?: @"";
         } else {
-            settingsDict[NBCSettingsNBIDestinationFolder] = _destinationFolder ?: @""; }
+            settingsDict[NBCSettingsDestinationFolderKey] = _destinationFolder ?: @""; }
     }
-    settingsDict[NBCSettingsNBIIcon] = _nbiIconPath ?: @"";
+    settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"";
     
     return [settingsDict copy];
 } // returnSettingsFromUI
@@ -353,7 +353,7 @@ DDLogLevel ddLogLevel;
     //  Create an empty dict and add template type, name and version
     // -------------------------------------------------------------
     NSMutableDictionary *mainDict = [[NSMutableDictionary alloc] init];
-    mainDict[NBCSettingsNameKey] = name;
+    mainDict[NBCSettingsTitleKey] = name;
     mainDict[NBCSettingsTypeKey] = NBCSettingsTypeNetInstall;
     mainDict[NBCSettingsVersionKey] = NBCSettingsFileVersion;
     
@@ -398,7 +398,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     
-    NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCSettingsTypeNetInstallDefaultSettings withExtension:@"plist"];
+    NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameNetInstallDefaults withExtension:@"plist"];
     if ( defaultSettingsURL ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {

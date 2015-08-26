@@ -2,19 +2,21 @@
 //  NBCConstants.h
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-05-06.
+//  Created by Erik Berglund.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
 // --------------------------------------------------------------
-//  NBICreator Application
+//  Application
 // --------------------------------------------------------------
 extern NSString *const NBCBundleIdentifier;
 extern NSString *const NBCBundleIdentifierHelper;
 
-
+// --------------------------------------------------------------
+//  Workflow Types
+// --------------------------------------------------------------
 extern NSString *const NBCWorkflowTypeNetInstall;
 extern NSString *const NBCWorkflowTypeDeployStudio;
 extern NSString *const NBCWorkflowTypeImagr;
@@ -26,26 +28,32 @@ extern NSString *const NBCFolderTemplates;
 extern NSString *const NBCFolderTemplatesNetInstall;
 extern NSString *const NBCFolderTemplatesDeployStudio;
 extern NSString *const NBCFolderTemplatesImagr;
+extern NSString *const NBCFolderTemplatesCasper;
 extern NSString *const NBCFolderTemplatesCustom;
 extern NSString *const NBCFolderTemplatesDisabled;
 extern NSString *const NBCFolderResources;
+extern NSString *const NBCFolderResourcesDeployStudio;
 extern NSString *const NBCFolderResourcesPython;
 extern NSString *const NBCFolderResourcesImagr;
-extern NSString *const NBCFolderResourcesDeployStudio;
 extern NSString *const NBCFolderResourcesSource;
 
 // --------------------------------------------------------------
-//  Files
+//  File Names
 // --------------------------------------------------------------
-extern NSString *const NBCFileResourcesDict;
-extern NSString *const NBCFileDownloadsDict;
+extern NSString *const NBCFileNameResourcesDict;
+extern NSString *const NBCFileNameDownloadsDict;
+extern NSString *const NBCFileNameNetInstallDefaults;
+extern NSString *const NBCFileNameDeployStudioDefaults;
+extern NSString *const NBCFileNameImagrDefaults;
+
+// --------------------------------------------------------------
+//  File Paths
+// --------------------------------------------------------------
 extern NSString *const NBCFilePathNBIIconImagr;
 extern NSString *const NBCFilePathNBIIconNetInstall;
 extern NSString *const NBCFilePathNBIIconDeployStudio;
-extern NSString *const NBCFileNameImagrDefaults;
-
-extern NSString *const NBCPathPreferencesGlobal;
-extern NSString *const NBCPathPreferencesHIToolbox;
+extern NSString *const NBCFilePathPreferencesGlobal;
+extern NSString *const NBCFilePathPreferencesHIToolbox;
 
 // --------------------------------------------------------------
 //  User Defaults
@@ -78,52 +86,40 @@ extern NSString *const NBCMenuItemSystemImageUtility;
 extern NSString *const NBCMenuItemCurrent;
 
 // --------------------------------------------------------------
-//  Template
+//  Template Main Values
 // --------------------------------------------------------------
-extern NSString *const NBCSettingsFileName;
 extern NSString *const NBCSettingsFileVersion;
+extern NSString *const NBCSettingsTypeNetInstall;
+extern NSString *const NBCSettingsTypeDeployStudio;
+extern NSString *const NBCSettingsTypeImagr;
+extern NSString *const NBCSettingsTypeCasper;
+extern NSString *const NBCSettingsTypeCustom;
 
 // --------------------------------------------------------------
-//  Template Settings Main
+//  Template Main Keys
 // --------------------------------------------------------------
-extern NSString *const NBCSettingsNameKey;
+extern NSString *const NBCSettingsTitleKey;
 extern NSString *const NBCSettingsTypeKey;
-extern NSString *const NBCSettingsTypeImagr;
-extern NSString *const NBCSettingsTypeImagrDefaultSettings;
-extern NSString *const NBCSettingsTypeNetInstall;
-extern NSString *const NBCSettingsTypeNetInstallDefaultSettings;
-extern NSString *const NBCSettingsTypeDeployStudio;
-extern NSString *const NBCSettingsTypeDeployStudioDefaultSettings;
-extern NSString *const NBCSettingsTypeCustom;
 extern NSString *const NBCSettingsVersionKey;
 extern NSString *const NBCSettingsSettingsKey;
 
 // --------------------------------------------------------------
-//  Template Settings General
+//  Template "General" Keys
 // --------------------------------------------------------------
 extern NSString *const NBCSettingsNBIName;
-extern NSString *const NBCSettingsNBIIndex;
-extern NSString *const NBCSettingsNBIProtocol;
-extern NSString *const NBCSettingsNBIEnabled;
-extern NSString *const NBCSettingsNBIDefault;
-extern NSString *const NBCSettingsNBILanguage;
-extern NSString *const NBCSettingsNBITimeZone;
-extern NSString *const NBCSettingsNBIKeyboardLayout;
-extern NSString *const NBCSettingsNBIDescription;
-extern NSString *const NBCSettingsNBIDestinationFolder;
-extern NSString *const NBCSettingsNBIIcon;
-
-extern NSString *const NBCSettingsNBIKeyboardLayoutName;
-
-
-extern NSString *const NBCSettingsUseVerboseBoot;
-
-extern NSString *const NBCSettingsLocale;
-extern NSString *const NBCSettingsCountry;
-
+extern NSString *const NBCSettingsIndexKey;
+extern NSString *const NBCSettingsProtocolKey;
+extern NSString *const NBCSettingsEnabledKey;
+extern NSString *const NBCSettingsDefaultKey;
+extern NSString *const NBCSettingsLanguageKey;
+extern NSString *const NBCSettingsTimeZoneKey;
+extern NSString *const NBCSettingsKeyboardLayoutKey;
+extern NSString *const NBCSettingsDescriptionKey;
+extern NSString *const NBCSettingsDestinationFolderKey;
+extern NSString *const NBCSettingsIconKey;
 
 // --------------------------------------------------------------
-//  Template Settings Options
+//  Template "Option" Keys
 // --------------------------------------------------------------
 extern NSString *const NBCSettingsDisableWiFiKey;
 extern NSString *const NBCSettingsDisplaySleepKey;
@@ -131,9 +127,22 @@ extern NSString *const NBCSettingsDisplaySleepMinutesKey;
 extern NSString *const NBCSettingsIncludeSystemUIServerKey;
 extern NSString *const NBCSettingsARDLoginKey;
 extern NSString *const NBCSettingsARDPasswordKey;
-extern NSString *const NBCSettingsNBICreationToolKey;
 extern NSString *const NBCSettingsUseNetworkTimeServerKey;
 extern NSString *const NBCSettingsNetworkTimeServerKey;
+
+
+
+
+
+extern NSString *const NBCSettingsNBICreationToolKey;
+extern NSString *const NBCSettingsNBIKeyboardLayout;
+
+extern NSString *const NBCSettingsUseVerboseBoot;
+
+extern NSString *const NBCSettingsLocale;
+extern NSString *const NBCSettingsCountry;
+
+
 
 // --------------------------------------------------------------
 //  Template Settings Extra
