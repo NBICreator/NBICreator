@@ -72,7 +72,6 @@
 // Constraints
 @property (strong) IBOutlet NSLayoutConstraint *constraintBetweenButtonBuildAndViewOutput;
 
-+ (NSSet *)currentDisks;
 + (NBCDisk *)diskFromBSDName:(NSString *)bsdName;
 + (NBCDisk *)diskFromVolumeURL:(NSURL *)volumeURL;
 + (NSArray *)mountedDiskUUUIDs;

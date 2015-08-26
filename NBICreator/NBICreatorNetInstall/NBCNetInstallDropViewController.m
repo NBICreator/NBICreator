@@ -10,7 +10,7 @@
 #import "NBCConstants.h"
 
 #import "NBCAlerts.h"
-
+#import "NBCDiskArbitrator.h"
 #import "NBCController.h"
 #import "NBCSourceController.h"
 #import "NBCDiskImageController.h"
@@ -394,7 +394,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  Add all mounted InstallESD disk images to source popUpButton
     // --------------------------------------------------------------
-    NSSet *currentDisks = [[NBCController currentDisks] copy];
+    NSSet *currentDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
     for ( NBCDisk *disk in currentDisks ) {
         NSString *volumeName = [disk volumeName];
         if ( [volumeName containsString:@"OS X Install ESD"] ) { // Only add disks that match this volume name

@@ -10,7 +10,7 @@
 #import "NBCConstants.h"
 
 #import "NBCAlerts.h"
-
+#import "NBCDiskArbitrator.h"
 #import "NBCController.h"
 #import "NBCSourceController.h"
 #import "NBCDiskImageController.h"
@@ -498,7 +498,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  Add all mounted OS X disks to source popUpButton
     // --------------------------------------------------------------
-    NSSet *currentDisks = [[NBCController currentDisks] copy];
+    NSSet *currentDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
     for ( NBCDisk *disk in currentDisks ) {
         NSString *volumeName = [disk volumeName];
         if (
