@@ -21,6 +21,7 @@
 @property (weak) IBOutlet NSWindow *window;
 
 - (IBAction)menuItemPreferences:(id)sender;
+- (IBAction)menuItemHelp:(id)sender;
 
 // Views
 @property (strong) NSViewController *nbiSettingsViewController;
