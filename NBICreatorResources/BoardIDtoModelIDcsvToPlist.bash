@@ -21,7 +21,7 @@ if ! [[ -f ${file_BoardIDtoModelIDcsv} ]]; then
 	exit 1
 fi
 
-# Read each line in csv and 
+# Read each line in csv and update file_BoardIDtoModelIDplist if needed
 while read line
 do
 	counter=$(( counter + 1 ))
@@ -40,11 +40,16 @@ do
 	fi
 	
 	if [[ ${storedModelIdForBoardId} == ${modelId} ]]; then
+		# If current BoardID and ModelID mapping in file_BoardIDtoModelIDAmbiguousplist is the same as csv, continue.
 		printf "\n"
+		
 	elif [[ ${storedModelIdForBoardId} =~ "Does Not Exist" ]]; then
+		# If current BoardID doesn't exist in file_BoardIDtoModelIDplist, add it
 		"${cmd_PlistBuddy}" -c "Add :${boardId} string ${modelId}" "${file_BoardIDtoModelIDplist}" &>/dev/null
 		printf "%s\n" "- New! -"
+		
 	elif [[ ${storedModelIdForBoardId} != ${modelId} ]]; then
+		# If a BoardID maps to multiple ModelIDs it's considered ambiguous and will be added to the file_BoardIDtoModelIDAmbiguousplist for investigation
 		printf "%s\n"  "- Ambiguous -"
 		declare -a ambiguousBoardIDArray=( $( "${cmd_PlistBuddy}" -c "Print :${boardId}:" "${file_BoardIDtoModelIDAmbiguousplist}" 2>&1 ) )
 		if [[ ${ambiguousBoardIDArray[*]} =~ "Does Not Exist" ]]; then
@@ -54,9 +59,6 @@ do
 		if ! [[ ${ambiguousBoardIDArray[@]} =~ ${modelId} ]]; then
 			"${cmd_PlistBuddy}" -c "Add :${boardId}:0 string ${modelId}" "${file_BoardIDtoModelIDAmbiguousplist}" &>/dev/null	
 		fi
-	elif [[ ${storedModelIdForBoardId} =~ Mac ]]; then
-		"${cmd_PlistBuddy}" -c "Set :${boardId} ${modelId}" "${file_BoardIDtoModelIDplist}" &>/dev/null
-		printf "%s\n"  "- New -"
 	else
 		printf "%s\n" "- Unknown ModelID -"
 	fi
