@@ -40,6 +40,8 @@
 // ------------------------------------------------------
 - (BOOL)verifyInstallESDFromDiskImageURL:(NSURL *)installESDDiskImageURL source:(NBCSource *)source error:(NSError **)error;
 
+- (BOOL)verifySourceIsMountedNetInstall:(NBCSource *)source;
+
 // ------------------------------------------------------
 //  Prepare Workflow
 // ------------------------------------------------------

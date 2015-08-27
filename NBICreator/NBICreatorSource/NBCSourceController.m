@@ -626,6 +626,38 @@ DDLogLevel ddLogLevel;
     return verified;
 }
 
+- (BOOL)verifySourceIsMountedNetInstall:(NBCSource *)source {
+    BOOL retval = NO;
+    NSError *error;
+    NBCDisk *installESDDisk = [source installESDDisk];
+    if ( installESDDisk ) {
+        if ( [installESDDisk isMounted] ) {
+            return YES;
+        }
+    }
+
+    NSURL *installESDDiskImageURL = [source installESDDiskImageURL];
+    if ( [installESDDiskImageURL checkResourceIsReachableAndReturnError:&error] ) {
+        if ( [self verifyInstallESDFromDiskImageURL:installESDDiskImageURL source:source  error:&error] ) {
+            if ( [[source installESDDisk] isMounted] ) {
+                return YES;
+            } else {
+                DDLogError(@"[ERROR] installESDDisk is not mounted!");
+                return NO;
+            }
+        } else {
+            DDLogError(@"[ERROR] Mounting installESD failed, verify NO!");
+            return NO;
+        }
+    } else {
+        DDLogError(@"[ERROR] Could not find installESDDiskImageURL!");
+        DDLogError(@"[ERROR] %@", error);
+        return NO;
+    }
+    
+    return retval;
+} // verifySourceIsMountedNetInstall
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Create settings
