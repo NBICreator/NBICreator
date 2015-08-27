@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Mac-7DF2A3B5E5D671ED</key>
+	<array>
+		<string>MacBookPro9,2</string>
+		<string>iMac13,3</string>
+	</array>
+	<key>Mac-F221BEC8</key>
+	<array>
+		<string>MacPro5,1</string>
+		<string>MacPro4,1</string>
+	</array>
+	<key>Mac-F22589C8</key>
+	<array>
+		<string>MacBookPro6,2</string>
+		<string>MacBookPro6,1</string>
+	</array>
+</dict>
+</plist>
