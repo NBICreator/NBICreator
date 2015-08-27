@@ -626,7 +626,44 @@ DDLogLevel ddLogLevel;
     return verified;
 }
 
-- (BOOL)verifySourceIsMountedNetInstall:(NBCSource *)source {
+- (BOOL)verifySourceIsMountedOSVolume:(NBCSource *)source {
+    BOOL retval = NO;
+    NSError *error;
+    NBCDisk *systemDisk = [source systemDisk];
+    if ( systemDisk ) {
+        if ( [systemDisk isMounted] ) {
+            return YES;
+        } else {
+            [systemDisk mount];
+            if ( [systemDisk isMounted] ) {
+                return YES;
+            }
+        }
+    }
+    
+    NSURL *systemDiskImageURL = [source systemDiskImageURL];
+    if ( [systemDiskImageURL checkResourceIsReachableAndReturnError:&error] ) {
+        if ( [self verifySystemFromDiskImageURL:systemDiskImageURL source:source error:&error] ) {
+            if ( [[source systemDisk] isMounted] ) {
+                return YES;
+            } else {
+                DDLogError(@"[ERROR] systemDisk is not mounted!");
+                return NO;
+            }
+        } else {
+            DDLogError(@"[ERROR] Mounting systemDisk failed, verify NO!");
+            return NO;
+        }
+    } else {
+        DDLogError(@"[ERROR] Could not find systemDiskImageURL!");
+        DDLogError(@"[ERROR] %@", error);
+        return NO;
+    }
+    
+    return retval;
+}
+
+- (BOOL)verifySourceIsMountedInstallESD:(NBCSource *)source {
     BOOL retval = NO;
     NSError *error;
     NBCDisk *installESDDisk = [source installESDDisk];

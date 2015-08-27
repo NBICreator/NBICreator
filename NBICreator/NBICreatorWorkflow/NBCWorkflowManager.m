@@ -19,6 +19,7 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCLogging.h"
+#import "NBCSourceController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -324,6 +325,15 @@ DDLogLevel ddLogLevel;
         }
         
         // -------------------------------------------------------------
+        //  Mount source if not mounted
+        // -------------------------------------------------------------
+        if ( ! [self mountSource] ) {
+            DDLogError(@"[ERROR] Could not mount source!");
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        // -------------------------------------------------------------
         //  Run workflows. Don't create NBI if source is a NBI itself.
         // -------------------------------------------------------------
         NSString *sourceType = [[_currentWorkflowItem source] sourceType];
@@ -362,6 +372,31 @@ DDLogLevel ddLogLevel;
 #pragma mark
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+- (BOOL)mountSource {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    BOOL retval = YES;
+    NBCSourceController *sc = [[NBCSourceController alloc] init];
+    switch ( [_currentWorkflowItem workflowType] ) {
+        case kWorkflowTypeNetInstall:
+        {
+            retval = [sc verifySourceIsMountedInstallESD:[_currentWorkflowItem source]];
+            break;
+        }
+        case kWorkflowTypeDeployStudio:
+        {
+            retval = [sc verifySourceIsMountedOSVolume:[_currentWorkflowItem source]];
+            break;
+        }
+        case kWorkflowTypeImagr:
+        {
+            retval = [sc verifySourceIsMountedInstallESD:[_currentWorkflowItem source]];
+            break;
+        }
+    }
+    
+    return retval;
+}
 
 - (void)incrementIndexCounter {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
