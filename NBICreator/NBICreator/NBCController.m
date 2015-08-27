@@ -295,7 +295,7 @@ enum {
 } // applicationDidFinishLaunching
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
 #pragma unused(sender)
     return YES;
 } // applicationShouldTerminateAfterLastWindowClosed
@@ -330,8 +330,8 @@ DDLogDebug(@"%@", NSStringFromSelector(_cmd));
 } // applicationWillTerminate
 
 /*//////////////////////////////////////////////////////////////////////////////
-/// FUTURE FUNCTIONALITY - OPEN/IMPORT TEMPLATES                             ///
-//////////////////////////////////////////////////////////////////////////////*/
+ /// FUTURE FUNCTIONALITY - OPEN/IMPORT TEMPLATES                             ///
+ //////////////////////////////////////////////////////////////////////////////*/
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogDebug(@"filename=%@", filename);
@@ -359,9 +359,9 @@ DDLogDebug(@"%@", NSStringFromSelector(_cmd));
         if ( [type isEqualToString:NBCSettingsTypeNetInstall] ) {
             
         } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
-
+            
         } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
-
+            
         }
         
         NSString *importTitle = [NSString stringWithFormat:@"Import %@ Template?", type];
@@ -650,14 +650,12 @@ DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // --------------------------------------------------------------
     //  Get version of helper within our bundle
     // --------------------------------------------------------------
-    
-    /*//////////////////////////////////////////////////////////////////////////
-    /// THIS NEED TO BE CHANGED TO GET THE REAL VERSION, NOW DONE MANUALLY   ///
-    //////////////////////////////////////////////////////////////////////////*/
-    NSString *requiredVersion = @"1.0.2";
-    DDLogDebug(@"Helper tool in bundle has version %@", requiredVersion);
-    /* ---------------------------------------------------------------------- */
-    
+    NSString *currentHelperToolBundlePath = [NSString stringWithFormat:@"Contents/Library/LaunchServices/%@", NBCBundleIdentifierHelper];
+    NSURL *currentHelperToolURL = [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:currentHelperToolBundlePath];
+    NSDictionary *currentInfoPlist = (NSDictionary*)CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL ));
+    NSString *currentBundleVersion = [currentInfoPlist objectForKey:@"CFBundleVersion"];
+    DDLogDebug(@"currentBundleVersion=%@", currentBundleVersion);
+
     // --------------------------------------------------------------
     //  Connect to helper and get installed helper's version
     // --------------------------------------------------------------
@@ -679,7 +677,7 @@ DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     }] getVersionWithReply:^(NSString *version) {
         DDLogDebug(@"Connection to the helper tool successful!");
         DDLogDebug(@"Currently installed helper tool has version: %@", version);
-        if ( ! [requiredVersion isEqualToString:version] ) {
+        if ( ! [currentBundleVersion isEqualToString:version] ) {
             
             DDLogInfo(@"A new version of the helper tool is availbale");
             // --------------------------------------------------------------
