@@ -910,7 +910,7 @@ DDLogLevel ddLogLevel;
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
-    [self setNbiName:settingsDict[NBCSettingsNBIName]];
+    [self setNbiName:settingsDict[NBCSettingsNameKey]];
     [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
     [self setNbiProtocol:settingsDict[NBCSettingsProtocolKey]];
     [self setNbiEnabled:[settingsDict[NBCSettingsEnabledKey] boolValue]];
@@ -937,7 +937,7 @@ DDLogLevel ddLogLevel;
     [self setIsNBI:[settingsDict[NBCSettingsImagrSourceIsNBI] boolValue]];
     [self setUseBackgroundImage:[settingsDict[NBCSettingsUseBackgroundImageKey] boolValue]];
     [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
-    [self setUseVerboseBoot:[settingsDict[NBCSettingsUseVerboseBoot] boolValue]];
+    [self setUseVerboseBoot:[settingsDict[NBCSettingsUseVerboseBootKey] boolValue]];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -970,8 +970,8 @@ DDLogLevel ddLogLevel;
     
     [_certificateTableViewContents removeAllObjects];
     [_tableViewCertificates reloadData];
-    if ( [settingsDict[NBCSettingsCertificates] count] != 0 ) {
-        NSArray *certificatesArray = settingsDict[NBCSettingsCertificates];
+    if ( [settingsDict[NBCSettingsCertificatesKey] count] != 0 ) {
+        NSArray *certificatesArray = settingsDict[NBCSettingsCertificatesKey];
         for ( NSData *certificate in certificatesArray ) {
             NSDictionary *certificateDict = [self examineCertificate:certificate];
             if ( [certificateDict count] != 0 ) {
@@ -982,8 +982,8 @@ DDLogLevel ddLogLevel;
     
     [_packagesTableViewContents removeAllObjects];
     [_tableViewPackages reloadData];
-    if ( [settingsDict[NBCSettingsPackages] count] != 0 ) {
-        NSArray *packagesArray = settingsDict[NBCSettingsPackages];
+    if ( [settingsDict[NBCSettingsPackagesKey] count] != 0 ) {
+        NSArray *packagesArray = settingsDict[NBCSettingsPackagesKey];
         for ( NSString *packagePath in packagesArray ) {
             NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
             NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
@@ -1042,7 +1042,7 @@ DDLogLevel ddLogLevel;
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
-    settingsDict[NBCSettingsNBIName] = _nbiName ?: @"";
+    settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"1";
     settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"NFS";
     settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: @"Current";
@@ -1075,7 +1075,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsImagrSourceIsNBI] = @(_isNBI) ?: @NO;
     settingsDict[NBCSettingsUseBackgroundImageKey] = @(_useBackgroundImage) ?: @NO;
     settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg";
-    settingsDict[NBCSettingsUseVerboseBoot] = @(_useVerboseBoot) ?: @NO;
+    settingsDict[NBCSettingsUseVerboseBootKey] = @(_useVerboseBoot) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -1084,7 +1084,7 @@ DDLogLevel ddLogLevel;
             [certificateArray insertObject:certificateData atIndex:0];
         }
     }
-    settingsDict[NBCSettingsCertificates] = certificateArray ?: @[];
+    settingsDict[NBCSettingsCertificatesKey] = certificateArray ?: @[];
     
     NSMutableArray *packageArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *packageDict in _packagesTableViewContents ) {
@@ -1093,7 +1093,7 @@ DDLogLevel ddLogLevel;
             [packageArray insertObject:packagePath atIndex:0];
         }
     }
-    settingsDict[NBCSettingsPackages] = packageArray ?: @[];
+    settingsDict[NBCSettingsPackagesKey] = packageArray ?: @[];
     
     NSString *selectedTimeZone;
     NSString *selectedTimeZoneCity = [_selectedMenuItem title];
@@ -1131,9 +1131,9 @@ DDLogLevel ddLogLevel;
     
     NSString *nbiName = nbImageInfoDict[NBCNBImageInfoDictNameKey];
     if ( nbiName != nil ) {
-        settingsDict[NBCSettingsNBIName] = nbiName;
+        settingsDict[NBCSettingsNameKey] = nbiName;
     } else {
-        settingsDict[NBCSettingsNBIName] = _nbiName ?: @"";
+        settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     }
     
     NSNumber *nbiIndex = nbImageInfoDict[NBCNBImageInfoDictIndexKey];
@@ -2310,7 +2310,7 @@ DDLogLevel ddLogLevel;
     }
     
     // - systemkeychain
-    if ( [userSettings[NBCSettingsCertificates] count] != 0 ) {
+    if ( [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
         [sourceController addSystemkeychain:sourceItemsDict source:_source];
     }
     
@@ -2331,14 +2331,14 @@ DDLogLevel ddLogLevel;
         NSData *certificate = certificateDict[NBCDictionaryKeyCertificate];
         [certificates addObject:certificate];
     }
-    resourcesSettings[NBCSettingsCertificates] = certificates;
+    resourcesSettings[NBCSettingsCertificatesKey] = certificates;
     
     NSMutableArray *packages = [[NSMutableArray alloc] init];
     for ( NSDictionary *packageDict in _packagesTableViewContents ) {
         NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
         [packages addObject:packagePath];
     }
-    resourcesSettings[NBCSettingsPackages] = packages;
+    resourcesSettings[NBCSettingsPackagesKey] = packages;
     
     [workflowItem setResourcesSettings:[resourcesSettings copy]];
     

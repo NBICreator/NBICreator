@@ -572,7 +572,7 @@ DDLogLevel ddLogLevel;
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    [self setNbiName:settingsDict[NBCSettingsNBIName]];
+    [self setNbiName:settingsDict[NBCSettingsNameKey]];
     [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
     [self setNbiProtocol:settingsDict[NBCSettingsProtocolKey]];
     [self setNbiEnabled:[settingsDict[NBCSettingsEnabledKey] boolValue]];
@@ -628,7 +628,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
-    settingsDict[NBCSettingsNBIName] = _nbiName ?: @"";
+    settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"";
     settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"";
     settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: @"";

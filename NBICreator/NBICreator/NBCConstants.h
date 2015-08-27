@@ -8,23 +8,22 @@
 
 #import <Foundation/Foundation.h>
 
-// --------------------------------------------------------------
-//  Application
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Application
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCBundleIdentifier;
 extern NSString *const NBCBundleIdentifierHelper;
 
-// --------------------------------------------------------------
-//  Workflow Types
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Workflow Types
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCWorkflowTypeNetInstall;
 extern NSString *const NBCWorkflowTypeDeployStudio;
 extern NSString *const NBCWorkflowTypeImagr;
 
-// --------------------------------------------------------------
-//  Folders
-// --------------------------------------------------------------
-extern NSString *const NBCFolderTemplates;
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Folders
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCFolderTemplatesNetInstall;
 extern NSString *const NBCFolderTemplatesDeployStudio;
 extern NSString *const NBCFolderTemplatesImagr;
@@ -37,36 +36,36 @@ extern NSString *const NBCFolderResourcesPython;
 extern NSString *const NBCFolderResourcesImagr;
 extern NSString *const NBCFolderResourcesSource;
 
-// --------------------------------------------------------------
-//  File Names
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark File Names
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCFileNameResourcesDict;
 extern NSString *const NBCFileNameDownloadsDict;
 extern NSString *const NBCFileNameNetInstallDefaults;
 extern NSString *const NBCFileNameDeployStudioDefaults;
 extern NSString *const NBCFileNameImagrDefaults;
 
-// --------------------------------------------------------------
-//  File Paths
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark File Paths
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCFilePathNBIIconImagr;
 extern NSString *const NBCFilePathNBIIconNetInstall;
 extern NSString *const NBCFilePathNBIIconDeployStudio;
 extern NSString *const NBCFilePathPreferencesGlobal;
 extern NSString *const NBCFilePathPreferencesHIToolbox;
 
-// --------------------------------------------------------------
-//  User Defaults
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark User Defaults
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCUserDefaultsIndexCounter;
 extern NSString *const NBCUserDefaultsNetBootSelection;
 extern NSString *const NBCUserDefaultsDateFormatString;
 extern NSString *const NBCUserDefaultsLogLevel;
 extern NSString *const NBCUserDefaultsCheckForUpdates;
 
-// --------------------------------------------------------------
-//  Menu Items
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Menu Items
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCMenuItemUntitled;
 extern NSString *const NBCMenuItemNew;
 extern NSString *const NBCMenuItemSave;
@@ -85,9 +84,9 @@ extern NSString *const NBCMenuItemNBICreator;
 extern NSString *const NBCMenuItemSystemImageUtility;
 extern NSString *const NBCMenuItemCurrent;
 
-// --------------------------------------------------------------
-//  Template Main Values
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Values - Main
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCSettingsFileVersion;
 extern NSString *const NBCSettingsTypeNetInstall;
 extern NSString *const NBCSettingsTypeDeployStudio;
@@ -95,18 +94,18 @@ extern NSString *const NBCSettingsTypeImagr;
 extern NSString *const NBCSettingsTypeCasper;
 extern NSString *const NBCSettingsTypeCustom;
 
-// --------------------------------------------------------------
-//  Template Main Keys
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Main
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCSettingsTitleKey;
 extern NSString *const NBCSettingsTypeKey;
 extern NSString *const NBCSettingsVersionKey;
 extern NSString *const NBCSettingsSettingsKey;
 
-// --------------------------------------------------------------
-//  Template "General" Keys
-// --------------------------------------------------------------
-extern NSString *const NBCSettingsNBIName;
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - General
+////////////////////////////////////////////////////////////////////////////////
+extern NSString *const NBCSettingsNameKey;
 extern NSString *const NBCSettingsIndexKey;
 extern NSString *const NBCSettingsProtocolKey;
 extern NSString *const NBCSettingsEnabledKey;
@@ -118,17 +117,25 @@ extern NSString *const NBCSettingsDescriptionKey;
 extern NSString *const NBCSettingsDestinationFolderKey;
 extern NSString *const NBCSettingsIconKey;
 
-// --------------------------------------------------------------
-//  Template "Option" Keys
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Options
+////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCSettingsDisableWiFiKey;
 extern NSString *const NBCSettingsDisplaySleepKey;
 extern NSString *const NBCSettingsDisplaySleepMinutesKey;
 extern NSString *const NBCSettingsIncludeSystemUIServerKey;
+extern NSString *const NBCSettingsUseVerboseBootKey;
 extern NSString *const NBCSettingsARDLoginKey;
 extern NSString *const NBCSettingsARDPasswordKey;
 extern NSString *const NBCSettingsUseNetworkTimeServerKey;
 extern NSString *const NBCSettingsNetworkTimeServerKey;
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Extra
+////////////////////////////////////////////////////////////////////////////////
+extern NSString *const NBCSettingsCertificatesKey;
+extern NSString *const NBCSettingsPackagesKey;
+
 
 
 
@@ -136,19 +143,8 @@ extern NSString *const NBCSettingsNetworkTimeServerKey;
 
 extern NSString *const NBCSettingsNBICreationToolKey;
 extern NSString *const NBCSettingsNBIKeyboardLayout;
-
-extern NSString *const NBCSettingsUseVerboseBoot;
-
 extern NSString *const NBCSettingsLocale;
 extern NSString *const NBCSettingsCountry;
-
-
-
-// --------------------------------------------------------------
-//  Template Settings Extra
-// --------------------------------------------------------------
-extern NSString *const NBCSettingsCertificates;
-extern NSString *const NBCSettingsPackages;
 
 // --------------------------------------------------------------
 //  Template Settings Imagr

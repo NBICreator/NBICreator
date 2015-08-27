@@ -609,7 +609,7 @@ DDLogLevel ddLogLevel;
      }
      */
     
-    if ( verified && userSettings[NBCSettingsUseVerboseBoot] ) {
+    if ( verified && userSettings[NBCSettingsUseVerboseBootKey] ) {
         verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
     }
     
@@ -621,7 +621,7 @@ DDLogLevel ddLogLevel;
         verified = [_targetController modifyNBINTP:modifyDictArray workflowItem:_workflowItem];
     }
     
-    if ( verified && [userSettings[NBCSettingsCertificates] count] != 0 ) {
+    if ( verified && [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
         verified = [_targetController modifySettingsForSystemKeychain:modifyDictArray workflowItem:_workflowItem];
     }
     

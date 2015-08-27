@@ -223,7 +223,7 @@ DDLogLevel ddLogLevel;
     
     NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
     
-    NSArray *packages = userSettings[NBCSettingsPackages];
+    NSArray *packages = userSettings[NBCSettingsPackagesKey];
     
     for ( NSString *packagePath in packages ) {
         NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
@@ -333,7 +333,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
     NSDictionary *userSettings = [workflowItem userSettings];
-    NSString *nbiName = [NBCVariables expandVariables:userSettings[NBCSettingsNBIName]
+    NSString *nbiName = [NBCVariables expandVariables:userSettings[NBCSettingsNameKey]
                                                source:[workflowItem source]
                                     applicationSource:[workflowItem applicationSource]];
     

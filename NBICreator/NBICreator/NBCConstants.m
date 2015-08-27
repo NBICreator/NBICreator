@@ -8,23 +8,22 @@
 
 #import "NBCConstants.h"
 
-// --------------------------------------------------------------
-//  Application
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Application
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCBundleIdentifier = @"com.github.NBICreator";
 NSString *const NBCBundleIdentifierHelper = @"com.github.NBICreatorHelper";
 
-// --------------------------------------------------------------
-//  Workflow Types
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Workflow Types
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCWorkflowTypeNetInstall = @"NetInstall";
 NSString *const NBCWorkflowTypeDeployStudio = @"DeployStudio";
 NSString *const NBCWorkflowTypeImagr = @"Imagr";
 
-// --------------------------------------------------------------
-//  Folders
-// --------------------------------------------------------------
-NSString *const NBCFolderTemplates = @"NBICreator/Templates";
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Folders
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCFolderTemplatesNetInstall = @"NBICreator/Templates/NetInstall";
 NSString *const NBCFolderTemplatesDeployStudio = @"NBICreator/Templates/DeployStudio";
 NSString *const NBCFolderTemplatesImagr = @"NBICreator/Templates/Imagr";
@@ -37,36 +36,36 @@ NSString *const NBCFolderResourcesPython = @"com.github.NBICreator/Resources/Pyt
 NSString *const NBCFolderResourcesImagr = @"com.github.NBICreator/Resources/Imagr";
 NSString *const NBCFolderResourcesSource = @"com.github.NBICreator/Resources/Source";
 
-// --------------------------------------------------------------
-//  File Names
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark File Names
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCFileNameResourcesDict = @"Resources.plist";
 NSString *const NBCFileNameDownloadsDict = @"Downloads.plist";
 NSString *const NBCFileNameNetInstallDefaults = @"NetInstallDefaults";
 NSString *const NBCFileNameDeployStudioDefaults = @"DeployStudioDefaults";
 NSString *const NBCFileNameImagrDefaults = @"ImagrDefaults";
 
-// --------------------------------------------------------------
-//  File Paths
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark File Paths
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCFilePathNBIIconImagr = @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
 NSString *const NBCFilePathNBIIconNetInstall = @"%APPLICATIONRESOURCESURL%/IconNetBootNBI.icns";
 NSString *const NBCFilePathNBIIconDeployStudio = @"%APPLICATIONRESOURCESURL%/IconDeployStudioNBI.icns";
 NSString *const NBCFilePathPreferencesGlobal = @"/Library/Preferences/.GlobalPreferences.plist";
 NSString *const NBCFilePathPreferencesHIToolbox = @"/Library/Preferences/com.apple.HIToolbox.plist";
 
-// --------------------------------------------------------------
-//  User Defaults
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark User Defaults
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCUserDefaultsIndexCounter = @"NetBootIndexCounter";
 NSString *const NBCUserDefaultsNetBootSelection = @"NetBootSelection";
 NSString *const NBCUserDefaultsDateFormatString = @"DateFormatString";
 NSString *const NBCUserDefaultsLogLevel = @"LogLevel";
 NSString *const NBCUserDefaultsCheckForUpdates = @"CheckForUpdates";
 
-// --------------------------------------------------------------
-//  Menu Items
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Menu Items
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCMenuItemUntitled = @"Untitled";
 NSString *const NBCMenuItemNew = @"New";
 NSString *const NBCMenuItemSave = @"Save...";
@@ -85,9 +84,9 @@ NSString *const NBCMenuItemNBICreator = @"NBICreator";
 NSString *const NBCMenuItemSystemImageUtility = @"System Image Utility";
 NSString *const NBCMenuItemCurrent = @"Current";
 
-// --------------------------------------------------------------
-//  Template Main Values
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Values - Main
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCSettingsFileVersion = @"1.0";
 NSString *const NBCSettingsTypeNetInstall = @"NetInstall";
 NSString *const NBCSettingsTypeDeployStudio = @"DeployStudio";
@@ -95,18 +94,18 @@ NSString *const NBCSettingsTypeImagr = @"Imagr";
 NSString *const NBCSettingsTypeCasper = @"Casper";
 NSString *const NBCSettingsTypeCustom = @"Custom";
 
-// --------------------------------------------------------------
-//  Template Main Keys
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Main
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCSettingsTitleKey = @"Title";
 NSString *const NBCSettingsTypeKey = @"Type";
 NSString *const NBCSettingsVersionKey = @"Version";
 NSString *const NBCSettingsSettingsKey = @"Settings";
 
-// --------------------------------------------------------------
-//  Template "General" Keys
-// --------------------------------------------------------------
-NSString *const NBCSettingsNBIName = @"Name";
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - General
+////////////////////////////////////////////////////////////////////////////////
+NSString *const NBCSettingsNameKey = @"Name";
 NSString *const NBCSettingsIndexKey = @"Index";
 NSString *const NBCSettingsProtocolKey = @"Protocol";
 NSString *const NBCSettingsEnabledKey = @"Enabled";
@@ -118,20 +117,24 @@ NSString *const NBCSettingsDescriptionKey = @"Description";
 NSString *const NBCSettingsDestinationFolderKey = @"DestinationFolder";
 NSString *const NBCSettingsIconKey = @"Icon";
 
-// --------------------------------------------------------------
-//  Template "Option" Keys
-// --------------------------------------------------------------
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Options
+////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCSettingsDisableWiFiKey = @"DisableWiFi";
 NSString *const NBCSettingsDisplaySleepKey = @"DisplaySleep";
 NSString *const NBCSettingsDisplaySleepMinutesKey = @"DisplaySleepMinutes";
 NSString *const NBCSettingsIncludeSystemUIServerKey = @"IncludeSystemUIServer";
+NSString *const NBCSettingsUseVerboseBootKey = @"UseVerboseBoot";
 NSString *const NBCSettingsARDLoginKey = @"ARDLogin";
 NSString *const NBCSettingsARDPasswordKey = @"ARDPassword";
 NSString *const NBCSettingsUseNetworkTimeServerKey = @"UseNetworkTimeServer";
 NSString *const NBCSettingsNetworkTimeServerKey = @"NetworkTimeServer";
 
-
-
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Extra
+////////////////////////////////////////////////////////////////////////////////
+NSString *const NBCSettingsCertificatesKey = @"Certificates";
+NSString *const NBCSettingsPackagesKey = @"Packages";
 
 
 
@@ -157,15 +160,11 @@ NSString *const NBCSettingsNBICreationToolKey = @"NBICreationTool";
 
 
 
-NSString *const NBCSettingsUseVerboseBoot = @"UseVerboseBoot";
 
 
 
-// --------------------------------------------------------------
-//  Template Settings Extra
-// --------------------------------------------------------------
-NSString *const NBCSettingsCertificates = @"Certificates";
-NSString *const NBCSettingsPackages = @"Packages";
+
+
 
 // --------------------------------------------------------------
 //  Template Settings Imagr

@@ -177,7 +177,7 @@ DDLogLevel ddLogLevel;
         return nil;
     }
     
-    nbiName = [NBCVariables expandVariables:workflowSettings[NBCSettingsNBIName]
+    nbiName = [NBCVariables expandVariables:workflowSettings[NBCSettingsNameKey]
                                      source:source
                           applicationSource:applicationSource];
     DDLogDebug(@"nbiName=%@", nbiName);

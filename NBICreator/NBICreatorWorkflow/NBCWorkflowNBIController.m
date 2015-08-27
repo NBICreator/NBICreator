@@ -529,7 +529,7 @@ DDLogLevel ddLogLevel;
                                          "/usr/bin/defaults write com.apple.DiskUtility DUShowEveryPartition -bool YES\n"];
     rcImaging = [rcImaging stringByAppendingString:enableDiskUtilDebugMenu];
     
-    if ( [settingsDict[NBCSettingsCertificates] count] != 0 ) {
+    if ( [settingsDict[NBCSettingsCertificatesKey] count] != 0 ) {
         NSString *addCertificates = [NSString stringWithFormat:@"\n"
                                      "###\n"
                                      "### Add Certificates\n"

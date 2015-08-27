@@ -71,13 +71,13 @@ DDLogLevel ddLogLevel;
                 DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
             }
         }
-        NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificates];
+        NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
         DDLogDebug(@"certificatesArray=%@", certificatesArray);
         if ( [certificatesArray count] != 0 ) {
             [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )];
             DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
         }
-        NSArray *packagessArray = _resourcesSettings[NBCSettingsPackages];
+        NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
         DDLogDebug(@"packagessArray=%@", packagessArray);
         if ( [packagessArray count] != 0 ) {
             [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
@@ -248,7 +248,7 @@ DDLogLevel ddLogLevel;
     DDLogInfo(@"Preparing packages...");
     BOOL retval = YES;
     NSError *error;
-    NSArray *packagesArray = _resourcesSettings[NBCSettingsPackages];
+    NSArray *packagesArray = _resourcesSettings[NBCSettingsPackagesKey];
     DDLogDebug(@"packagesArray=%@", packagesArray);
     
     if ( [packagesArray count] != 0 ) {
@@ -287,7 +287,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     NSError *error;
-    NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificates];
+    NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
     DDLogDebug(@"certificatesArray=%@", certificatesArray);
     if ( [certificatesArray count] != 0 ) {
         NSURL *certificateScriptURL = [[NSBundle mainBundle] URLForResource:@"installCertificates" withExtension:@"bash"];
