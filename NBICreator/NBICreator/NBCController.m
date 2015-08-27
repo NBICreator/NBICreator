@@ -650,11 +650,11 @@ enum {
     // --------------------------------------------------------------
     //  Get version of helper within our bundle
     // --------------------------------------------------------------
-    NSString *currentHelperToolBundlePath = [NSString stringWithFormat:@"Contents/Library/LaunchServices/%@", NBCBundleIdentifierHelper];
-    NSURL *currentHelperToolURL = [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:currentHelperToolBundlePath];
-    NSDictionary *currentInfoPlist = (NSDictionary*)CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL ));
-    NSString *currentBundleVersion = [currentInfoPlist objectForKey:@"CFBundleVersion"];
-    DDLogDebug(@"currentBundleVersion=%@", currentBundleVersion);
+    NSString*       currentHelperToolBundlePath     = [NSString stringWithFormat:@"Contents/Library/LaunchServices/%@", NBCBundleIdentifierHelper];
+    NSURL*          currentHelperToolURL            = [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:currentHelperToolBundlePath];
+    NSDictionary*   currentHelperToolInfoPlist      = (NSDictionary*)CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL ));
+    NSString*       currentHelperToolBundleVersion  = [currentHelperToolInfoPlist objectForKey:@"CFBundleVersion"];
+    DDLogDebug(@"currentHelperToolBundleVersion=%@", currentHelperToolBundleVersion);
 
     // --------------------------------------------------------------
     //  Connect to helper and get installed helper's version
@@ -677,7 +677,7 @@ enum {
     }] getVersionWithReply:^(NSString *version) {
         DDLogDebug(@"Connection to the helper tool successful!");
         DDLogDebug(@"Currently installed helper tool has version: %@", version);
-        if ( ! [currentBundleVersion isEqualToString:version] ) {
+        if ( ! [currentHelperToolBundleVersion isEqualToString:version] ) {
             
             DDLogInfo(@"A new version of the helper tool is availbale");
             // --------------------------------------------------------------
