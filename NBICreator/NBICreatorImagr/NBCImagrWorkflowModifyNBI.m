@@ -585,7 +585,15 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"volumeURL=%@", volumeURL);
     NSMutableArray *modifyDictArray = [[NSMutableArray alloc] init];
     
-    verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
+    int sourceVersionMinor = (int)[[[_workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 11 <= sourceVersionMinor ) {
+        NSLog(@"DODODODODOD");
+        verified = [_targetController modifyRCInstall:modifyDictArray workflowItem:_workflowItem];
+    }
+    
+    if ( verified ) {
+        verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
+    }
     
     if ( verified ) {
         verified = [_targetController settingsToRemove:modifyDictArray workflowItem:_workflowItem];

@@ -237,6 +237,26 @@ DDLogLevel ddLogLevel;
     return newNBImageInfoDict;
 } // updateNBImageInfoDict:
 
+- (NSArray *)updateSupportedModelIDs:(NSArray *)currentSupportedModelIDs supportedBoardIDs:(NSArray *)supportedBoardIDs {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *newSupportedModelIDs = [NSMutableArray arrayWithArray:currentSupportedModelIDs];
+    NSURL *boardIDtoModelIDURL = [NSURL fileURLWithPath:@""];
+    if ( boardIDtoModelIDURL ) {
+        NSDictionary *boardIDtoModelIDDict = [NSDictionary dictionaryWithContentsOfURL:boardIDtoModelIDURL];
+        if ( [supportedBoardIDs count] != 0 ) {
+            for ( NSString *boardID in supportedBoardIDs ) {
+                NSString *modelID = boardIDtoModelIDDict[boardID];
+                if ( [modelID length] != 0 && ! [newSupportedModelIDs containsObject:modelID] ) {
+                    DDLogInfo(@"Adding ModelID %@ from supportedBoardIDs", modelID);
+                    [newSupportedModelIDs addObject:modelID];
+                }
+            }
+        }
+    }
+    
+    return [newSupportedModelIDs copy];
+}
+
 - (BOOL)updateNBIIcon:(NSImage *)nbiIcon nbiURL:(NSURL *)nbiURL {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Setting NBI Icon...");
@@ -1035,6 +1055,57 @@ DDLogLevel ddLogLevel;
     return retval;
 } // modifySettingsForKextd:workflowItem
 
+- (BOOL)modifyRCInstall:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+#pragma unused(modifyDictArray)
+    BOOL retval = YES;
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // ------------------------------------------------------------------
+    //  /etc/rc.install
+    // ------------------------------------------------------------------
+    NSDictionary *rcInstallAttributes;
+    NSMutableString *rcInstallContentString = [[NSMutableString alloc] init];
+    NSString *rcInstallContentStringOriginal;
+    NSURL *rcInstallURL = [volumeURL URLByAppendingPathComponent:@"etc/rc.install"];
+    DDLogDebug(@"rcInstallURL=%@", rcInstallURL);
+    if ( [rcInstallURL checkResourceIsReachableAndReturnError:nil] ) {
+        rcInstallContentStringOriginal = [NSMutableString stringWithContentsOfURL:rcInstallURL encoding:NSUTF8StringEncoding error:&error];
+        rcInstallAttributes = [fm attributesOfItemAtPath:[rcInstallURL path] error:&error];
+    }
+    
+    if ( [rcInstallContentStringOriginal length] != 0 ) {
+        
+        NSArray *rcInstallContentArray = [rcInstallContentStringOriginal componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
+        for ( NSString *line in rcInstallContentArray ) {
+            if ( [line containsString:@"/System/Library/CoreServices/Installer\\ Progress.app"] ) {
+                [rcInstallContentString appendString:[NSString stringWithFormat:@"#%@\n", line]];
+            } else {
+                [rcInstallContentString appendString:[NSString stringWithFormat:@"%@\n", line]];
+            }
+        }
+        
+        NSData *rcInstallData = [rcInstallContentString dataUsingEncoding:NSUTF8StringEncoding];
+        NSDictionary *modifyRcInstall = @{
+                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
+                                          NBCWorkflowModifyContent : rcInstallData,
+                                          NBCWorkflowModifyAttributes : rcInstallAttributes,
+                                          NBCWorkflowModifyTargetURL : [rcInstallURL path]
+                                          };
+        DDLogDebug(@"modifyRcInstall=%@", modifyRcInstall);
+        [modifyDictArray addObject:modifyRcInstall];
+    } else {
+        retval = NO;
+    }
+    return retval;
+}
+
 - (BOOL)modifySettingsForLanguageAndKeyboardLayout:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Adding language and keyboard settings...");
@@ -1319,39 +1390,39 @@ DDLogLevel ddLogLevel;
     }
     
     /*
-    // --------------------------------------------------------------
-    //  /Library/Preferences/com.apple.menuextra.textinput.plist
-    // --------------------------------------------------------------
-    NSURL *menuextraTextinputSettingsURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/com.apple.menuextra.textinput.plist"];
-    DDLogDebug(@"menuextraTextinputSettingsURL=%@", menuextraTextinputSettingsURL);
-    NSMutableDictionary *menuextraTextinputSettingsDict;
-    NSDictionary *menuextraTextinputSettingsAttributes;
-    if ( [menuextraTextinputSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
-        menuextraTextinputSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:menuextraTextinputSettingsURL];
-        menuextraTextinputSettingsAttributes = [fm attributesOfItemAtPath:[menuextraTextinputSettingsURL path] error:&error];
-    }
-    
-    if ( [menuextraTextinputSettingsDict count] == 0 ) {
-        menuextraTextinputSettingsDict = [[NSMutableDictionary alloc] init];
-        menuextraTextinputSettingsAttributes = @{
-                                                 NSFileOwnerAccountName : @"root",
-                                                 NSFileGroupOwnerAccountName : @"wheel",
-                                                 NSFilePosixPermissions : @0644
-                                                 };
-    }
-    DDLogDebug(@"menuextraTextinputSettingsDict=%@", menuextraTextinputSettingsDict);
-    DDLogDebug(@"menuextraTextinputSettingsAttributes=%@", menuextraTextinputSettingsAttributes);
-    menuextraTextinputSettingsDict[@"ModeNameVisible"] = @NO;
-    DDLogDebug(@"menuextraTextinputSettingsDict=%@", menuextraTextinputSettingsDict);
-    NSDictionary *modifyMenuextraTextinputSettings = @{
-                                                       NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                                       NBCWorkflowModifyContent : menuextraTextinputSettingsDict,
-                                                       NBCWorkflowModifyAttributes : menuextraTextinputSettingsAttributes,
-                                                       NBCWorkflowModifyTargetURL : [menuextraTextinputSettingsURL path]
-                                                       };
-    DDLogDebug(@"modifyMenuextraTextinputSettings=%@", modifyMenuextraTextinputSettings);
-    [modifyDictArray addObject:modifyMenuextraTextinputSettings];
-    */
+     // --------------------------------------------------------------
+     //  /Library/Preferences/com.apple.menuextra.textinput.plist
+     // --------------------------------------------------------------
+     NSURL *menuextraTextinputSettingsURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/com.apple.menuextra.textinput.plist"];
+     DDLogDebug(@"menuextraTextinputSettingsURL=%@", menuextraTextinputSettingsURL);
+     NSMutableDictionary *menuextraTextinputSettingsDict;
+     NSDictionary *menuextraTextinputSettingsAttributes;
+     if ( [menuextraTextinputSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+     menuextraTextinputSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:menuextraTextinputSettingsURL];
+     menuextraTextinputSettingsAttributes = [fm attributesOfItemAtPath:[menuextraTextinputSettingsURL path] error:&error];
+     }
+     
+     if ( [menuextraTextinputSettingsDict count] == 0 ) {
+     menuextraTextinputSettingsDict = [[NSMutableDictionary alloc] init];
+     menuextraTextinputSettingsAttributes = @{
+     NSFileOwnerAccountName : @"root",
+     NSFileGroupOwnerAccountName : @"wheel",
+     NSFilePosixPermissions : @0644
+     };
+     }
+     DDLogDebug(@"menuextraTextinputSettingsDict=%@", menuextraTextinputSettingsDict);
+     DDLogDebug(@"menuextraTextinputSettingsAttributes=%@", menuextraTextinputSettingsAttributes);
+     menuextraTextinputSettingsDict[@"ModeNameVisible"] = @NO;
+     DDLogDebug(@"menuextraTextinputSettingsDict=%@", menuextraTextinputSettingsDict);
+     NSDictionary *modifyMenuextraTextinputSettings = @{
+     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+     NBCWorkflowModifyContent : menuextraTextinputSettingsDict,
+     NBCWorkflowModifyAttributes : menuextraTextinputSettingsAttributes,
+     NBCWorkflowModifyTargetURL : [menuextraTextinputSettingsURL path]
+     };
+     DDLogDebug(@"modifyMenuextraTextinputSettings=%@", modifyMenuextraTextinputSettings);
+     [modifyDictArray addObject:modifyMenuextraTextinputSettings];
+     */
     /*
      // --------------------------------------------------------------
      //  /Library/LaunchDaemons/com.apple.iconservices.iconservicesd.plist

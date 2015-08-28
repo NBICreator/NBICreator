@@ -439,9 +439,9 @@ DDLogLevel ddLogLevel;
     NSDate *certificateNotValidAfterDate;
     BOOL isSelfSigned = NO;
     BOOL certificateExpired = NO;
-        
+    
     certificate = SecCertificateCreateWithData(NULL, CFBridgingRetain(certificateData));
-
+    
     if ( ! certificate ) {
         DDLogError(@"[ERROR] Could not get certificate from data!");
         return nil;
@@ -1350,7 +1350,7 @@ DDLogLevel ddLogLevel;
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                 
                 // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification  
+                //  If task failed, post workflow failed notification
                 // ------------------------------------------------------------------
                 DDLogError(@"[ERROR] %@", proxyError);
             }];
@@ -1464,7 +1464,7 @@ DDLogLevel ddLogLevel;
          [[NSOperationQueue mainQueue]addOperationWithBlock:^{
          
          // ------------------------------------------------------------------
-         //  If task failed, post workflow failed notification  
+         //  If task failed, post workflow failed notification
          // ------------------------------------------------------------------
          NSLog(@"ProxyError? %@", proxyError);
          [nc removeObserver:stdOutObserver];
@@ -2324,6 +2324,42 @@ DDLogLevel ddLogLevel;
         [sourceController addARD:sourceItemsDict source:_source];
     }
     
+    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+    DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
+    if ( 11 <= sourceVersionMinor ) {
+        NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[_source installESDVolumeURL] path]];
+        NSLog(@"packageBSDPath=%@", packageBSDPath);
+        NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
+        NSArray *packageBSDRegexes;
+        if ( [packageBSDDict count] != 0 ) {
+            packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
+            NSLog(@"packageBSDRegexes=%@", packageBSDRegexes);
+            NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
+            NSLog(@"packageEssentialsPath=%@", packageEssentialsPath);
+            NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+            NSLog(@"packageEssentialsDict=%@", packageEssentialsDict);
+            NSMutableArray *packageEssentialsRegexes;
+            if ( [packageEssentialsDict count] == 0 ) {
+                packageEssentialsDict = [[NSMutableDictionary alloc] init];
+            }
+            NSLog(@"packageEssentialsDict=%@", packageEssentialsDict);
+            packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+            if ( packageEssentialsRegexes == nil )
+            {
+                packageEssentialsRegexes = [[NSMutableArray alloc] init];
+            }
+            NSLog(@"packageEssentialsRegexes=%@", packageEssentialsRegexes);
+            [packageEssentialsRegexes addObjectsFromArray:packageBSDRegexes];
+            NSLog(@"packageEssentialsRegexes=%@", packageEssentialsRegexes);
+            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+            NSLog(@"packageEssentialsDict=%@", packageEssentialsDict);
+            sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+            NSLog(@"sourceItemsDict=%@", sourceItemsDict);
+            [sourceItemsDict removeObjectForKey:packageBSDPath];
+            NSLog(@"sourceItemsDict=%@", sourceItemsDict);
+        }
+    }
+    
     resourcesSettings[NBCSettingsSourceItemsKey] = sourceItemsDict;
     
     NSMutableArray *certificates = [[NSMutableArray alloc] init];
@@ -2341,7 +2377,6 @@ DDLogLevel ddLogLevel;
     resourcesSettings[NBCSettingsPackagesKey] = packages;
     
     [workflowItem setResourcesSettings:[resourcesSettings copy]];
-    
     // -------------------------------------------------------------
     //  Instantiate all workflows to be used to create a Imagr NBI
     // -------------------------------------------------------------
