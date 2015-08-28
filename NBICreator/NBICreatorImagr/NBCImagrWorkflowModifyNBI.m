@@ -587,7 +587,6 @@ DDLogLevel ddLogLevel;
     
     int sourceVersionMinor = (int)[[[_workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     if ( 11 <= sourceVersionMinor ) {
-        NSLog(@"DODODODODOD");
         verified = [_targetController modifyRCInstall:modifyDictArray workflowItem:_workflowItem];
     }
     
