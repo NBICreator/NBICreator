@@ -617,7 +617,7 @@ DDLogLevel ddLogLevel;
      }
      */
     
-    if ( verified && userSettings[NBCSettingsUseVerboseBootKey] ) {
+    if ( verified && [userSettings[NBCSettingsUseVerboseBootKey] boolValue] ) {
         verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
     }
     
