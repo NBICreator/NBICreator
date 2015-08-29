@@ -883,7 +883,6 @@ DDLogLevel ddLogLevel;
     // ---------------------------------------------------------------
     //  /Library/Preferences/SystemConfiguration/com.apple.Boot.plist
     // ---------------------------------------------------------------
-    
     NSURL *bootSettingsURL = [volumeURL URLByAppendingPathComponent:@"i386/com.apple.Boot.plist"];
     DDLogDebug(@"bootSettingsURL=%@", bootSettingsURL);
     NSDictionary *bootSettingsAttributes;
@@ -1259,13 +1258,63 @@ DDLogLevel ddLogLevel;
     return retval;
 } // modifySettingsForLanguageAndKeyboardLayout
 
+- (BOOL)modifySettingsForImagr:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"modifyDictArray=%@", modifyDictArray);
+    BOOL retval = YES;
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // --------------------------------------------------------------
+    //  /Applications/Imagr.app/Contents/Info.plist
+    // --------------------------------------------------------------
+    NSURL *imagrInfoPlistURL = [volumeURL URLByAppendingPathComponent:@"Applications/Imagr.app/Contents/Info.plist"];
+    NSLog(@"imagrInfoPlistURL=%@", imagrInfoPlistURL);
+    DDLogDebug(@"imagrInfoPlistURL=%@", imagrInfoPlistURL);
+    NSMutableDictionary *imagrInfoPlistDict;
+    NSDictionary *imagrInfoPlistAttributes;
+    if ( [imagrInfoPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        imagrInfoPlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:imagrInfoPlistURL];
+        imagrInfoPlistAttributes = [fm attributesOfItemAtPath:[imagrInfoPlistURL path] error:&error];
+    }
+
+    if ( [imagrInfoPlistDict count] == 0 ) {
+        imagrInfoPlistDict = [[NSMutableDictionary alloc] init];
+        imagrInfoPlistAttributes = @{
+                                     NSFileOwnerAccountName : @"root",
+                                     NSFileGroupOwnerAccountName : @"wheel",
+                                     NSFilePosixPermissions : @0644
+                                     };
+    }
+    DDLogDebug(@"imagrInfoPlistDict=%@", imagrInfoPlistDict);
+    DDLogDebug(@"imagrInfoPlistAttributes=%@", imagrInfoPlistAttributes);
+    NSDictionary *atsDict = [NSDictionary dictionaryWithObject:@YES forKey:@"NSAllowsArbitraryLoads"];
+    imagrInfoPlistDict[@"NSAppTransportSecurity"] = atsDict;
+    DDLogDebug(@"imagrInfoPlistDict=%@", imagrInfoPlistDict);
+    NSDictionary *modifyImagrInfoPlist = @{
+                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                           NBCWorkflowModifyContent : imagrInfoPlistDict,
+                                           NBCWorkflowModifyAttributes : imagrInfoPlistAttributes,
+                                           NBCWorkflowModifyTargetURL : [imagrInfoPlistURL path]
+                                           };
+    DDLogDebug(@"modifyImagrInfoPlist=%@", modifyImagrInfoPlist);
+    [modifyDictArray addObject:modifyImagrInfoPlist];
+    
+    return retval;
+}
+
 - (BOOL)modifySettingsForMenuBar:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogDebug(@"modifyDictArray=%@", modifyDictArray);
     BOOL retval = YES;
     NSError *error;
-    NSDictionary *systemUIServerPreferencesAttributes;
-    NSMutableDictionary *systemUIServerPreferencesDict;
     NSFileManager *fm = [NSFileManager defaultManager];
     
     NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
@@ -1281,6 +1330,8 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  /Library/Preferences/com.apple.systemuiserver.plist
     // --------------------------------------------------------------
+    NSDictionary *systemUIServerPreferencesAttributes;
+    NSMutableDictionary *systemUIServerPreferencesDict;
     NSURL *systemUIServerPreferencesURL = [volumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.systemuiserver.plist"];
     DDLogDebug(@"systemUIServerPreferencesURL=%@", systemUIServerPreferencesURL);
     if ( [systemUIServerPreferencesURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1912,6 +1963,7 @@ DDLogLevel ddLogLevel;
         if ( [rcCdmCdrom length] != 0 ) {
             [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches 32768\n"];
             [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches/com.apple.CVMS 32768\n"];
+            [rcCdmCdrom appendString:@"RAMDisk /var/db/lsd 2048\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/db/launchd.db 2048\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/db/launchd.db/com.apple.launchd 2048\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/db/dslocal/nodes/Default/users 2048\n"];
@@ -1920,6 +1972,7 @@ DDLogLevel ddLogLevel;
             [rcCdmCdrom appendString:@"RAMDisk /Library/Logs 16384\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Logs/DiagnosticReports 4096\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Caches 65536\n"];
+            
         } else {
             DDLogError(@"[ERROR] rcCdmCdrom is nil!");
             return NO;
@@ -1946,6 +1999,91 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] %@", error);
         return NO;
     }
+    
+    return retval;
+}
+
+- (BOOL)modifyNBIRemoveBluetooth:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Disabling WiFi in NBI...");
+    BOOL retval = YES;
+    
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // --------------------------------------------------------------
+    //  /System/Library/Extensions/IOBluetoothFamily.kext
+    // --------------------------------------------------------------
+    NSURL *bluetoothKextSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IOBluetoothFamily.kext"];
+    DDLogDebug(@"bluetoothKextSourceURL=%@", bluetoothKextSourceURL);
+    NSURL *bluetoothKextTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IOBluetoothFamily.kext"];
+    NSDictionary *modifyBluetoothKext = @{
+                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                          NBCWorkflowModifySourceURL : [bluetoothKextSourceURL path],
+                                          NBCWorkflowModifyTargetURL : [bluetoothKextTargetURL path]
+                                          };
+    DDLogDebug(@"modifyBluetoothKext=%@", modifyBluetoothKext);
+    [modifyDictArray addObject:modifyBluetoothKext];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/Extensions/IOBluetoothHIDDriver.kext
+    // --------------------------------------------------------------
+    NSURL *bluetoothHIDDriverKextSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IOBluetoothHIDDriver.kext"];
+    DDLogDebug(@"bluetoothHIDDriverKextSourceURL=%@", bluetoothHIDDriverKextSourceURL);
+    NSURL *bluetoothHIDDriverKextTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IOBluetoothHIDDriver.kext"];
+    NSDictionary *modifyBluetoothHIDDriverKext = @{
+                                                   NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                                   NBCWorkflowModifySourceURL : [bluetoothHIDDriverKextSourceURL path],
+                                                   NBCWorkflowModifyTargetURL : [bluetoothHIDDriverKextTargetURL path]
+                                                   };
+    DDLogDebug(@"modifyBluetoothHIDDriverKext=%@", modifyBluetoothHIDDriverKext);
+    [modifyDictArray addObject:modifyBluetoothHIDDriverKext];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/Extensions/AppleBluetoothHIDMouse.kext
+    // --------------------------------------------------------------
+    NSURL *bluetoothHIDMouseKextSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleBluetoothHIDMouse.kext"];
+    DDLogDebug(@"bluetoothHIDMouseKextSourceURL=%@", bluetoothHIDMouseKextSourceURL);
+    NSURL *bluetoothHIDMouseKextTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothHIDMouse.kext"];
+    NSDictionary *modifyBluetoothHIDMouseKext = @{
+                                                  NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                                  NBCWorkflowModifySourceURL : [bluetoothHIDMouseKextSourceURL path],
+                                                  NBCWorkflowModifyTargetURL : [bluetoothHIDMouseKextTargetURL path]
+                                                  };
+    DDLogDebug(@"modifyBluetoothHIDMouseKext=%@", modifyBluetoothHIDMouseKext);
+    [modifyDictArray addObject:modifyBluetoothHIDMouseKext];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/Extensions/AppleBluetoothHIDKeyboard.kext
+    // --------------------------------------------------------------
+    NSURL *bluetoothHIDKeyboardKextSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleBluetoothHIDKeyboard.kext"];
+    DDLogDebug(@"bluetoothHIDKeyboardKextSourceURL=%@", bluetoothHIDKeyboardKextSourceURL);
+    NSURL *bluetoothHIDKeyboardKextTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothHIDKeyboard.kext"];
+    NSDictionary *modifyBluetoothHIDKeyboardKext = @{
+                                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                                     NBCWorkflowModifySourceURL : [bluetoothHIDKeyboardKextSourceURL path],
+                                                     NBCWorkflowModifyTargetURL : [bluetoothHIDKeyboardKextTargetURL path]
+                                                     };
+    DDLogDebug(@"modifyBluetoothHIDKeyboardKext=%@", modifyBluetoothHIDKeyboardKext);
+    [modifyDictArray addObject:modifyBluetoothHIDKeyboardKext];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/Extensions/AppleBluetoothMultitouch.kext
+    // --------------------------------------------------------------
+    NSURL *bluetoothMultitouchKextSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleBluetoothMultitouch.kext"];
+    DDLogDebug(@"bluetoothMultitouchKextSourceURL=%@", bluetoothMultitouchKextSourceURL);
+    NSURL *bluetoothMultitouchKextTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothMultitouch.kext"];
+    NSDictionary *modifyBluetoothMultitouchKext = @{
+                                                    NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                                    NBCWorkflowModifySourceURL : [bluetoothMultitouchKextSourceURL path],
+                                                    NBCWorkflowModifyTargetURL : [bluetoothMultitouchKextTargetURL path]
+                                                    };
+    DDLogDebug(@"modifyBluetoothMultitouchKext=%@", modifyBluetoothMultitouchKext);
+    [modifyDictArray addObject:modifyBluetoothMultitouchKext];
     
     return retval;
 }
@@ -2077,7 +2215,7 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] volumeURL is nil");
         return NO;
     }
-    
+
     // --------------------------------------------------------------
     //  /Library/Caches
     // --------------------------------------------------------------
@@ -2097,26 +2235,81 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"modifyFolderLibraryCache=%@", modifyFolderLibraryCache);
     [modifyDictArray addObject:modifyFolderLibraryCache];
     
-    /*
-     // --------------------------------------------------------------
-     //  /Library/Caches/com.apple.iconservices.store
-     // --------------------------------------------------------------
-     NSURL *folderLibraryCacheIconservices = [volumeURL URLByAppendingPathComponent:@"Library/Caches/com.apple.iconservices.store" isDirectory:YES];
-     DDLogDebug(@"folderLibraryCacheIconservices=%@", folderLibraryCacheIconservices);
-     NSDictionary *folderLibraryCacheIconservicesAttributes = @{
-     NSFileOwnerAccountName : @"root",
-     NSFileGroupOwnerAccountName : @"wheel",
-     NSFilePosixPermissions : @0755
-     };
-     DDLogDebug(@"folderLibraryCacheIconservicesAttributes=%@", folderLibraryCacheIconservicesAttributes);
-     NSDictionary *modifyFolderLibraryCacheIconservices = @{
-     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
-     NBCWorkflowModifyTargetURL : [folderLibraryCacheIconservices path],
-     NBCWorkflowModifyAttributes : folderLibraryCacheIconservicesAttributes
-     };
-     DDLogDebug(@"modifyFolderLibraryCacheIconservices=%@", modifyFolderLibraryCacheIconservices);
-     [modifyDictArray addObject:modifyFolderLibraryCacheIconservices];
-     */
+    // --------------------------------------------------------------
+    //  /var/db/lsd
+    // --------------------------------------------------------------
+    NSURL *folderVarDbLsd = [volumeURL URLByAppendingPathComponent:@"var/db/lsd" isDirectory:YES];
+    DDLogDebug(@"folderVarDbLsd=%@", folderVarDbLsd);
+    NSDictionary *folderVarDbLsdAttributes = @{
+                                                   NSFileOwnerAccountName : @"root",
+                                                   NSFileGroupOwnerAccountName : @"wheel",
+                                                   NSFilePosixPermissions : @0777
+                                                   };
+    DDLogDebug(@"folderVarDbLsdAttributes=%@", folderVarDbLsdAttributes);
+    NSDictionary *modifyFolderVarDbLsd = @{
+                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                               NBCWorkflowModifyTargetURL : [folderVarDbLsd path],
+                                               NBCWorkflowModifyAttributes : folderVarDbLsdAttributes
+                                               };
+    DDLogDebug(@"modifyFolderVarDbLsd=%@", modifyFolderVarDbLsd);
+    [modifyDictArray addObject:modifyFolderVarDbLsd];
+    
+    // --------------------------------------------------------------
+    //  /var/db/launchd.db
+    // --------------------------------------------------------------
+    NSURL *folderVarDbLaunchdb = [volumeURL URLByAppendingPathComponent:@"var/db/launchd.db" isDirectory:YES];
+    DDLogDebug(@"folderVarDbLaunchdb=%@", folderVarDbLaunchdb);
+    NSDictionary *folderVarDbLaunchdbAttributes = @{
+                                               NSFileOwnerAccountName : @"root",
+                                               NSFileGroupOwnerAccountName : @"wheel",
+                                               NSFilePosixPermissions : @0777
+                                               };
+    DDLogDebug(@"folderVarDbLaunchdbAttributes=%@", folderVarDbLaunchdbAttributes);
+    NSDictionary *modifyFolderVarDbLaunchdb = @{
+                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                           NBCWorkflowModifyTargetURL : [folderVarDbLaunchdb path],
+                                           NBCWorkflowModifyAttributes : folderVarDbLaunchdbAttributes
+                                           };
+    DDLogDebug(@"modifyFolderVarDbLaunchdb=%@", modifyFolderVarDbLaunchdb);
+    [modifyDictArray addObject:modifyFolderVarDbLaunchdb];
+    
+    // --------------------------------------------------------------
+    //  /Library/LaunchAgents
+    // --------------------------------------------------------------
+    NSURL *folderLibraryLaunchAgents = [volumeURL URLByAppendingPathComponent:@"Library/LaunchAgents" isDirectory:YES];
+    DDLogDebug(@"folderLibraryLaunchAgents=%@", folderLibraryLaunchAgents);
+    NSDictionary *folderLibraryLaunchAgentsAttributes = @{
+                                                          NSFileOwnerAccountName : @"root",
+                                                          NSFileGroupOwnerAccountName : @"wheel",
+                                                          NSFilePosixPermissions : @0755
+                                                          };
+    DDLogDebug(@"folderLibraryLaunchAgentsAttributes=%@", folderLibraryLaunchAgentsAttributes);
+    NSDictionary *modifyFolderLibraryLaunchAgents = @{
+                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                      NBCWorkflowModifyTargetURL : [folderLibraryLaunchAgents path],
+                                                      NBCWorkflowModifyAttributes : folderLibraryLaunchAgentsAttributes
+                                                      };
+    DDLogDebug(@"modifyFolderLibraryLaunchAgents=%@", modifyFolderLibraryLaunchAgents);
+    [modifyDictArray addObject:modifyFolderLibraryLaunchAgents];
+    
+    // --------------------------------------------------------------
+    //  /Library/LaunchDaemons
+    // --------------------------------------------------------------
+    NSURL *folderLibraryLaunchDaemons = [volumeURL URLByAppendingPathComponent:@"Library/LaunchDaemons" isDirectory:YES];
+    DDLogDebug(@"folderLibraryLaunchDaemons=%@", folderLibraryLaunchDaemons);
+    NSDictionary *folderLibraryLaunchDaemonsAttributes = @{
+                                                           NSFileOwnerAccountName : @"root",
+                                                           NSFileGroupOwnerAccountName : @"wheel",
+                                                           NSFilePosixPermissions : @0755
+                                                           };
+    DDLogDebug(@"folderLibraryLaunchDaemonsAttributes=%@", folderLibraryLaunchDaemonsAttributes);
+    NSDictionary *modifyFolderLibraryLaunchDaemons = @{
+                                                       NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                       NBCWorkflowModifyTargetURL : [folderLibraryLaunchDaemons path],
+                                                       NBCWorkflowModifyAttributes : folderLibraryLaunchDaemonsAttributes
+                                                       };
+    DDLogDebug(@"modifyFolderLibraryLaunchDaemons=%@", modifyFolderLibraryLaunchDaemons);
+    [modifyDictArray addObject:modifyFolderLibraryLaunchDaemons];
     
     // --------------------------------------------------------------
     //  /System/Library/Caches

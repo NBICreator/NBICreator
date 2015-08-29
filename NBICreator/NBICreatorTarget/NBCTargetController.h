@@ -43,6 +43,7 @@
 // ------------------------------------------------------
 - (BOOL)settingsToRemove:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifyRCInstall:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
+- (BOOL)modifySettingsForImagr:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifySettingsForKextd:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifySettingsForRCCdrom:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifySettingsForBootPlist:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
