@@ -455,6 +455,9 @@ extern NSString *const NBCAlertUserInfoBuildNBI;
 extern NSString *const NBCHelpURL;
 
 extern NSString *const NBCVariableIndexCounter;
+extern NSString *const NBCVariableDate;
+extern NSString *const NBCVariableNBICreatorVersion;
+extern NSString *const NBCVariableApplicationResourcesURL;
 
 extern NSString *const NBCTableViewIdentifierCertificates;
 extern NSString *const NBCTableViewIdentifierPackages;

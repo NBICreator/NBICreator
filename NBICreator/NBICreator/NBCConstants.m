@@ -480,6 +480,9 @@ NSString *const NBCResourcesDeployStudioLatestVersionKey = @"LatestVersion";
 NSString *const NBCHelpURL = @"https://github.com/NBICreator/NBICreator/wiki";
 
 NSString *const NBCVariableIndexCounter = @"%COUNTER%";
+NSString *const NBCVariableDate = @"%DATE%";
+NSString *const NBCVariableNBICreatorVersion = @"%NBCVERSION%";
+NSString *const NBCVariableApplicationResourcesURL = @"%APPLICATIONRESOURCESURL%";
 
 NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
 NSString *const NBCTableViewIdentifierPackages = @"tableViewPackages";

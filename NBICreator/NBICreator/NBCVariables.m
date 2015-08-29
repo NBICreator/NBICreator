@@ -21,10 +21,6 @@ DDLogLevel ddLogLevel;
 + (NSString *)expandVariables:(NSString *)string source:(NBCSource *)source applicationSource:(id)applicationSource {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *newString = string;
-    NSString *variableDate = @"%DATE%";
-    NSString *variableIndexCounter = NBCVariableIndexCounter;
-    NSString *variableApplicationResourcesURL = @"%APPLICATIONRESOURCESURL%";
-    NSString *variableNBICreatorVersion = @"%NBCVERSION%";
     
     // -------------------------------------------------------------
     //  Expand variables for current application version
@@ -33,7 +29,7 @@ DDLogLevel ddLogLevel;
     NSString *nbiCreatorVersion = nbiCreatorInfoDict[@"CFBundleShortVersionString"];
     NSString *nbiCreatorBuild = nbiCreatorInfoDict[@"CFBundleVersion"];
     NSString *nbiCreatorVersionString = [NSString stringWithFormat:@"%@-%@", nbiCreatorVersion, nbiCreatorBuild];
-    newString = [newString stringByReplacingOccurrencesOfString:variableNBICreatorVersion
+    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableNBICreatorVersion
                                                      withString:nbiCreatorVersionString];
     
     // -------------------------------------------------------------
@@ -62,7 +58,7 @@ DDLogLevel ddLogLevel;
         indexCounter = @"1024";
     }
     
-    newString = [newString stringByReplacingOccurrencesOfString:variableIndexCounter
+    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableIndexCounter
                                                      withString:indexCounter];
     
     // --------------------------------------------------------------
@@ -71,7 +67,7 @@ DDLogLevel ddLogLevel;
     NSString *applicationResourcesURL;
     applicationResourcesURL = [[NSBundle mainBundle] resourcePath];
     
-    newString = [newString stringByReplacingOccurrencesOfString:variableApplicationResourcesURL
+    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableApplicationResourcesURL
                                                      withString:applicationResourcesURL];
     
     // --------------------------------------------------------------
@@ -85,7 +81,7 @@ DDLogLevel ddLogLevel;
     [dateFormatter setDateFormat:dateFormatString];
     NSString *formattedDate = [dateFormatter stringFromDate:date];
     
-    newString = [newString stringByReplacingOccurrencesOfString:variableDate
+    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableDate
                                                      withString:formattedDate];
     return newString;
 } // expandVariables
