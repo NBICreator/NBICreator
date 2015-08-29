@@ -62,6 +62,8 @@ NSString *const NBCUserDefaultsNetBootSelection = @"NetBootSelection";
 NSString *const NBCUserDefaultsDateFormatString = @"DateFormatString";
 NSString *const NBCUserDefaultsLogLevel = @"LogLevel";
 NSString *const NBCUserDefaultsCheckForUpdates = @"CheckForUpdates";
+NSString *const NBCUserDefaultsUserNotificationsEnabled = @"UserNotificationsEnabled";
+NSString *const NBCUserDefaultsUserNotificationsSoundEnabled = @"UserNotificationsSoundEnabled";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Menu Items
@@ -180,6 +182,7 @@ NSString *const NBCSettingsImagrDownloadPython = @"ImagrDownloadPython";
 NSString *const NBCSettingsImagrUseLocalVersion = @"ImagrUseLocalVersion";
 NSString *const NBCSettingsImagrLocalVersionPath = @"ImagrLocalVersionPath";
 NSString *const NBCSettingsImagrSourceIsNBI = @"IsNBI";
+NSString *const NBCSettingsImagrDisableATS = @"ImagrDisableATS";
 NSString *const NBCSettingsImagrVersionLatest = @"ImagrVersionLatest";
 
 // --------------------------------------------------------------

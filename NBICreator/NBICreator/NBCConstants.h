@@ -62,6 +62,8 @@ extern NSString *const NBCUserDefaultsNetBootSelection;
 extern NSString *const NBCUserDefaultsDateFormatString;
 extern NSString *const NBCUserDefaultsLogLevel;
 extern NSString *const NBCUserDefaultsCheckForUpdates;
+extern NSString *const NBCUserDefaultsUserNotificationsEnabled;
+extern NSString *const NBCUserDefaultsUserNotificationsSoundEnabled;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Menu Items
@@ -160,7 +162,7 @@ extern NSString *const NBCSettingsImagrDownloadPython;
 extern NSString *const NBCSettingsImagrUseLocalVersion;
 extern NSString *const NBCSettingsImagrLocalVersionPath;
 extern NSString *const NBCSettingsImagrSourceIsNBI;
-
+extern NSString *const NBCSettingsImagrDisableATS;
 extern NSString *const NBCSettingsImagrVersionLatest;
 
 // --------------------------------------------------------------

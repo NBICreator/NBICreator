@@ -214,8 +214,8 @@
                         </connections>
                     </progressIndicator>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="JEY-5C-17f">
-                        <rect key="frame" x="187" y="184" width="180" height="18"/>
-                        <buttonCell key="cell" type="check" title="Enable sound for notifications" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="6vX-Xe-ESY">
+                        <rect key="frame" x="187" y="184" width="231" height="18"/>
+                        <buttonCell key="cell" type="check" title="Enable Sound for Desktop Notifications" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="6vX-Xe-ESY">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
                         </buttonCell>
@@ -225,8 +225,8 @@
                         </connections>
                     </button>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="QAv-eg-Mgk">
-                        <rect key="frame" x="173" y="205" width="211" height="18"/>
-                        <buttonCell key="cell" type="check" title="Enable Mac OS X Notifications" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="H2c-zy-pIa">
+                        <rect key="frame" x="173" y="205" width="201" height="18"/>
+                        <buttonCell key="cell" type="check" title="Enable Desktop Notifications" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="H2c-zy-pIa">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
