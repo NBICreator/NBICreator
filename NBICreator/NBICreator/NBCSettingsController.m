@@ -57,6 +57,12 @@ DDLogLevel ddLogLevel;
         case kWorkflowTypeImagr:
         {
             // ------------------------------------------------------------------------
+            //  Check that OS Version isn't lower than source for System Image Utility
+            // ------------------------------------------------------------------------
+            NSDictionary *osVersion = [self verifySettingsOSVersion:workflowItem];
+            [settings addObject:osVersion];
+            
+            // ------------------------------------------------------------------------
             //  Check all settings in the tab "Options"
             // ------------------------------------------------------------------------
             NSDictionary *settingsTabOptions = [self verifySettingsTabOptions:workflowItem];
@@ -215,6 +221,25 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 #pragma mark
 #pragma mark -
+
+- (NSDictionary *)verifySettingsOSVersion:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+
+    if ( [[[workflowItem userSettings] objectForKey:NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
+        NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+        int osVersionMinor = (int)version.minorVersion;
+        int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+        if ( osVersionMinor < sourceVersionMinor ) {
+            NSString *osVersionString = [NSString stringWithFormat:@"%ld.%ld.%ld", version.majorVersion, version.minorVersion, version.patchVersion];
+            NSString *errorMessage = [NSString stringWithFormat:@"Source Version Mismatch.\nThis source contains OS X %@.\nYou are currently booted on OS X %@\n\nYou cannot create a NetInstall image using System Image Utility from sources with higher OS Minor Versions than your booted system.\n\nUse NBICreator as NetBoot creation tool instead, or use this software on a computer running %@", [[workflowItem source] baseSystemOSVersion], osVersionString, [[workflowItem source] baseSystemOSVersion]];
+            [settingsErrors addObject:errorMessage];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
 
 - (NSDictionary *)verifySettingsPackages:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

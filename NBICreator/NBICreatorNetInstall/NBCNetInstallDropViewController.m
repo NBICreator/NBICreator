@@ -58,6 +58,7 @@ DDLogLevel ddLogLevel;
     _sourceDictLinks = [[NSMutableDictionary alloc] init];
     _sourceDictSources = [[NSMutableDictionary alloc] init];
     [self setInstallerApplicationIdentifiers:@[
+                                               @"com.apple.InstallAssistant.OSX11Seed1",
                                                @"com.apple.InstallAssistant.Yosemite",
                                                @"com.apple.InstallAssistant.Mavericks",
                                                @"com.apple.InstallAssistant.MountainLion",
@@ -187,9 +188,9 @@ DDLogLevel ddLogLevel;
     // ---------------------------------------------------------
     //  Post notification to update source
     // ---------------------------------------------------------
-    NSDictionary *userInfo = @{ NBCNotificationUpdateSourceUserInfoSource : source };
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc postNotificationName:NBCNotificationNetInstallUpdateSource object:self userInfo:userInfo];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationNetInstallUpdateSource
+                                                        object:self
+                                                      userInfo:@{ NBCNotificationUpdateSourceUserInfoSource : source }];
     
     // ---------------------------------------------------------
     //  Show source info in UI
@@ -552,6 +553,17 @@ DDLogLevel ddLogLevel;
             }
         } else {
             NSLog(@"Invalid source!");
+        }
+        
+        if ( verified ) {
+            NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+            int osVersionMinor = (int)version.minorVersion;
+            int sourceVersionMinor = (int)[[newSource expandVariables:@"%OSMINOR%"] integerValue];
+            if ( osVersionMinor < sourceVersionMinor ) {
+                NSString *osVersionString = [NSString stringWithFormat:@"%ld.%ld.%ld", version.majorVersion, version.minorVersion, version.patchVersion];
+                errorMessage = [NSString stringWithFormat:@"This source contains OS X %@.\nYou are currently booted on OS X %@\n\nYou cannot create a NetInstall image using System Image Utility from sources with higher OS Minor Versions than your booted system.", [newSource baseSystemOSVersion], osVersionString];
+                verified = NO;
+            }
         }
         
         if ( verified ) {
