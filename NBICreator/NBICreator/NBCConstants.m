@@ -121,6 +121,7 @@ NSString *const NBCSettingsIconKey = @"Icon";
 #pragma mark Template Keys - Options
 ////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCSettingsDisableWiFiKey = @"DisableWiFi";
+NSString *const NBCSettingsDisableBluetoothKey = @"DisableBluetooth";
 NSString *const NBCSettingsDisplaySleepKey = @"DisplaySleep";
 NSString *const NBCSettingsDisplaySleepMinutesKey = @"DisplaySleepMinutes";
 NSString *const NBCSettingsIncludeSystemUIServerKey = @"IncludeSystemUIServer";
@@ -388,6 +389,7 @@ NSString *const NBCImagrRCInstallTargetURL = @"etc/rc.install";
 NSString *const NBCImagrGitHubRepository = @"grahamgilbert/imagr";
 
 NSString *const NBCNBICreatorGitHubRepository = @"NBICreator/NBICreator";
+NSString *const NBCNBICreatorResourcesGitHubRepository = @"NBICreator/NBICreatorResources";
 
 // --------------------------------------------------------------
 //  NBCDownloader
@@ -397,6 +399,7 @@ NSString *const NBCDownloaderTagPython = @"NBCDownloaderTagPython";
 NSString *const NBCDownloaderTagImagr = @"NBCDownloaderTagImagr";
 NSString *const NBCDownloaderTagDeployStudio = @"NBCDownloaderTagDeployStudio";
 NSString *const NBCDownloaderTagNBICreator = @"NBCDownloaderTagNBICreator";
+NSString *const NBCDownloaderTagNBICreatorResources = @"NBCDownloaderTagNBICreatorResources";
 NSString *const NBCDownloaderVersion = @"Version";
 
 // --------------------------------------------------------------

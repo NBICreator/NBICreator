@@ -121,6 +121,7 @@ extern NSString *const NBCSettingsIconKey;
 #pragma mark Template Keys - Options
 ////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCSettingsDisableWiFiKey;
+extern NSString *const NBCSettingsDisableBluetoothKey;
 extern NSString *const NBCSettingsDisplaySleepKey;
 extern NSString *const NBCSettingsDisplaySleepMinutesKey;
 extern NSString *const NBCSettingsIncludeSystemUIServerKey;
@@ -349,6 +350,7 @@ extern NSString *const NBCDownloaderTagPython;
 extern NSString *const NBCDownloaderTagImagr;
 extern NSString *const NBCDownloaderTagDeployStudio;
 extern NSString *const NBCDownloaderTagNBICreator;
+extern NSString *const NBCDownloaderTagNBICreatorResources;
 extern NSString *const NBCDownloaderVersion;
 
 extern NSString *const NBCTargetFolderMinFreeSizeInGB;
@@ -404,7 +406,7 @@ extern NSString *const NBCImagrGitHubRepository;
 
 
 extern NSString *const NBCNBICreatorGitHubRepository;
-
+extern NSString *const NBCNBICreatorResourcesGitHubRepository;
 
 // --------------------------------------------------------------
 //  Certificate TableView Keys

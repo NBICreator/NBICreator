@@ -625,7 +625,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="AE8-iw-fSx">
-                                        <rect key="frame" x="18" y="240" width="176" height="18"/>
+                                        <rect key="frame" x="18" y="217" width="176" height="18"/>
                                         <buttonCell key="cell" type="check" title="Put display to sleep after" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="TIf-oE-8ct">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -635,7 +635,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4eo-Ew-vtt">
-                                        <rect key="frame" x="200" y="239" width="60" height="22"/>
+                                        <rect key="frame" x="200" y="216" width="60" height="22"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="60" id="wew-Cg-wXS"/>
                                         </constraints>
@@ -655,7 +655,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lSG-mW-c27">
-                                        <rect key="frame" x="266" y="241" width="53" height="17"/>
+                                        <rect key="frame" x="266" y="218" width="53" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="minutes" id="LGn-SC-ZcH">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -763,7 +763,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="LuM-gP-Ek6">
-                                        <rect key="frame" x="18" y="217" width="259" height="18"/>
+                                        <rect key="frame" x="18" y="194" width="259" height="18"/>
                                         <buttonCell key="cell" type="check" title="Include SystemUIServer (Menu Extras)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="sVq-bE-oew">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -783,13 +783,30 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="GsR-k3-fV3">
-                                        <rect key="frame" x="18" y="194" width="293" height="18"/>
+                                        <rect key="frame" x="18" y="171" width="293" height="18"/>
                                         <buttonCell key="cell" type="check" title="Always boot in verbose mode (Command-V)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="aSk-6u-rJj">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
                                             <binding destination="-2" name="value" keyPath="self.useVerboseBoot" id="OLR-1W-sMh"/>
+                                        </connections>
+                                    </button>
+                                    <button hidden="YES" horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="YJM-iT-2tU">
+                                        <rect key="frame" x="18" y="148" width="475" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Disable currently released unsupported hardware from accessing this NBI" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="1Uz-cl-uE8">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                    </button>
+                                    <button translatesAutoresizingMaskIntoConstraints="NO" id="AKh-5N-jNQ">
+                                        <rect key="frame" x="18" y="240" width="132" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Disable Bluetooth" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="UGQ-3r-lYE">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.disableBluetooth" id="5Gn-YK-qSK"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -814,11 +831,13 @@ asdasd</string>
                                     <constraint firstItem="ng4-VJ-jJ3" firstAttribute="top" secondItem="BgM-LU-gAy" secondAttribute="bottom" constant="8" symbolic="YES" id="Oi3-A5-YYS"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="leading" secondItem="amG-dw-kSU" secondAttribute="leading" constant="20" symbolic="YES" id="Tra-UI-3i1"/>
                                     <constraint firstAttribute="trailing" secondItem="czc-3w-Cgp" secondAttribute="trailing" constant="20" symbolic="YES" id="WW4-cY-MKK"/>
+                                    <constraint firstItem="AKh-5N-jNQ" firstAttribute="leading" secondItem="IKx-1c-tDW" secondAttribute="leading" id="Xgo-aA-cq7"/>
                                     <constraint firstItem="AE8-iw-fSx" firstAttribute="baseline" secondItem="lSG-mW-c27" secondAttribute="baseline" id="ZJN-30-mGA"/>
                                     <constraint firstAttribute="bottom" secondItem="ewi-2M-r1K" secondAttribute="bottom" constant="20" symbolic="YES" id="aQf-jU-eqb"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="top" secondItem="amG-dw-kSU" secondAttribute="top" constant="20" symbolic="YES" id="at7-kP-eYC"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="leading" secondItem="IKx-1c-tDW" secondAttribute="leading" id="auv-WM-uDL"/>
-                                    <constraint firstItem="AE8-iw-fSx" firstAttribute="top" secondItem="IKx-1c-tDW" secondAttribute="bottom" constant="9" id="g3N-L0-D1K"/>
+                                    <constraint firstItem="AE8-iw-fSx" firstAttribute="top" secondItem="AKh-5N-jNQ" secondAttribute="bottom" constant="9" id="bn8-Uf-CYb"/>
+                                    <constraint firstItem="AKh-5N-jNQ" firstAttribute="top" secondItem="IKx-1c-tDW" secondAttribute="bottom" constant="9" id="dkd-b4-78z"/>
                                     <constraint firstItem="ep3-FH-vz8" firstAttribute="top" secondItem="OXa-Ei-ogf" secondAttribute="bottom" constant="8" symbolic="YES" id="hXp-I6-fU3"/>
                                     <constraint firstItem="le5-Gh-tjW" firstAttribute="leading" secondItem="ep3-FH-vz8" secondAttribute="leading" id="hvT-nj-M1g"/>
                                     <constraint firstItem="BgM-LU-gAy" firstAttribute="top" secondItem="ulR-LX-e1A" secondAttribute="bottom" constant="20" id="j4B-B6-IEq"/>
@@ -826,6 +845,8 @@ asdasd</string>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="centerX" secondItem="R4V-bE-WQo" secondAttribute="centerX" id="mRR-QG-BR7"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="leading" secondItem="ng4-VJ-jJ3" secondAttribute="leading" id="mq8-ta-HRi"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="width" secondItem="R4V-bE-WQo" secondAttribute="width" id="ndB-mg-QCb"/>
+                                    <constraint firstItem="YJM-iT-2tU" firstAttribute="top" secondItem="GsR-k3-fV3" secondAttribute="bottom" constant="9" id="oDC-Jq-2ha"/>
+                                    <constraint firstItem="YJM-iT-2tU" firstAttribute="leading" secondItem="GsR-k3-fV3" secondAttribute="leading" id="oVR-iF-eT3"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="leading" secondItem="ep3-FH-vz8" secondAttribute="trailing" constant="8" symbolic="YES" id="ovX-NA-szb"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="centerY" secondItem="R4V-bE-WQo" secondAttribute="centerY" id="pQU-VN-bFL"/>
                                     <constraint firstItem="FMB-Sz-PUq" firstAttribute="leading" secondItem="OXa-Ei-ogf" secondAttribute="trailing" constant="8" symbolic="YES" id="qrU-ri-YzX"/>
@@ -1323,7 +1344,7 @@ asdasd</string>
                 <constraint firstItem="mQE-7Z-sVv" firstAttribute="top" secondItem="Cqk-Q9-aw2" secondAttribute="bottom" constant="12" id="vVy-QV-A97"/>
                 <constraint firstAttribute="trailing" secondItem="mQE-7Z-sVv" secondAttribute="trailing" id="wK3-F5-wox"/>
             </constraints>
-            <point key="canvasLocation" x="-2322" y="57"/>
+            <point key="canvasLocation" x="-2353" y="46"/>
         </customView>
         <viewController id="MGh-e9-k1U" userLabel="Popover View Controller">
             <connections>
@@ -1795,6 +1816,17 @@ asdasd</string>
             </constraints>
             <point key="canvasLocation" x="-2314.5" y="489"/>
         </customView>
+        <button id="f5I-Xt-nTE">
+            <rect key="frame" x="0.0" y="0.0" width="66" height="18"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <buttonCell key="cell" type="check" title="Default" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="GOR-tY-UiW">
+                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                <font key="font" metaFont="system"/>
+            </buttonCell>
+            <connections>
+                <binding destination="-2" name="value" keyPath="self.nbiDefault" id="IzH-nJ-LCT"/>
+            </connections>
+        </button>
     </objects>
     <resources>
         <image name="IconImagr" width="512" height="512"/>

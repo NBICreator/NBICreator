@@ -921,6 +921,7 @@ DDLogLevel ddLogLevel;
     [self setDestinationFolder:settingsDict[NBCSettingsDestinationFolderKey]];
     [self setNbiIconPath:settingsDict[NBCSettingsIconKey]];
     [self setDisableWiFi:[settingsDict[NBCSettingsDisableWiFiKey] boolValue]];
+    [self setDisableBluetooth:[settingsDict[NBCSettingsDisableBluetoothKey] boolValue]];
     [self setDisplaySleep:[settingsDict[NBCSettingsDisplaySleepKey] boolValue]];
     [self setDisplaySleepMinutes:settingsDict[NBCSettingsDisplaySleepMinutesKey]];
     [self setIncludeSystemUIServer:[settingsDict[NBCSettingsIncludeSystemUIServerKey] boolValue]];
@@ -1060,6 +1061,7 @@ DDLogLevel ddLogLevel;
     }
     settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
     settingsDict[NBCSettingsDisableWiFiKey] = @(_disableWiFi) ?: @NO;
+    settingsDict[NBCSettingsDisableBluetoothKey] = @(_disableBluetooth) ?: @NO;
     settingsDict[NBCSettingsDisplaySleepKey] = @(_displaySleep) ?: @NO;
     settingsDict[NBCSettingsDisplaySleepMinutesKey] = _displaySleepMinutes ?: @"30";
     settingsDict[NBCSettingsIncludeSystemUIServerKey] = @(_includeSystemUIServer) ?: @NO;
@@ -2295,7 +2297,7 @@ DDLogLevel ddLogLevel;
     //[sourceController addNSURLStoraged:sourceItemsDict source:_source];
     
     // - Kernel
-    if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] ) {
+    if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] || [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
         [sourceController addKernel:sourceItemsDict source:_source];
     }
     
@@ -2323,7 +2325,6 @@ DDLogLevel ddLogLevel;
     if ( [userSettings[NBCSettingsARDLoginKey] length] != 0 && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
         [sourceController addARD:sourceItemsDict source:_source];
     }
-    
     
     // -------------------------------------------------------------
     //  In OS X 10.11 all sources moved to Essentials.pkg

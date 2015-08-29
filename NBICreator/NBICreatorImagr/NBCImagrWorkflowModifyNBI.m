@@ -632,6 +632,10 @@ DDLogLevel ddLogLevel;
         verified = [_targetController modifyNBIRemoveWiFi:modifyDictArray workflowItem:_workflowItem];
     }
     
+    if ( verified && [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
+        verified = [_targetController modifyNBIRemoveBluetooth:modifyDictArray workflowItem:_workflowItem];
+    }
+    
     if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
         if ( [_targetController modifySettingsAddFolders:modifyDictArray workflowItem:_workflowItem] ) {
             if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {

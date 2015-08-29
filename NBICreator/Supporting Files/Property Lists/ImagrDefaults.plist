@@ -24,6 +24,8 @@
 	<false/>
 	<key>DisableWiFi</key>
 	<false/>
+	<key>DisableBluetooth</key>
+	<false/>
 	<key>NBICreationTool</key>
 	<string>NBICreator</string>
 	<key>ARDPassword</key>

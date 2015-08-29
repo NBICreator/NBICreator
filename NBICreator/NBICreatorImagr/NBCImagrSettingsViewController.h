@@ -157,6 +157,7 @@
 @property NSString *destinationFolder;
 
 @property BOOL disableWiFi;
+@property BOOL disableBluetooth;
 @property BOOL displaySleep;
 @property BOOL includeSystemUIServer;
 @property NSString *displaySleepMinutes;

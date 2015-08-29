@@ -52,6 +52,7 @@
 - (BOOL)modifySettingsForMenuBar:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifySettingsForVNC:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifySettingsAddFolders:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
+- (BOOL)modifyNBIRemoveBluetooth:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifyNBIRemoveWiFi:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifyNBINTP:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 
