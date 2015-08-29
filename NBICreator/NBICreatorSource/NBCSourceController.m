@@ -739,6 +739,12 @@ DDLogLevel ddLogLevel;
         packageBSDRegexes = [[NSMutableArray alloc] init];
     }
     
+    int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 11 <= sourceVersionMinor ) {
+        NSString *regexSntpWrapper = @".*/sntp-wrapper.*";
+        [packageBSDRegexes addObject:regexSntpWrapper];
+    }
+    
     NSString *regexNTPDate = @".*/sbin/ntpdate.*";
     DDLogDebug(@"regexNTPDate=%@", regexNTPDate);
     [packageBSDRegexes addObject:regexNTPDate];
@@ -803,6 +809,10 @@ DDLogLevel ddLogLevel;
         packageBSDRegexes = [[NSMutableArray alloc] init];
     }
     
+    // Temporary Location
+    NSString *regexNetworkd = @".*(/|com.apple.)networkd.*";
+    [packageBSDRegexes addObject:regexNetworkd];
+    
     NSString *regexSpctl = @".*spctl.*";
     DDLogDebug(@"regexSpctl=%@", regexSpctl);
     [packageBSDRegexes addObject:regexSpctl];
@@ -852,6 +862,18 @@ DDLogLevel ddLogLevel;
     
     NSString *regexSystemUIServer = @".*SystemUIServer.*";
     [packageEssentialsRegexes addObject:regexSystemUIServer];
+    
+    int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 11 <= sourceVersionMinor ) {
+        NSString *regexFrameworkAVFoundation = @".*AVFoundation.framework.*";
+        [packageEssentialsRegexes addObject:regexFrameworkAVFoundation];
+        
+        NSString *regexFrameworkAPTransport = @".*APTransport.framework.*";
+        [packageEssentialsRegexes addObject:regexFrameworkAPTransport];
+        
+        NSString *regexFrameworkWirelessProximity = @".*WirelessProximity.framework.*";
+        [packageEssentialsRegexes addObject:regexFrameworkWirelessProximity];
+    }
     
     NSString *regexFrameworkMediaControlSender = @".*MediaControlSender.framework.*";
     [packageEssentialsRegexes addObject:regexFrameworkMediaControlSender];
@@ -940,6 +962,12 @@ DDLogLevel ddLogLevel;
     } else {
         packageEssentialsDict = [[NSMutableDictionary alloc] init];
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 11 <= sourceVersionMinor ) {
+        NSString *regexAppleVNCServer = @".*/AppleVNCServer.bundle.*";
+        [packageEssentialsRegexes addObject:regexAppleVNCServer];
     }
     
     NSString *regexScreensharingPreferences = @".*/Preferences/com.apple.RemoteManagement.*";

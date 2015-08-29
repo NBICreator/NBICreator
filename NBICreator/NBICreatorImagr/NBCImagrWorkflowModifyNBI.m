@@ -587,7 +587,13 @@ DDLogLevel ddLogLevel;
     
     int sourceVersionMinor = (int)[[[_workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     if ( 11 <= sourceVersionMinor ) {
-        verified = [_targetController modifyRCInstall:modifyDictArray workflowItem:_workflowItem];
+        if ( verified ) {
+            verified = [_targetController modifyRCInstall:modifyDictArray workflowItem:_workflowItem];
+        }
+        
+        if ( verified && [userSettings[NBCSettingsImagrDisableATS] boolValue] ) {
+            verified = [_targetController modifySettingsForImagr:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
     if ( verified ) {
@@ -611,6 +617,8 @@ DDLogLevel ddLogLevel;
      verified = [_targetController modifySettingsForFindMyDeviced:modifyDictArray workflowItem:_workflowItem];
      }
      */
+    
+    
     
     if ( verified && [userSettings[NBCSettingsUseVerboseBootKey] boolValue] ) {
         verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
@@ -636,14 +644,15 @@ DDLogLevel ddLogLevel;
         verified = [_targetController modifyNBIRemoveBluetooth:modifyDictArray workflowItem:_workflowItem];
     }
     
+    if ( verified ) {
+        verified = [_targetController modifySettingsAddFolders:modifyDictArray workflowItem:_workflowItem];
+    }
+    
     if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
-        if ( [_targetController modifySettingsAddFolders:modifyDictArray workflowItem:_workflowItem] ) {
-            if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
-                if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
-                    shouldAddUsers = YES;
-                } else {
-                    verified = NO;
-                }
+        
+        if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
+            if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
+                shouldAddUsers = YES;
             } else {
                 verified = NO;
             }
@@ -674,7 +683,7 @@ DDLogLevel ddLogLevel;
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                 
                 // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification  
+                //  If task failed, post workflow failed notification
                 // ------------------------------------------------------------------
                 DDLogError(@"%@", proxyError);
                 [self modifyFailed];
@@ -784,7 +793,7 @@ DDLogLevel ddLogLevel;
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                 
                 // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification  
+                //  If task failed, post workflow failed notification
                 // ------------------------------------------------------------------
                 DDLogError(@"%@", proxyError);
                 [nc removeObserver:stdOutObserver];
@@ -978,7 +987,7 @@ DDLogLevel ddLogLevel;
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
-
+    
     DDLogDebug(@"[DEBUG] generateKernelCacheVariables=%@", generateKernelCacheVariables);
     if ( [generateKernelCacheVariables count] == 4 ) {
         NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
@@ -988,7 +997,7 @@ DDLogLevel ddLogLevel;
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                 
                 // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification  
+                //  If task failed, post workflow failed notification
                 // ------------------------------------------------------------------
                 DDLogError(@"%@", proxyError);
                 [nc removeObserver:stdOutObserver];
@@ -1176,7 +1185,7 @@ DDLogLevel ddLogLevel;
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             
             // ------------------------------------------------------------------
-            //  If task failed, post workflow failed notification  
+            //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
             DDLogError(@"%@", proxyError);
             [nc removeObserver:stdOutObserver];
@@ -1219,7 +1228,7 @@ DDLogLevel ddLogLevel;
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                 
                 // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification  
+                //  If task failed, post workflow failed notification
                 // ------------------------------------------------------------------
                 DDLogError(@"%@", proxyError);
                 [self modifyFailed];
@@ -1324,7 +1333,7 @@ DDLogLevel ddLogLevel;
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             
             // ------------------------------------------------------------------
-            //  If task failed, post workflow failed notification  
+            //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
             DDLogError(@"%@", proxyError);
             [nc removeObserver:stdOutObserver];
