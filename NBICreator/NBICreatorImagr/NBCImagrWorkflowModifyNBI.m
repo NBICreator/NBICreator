@@ -603,10 +603,6 @@ DDLogLevel ddLogLevel;
     }
     
     if ( verified ) {
-        verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
-    }
-    
-    if ( verified ) {
         verified = [_targetController modifySettingsForKextd:modifyDictArray workflowItem:_workflowItem];
     }
     
@@ -978,8 +974,7 @@ DDLogLevel ddLogLevel;
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
-    
-    
+
     DDLogDebug(@"[DEBUG] generateKernelCacheVariables=%@", generateKernelCacheVariables);
     if ( [generateKernelCacheVariables count] == 4 ) {
         NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
