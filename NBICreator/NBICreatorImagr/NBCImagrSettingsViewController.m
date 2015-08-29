@@ -2324,39 +2324,33 @@ DDLogLevel ddLogLevel;
         [sourceController addARD:sourceItemsDict source:_source];
     }
     
+    
+    // -------------------------------------------------------------
+    //  In OS X 10.11 all sources moved to Essentials.pkg
+    //  This moves all BSD-regexes to Essentials
+    // -------------------------------------------------------------
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
     if ( 11 <= sourceVersionMinor ) {
         NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[_source installESDVolumeURL] path]];
-        NSLog(@"packageBSDPath=%@", packageBSDPath);
         NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
         NSArray *packageBSDRegexes;
         if ( [packageBSDDict count] != 0 ) {
             packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
-            NSLog(@"packageBSDRegexes=%@", packageBSDRegexes);
             NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
-            NSLog(@"packageEssentialsPath=%@", packageEssentialsPath);
             NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
-            NSLog(@"packageEssentialsDict=%@", packageEssentialsDict);
             NSMutableArray *packageEssentialsRegexes;
             if ( [packageEssentialsDict count] == 0 ) {
                 packageEssentialsDict = [[NSMutableDictionary alloc] init];
             }
-            NSLog(@"packageEssentialsDict=%@", packageEssentialsDict);
             packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
-            if ( packageEssentialsRegexes == nil )
-            {
+            if ( packageEssentialsRegexes == nil ) {
                 packageEssentialsRegexes = [[NSMutableArray alloc] init];
             }
-            NSLog(@"packageEssentialsRegexes=%@", packageEssentialsRegexes);
             [packageEssentialsRegexes addObjectsFromArray:packageBSDRegexes];
-            NSLog(@"packageEssentialsRegexes=%@", packageEssentialsRegexes);
             packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
-            NSLog(@"packageEssentialsDict=%@", packageEssentialsDict);
             sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
-            NSLog(@"sourceItemsDict=%@", sourceItemsDict);
             [sourceItemsDict removeObjectForKey:packageBSDPath];
-            NSLog(@"sourceItemsDict=%@", sourceItemsDict);
         }
     }
     
