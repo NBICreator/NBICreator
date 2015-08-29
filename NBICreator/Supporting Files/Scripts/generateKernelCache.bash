@@ -63,7 +63,7 @@ case ${osVersionMinor} in
 							-c "${nbiVolumePath}/i386/x86_64/kernelcache" \
 							"${targetVolumePath}/System/Library/Extensions"
 	;;
-	[8-9])
+	8|9)
 		/usr/sbin/kextcache -update-volume "${targetVolumePath}"
 		/usr/sbin/kextcache -a x86_64 \
 							-N \
@@ -74,7 +74,7 @@ case ${osVersionMinor} in
 							"${targetVolumePath}/System/Library/Extensions"
 		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
 	;;
-	[10-11])
+	10|11)
 		/usr/sbin/kextcache -update-volume "${targetVolumePath}" -verbose 2
 		/usr/sbin/kextcache -a x86_64 \
                             -verbose 2 \
@@ -87,6 +87,7 @@ case ${osVersionMinor} in
 		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
 	;;
 	*)
+        printf "%s\n" "Unknown OS Version: 10.${osVersionMinor}"
 	;;
 esac
 
