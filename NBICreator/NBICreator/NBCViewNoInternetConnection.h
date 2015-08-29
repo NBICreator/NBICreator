@@ -2,7 +2,7 @@
 //  NBCViewNoInternetConnection.h
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-05-29.
+//  Created by Erik Berglund.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
