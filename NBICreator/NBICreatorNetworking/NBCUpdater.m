@@ -97,8 +97,15 @@
 - (void)getNBICreatorVersions {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
-    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagNBICreator };
-    [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCNBICreatorGitHubRepository downloadInfo:downloadInfo];
+    [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCNBICreatorGitHubRepository
+                                                 downloadInfo:@{ NBCDownloaderTag : NBCDownloaderTagNBICreator }];
+} // getNBICreatorVersions
+
+- (void)getNBICreatorResourcesVersions {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
+    [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCNBICreatorResourcesGitHubRepository
+                                                 downloadInfo:@{ NBCDownloaderTag : NBCDownloaderTagNBICreatorResources }];
 } // getNBICreatorVersions
 
 - (void)githubReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
@@ -106,6 +113,8 @@
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagNBICreator] ) {
         [self compareCurrentVersionToLatest:[versionsArray firstObject] downloadDict:downloadDict];
+    } else if ( [downloadTag isEqualToString:NBCDownloaderTagNBICreatorResources] ) {
+        
     }
 } // githubReleaseVersionsArray:downloadDict:downloadInfo
 

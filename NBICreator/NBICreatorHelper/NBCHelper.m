@@ -44,11 +44,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 - (void)run {
     [_listener resume];
     while ( ! _helperToolShouldQuit ) {
-        NSLog(@"_helperToolShouldQuit=%hhd", _helperToolShouldQuit);
-        NSLog(@"_connections=%@", _connections);
         [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:kHelperCheckInterval]];
     }
-    NSLog(@"Quitting helper!");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,12 +58,10 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 #pragma unused(listener)
     
     // This is called by the XPC listener when there is a new connection.
-    
-    //NBCHelper *ncHelper = [[NBCHelper alloc] init];
-    
+    [newConnection setRemoteObjectInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCMessageDelegate)]];
     [newConnection setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCHelperProtocol)]];
     [newConnection setExportedObject:self];
-    
+
     
     __weak typeof(newConnection) weakConnection = newConnection;
     [newConnection setInvalidationHandler:^() {
@@ -92,6 +87,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 #pragma mark NBCHelperProtocol methods
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+- (NSXPCConnection *)connection
+{
+    return [_connections lastObject];
+}
 
 - (void)getVersionWithReply:(void(^)(NSString *version))reply {
     reply([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
@@ -190,6 +190,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                        withReply:(void(^)(NSError *error, int terminationStatus))reply {
     NSTask *newTask = [[NSTask alloc] init];
     [newTask setLaunchPath:[taskCommandPath path]];
+    //if ([[[self connection] remoteObjectProxy] respondsToSelector:@selector(updateProgress:)]) {
+    //    [[[self connection] remoteObjectProxy] updateProgress:@"TESTSTSTSAKTLSJLKAJSLDKAJASD"];
+    //}
     [newTask setArguments:taskArguments];
     
     if ( environmentVariables != nil ) {
@@ -224,16 +227,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     [newTask waitUntilExit];
     
     reply([newTask terminationStatus]);
-}
-
-- (void)registerMainApplication:(void (^)(BOOL resign))resign; {
-    if(!self.relayConnection){
-        self.relayConnection = self.connection;
-        self.relayConnection.remoteObjectInterface = [NSXPCInterface interfaceWithProtocol:@protocol(NBCMessageDelegate)];
-        _resign = resign;
-    } else {
-        resign(YES);
-    }
 }
 
 - (void)sendMessageToMainApplication:(NSString *)message {
@@ -440,12 +433,10 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         NSString *filePath = modifyDict[NBCWorkflowModifyTargetURL];
         NSLog(@"filePath=%@", filePath);
         NSString *sourceFilePath = modifyDict[NBCWorkflowModifySourceURL];
-        NSLog(@"sourceFilePath");
+        NSLog(@"sourceFilePath=%@", sourceFilePath);
         NSString *fileType = modifyDict[NBCWorkflowModifyFileType];
         NSLog(@"fileType=%@", fileType);
         if ( [filePath length] != 0 ) {
-            NSString *fileType = modifyDict[NBCWorkflowModifyFileType];
-            
             if ( [fileType isEqualToString:NBCWorkflowModifyFileTypePlist] ) {
                 NSDictionary *fileContent = modifyDict[NBCWorkflowModifyContent];
                 
@@ -496,13 +487,16 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                     NSLog(@"sourceFileURL=%@", sourceFileURL);
                 }
             } else if ( [fileType isEqualToString:NBCWorkflowModifyFileTypeMove] ) {
+                NSLog(@"[filePath stringByDeletingLastPathComponent]=%@", [filePath stringByDeletingLastPathComponent]);
                 NSURL *targetFolderURL = [NSURL fileURLWithPath:[filePath stringByDeletingLastPathComponent]];
+                NSLog(@"targetFolderURL=%@", targetFolderURL);
                 if ( ! [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
                     NSDictionary *defaultAttributes = @{
                                                         NSFileOwnerAccountName : @"root",
                                                         NSFileGroupOwnerAccountName : @"wheel",
                                                         NSFilePosixPermissions : @0755
                                                         };
+                    NSLog(@"defaultAttributes=%@", defaultAttributes);
                     if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES attributes:defaultAttributes error:&error] ) {
                         NSLog(@"Creating target folder failed!");
                         NSLog(@"%@", error);

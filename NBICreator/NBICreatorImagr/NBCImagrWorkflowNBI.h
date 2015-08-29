@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NBCMessageDelegate.h"
 @class NBCWorkflowItem;
-//#import "NBCWorkflowProgressViewController.h"
 
 @protocol NBCImagrWorkflowNBIDelegate
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;
@@ -18,11 +18,7 @@
 @interface NBCImagrWorkflowNBI : NSObject
 
 @property id delegate;
-
-// ------------------------------------------------------
-//  Class Instance Properties
-// ------------------------------------------------------
-//@property NBCWorkflowProgressViewController *progressView;
+@property (weak) id<NBCMessageDelegate> messageDelegate;
 
 // ------------------------------------------------------
 //  Properties

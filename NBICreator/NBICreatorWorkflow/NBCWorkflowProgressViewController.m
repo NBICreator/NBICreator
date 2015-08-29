@@ -31,6 +31,7 @@ DDLogLevel ddLogLevel;
         NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(workflowCompleteNBI:) name:NBCNotificationWorkflowCompleteNBI object:nil];
         [center addObserver:self selector:@selector(workflowCompleteResources:) name:NBCNotificationWorkflowCompleteResources object:nil];
+        _messageDelegate = self;
     }
     return self;
 }
@@ -147,6 +148,11 @@ DDLogLevel ddLogLevel;
     });
 }
 
+- (void)updateProgress:(NSString *)message {
+    NSLog(@"updateProgress!!!!");
+    NSLog(@"message=%@", message);
+}
+
 - (void)workflowCompleted {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_layoutContraintStatusInfoLeading setConstant:1.0];
@@ -162,12 +168,17 @@ DDLogLevel ddLogLevel;
     dateComponentsFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyleFull;
     dateComponentsFormatter.calendar = calendarUS;
     
+    NSString *workflowTime = [dateComponentsFormatter stringFromTimeInterval:secondsBetween];
+    if ( [workflowTime length] != 0 ) {
+        [_workflowItem setWorkflowTime:workflowTime];
+    }
+    
     [self setWorkflowComplete:YES];
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
     [self setIsRunning:NO];
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"NBI created successfully in %@!", [dateComponentsFormatter stringFromTimeInterval:secondsBetween]]];
+        [self->_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"NBI created successfully in %@!", workflowTime]];
     });
 }
 

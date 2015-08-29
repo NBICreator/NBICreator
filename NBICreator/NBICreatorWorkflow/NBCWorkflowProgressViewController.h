@@ -15,11 +15,13 @@
 #import "NBCDeployStudioWorkflowResources.h"
 #import "NBCNetInstallWorkflowNBI.h"
 #import "NBCNetInstallWorkflowResources.h"
+#import "NBCMessageDelegate.h"
 
-@interface NBCWorkflowProgressViewController : NSViewController <NBCImagrWorkflowNBIDelegate, NBCImagrWorkflowResourcesDelegate, NBCDeployStudioWorkflowNBIDelegate, NBCNetInstallWorkflowNBIDelegate>
+@interface NBCWorkflowProgressViewController : NSViewController <NBCImagrWorkflowNBIDelegate, NBCImagrWorkflowResourcesDelegate, NBCDeployStudioWorkflowNBIDelegate, NBCNetInstallWorkflowNBIDelegate, NBCMessageDelegate>
 
 @property (strong) IBOutlet NSLayoutConstraint *layoutContraintStatusInfoLeading;
 
+@property (weak) id<NBCMessageDelegate> messageDelegate;
 @property NBCWorkflowItem *workflowItem;
 @property NSURL *nbiURL;
 @property NSURL *nbiLogURL;
@@ -49,5 +51,6 @@
 - (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem;
 - (void)workflowFailedWithError:(NSString *)errorMessage;
 - (void)workflowCompleted;
+- (void)updateProgress:(NSString *)message;
 
 @end

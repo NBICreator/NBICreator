@@ -19,6 +19,7 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCLogging.h"
+#import "NBCWorkflowProgressViewController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -51,7 +52,8 @@ DDLogLevel ddLogLevel;
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         return;
     }
-    
+
+    [self setMessageDelegate:[workflowItem progressView]];
     
     NSDictionary *userSettings = [workflowItem userSettings];
     NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
@@ -400,17 +402,21 @@ DDLogLevel ddLogLevel;
     NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
     [helperConnector connectToHelper];
     
+    NSLog(@"_messageDelegate=%@", _messageDelegate);
+    [[helperConnector connection] setExportedObject:_messageDelegate];
+    NSLog(@"[helperConnector connection] exportedObject=%@", [[helperConnector connection] exportedObject]),
+    [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCMessageDelegate)]];
+    
     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             
             // ------------------------------------------------------------------
-            //  If task failed, post workflow failed notification (This catches too much errors atm, investigate why execution never leaves block until all child methods are completed.)
+            //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
             DDLogError(@"%@", proxyError);
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
         }];
         
     }] runTaskWithCommandAtPath:commandURL arguments:createNetInstallArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
@@ -433,8 +439,7 @@ DDLogLevel ddLogLevel;
                 // ------------------------------------------------------------------
                 [nc removeObserver:stdOutObserver];
                 [nc removeObserver:stdErrObserver];
-                NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
             }
         }];
     }];
