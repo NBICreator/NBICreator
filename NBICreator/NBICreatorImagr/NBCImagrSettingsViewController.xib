@@ -1290,6 +1290,21 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
+                                    <button translatesAutoresizingMaskIntoConstraints="NO" id="p68-eG-mSY">
+                                        <rect key="frame" x="144" y="199" width="213" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Disable App Transport Security" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="ui3-zH-Fg3">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="hidden" keyPath="self.disableATSVisible" id="iJz-dp-m2t">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
+                                            <binding destination="-2" name="value" keyPath="self.disableATS" id="I40-er-BGK"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="cci-zg-MbN" firstAttribute="top" secondItem="aaI-WA-eJT" secondAttribute="bottom" constant="14" id="3PO-ug-TH2"/>
@@ -1314,12 +1329,14 @@ asdasd</string>
                                     <constraint firstItem="6FP-um-KYE" firstAttribute="leading" secondItem="aaI-WA-eJT" secondAttribute="trailing" constant="8" symbolic="YES" id="UCn-oB-szO"/>
                                     <constraint firstItem="39O-iR-ITG" firstAttribute="leading" secondItem="7hf-ex-xpe" secondAttribute="trailing" constant="5" id="UUg-OR-wrW"/>
                                     <constraint firstItem="aaI-WA-eJT" firstAttribute="top" secondItem="TPA-g0-kla" secondAttribute="top" constant="20" symbolic="YES" id="Umo-IT-E4G"/>
+                                    <constraint firstItem="p68-eG-mSY" firstAttribute="leading" secondItem="kCs-xy-MZx" secondAttribute="leading" id="WFn-yf-X6W"/>
                                     <constraint firstItem="cci-zg-MbN" firstAttribute="trailing" secondItem="2dk-vD-S0N" secondAttribute="trailing" id="eaD-s1-PZR"/>
                                     <constraint firstItem="2m6-IY-CdK" firstAttribute="leading" secondItem="OBN-bX-o9V" secondAttribute="trailing" constant="8" symbolic="YES" id="g9K-lJ-yNW"/>
                                     <constraint firstItem="OBN-bX-o9V" firstAttribute="top" secondItem="6Zf-SG-aNZ" secondAttribute="bottom" constant="8" symbolic="YES" id="gtT-tN-jNy"/>
                                     <constraint firstItem="OBN-bX-o9V" firstAttribute="leading" secondItem="kCs-xy-MZx" secondAttribute="leading" constant="3" id="ke0-as-LXB"/>
                                     <constraint firstItem="6FP-um-KYE" firstAttribute="leading" secondItem="aaI-WA-eJT" secondAttribute="trailing" constant="8" symbolic="YES" id="lBJ-vr-zcN"/>
                                     <constraint firstItem="4Vf-Sb-oV1" firstAttribute="leading" secondItem="cci-zg-MbN" secondAttribute="trailing" constant="8" symbolic="YES" id="lfi-YL-Z5U"/>
+                                    <constraint firstItem="p68-eG-mSY" firstAttribute="top" secondItem="kCs-xy-MZx" secondAttribute="bottom" constant="10" id="mN9-3U-oyy"/>
                                     <constraint firstItem="aaI-WA-eJT" firstAttribute="trailing" secondItem="zgU-AT-JbX" secondAttribute="trailing" id="rrb-Jr-mKO"/>
                                     <constraint firstItem="Hu4-ry-ucH" firstAttribute="leading" secondItem="reX-9N-ZAQ" secondAttribute="trailing" constant="8" symbolic="YES" id="vMC-tF-6BA"/>
                                     <constraint firstAttribute="trailing" secondItem="Hu4-ry-ucH" secondAttribute="trailing" constant="20" symbolic="YES" id="voD-ab-oBV"/>

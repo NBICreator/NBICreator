@@ -168,6 +168,8 @@
 @property NSString *networkTimeServer;
 @property BOOL useVerboseBoot;
 
+@property BOOL disableATS;
+@property BOOL disableATSVisible;
 @property BOOL includeImagrPreReleaseVersionsEnabled;
 @property BOOL includeImagrPreReleaseVersions;
 @property NSString *imagrVersion;

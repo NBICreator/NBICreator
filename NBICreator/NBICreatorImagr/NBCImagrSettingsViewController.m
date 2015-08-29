@@ -132,6 +132,11 @@ DDLogLevel ddLogLevel;
     [_imageViewBackgroundImage setMenu:backgroundImageMenu];
     
     // ------------------------------------------------------------------------------
+    //  
+    // -------------------------------------------------------------------------------
+    [self setATSButtonVisiblility];
+    
+    // ------------------------------------------------------------------------------
     //  Verify build button so It's not enabled by mistake
     // -------------------------------------------------------------------------------
     [self verifyBuildButton];
@@ -791,12 +796,31 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void)setATSButtonVisiblility {
+    if ( _source != nil ) {
+        int sourceVersionMinor = (int)[[_source expandVariables:@"%OSMINOR%"] integerValue];
+        DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
+        if ( _source != nil && 11 <= sourceVersionMinor ) {
+            NSLog(@"YES");
+            [self setDisableATSVisible:YES];
+        } else {
+            NSLog(@"NO");
+            [self setDisableATSVisible:NO];
+        }
+    } else {
+        NSLog(@"NO");
+        [self setDisableATSVisible:NO];
+    }
+}
+
 - (void)updateSource:(NSNotification *)notification {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
         [self setSource:source];
     }
+    
+    [self setATSButtonVisiblility];
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
     if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
@@ -939,6 +963,7 @@ DDLogLevel ddLogLevel;
     [self setUseBackgroundImage:[settingsDict[NBCSettingsUseBackgroundImageKey] boolValue]];
     [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
     [self setUseVerboseBoot:[settingsDict[NBCSettingsUseVerboseBootKey] boolValue]];
+    [self setDisableATS:[settingsDict[NBCSettingsImagrDisableATS] boolValue]];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -1078,6 +1103,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsUseBackgroundImageKey] = @(_useBackgroundImage) ?: @NO;
     settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg";
     settingsDict[NBCSettingsUseVerboseBootKey] = @(_useVerboseBoot) ?: @NO;
+    settingsDict[NBCSettingsImagrDisableATS] = @(_disableATS) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2103,14 +2129,14 @@ DDLogLevel ddLogLevel;
             if ( [error count] != 0 ) {
                 configurationError = YES;
                 for ( NSString *errorString in error ) {
-                    [alertInformativeText appendString:[NSString stringWithFormat:@"\n• %@", errorString]];
+                    [alertInformativeText appendString:[NSString stringWithFormat:@"\n\n• %@", errorString]];
                 }
             }
             
             if ( [warning count] != 0 ) {
                 configurationWarning = YES;
                 for ( NSString *warningString in warning ) {
-                    [alertInformativeText appendString:[NSString stringWithFormat:@"\n• %@", warningString]];
+                    [alertInformativeText appendString:[NSString stringWithFormat:@"\n\n• %@", warningString]];
                 }
             }
             

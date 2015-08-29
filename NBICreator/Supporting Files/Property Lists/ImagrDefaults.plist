@@ -24,6 +24,8 @@
 	<false/>
 	<key>DisableWiFi</key>
 	<false/>
+	<key>ImagrDisableATS</key>
+	<false/>
 	<key>DisableBluetooth</key>
 	<false/>
 	<key>NBICreationTool</key>
