@@ -16,7 +16,7 @@
 #import "NBCDeployStudioWorkflowNBI.h"
 #import "NBCNetInstallWorkflowNBI.h"
 
-@interface NBCWorkflowManager : NSObject
+@interface NBCWorkflowManager : NSObject <NSUserNotificationCenterDelegate>
 
 // -------------------------------------------------------------
 //  Unsorted

@@ -60,6 +60,7 @@ enum {
 @property BOOL hasCompleted;
 @property NSDate *startTime;
 @property NSDate *endTime;
+@property NSString *workflowTime;
 
 // -------------------------------------------------------------
 //  Convenience porperties for user settings

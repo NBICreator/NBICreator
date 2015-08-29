@@ -54,6 +54,8 @@ DDLogLevel ddLogLevel;
         
         _workflowQueue = [[NSMutableArray alloc] init];
         _workflowViewArray = [[NSMutableArray alloc] init];
+        
+        [[NSUserNotificationCenter defaultUserNotificationCenter] setDelegate:self];
     }
     return self;
 } // init
@@ -181,12 +183,28 @@ DDLogLevel ddLogLevel;
 
 - (void)endWorkflow {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    if ( [[NSUserDefaults standardUserDefaults] boolForKey:NBCUserDefaultsUserNotificationsEnabled] ) {
+        NSString *name = [_currentWorkflowItem nbiName];
+        NSString *workflowTime = [_currentWorkflowItem workflowTime];
+        [self postNotificationWithTitle:name informativeText:[NSString stringWithFormat:@"Completed in %@", workflowTime]];
+    }
     [self setCurrentWorkflowModifyNBIComplete:YES];
     [self setWorkflowRunning:NO];
     [self removeTemporaryFolder];
     [_workflowQueue removeObject:_currentWorkflowItem];
     [self workflowQueueRunWorkflow];
 } // endWorkflow
+
+- (void)postNotificationWithTitle:(NSString *)title informativeText:(NSString *)informativeText {
+    NSUserNotification *notification = [[NSUserNotification alloc] init];
+    [notification setTitle:@"NBICreator"];
+    [notification setSubtitle:title];
+    [notification setInformativeText:informativeText];
+    if ( [[NSUserDefaults standardUserDefaults] boolForKey:NBCUserDefaultsUserNotificationsSoundEnabled] ) {
+        [notification setSoundName:NSUserNotificationDefaultSoundName];
+    }
+    [[NSUserNotificationCenter defaultUserNotificationCenter] deliverNotification:notification];
+}
 
 - (void)workflowFailed:(NSNotification *)notification {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -200,6 +218,11 @@ DDLogLevel ddLogLevel;
     
     [self updateWorkflowStatusErrorWithMessage:progressViewErrorMessage];
     [self setWorkflowRunning:NO];
+    
+    if ( [[NSUserDefaults standardUserDefaults] boolForKey:NBCUserDefaultsUserNotificationsEnabled] ) {
+        NSString *name = [_currentWorkflowItem nbiName];
+        [self postNotificationWithTitle:name informativeText:@"Workflow Failed!"];
+    }
     
     [_workflowQueue removeObject:_currentWorkflowItem];
     [self workflowQueueRunWorkflow];
@@ -222,6 +245,11 @@ DDLogLevel ddLogLevel;
         DDLogError(@"%@", [error localizedDescription]);
     }
 } // removeTemporaryFolder
+
+- (BOOL)userNotificationCenter:(NSUserNotificationCenter *)center shouldPresentNotification:(NSUserNotification *)notification {
+#pragma unused(center, notification)
+    return YES;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -

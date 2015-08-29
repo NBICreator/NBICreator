@@ -22,14 +22,14 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="NBICreator Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
-            <rect key="contentRect" x="196" y="240" width="509" height="244"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="contentRect" x="196" y="240" width="509" height="300"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" horizontalCompressionResistancePriority="749" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="509" height="244"/>
+                <rect key="frame" x="0.0" y="0.0" width="509" height="300"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="p6D-pd-DFQ">
-                        <rect key="frame" x="18" y="207" width="151" height="17"/>
+                        <rect key="frame" x="18" y="263" width="151" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="NetBoot Index Counter:" id="wlw-Tf-1VH">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -37,7 +37,7 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="7ZX-y2-fu7">
-                        <rect key="frame" x="175" y="205" width="47" height="22"/>
+                        <rect key="frame" x="175" y="261" width="47" height="22"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="47" id="Fnt-g5-KK4"/>
                         </constraints>
@@ -59,7 +59,7 @@
                         </connections>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xkJ-eX-gsG">
-                        <rect key="frame" x="18" y="178" width="151" height="17"/>
+                        <rect key="frame" x="18" y="234" width="151" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Date Format:" id="9h4-4w-u3d">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -67,7 +67,7 @@
                         </textFieldCell>
                     </textField>
                     <comboBox verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ejt-D8-GaT">
-                        <rect key="frame" x="175" y="173" width="153" height="26"/>
+                        <rect key="frame" x="175" y="229" width="153" height="26"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="150" id="bob-sL-5s1"/>
                         </constraints>
@@ -87,7 +87,7 @@
                         </connections>
                     </comboBox>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OE9-Gp-3Ou">
-                        <rect key="frame" x="333" y="178" width="53" height="17"/>
+                        <rect key="frame" x="333" y="234" width="53" height="17"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Preview" id="Gzt-6h-jiK">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -213,22 +213,44 @@
                             <binding destination="-2" name="animate" keyPath="self.checkingForApplicationUpdates" id="bjP-Xl-cJC"/>
                         </connections>
                     </progressIndicator>
+                    <button translatesAutoresizingMaskIntoConstraints="NO" id="JEY-5C-17f">
+                        <rect key="frame" x="187" y="184" width="180" height="18"/>
+                        <buttonCell key="cell" type="check" title="Enable sound for notifications" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="6vX-Xe-ESY">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="smallSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="GFb-t0-AJf" name="enabled" keyPath="values.UserNotificationsEnabled" id="ZWR-MD-Kaj"/>
+                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.UserNotificationsSoundEnabled" id="aZb-od-Rsh"/>
+                        </connections>
+                    </button>
+                    <button translatesAutoresizingMaskIntoConstraints="NO" id="QAv-eg-Mgk">
+                        <rect key="frame" x="173" y="205" width="211" height="18"/>
+                        <buttonCell key="cell" type="check" title="Enable Mac OS X Notifications" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="H2c-zy-pIa">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.UserNotificationsEnabled" id="OP3-Pw-VZl"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="KdZ-S8-dxV" firstAttribute="top" secondItem="w6g-Xt-IGx" secondAttribute="bottom" constant="8" symbolic="YES" id="0GQ-yg-EUZ"/>
+                    <constraint firstItem="esW-ed-2Ix" firstAttribute="top" secondItem="JEY-5C-17f" secondAttribute="bottom" constant="20" symbolic="YES" id="0rL-Nl-0NC"/>
                     <constraint firstItem="xkJ-eX-gsG" firstAttribute="baseline" secondItem="Ejt-D8-GaT" secondAttribute="baseline" id="1is-3C-rjg"/>
                     <constraint firstItem="OBZ-Tg-Zl4" firstAttribute="baseline" secondItem="eUn-mG-6uF" secondAttribute="baseline" id="6ga-iv-vDS"/>
                     <constraint firstItem="PCt-hx-hcp" firstAttribute="top" secondItem="Nco-Zu-ksX" secondAttribute="bottom" constant="20" symbolic="YES" id="7Ne-Pf-Xzg"/>
                     <constraint firstItem="OE9-Gp-3Ou" firstAttribute="leading" secondItem="Ejt-D8-GaT" secondAttribute="trailing" constant="10" id="8bw-pr-MXJ"/>
                     <constraint firstItem="OBZ-Tg-Zl4" firstAttribute="trailing" secondItem="xkJ-eX-gsG" secondAttribute="trailing" id="9NG-RU-5tJ"/>
                     <constraint firstAttribute="bottom" secondItem="PCt-hx-hcp" secondAttribute="bottom" constant="20" symbolic="YES" id="9qp-FB-aVJ"/>
-                    <constraint firstItem="OBZ-Tg-Zl4" firstAttribute="top" secondItem="xkJ-eX-gsG" secondAttribute="bottom" constant="12" id="AFY-3U-u1u"/>
                     <constraint firstItem="KdZ-S8-dxV" firstAttribute="leading" secondItem="w6g-Xt-IGx" secondAttribute="leading" id="Acq-pC-B4H"/>
                     <constraint firstItem="xkJ-eX-gsG" firstAttribute="baseline" secondItem="OE9-Gp-3Ou" secondAttribute="baseline" id="Aub-Zx-JRs"/>
                     <constraint firstItem="7ZX-y2-fu7" firstAttribute="leading" secondItem="p6D-pd-DFQ" secondAttribute="trailing" constant="8" symbolic="YES" id="D8E-mV-Kfh"/>
                     <constraint firstItem="OBZ-Tg-Zl4" firstAttribute="trailing" secondItem="p6D-pd-DFQ" secondAttribute="trailing" id="G0M-fX-h6K"/>
                     <constraint firstItem="9At-GJ-PxT" firstAttribute="baseline" secondItem="PCt-hx-hcp" secondAttribute="baseline" id="IyU-AD-nuF"/>
                     <constraint firstAttribute="trailing" secondItem="9At-GJ-PxT" secondAttribute="trailing" constant="20" symbolic="YES" id="JKm-oW-2kc"/>
+                    <constraint firstItem="JEY-5C-17f" firstAttribute="leading" secondItem="QAv-eg-Mgk" secondAttribute="leading" constant="15" id="JKr-V4-Rjb"/>
                     <constraint firstItem="Ejt-D8-GaT" firstAttribute="leading" secondItem="xkJ-eX-gsG" secondAttribute="trailing" constant="8" symbolic="YES" id="JVB-RK-2DF"/>
                     <constraint firstItem="PCt-hx-hcp" firstAttribute="leading" secondItem="Nco-Zu-ksX" secondAttribute="leading" id="MzE-T8-ysC"/>
                     <constraint firstItem="OBZ-Tg-Zl4" firstAttribute="baseline" secondItem="esW-ed-2Ix" secondAttribute="baseline" id="NXH-4v-aD2"/>
@@ -251,15 +273,18 @@
                     <constraint firstItem="w6g-Xt-IGx" firstAttribute="baseline" secondItem="IQi-kR-kr4" secondAttribute="baseline" id="mZh-Y4-oCq"/>
                     <constraint firstItem="esW-ed-2Ix" firstAttribute="leading" secondItem="OBZ-Tg-Zl4" secondAttribute="trailing" constant="8" symbolic="YES" id="my6-NM-RWb"/>
                     <constraint firstItem="5k4-zr-JbQ" firstAttribute="centerY" secondItem="eUn-mG-6uF" secondAttribute="centerY" id="oA2-64-ocA"/>
+                    <constraint firstItem="JEY-5C-17f" firstAttribute="top" secondItem="QAv-eg-Mgk" secondAttribute="bottom" constant="8" symbolic="YES" id="rS4-T2-9yn"/>
                     <constraint firstItem="uhO-ZD-3Xu" firstAttribute="leading" secondItem="KdZ-S8-dxV" secondAttribute="trailing" constant="12" symbolic="YES" id="rSS-kx-4Kr"/>
+                    <constraint firstItem="QAv-eg-Mgk" firstAttribute="leading" secondItem="Ejt-D8-GaT" secondAttribute="leading" id="tro-yG-9Xz"/>
                     <constraint firstItem="IQi-kR-kr4" firstAttribute="top" secondItem="OBZ-Tg-Zl4" secondAttribute="bottom" constant="8" symbolic="YES" id="yeB-61-Uau"/>
+                    <constraint firstItem="QAv-eg-Mgk" firstAttribute="top" secondItem="Ejt-D8-GaT" secondAttribute="bottom" constant="12" id="ylP-5F-SfV"/>
                     <constraint firstItem="OBZ-Tg-Zl4" firstAttribute="trailing" secondItem="IQi-kR-kr4" secondAttribute="trailing" id="yp0-w0-3hi"/>
                 </constraints>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>
-            <point key="canvasLocation" x="245.5" y="372"/>
+            <point key="canvasLocation" x="28.5" y="339"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="GFb-t0-AJf"/>
     </objects>
