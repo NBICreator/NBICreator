@@ -134,7 +134,6 @@ DDLogLevel ddLogLevel;
     //  Verify build button so It's not enabled by mistake
     // ----------------------------------------------------
     [self verifyBuildButton];
-    
 } // viewDidLoad
 
 ////////////////////////////////////////////////////////////////////////////////

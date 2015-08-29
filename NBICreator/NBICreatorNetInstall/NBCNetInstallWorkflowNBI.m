@@ -192,8 +192,7 @@ DDLogLevel ddLogLevel;
                 // ------------------------------------------------------------------
                 [nc removeObserver:stdOutObserver];
                 [nc removeObserver:stdErrObserver];
-                NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
             }
         }];
     }];
