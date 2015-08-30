@@ -388,15 +388,71 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             }
             
         } else if ( [copyType isEqualToString:NBCWorkflowCopyRegex] ) {
+            
+            // -----------------------------------------------------------------------------------
+            //  Create standard output file handle and register for data available notifications.
+            // -----------------------------------------------------------------------------------
+            NSPipe *stdOut = [[NSPipe alloc] init];
+            NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
+            [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+            
+            NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+            id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                                object:[stdOut fileHandleForReading]
+                                                 queue:nil
+                                            usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                                // ------------------------
+                                                //  Convert data to string
+                                                // ------------------------
+                                                NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
+                                                NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                                
+                                                // -----------------------------------------------------------------------
+                                                //  When output data becomes available, pass it to workflow status parser
+                                                // -----------------------------------------------------------------------
+                                                NSLog(@"outStr=%@", outStr);
+                                                
+                                                [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                            }];
+            
+            // -----------------------------------------------------------------------------------
+            //  Create standard error file handle and register for data available notifications.
+            // -----------------------------------------------------------------------------------
+            NSPipe *stdErr = [[NSPipe alloc] init];
+            NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
+            [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+            
+            id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                                object:[stdErr fileHandleForReading]
+                                                 queue:nil
+                                            usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                                // ------------------------
+                                                //  Convert data to string
+                                                // ------------------------
+                                                NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
+                                                NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                                
+                                                // -----------------------------------------------------------------------
+                                                //  When error data becomes available, pass it to workflow status parser
+                                                // -----------------------------------------------------------------------
+                                                NSLog(@"errStr=%@", errStr);
+                                                
+                                                [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                            }];
+            
             NSString *sourceFolderPath = copyDict[NBCWorkflowCopyRegexSourceFolderURL];
+            NSLog(@"sourceFolderPath=%@", sourceFolderPath);
             NSString *regexString = copyDict[NBCWorkflowCopyRegex];
+            NSLog(@"regexString=%@", regexString);
             NSMutableArray *scriptArguments = [NSMutableArray arrayWithObjects:@"-c",
                                                [NSString stringWithFormat:@"/usr/bin/find -E . -depth -regex '%@' | /usr/bin/cpio -admp --quiet '%@'", regexString, [volumeURL path]],
                                                nil];
             NSLog(@"scriptArguments=%@", scriptArguments);
             NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
-            NSPipe *stdOut = [[NSPipe alloc] init];
-            NSPipe *stdErr = [[NSPipe alloc] init];
+            //NSPipe *stdOut = [[NSPipe alloc] init];
+            //NSPipe *stdErr = [[NSPipe alloc] init];
             NSTask *newTask = [[NSTask alloc] init];
             
             [newTask setLaunchPath:[commandURL path]];
@@ -406,16 +462,19 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                 [newTask setCurrentDirectoryPath:sourceFolderPath];
             }
             
-            if ( stdOut != nil ) {
-                [newTask setStandardOutput:stdOut];
+            if ( stdOutFileHandle != nil ) {
+                [newTask setStandardOutput:stdOutFileHandle];
             }
             
-            if ( stdErr != nil ) {
-                [newTask setStandardError:stdErr];
+            if ( stdErrFileHandle != nil ) {
+                [newTask setStandardError:stdErrFileHandle];
             }
             
             [newTask launch];
             [newTask waitUntilExit];
+            
+            [nc removeObserver:stdOutObserver];
+            [nc removeObserver:stdErrObserver];
             
             NSLog(@"EXIT: %d", [newTask terminationStatus]);
         }
