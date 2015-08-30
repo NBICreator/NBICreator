@@ -794,6 +794,28 @@ DDLogLevel ddLogLevel;
     sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
 }
 
+- (void)addNetworkd:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil ) {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexNetworkd = @".*(/|com.apple.)networkd.*";
+    [packageEssentialsRegexes addObject:regexNetworkd];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+}
+
 - (void)addSpctl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
@@ -808,10 +830,6 @@ DDLogLevel ddLogLevel;
         packageBSDDict = [[NSMutableDictionary alloc] init];
         packageBSDRegexes = [[NSMutableArray alloc] init];
     }
-    
-    // Temporary Location
-    NSString *regexNetworkd = @".*(/|com.apple.)networkd.*";
-    [packageBSDRegexes addObject:regexNetworkd];
     
     NSString *regexSpctl = @".*spctl.*";
     DDLogDebug(@"regexSpctl=%@", regexSpctl);
@@ -873,8 +891,14 @@ DDLogLevel ddLogLevel;
         
         NSString *regexFrameworkWirelessProximity = @".*WirelessProximity.framework.*";
         [packageEssentialsRegexes addObject:regexFrameworkWirelessProximity];
+        
+        NSString *regexSCIM = @".*SCIM.app.*";
+        [packageEssentialsRegexes addObject:regexSCIM];
+        
+        NSString *regexTCIM = @".*TCIM.app.*";
+        [packageEssentialsRegexes addObject:regexTCIM];
     }
-    
+        
     NSString *regexFrameworkMediaControlSender = @".*MediaControlSender.framework.*";
     [packageEssentialsRegexes addObject:regexFrameworkMediaControlSender];
     
@@ -970,6 +994,9 @@ DDLogLevel ddLogLevel;
         [packageEssentialsRegexes addObject:regexAppleVNCServer];
     }
     
+    NSString *regexPerl = @".*perl.*";
+    [packageEssentialsRegexes addObject:regexPerl];
+    
     NSString *regexScreensharingPreferences = @".*/Preferences/com.apple.RemoteManagement.*";
     [packageEssentialsRegexes addObject:regexScreensharingPreferences];
     
@@ -985,7 +1012,7 @@ DDLogLevel ddLogLevel;
     NSString *regexScreensharingD = @".*/screensharingd.bundle.*";
     [packageEssentialsRegexes addObject:regexScreensharingD];
     
-    NSString *regexOD = @".*Library/OpenDirectory.*";
+    NSString *regexOD = @".*[Oo]pen[Dd]irectory.*";
     [packageEssentialsRegexes addObject:regexOD];
     
     NSString *regexODConfigFramework = @".*OpenDirectoryConfig.framework.*";
