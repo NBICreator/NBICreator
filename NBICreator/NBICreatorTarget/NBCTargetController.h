@@ -23,14 +23,14 @@
 //  NetInstall
 // ------------------------------------------------------
 - (BOOL)attachNetInstallDiskImageWithShadowFile:(NSURL *)netInstallDiskImageURL target:(NBCTarget *)target error:(NSError **)error;
-- (BOOL)convertNetInstallFromShadow:(NBCTarget *)target error:(NSError **)error;
+- (BOOL)convertNetInstallFromShadow:(NBCWorkflowItem *)workflowItem error:(NSError **)error;
 - (BOOL)verifyNetInstallFromDiskImageURL:(NSURL *)netInstallDiskImageURL target:(NBCTarget *)target error:(NSError **)error;
 
 // ------------------------------------------------------
 //  BaseSystem
 // ------------------------------------------------------
 - (BOOL)attachBaseSystemDiskImageWithShadowFile:(NSURL *)baseSystemDiskImageURL target:(NBCTarget *)target error:(NSError **)error;
-- (BOOL)convertBaseSystemFromShadow:(NBCTarget *)target error:(NSError **)error;
+- (BOOL)convertBaseSystemFromShadow:(NBCWorkflowItem *)workflowItem error:(NSError **)error;
 - (BOOL)verifyBaseSystemFromTarget:(NBCTarget *)target source:(NBCSource *)source error:(NSError **)error;
 
 // ------------------------------------------------------

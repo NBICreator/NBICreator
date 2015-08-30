@@ -348,11 +348,13 @@ DDLogLevel ddLogLevel;
     return verified;
 } // attachNetInstallDiskImageWithShadowFile:target:error
 
-- (BOOL)convertNetInstallFromShadow:(NBCTarget *)target error:(NSError **)error {
+- (BOOL)convertNetInstallFromShadow:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"Converting NetInstall.dmg and shadow file to sparseimage...");
+    DDLogInfo(@"Converting NetInstall.dmg and shadow file...");
     BOOL verified = YES;
     NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NBCTarget *target = [workflowItem target];
     
     NSURL *netInstallURL = [target nbiNetInstallURL];
     DDLogDebug(@"netInstallURL=%@", netInstallURL);
@@ -361,12 +363,21 @@ DDLogLevel ddLogLevel;
     NSURL *nbiNetInstallVolumeURL = [target nbiNetInstallVolumeURL];
     DDLogDebug(@"nbiNetInstallVolumeURL=%@", nbiNetInstallVolumeURL);
     if ( [NBCDiskImageController detachDiskImageAtPath:[nbiNetInstallVolumeURL path]] ) {
-        if ( [NBCDiskImageController convertDiskImageAtPath:[netInstallURL path] shadowImagePath:netInstallShadowPath] ) {
-            NSURL *nbiNetInstallSparseimageURL = [[netInstallURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sparseimage"];
-            DDLogDebug(@"nbiNetInstallSparseimageURL=%@", nbiNetInstallSparseimageURL);
+        NSString *diskImageExtension;
+        NSString *diskImageFormat;
+        if ( [[workflowItem userSettings][NBCSettingsDiskImageReadWriteKey] boolValue] ) {
+            diskImageExtension = @"sparseimage";
+            diskImageFormat = NBCDiskImageFormatSparseImage;
+        } else {
+            diskImageExtension = @"dmg";
+            diskImageFormat = NBCDiskImageFormatReadOnly;
+        }
+        NSURL *nbiNetInstallConvertedURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@.%@", [netInstallURL URLByDeletingPathExtension], diskImageFormat, diskImageExtension]];
+        if ( [NBCDiskImageController convertDiskImageAtPath:[netInstallURL path] shadowImagePath:netInstallShadowPath format:diskImageFormat destinationPath:[nbiNetInstallConvertedURL path]] ) {
             if ( [fm removeItemAtURL:netInstallURL error:error] ) {
-                if ( ! [fm moveItemAtURL:nbiNetInstallSparseimageURL toURL:netInstallURL error:error] ) {
-                    DDLogError(@"[ERROR] Could not move sparse image to NBI");
+                netInstallURL = [[netInstallURL URLByDeletingPathExtension] URLByAppendingPathExtension:diskImageExtension];
+                if ( ! [fm moveItemAtURL:nbiNetInstallConvertedURL toURL:netInstallURL error:error] ) {
+                    DDLogError(@"[ERROR] Could not move image to NBI");
                     DDLogError(@"%@", *error);
                     verified = NO;
                 }
@@ -460,25 +471,42 @@ DDLogLevel ddLogLevel;
     return verified;
 } // attachBaseSystemDiskImageWithShadowFile
 
-- (BOOL)convertBaseSystemFromShadow:(NBCTarget *)target error:(NSError **)error {
+- (BOOL)convertBaseSystemFromShadow:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"Converting BaseSystem.dmg and shadow file to sparseimage...");
+    DDLogInfo(@"Converting BaseSystem.dmg and shadow file...");
     BOOL verified = YES;
     NSFileManager *fm = [NSFileManager defaultManager];
-    
-    NSURL *baseSystemURL = [target baseSystemURL];
+    NSURL *baseSystemURL = [[workflowItem target] baseSystemURL];
     DDLogDebug(@"baseSystemURL=%@", baseSystemURL);
-    NSString *baseSystemShadowPath = [target baseSystemShadowPath];
+    NSString *baseSystemShadowPath = [[workflowItem target] baseSystemShadowPath];
     DDLogDebug(@"baseSystemShadowPath=%@", baseSystemShadowPath);
-    NSURL *nbiBaseSystemVolumeURL = [target baseSystemVolumeURL];
+    NSURL *nbiBaseSystemVolumeURL = [[workflowItem target] baseSystemVolumeURL];
     DDLogDebug(@"nbiBaseSystemVolumeURL=%@", nbiBaseSystemVolumeURL);
     if ( [NBCDiskImageController detachDiskImageAtPath:[nbiBaseSystemVolumeURL path]] ) {
-        if ( [NBCDiskImageController convertDiskImageAtPath:[baseSystemURL path] shadowImagePath:baseSystemShadowPath] ) {
-            NSURL *nbiBaseSystemSparseimageURL = [[baseSystemURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"sparseimage"];
-            DDLogDebug(@"nbiBaseSystemSparseimageURL=%@", nbiBaseSystemSparseimageURL);
+        NSString *diskImageExtension;
+        NSString *diskImageFormat;
+        if ( [[workflowItem userSettings][NBCSettingsDiskImageReadWriteKey] boolValue] ) {
+            diskImageFormat = NBCDiskImageFormatSparseImage;
+            diskImageExtension = @"sparseimage";
+        } else {
+            diskImageFormat = NBCDiskImageFormatReadOnly;
+            diskImageExtension = @"dmg";
+        }
+        DDLogDebug(@"diskImageFormat=%@", diskImageFormat);
+        NSURL *nbiBaseSystemConvertedURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@.%@", [baseSystemURL URLByDeletingPathExtension], diskImageFormat, diskImageExtension]];
+        DDLogDebug(@"nbiBaseSystemConvertedURL=%@", nbiBaseSystemConvertedURL);
+        if ( [NBCDiskImageController convertDiskImageAtPath:[baseSystemURL path] shadowImagePath:baseSystemShadowPath format:diskImageFormat destinationPath:[nbiBaseSystemConvertedURL path]] ) {
             if ( [fm removeItemAtURL:baseSystemURL error:error] ) {
-                if ( ! [fm moveItemAtURL:nbiBaseSystemSparseimageURL toURL:baseSystemURL error:error] ) {
-                    DDLogError(@"[ERROR] Could not move sparse image to NBI");
+                baseSystemURL = [[baseSystemURL URLByDeletingPathExtension] URLByAppendingPathExtension:diskImageExtension];
+                DDLogDebug(@"baseSystemURL=%@", baseSystemURL);
+                if ( [fm moveItemAtURL:nbiBaseSystemConvertedURL toURL:baseSystemURL error:error] ) {
+                    NSLog(@"Move Successful!");
+                    NSLog(@"Setting baseSystemURL");
+                    NSLog(@"[workflowItem target]=%@", [[workflowItem target] baseSystemURL]);
+                    [[workflowItem target] setBaseSystemURL:baseSystemURL];
+                    NSLog(@"[workflowItem target]=%@", [[workflowItem target] baseSystemURL]);
+                } else {
+                    DDLogError(@"[ERROR] Could not move image to NBI");
                     DDLogError(@"%@", *error);
                     verified = NO;
                 }

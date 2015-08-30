@@ -139,6 +139,7 @@ NSString *const NBCSettingsDisplaySleepKey = @"DisplaySleep";
 NSString *const NBCSettingsDisplaySleepMinutesKey = @"DisplaySleepMinutes";
 NSString *const NBCSettingsIncludeSystemUIServerKey = @"IncludeSystemUIServer";
 NSString *const NBCSettingsUseVerboseBootKey = @"UseVerboseBoot";
+NSString *const NBCSettingsDiskImageReadWriteKey = @"DiskImageReadWrite";
 NSString *const NBCSettingsARDLoginKey = @"ARDLogin";
 NSString *const NBCSettingsARDPasswordKey = @"ARDPassword";
 NSString *const NBCSettingsUseNetworkTimeServerKey = @"UseNetworkTimeServer";
@@ -499,4 +500,8 @@ NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
 NSString *const NBCTableViewIdentifierPackages = @"tableViewPackages";
 
 
+
+NSString *const NBCDiskImageFormatReadOnly = @"UDRO";
+NSString *const NBCDiskImageFormatReadWrite = @"UDRW";
+NSString *const NBCDiskImageFormatSparseImage = @"UDSP";
 

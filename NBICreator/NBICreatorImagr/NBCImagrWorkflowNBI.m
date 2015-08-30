@@ -89,8 +89,7 @@ DDLogLevel ddLogLevel;
         } else {
             DDLogError(@"[ERROR] Could not get volumeAttributes from InstallESD Volume");
             DDLogError(@"%@", error);
-            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
         }
     } else {
         DDLogError(@"[ERROR] Path for source BaseSystem.dmg is empty!");
@@ -143,8 +142,9 @@ DDLogLevel ddLogLevel;
             dispatch_async(dispatch_get_main_queue(), ^{
                 DDLogError(@"[ERROR] Could not copy BaseSystem.dmg to NBI folder!");
                 DDLogError(@"%@", blockError);
-                NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : blockError };
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : blockError }];
                 return;
             });
         } else {

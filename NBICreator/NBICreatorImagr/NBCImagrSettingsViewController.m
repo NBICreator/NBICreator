@@ -963,6 +963,7 @@ DDLogLevel ddLogLevel;
     [self setUseBackgroundImage:[settingsDict[NBCSettingsUseBackgroundImageKey] boolValue]];
     [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
     [self setUseVerboseBoot:[settingsDict[NBCSettingsUseVerboseBootKey] boolValue]];
+    [self setDiskImageReadWrite:[settingsDict[NBCSettingsDiskImageReadWriteKey] boolValue]];
     [self setDisableATS:[settingsDict[NBCSettingsImagrDisableATS] boolValue]];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
@@ -1104,6 +1105,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg";
     settingsDict[NBCSettingsUseVerboseBootKey] = @(_useVerboseBoot) ?: @NO;
     settingsDict[NBCSettingsImagrDisableATS] = @(_disableATS) ?: @NO;
+    settingsDict[NBCSettingsDiskImageReadWriteKey] = @(_diskImageReadWrite) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2359,6 +2361,8 @@ DDLogLevel ddLogLevel;
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
     if ( 11 <= sourceVersionMinor ) {
+        [sourceController addNetworkd:sourceItemsDict source:_source];
+        
         NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[_source installESDVolumeURL] path]];
         NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
         NSArray *packageBSDRegexes;

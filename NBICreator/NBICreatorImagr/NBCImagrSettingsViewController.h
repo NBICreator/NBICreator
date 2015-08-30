@@ -167,6 +167,7 @@
 @property BOOL useNetworkTimeServer;
 @property NSString *networkTimeServer;
 @property BOOL useVerboseBoot;
+@property BOOL diskImageReadWrite;
 
 @property BOOL disableATS;
 @property BOOL disableATSVisible;

@@ -139,6 +139,7 @@ extern NSString *const NBCSettingsDisplaySleepKey;
 extern NSString *const NBCSettingsDisplaySleepMinutesKey;
 extern NSString *const NBCSettingsIncludeSystemUIServerKey;
 extern NSString *const NBCSettingsUseVerboseBootKey;
+extern NSString *const NBCSettingsDiskImageReadWriteKey;
 extern NSString *const NBCSettingsARDLoginKey;
 extern NSString *const NBCSettingsARDPasswordKey;
 extern NSString *const NBCSettingsUseNetworkTimeServerKey;
@@ -472,3 +473,7 @@ extern NSString *const NBCVariableApplicationResourcesURL;
 
 extern NSString *const NBCTableViewIdentifierCertificates;
 extern NSString *const NBCTableViewIdentifierPackages;
+
+extern NSString *const NBCDiskImageFormatReadOnly;
+extern NSString *const NBCDiskImageFormatReadWrite;
+extern NSString *const NBCDiskImageFormatSparseImage;
