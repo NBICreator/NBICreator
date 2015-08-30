@@ -57,6 +57,9 @@
 @property (weak) IBOutlet NSMenuItem *menuItemNew;
 @property (weak) IBOutlet NSMenuItem *menuItemSave;
 @property (weak) IBOutlet NSMenuItem *menuItemSaveAs;
+@property (weak) IBOutlet NSMenuItem *menuItemRename;
+@property (weak) IBOutlet NSMenuItem *menuItemExport;
+@property (weak) IBOutlet NSMenuItem *menuItemDelete;
 @property (weak) IBOutlet NSMenuItem *menuItemShowInFinder;
 @property (weak) IBOutlet NSMenuItem *menuItemHelp;
 
