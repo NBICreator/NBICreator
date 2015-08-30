@@ -652,9 +652,6 @@
                             </menuItem>
                             <menuItem title="Workflows" id="8AK-sN-Ec6">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <connections>
-                                    <action selector="menuItemWindowWorkflows:" target="2ua-cd-ebo" id="mPd-YE-MxD"/>
-                                </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="YJ7-qS-v8f"/>
                             <menuItem title="Bring All to Front" id="LE2-aR-0XJ">
