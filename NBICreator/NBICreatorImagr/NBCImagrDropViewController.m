@@ -728,9 +728,9 @@ DDLogLevel ddLogLevel;
     NSURL *draggedFileURL = [self getDraggedSourceURLFromPasteboard:[sender draggingPasteboard]];
     if ( draggedFileURL ) {
         DDLogInfo(@"%@ was dropped as source", [draggedFileURL lastPathComponent]);
-        NSDictionary * userInfo = @{ NBCNotificationVerifyDroppedSourceUserInfoSourceURL : draggedFileURL };
-        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-        [nc postNotificationName:NBCNotificationImagrVerifyDroppedSource object:self userInfo:userInfo];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationImagrVerifyDroppedSource
+                                                            object:self
+                                                          userInfo:@{ NBCNotificationVerifyDroppedSourceUserInfoSourceURL : draggedFileURL }];
         
         return YES;
     } else {
