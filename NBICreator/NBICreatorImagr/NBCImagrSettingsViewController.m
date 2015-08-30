@@ -857,6 +857,8 @@ DDLogLevel ddLogLevel;
         [self setSource:nil];
     }
     
+    [self setATSButtonVisiblility];
+    
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
     if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
         [self setImageBackground:@""];

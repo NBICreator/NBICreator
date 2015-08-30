@@ -686,6 +686,11 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.disableATSVisible" id="Kuu-ZO-eNT">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
                                             <binding destination="-2" name="value" keyPath="self.ardLogin" id="rDw-La-jWg">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
@@ -706,12 +711,17 @@ asdasd</string>
                                             </allowedInputSourceLocales>
                                         </secureTextFieldCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.disableATSVisible" id="ZOs-al-q8A">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
+                                            <binding destination="-2" name="hidden" keyPath="self.showARDPassword" previousBinding="ZOs-al-q8A" id="bJY-SQ-AHW"/>
                                             <binding destination="-2" name="value" keyPath="self.ardPassword" id="DZz-3m-aCT">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
                                                 </dictionary>
                                             </binding>
-                                            <binding destination="-2" name="hidden" keyPath="self.showARDPassword" id="Alh-sr-nQe"/>
                                             <outlet property="delegate" destination="-2" id="qYm-Y3-Agq"/>
                                         </connections>
                                     </secureTextField>
@@ -722,6 +732,11 @@ asdasd</string>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.disableATSVisible" id="gZR-lr-vd5">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
                                             <binding destination="-2" name="value" keyPath="self.showARDPassword" id="Ovr-lS-gam"/>
                                         </connections>
                                     </button>
@@ -733,14 +748,19 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.disableATSVisible" id="L0A-OX-sqt">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
+                                            <binding destination="-2" name="hidden" keyPath="self.showARDPassword" previousBinding="L0A-OX-sqt" id="4cW-ue-Ly3">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
                                             <binding destination="-2" name="value" keyPath="self.ardPassword" id="6e1-GJ-XoW">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                                </dictionary>
-                                            </binding>
-                                            <binding destination="-2" name="hidden" keyPath="self.showARDPassword" id="nz7-8w-mwC">
-                                                <dictionary key="options">
-                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
                                                 </dictionary>
                                             </binding>
                                             <outlet property="delegate" destination="-2" id="9Bk-rN-sEv"/>
@@ -769,6 +789,11 @@ asdasd</string>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.disableATSVisible" id="yOV-eZ-1aa">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
                                             <binding destination="-2" name="value" keyPath="self.includeSystemUIServer" id="duX-Fq-vT0"/>
                                         </connections>
                                     </button>
@@ -793,8 +818,8 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="YJM-iT-2tU">
-                                        <rect key="frame" x="18" y="170" width="381" height="18"/>
-                                        <buttonCell key="cell" type="check" title="Make NetInstall system image Read/Write ( sparse image )" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="1Uz-cl-uE8">
+                                        <rect key="frame" x="18" y="170" width="389" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Make NetInstall images Read/Write ( dmg -&gt; sparse image )" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="1Uz-cl-uE8">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
