@@ -34,7 +34,7 @@ To get started, read [Getting started](https://github.com/NBICreator/NBICreator/
 Documentation is available in the [Wiki](https://github.com/NBICreator/NBICreator/wiki)
 
 # License
-    Copyright 2015 Erik Berglund
+    Copyright 2015 Erik Berglund. All rights reserved.
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
