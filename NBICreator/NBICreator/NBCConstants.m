@@ -96,6 +96,8 @@ NSString *const NBCMenuItemNoSelection = @"No Selection";
 NSString *const NBCMenuItemNBICreator = @"NBICreator";
 NSString *const NBCMenuItemSystemImageUtility = @"System Image Utility";
 NSString *const NBCMenuItemCurrent = @"Current";
+NSString *const NBCMenuItemWorkflows = @"Workflows";
+NSString *const NBCMenuItemMainWindow = @"MainWindow";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Values - Main

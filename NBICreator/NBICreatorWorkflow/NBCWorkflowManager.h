@@ -51,6 +51,7 @@
 //  Instance Methods
 // -------------------------------------------------------------
 - (void)addWorkflowItemToQueue:(NBCWorkflowItem *)workflowItem;
+- (void)menuItemWindowWorkflows:(id)sender;
 
 @end
 

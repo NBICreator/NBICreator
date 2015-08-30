@@ -31,8 +31,11 @@
 // Windows
 @property (weak) IBOutlet NSWindow *window;
 
+@property (weak) IBOutlet NSMenuItem *menuItemWindowWorkflows;
+
 - (IBAction)menuItemPreferences:(id)sender;
 - (IBAction)menuItemHelp:(id)sender;
+- (IBAction)menuItemMainWindow:(id)sender;
 
 // Views
 @property (strong) NSViewController *nbiSettingsViewController;

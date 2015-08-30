@@ -67,6 +67,33 @@ DDLogLevel ddLogLevel;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
+#pragma mark Delegate Methods PopUpButton
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    BOOL retval = NO;
+    
+    if ( [[menuItem title] isEqualToString:NBCMenuItemWorkflows] ) {
+        if ( [[[_workflowPanel stackView] views] count] != 0 ) {
+            retval = YES;
+        }
+    }
+    
+    return retval;
+} // validateMenuItem
+
+- (void)menuItemWindowWorkflows:(id)sender {
+#pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    if ( _workflowPanel ) {
+        [[_workflowPanel window] makeKeyAndOrderFront:self];
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark Notification Methods
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////

@@ -21,6 +21,7 @@
                 <outlet property="menuItemSave" destination="pxx-59-PXV" id="vPU-ym-82Q"/>
                 <outlet property="menuItemSaveAs" destination="Bw7-FT-i3A" id="aVX-Ol-xeJ"/>
                 <outlet property="menuItemShowInFinder" destination="mAb-EC-HgB" id="6lp-tt-SYA"/>
+                <outlet property="menuItemWindowWorkflows" destination="8AK-sN-Ec6" id="urP-Aj-Dc5"/>
                 <outlet property="segmentedControlNBI" destination="uL8-j3-eig" id="Hng-dP-54m"/>
                 <outlet property="textFieldInstallHelperText" destination="NTd-K4-Z9c" id="U0D-pp-u7P"/>
                 <outlet property="viewDropView" destination="ajs-UB-tQp" id="Yuu-Ra-qxM"/>
@@ -643,6 +644,19 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="eu3-7i-yIM"/>
+                            <menuItem title="Main Window" id="Dsb-Va-wsk">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="menuItemMainWindow:" target="2ua-cd-ebo" id="BKR-j4-mGK"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Workflows" id="8AK-sN-Ec6">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="menuItemWindowWorkflows:" target="2ua-cd-ebo" id="mPd-YE-MxD"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="YJ7-qS-v8f"/>
                             <menuItem title="Bring All to Front" id="LE2-aR-0XJ">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>

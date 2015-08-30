@@ -96,6 +96,8 @@ extern NSString *const NBCMenuItemNoSelection;
 extern NSString *const NBCMenuItemNBICreator;
 extern NSString *const NBCMenuItemSystemImageUtility;
 extern NSString *const NBCMenuItemCurrent;
+extern NSString *const NBCMenuItemWorkflows;
+extern NSString *const NBCMenuItemMainWindow;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Values - Main

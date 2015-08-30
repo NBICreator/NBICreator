@@ -55,6 +55,7 @@
 #import "NBCDiskImageController.h"
 #import "Reachability.h"
 #import "NBCUpdater.h"
+#import "NBCWorkflowManager.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -279,6 +280,12 @@ enum {
     //  Check that helper tool is updated
     // --------------------------------------------------------------
     [self checkHelperVersion];
+    
+    // --------------------------------------------------------------
+    //  Connect main menu items
+    // --------------------------------------------------------------
+    [_menuItemWindowWorkflows setAction:@selector(menuItemWindowWorkflows:)];
+    [_menuItemWindowWorkflows setTarget:[NBCWorkflowManager sharedManager]];
     
     // --------------------------------------------------------------
     //  Restore last selected NBI type in segmented control
@@ -655,7 +662,7 @@ enum {
     NSDictionary*   currentHelperToolInfoPlist      = (NSDictionary*)CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL ));
     NSString*       currentHelperToolBundleVersion  = [currentHelperToolInfoPlist objectForKey:@"CFBundleVersion"];
     DDLogDebug(@"currentHelperToolBundleVersion=%@", currentHelperToolBundleVersion);
-
+    
     // --------------------------------------------------------------
     //  Connect to helper and get installed helper's version
     // --------------------------------------------------------------
@@ -1042,5 +1049,13 @@ enum {
     DDLogInfo(@"Opening help URL: %@", NBCHelpURL);
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NBCHelpURL]];
 } // menuItemHelp
+
+- (IBAction)menuItemMainWindow:(id)sender {
+#pragma unused(sender)
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    if ( _window ) {
+        [_window makeKeyAndOrderFront:self];
+    }
+}
 
 @end
