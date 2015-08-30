@@ -473,7 +473,7 @@ DDLogLevel ddLogLevel;
                                   "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.screensharing.agent.plist\n"
                                   "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.RemoteDesktop.plist\n"
                                   "fi\n"];
-        } else if ( osMinorVersion >= 8 ) {
+        } else if ( 8 <= osMinorVersion ) {
             startScreensharing = [NSString stringWithFormat:@"\n"
                                   "### \n"
                                   "### Start Screensharing\n"

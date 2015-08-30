@@ -26,7 +26,7 @@
 
 @interface NBCInstallerPackageController : NSObject
 
-@property id delegate;
+@property (nonatomic, weak) id delegate;
 
 @property NSURL *volumeURL;
 @property NSMutableArray *packagesQueue;

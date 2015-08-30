@@ -119,12 +119,11 @@
 
 - (NSData *)certificate {
     if ( !_certificate ) {
-        NSError *error;
-        
+
         // --------------------------------------------------------------
         //  Try reading file contents as string (PEM-encoding)
         // --------------------------------------------------------------
-        NSMutableString *certificateString = [NSMutableString stringWithContentsOfURL:[self fileURL] encoding:NSUTF8StringEncoding error:&error];
+        NSMutableString *certificateString = [NSMutableString stringWithContentsOfURL:[self fileURL] encoding:NSUTF8StringEncoding error:nil];
         if ( [certificateString length] != 0 ) {
             
             /*/////////////////////////////////////////////////////////////////////////////////

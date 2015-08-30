@@ -43,6 +43,10 @@ DDLogLevel ddLogLevel;
     [_textFieldStatusInfo setStringValue:@"Waiting..."];
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

@@ -20,7 +20,7 @@
 
 @interface NBCImagrWorkflowResources : NSObject <NBCDownloaderDelegate, NBCResourcesControllerDelegate>
 
-@property id delegate;
+@property (nonatomic, weak) id delegate;
 
 // ------------------------------------------------------
 //  Class Instance Properties

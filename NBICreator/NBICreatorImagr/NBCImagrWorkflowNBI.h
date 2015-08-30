@@ -17,7 +17,7 @@
 
 @interface NBCImagrWorkflowNBI : NSObject
 
-@property id delegate;
+@property (nonatomic, weak) id delegate;
 @property (weak) id<NBCMessageDelegate> messageDelegate;
 
 // ------------------------------------------------------

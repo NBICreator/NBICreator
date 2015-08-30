@@ -19,7 +19,7 @@
 
 @interface NBCDeployStudioWorkflowModifyNBI : NSObject
 
-@property id delegate;
+@property (nonatomic, weak) id delegate;
 
 // ------------------------------------------------------
 //  Class Instance Properties

@@ -11,7 +11,7 @@
 int main(int argc, const char * argv[]) {
     if ( argc == 3 && [[NSString stringWithUTF8String:argv[1]] isEqualToString:@"-NSDocumentRevisionsDebugMode"] ) {
         return NSApplicationMain(argc, argv);
-    } else if ( argc > 1 ) {
+    } else if ( 1 < argc ) {
         NSUserDefaults *args = [NSUserDefaults standardUserDefaults];
         NSLog(@"%@", [args dictionaryRepresentation]);
         NSLog(@"%@", [args objectForKey:@"-source"]);

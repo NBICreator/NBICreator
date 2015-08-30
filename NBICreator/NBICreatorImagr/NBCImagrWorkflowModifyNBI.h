@@ -23,7 +23,7 @@
 
 @interface NBCImagrWorkflowModifyNBI : NSObject <NBCInstallerPackageDelegate, NBCMessageDelegate>
 
-@property id delegate;
+@property (nonatomic, weak) id delegate;
 
 // ------------------------------------------------------
 //  Properties

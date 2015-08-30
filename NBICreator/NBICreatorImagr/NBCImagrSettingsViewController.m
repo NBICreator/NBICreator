@@ -801,14 +801,11 @@ DDLogLevel ddLogLevel;
         int sourceVersionMinor = (int)[[_source expandVariables:@"%OSMINOR%"] integerValue];
         DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
         if ( _source != nil && 11 <= sourceVersionMinor ) {
-            NSLog(@"YES");
             [self setDisableATSVisible:YES];
         } else {
-            NSLog(@"NO");
             [self setDisableATSVisible:NO];
         }
     } else {
-        NSLog(@"NO");
         [self setDisableATSVisible:NO];
     }
 }

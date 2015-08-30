@@ -18,7 +18,7 @@
 
 @interface NBCNetInstallWorkflowModifyNBI : NSObject
 
-@property id delegate;
+@property (nonatomic, weak) id delegate;
 
 // ------------------------------------------------------
 //  Class Instance Properties
