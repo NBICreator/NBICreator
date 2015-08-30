@@ -1,6 +1,6 @@
 # NBICreator
 
-![NBICreator](https://raw.githubusercontent.com/NBICreator/NBICreator/master/GitHub%20Resources/NBICreatorIconBanner_text.png)
+![NBICreator](https://raw.githubusercontent.com/NBICreator/NBICreator/master/GitHub%20Resources/NBICreatorIconBannerGitHub_text.png)
 
 NBICreator is a NetInstall image creation tool written in Objective-C.
 
