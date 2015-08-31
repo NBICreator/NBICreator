@@ -145,10 +145,14 @@ DDLogLevel ddLogLevel;
             DDLogDebug(@"[DEBUG] _copyComplete=%hhd", self->_copyComplete);
             dispatch_async(dispatch_get_main_queue(), ^{
                 DDLogError(@"[ERROR] Could not copy BaseSystem.dmg to NBI folder!");
-                DDLogError(@"%@", blockError);
+                NSDictionary *userInfo = nil;
+                if ( error ) {
+                    DDLogError(@"[ERROR] %@", blockError);
+                    userInfo = @{ NBCUserInfoNSErrorKey : blockError };
+                }
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                     object:self
-                                                                  userInfo:@{ NBCUserInfoNSErrorKey : blockError }];
+                                                                  userInfo:userInfo];
                 return;
             });
         } else {

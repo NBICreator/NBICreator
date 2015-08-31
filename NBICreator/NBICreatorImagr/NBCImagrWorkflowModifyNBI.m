@@ -130,10 +130,14 @@ DDLogLevel ddLogLevel;
         }
     } else {
         DDLogError(@"[ERROR] Converting BaseSystem from shadow failed!");
-        DDLogError(@"%@", error);
+        NSDictionary *userInfo = nil;
+        if ( error ) {
+            DDLogError(@"[ERROR] %@", error);
+            userInfo = @{ NBCUserInfoNSErrorKey : error };
+        }
         [nc postNotificationName:NBCNotificationWorkflowFailed
                           object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                        userInfo:userInfo];
         return;
     }
     
@@ -167,10 +171,14 @@ DDLogLevel ddLogLevel;
             }
         } else {
             DDLogError(@"[ERROR] Converting NetIstall from shadow failed!");
-            DDLogError(@"%@", error);
+            NSDictionary *userInfo = nil;
+            if ( error ) {
+                DDLogError(@"[ERROR] %@", error);
+                userInfo = @{ NBCUserInfoNSErrorKey : error };
+            }
             [nc postNotificationName:NBCNotificationWorkflowFailed
                               object:self
-                            userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                            userInfo:userInfo];
             return;
         }
     } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
@@ -189,10 +197,14 @@ DDLogLevel ddLogLevel;
                 return;
             } else {
                 DDLogError(@"[ERROR] Could not rename BaseSystem to NetInstall");
-                DDLogError(@"%@", error);
+                NSDictionary *userInfo = nil;
+                if ( error ) {
+                    DDLogError(@"[ERROR] %@", error);
+                    userInfo = @{ NBCUserInfoNSErrorKey : error };
+                }
                 [nc postNotificationName:NBCNotificationWorkflowFailed
                                   object:self
-                                userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                                userInfo:userInfo];
                 return;
             }
         } else {
@@ -218,10 +230,14 @@ DDLogLevel ddLogLevel;
                 }
             } else {
                 DDLogError(@"[ERROR] Could not rename BaseSystem to NetInstall");
-                DDLogError(@"%@", error);
+                NSDictionary *userInfo = nil;
+                if ( error ) {
+                    DDLogError(@"[ERROR] %@", error);
+                    userInfo = @{ NBCUserInfoNSErrorKey : error };
+                }
                 [nc postNotificationName:NBCNotificationWorkflowFailed
                                   object:self
-                                userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                                userInfo:userInfo];
             }
         }
     } else {
