@@ -88,8 +88,12 @@ DDLogLevel ddLogLevel;
             DDLogDebug(@"[DEBUG] _temporaryNBIBaseSystemSize=%f", _temporaryNBIBaseSystemSize);
         } else {
             DDLogError(@"[ERROR] Could not get volumeAttributes from InstallESD Volume");
-            DDLogError(@"%@", error);
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+            NSDictionary *userInfo = nil;
+            if ( error ) {
+                DDLogError(@"[ERROR] %@", error);
+                userInfo = @{ NBCUserInfoNSErrorKey : error };
+            }
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         }
     } else {
         DDLogError(@"[ERROR] Path for source BaseSystem.dmg is empty!");
@@ -242,8 +246,12 @@ DDLogLevel ddLogLevel;
                         [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
                     } else {
                         DDLogError(@"[ERROR] Error while copying kernel cache file");
-                        DDLogError(@"[ERROR] %@", error);
-                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                        NSDictionary *userInfo = nil;
+                        if ( error ) {
+                            DDLogError(@"[ERROR] %@", error);
+                            userInfo = @{ NBCUserInfoNSErrorKey : error };
+                        }
+                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
                     }
                 }
             } else {
@@ -413,10 +421,14 @@ DDLogLevel ddLogLevel;
             // ------------------------------------------------------------------
             //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
-            DDLogError(@"%@", proxyError);
+            NSDictionary *userInfo = nil;
+            if ( proxyError ) {
+                DDLogError(@"[ERROR] %@", proxyError);
+                userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
+            }
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
+            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         }];
         
     }] runTaskWithCommandAtPath:commandURL arguments:createNetInstallArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
@@ -432,14 +444,18 @@ DDLogLevel ddLogLevel;
                 [nc removeObserver:stdErrObserver];
                 [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
             } else {
-                DDLogError(@"%@", error);
                 
                 // ------------------------------------------------------------------
                 //  If task failed, post workflow failed notification
                 // ------------------------------------------------------------------
+                NSDictionary *userInfo = nil;
+                if ( error ) {
+                    DDLogError(@"[ERROR] %@", error);
+                    userInfo = @{ NBCUserInfoNSErrorKey : error };
+                }
                 [nc removeObserver:stdOutObserver];
                 [nc removeObserver:stdErrObserver];
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
             }
         }];
     }];

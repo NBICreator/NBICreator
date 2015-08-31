@@ -133,10 +133,14 @@ DDLogLevel ddLogLevel;
             // ------------------------------------------------------------------
             //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
-            DDLogError(@"[ERROR] %@", proxyError);
+            NSDictionary *userInfo = nil;
+            if ( proxyError ) {
+                DDLogError(@"[ERROR] %@", proxyError);
+                userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
+            }
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
+            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         }];
         
     }] runTaskWithCommandAtPath:commandURL arguments:sysBuilderArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {

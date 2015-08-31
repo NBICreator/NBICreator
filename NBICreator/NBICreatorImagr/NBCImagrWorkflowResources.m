@@ -862,10 +862,14 @@ DDLogLevel ddLogLevel;
                     // ------------------------------------------------------------------
                     //  If task failed, post workflow failed notification  
                     // ------------------------------------------------------------------
-                    DDLogError(@"[ERROR] %@", proxyError);
+                    NSDictionary *userInfo = nil;
+                    if ( proxyError ) {
+                        DDLogError(@"[ERROR] %@", proxyError);
+                        userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
+                    }
                     [nc removeObserver:stdOutObserver];
                     [nc removeObserver:stdErrObserver];
-                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
+                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
                 }];
                 
             }] runTaskWithCommandAtPath:commandURL arguments:scriptArguments currentDirectory:[packageTemporaryFolder path] stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
@@ -886,10 +890,14 @@ DDLogLevel ddLogLevel;
                         //  If task failed, post workflow failed notification
                         // ------------------------------------------------------------------
                         DDLogError(@"[ERROR] Extraction failed!");
-                        DDLogError(@"%@", error);
+                        NSDictionary *userInfo = nil;
+                        if ( error ) {
+                            DDLogError(@"[ERROR] %@", error);
+                            userInfo = @{ NBCUserInfoNSErrorKey : error };
+                        }
                         [nc removeObserver:stdOutObserver];
                         [nc removeObserver:stdErrObserver];
-                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
                     }
                 }];
             }];

@@ -288,7 +288,12 @@ DDLogLevel ddLogLevel;
 #pragma unused(error)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogError(@"[ERROR] Install Failed!");
-    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+    NSDictionary *userInfo = nil;
+    if ( error ) {
+        DDLogError(@"[ERROR] %@", error);
+        userInfo = @{ NBCUserInfoNSErrorKey : error };
+    }
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
 } // installFailed
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -351,8 +356,12 @@ DDLogLevel ddLogLevel;
                     // ------------------------------------------------------------------
                     //  If task failed, post workflow failed notification
                     // ------------------------------------------------------------------
-                    DDLogError(@"[ERROR] %@", proxyError);
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
+                    NSDictionary *userInfo = nil;
+                    if ( proxyError ) {
+                        DDLogError(@"[ERROR] %@", proxyError);
+                        userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
+                    }
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
                 }];
                 
             }] removeItemAtURL:packagesFolderURL withReply:^(NSError *error, int terminationStatus) {
@@ -360,8 +369,12 @@ DDLogLevel ddLogLevel;
                     DDLogDebug(@"terminationStatus=%d", terminationStatus);
                     if ( terminationStatus != 0 ) {
                         DDLogError(@"[ERROR] Delete Packages folder in NetInstall failed!");
-                        DDLogError(@"[ERROR] %@", error);
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                        NSDictionary *userInfo = nil;
+                        if ( error ) {
+                            DDLogError(@"[ERROR] %@", error);
+                            userInfo = @{ NBCUserInfoNSErrorKey : error };
+                        }
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
                     } else {
                         [self createFoldersInNetInstall];
                     }
@@ -1061,10 +1074,14 @@ DDLogLevel ddLogLevel;
                 // ------------------------------------------------------------------
                 //  If task failed, post workflow failed notification
                 // ------------------------------------------------------------------
-                DDLogError(@"%@", proxyError);
+                NSDictionary *userInfo = nil;
+                if ( proxyError ) {
+                    DDLogError(@"[ERROR] %@", proxyError);
+                    userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
+                }
                 [nc removeObserver:stdOutObserver];
                 [nc removeObserver:stdErrObserver];
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
             }];
             
         }] runTaskWithCommandAtPath:commandURL arguments:generateKernelCacheVariables currentDirectory:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
@@ -1075,10 +1092,14 @@ DDLogLevel ddLogLevel;
                     [nc removeObserver:stdErrObserver];
                     [self disableSpotlight];
                 } else {
-                    DDLogError(@"%@", error);
+                    NSDictionary *userInfo = nil;
+                    if ( error ) {
+                        DDLogError(@"[ERROR] %@", error);
+                        userInfo = @{ NBCUserInfoNSErrorKey : error };
+                    }
                     [nc removeObserver:stdOutObserver];
                     [nc removeObserver:stdErrObserver];
-                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
                 }
             }];
         }];

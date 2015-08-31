@@ -165,10 +165,14 @@ DDLogLevel ddLogLevel;
     [helperConnector connectToHelper];
     
     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-        DDLogError(@"[installer][ERROR] %@", proxyError);
+        NSDictionary *userInfo = nil;
+        if ( proxyError ) {
+            DDLogError(@"[ERROR] %@", proxyError);
+            userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
+        }
         [nc removeObserver:stdOutObserver];
         [nc removeObserver:stdErrObserver];
-        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
+        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         
     }] runTaskWithCommandAtPath:commandURL arguments:installerArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
