@@ -72,6 +72,9 @@
 - (void)menuItemNew:(NSNotification *)notification;
 - (void)menuItemSave:(NSNotification *)notification;
 - (void)menuItemSaveAs:(NSNotification *)notification;
+- (void)menuItemRename:(NSNotification *)notification;
+- (void)menuItemExport:(NSNotification *)notification;
+- (void)menuItemDelete:(NSNotification *)notification;
 - (void)menuItemShowInFinder:(NSNotification *)notification;
 + (BOOL)templateIsDuplicate:(NSURL *)templateURL;
 - (void)showSheetSaveUntitled:(NSString *)senderTitle buildNBI:(BOOL)buildNBI;

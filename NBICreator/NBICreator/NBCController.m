@@ -936,6 +936,15 @@ enum {
     [_menuItemSaveAs setAction:@selector(menuItemSaveAs:)];
     [_menuItemSaveAs setTarget:[_currentSettingsController templates]];
     
+    [_menuItemRename setAction:@selector(menuItemRename:)];
+    [_menuItemRename setTarget:[_currentSettingsController templates]];
+    
+    [_menuItemExport setAction:@selector(menuItemExport:)];
+    [_menuItemExport setTarget:[_currentSettingsController templates]];
+    
+    [_menuItemDelete setAction:@selector(menuItemDelete:)];
+    [_menuItemDelete setTarget:[_currentSettingsController templates]];
+    
     [_menuItemShowInFinder setAction:@selector(menuItemShowInFinder:)];
     [_menuItemShowInFinder setTarget:[_currentSettingsController templates]];
     

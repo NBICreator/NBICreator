@@ -136,7 +136,7 @@
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="sjP-Yt-Xso"/>
-                            <menuItem title="Show in Finder…" id="mAb-EC-HgB">
+                            <menuItem title="Show in Finder..." id="mAb-EC-HgB">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                         </items>
