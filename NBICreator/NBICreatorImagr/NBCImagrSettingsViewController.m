@@ -1830,10 +1830,12 @@ DDLogLevel ddLogLevel;
 - (void)uppdatePopUpButtonTool {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *systemUtilityVersion = [_siuSource systemImageUtilityVersion];
-    if ( ! [_siuSource isSupported] ) {
-        //systemUtilityVersion = [systemUtilityVersion stringByAppendingString:@" (Untested)"];
+    if ( [systemUtilityVersion length] != 0 ) {
+        [_textFieldSIUVersionString setStringValue:systemUtilityVersion];
+    } else {
+        [_textFieldSIUVersionString setStringValue:@"Not Installed"];
     }
-    [_textFieldSIUVersionString setStringValue:systemUtilityVersion];
+    
     
     if ( _popUpButtonTool ) {
         [_popUpButtonTool removeAllItems];

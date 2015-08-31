@@ -82,10 +82,11 @@ DDLogLevel ddLogLevel;
     //  Update default System Image Utility Version in UI.
     // --------------------------------------------------------------
     NSString *systemUtilityVersion = [_siuSource systemImageUtilityVersion];
-    if ( ! [_siuSource isSupported] ) {
-        //systemUtilityVersion = [systemUtilityVersion stringByAppendingString:@" (Untested)"];
+    if ( [systemUtilityVersion length] != 0 ) {
+        [_textFieldSystemImageUtilityVersion setStringValue:systemUtilityVersion];
+    } else {
+        [_textFieldSystemImageUtilityVersion setStringValue:@"Not Installed"];
     }
-    [_textFieldSystemImageUtilityVersion setStringValue:systemUtilityVersion];
     
     // ------------------------------------------------------------------------------
     //  Add contextual menu to NBI Icon image view to allow to restore original icon.

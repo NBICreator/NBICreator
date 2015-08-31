@@ -15,9 +15,6 @@
 @property NSString *siuAgentVersion;
 
 @property NSString *selectedVersion;
-@property BOOL isSupported;
-
-@property NSArray *systemImageUtilityVersionsSupported;
 
 @property NSURL *systemImageUtilityURL;
 @property NSURL *siuFoundationFrameworkURL;

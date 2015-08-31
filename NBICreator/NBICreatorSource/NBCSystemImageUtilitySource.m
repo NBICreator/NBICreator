@@ -18,10 +18,6 @@ DDLogLevel ddLogLevel;
 - (id)init {
     self = [super init];
     if (self) {
-        _systemImageUtilityVersionsSupported = @[
-                                                 @"10.10.2",
-                                                 @"10.10.3"
-                                                 ];
         [self setSystemImageUtilityURL];
     }
     return self;
@@ -38,14 +34,14 @@ DDLogLevel ddLogLevel;
 
 - (void)setSystemImageUtilityURL {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSArray *systemImageUtilityURLs = [self systemImageUtilityURLs];
+    NSError *error;
     
+    NSArray *systemImageUtilityURLs = [self systemImageUtilityURLs];
     NSURL *systemImageUtilityURL = [systemImageUtilityURLs firstObject];
     
-    NSError *error;
     _systemImageUtilityURL = systemImageUtilityURL;
-    if ( [_systemImageUtilityURL checkResourceIsReachableAndReturnError:&error] )
-    {
+    
+    if ( [_systemImageUtilityURL checkResourceIsReachableAndReturnError:&error] ) {
         [self systemImageUtilityResourcesFromURL:_systemImageUtilityURL];
     } else {
         NSLog(@"System Image Utility Doesn't exist!_ %@", error);
@@ -54,18 +50,27 @@ DDLogLevel ddLogLevel;
 
 - (void)systemImageUtilityResourcesFromURL:(NSURL *)systemImageUtilityURL {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSError *error;
     
     [self setSystemImageUtilityVersion:[[NSBundle bundleWithURL:systemImageUtilityURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
     [self setSelectedVersion:_systemImageUtilityVersion];
-    if ( ! [_systemImageUtilityVersionsSupported containsObject:_systemImageUtilityVersion] ) {
-        [self setIsSupported:NO];
+    
+    NSURL *siuFoundationFrameworkURL;
+    NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+    int osVersionMinor = (int)version.minorVersion;
+    if ( 11 <= osVersionMinor ) {
+        siuFoundationFrameworkURL = [NSURL fileURLWithPath:@"/System/Library/PrivateFrameworks/SIUFoundation.framework"];
     } else {
-        [self setIsSupported:YES];
+        siuFoundationFrameworkURL = [[[NSBundle bundleWithURL:_systemImageUtilityURL] privateFrameworksURL] URLByAppendingPathComponent:@"SIUFoundation.framework"];
     }
     
-    [self setSiuFoundationFrameworkURL:[[[NSBundle bundleWithURL:_systemImageUtilityURL] privateFrameworksURL] URLByAppendingPathComponent:@"SIUFoundation.framework"]];
-    if ( [_siuFoundationFrameworkURL checkResourceIsReachableAndReturnError:&error] ) {
+    [self siuFoundationResourcesFromURL:siuFoundationFrameworkURL];
+}
+
+- (void)siuFoundationResourcesFromURL:(NSURL *)siuFoundationFrameworkURL {
+    NSError *error;
+    
+    if ( [siuFoundationFrameworkURL checkResourceIsReachableAndReturnError:&error] ) {
+        [self setSiuFoundationFrameworkURL:siuFoundationFrameworkURL];
         [self setSiuFoundationVersion:[[NSBundle bundleWithURL:_siuFoundationFrameworkURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
     } else {
         NSLog(@"SIUFoundation.framework Doesn't exist!_ %@", error);
@@ -98,7 +103,7 @@ DDLogLevel ddLogLevel;
     }
     
     newString = [newString stringByReplacingOccurrencesOfString:variableSIUVersion
-                                               withString:siuVersion];
+                                                     withString:siuVersion];
     
     return newString;
 }
