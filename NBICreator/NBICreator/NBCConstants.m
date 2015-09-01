@@ -166,7 +166,7 @@ NSString *const NBCSettingsSourceItemsRegexKey = @"Regex";
 NSString *const NBCSettingsSourceItemsCacheFolderKey = @"CacheFolder";
 
 
-NSString *const NBCSettingsNBIKeyboardLayout = @"KeyboardLayout";
+NSString *const NBCSettingsKeyboardLayoutID = @"KeyboardLayoutID";
 
 
 

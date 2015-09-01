@@ -1243,7 +1243,7 @@ DDLogLevel ddLogLevel;
     }
     DDLogDebug(@"hiToolboxPreferencesDict=%@", hiToolboxPreferencesDict);
     DDLogDebug(@"hiToolboxPreferencesAttributes=%@", hiToolboxPreferencesAttributes);
-    NSString *selectedKeyboardLayoutSourceID = resourceSettings[NBCSettingsNBIKeyboardLayout];
+    NSString *selectedKeyboardLayoutSourceID = resourceSettings[NBCSettingsKeyboardLayoutID];
     DDLogDebug(@"selectedKeyboardLayoutSourceID=%@", selectedKeyboardLayoutSourceID);
     NSString *selectedKeyboardName = resourceSettings[NBCSettingsKeyboardLayoutKey];
     DDLogDebug(@"selectedKeyboardName=%@", selectedKeyboardName);

@@ -2286,15 +2286,15 @@ DDLogLevel ddLogLevel;
     if ( [selectedKeyboardLayout length] == 0 ) {
         NSString *currentKeyboardLayout = hiToolboxDict[@"AppleCurrentKeyboardLayoutInputSourceID"];
         if ( [currentKeyboardLayout length] != 0 ) {
-            resourcesSettings[NBCSettingsNBIKeyboardLayout] = currentKeyboardLayout;
+            resourcesSettings[NBCSettingsKeyboardLayoutID] = currentKeyboardLayout;
         } else {
             DDLogError(@"[ERROR] Could not get current keyboard layout!");
             return;
         }
     } else {
-        resourcesSettings[NBCSettingsNBIKeyboardLayout] = selectedKeyboardLayout;
+        resourcesSettings[NBCSettingsKeyboardLayoutID] = selectedKeyboardLayout;
     }
-    NSLog(@"resourcesSettings[NBCSettingsNBIKeyboardLayout]=%@", resourcesSettings[NBCSettingsNBIKeyboardLayout]);
+    NSLog(@"resourcesSettings[NBCSettingsKeyboardLayoutID]=%@", resourcesSettings[NBCSettingsKeyboardLayoutID]);
     
     NSString *selectedTimeZone = [self timeZoneFromMenuItem:_selectedMenuItem];
     if ( [selectedTimeZone length] != 0 ) {
@@ -2327,7 +2327,6 @@ DDLogLevel ddLogLevel;
     
     if ( 11 <= sourceVersionMinor ) {
         [sourceController addLibSsl:sourceItemsDict source:_source];
-        [sourceController addKerberos:sourceItemsDict source:_source];
     }
         
     //[sourceController addNSURLStoraged:sourceItemsDict source:_source];

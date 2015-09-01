@@ -159,7 +159,7 @@ extern NSString *const NBCSettingsPackagesKey;
 
 
 extern NSString *const NBCSettingsNBICreationToolKey;
-extern NSString *const NBCSettingsNBIKeyboardLayout;
+extern NSString *const NBCSettingsKeyboardLayoutID;
 extern NSString *const NBCSettingsLocale;
 extern NSString *const NBCSettingsCountry;
 
