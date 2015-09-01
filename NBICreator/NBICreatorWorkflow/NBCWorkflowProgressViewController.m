@@ -80,16 +80,18 @@ DDLogLevel ddLogLevel;
                                                         object:self
                                                       userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
     
-    NSDictionary *errorUserInfo = @{
-                                    NSLocalizedDescriptionKey: NSLocalizedString(@"Workflow Canceled.", nil),
-                                    NSLocalizedFailureReasonErrorKey: NSLocalizedString(@"User canceled workflow.", nil)
-                                    };
-
-    NSError *error = [NSError errorWithDomain:NBCErrorDomain code:-1 userInfo:errorUserInfo];
-
-    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                        object:self
-                                                      userInfo:@{ NBCUserInfoNSErrorKey : error }];
+    if ( _isRunning ) {
+        NSDictionary *errorUserInfo = @{
+                                        NSLocalizedDescriptionKey: NSLocalizedString(@"Workflow Canceled.", nil),
+                                        NSLocalizedFailureReasonErrorKey: NSLocalizedString(@"User canceled workflow.", nil)
+                                        };
+        
+        NSError *error = [NSError errorWithDomain:NBCErrorDomain code:-1 userInfo:errorUserInfo];
+        
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                            object:self
+                                                          userInfo:@{ NBCUserInfoNSErrorKey : error }];
+    }
 }
 
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
