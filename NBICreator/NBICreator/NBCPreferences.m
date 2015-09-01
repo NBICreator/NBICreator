@@ -147,7 +147,7 @@ DDLogLevel ddLogLevel;
                 NSString *fileSizeString = [NSByteCountFormatter stringFromByteCount:(long long)folderSize countStyle:NSByteCountFormatterCountStyleDecimal];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self->_textFieldCacheFolderSize setStringValue:fileSizeString];
-                    [self->_buttonClearCache setEnabled:YES];
+                    [self->_buttonClearCache setEnabled:![[NBCWorkflowManager sharedManager] workflowRunning]];
                     [self->_buttonShowCache setEnabled:YES];
                 });
             }
