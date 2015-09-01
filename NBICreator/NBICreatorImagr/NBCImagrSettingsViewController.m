@@ -2316,6 +2316,8 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     NBCSourceController *sourceController = [[NBCSourceController alloc] init];
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
+    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+    DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
     
     // - Python is required for Imagr
     [sourceController addPython:sourceItemsDict source:_source];
@@ -2323,6 +2325,11 @@ DDLogLevel ddLogLevel;
     // - spctl
     [sourceController addSpctl:sourceItemsDict source:_source];
     
+    if ( 11 <= sourceVersionMinor ) {
+        [sourceController addLibSsl:sourceItemsDict source:_source];
+        [sourceController addKerberos:sourceItemsDict source:_source];
+    }
+        
     //[sourceController addNSURLStoraged:sourceItemsDict source:_source];
     
     // - Kernel
@@ -2364,8 +2371,6 @@ DDLogLevel ddLogLevel;
     //  In OS X 10.11 all sources moved to Essentials.pkg
     //  This moves all BSD-regexes to Essentials
     // -------------------------------------------------------------
-    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
-    DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
     if ( 11 <= sourceVersionMinor ) {
         [sourceController addNetworkd:sourceItemsDict source:_source];
         

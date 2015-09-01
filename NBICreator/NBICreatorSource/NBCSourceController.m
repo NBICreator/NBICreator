@@ -741,10 +741,28 @@ DDLogLevel ddLogLevel;
     
     NSString *regexDesktopPicture;
     int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
+    if ( sourceVersionMinor == 11 ) {
+        [packageEssentialsRegexes addObject:@".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*"];
+        packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+        sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+        return;
+    }
+    
+    NSString *packageMediaFilesPath = [NSString stringWithFormat:@"%@/Packages/MediaFiles.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageMediaFilesDict = sourceItemsDict[packageMediaFilesPath];
+    NSMutableArray *packageMediaFilesRegexes;
+    if ( [packageMediaFilesDict count] != 0 ) {
+        packageMediaFilesRegexes = packageMediaFilesDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageMediaFilesRegexes == nil )
+        {
+            packageMediaFilesRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageMediaFilesDict = [[NSMutableDictionary alloc] init];
+        packageMediaFilesRegexes = [[NSMutableArray alloc] init];
+    }
+    
     switch (sourceVersionMinor) {
-        case 11:
-            regexDesktopPicture = @".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*";
-            break;
         case 10:
             regexDesktopPicture = @".*Library/Desktop\\ Pictures/Yosemite.jpg.*";
             break;
@@ -763,11 +781,11 @@ DDLogLevel ddLogLevel;
     
     if ( [regexDesktopPicture length] != 0 ) {
         DDLogDebug(@"regexDesktopPicture=%@", regexDesktopPicture);
-        [packageEssentialsRegexes addObject:regexDesktopPicture];
+        [packageMediaFilesRegexes addObject:regexDesktopPicture];
     }
         
-    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
-    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+    packageMediaFilesDict[NBCSettingsSourceItemsRegexKey] = packageMediaFilesRegexes;
+    sourceItemsDict[packageMediaFilesPath] = packageMediaFilesDict;
 }
 
 - (void)addNTP:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
@@ -862,6 +880,33 @@ DDLogLevel ddLogLevel;
     sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
 }
 
+- (void)addLibSsl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil ) {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+
+    NSString *regexLibSsl = @".*libssl.*";
+    DDLogDebug(@"regexLibSsl=%@", regexLibSsl);
+    [packageEssentialsRegexes addObject:regexLibSsl];
+    
+    NSString *regexSystemClr = @".*/Colors/System.clr.*";
+    DDLogDebug(@"regexSystemClr=%@", regexSystemClr);
+    [packageEssentialsRegexes addObject:regexSystemClr];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+}
+
 - (void)addSpctl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
@@ -937,12 +982,6 @@ DDLogLevel ddLogLevel;
         
         NSString *regexFrameworkWirelessProximity = @".*WirelessProximity.framework.*";
         [packageEssentialsRegexes addObject:regexFrameworkWirelessProximity];
-        
-        NSString *regexSCIM = @".*SCIM.app.*";
-        [packageEssentialsRegexes addObject:regexSCIM];
-        
-        NSString *regexTCIM = @".*TCIM.app.*";
-        [packageEssentialsRegexes addObject:regexTCIM];
     }
         
     NSString *regexFrameworkMediaControlSender = @".*MediaControlSender.framework.*";
@@ -1040,7 +1079,7 @@ DDLogLevel ddLogLevel;
         [packageEssentialsRegexes addObject:regexAppleVNCServer];
     }
     
-    NSString *regexPerl = @".*perl.*";
+    NSString *regexPerl = @".*/[Pp]erl.*";
     [packageEssentialsRegexes addObject:regexPerl];
     
     NSString *regexScreensharingPreferences = @".*/Preferences/com.apple.RemoteManagement.*";
