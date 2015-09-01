@@ -715,10 +715,8 @@ DDLogLevel ddLogLevel;
         verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
     }
     
-    if ( sourceVersionMinor < 11 ) {
-        if ( verified && [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
-            verified = [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
-        }
+    if ( verified && [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
+        verified = [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
     }
     
     if ( verified && [userSettings[NBCSettingsNetworkTimeServerKey] length] != 0 ) {
@@ -741,20 +739,19 @@ DDLogLevel ddLogLevel;
         verified = [_targetController modifySettingsAddFolders:modifyDictArray workflowItem:_workflowItem];
     }
     
-    if ( sourceVersionMinor < 11 ) {
-        if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
-            
-            if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
-                if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
-                    shouldAddUsers = YES;
-                } else {
-                    verified = NO;
-                }
+    //if ( sourceVersionMinor < 11 ) {
+    if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
+        if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
+            if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
+                shouldAddUsers = YES;
             } else {
                 verified = NO;
             }
+        } else {
+            verified = NO;
         }
     }
+    //}
     
     if ( verified ) {
         [self modifyBaseSystemFiles:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL shouldAddUsers:shouldAddUsers];
