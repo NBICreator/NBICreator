@@ -691,6 +691,10 @@ DDLogLevel ddLogLevel;
         }
     }
     
+    if ( verified && [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
+        verified = [_targetController modifySettingsForDesktopViewer:modifyDictArray workflowItem:_workflowItem];
+    }
+    
     if ( verified ) {
         verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
     }

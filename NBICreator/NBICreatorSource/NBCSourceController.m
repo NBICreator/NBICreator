@@ -724,6 +724,52 @@ DDLogLevel ddLogLevel;
     sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
 }
 
+- (void)addDesktopPicture:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil )
+        {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexDesktopPicture;
+    int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
+    switch (sourceVersionMinor) {
+        case 11:
+            regexDesktopPicture = @".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*";
+            break;
+        case 10:
+            regexDesktopPicture = @".*Library/Desktop\\ Pictures/Yosemite.jpg.*";
+            break;
+        case 9:
+            regexDesktopPicture = @".*Library/Desktop\\ Pictures/Mavericks.jpg.*";
+            break;
+        case 8:
+            regexDesktopPicture = @".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*";
+            break;
+        case 7:
+            regexDesktopPicture = @".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*";
+            break;
+        default:
+            break;
+    }
+    
+    if ( [regexDesktopPicture length] != 0 ) {
+        DDLogDebug(@"regexDesktopPicture=%@", regexDesktopPicture);
+        [packageEssentialsRegexes addObject:regexDesktopPicture];
+    }
+        
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+}
+
 - (void)addNTP:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];

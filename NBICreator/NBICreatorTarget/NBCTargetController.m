@@ -1133,6 +1133,78 @@ DDLogLevel ddLogLevel;
     return retval;
 }
 
+- (BOOL)modifySettingsForDesktopViewer:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogInfo(@"Adding language and keyboard settings...");
+    BOOL retval = YES;
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    NSDictionary *resourceSettings = [workflowItem resourcesSettings];
+    DDLogDebug(@"resourceSettings=%@", resourceSettings);
+    
+    // ------------------------------------------------------------------
+    //  /Library/Desktop Pictures/...
+    // ------------------------------------------------------------------
+    NSDictionary *hiToolboxPreferencesAttributes;
+    NSMutableDictionary *hiToolboxPreferencesDict;
+    
+    NSString *desktopPictureDefaultPath;
+    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+    switch (sourceVersionMinor) {
+        case 11:
+            desktopPictureDefaultPath = @"Library/Desktop Pictures/El Capitan.jpg";
+            break;
+        case 10:
+            desktopPictureDefaultPath = @"Library/Desktop Pictures/Yosemite.jpg";
+            break;
+        case 9:
+            desktopPictureDefaultPath = @"Library/Desktop Pictures/Mavericks.jpg";
+            break;
+        case 8:
+            desktopPictureDefaultPath = @"Library/Desktop Pictures/El Capitan.jpg";
+            break;
+        case 7:
+            desktopPictureDefaultPath = @"Library/Desktop Pictures/El Capitan.jpg";
+            break;
+        default:
+            break;
+    }
+    
+    NSURL *desktopPictureSourceURL = [volumeURL URLByAppendingPathComponent:desktopPictureDefaultPath];
+    DDLogDebug(@"desktopPictureSourceURL=%@", desktopPictureSourceURL);
+    NSURL *desktopPictureTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/DefaultDesktop.jpg"];
+    
+    if ( [desktopPictureSourceURL checkResourceIsReachableAndReturnError:nil] ) {
+        hiToolboxPreferencesDict = [NSMutableDictionary dictionaryWithContentsOfURL:desktopPictureSourceURL];
+        hiToolboxPreferencesAttributes = [fm attributesOfItemAtPath:[desktopPictureSourceURL path] error:&error];
+    }
+    
+    if ( [hiToolboxPreferencesDict count] == 0 ) {
+        hiToolboxPreferencesDict = [[NSMutableDictionary alloc] init];
+        hiToolboxPreferencesAttributes = @{
+                                           NSFileOwnerAccountName : @"root",
+                                           NSFileGroupOwnerAccountName : @"wheel",
+                                           NSFilePosixPermissions : @0644
+                                           };
+    }
+    
+    NSDictionary *modifyDesktopPicture = @{
+                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                          NBCWorkflowModifySourceURL : [desktopPictureSourceURL path],
+                                          NBCWorkflowModifyTargetURL : [desktopPictureTargetURL path]
+                                          };
+    DDLogDebug(@"modifyDesktopPicture=%@", modifyDesktopPicture);
+    [modifyDictArray addObject:modifyDesktopPicture];
+    
+    return retval;
+}
+
 - (BOOL)modifySettingsForLanguageAndKeyboardLayout:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Adding language and keyboard settings...");

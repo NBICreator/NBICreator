@@ -84,8 +84,11 @@ DDLogLevel ddLogLevel;
             DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
         }
         if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
-            [self setResourcesCount:( _resourcesCount + 2 )];
+            [self setResourcesCount:( _resourcesCount + 1 )];
             DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
+            if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
+                [self setResourcesCount:( _resourcesCount + 1 )];
+            }
         }
     }
     
@@ -155,43 +158,7 @@ DDLogLevel ddLogLevel;
         [self updateBaseSystemCopyDict:desktopViewerCopySetting];
         
         // Background Image
-        if ( [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
-            NSString *backgroundImagePath = [NBCVariables expandVariables:NBCBackgroundImageDefaultPath source:[workflowItem source] applicationSource:[workflowItem applicationSource]];
-            NSString *backgroundImageURL = [backgroundImagePath stringByResolvingSymlinksInPath];
-            if ( [backgroundImageURL length] != 0 ) {
-                NSError *error;
-                NSFileManager *fm = [NSFileManager defaultManager];
-                NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-                DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
-                NSURL *temporaryBackgroundImageURL = [temporaryFolderURL URLByAppendingPathComponent:[backgroundImageURL lastPathComponent]];
-                DDLogDebug(@"temporaryBackgroundImageURL=%@", temporaryBackgroundImageURL);
-                if ( [fm copyItemAtURL:[NSURL fileURLWithPath:backgroundImageURL] toURL:temporaryBackgroundImageURL error:&error] ) {
-                    NSString *backgroundTargetPath = @"System/Library/CoreServices/DefaultDesktop.jpg";
-                    DDLogDebug(@"backgroundTargetPath=%@", backgroundTargetPath);
-                    NSDictionary *backgroundImageAttributes  = @{
-                                                                 NSFileOwnerAccountName : @"root",
-                                                                 NSFileGroupOwnerAccountName : @"wheel",
-                                                                 NSFilePosixPermissions : @0644
-                                                                 };
-                    
-                    NSDictionary *backgroundImageCopySetting = @{
-                                                                 NBCWorkflowCopyType : NBCWorkflowCopy,
-                                                                 NBCWorkflowCopySourceURL : [temporaryBackgroundImageURL path],
-                                                                 NBCWorkflowCopyTargetURL : backgroundTargetPath,
-                                                                 NBCWorkflowCopyAttributes : backgroundImageAttributes
-                                                                 };
-                    
-                    [self updateBaseSystemCopyDict:backgroundImageCopySetting];
-                } else {
-                    DDLogError(@"Could not copy %@ to temporary folder at path %@", [backgroundImageURL lastPathComponent], [temporaryBackgroundImageURL path]);
-                    DDLogError(@"%@", error);
-                    retval = NO;
-                }
-            } else {
-                DDLogError(@"[ERROR] backgroundImageURL was empty!");
-                retval = NO;
-            }
-        } else {
+        if ( ! [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
             NSString *backgroundImageURL = userSettings[NBCSettingsBackgroundImageKey];
             if ( [backgroundImageURL length] != 0 ) {
                 NSError *error;
@@ -1008,6 +975,11 @@ DDLogLevel ddLogLevel;
     // ----------------------------------------------------------------------------------------------
     unsigned long requiredCopyResources = ( [_resourcesNetInstallCopy count] + [_resourcesBaseSystemCopy count] );
     unsigned long requiredInstallResources = ( [_resourcesNetInstallInstall count] + [_resourcesBaseSystemInstall count] );
+    DDLogDebug(@"[_resourcesNetInstallCopy count]=%lu", (unsigned long)[_resourcesNetInstallCopy count]);
+    DDLogDebug(@"[_resourcesBaseSystemCopy count]=%lu", (unsigned long)[_resourcesBaseSystemCopy count]);
+    NSLog(@"_resourcesBaseSystemCopy=%@", _resourcesBaseSystemCopy);
+    DDLogDebug(@"[_resourcesNetInstallInstall count]=%lu", (unsigned long)[_resourcesNetInstallInstall count]);
+    DDLogDebug(@"[_resourcesBaseSystemInstall count]=%lu", (unsigned long)[_resourcesBaseSystemInstall count]);
     DDLogDebug(@"requiredCopyResources=%lu", requiredCopyResources);
     DDLogDebug(@"requiredInstallResources=%lu", requiredInstallResources);
     DDLogDebug(@"_resourcesCount=%d", _resourcesCount);

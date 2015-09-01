@@ -2330,6 +2330,11 @@ DDLogLevel ddLogLevel;
         [sourceController addKernel:sourceItemsDict source:_source];
     }
     
+    // - Desktop Picture
+    if ( [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
+        [sourceController addDesktopPicture:sourceItemsDict source:_source];
+    }
+    
     // - NTP
     if ( [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
         [sourceController addNTP:sourceItemsDict source:_source];

@@ -46,6 +46,7 @@
 // ------------------------------------------------------
 //  Prepare Workflow
 // ------------------------------------------------------
+- (void)addDesktopPicture:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addNetworkd:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addKernel:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addSystemUIServer:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
