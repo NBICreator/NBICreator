@@ -25,6 +25,7 @@
 #import "NBCHelperProtocol.h"
 #import "NBCController.h"
 #import "NBCUpdater.h"
+#import "NBCWorkflowManager.h"
 
 DDLogLevel ddLogLevel;
 
@@ -48,6 +49,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  Add KVO Observers
     // --------------------------------------------------------------
+    [[NBCWorkflowManager sharedManager] addObserver:self forKeyPath:@"workflowRunning" options:NSKeyValueObservingOptionNew context:nil];
     [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:NBCUserDefaultsLogLevel options:NSKeyValueObservingOptionNew context:nil];
     
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
@@ -88,6 +90,8 @@ DDLogLevel ddLogLevel;
             ddLogLevel = (DDLogLevel)[logLevel intValue];
             [self updateLogWarningLabel];
         }
+    } else if ( [keyPath isEqualToString:@"workflowRunning"] ) {
+        [_buttonClearCache setEnabled:![[NBCWorkflowManager sharedManager] workflowRunning]];
     }
 } // observeValueForKeyPath:ofObject:change:context
 
@@ -133,8 +137,6 @@ DDLogLevel ddLogLevel;
 
 - (void)updateCacheFolderSize {
     [_textFieldCacheFolderSize setStringValue:@"Calculating…"];
-    [_buttonClearCache setEnabled:NO];
-    [_buttonShowCache setEnabled:NO];
     
     NSURL *currentResourceFolder = [self cacheFolderURL];
     if ( [currentResourceFolder checkPromisedItemIsReachableAndReturnError:nil] ) {
