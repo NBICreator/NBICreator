@@ -342,6 +342,9 @@ DDLogLevel ddLogLevel;
             NSString *nbiName = [_currentWorkflowItem nbiName];
             DDLogInfo(@"Starting workflow for: %@", nbiName);
             if ( [nbiName length] != 0 ) {
+                if ( [nbiName containsString:@" "] ) {
+                    nbiName = [nbiName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
+                }
                 NSURL *temporaryNBIURL = [temporaryFolderURL URLByAppendingPathComponent:nbiName];
                 DDLogDebug(@"temporaryNBIURL=%@", temporaryNBIURL);
                 if ( temporaryNBIURL ) {
