@@ -23,6 +23,10 @@ The code will also see major changes as some parts are being restructured.
 
 Passwords are currently saved in clear text in the template file, so if you need to keep the passwords secure you have to enter them each time you select a template, and remember not to save when prompted! Later they will most likely be stored in an application keychain, but that code isn't implemented yet.
 
+# Screenshots
+
+![NBICreator Main Window](https://raw.githubusercontent.com/NBICreator/NBICreator/master/GitHub%20Resources/NBICreatorApplication.png)
+
 # System Requirements
 
 NBICreator requires Mac OS X 10.10 or newer.
