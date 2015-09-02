@@ -466,7 +466,10 @@
                     <constraint firstItem="ajs-UB-tQp" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" symbolic="YES" id="wBd-wM-JOq"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="-176" y="83"/>
+            <connections>
+                <outlet property="delegate" destination="2ua-cd-ebo" id="Pgw-0h-tCi"/>
+            </connections>
+            <point key="canvasLocation" x="-4" y="111"/>
         </window>
         <box autoresizesSubviews="NO" title="InstallHelper" borderType="line" titlePosition="noTitle" id="pCh-R5-Ehc">
             <rect key="frame" x="0.0" y="0.0" width="546" height="48"/>

@@ -26,7 +26,7 @@
 @class NBCPreferences;
 @class NBCDiskArbitrator;
 
-@interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate>
+@interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate, NSWindowDelegate>
 
 // Windows
 @property (weak) IBOutlet NSWindow *window;

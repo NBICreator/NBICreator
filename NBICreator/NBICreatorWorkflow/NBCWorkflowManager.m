@@ -7,6 +7,7 @@
 //
 
 #import "NBCWorkflowManager.h"
+#import "NBCController.h"
 #import "NBCConstants.h"
 #import "NBCVariables.h"
 #import "NSString+randomString.h"
@@ -87,8 +88,23 @@ DDLogLevel ddLogLevel;
 - (void)menuItemWindowWorkflows:(id)sender {
 #pragma unused(sender)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    if ( _workflowPanel ) {
-        [[_workflowPanel window] makeKeyAndOrderFront:self];
+    
+    // -------------------------------------------------------------
+    //  If sent from NBCController, just order front, not key
+    //  Used to show progress window when activating app from background by clicking main window
+    // -------------------------------------------------------------
+    if ( [sender isKindOfClass:[NBCController class]] ) {
+        if ( _workflowPanel ) {
+            [[_workflowPanel window] orderFront:self];
+        }
+    } else {
+        
+        // -------------------------------------------------------------
+        //  If sent from Menu Item, order front and make key
+        // -------------------------------------------------------------
+        if ( _workflowPanel ) {
+            [[_workflowPanel window] makeKeyAndOrderFront:self];
+        }
     }
 }
 
@@ -129,7 +145,7 @@ DDLogLevel ddLogLevel;
     if ( [userSettings[NBCSettingsIndexKey] isEqualToString:NBCVariableIndexCounter] ) {
         [self incrementIndexCounter];
     }
-
+    
     // -------------------------------------------------------------
     //  Add NBI icon to workflow item and progress view
     // -------------------------------------------------------------
@@ -189,7 +205,7 @@ DDLogLevel ddLogLevel;
 } // workflowCompleteNBI
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
-    #pragma unused(notification)
+#pragma unused(notification)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"All resources prepared!");
     [self setCurrentWorkflowResourcesComplete:YES];
@@ -202,7 +218,7 @@ DDLogLevel ddLogLevel;
 } // workflowCompleteResources
 
 - (void)workflowCompleteModifyNBI:(NSNotification *)notification {
-    #pragma unused(notification)
+#pragma unused(notification)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"NBI modifications complete!");
     [self moveNBIToDestination:[_currentWorkflowItem temporaryNBIURL] destinationURL:[_currentWorkflowItem nbiURL]];
