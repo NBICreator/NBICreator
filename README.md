@@ -25,7 +25,7 @@ Passwords are currently saved in clear text in the template file, so if you need
 
 # Screenshots
 
-![NBICreator Main Window](https://raw.githubusercontent.com/NBICreator/NBICreator/master/GitHub%20Resources/NBICreatorApplication.png)
+![NBICreator Main Window](https://raw.githubusercontent.com/NBICreator/NBICreatorResources/master/Screenshots/NBICreatorScreenshot_ReadMe.png)
 
 # System Requirements
 
