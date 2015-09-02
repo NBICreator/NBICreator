@@ -45,6 +45,10 @@
 #import "NBCNetInstallSettingsViewController.h"
 #import "NBCImagrDropViewController.h"
 #import "NBCImagrSettingsViewController.h"
+#import "NBCCasperDropViewController.h"
+#import "NBCCasperSettingsViewController.h"
+
+
 #import "NBCPreferences.h"
 
 // Other
@@ -932,6 +936,23 @@ enum {
         if ( _imagrSettingsViewController ) {
             [self addViewToSettingsView:[_imagrSettingsViewController view]];
             _currentSettingsController = _imagrSettingsViewController;
+        }
+    } else if (selectedSegment == kSegmentedControlCasper) {
+        if ( ! _casperDropViewController ) {
+            _casperDropViewController = [[NBCCasperDropViewController alloc] init];
+        }
+        
+        if ( _casperDropViewController ) {
+            [self addViewToDropView:[_casperDropViewController view]];
+        }
+        
+        if ( ! _casperSettingsViewController ) {
+            _casperSettingsViewController = [[NBCCasperSettingsViewController alloc] init];
+        }
+        
+        if ( _casperSettingsViewController ) {
+            [self addViewToSettingsView:[_casperSettingsViewController view]];
+            _currentSettingsController = _casperSettingsViewController;
         }
     }
     

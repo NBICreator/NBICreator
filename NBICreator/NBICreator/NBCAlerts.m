@@ -96,6 +96,18 @@ DDLogLevel ddLogLevel;
     }];
 }
 
++ (void)showAlertUnrecognizedCasperImagingApplication {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:NBCButtonTitleOK];
+    [alert setMessageText:@"Invalid Casper Imaging Application"];
+    [alert setInformativeText:[NSString stringWithFormat:@"You need to set the path to a local Casper Imaging.app application."]];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+#pragma unused(returnCode)
+    }];
+}
+
 + (void)showAlertUnrecognizedSourceForWorkflow:(int)workflowType errorMessage:(NSString *)errorMessage {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     
@@ -114,6 +126,11 @@ DDLogLevel ddLogLevel;
         case kWorkflowTypeImagr:
         {
             informativeText = @"Imagr only accepts the following sources:\n\n• Install OS X Application\n• InstallESD.dmg\n• NetInstall Image";
+            break;
+        }
+        case kWorkflowTypeCasper:
+        {
+            informativeText = @"Casper only accepts the following sources:\n\n• Install OS X Application\n• InstallESD.dmg\n• NetInstall Image";
             break;
         }
     }

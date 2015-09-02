@@ -1164,10 +1164,10 @@ DDLogLevel ddLogLevel;
             desktopPictureDefaultPath = @"Library/Desktop Pictures/Yosemite.jpg";
             break;
         case 9:
-            desktopPictureDefaultPath = @"Library/Desktop Pictures/Mavericks.jpg";
+            desktopPictureDefaultPath = @"Library/Desktop Pictures/Wave.jpg";
             break;
         case 8:
-            desktopPictureDefaultPath = @"Library/Desktop Pictures/El Capitan.jpg";
+            desktopPictureDefaultPath = @"Library/Desktop Pictures/Galaxy.jpg";
             break;
         case 7:
             desktopPictureDefaultPath = @"Library/Desktop Pictures/El Capitan.jpg";
@@ -1960,7 +1960,7 @@ DDLogLevel ddLogLevel;
                                         @NO,
                                         ];
     
-    remoteDesktopDict[@"DOCAllowRemoteConnections"] = @NO;
+    remoteDesktopDict[@"DOCAllowRemoteConnections"] = @YES;
     remoteDesktopDict[@"RestrictedFeatureList"] = restrictedFeaturesList;
     remoteDesktopDict[@"Text1"] = @"";
     remoteDesktopDict[@"Text2"] = @"";

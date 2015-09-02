@@ -1201,7 +1201,7 @@ asdasd</string>
                                     </button>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cci-zg-MbN">
                                         <rect key="frame" x="18" y="256" width="122" height="17"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Configuration URL:" id="sk4-z9-rFm">
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Configuration URL:" id="sk4-z9-rFm">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -1834,7 +1834,7 @@ asdasd</string>
                 <constraint firstAttribute="trailing" secondItem="sJ6-Ig-M55" secondAttribute="trailing" constant="20" symbolic="YES" id="ySd-tU-es2"/>
                 <constraint firstItem="vXo-HW-s9M" firstAttribute="leading" secondItem="hVH-aa-uan" secondAttribute="leading" id="yTP-YA-qjk"/>
             </constraints>
-            <point key="canvasLocation" x="-2314.5" y="489"/>
+            <point key="canvasLocation" x="-2352.5" y="479"/>
         </customView>
     </objects>
     <resources>

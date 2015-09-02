@@ -31,6 +31,7 @@
 - (void)showAlertError:(NSError *)error;
 + (void)showAlertOKWithTitle:(NSString *)title informativeText:(NSString *)informativeText;
 + (void)showAlertUnrecognizedImagrApplication;
++ (void)showAlertUnrecognizedCasperImagingApplication;
 + (void)showAlertRecoveryVersionMismatch;
 + (void)showAlertUnrecognizedSourceForWorkflow:(int)workflowType errorMessage:(NSString *)errorMessage;
 + (void)showAlertSettingsUnchangedNBI;

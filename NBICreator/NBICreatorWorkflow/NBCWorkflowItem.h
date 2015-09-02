@@ -18,7 +18,8 @@
 enum {
     kWorkflowTypeDeployStudio = 0,
     kWorkflowTypeNetInstall,
-    kWorkflowTypeImagr
+    kWorkflowTypeImagr,
+    kWorkflowTypeCasper
 };
 
 @interface NBCWorkflowItem : NSObject

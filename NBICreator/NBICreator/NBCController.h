@@ -49,6 +49,9 @@
 @property (strong) NSViewController *imagrDropViewController;
 @property (strong) NSViewController *imagrSettingsViewController;
 
+@property (strong) NSViewController *casperDropViewController;
+@property (strong) NSViewController *casperSettingsViewController;
+
 @property (strong) NSViewController *customDropViewController;
 @property (strong) NSViewController *customSettingsViewController;
 

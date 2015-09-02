@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Packages</key>
+	<array/>
+	<key>Certificates</key>
+	<array/>
+	<key>UseVerboseBoot</key>
+	<false/>
+	<key>UseBackgroundImage</key>
+	<true/>
+	<key>BackgroundImage</key>
+	<string>%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg</string>
+	<key>IsNBI</key>
+	<false/>
+	<key>NetworkTimeServer</key>
+	<string>time.apple.com</string>
+	<key>UseNetworkTimeServerKey</key>
+	<false/>
+	<key>DisplaySleepMinutes</key>
+	<string>30</string>
+	<key>DisplaySleep</key>
+	<false/>
+	<key>DisableWiFi</key>
+	<false/>
+	<key>DisableBluetooth</key>
+	<false/>
+	<key>NBICreationTool</key>
+	<string>NBICreator</string>
+	<key>ARDPassword</key>
+	<string></string>
+	<key>ARDLogin</key>
+	<string></string>
+	<key>CasperImagingPath</key>
+	<string></string>
+	<key>CasperJSSURL</key>
+	<string></string>
+	<key>IncludeSystemUIServer</key>
+	<false/>
+	<key>DiskImageReadWrite</key>
+	<false/>
+	<key>Default</key>
+	<false/>
+	<key>Enabled</key>
+	<true/>
+	<key>Icon</key>
+	<string>%APPLICATIONRESOURCESURL%/IconImagr.icns</string>
+	<key>DestinationFolder</key>
+	<string>~/Desktop</string>
+	<key>Description</key>
+	<string>Created with NBICreator version %NBCVERSION%</string>
+	<key>Language</key>
+	<string>Current</string>
+	<key>TimeZone</key>
+	<string>Current</string>
+	<key>KeyboardLayoutName</key>
+	<string>Current</string>
+	<key>Protocol</key>
+	<string>NFS</string>
+	<key>Index</key>
+	<string>%COUNTER%</string>
+	<key>Name</key>
+	<string>%OSVERSION%_%OSBUILD%_Casper</string>
+</dict>
+</plist>

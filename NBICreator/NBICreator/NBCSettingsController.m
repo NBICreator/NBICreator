@@ -70,8 +70,8 @@ DDLogLevel ddLogLevel;
             // ------------------------------------------------------------------------
             //  Check that OS Version isn't lower than source for System Image Utility
             // ------------------------------------------------------------------------
-            NSDictionary *osVersion = [self verifySettingsOSVersion:workflowItem];
-            [settings addObject:osVersion];
+            NSDictionary *osVersionForSystemImageUtility = [self verifySettingsOsVersionForSystemImageUtility:workflowItem];
+            [settings addObject:osVersionForSystemImageUtility];
             
             // ------------------------------------------------------------------------
             //  Check all settings in the tab "Options"
@@ -88,17 +88,45 @@ DDLogLevel ddLogLevel;
             // ------------------------------------------------------------------------
             //  Check all settings in the tab "Imagr"
             // ------------------------------------------------------------------------
-            NSDictionary *settingsLocalImagrURL = [self verifySettingsLocalImagrURL:workflowItem];
+            NSDictionary *settingsLocalImagrURL = [self verifySettingsImagrLocalImagrURL:workflowItem];
             [settings addObject:settingsLocalImagrURL];
             
-            NSDictionary *settingsConfigurationURL = [self verifySettingsConfigurationURL:workflowItem];
+            NSDictionary *settingsConfigurationURL = [self verifySettingsImagrConfigurationURL:workflowItem];
             [settings addObject:settingsConfigurationURL];
             
-            NSDictionary *settingsReportingURL = [self verifySettingsReportingURL:workflowItem];
+            NSDictionary *settingsReportingURL = [self verifySettingsImagrReportingURL:workflowItem];
             [settings addObject:settingsReportingURL];
             
-            NSDictionary *settingsRemoteManagement = [self verifySettingsRemoteManagement:workflowItem];
-            [settings addObject:settingsRemoteManagement];
+            break;
+        }
+        case kWorkflowTypeCasper:
+        {
+            // ------------------------------------------------------------------------
+            //  Check that OS Version isn't lower than source for System Image Utility
+            // ------------------------------------------------------------------------
+            NSDictionary *osVersion = [self verifySettingsOsVersionForSystemImageUtility:workflowItem];
+            [settings addObject:osVersion];
+            
+            // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Options"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsTabOptions = [self verifySettingsTabOptions:workflowItem];
+            [settings addObject:settingsTabOptions];
+            
+            // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Extra"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsTabExtra = [self verifySettingsTabExtra:workflowItem];
+            [settings addObject:settingsTabExtra];
+            
+            // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Casper"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsCasperImagingPath = [self verifySettingsCasperImagingPath:workflowItem];
+            [settings addObject:settingsCasperImagingPath];
+            
+            NSDictionary *settingsCasperJSSURL = [self verifySettingsCasperJSSURL:workflowItem];
+            [settings addObject:settingsCasperJSSURL];
             
             break;
         }
@@ -186,6 +214,9 @@ DDLogLevel ddLogLevel;
     NSDictionary *settingsNBINTP = [self verifySettingsNBINTP:workflowItem];
     [settings addObject:settingsNBINTP];
     
+    NSDictionary *settingsRemoteManagement = [self verifySettingsRemoteManagement:workflowItem];
+    [settings addObject:settingsRemoteManagement];
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -229,139 +260,11 @@ DDLogLevel ddLogLevel;
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 } // verifySettingsTabExtra
 
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark
+#pragma mark Settings Tab General
 #pragma mark -
-
-- (NSDictionary *)verifySettingsOSVersion:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-
-    if ( [[[workflowItem userSettings] objectForKey:NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
-        NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
-        int osVersionMinor = (int)version.minorVersion;
-        int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
-        if ( osVersionMinor < sourceVersionMinor ) {
-            NSString *osVersionString = [NSString stringWithFormat:@"%ld.%ld.%ld", version.majorVersion, version.minorVersion, version.patchVersion];
-            NSString *errorMessage = [NSString stringWithFormat:@"Source Version Mismatch.\nThis source contains OS X %@.\nYou are currently booted on OS X %@\n\nYou cannot create a NetInstall image using System Image Utility from sources with higher OS Minor Versions than your booted system.\n\nUse NBICreator as NetBoot creation tool instead, or use this software on a computer running %@", [[workflowItem source] baseSystemOSVersion], osVersionString, [[workflowItem source] baseSystemOSVersion]];
-            [settingsErrors addObject:errorMessage];
-        }
-    }
-    
-    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-}
-
-- (NSDictionary *)verifySettingsPackages:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
-    
-    NSArray *packages = userSettings[NBCSettingsPackagesKey];
-    
-    for ( NSString *packagePath in packages ) {
-        NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
-        if ( ! [packageURL checkResourceIsReachableAndReturnError:nil] ) {
-            [settingsErrors addObject:[NSString stringWithFormat:@"Installer Package \"%@\" could not be found!", [packageURL lastPathComponent]]];
-        }
-    }
-    
-    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-}
-
-- (NSDictionary *)verifySettingsRemoteManagement:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
-    
-    BOOL ardLoginSet = NO;
-    NSString *ardLogin = userSettings[NBCSettingsARDLoginKey];
-    if ( [ardLogin length] != 0 ) {
-        ardLoginSet = YES;
-        if ( [ardLogin containsString:@"%"] ) { // Check characters
-            [settingsErrors addObject:@"\"ARD Login\" contains unallowed characters"];
-        }
-    }
-    
-    BOOL ardPasswordSet = NO;
-    NSString *ardPassword = userSettings[NBCSettingsARDPasswordKey];
-    if ( [ardPassword length] != 0 ) {
-        ardPasswordSet = YES;
-        if ( [ardPassword containsString:@"%"] ) {
-            // Escape password for shell?
-        }
-    }
-    
-    if ( ardLoginSet == YES && ardPasswordSet == NO ) {
-        [settingsErrors addObject:@"\"ARD Password\" is not set"];
-    } else if ( ardLoginSet == NO && ardPasswordSet == YES ) {
-        userSettings[NBCSettingsARDLoginKey] = @"imagr";
-        [workflowItem setUserSettings:[userSettings copy]];
-    }
-    
-    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-}
-
-- (NSDictionary *)verifySettingsNBINTP:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    NSDictionary *userSettings = [workflowItem userSettings];
-    NSString *nbiNTP = userSettings[NBCSettingsNetworkTimeServerKey];
-    
-    if ( [nbiNTP length] != 0 ) {
-        NSURL *nbiNTPURL = [NSURL URLWithString:nbiNTP];
-        if ( ! nbiNTPURL ) {
-            [settingsErrors addObject:@"\"Network Time Server\" invalid hostname"];
-        } else {
-            NSTask *newTask =  [[NSTask alloc] init];
-            [newTask setLaunchPath:@"/usr/bin/dig"];
-            NSMutableArray *args = [NSMutableArray arrayWithObjects:
-                                    @"+short",
-                                    nbiNTP,
-                                    nil];
-            [newTask setArguments:args];
-            [newTask setStandardOutput:[NSPipe pipe]];
-            [newTask launch];
-            [newTask waitUntilExit];
-            
-            NSData *newTaskStandardOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-            
-            if ( [newTask terminationStatus] == 0 ) {
-                NSString *digOutput = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
-                if ( [digOutput length] == 0 ) {
-                    [settingsWarnings addObject:@"\"Network Time Server\" did not resolve"];
-                }
-            } else {
-                [settingsWarnings addObject:@"\"Network Time Server\" did not resolve"];
-            }
-        }
-    }
-    
-    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-}
-
-- (NSDictionary *)verifySettingsEqualToQueuedWorkflow:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    NSDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
-    NSArray *currentWorkflowQueue = [[[NBCWorkflowManager sharedManager] workflowQueue] copy];
-    
-    for ( NBCWorkflowItem *queueItem in currentWorkflowQueue ) {
-        NSDictionary *queueItemSettings = [queueItem userSettings];
-        if ( [userSettings isEqualToDictionary:queueItemSettings] ) {
-            [settingsWarnings addObject:@"Current settings are identical to an already running workflow"];
-        }
-    }
-    
-    return [self createErrorInfoDictFromError:nil warning:settingsWarnings];
-}
+////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsNBIName:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -468,6 +371,286 @@ DDLogLevel ddLogLevel;
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Settings Tab Options
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSDictionary *)verifySettingsNBINTP:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    NSString *nbiNTP = userSettings[NBCSettingsNetworkTimeServerKey];
+    
+    if ( [nbiNTP length] != 0 ) {
+        NSURL *nbiNTPURL = [NSURL URLWithString:nbiNTP];
+        if ( ! nbiNTPURL ) {
+            [settingsErrors addObject:@"\"Network Time Server\" invalid hostname"];
+        } else {
+            NSTask *newTask =  [[NSTask alloc] init];
+            [newTask setLaunchPath:@"/usr/bin/dig"];
+            NSMutableArray *args = [NSMutableArray arrayWithObjects:
+                                    @"+short",
+                                    nbiNTP,
+                                    nil];
+            [newTask setArguments:args];
+            [newTask setStandardOutput:[NSPipe pipe]];
+            [newTask launch];
+            [newTask waitUntilExit];
+            
+            NSData *newTaskStandardOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+            
+            if ( [newTask terminationStatus] == 0 ) {
+                NSString *digOutput = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
+                if ( [digOutput length] == 0 ) {
+                    [settingsWarnings addObject:@"\"Network Time Server\" did not resolve"];
+                }
+            } else {
+                [settingsWarnings addObject:@"\"Network Time Server\" did not resolve"];
+            }
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Settings Tab Extra
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSDictionary *)verifySettingsPackages:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
+    
+    NSArray *packages = userSettings[NBCSettingsPackagesKey];
+    
+    for ( NSString *packagePath in packages ) {
+        NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
+        if ( ! [packageURL checkResourceIsReachableAndReturnError:nil] ) {
+            [settingsErrors addObject:[NSString stringWithFormat:@"Installer Package \"%@\" could not be found!", [packageURL lastPathComponent]]];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Settings Tab Imagr
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSDictionary *)verifySettingsImagrConfigurationURL:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    NSString *imagrConfigurationURLString = userSettings[NBCSettingsImagrConfigurationURL];
+    NSURL *imagrConfigurationURL = [NSURL URLWithString:imagrConfigurationURLString];
+    if ( [imagrConfigurationURLString length] != 0 ) {
+        if ( [imagrConfigurationURLString hasPrefix:@"http://"] || [imagrConfigurationURLString hasPrefix:@"https://"] ) {
+            if ( imagrConfigurationURL != nil ) {
+                NSString *imagrConfigurationURLHost = [imagrConfigurationURL host];
+                if ( [imagrConfigurationURLHost length] == 0 ) {
+                    [settingsErrors addObject:@"\"Configuration URL\" hostname or IP cannot be empty"];
+                }
+            } else {
+                [settingsErrors addObject:@"\"Configuration URL\" is not a valid URL"];
+            }
+        } else {
+            [settingsErrors addObject:@"\"Configuration URL\" need to use http:// or https://"];
+        }
+    } else {
+        [settingsErrors addObject:@"\"Configuration URL\" cannot be empty"];
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsImagrReportingURL:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    NSString *imagrConfigurationURLString = userSettings[NBCSettingsImagrReportingURL];
+    NSURL *imagrConfigurationURL = [NSURL URLWithString:imagrConfigurationURLString];
+    if ( [imagrConfigurationURLString length] != 0 ) {
+        if ( [imagrConfigurationURLString hasPrefix:@"http://"] || [imagrConfigurationURLString hasPrefix:@"https://"] ) {
+            if ( imagrConfigurationURL != nil ) {
+                NSString *imagrConfigurationURLHost = [imagrConfigurationURL host];
+                if ( [imagrConfigurationURLHost length] == 0 ) {
+                    [settingsErrors addObject:@"\"Reporting URL\" hostname or IP cannot be empty"];
+                }
+            } else {
+                [settingsErrors addObject:@"\"Reporting URL\" is not a valid URL"];
+            }
+        } else {
+            [settingsErrors addObject:@"\"Reporting URL\" need to use http:// or https://"];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsImagrLocalImagrURL:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    if ( [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
+        NSString *imagrLocalVersionURLString = userSettings[NBCSettingsImagrLocalVersionPath];
+        if ( [imagrLocalVersionURLString length] != 0 ) {
+            NSURL *imagrLocalVersionURL = [NSURL URLWithString:imagrLocalVersionURLString];
+            if ( ! [imagrLocalVersionURL checkResourceIsReachableAndReturnError:nil] ) {
+                [settingsErrors addObject:@"\"Local Version URL\" is not valid"];
+            }
+        } else {
+            [settingsErrors addObject:@"\"Local Version URL\" cannot be empty"];
+        }
+    }
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Settings Tab Casper
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSDictionary *)verifySettingsCasperImagingPath:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    NSString *casperImagingPathString = userSettings[NBCSettingsCasperImagingPathKey];
+    if ( [casperImagingPathString length] != 0 ) {
+        NSURL *casperImagingURL = [NSURL URLWithString:casperImagingPathString];
+        if ( ! [casperImagingURL checkResourceIsReachableAndReturnError:nil] ) {
+            [settingsErrors addObject:@"\"Casper Imaging URL\" is not valid"];
+        }
+    } else {
+        [settingsErrors addObject:@"\"Casper Imaging URL\" cannot be empty"];
+    }
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsCasperJSSURL:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    NSString *casperJSSURLString = userSettings[NBCSettingsImagrReportingURL];
+    NSURL *casperJSSURL = [NSURL URLWithString:casperJSSURLString];
+    if ( [casperJSSURLString length] != 0 ) {
+        if ( [casperJSSURLString hasPrefix:@"http://"] || [casperJSSURLString hasPrefix:@"https://"] ) {
+            if ( casperJSSURL != nil ) {
+                NSString *casperJSSURLHost = [casperJSSURL host];
+                if ( [casperJSSURLHost length] == 0 ) {
+                    [settingsErrors addObject:@"\"JSS URL\" hostname or IP cannot be empty"];
+                }
+            } else {
+                [settingsErrors addObject:@"\"JSS URL\" is not a valid URL"];
+            }
+        } else {
+            [settingsErrors addObject:@"\"JSS URL\" need to use http:// or https://"];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Settings Other
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSDictionary *)verifySettingsOsVersionForSystemImageUtility:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    if ( [[[workflowItem userSettings] objectForKey:NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
+        NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+        int osVersionMinor = (int)version.minorVersion;
+        int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+        if ( osVersionMinor < sourceVersionMinor ) {
+            NSString *osVersionString = [NSString stringWithFormat:@"%ld.%ld.%ld", version.majorVersion, version.minorVersion, version.patchVersion];
+            NSString *errorMessage = [NSString stringWithFormat:@"Source Version Mismatch.\nThis source contains OS X %@.\nYou are currently booted on OS X %@\n\nYou cannot create a NetInstall image using System Image Utility from sources with higher OS Minor Versions than your booted system.\n\nUse NBICreator as NetBoot creation tool instead, or use this software on a computer running %@", [[workflowItem source] baseSystemOSVersion], osVersionString, [[workflowItem source] baseSystemOSVersion]];
+            [settingsErrors addObject:errorMessage];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsRemoteManagement:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
+    
+    BOOL ardLoginSet = NO;
+    NSString *ardLogin = userSettings[NBCSettingsARDLoginKey];
+    if ( [ardLogin length] != 0 ) {
+        ardLoginSet = YES;
+        if ( [ardLogin containsString:@"%"] ) { // Check characters
+            [settingsErrors addObject:@"\"ARD Login\" contains unallowed characters"];
+        }
+    }
+    
+    BOOL ardPasswordSet = NO;
+    NSString *ardPassword = userSettings[NBCSettingsARDPasswordKey];
+    if ( [ardPassword length] != 0 ) {
+        ardPasswordSet = YES;
+        if ( [ardPassword containsString:@"%"] ) {
+            // Escape password for shell?
+        }
+    }
+    
+    if ( ardLoginSet == YES && ardPasswordSet == NO ) {
+        [settingsErrors addObject:@"\"ARD Password\" is not set"];
+    } else if ( ardLoginSet == NO && ardPasswordSet == YES ) {
+        userSettings[NBCSettingsARDLoginKey] = @"imagr";
+        [workflowItem setUserSettings:[userSettings copy]];
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+
+
+- (NSDictionary *)verifySettingsEqualToQueuedWorkflow:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
+    NSArray *currentWorkflowQueue = [[[NBCWorkflowManager sharedManager] workflowQueue] copy];
+    
+    for ( NBCWorkflowItem *queueItem in currentWorkflowQueue ) {
+        NSDictionary *queueItemSettings = [queueItem userSettings];
+        if ( [userSettings isEqualToDictionary:queueItemSettings] ) {
+            [settingsWarnings addObject:@"Current settings are identical to an already running workflow"];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:nil warning:settingsWarnings];
+}
+
 - (NSDictionary *)verifyMountedVolumeName:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -514,78 +697,6 @@ DDLogLevel ddLogLevel;
     return freeDiskSpace;
 }
 
-- (NSDictionary *)verifySettingsConfigurationURL:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    NSDictionary *userSettings = [workflowItem userSettings];
-    NSString *imagrConfigurationURLString = userSettings[NBCSettingsImagrConfigurationURL];
-    NSURL *imagrConfigurationURL = [NSURL URLWithString:imagrConfigurationURLString];
-    if ( [imagrConfigurationURLString length] != 0 ) {
-        if ( [imagrConfigurationURLString hasPrefix:@"http://"] || [imagrConfigurationURLString hasPrefix:@"https://"] ) {
-            if ( imagrConfigurationURL != nil ) {
-                NSString *imagrConfigurationURLHost = [imagrConfigurationURL host];
-                if ( [imagrConfigurationURLHost length] == 0 ) {
-                    [settingsErrors addObject:@"\"Configuration URL\" hostname or IP cannot be empty"];
-                }
-            } else {
-                [settingsErrors addObject:@"\"Configuration URL\" is not a valid URL"];
-            }
-        } else {
-            [settingsErrors addObject:@"\"Configuration URL\" need to use http:// or https://"];
-        }
-    } else {
-        [settingsErrors addObject:@"\"Configuration URL\" cannot be empty"];
-    }
-    
-    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-}
 
-- (NSDictionary *)verifySettingsReportingURL:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    NSDictionary *userSettings = [workflowItem userSettings];
-    NSString *imagrConfigurationURLString = userSettings[NBCSettingsImagrReportingURL];
-    NSURL *imagrConfigurationURL = [NSURL URLWithString:imagrConfigurationURLString];
-    if ( [imagrConfigurationURLString length] != 0 ) {
-        if ( [imagrConfigurationURLString hasPrefix:@"http://"] || [imagrConfigurationURLString hasPrefix:@"https://"] ) {
-            if ( imagrConfigurationURL != nil ) {
-                NSString *imagrConfigurationURLHost = [imagrConfigurationURL host];
-                if ( [imagrConfigurationURLHost length] == 0 ) {
-                    [settingsErrors addObject:@"\"Reporting URL\" hostname or IP cannot be empty"];
-                }
-            } else {
-                [settingsErrors addObject:@"\"Reporting URL\" is not a valid URL"];
-            }
-        } else {
-            [settingsErrors addObject:@"\"Reporting URL\" need to use http:// or https://"];
-        }
-    }
-    
-    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-}
-
-- (NSDictionary *)verifySettingsLocalImagrURL:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    NSDictionary *userSettings = [workflowItem userSettings];
-    if ( [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
-        NSString *imagrLocalVersionURLString = userSettings[NBCSettingsImagrLocalVersionPath];
-        if ( [imagrLocalVersionURLString length] != 0 ) {
-            NSURL *imagrLocalVersionURL = [NSURL URLWithString:imagrLocalVersionURLString];
-            if ( ! [imagrLocalVersionURL checkResourceIsReachableAndReturnError:nil] ) {
-                [settingsErrors addObject:@"\"Local Version URL\" is not valid"];
-            }
-        } else {
-            [settingsErrors addObject:@"\"Local Version URL\" cannot be empty"];
-        }
-    }
-    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-}
 
 @end

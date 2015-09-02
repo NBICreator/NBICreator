@@ -55,6 +55,7 @@ NSString *const NBCFileNameDownloadsDict = @"Downloads.plist";
 NSString *const NBCFileNameNetInstallDefaults = @"NetInstallDefaults";
 NSString *const NBCFileNameDeployStudioDefaults = @"DeployStudioDefaults";
 NSString *const NBCFileNameImagrDefaults = @"ImagrDefaults";
+NSString *const NBCFileNameCasperDefaults = @"CasperDefaults";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark File Paths
@@ -62,6 +63,7 @@ NSString *const NBCFileNameImagrDefaults = @"ImagrDefaults";
 NSString *const NBCFilePathNBIIconImagr = @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
 NSString *const NBCFilePathNBIIconNetInstall = @"%APPLICATIONRESOURCESURL%/IconNetBootNBI.icns";
 NSString *const NBCFilePathNBIIconDeployStudio = @"%APPLICATIONRESOURCESURL%/IconDeployStudioNBI.icns";
+NSString *const NBCFilePathNBIIconCasper = @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
 NSString *const NBCFilePathPreferencesGlobal = @"/Library/Preferences/.GlobalPreferences.plist";
 NSString *const NBCFilePathPreferencesHIToolbox = @"/Library/Preferences/com.apple.HIToolbox.plist";
 
@@ -177,7 +179,8 @@ NSString *const NBCSettingsNBICreationToolKey = @"NBICreationTool";
 
 
 
-
+NSString *const NBCSettingsCasperImagingPathKey = @"CasperImagingPath";
+NSString *const NBCSettingsCasperJSSURLKey = @"CasperJSSURL";
 
 
 
@@ -287,6 +290,13 @@ NSString *const NBCNotificationNetInstallUpdateSource = @"netInstallUpdateSource
 NSString *const NBCNotificationNetInstallRemovedSource = @"netInstallRemovedSource";
 NSString *const NBCNotificationNetInstallUpdateNBIIcon = @"netInstallUpdateNBIIcon";
 NSString *const NBCNotificationNetInstallVerifyDroppedSource = @"netInstallVerifyDroppedSource";
+
+// Casper
+NSString *const NBCNotificationCasperUpdateSource = @"CasperUpdateSource";
+NSString *const NBCNotificationCasperRemovedSource = @"CasperRemovedSource";
+NSString *const NBCNotificationCasperUpdateNBIIcon = @"CasperUpdateNBIIcon";
+NSString *const NBCNotificationCasperUpdateNBIBackground = @"CasperUpdateNBIBackground";
+NSString *const NBCNotificationCasperVerifyDroppedSource = @"CasperVerifyDroppedSource";
 
 // Imagr / DeployStudio / NetInstall UserInfoKeys
 NSString *const NBCNotificationVerifyDroppedSourceUserInfoSourceURL = @"SourceURL";
@@ -407,6 +417,8 @@ NSString *const NBCImagrGitHubRepository = @"grahamgilbert/imagr";
 
 NSString *const NBCNBICreatorGitHubRepository = @"NBICreator/NBICreator";
 NSString *const NBCNBICreatorResourcesGitHubRepository = @"NBICreator/NBICreatorResources";
+
+NSString *const NBCCasperImagingBundleIdentifier = @"";
 
 // --------------------------------------------------------------
 //  NBCDownloader

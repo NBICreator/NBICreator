@@ -1,13 +1,13 @@
 //
-//  NBCIMSettingsViewController.h
+//  NBCCasperSettingsViewController.h
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-04-29.
+//  Created by Erik Berglund on 2015-09-02.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
-#import "NBCImagrDropViewImage.h"
+#import "NBCCasperDropViewImage.h"
 #import "NBCAlerts.h"
 
 #import "NBCSource.h"
@@ -16,26 +16,19 @@
 #import "NBCTemplatesController.h"
 
 #import "NBCDownloader.h"
-#import "NBCDownloaderGitHub.h"
 #import "NBCWorkflowResourcesController.h"
 
 #define BasicTableViewDragAndDropDataType @"BasicTableViewDragAndDropDataType"
 
-@interface NBCImagrSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate>
+@interface NBCCasperSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate>
 
 @property NSMutableArray *certificateTableViewContents;
 @property NSMutableArray *packagesTableViewContents;
-
 @property NSMutableDictionary *keyboardLayoutDict;
 @property NSDictionary *languageDict;
 @property NSArray *timeZoneArray;
 @property NSMenuItem *selectedMenuItem;
 
-// ------------------------------------------------------
-//  Constraints
-// ------------------------------------------------------
-@property (strong) IBOutlet NSLayoutConstraint *constraintLocalPathToImagrVersion;
-@property (strong) IBOutlet NSLayoutConstraint *constraintConfigurationURLToImagrVersion;
 @property (strong) IBOutlet NSLayoutConstraint *constraintTemplatesBoxHeight;
 @property (strong) IBOutlet NSLayoutConstraint *constraintSavedTemplatesToTool;
 
@@ -48,6 +41,7 @@
 @property NBCTemplatesController *templates;
 @property NBCWorkflowResourcesController *resourcesController;
 
+@property (weak) IBOutlet NSButton *checkboxDisableWiFi;
 // ------------------------------------------------------
 //  Tool
 // ------------------------------------------------------
@@ -68,7 +62,7 @@
 // ------------------------------------------------------
 //  TabView General
 // ------------------------------------------------------
-@property (weak) IBOutlet NBCImagrDropViewImageIcon *imageViewIcon;
+@property (weak) IBOutlet NBCCasperDropViewImageIcon *imageViewIcon;
 @property (weak) IBOutlet NSTextField *textFieldNBIName;
 @property (weak) IBOutlet NSTextField *textFieldNBINamePreview;
 @property (weak) IBOutlet NSTextField *textFieldIndex;
@@ -88,25 +82,12 @@
 - (IBAction)buttonPopOver:(id)sender;
 
 // ------------------------------------------------------
-//  TabView Imagr Settings
+//  TabView Casper Settings
 // ------------------------------------------------------
-@property NSArray *imagrVersions;
-@property NSDictionary *imagrVersionsDownloadLinks;
-@property (weak) IBOutlet NSPopUpButton *popUpButtonImagrVersion;
-- (IBAction)popUpButtonImagrVersion:(id)sender;
-@property (weak) IBOutlet NSTextField *textFieldImagrLocalPathLabel;
-@property (weak) IBOutlet NSTextField *textFieldImagrLocalPath;
-@property (weak) IBOutlet NSButton *buttonChooseImagrLocalPath;
-- (IBAction)buttonChooseImagrLocalPath:(id)sender;
-@property (weak) IBOutlet NSTextField *textFieldConfigurationURL;
-
-@property (weak) IBOutlet NSTextField *textFieldReportingURL;
-
-
-@property (weak) IBOutlet NSButton *checkboxDisableWiFi;
-
-@property (weak) IBOutlet NSImageView *imageViewNetworkWarning;
-@property (weak) IBOutlet NSTextField *textFieldNetworkWarning;
+@property (weak) IBOutlet NSTextField *textFieldCasperImagingPath;
+@property (weak) IBOutlet NSButton *buttonChooseCasperImagingPath;
+- (IBAction)buttonChooseCasperImagingPath:(id)sender;
+@property (weak) IBOutlet NSTextField *textFieldJSSURL;
 
 // ------------------------------------------------------
 //  TabView Options
@@ -134,7 +115,7 @@
 // Pop Over
 
 
-@property (weak) IBOutlet NBCImagrDropViewImageBackground *imageViewBackgroundImage;
+@property (weak) IBOutlet NBCCasperDropViewImageBackground *imageViewBackgroundImage;
 
 // ------------------------------------------------------
 //  UI Binding Properties
@@ -170,15 +151,8 @@
 @property BOOL useVerboseBoot;
 @property BOOL diskImageReadWrite;
 
-@property BOOL disableATS;
-@property BOOL disableATSVisible;
-@property BOOL includeImagrPreReleaseVersionsEnabled;
-@property BOOL includeImagrPreReleaseVersions;
-@property NSString *imagrVersion;
-@property NSString *imagrConfigurationURL;
-@property NSString *imagrReportingURL;
-@property BOOL imagrUseLocalVersion;
-@property NSString *imagrLocalVersionPath;
+@property NSString *casperImagingPath;
+@property NSString *casperJSSURL;
 @property BOOL useBackgroundImage;
 @property NSString *imageBackgroundURL;
 @property NSString *imageBackground;
@@ -193,18 +167,6 @@
 @property NSString *popOverOSIndex;
 @property NSString *nbcVersion;
 @property NSString *siuVersion;
-
-// ------------------------------------------------------
-//  Instance Methods
-// ------------------------------------------------------
-- (void)buildNBI;
-- (void)verifyBuildButton;
-- (void)verifySettings;
-- (BOOL)haveSettingsChanged;
-- (void)updateUISettingsFromDict:(NSDictionary *)settingsDict;
-- (void)updateUISettingsFromURL:(NSURL *)url;
-- (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo;
-- (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL;
-- (void)expandVariablesForCurrentSettings;
+@property NSString *cimVersion;
 
 @end

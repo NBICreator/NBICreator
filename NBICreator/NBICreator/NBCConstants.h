@@ -55,6 +55,7 @@ extern NSString *const NBCFileNameDownloadsDict;
 extern NSString *const NBCFileNameNetInstallDefaults;
 extern NSString *const NBCFileNameDeployStudioDefaults;
 extern NSString *const NBCFileNameImagrDefaults;
+extern NSString *const NBCFileNameCasperDefaults;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark File Paths
@@ -62,6 +63,7 @@ extern NSString *const NBCFileNameImagrDefaults;
 extern NSString *const NBCFilePathNBIIconImagr;
 extern NSString *const NBCFilePathNBIIconNetInstall;
 extern NSString *const NBCFilePathNBIIconDeployStudio;
+extern NSString *const NBCFilePathNBIIconCasper;
 extern NSString *const NBCFilePathPreferencesGlobal;
 extern NSString *const NBCFilePathPreferencesHIToolbox;
 
@@ -162,6 +164,9 @@ extern NSString *const NBCSettingsNBICreationToolKey;
 extern NSString *const NBCSettingsKeyboardLayoutID;
 extern NSString *const NBCSettingsLocale;
 extern NSString *const NBCSettingsCountry;
+
+extern NSString *const NBCSettingsCasperImagingPathKey;
+extern NSString *const NBCSettingsCasperJSSURLKey;
 
 // --------------------------------------------------------------
 //  Template Settings Imagr
@@ -270,6 +275,13 @@ extern NSString *const NBCNotificationNetInstallRemovedSource;
 extern NSString *const NBCNotificationNetInstallUpdateNBIIcon;
 extern NSString *const NBCNotificationNetInstallVerifyDroppedSource;
 
+// Casper
+extern NSString *const NBCNotificationCasperUpdateSource;
+extern NSString *const NBCNotificationCasperRemovedSource;
+extern NSString *const NBCNotificationCasperUpdateNBIIcon;
+extern NSString *const NBCNotificationCasperUpdateNBIBackground;
+extern NSString *const NBCNotificationCasperVerifyDroppedSource;
+
 // Imagr / DeployStudio / NetInstall UserInfoKeys
 extern NSString *const NBCNotificationVerifyDroppedSourceUserInfoSourceURL;
 
@@ -356,6 +368,7 @@ extern NSString *const NBCSettingsSourceItemsRegexKey;
 extern NSString *const NBCSettingsSourceItemsCacheFolderKey;
 
 extern NSString *const NBCImagrBundleIdentifier;
+extern NSString *const NBCCasperImagingBundleIdentifier;
 
 // GITHUB
 

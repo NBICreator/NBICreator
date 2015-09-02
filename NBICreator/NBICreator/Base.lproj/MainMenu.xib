@@ -414,7 +414,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="335" y="846" width="600" height="434"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" verticalCompressionResistancePriority="250" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="600" height="434"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -436,13 +436,14 @@
                         <rect key="frame" x="20" y="53" width="560" height="179"/>
                     </customView>
                     <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uL8-j3-eig">
-                        <rect key="frame" x="178" y="242" width="244" height="24"/>
+                        <rect key="frame" x="145" y="242" width="310" height="24"/>
                         <segmentedCell key="cell" refusesFirstResponder="YES" borderStyle="border" alignment="left" identifier="netinstall" style="rounded" trackingMode="selectOne" id="cuq-FX-eII">
                             <font key="font" metaFont="system"/>
                             <segments>
                                 <segment label="NetInstall" selected="YES"/>
                                 <segment label="DeployStudio" tag="1"/>
                                 <segment label="Imagr" tag="2"/>
+                                <segment label="Casper"/>
                             </segments>
                         </segmentedCell>
                         <connections>

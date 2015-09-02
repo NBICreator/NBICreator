@@ -767,10 +767,10 @@ DDLogLevel ddLogLevel;
             regexDesktopPicture = @".*Library/Desktop\\ Pictures/Yosemite.jpg.*";
             break;
         case 9:
-            regexDesktopPicture = @".*Library/Desktop\\ Pictures/Mavericks.jpg.*";
+            regexDesktopPicture = @".*Library/Desktop\\ Pictures/Wave.jpg.*";
             break;
         case 8:
-            regexDesktopPicture = @".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*";
+            regexDesktopPicture = @".*Library/Desktop\\ Pictures/Galaxy.jpg.*";
             break;
         case 7:
             regexDesktopPicture = @".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*";
@@ -1079,7 +1079,7 @@ DDLogLevel ddLogLevel;
         [packageEssentialsRegexes addObject:regexAppleVNCServer];
     }
     
-    NSString *regexPerl = @".*/[Pp]erl.*";
+    NSString *regexPerl = @".*RFBEventHelper.*";
     [packageEssentialsRegexes addObject:regexPerl];
     
     NSString *regexScreensharingPreferences = @".*/Preferences/com.apple.RemoteManagement.*";
