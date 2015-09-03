@@ -627,12 +627,15 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
-    if ( [_serverURL1 length] == 0 ) {
-        [self setServerURL1:[_comboBoxServerURL1 stringValue]];
-    }
     
-    if ( [_serverURL2 length] == 0 ) {
-        [self setServerURL2:[_comboBoxServerURL2 stringValue]];
+    if ( _useCustomServers ) {
+        if ( [_serverURL1 length] == 0 ) {
+            [self setServerURL1:[_comboBoxServerURL1 stringValue]];
+        }
+        
+        if ( [_serverURL2 length] == 0 ) {
+            [self setServerURL2:[_comboBoxServerURL2 stringValue]];
+        }
     }
     
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
@@ -1380,7 +1383,7 @@ DDLogLevel ddLogLevel;
 - (IBAction)buttonDeployStudioDownloadProgressCancel:(id)sender {
 #pragma unused(sender)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    if ( _deployStudioDownloader != nil ) {
+    if ( _deployStudioDownloader ) {
         [_deployStudioDownloader cancelDownload];
     }
 }
