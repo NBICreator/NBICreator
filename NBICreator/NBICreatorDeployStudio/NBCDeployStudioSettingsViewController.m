@@ -627,6 +627,14 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
+    if ( [_serverURL1 length] == 0 ) {
+        [self setServerURL1:[_comboBoxServerURL1 stringValue]];
+    }
+    
+    if ( [_serverURL2 length] == 0 ) {
+        [self setServerURL2:[_comboBoxServerURL2 stringValue]];
+    }
+    
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"";
     settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"";
