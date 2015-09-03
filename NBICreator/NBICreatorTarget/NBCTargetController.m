@@ -1410,6 +1410,8 @@ DDLogLevel ddLogLevel;
     return retval;
 }
 
+
+
 - (BOOL)modifySettingsForMenuBar:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogDebug(@"modifyDictArray=%@", modifyDictArray);
@@ -2228,6 +2230,80 @@ DDLogLevel ddLogLevel;
     
     return retval;
 } // modifyNBIRemoveWiFi
+
+- (BOOL)modifySettingsForCasper:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    DDLogDebug(@"modifyDictArray=%@", modifyDictArray);
+    BOOL retval = YES;
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    DDLogDebug(@"userSettings=%@", userSettings);
+
+    // ---------------------------------------------------------------
+    //  /var/root/Library/Preferences/com.jamfsoftware.jss
+    // ---------------------------------------------------------------
+    NSURL *jssSettingsURL = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Preferences/com.jamfsoftware.jss"];
+    DDLogDebug(@"jssSettingsURL=%@", jssSettingsURL);
+    NSDictionary *jssSettingsAttributes;
+    NSMutableDictionary *jssSettingsDict;
+    if ( [jssSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+        jssSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:jssSettingsURL];
+        jssSettingsAttributes = [fm attributesOfItemAtPath:[jssSettingsURL path] error:&error];
+    }
+    
+    if ( [jssSettingsDict count] == 0 ) {
+        jssSettingsDict = [[NSMutableDictionary alloc] init];
+        jssSettingsAttributes = @{
+                                   NSFileOwnerAccountName : @"root",
+                                   NSFileGroupOwnerAccountName : @"wheel",
+                                   NSFilePosixPermissions : @0644
+                                   };
+    }
+    DDLogDebug(@"jssSettingsDict=%@", jssSettingsDict);
+    DDLogDebug(@"jssSettingsAttributes=%@", jssSettingsAttributes);
+
+    jssSettingsDict[@"allowInvalidCertificate"] = @NO;
+    
+    NSString *jssURLString = userSettings[NBCSettingsCasperJSSURLKey];
+    if ( [jssURLString length] != 0 ) {
+        jssSettingsDict[@"url"] = jssURLString ?: @"";
+        NSURL *jssURL = [NSURL URLWithString:jssURLString];
+        jssSettingsDict[@"secure"] = [[jssURL scheme] isEqualTo:@"https"] ? @YES : @NO;
+        jssSettingsDict[@"address"] = [jssURL host] ?: @"";
+        
+        NSNumber *port = [NSNumber numberWithInt:80];
+        if( [jssURL port] == nil && [[jssURL scheme] isEqualTo:@"https"]){
+            port = [NSNumber numberWithInt:443];
+        } else if( [jssURL port] != nil){
+            port = [jssURL port];
+        }
+        jssSettingsDict[@"port"] = [port stringValue] ?: @"";
+        jssSettingsDict[@"path"] = [jssURL path] ?: @"";
+    }
+    
+    
+    
+    DDLogDebug(@"jssSettingsDict=%@", jssSettingsDict);
+    NSDictionary *modifyJSSSettings = @{
+                                         NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                         NBCWorkflowModifyContent : jssSettingsDict,
+                                         NBCWorkflowModifyAttributes : jssSettingsAttributes,
+                                         NBCWorkflowModifyTargetURL : [jssSettingsURL path]
+                                         };
+    DDLogDebug(@"modifyJSSSettings=%@", modifyJSSSettings);
+    [modifyDictArray addObject:modifyJSSSettings];
+    
+    return retval;
+}
 
 - (BOOL)modifyNBINTP:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));

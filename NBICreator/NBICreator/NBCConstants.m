@@ -183,7 +183,7 @@ NSString *const NBCSettingsCasperImagingPathKey = @"CasperImagingPath";
 NSString *const NBCSettingsCasperJSSURLKey = @"CasperJSSURL";
 
 
-
+NSString *const NBCCasperJSSCertificateURLPath = @"/CA/SCEP?operation=getcacert";
 
 
 // --------------------------------------------------------------
@@ -391,6 +391,7 @@ NSString *const NBCButtonTitleContinue = @"Continue";
 NSString *const NBCButtonTitleOK = @"OK";
 NSString *const NBCButtonTitleSave = @"Save";
 NSString *const NBCButtonTitleQuit = @"Quit";
+NSString *const NBCButtonTitleVerify = @"Verify...";
 
 // --------------------------------------------------------------
 //  DeployStudio
@@ -429,6 +430,7 @@ NSString *const NBCDownloaderTagImagr = @"NBCDownloaderTagImagr";
 NSString *const NBCDownloaderTagDeployStudio = @"NBCDownloaderTagDeployStudio";
 NSString *const NBCDownloaderTagNBICreator = @"NBCDownloaderTagNBICreator";
 NSString *const NBCDownloaderTagNBICreatorResources = @"NBCDownloaderTagNBICreatorResources";
+NSString *const NBCDownloaderTagJSSCertificate = @"NBCDownloaderTagJSSCertificate";
 NSString *const NBCDownloaderVersion = @"Version";
 
 // --------------------------------------------------------------

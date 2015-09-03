@@ -40,6 +40,7 @@
 @property NBCSystemImageUtilitySource *siuSource;
 @property NBCTemplatesController *templates;
 @property NBCWorkflowResourcesController *resourcesController;
+@property NBCDownloader *jssCertificateDownloader;
 
 @property (weak) IBOutlet NSButton *checkboxDisableWiFi;
 // ------------------------------------------------------
@@ -88,6 +89,17 @@
 @property (weak) IBOutlet NSButton *buttonChooseCasperImagingPath;
 - (IBAction)buttonChooseCasperImagingPath:(id)sender;
 @property (weak) IBOutlet NSTextField *textFieldJSSURL;
+@property (weak) IBOutlet NSButton *buttonVerifyJSS;
+- (IBAction)buttonVerifyJSS:(id)sender;
+@property (weak) IBOutlet NSProgressIndicator *progressIndicatorVerifyJSS;
+@property (weak) IBOutlet NSTextField *textFieldVerifyJSSStatus;
+
+@property BOOL verifyingJSS;
+
+@property (weak) IBOutlet NSButton *buttonLaunchPadRestrictions;
+- (IBAction)buttonLaunchPadRestrictions:(id)sender;
+
+@property (strong) IBOutlet NSPopover *popOverLaunchPadRestrictions;
 
 // ------------------------------------------------------
 //  TabView Options

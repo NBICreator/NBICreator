@@ -688,6 +688,12 @@ DDLogLevel ddLogLevel;
             NSString *nbiDescription = [NBCVariables expandVariables:_nbiDescription source:_source applicationSource:_siuSource];
             [_textFieldNBIDescriptionPreview setStringValue:nbiDescription];
         }
+    } else if ( [sender object] == _textFieldJSSURL ) {
+        if ( [_casperJSSURL length] == 0 ) {
+            [_buttonVerifyJSS setEnabled:NO];
+        } else {
+            [_buttonVerifyJSS setEnabled:YES];
+        }
     }
     
     // --------------------------------------------------------------------
@@ -708,6 +714,14 @@ DDLogLevel ddLogLevel;
     [self verifyBuildButton];
     
 } // controlTextDidChange
+
+- (void)downloadCanceled:(NSDictionary *)downloadInfo {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *downloadTag = downloadInfo[NBCDownloaderTag];
+    if ( [downloadTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
+        NSLog(@"Canceled!");
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -2522,4 +2536,46 @@ DDLogLevel ddLogLevel;
 }
 
 
+- (IBAction)buttonVerifyJSS:(id)sender {
+    if ( [[sender title] isEqualToString:NBCButtonTitleVerify] ) {
+        [self setVerifyingJSS:YES];
+        [_buttonVerifyJSS setTitle:NBCButtonTitleCancel];
+        [_textFieldVerifyJSSStatus setHidden:NO];
+        [_textFieldVerifyJSSStatus setStringValue:@"Contacting JSS..."];
+        
+        NSString *jssURLString = _casperJSSURL;
+        NSURL *jssCertificateURL;
+        if ( [jssURLString length] != 0 ) {
+            jssCertificateURL = [[NSURL URLWithString:jssURLString] URLByAppendingPathComponent:NBCCasperJSSCertificateURLPath];
+        } else {
+            [self stopJSSVerification];
+            // Show Alert
+            return;
+        }
+        
+        if ( ! _jssCertificateDownloader ) {
+            _jssCertificateDownloader = [[NBCDownloader alloc] initWithDelegate:self];
+        }
+        NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagJSSCertificate };
+        [_jssCertificateDownloader downloadPageAsData:jssCertificateURL downloadInfo:downloadInfo];
+    } else {
+        [self stopJSSVerification];
+    }
+    
+}
+
+- (void)stopJSSVerification {
+    if ( _jssCertificateDownloader ) {
+        [_jssCertificateDownloader cancelDownload];
+    }
+    [self setVerifyingJSS:NO];
+    [_buttonVerifyJSS setTitle:NBCButtonTitleVerify];
+    [_textFieldVerifyJSSStatus setHidden:YES];
+    [_textFieldVerifyJSSStatus setStringValue:@""];
+}
+
+- (IBAction)buttonLaunchPadRestrictions:(id)sender {
+    
+    [_popOverLaunchPadRestrictions showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
+}
 @end

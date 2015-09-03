@@ -327,6 +327,7 @@ extern NSString *const NBCButtonTitleContinue;
 extern NSString *const NBCButtonTitleOK;
 extern NSString *const NBCButtonTitleSave;
 extern NSString *const NBCButtonTitleQuit;
+extern NSString *const NBCButtonTitleVerify;
 
 // --------------------------------------------------------------
 //  Alerts
@@ -372,7 +373,7 @@ extern NSString *const NBCCasperImagingBundleIdentifier;
 
 // GITHUB
 
-
+extern NSString *const NBCCasperJSSCertificateURLPath;
 
 extern NSString *const NBCDownloaderTag;
 extern NSString *const NBCDownloaderTagPython;
@@ -380,6 +381,7 @@ extern NSString *const NBCDownloaderTagImagr;
 extern NSString *const NBCDownloaderTagDeployStudio;
 extern NSString *const NBCDownloaderTagNBICreator;
 extern NSString *const NBCDownloaderTagNBICreatorResources;
+extern NSString *const NBCDownloaderTagJSSCertificate;
 extern NSString *const NBCDownloaderVersion;
 
 extern NSString *const NBCTargetFolderMinFreeSizeInGB;
