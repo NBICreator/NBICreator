@@ -1932,7 +1932,8 @@ DDLogLevel ddLogLevel;
 - (void)verifySettings {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Verifying settings...");
-    NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeCasper];
+    NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeCasper
+                                                              workflowSessionType:kWorkflowSessionTypeGUI];
     [workflowItem setSource:_source];
     [workflowItem setApplicationSource:_siuSource];
     [workflowItem setSettingsViewController:self];

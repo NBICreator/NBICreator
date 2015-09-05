@@ -7,7 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NBCWorkflowItem.h"
 
 @interface NBCCLIArguments : NSObject
+
+@property NBCWorkflowItem *workflowItem;
+
+- (void)verifyArguments;
 
 @end

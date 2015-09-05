@@ -22,6 +22,11 @@ enum {
     kWorkflowTypeCasper
 };
 
+enum {
+    kWorkflowSessionTypeGUI = 0,
+    kWorkflowSessionTypeCLI
+};
+
 @interface NBCWorkflowItem : NSObject
 
 // -------------------------------------------------------------
@@ -33,6 +38,8 @@ enum {
 @property id workflowModifyNBI;
 @property id applicationSource;
 @property int workflowType;
+
+@property int workflowSessionType;
 
 @property NSImage *nbiIcon;
 @property NSURL *nbiIconURL;
@@ -79,6 +86,6 @@ enum {
 // -------------------------------------------------------------
 //  Public Methods
 // -------------------------------------------------------------
-- (id)initWithWorkflowType:(int)workflowType;
+- (id)initWithWorkflowType:(int)workflowType workflowSessionType:(int)workflowSessionType;
 
 @end

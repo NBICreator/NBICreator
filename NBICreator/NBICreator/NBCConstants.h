@@ -133,6 +133,7 @@ extern NSString *const NBCSettingsKeyboardLayoutKey;
 extern NSString *const NBCSettingsDescriptionKey;
 extern NSString *const NBCSettingsDestinationFolderKey;
 extern NSString *const NBCSettingsIconKey;
+extern NSString *const NBCSettingsTrustedNetBootServersKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Options
@@ -490,7 +491,16 @@ extern NSString *const NBCVariableApplicationResourcesURL;
 
 extern NSString *const NBCTableViewIdentifierCertificates;
 extern NSString *const NBCTableViewIdentifierPackages;
+extern NSString *const NBCTableViewTrustedServers;
 
 extern NSString *const NBCDiskImageFormatReadOnly;
 extern NSString *const NBCDiskImageFormatReadWrite;
 extern NSString *const NBCDiskImageFormatSparseImage;
+
+
+extern NSString *const NBCCLIArgumentSource;
+extern NSString *const NBCCLIArgumentTemplate;
+extern NSString *const NBCCLIArgumentTarget;
+extern NSString *const NBCCLIArgumentNoPrompt;
+extern NSString *const NBCCLIArgumentQuiet;
+

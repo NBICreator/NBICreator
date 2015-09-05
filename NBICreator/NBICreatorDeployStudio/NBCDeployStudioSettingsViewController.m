@@ -1236,7 +1236,8 @@ DDLogLevel ddLogLevel;
 
 - (void)buildNBI {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeDeployStudio];
+    NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeDeployStudio
+                                                              workflowSessionType:kWorkflowSessionTypeGUI];
     [workflowItem setSource:_source];
     [workflowItem setApplicationSource:_dsSource];
     [workflowItem setSettingsViewController:self];

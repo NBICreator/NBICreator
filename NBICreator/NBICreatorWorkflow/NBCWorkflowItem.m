@@ -11,10 +11,11 @@
 
 @implementation NBCWorkflowItem
 
-- (id)initWithWorkflowType:(int)workflowType {
+- (id)initWithWorkflowType:(int)workflowType workflowSessionType:(int)workflowSessionType{
     self = [super init];
     if (self) {
         _workflowType = workflowType;
+        _workflowSessionType = workflowSessionType;
     }
     return self;
 }

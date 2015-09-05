@@ -133,6 +133,7 @@ NSString *const NBCSettingsKeyboardLayoutKey = @"KeyboardLayout";
 NSString *const NBCSettingsDescriptionKey = @"Description";
 NSString *const NBCSettingsDestinationFolderKey = @"DestinationFolder";
 NSString *const NBCSettingsIconKey = @"Icon";
+NSString *const NBCSettingsTrustedNetBootServersKey = @"TrustedNetBootServers";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Options
@@ -514,10 +515,17 @@ NSString *const NBCVariableApplicationResourcesURL = @"%APPLICATIONRESOURCESURL%
 
 NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
 NSString *const NBCTableViewIdentifierPackages = @"tableViewPackages";
+NSString *const NBCTableViewTrustedServers = @"tableViewTrustedServers";
 
 
 
 NSString *const NBCDiskImageFormatReadOnly = @"UDRO";
 NSString *const NBCDiskImageFormatReadWrite = @"UDRW";
 NSString *const NBCDiskImageFormatSparseImage = @"UDSP";
+
+NSString *const NBCCLIArgumentSource = @"-source";
+NSString *const NBCCLIArgumentTemplate = @"-template";
+NSString *const NBCCLIArgumentTarget = @"-target";
+NSString *const NBCCLIArgumentNoPrompt = @"-noprompt";
+NSString *const NBCCLIArgumentQuiet = @"-quiet";
 

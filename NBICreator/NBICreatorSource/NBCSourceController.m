@@ -1079,7 +1079,7 @@ DDLogLevel ddLogLevel;
         [packageEssentialsRegexes addObject:regexAppleVNCServer];
     }
     
-    NSString *regexPerl = @".*RFBEventHelper.*";
+    NSString *regexPerl = @".*[Pp]erl.*";
     [packageEssentialsRegexes addObject:regexPerl];
     
     NSString *regexScreensharingPreferences = @".*/Preferences/com.apple.RemoteManagement.*";
