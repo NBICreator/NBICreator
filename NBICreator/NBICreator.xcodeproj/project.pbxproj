@@ -24,7 +24,6 @@
 		531E7F4F1B0A5D88001573E7 /* ImagrDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */; };
 		5324335A1B0E691300152DC6 /* NBCConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53383D141AFA9D3000C041F9 /* NBCConstants.m */; };
 		5324C1551AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 5324C1541AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m */; };
-		532668971B99A39C00AAF1A7 /* NBCTrustedNetBootServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 532668961B99A39C00AAF1A7 /* NBCTrustedNetBootServer.m */; };
 		532A67901B18D98C007528AE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 532A678F1B18D98C007528AE /* SystemConfiguration.framework */; };
 		532A67961B18EBC9007528AE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 532A67951B18EBC9007528AE /* Reachability.m */; };
 		533262901B794A9E00BA7EC9 /* NBCDesktopEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 5332628F1B794A9E00BA7EC9 /* NBCDesktopEntity.m */; };
@@ -265,8 +264,6 @@
 		531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = ImagrDefaults.plist; path = "Supporting Files/Property Lists/ImagrDefaults.plist"; sourceTree = "<group>"; };
 		5324C1531AEACF130054B375 /* NBCDeployStudioDropViewImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCDeployStudioDropViewImage.h; path = NBICreatorDeployStudio/NBCDeployStudioDropViewImage.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		5324C1541AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCDeployStudioDropViewImage.m; path = NBICreatorDeployStudio/NBCDeployStudioDropViewImage.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		532668951B99A39C00AAF1A7 /* NBCTrustedNetBootServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCTrustedNetBootServer.h; sourceTree = "<group>"; };
-		532668961B99A39C00AAF1A7 /* NBCTrustedNetBootServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCTrustedNetBootServer.m; sourceTree = "<group>"; };
 		532A678F1B18D98C007528AE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		532A67941B18EBC9007528AE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = NBICreatorNetworking/Reachability.h; sourceTree = "<group>"; };
 		532A67951B18EBC9007528AE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = NBICreatorNetworking/Reachability.m; sourceTree = "<group>"; };
@@ -613,8 +610,6 @@
 				53931B9C1AED511B0076C1CC /* NBCVariables.m */,
 				5332628E1B794A9E00BA7EC9 /* NBCDesktopEntity.h */,
 				5332628F1B794A9E00BA7EC9 /* NBCDesktopEntity.m */,
-				532668951B99A39C00AAF1A7 /* NBCTrustedNetBootServer.h */,
-				532668961B99A39C00AAF1A7 /* NBCTrustedNetBootServer.m */,
 				536D1B791B98ECCC009ABBE6 /* NBCTrustedNetBootServerCellView.h */,
 				536D1B7A1B98ECCC009ABBE6 /* NBCTrustedNetBootServerCellView.m */,
 				5318EF6C1B729B3400F818FC /* NBCCertificateTableCellView.h */,
@@ -1113,7 +1108,6 @@
 				53CBA96C1ADE556600385C89 /* TFHppleElement.m in Sources */,
 				535EA1531ADFBAAB0092136C /* NBCBonjourBrowser.m in Sources */,
 				5308C3681A9A63F7001CFEF5 /* NBCDeployStudioDropViewController.m in Sources */,
-				532668971B99A39C00AAF1A7 /* NBCTrustedNetBootServer.m in Sources */,
 				53E51C2A1AF56C35009364E7 /* NBCImagrDropViewImage.m in Sources */,
 				532A67961B18EBC9007528AE /* Reachability.m in Sources */,
 				5324C1551AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m in Sources */,

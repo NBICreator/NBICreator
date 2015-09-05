@@ -11,9 +11,16 @@
 @implementation NBCBackgroundViewWhite
 
 - (void)drawRect:(NSRect)dirtyRect {
-    [super drawRect:dirtyRect];
+#pragma unused(dirtyRect)
     [[NSColor whiteColor] set];
     NSRectFill([self bounds]);
+    /*
+    [self setWantsLayer:YES];
+    self.layer.masksToBounds   = YES;
+    self.layer.borderWidth      = 1.0f ;
+    
+    [self.layer setBorderColor:CGColorGetConstantColor(kCGColorBlack)];
+     */
 }
 
 @end

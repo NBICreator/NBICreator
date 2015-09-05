@@ -395,9 +395,7 @@ DDLogLevel ddLogLevel;
             return [self populatePackageCellView:cellView packageDict:packageDict];
         }
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewTrustedServers] ) {
-        // SHOULD USE CONTROLLER OR KVO
         [self setTrustedServersCount:(int)[_trustedServers count]];
-        //
         NSString *trustedServer = _trustedServers[(NSUInteger)row];
         if ( [[tableColumn identifier] isEqualToString:@"TrustedNetBootTableColumn"] ) {
             NBCTrustedNetBootServerCellView *cellView = [tableView makeViewWithIdentifier:@"NetBootServerCellView" owner:self];
@@ -1162,7 +1160,9 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsPackagesKey] = packageArray ?: @[];
     
     NSMutableArray *trustedNetBootServersArray = [[NSMutableArray alloc] init];
+    NSLog(@"_trustedServers=%@", _trustedServers);
     for ( NSString *trustedNetBootServer in _trustedServers ) {
+        NSLog(@"trustedNetBootServer=%@", trustedNetBootServer);
         if ( [trustedNetBootServer length] != 0 ) {
             [trustedNetBootServersArray insertObject:trustedNetBootServer atIndex:0];
         }
@@ -2776,8 +2776,7 @@ DDLogLevel ddLogLevel;
 }
 - (IBAction)buttonAddTrustedServer:(id)sender {
 #pragma unused(sender)
-    
-    NSInteger index = [self insertNetBootServerIPInTableView:@""];
+    NSInteger index = [self insertNetBootServerIPInTableView:@"123"];
     [[[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:index makeIfNecessary:NO] textFieldTrustedNetBootServer] selectText:self];
 }
 
@@ -2786,5 +2785,6 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewTrustedServers selectedRowIndexes];
     [_trustedServers removeObjectsAtIndexes:indexes];
     [_tableViewTrustedServers removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [self setTrustedServersCount:(int)[_trustedServers count]];
 }
 @end

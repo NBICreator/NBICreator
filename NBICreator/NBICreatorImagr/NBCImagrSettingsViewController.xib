@@ -61,7 +61,7 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
-        <customView id="1FD-oy-yMF">
+        <customView id="1FD-oy-yMF" userLabel="Settings View">
             <rect key="frame" x="0.0" y="0.0" width="540" height="436"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
@@ -1435,7 +1435,7 @@ asdasd</string>
             </connections>
         </popover>
         <userDefaultsController representsSharedInstance="YES" id="SYq-fK-Tx4"/>
-        <customView id="9zp-4i-BOx">
+        <customView id="9zp-4i-BOx" userLabel="PopOver Variables">
             <rect key="frame" x="0.0" y="0.0" width="439" height="334"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
@@ -1892,14 +1892,14 @@ asdasd</string>
                 <constraint firstAttribute="trailing" secondItem="sJ6-Ig-M55" secondAttribute="trailing" constant="20" symbolic="YES" id="ySd-tU-es2"/>
                 <constraint firstItem="vXo-HW-s9M" firstAttribute="leading" secondItem="hVH-aa-uan" secondAttribute="leading" id="yTP-YA-qjk"/>
             </constraints>
-            <point key="canvasLocation" x="-2579.5" y="292"/>
+            <point key="canvasLocation" x="-2221.5" y="300"/>
         </customView>
-        <customView id="395-jk-mun">
-            <rect key="frame" x="0.0" y="0.0" width="124" height="141"/>
+        <customView id="395-jk-mun" userLabel="PopOver NetBoot Servers">
+            <rect key="frame" x="0.0" y="0.0" width="133" height="147"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <customView translatesAutoresizingMaskIntoConstraints="NO" id="za1-i3-jap" customClass="NBCBackgroundViewWhite">
-                    <rect key="frame" x="5" y="5" width="114" height="131"/>
+                <customView appearanceType="aqua" translatesAutoresizingMaskIntoConstraints="NO" id="za1-i3-jap" customClass="NBCBackgroundViewWhite">
+                    <rect key="frame" x="5" y="5" width="123" height="137"/>
                     <subviews>
                         <button translatesAutoresizingMaskIntoConstraints="NO" id="jy3-wi-uv1">
                             <rect key="frame" x="0.0" y="0.0" width="16" height="16"/>
@@ -1937,20 +1937,20 @@ asdasd</string>
                         <constraint firstAttribute="bottom" secondItem="jy3-wi-uv1" secondAttribute="bottom" id="vNM-uU-Et4"/>
                     </constraints>
                 </customView>
-                <scrollView borderType="none" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PEn-Y1-AIs">
-                    <rect key="frame" x="5" y="21" width="114" height="115"/>
+                <scrollView appearanceType="aqua" borderType="none" autohidesScrollers="YES" horizontalLineScroll="20" horizontalPageScroll="10" verticalLineScroll="20" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PEn-Y1-AIs">
+                    <rect key="frame" x="5" y="21" width="123" height="121"/>
                     <clipView key="contentView" drawsBackground="NO" copiesOnScroll="NO" id="xSf-cc-3av">
                         <rect key="frame" x="1" y="17" width="238" height="117"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView identifier="tableViewTrustedServers" focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="Ppi-kq-H3r">
+                            <tableView identifier="tableViewTrustedServers" focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="Ppi-kq-H3r">
                                 <rect key="frame" x="0.0" y="0.0" width="114" height="0.0"/>
                                 <autoresizingMask key="autoresizingMask"/>
-                                <size key="intercellSpacing" width="3" height="2"/>
+                                <size key="intercellSpacing" width="2" height="3"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn identifier="TrustedNetBootTableColumn" width="111" minWidth="40" maxWidth="1000" id="nVS-pO-Voj">
+                                    <tableColumn identifier="TrustedNetBootTableColumn" width="121" minWidth="40" maxWidth="1000" id="nVS-pO-Voj">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1963,28 +1963,28 @@ asdasd</string>
                                         </textFieldCell>
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
-                                            <tableCellView identifier="NetBootServerCellView" id="MxA-hV-daU" customClass="NBCTrustedNetBootServerCellView">
-                                                <rect key="frame" x="1" y="1" width="111" height="17"/>
+                                            <tableCellView identifier="NetBootServerCellView" id="lWW-4a-BjY" customClass="NBCTrustedNetBootServerCellView">
+                                                <rect key="frame" x="1" y="1" width="121" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="o3l-SQ-1Id">
-                                                        <rect key="frame" x="-2" y="0.0" width="115" height="17"/>
-                                                        <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" title="Table View Cell" id="67k-tR-uSg">
+                                                    <textField focusRingType="none" verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="otm-ro-etN">
+                                                        <rect key="frame" x="-1" y="0.0" width="123" height="17"/>
+                                                        <textFieldCell key="cell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" focusRingType="none" title="555.555.555.555" id="jUS-zt-UVn">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
-                                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
                                                 </subviews>
                                                 <constraints>
-                                                    <constraint firstAttribute="trailing" secondItem="o3l-SQ-1Id" secondAttribute="trailing" id="6FU-8o-zrc"/>
-                                                    <constraint firstItem="o3l-SQ-1Id" firstAttribute="leading" secondItem="MxA-hV-daU" secondAttribute="leading" id="gZV-Lv-kae"/>
-                                                    <constraint firstAttribute="bottom" secondItem="o3l-SQ-1Id" secondAttribute="bottom" id="tJz-dx-S51"/>
-                                                    <constraint firstItem="o3l-SQ-1Id" firstAttribute="top" secondItem="MxA-hV-daU" secondAttribute="top" id="xKd-E8-oUC"/>
+                                                    <constraint firstItem="otm-ro-etN" firstAttribute="leading" secondItem="lWW-4a-BjY" secondAttribute="leading" constant="1" id="7wq-Eu-15R"/>
+                                                    <constraint firstItem="otm-ro-etN" firstAttribute="top" secondItem="lWW-4a-BjY" secondAttribute="top" id="7yB-Du-NkX"/>
+                                                    <constraint firstAttribute="trailing" secondItem="otm-ro-etN" secondAttribute="trailing" constant="1" id="X9k-KW-46E"/>
+                                                    <constraint firstAttribute="bottom" secondItem="otm-ro-etN" secondAttribute="bottom" id="rVT-4n-d7c"/>
                                                 </constraints>
                                                 <connections>
-                                                    <outlet property="textField" destination="o3l-SQ-1Id" id="vfW-HF-nAQ"/>
-                                                    <outlet property="textFieldTrustedNetBootServer" destination="o3l-SQ-1Id" id="e8r-jh-IgV"/>
+                                                    <outlet property="textField" destination="otm-ro-etN" id="gSX-6O-R89"/>
+                                                    <outlet property="textFieldTrustedNetBootServer" destination="otm-ro-etN" id="NnD-Rz-lqZ"/>
                                                 </connections>
                                             </tableCellView>
                                         </prototypeCellViews>
@@ -1999,7 +1999,7 @@ asdasd</string>
                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </clipView>
                     <constraints>
-                        <constraint firstAttribute="height" constant="115" id="qy9-Ec-6ZA"/>
+                        <constraint firstAttribute="height" constant="121" id="qy9-Ec-6ZA"/>
                     </constraints>
                     <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="3rk-Yo-6qa">
                         <rect key="frame" x="1" y="119" width="223" height="15"/>
@@ -2021,7 +2021,7 @@ asdasd</string>
                 <constraint firstAttribute="trailing" secondItem="za1-i3-jap" secondAttribute="trailing" constant="5" id="jmB-BJ-PlT"/>
                 <constraint firstItem="PEn-Y1-AIs" firstAttribute="leading" secondItem="395-jk-mun" secondAttribute="leading" constant="5" id="qRs-9I-e1x"/>
             </constraints>
-            <point key="canvasLocation" x="-2636" y="245.5"/>
+            <point key="canvasLocation" x="-2643.5" y="233.5"/>
         </customView>
         <arrayController objectClassName="NBCTrustedNetBootServer" avoidsEmptySelection="NO" id="48e-Ye-RNR">
             <declaredKeys>
