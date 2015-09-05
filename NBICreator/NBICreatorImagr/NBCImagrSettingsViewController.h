@@ -87,6 +87,18 @@
 @property (weak) IBOutlet NSPopover *popOverVariables;
 - (IBAction)buttonPopOver:(id)sender;
 
+@property (strong) IBOutlet NSPopover *popOverManageTrustedServers;
+@property (weak) IBOutlet NSButton *buttonManageTrustedServers;
+- (IBAction)buttonManageTrustedServers:(id)sender;
+@property (weak) IBOutlet NSTableView *tableViewTrustedServers;
+@property NSMutableArray *trustedServers;
+@property int trustedServersCount;
+
+@property (weak) IBOutlet NSButton *buttonAddTrustedServer;
+- (IBAction)buttonAddTrustedServer:(id)sender;
+@property (weak) IBOutlet NSButton *buttonRemoveTrustedServer;
+- (IBAction)buttonRemoveTrustedServer:(id)sender;
+
 // ------------------------------------------------------
 //  TabView Imagr Settings
 // ------------------------------------------------------

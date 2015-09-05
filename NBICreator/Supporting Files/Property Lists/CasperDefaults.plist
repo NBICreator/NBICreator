@@ -62,5 +62,7 @@
 	<string>%COUNTER%</string>
 	<key>Name</key>
 	<string>%OSVERSION%_%OSBUILD%_Casper</string>
+	<key>TrustedNetBootServers</key>
+	<array/>
 </dict>
 </plist>

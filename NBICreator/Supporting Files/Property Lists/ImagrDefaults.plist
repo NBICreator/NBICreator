@@ -70,5 +70,7 @@
 	<string>%COUNTER%</string>
 	<key>Name</key>
 	<string>%OSVERSION%_%OSBUILD%_Imagr</string>
+	<key>TrustedNetBootServers</key>
+	<array/>
 </dict>
 </plist>

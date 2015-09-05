@@ -20,5 +20,7 @@
 	<string>%COUNTER%</string>
 	<key>Name</key>
 	<string>%OSVERSION%_%OSBUILD%_NetInstall</string>
+	<key>TrustedNetBootServers</key>
+	<array/>
 </dict>
 </plist>
