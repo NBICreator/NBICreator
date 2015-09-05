@@ -773,7 +773,7 @@ DDLogLevel ddLogLevel;
             regexDesktopPicture = @".*Library/Desktop\\ Pictures/Galaxy.jpg.*";
             break;
         case 7:
-            regexDesktopPicture = @".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*";
+            regexDesktopPicture = @".*Library/Desktop\\ Pictures/Lion.jpg.*";
             break;
         default:
             break;

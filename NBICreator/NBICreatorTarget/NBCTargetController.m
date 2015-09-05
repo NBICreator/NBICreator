@@ -1170,7 +1170,7 @@ DDLogLevel ddLogLevel;
             desktopPictureDefaultPath = @"Library/Desktop Pictures/Galaxy.jpg";
             break;
         case 7:
-            desktopPictureDefaultPath = @"Library/Desktop Pictures/El Capitan.jpg";
+            desktopPictureDefaultPath = @"Library/Desktop Pictures/Lion.jpg";
             break;
         default:
             break;
