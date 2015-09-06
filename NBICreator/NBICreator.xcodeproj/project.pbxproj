@@ -50,6 +50,7 @@
 		53695BB41B80A6510038F3DD /* generateKernelCache.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53695BB31B80A6510038F3DD /* generateKernelCache.bash */; };
 		536D1B6D1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m in Sources */ = {isa = PBXBuildFile; fileRef = 536D1B6C1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m */; };
 		536D1B7B1B98ECCC009ABBE6 /* NBCTrustedNetBootServerCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 536D1B7A1B98ECCC009ABBE6 /* NBCTrustedNetBootServerCellView.m */; };
+		537FF2281B9B0CE200924E04 /* NSString+validIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 537FF2271B9B0CE200924E04 /* NSString+validIP.m */; };
 		5381B76E1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5381B76C1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m */; };
 		5381B76F1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5381B76D1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib */; };
 		5386EA8E1AFFB0EA0091D57A /* NBCDownloaderPython.m in Sources */ = {isa = PBXBuildFile; fileRef = 5386EA8D1AFFB0EA0091D57A /* NBCDownloaderPython.m */; };
@@ -304,6 +305,8 @@
 		536D1B6C1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCBackgroundViewWhite.m; sourceTree = "<group>"; };
 		536D1B791B98ECCC009ABBE6 /* NBCTrustedNetBootServerCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCTrustedNetBootServerCellView.h; sourceTree = "<group>"; };
 		536D1B7A1B98ECCC009ABBE6 /* NBCTrustedNetBootServerCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCTrustedNetBootServerCellView.m; sourceTree = "<group>"; };
+		537FF2261B9B0CE200924E04 /* NSString+validIP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+validIP.h"; path = "NBICreatorCategories/NSString+validIP.h"; sourceTree = "<group>"; };
+		537FF2271B9B0CE200924E04 /* NSString+validIP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+validIP.m"; path = "NBICreatorCategories/NSString+validIP.m"; sourceTree = "<group>"; };
 		5381B76B1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCNetInstallSettingsViewController.h; path = NBICreatorNetInstall/NBCNetInstallSettingsViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		5381B76C1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCNetInstallSettingsViewController.m; path = NBICreatorNetInstall/NBCNetInstallSettingsViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		5381B76D1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCNetInstallSettingsViewController.xib; path = NBICreatorNetInstall/NBCNetInstallSettingsViewController.xib; sourceTree = "<group>"; };
@@ -707,6 +710,8 @@
 			children = (
 				5337D0C01AD9BAE200DF7579 /* NSString+randomString.h */,
 				5337D0C11AD9BAE200DF7579 /* NSString+randomString.m */,
+				537FF2261B9B0CE200924E04 /* NSString+validIP.h */,
+				537FF2271B9B0CE200924E04 /* NSString+validIP.m */,
 			);
 			name = "NBICreator Categories";
 			sourceTree = "<group>";
@@ -1127,6 +1132,7 @@
 				536D1B7B1B98ECCC009ABBE6 /* NBCTrustedNetBootServerCellView.m in Sources */,
 				533BED661B9A34E200524AE4 /* NBCCLIArguments.m in Sources */,
 				53EFC5141A9DF304005A68E6 /* NBCDiskImageController.m in Sources */,
+				537FF2281B9B0CE200924E04 /* NSString+validIP.m in Sources */,
 				5318EF6E1B729B3400F818FC /* NBCCertificateTableCellView.m in Sources */,
 				534FA9ED1AF4B39D005B40F6 /* NBCSourceController.m in Sources */,
 				53CBB1CC1ACF288000B83089 /* NBCWorkflowItem.m in Sources */,
