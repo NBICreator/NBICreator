@@ -420,7 +420,7 @@ NSString *const NBCImagrGitHubRepository = @"grahamgilbert/imagr";
 NSString *const NBCNBICreatorGitHubRepository = @"NBICreator/NBICreator";
 NSString *const NBCNBICreatorResourcesGitHubRepository = @"NBICreator/NBICreatorResources";
 
-NSString *const NBCCasperImagingBundleIdentifier = @"";
+NSString *const NBCCasperImagingBundleIdentifier = @"com.jamfsoftware.CasperImaging";
 
 // --------------------------------------------------------------
 //  NBCDownloader
