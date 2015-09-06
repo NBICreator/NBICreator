@@ -29,6 +29,7 @@
 #import "NBCPackageTableCellView.h"
 #import "NBCTrustedNetBootServerCellView.h"
 #import "NBCDesktopEntity.h"
+#import "NSString+validIP.h"
 
 DDLogLevel ddLogLevel;
 
@@ -71,7 +72,6 @@ DDLogLevel ddLogLevel;
     _certificateTableViewContents = [[NSMutableArray alloc] init];
     _packagesTableViewContents = [[NSMutableArray alloc] init];
     _trustedServers = [[NSMutableArray alloc] init];
-    [_trustedServers addObjectsFromArray:@[ @"192.148.2.12", @"123.12.32.12" ]];
     
     // --------------------------------------------------------------
     //  Add Notification Observers
@@ -135,7 +135,7 @@ DDLogLevel ddLogLevel;
     [_imageViewBackgroundImage setMenu:backgroundImageMenu];
     
     // ------------------------------------------------------------------------------
-    //  
+    //
     // -------------------------------------------------------------------------------
     [self setATSButtonVisiblility];
     
@@ -315,7 +315,7 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (NBCCertificateTableCellView *)populateCertificateCellView:(NBCCertificateTableCellView *)cellView certificateDict:(NSDictionary *)certificateDict {        [self setTrustedServersCount:(int)[_trustedServers count]];
+- (NBCCertificateTableCellView *)populateCertificateCellView:(NBCCertificateTableCellView *)cellView certificateDict:(NSDictionary *)certificateDict {
     NSMutableAttributedString *certificateName;
     NSMutableAttributedString *certificateExpirationString;
     if ( [certificateDict[NBCDictionaryKeyCertificateExpired] boolValue] ) {
@@ -381,6 +381,19 @@ DDLogLevel ddLogLevel;
     return cellView;
 }
 
+- (NBCTrustedNetBootServerCellView *)populateTrustedNetBootServerCellView:(NBCTrustedNetBootServerCellView *)cellView netBootServerIP:(NSString *)netBootServerIP {
+    NSMutableAttributedString *netBootServerIPMutable;
+    if ( [netBootServerIP isValidIPAddress] ) {
+        [[cellView textFieldTrustedNetBootServer] setStringValue:netBootServerIP];
+    } else {
+        netBootServerIPMutable = [[NSMutableAttributedString alloc] initWithString:netBootServerIP];
+        [netBootServerIPMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[netBootServerIPMutable length])];
+        [[cellView textFieldTrustedNetBootServer] setAttributedStringValue:netBootServerIPMutable];
+    }
+    
+    return cellView;
+}
+
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
         NSDictionary *certificateDict = _certificateTableViewContents[(NSUInteger)row];
@@ -395,12 +408,11 @@ DDLogLevel ddLogLevel;
             return [self populatePackageCellView:cellView packageDict:packageDict];
         }
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewTrustedServers] ) {
-        [self setTrustedServersCount:(int)[_trustedServers count]];
+        [self updateTrustedNetBootServersCount];
         NSString *trustedServer = _trustedServers[(NSUInteger)row];
         if ( [[tableColumn identifier] isEqualToString:@"TrustedNetBootTableColumn"] ) {
             NBCTrustedNetBootServerCellView *cellView = [tableView makeViewWithIdentifier:@"NetBootServerCellView" owner:self];
-            [[cellView textFieldTrustedNetBootServer] setStringValue:trustedServer];
-            return cellView;
+            return [self populateTrustedNetBootServerCellView:cellView netBootServerIP:trustedServer];
         }
     }
     return nil;
@@ -726,12 +738,18 @@ DDLogLevel ddLogLevel;
             [self setDestinationFolder:destinationFolder];
         }
     } else if ( [sender object] == [[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:[_tableViewTrustedServers selectedRow] makeIfNecessary:NO] textFieldTrustedNetBootServer] ) {
-        
         NSIndexSet *rowIndexes = [_tableViewTrustedServers selectedRowIndexes];
-        NSLog(@"indexSet: %lu", (unsigned long)[rowIndexes firstIndex]);
         NSDictionary *userInfo = [sender userInfo];
-        NSTextView *aView = [userInfo valueForKey:@"NSFieldEditor"];
-        NSLog(@"%@", [aView string] );
+        NSString *inputText = [[userInfo valueForKey:@"NSFieldEditor"] string];
+        
+        // Only allow numers and periods
+        NSCharacterSet *allowedCharacters = [NSCharacterSet characterSetWithCharactersInString:@"0123456789."];
+        if ( [[inputText stringByTrimmingCharactersInSet:allowedCharacters] length] != 0 ) {
+            [[sender object] setStringValue:[inputText stringByTrimmingCharactersInSet:[allowedCharacters invertedSet]]];
+            return;
+        }
+        
+        [_trustedServers replaceObjectAtIndex:[rowIndexes firstIndex] withObject:[inputText copy]];
     }
     
     // --------------------------------------------------------------------
@@ -1033,7 +1051,6 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    
     [_packagesTableViewContents removeAllObjects];
     [_tableViewPackages reloadData];
     if ( [settingsDict[NBCSettingsPackagesKey] count] != 0 ) {
@@ -1050,8 +1067,12 @@ DDLogLevel ddLogLevel;
     [_trustedServers removeAllObjects];
     [_tableViewTrustedServers reloadData];
     NSArray *trustedServersAray = settingsDict[NBCSettingsTrustedNetBootServersKey];
-    for ( NSString *trustedServer in trustedServersAray ) {
-        [self insertNetBootServerIPInTableView:trustedServer];
+    if ( [trustedServersAray count] != 0 ) {
+        for ( NSString *trustedServer in trustedServersAray ) {
+            [self insertNetBootServerIPInTableView:trustedServer];
+        }
+    } else {
+        [self updateTrustedNetBootServersCount];
     }
     
     NSString *selectedTimeZone = settingsDict[NBCSettingsTimeZoneKey];
@@ -1101,7 +1122,7 @@ DDLogLevel ddLogLevel;
 - (NSDictionary *)returnSettingsFromUI {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
-    
+
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"1";
@@ -1636,7 +1657,6 @@ DDLogLevel ddLogLevel;
 - (BOOL)haveSettingsChanged {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
-    
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameImagrDefaults withExtension:@"plist"];
     if ( defaultSettingsURL ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
@@ -1880,7 +1900,6 @@ DDLogLevel ddLogLevel;
     } else {
         [_textFieldSIUVersionString setStringValue:@"Not Installed"];
     }
-    
     
     if ( _popUpButtonTool ) {
         [_popUpButtonTool removeAllItems];
@@ -2374,7 +2393,7 @@ DDLogLevel ddLogLevel;
     if ( 11 <= sourceVersionMinor ) {
         [sourceController addLibSsl:sourceItemsDict source:_source];
     }
-        
+    
     //[sourceController addNSURLStoraged:sourceItemsDict source:_source];
     
     // - Kernel
@@ -2493,9 +2512,37 @@ DDLogLevel ddLogLevel;
     return timeZone;
 }
 
-- (void)populatePopUpButtonTimeZone {
+- (void)updateTrustedNetBootServersCount {
+    __block int validNetBootServersCounter = 0;
+    __block BOOL containsInvalidNetBootServer = NO;
     
-    _timeZoneArray = [NSTimeZone knownTimeZoneNames];
+    [_trustedServers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+#pragma unused(stop)
+        NBCTrustedNetBootServerCellView *cellView = [self->_tableViewTrustedServers viewAtColumn:0 row:(NSInteger)idx makeIfNecessary:NO];
+        
+        if ( [obj isValidIPAddress] ) {
+            validNetBootServersCounter++;
+            [[cellView textFieldTrustedNetBootServer] setStringValue:obj];
+        } else {
+            NSMutableAttributedString *trustedNetBootServerAttributed = [[NSMutableAttributedString alloc] initWithString:obj];
+            [trustedNetBootServerAttributed addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[trustedNetBootServerAttributed length])];
+            [[cellView textFieldTrustedNetBootServer] setAttributedStringValue:trustedNetBootServerAttributed];
+            containsInvalidNetBootServer = YES;
+        }
+    }];
+    
+    NSString *trustedNetBootServerCount = [[NSNumber numberWithInt:validNetBootServersCounter] stringValue];
+    if ( containsInvalidNetBootServer ) {
+        NSMutableAttributedString *trustedNetBootServerCountMutable = [[NSMutableAttributedString alloc] initWithString:trustedNetBootServerCount];
+        [trustedNetBootServerCountMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[trustedNetBootServerCountMutable length])];
+        [_textFieldTrustedServersCount setAttributedStringValue:trustedNetBootServerCountMutable];
+    } else {
+        [_textFieldTrustedServersCount setStringValue:trustedNetBootServerCount];
+    }
+}
+
+- (void)populatePopUpButtonTimeZone {
+    [self setTimeZoneArray:[NSTimeZone knownTimeZoneNames]];
     if ( [_timeZoneArray count] != 0 ) {
         NSMenu *menuAfrica = [[NSMenu alloc] initWithTitle:@"Africa"];
         NSMenu *menuAmerica = [[NSMenu alloc] initWithTitle:@"America"];
@@ -2774,10 +2821,19 @@ DDLogLevel ddLogLevel;
 - (IBAction)buttonManageTrustedServers:(id)sender {
     [_popOverManageTrustedServers showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 }
+
 - (IBAction)buttonAddTrustedServer:(id)sender {
 #pragma unused(sender)
+    // Insert new view
     NSInteger index = [self insertNetBootServerIPInTableView:@"123"];
-    [[[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:index makeIfNecessary:NO] textFieldTrustedNetBootServer] selectText:self];
+    NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:(NSUInteger)index];
+    
+    // Select the newly created text field in the new view
+    [_tableViewTrustedServers selectRowIndexes:indexSet byExtendingSelection:NO];
+    [[[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn]
+                                         row:index
+                             makeIfNecessary:NO] textFieldTrustedNetBootServer] selectText:self];
+    [self updateTrustedNetBootServersCount];
 }
 
 - (IBAction)buttonRemoveTrustedServer:(id)sender {
@@ -2785,6 +2841,6 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewTrustedServers selectedRowIndexes];
     [_trustedServers removeObjectsAtIndexes:indexes];
     [_tableViewTrustedServers removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
-    [self setTrustedServersCount:(int)[_trustedServers count]];
+    [self updateTrustedNetBootServersCount];
 }
 @end
