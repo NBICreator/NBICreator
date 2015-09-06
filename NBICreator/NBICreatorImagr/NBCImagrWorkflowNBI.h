@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "NBCMessageDelegate.h"
-@class NBCWorkflowItem;
+#import "NBCWorkflowItem.h"
 
 @protocol NBCImagrWorkflowNBIDelegate
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;

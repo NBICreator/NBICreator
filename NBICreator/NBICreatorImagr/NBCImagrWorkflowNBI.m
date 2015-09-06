@@ -8,7 +8,6 @@
 
 #import "NBCImagrWorkflowNBI.h"
 #import "NBCConstants.h"
-#import "NBCWorkflowItem.h"
 
 #import "NBCController.h"
 #import "NBCWorkflowNBIController.h"
@@ -57,7 +56,6 @@ DDLogLevel ddLogLevel;
     
     NSDictionary *userSettings = [workflowItem userSettings];
     NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
-    DDLogDebug(@"[DEBUG] nbiCreationTool=%@", nbiCreationTool);
     if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         [[workflowItem target] setCreationTool:NBCMenuItemSystemImageUtility];
         [self runWorkflowSystemImageUtility:workflowItem];
@@ -69,7 +67,7 @@ DDLogLevel ddLogLevel;
 
 - (void)runWorkflowNBICreator:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"Using NBI Creator to create base NBI");
+    DDLogInfo(@"Using NBICreator to create base NBI");
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
     
