@@ -74,7 +74,7 @@
                 <outlet property="contentViewController" destination="q8w-3U-D7Y" id="I88-RS-wwo"/>
             </connections>
         </popover>
-        <customView id="jlT-bA-Uc7">
+        <customView id="jlT-bA-Uc7" userLabel="Settings View">
             <rect key="frame" x="0.0" y="0.0" width="540" height="436"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
@@ -1132,29 +1132,13 @@ asdasd</string>
                                 <rect key="frame" x="10" y="33" width="534" height="324"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="PIz-LZ-uH4">
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="PIz-LZ-uH4">
                                         <rect key="frame" x="18" y="287" width="135" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Casper Imaging App:" id="7C6-f1-1OB">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
-                                    </textField>
-                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rp4-3G-AFA" userLabel="Configuration URL">
-                                        <rect key="frame" x="159" y="254" width="259" height="22"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="" drawsBackground="YES" id="ums-AZ-wek">
-                                            <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                        </textFieldCell>
-                                        <connections>
-                                            <binding destination="-2" name="value" keyPath="self.casperJSSURL" id="TaF-ch-gJt">
-                                                <dictionary key="options">
-                                                    <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                                </dictionary>
-                                            </binding>
-                                            <outlet property="delegate" destination="-2" id="QMg-wf-PIy"/>
-                                        </connections>
                                     </textField>
                                     <textField verticalHuggingPriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="BTW-Df-uyG">
                                         <rect key="frame" x="159" y="285" width="259" height="22"/>
@@ -1172,7 +1156,7 @@ asdasd</string>
                                             <outlet property="delegate" destination="-2" id="qGI-Ye-U6s"/>
                                         </connections>
                                     </textField>
-                                    <button horizontalHuggingPriority="1000" verticalHuggingPriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="iQs-Wj-T70">
+                                    <button horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="iQs-Wj-T70">
                                         <rect key="frame" x="420" y="279" width="100" height="32"/>
                                         <buttonCell key="cell" type="push" title="Choose..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pFb-nT-xoS">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -1211,16 +1195,32 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ggv-Xh-3fx">
-                                        <rect key="frame" x="18" y="256" width="135" height="17"/>
+                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rp4-3G-AFA" userLabel="Configuration URL">
+                                        <rect key="frame" x="159" y="258" width="259" height="22"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="" drawsBackground="YES" id="ums-AZ-wek">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.casperJSSURL" id="TaF-ch-gJt">
+                                                <dictionary key="options">
+                                                    <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                                </dictionary>
+                                            </binding>
+                                            <outlet property="delegate" destination="-2" id="QMg-wf-PIy"/>
+                                        </connections>
+                                    </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="Ggv-Xh-3fx">
+                                        <rect key="frame" x="18" y="260" width="135" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="JSS URL:" id="ARK-9J-nrw">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3Fo-nW-IX1">
-                                        <rect key="frame" x="420" y="248" width="100" height="32"/>
+                                    <button horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="3Fo-nW-IX1">
+                                        <rect key="frame" x="420" y="252" width="100" height="32"/>
                                         <buttonCell key="cell" type="push" title="Verify..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="X1A-UA-5nD">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -1230,7 +1230,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <textField hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sRA-xX-MRd">
-                                        <rect key="frame" x="448" y="219" width="68" height="17"/>
+                                        <rect key="frame" x="448" y="223" width="68" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Status" id="aTW-Ip-Q45">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1238,13 +1238,13 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="aSw-BG-wJj">
-                                        <rect key="frame" x="426" y="219" width="16" height="16"/>
+                                        <rect key="frame" x="426" y="223" width="16" height="16"/>
                                         <connections>
                                             <binding destination="-2" name="animate" keyPath="self.verifyingJSS" id="ZFi-o2-hja"/>
                                         </connections>
                                     </progressIndicator>
                                     <button translatesAutoresizingMaskIntoConstraints="NO" id="iyK-9E-4lh">
-                                        <rect key="frame" x="157" y="228" width="180" height="18"/>
+                                        <rect key="frame" x="157" y="232" width="180" height="18"/>
                                         <buttonCell key="cell" type="check" title="Download JSS Certificate" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="gPD-Yb-EgJ">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -1253,8 +1253,8 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.useBackgroundImage" id="xyY-W6-DcU"/>
                                         </connections>
                                     </button>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mHd-Pb-zjd">
-                                        <rect key="frame" x="17" y="203" width="136" height="17"/>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="mHd-Pb-zjd">
+                                        <rect key="frame" x="17" y="207" width="136" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Launch Pad Settings:" id="fQC-FV-jbB">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1262,7 +1262,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3Qc-Ao-qTL">
-                                        <rect key="frame" x="153" y="193" width="125" height="32"/>
+                                        <rect key="frame" x="153" y="197" width="125" height="32"/>
                                         <buttonCell key="cell" type="push" title="Restrictions..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XTw-OD-ZCb">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -1282,14 +1282,17 @@ asdasd</string>
                                     <constraint firstItem="Ggv-Xh-3fx" firstAttribute="baseline" secondItem="rp4-3G-AFA" secondAttribute="baseline" id="IFT-2N-zys"/>
                                     <constraint firstItem="BTW-Df-uyG" firstAttribute="leading" secondItem="PIz-LZ-uH4" secondAttribute="trailing" constant="8" symbolic="YES" id="Ltj-gb-IYn"/>
                                     <constraint firstItem="BTW-Df-uyG" firstAttribute="trailing" secondItem="rp4-3G-AFA" secondAttribute="trailing" id="Msr-UO-Fbr"/>
+                                    <constraint firstItem="Ggv-Xh-3fx" firstAttribute="trailing" secondItem="mHd-Pb-zjd" secondAttribute="trailing" id="N5t-xE-McF"/>
                                     <constraint firstItem="PIz-LZ-uH4" firstAttribute="leading" secondItem="FyS-N7-I8X" secondAttribute="leading" constant="20" symbolic="YES" id="UGf-tz-sCg"/>
                                     <constraint firstItem="BTW-Df-uyG" firstAttribute="baseline" secondItem="PIz-LZ-uH4" secondAttribute="baseline" id="UQI-KD-cso"/>
                                     <constraint firstItem="iyK-9E-4lh" firstAttribute="top" secondItem="rp4-3G-AFA" secondAttribute="bottom" constant="10" id="WZy-UW-Kiy"/>
                                     <constraint firstItem="mHd-Pb-zjd" firstAttribute="top" secondItem="iyK-9E-4lh" secondAttribute="bottom" constant="10" id="Xa1-uH-nkY"/>
                                     <constraint firstItem="Ggv-Xh-3fx" firstAttribute="trailing" secondItem="mHd-Pb-zjd" secondAttribute="trailing" id="XaE-7f-Cg9"/>
                                     <constraint firstItem="rp4-3G-AFA" firstAttribute="leading" secondItem="Ggv-Xh-3fx" secondAttribute="trailing" constant="8" symbolic="YES" id="Y68-V7-96U"/>
+                                    <constraint firstItem="Ggv-Xh-3fx" firstAttribute="top" secondItem="PIz-LZ-uH4" secondAttribute="bottom" constant="10" id="Y6L-pd-46i"/>
                                     <constraint firstItem="PIz-LZ-uH4" firstAttribute="top" secondItem="FyS-N7-I8X" secondAttribute="top" constant="20" symbolic="YES" id="aPu-VR-JA4"/>
                                     <constraint firstAttribute="trailing" secondItem="iQs-Wj-T70" secondAttribute="trailing" constant="20" symbolic="YES" id="b8P-GO-Iys"/>
+                                    <constraint firstItem="Ggv-Xh-3fx" firstAttribute="trailing" secondItem="PIz-LZ-uH4" secondAttribute="trailing" id="cP6-lK-W1c"/>
                                     <constraint firstItem="aSw-BG-wJj" firstAttribute="top" secondItem="3Fo-nW-IX1" secondAttribute="bottom" constant="20" symbolic="YES" id="daT-mE-0qx"/>
                                     <constraint firstItem="vhd-Bf-Qa9" firstAttribute="top" secondItem="zvf-A3-yBB" secondAttribute="bottom" constant="8" symbolic="YES" id="eCl-KX-FqU"/>
                                     <constraint firstItem="zvf-A3-yBB" firstAttribute="leading" secondItem="rp4-3G-AFA" secondAttribute="leading" constant="3" id="eka-jn-r0H"/>
@@ -1301,7 +1304,6 @@ asdasd</string>
                                     <constraint firstItem="BTW-Df-uyG" firstAttribute="centerY" secondItem="iQs-Wj-T70" secondAttribute="centerY" id="pST-Ub-i0t"/>
                                     <constraint firstItem="Ggv-Xh-3fx" firstAttribute="leading" secondItem="FyS-N7-I8X" secondAttribute="leading" constant="20" symbolic="YES" id="qNg-Tr-gjV"/>
                                     <constraint firstItem="sRA-xX-MRd" firstAttribute="centerY" secondItem="aSw-BG-wJj" secondAttribute="centerY" id="r3r-y1-ePT"/>
-                                    <constraint firstItem="Ggv-Xh-3fx" firstAttribute="top" secondItem="PIz-LZ-uH4" secondAttribute="bottom" constant="14" id="r6V-Mv-4gR"/>
                                     <constraint firstItem="vhd-Bf-Qa9" firstAttribute="centerY" secondItem="hjG-bi-hcr" secondAttribute="centerY" id="rgS-Sh-Lxz"/>
                                     <constraint firstItem="3Qc-Ao-qTL" firstAttribute="leading" secondItem="mHd-Pb-zjd" secondAttribute="trailing" constant="8" symbolic="YES" id="tTa-6E-2Cg"/>
                                     <constraint firstItem="zvf-A3-yBB" firstAttribute="leading" secondItem="vhd-Bf-Qa9" secondAttribute="leading" id="vnJ-j2-BEm"/>

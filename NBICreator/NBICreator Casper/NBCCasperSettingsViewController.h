@@ -94,6 +94,7 @@
 @property (weak) IBOutlet NSProgressIndicator *progressIndicatorVerifyJSS;
 @property (weak) IBOutlet NSTextField *textFieldVerifyJSSStatus;
 
+@property NSString *casperImagingVersion;
 @property BOOL verifyingJSS;
 
 @property (weak) IBOutlet NSButton *buttonLaunchPadRestrictions;

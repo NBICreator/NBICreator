@@ -1852,6 +1852,7 @@ DDLogLevel ddLogLevel;
     [chooseDestionation setTitle:@"Select Casper Imaging Application"];
     [chooseDestionation setPrompt:@"Choose"];
     [chooseDestionation setCanChooseFiles:YES];
+    [chooseDestionation setAllowedFileTypes:@[ @"com.apple.application-bundle" ]];
     [chooseDestionation setCanChooseDirectories:NO];
     [chooseDestionation setCanCreateDirectories:NO];
     [chooseDestionation setAllowsMultipleSelection:NO];
@@ -1867,6 +1868,10 @@ DDLogLevel ddLogLevel;
             NSString *bundleIdentifier = [bundle objectForInfoDictionaryKey:@"CFBundleIdentifier"];
             if ( [bundleIdentifier isEqualToString:NBCCasperImagingBundleIdentifier] ) {
                 [self setCasperImagingPath:[selectedURL path]];
+                NSString *bundleVersion = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+                if ( [bundleVersion length] != 0 ) {
+                    [self setCasperImagingVersion:bundleVersion];
+                }
                 return;
             }
         }
@@ -2259,8 +2264,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)populatePopUpButtonTimeZone {
-    
-    _timeZoneArray = [NSTimeZone knownTimeZoneNames];
+    [self setTimeZoneArray:[NSTimeZone knownTimeZoneNames]];
     if ( [_timeZoneArray count] != 0 ) {
         NSMenu *menuAfrica = [[NSMenu alloc] initWithTitle:@"Africa"];
         NSMenu *menuAmerica = [[NSMenu alloc] initWithTitle:@"America"];
