@@ -185,7 +185,7 @@ NSString *const NBCSettingsNBICreationToolKey = @"NBICreationTool";
 NSString *const NBCSettingsCasperImagingPathKey = @"CasperImagingPath";
 NSString *const NBCSettingsCasperJSSURLKey = @"CasperJSSURL";
 NSString *const NBCSettingsCasperAllowInvalidCertificateKey = @"CasperAllowInvalidCertificate";
-NSString *const NBCSettingsCasperJSSCACertificateKey = @"CasperJSSCACertificate";
+NSString *const NBCSettingsCasperJSSCACertificateKey = @"CasperJSSCACertificateSignature";
 
 
 NSString *const NBCCasperJSSCertificateURLPath = @"/CA/SCEP";
@@ -437,6 +437,8 @@ NSString *const NBCCasperImagingApplicationNBICreatorTargetURL = @"Applications/
 NSString *const NBCRCImagingTargetURL = @"Packages/Extras/rc.imaging";
 NSString *const NBCRCImagingNBICreatorTargetURL = @"etc/rc.imaging";
 
+NSString *const IconSuccessPath = @"/System/Library/CoreServices/Installer.app/Contents/PlugIns/Summary.bundle/Contents/Resources/Success.pdf";
+
 // --------------------------------------------------------------
 //  NBCDownloader
 // --------------------------------------------------------------
@@ -447,6 +449,7 @@ NSString *const NBCDownloaderTagDeployStudio = @"NBCDownloaderTagDeployStudio";
 NSString *const NBCDownloaderTagNBICreator = @"NBCDownloaderTagNBICreator";
 NSString *const NBCDownloaderTagNBICreatorResources = @"NBCDownloaderTagNBICreatorResources";
 NSString *const NBCDownloaderTagJSSCertificate = @"NBCDownloaderTagJSSCertificate";
+NSString *const NBCDownloaderTagJSSVerify = @"NBCDownloaderTagJSSVerify";
 NSString *const NBCDownloaderVersion = @"Version";
 
 // --------------------------------------------------------------
@@ -532,6 +535,12 @@ NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
 NSString *const NBCTableViewIdentifierPackages = @"tableViewPackages";
 NSString *const NBCTableViewTrustedServers = @"tableViewTrustedServers";
 
+
+NSString *const NBCTabViewItemGeneral = @"General";
+NSString *const NBCTabViewItemOptions = @"Options";
+NSString *const NBCTabViewItemExtra = @"Extra";
+NSString *const NBCTabViewItemAdvanced = @"Advanced";
+NSString *const NBCTabViewItemDebug = @"Debug";
 
 
 NSString *const NBCDiskImageFormatReadOnly = @"UDRO";

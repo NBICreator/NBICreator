@@ -36,6 +36,10 @@
 	<string></string>
 	<key>CasperJSSURL</key>
 	<string></string>
+	<key>CasperAllowInvalidCertificate</key>
+	<true/>
+	<key>CasperJSSCACertificateSignature</key>
+	<dict/>
 	<key>IncludeSystemUIServer</key>
 	<false/>
 	<key>DiskImageReadWrite</key>

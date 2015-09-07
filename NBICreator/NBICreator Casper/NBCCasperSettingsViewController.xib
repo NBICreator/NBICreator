@@ -23,6 +23,7 @@
                 <outlet property="checkboxDisableWiFi" destination="JV6-sF-KVi" id="A4U-hO-iwE"/>
                 <outlet property="constraintSavedTemplatesToTool" destination="ieS-Ir-EWk" id="swd-3a-Tuc"/>
                 <outlet property="constraintTemplatesBoxHeight" destination="uXh-WZ-RaK" id="NEF-7P-whY"/>
+                <outlet property="imageViewDownloadJSSCertificateStatus" destination="r5x-kU-aD1" id="OTV-4n-ETD"/>
                 <outlet property="imageViewIcon" destination="7tl-gN-f7k" id="WB3-GM-aj8"/>
                 <outlet property="imageViewVerifyJSSStatus" destination="GRu-bx-hDx" id="scc-aK-bI4"/>
                 <outlet property="popOverLaunchPadRestrictions" destination="dzT-7K-hoi" id="cUm-JN-wc1"/>
@@ -33,14 +34,17 @@
                 <outlet property="popUpButtonTemplates" destination="0C6-1D-c0n" id="IL1-qq-8vi"/>
                 <outlet property="popUpButtonTimeZone" destination="9mi-zY-JOd" id="cib-ec-vDo"/>
                 <outlet property="popUpButtonTool" destination="CNk-hy-xlt" id="Wck-Qj-NcK"/>
+                <outlet property="progressIndicatorDownloadJSSCertificate" destination="hH6-kB-Qcd" id="9Yc-Hf-ln9"/>
                 <outlet property="progressIndicatorVerifyJSS" destination="aSw-BG-wJj" id="gFS-ru-dS0"/>
                 <outlet property="secureTextFieldARDPassword" destination="BqW-ov-6H4" id="EtX-iY-yvj"/>
+                <outlet property="tabViewCasperSettings" destination="SRE-K3-jP0" id="tvM-zu-g3R"/>
                 <outlet property="tableViewCertificates" destination="FEB-uC-7eO" id="FMR-NM-Mak"/>
                 <outlet property="tableViewPackages" destination="Qcj-Kn-Yvr" id="p2G-mh-aVC"/>
                 <outlet property="textFieldARDLogin" destination="bra-6W-hae" id="kgx-Li-TKJ"/>
                 <outlet property="textFieldARDPassword" destination="UaD-ql-OlJ" id="qNl-QO-6mK"/>
                 <outlet property="textFieldCasperImagingPath" destination="BTW-Df-uyG" id="DQ4-js-K51"/>
                 <outlet property="textFieldDestinationFolder" destination="rZ9-Ym-dA9" id="G8x-ml-Hpp"/>
+                <outlet property="textFieldDownloadJSSCertificateStatus" destination="M3Z-zO-Rnb" id="tAL-WE-OnS"/>
                 <outlet property="textFieldIndex" destination="aCi-tP-aNN" id="n7o-Zv-jhD"/>
                 <outlet property="textFieldIndexPreview" destination="3hE-bn-XMg" id="JyL-VM-0ol"/>
                 <outlet property="textFieldJSSURL" destination="rp4-3G-AFA" id="SQB-9e-Hbu"/>
@@ -191,7 +195,7 @@
                     </constraints>
                     <font key="font" metaFont="system"/>
                     <tabViewItems>
-                        <tabViewItem label="General" identifier="1" id="uCa-c9-bSy">
+                        <tabViewItem label="General" identifier="General" id="uCa-c9-bSy">
                             <view key="view" id="kqe-ub-ZmW">
                                 <rect key="frame" x="10" y="33" width="534" height="324"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -605,7 +609,7 @@ asdasd</string>
                                 </constraints>
                             </view>
                         </tabViewItem>
-                        <tabViewItem label="Options" identifier="" id="5NF-DL-xcC">
+                        <tabViewItem label="Options" identifier="Options" id="5NF-DL-xcC">
                             <view key="view" id="VSC-Nk-d1Z">
                                 <rect key="frame" x="10" y="33" width="534" height="324"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -841,7 +845,7 @@ asdasd</string>
                                 </constraints>
                             </view>
                         </tabViewItem>
-                        <tabViewItem label="Extra" identifier="" id="ekB-vs-MEQ">
+                        <tabViewItem label="Extra" identifier="Extra" id="ekB-vs-MEQ">
                             <view key="view" id="Nkv-gR-JLj">
                                 <rect key="frame" x="10" y="33" width="534" height="324"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1115,7 +1119,7 @@ asdasd</string>
                                 </constraints>
                             </view>
                         </tabViewItem>
-                        <tabViewItem label="Advanced" identifier="" id="Tu7-wu-GB5">
+                        <tabViewItem label="Advanced" identifier="Advanced" id="Tu7-wu-GB5">
                             <view key="view" id="sqh-e6-pE2">
                                 <rect key="frame" x="10" y="33" width="534" height="324"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1188,7 +1192,7 @@ asdasd</string>
                                 </constraints>
                             </view>
                         </tabViewItem>
-                        <tabViewItem label="Debug" identifier="" id="aTB-ys-HYa">
+                        <tabViewItem label="Debug" identifier="Debug" id="aTB-ys-HYa">
                             <view key="view" id="mvC-mU-QIX">
                                 <rect key="frame" x="10" y="33" width="534" height="324"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1222,7 +1226,7 @@ asdasd</string>
                                 </constraints>
                             </view>
                         </tabViewItem>
-                        <tabViewItem label="Casper" identifier="" id="kgO-lz-e0S">
+                        <tabViewItem label="Casper" identifier="Casper" id="kgO-lz-e0S">
                             <view key="view" id="FyS-N7-I8X">
                                 <rect key="frame" x="10" y="33" width="534" height="324"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1302,9 +1306,9 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <textField hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="sRA-xX-MRd">
-                                        <rect key="frame" x="262" y="232" width="44" height="17"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Status" id="aTW-Ip-Q45">
-                                            <font key="font" metaFont="system"/>
+                                        <rect key="frame" x="262" y="232" width="38" height="14"/>
+                                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Status" id="aTW-Ip-Q45">
+                                            <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
@@ -1316,7 +1320,7 @@ asdasd</string>
                                         </connections>
                                     </progressIndicator>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="mHd-Pb-zjd">
-                                        <rect key="frame" x="17" y="116" width="136" height="17"/>
+                                        <rect key="frame" x="17" y="111" width="136" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Launch Pad Settings:" id="fQC-FV-jbB">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1334,7 +1338,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3Qc-Ao-qTL">
-                                        <rect key="frame" x="153" y="106" width="125" height="32"/>
+                                        <rect key="frame" x="153" y="101" width="125" height="32"/>
                                         <buttonCell key="cell" type="push" title="Restrictions..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="XTw-OD-ZCb">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -1367,13 +1371,40 @@ asdasd</string>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttonDownloadJSSCertificate:" target="-2" id="a0M-xk-1dI"/>
+                                            <binding destination="-2" name="enabled" keyPath="self.downloadingJSSCertificate" id="mea-25-25D">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
                                         </connections>
                                     </button>
-                                    <button horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="1Af-er-Pow">
-                                        <rect key="frame" x="307" y="152" width="75" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Show" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="QHb-bK-6Ho">
+                                    <textField hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="M3Z-zO-Rnb">
+                                        <rect key="frame" x="331" y="162" width="38" height="14"/>
+                                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Status" id="Q4o-zF-N7S">
+                                            <font key="font" metaFont="smallSystem"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="hH6-kB-Qcd">
+                                        <rect key="frame" x="309" y="162" width="16" height="16"/>
+                                        <connections>
+                                            <binding destination="-2" name="animate" keyPath="self.downloadingJSSCertificate" id="xtx-H0-Ljq"/>
+                                        </connections>
+                                    </progressIndicator>
+                                    <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="r5x-kU-aD1">
+                                        <rect key="frame" x="308" y="161" width="18" height="18"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="18" id="Yz3-PA-1uD"/>
+                                            <constraint firstAttribute="height" constant="18" id="aWE-9X-MKs"/>
+                                        </constraints>
+                                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSCaution" id="oxh-2w-dcR"/>
+                                    </imageView>
+                                    <button hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="1Af-er-Pow">
+                                        <rect key="frame" x="466" y="161" width="49" height="16"/>
+                                        <buttonCell key="cell" type="push" title="Show" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="QHb-bK-6Ho">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
+                                            <font key="font" metaFont="miniSystem"/>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttonShowJSSCertificate:" target="-2" id="2Wt-Gj-HMW"/>
@@ -1387,33 +1418,39 @@ asdasd</string>
                                     <constraint firstItem="rp4-3G-AFA" firstAttribute="leading" secondItem="Ggv-Xh-3fx" secondAttribute="trailing" constant="8" symbolic="YES" id="50U-71-qbc"/>
                                     <constraint firstAttribute="trailing" secondItem="rp4-3G-AFA" secondAttribute="trailing" constant="20" symbolic="YES" id="6R7-6O-A13"/>
                                     <constraint firstItem="4rO-jD-c82" firstAttribute="baseline" secondItem="IJT-rH-nVx" secondAttribute="baseline" id="9DE-WF-zvi"/>
+                                    <constraint firstItem="pV3-r2-4Z8" firstAttribute="baseline" secondItem="M3Z-zO-Rnb" secondAttribute="baseline" id="AoL-bc-gC0"/>
                                     <constraint firstItem="3Fo-nW-IX1" firstAttribute="centerY" secondItem="aSw-BG-wJj" secondAttribute="centerY" id="BAg-be-Fde"/>
                                     <constraint firstItem="3Fo-nW-IX1" firstAttribute="top" secondItem="rp4-3G-AFA" secondAttribute="bottom" constant="8" symbolic="YES" id="GJF-3x-hsW"/>
                                     <constraint firstItem="aSw-BG-wJj" firstAttribute="centerY" secondItem="GRu-bx-hDx" secondAttribute="centerY" id="Jxi-li-mMC"/>
                                     <constraint firstItem="3Fo-nW-IX1" firstAttribute="leading" secondItem="rp4-3G-AFA" secondAttribute="leading" id="Khu-bI-pNV"/>
+                                    <constraint firstItem="hH6-kB-Qcd" firstAttribute="centerY" secondItem="r5x-kU-aD1" secondAttribute="centerY" id="LFG-ig-Tyl"/>
                                     <constraint firstItem="BTW-Df-uyG" firstAttribute="leading" secondItem="PIz-LZ-uH4" secondAttribute="trailing" constant="8" symbolic="YES" id="Ltj-gb-IYn"/>
                                     <constraint firstItem="3Fo-nW-IX1" firstAttribute="leading" secondItem="4rO-jD-c82" secondAttribute="leading" id="Moe-qa-0FQ"/>
                                     <constraint firstItem="rp4-3G-AFA" firstAttribute="baseline" secondItem="Ggv-Xh-3fx" secondAttribute="baseline" id="QzG-RA-bAY"/>
+                                    <constraint firstItem="M3Z-zO-Rnb" firstAttribute="leading" secondItem="hH6-kB-Qcd" secondAttribute="trailing" constant="8" symbolic="YES" id="SdS-by-eFB"/>
                                     <constraint firstItem="aSw-BG-wJj" firstAttribute="leading" secondItem="3Fo-nW-IX1" secondAttribute="trailing" constant="8" symbolic="YES" id="T0W-lk-rXM"/>
                                     <constraint firstItem="PIz-LZ-uH4" firstAttribute="leading" secondItem="FyS-N7-I8X" secondAttribute="leading" constant="20" symbolic="YES" id="UGf-tz-sCg"/>
                                     <constraint firstItem="BTW-Df-uyG" firstAttribute="baseline" secondItem="PIz-LZ-uH4" secondAttribute="baseline" id="UQI-KD-cso"/>
-                                    <constraint firstItem="1Af-er-Pow" firstAttribute="leading" secondItem="pV3-r2-4Z8" secondAttribute="trailing" constant="12" symbolic="YES" id="V6t-wb-Fuh"/>
-                                    <constraint firstItem="3Qc-Ao-qTL" firstAttribute="top" secondItem="pV3-r2-4Z8" secondAttribute="bottom" constant="25" id="VXe-L5-bSt"/>
+                                    <constraint firstItem="3Qc-Ao-qTL" firstAttribute="top" secondItem="pV3-r2-4Z8" secondAttribute="bottom" constant="30" id="VXe-L5-bSt"/>
                                     <constraint firstItem="Ggv-Xh-3fx" firstAttribute="top" secondItem="PIz-LZ-uH4" secondAttribute="bottom" constant="10" id="Y6L-pd-46i"/>
                                     <constraint firstItem="4rO-jD-c82" firstAttribute="top" secondItem="3Fo-nW-IX1" secondAttribute="bottom" constant="25" id="ZX9-ff-Adr"/>
                                     <constraint firstItem="PIz-LZ-uH4" firstAttribute="top" secondItem="FyS-N7-I8X" secondAttribute="top" constant="20" symbolic="YES" id="aPu-VR-JA4"/>
                                     <constraint firstAttribute="trailing" secondItem="iQs-Wj-T70" secondAttribute="trailing" constant="20" symbolic="YES" id="b8P-GO-Iys"/>
+                                    <constraint firstAttribute="trailing" secondItem="1Af-er-Pow" secondAttribute="trailing" constant="20" symbolic="YES" id="bwA-ly-tZw"/>
                                     <constraint firstItem="sRA-xX-MRd" firstAttribute="baseline" secondItem="3Fo-nW-IX1" secondAttribute="baseline" id="cId-dH-bIo"/>
                                     <constraint firstItem="Ggv-Xh-3fx" firstAttribute="trailing" secondItem="PIz-LZ-uH4" secondAttribute="trailing" id="cP6-lK-W1c"/>
                                     <constraint firstItem="pV3-r2-4Z8" firstAttribute="top" secondItem="4rO-jD-c82" secondAttribute="bottom" constant="10" id="ehW-c7-OPC"/>
                                     <constraint firstItem="Ggv-Xh-3fx" firstAttribute="trailing" secondItem="IJT-rH-nVx" secondAttribute="trailing" id="fI5-5L-lgm"/>
                                     <constraint firstItem="3Qc-Ao-qTL" firstAttribute="baseline" secondItem="mHd-Pb-zjd" secondAttribute="baseline" id="gyE-gB-oFm"/>
+                                    <constraint firstItem="pV3-r2-4Z8" firstAttribute="centerY" secondItem="hH6-kB-Qcd" secondAttribute="centerY" id="o6S-KE-8rQ"/>
                                     <constraint firstItem="iQs-Wj-T70" firstAttribute="leading" secondItem="BTW-Df-uyG" secondAttribute="trailing" constant="8" symbolic="YES" id="oAt-vY-7Mc"/>
+                                    <constraint firstItem="hH6-kB-Qcd" firstAttribute="centerX" secondItem="r5x-kU-aD1" secondAttribute="centerX" id="ona-CR-OKh"/>
                                     <constraint firstItem="BTW-Df-uyG" firstAttribute="centerY" secondItem="iQs-Wj-T70" secondAttribute="centerY" id="pST-Ub-i0t"/>
                                     <constraint firstItem="Ggv-Xh-3fx" firstAttribute="leading" secondItem="FyS-N7-I8X" secondAttribute="leading" constant="20" symbolic="YES" id="qNg-Tr-gjV"/>
                                     <constraint firstItem="3Qc-Ao-qTL" firstAttribute="leading" secondItem="rp4-3G-AFA" secondAttribute="leading" id="sTz-iq-eUL"/>
                                     <constraint firstItem="pV3-r2-4Z8" firstAttribute="leading" secondItem="4rO-jD-c82" secondAttribute="leading" id="tVG-iB-8kq"/>
                                     <constraint firstItem="aSw-BG-wJj" firstAttribute="centerX" secondItem="GRu-bx-hDx" secondAttribute="centerX" id="x5f-V9-nTu"/>
+                                    <constraint firstItem="hH6-kB-Qcd" firstAttribute="leading" secondItem="pV3-r2-4Z8" secondAttribute="trailing" constant="8" symbolic="YES" id="zPU-Jc-VH4"/>
                                 </constraints>
                             </view>
                         </tabViewItem>
@@ -1429,7 +1466,7 @@ asdasd</string>
                 <constraint firstAttribute="bottom" secondItem="SRE-K3-jP0" secondAttribute="bottom" id="mVn-CS-HQE"/>
                 <constraint firstAttribute="trailing" secondItem="oDC-qX-tLY" secondAttribute="trailing" id="qxg-9C-dCM"/>
             </constraints>
-            <point key="canvasLocation" x="-1162" y="200"/>
+            <point key="canvasLocation" x="-1315" y="191"/>
         </customView>
         <customView id="ecP-mQ-mUC">
             <rect key="frame" x="0.0" y="0.0" width="427" height="334"/>

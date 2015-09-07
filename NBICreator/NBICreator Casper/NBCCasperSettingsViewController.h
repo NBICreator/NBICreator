@@ -28,6 +28,7 @@
 @property NSDictionary *languageDict;
 @property NSArray *timeZoneArray;
 @property NSMenuItem *selectedMenuItem;
+@property (weak) IBOutlet NSTabView *tabViewCasperSettings;
 
 @property (strong) IBOutlet NSLayoutConstraint *constraintTemplatesBoxHeight;
 @property (strong) IBOutlet NSLayoutConstraint *constraintSavedTemplatesToTool;
@@ -94,8 +95,15 @@
 @property (weak) IBOutlet NSProgressIndicator *progressIndicatorVerifyJSS;
 @property (weak) IBOutlet NSTextField *textFieldVerifyJSSStatus;
 
+@property (weak) IBOutlet NSProgressIndicator *progressIndicatorDownloadJSSCertificate;
+@property (weak) IBOutlet NSImageView *imageViewDownloadJSSCertificateStatus;
+@property (weak) IBOutlet NSTextField *textFieldDownloadJSSCertificateStatus;
+
+@property NSDictionary *jssCACertificate;
 @property NSString *casperImagingVersion;
 @property BOOL verifyingJSS;
+@property BOOL downloadingJSSCertificate;
+
 @property (weak) IBOutlet NSButton *checkboxAllowInvalidCertificate;
 
 @property (weak) IBOutlet NSImageView *imageViewVerifyJSSStatus;

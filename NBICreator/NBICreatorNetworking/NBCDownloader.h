@@ -14,6 +14,7 @@
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo;
 - (void)updateProgressBytesRecieved:(float)bytesRecieved expectedLength:(long long)expectedLength downloadInfo:(NSDictionary *)downloadInfo;
 - (void)downloadCanceled:(NSDictionary *)downloadInfo;
+- (void)downloadFailed:(NSDictionary *)downloadInfo withError:(NSError *)error;
 @end
 
 @interface NBCDownloader : NSObject <NSURLDownloadDelegate, NSURLConnectionDelegate> {

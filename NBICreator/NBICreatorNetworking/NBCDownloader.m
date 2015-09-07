@@ -36,7 +36,7 @@ DDLogLevel ddLogLevel;
 - (void)downloadPageAsData:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setDownloadInfo:downloadInfo];
-    [self setRequest:[NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0]];
+    [self setRequest:[NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0]];
     [NSURLConnection connectionWithRequest:_request delegate:self];
 }
 
@@ -44,7 +44,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setDestinationFolder:destinationPath];
     [self setDownloadInfo:downloadInfo];
-    [self setRequest:[NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:60.0]];
+    [self setRequest:[NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0]];
     [self setDownload:[[NSURLDownload alloc] initWithRequest:_request delegate:self]];
     if ( ! _download ) {
         NSLog(@"Download Failed!");
@@ -73,6 +73,13 @@ DDLogLevel ddLogLevel;
     #pragma unused(connection)
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [_downloadData appendData:data];
+}
+
+- (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
+#pragma unused(connection)
+    if ( [_delegate respondsToSelector:@selector(downloadFailed:withError:)] ) {
+        [_delegate downloadFailed:_downloadInfo withError:error];
+    }
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {

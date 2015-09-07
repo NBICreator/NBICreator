@@ -387,6 +387,7 @@ extern NSString *const NBCDownloaderTagDeployStudio;
 extern NSString *const NBCDownloaderTagNBICreator;
 extern NSString *const NBCDownloaderTagNBICreatorResources;
 extern NSString *const NBCDownloaderTagJSSCertificate;
+extern NSString *const NBCDownloaderTagJSSVerify;
 extern NSString *const NBCDownloaderVersion;
 
 extern NSString *const NBCTargetFolderMinFreeSizeInGB;
@@ -453,6 +454,8 @@ extern NSString *const NBCRCImagingNBICreatorTargetURL;
 extern NSString *const NBCJSSPreferencePlistTargetURL;
 extern NSString *const NBCJSSPreferencePlistNBICreatorTargetURL;
 
+extern NSString *const IconSuccessPath;
+
 // --------------------------------------------------------------
 //  Certificate TableView Keys
 // --------------------------------------------------------------
@@ -509,6 +512,12 @@ extern NSString *const NBCTableViewTrustedServers;
 extern NSString *const NBCDiskImageFormatReadOnly;
 extern NSString *const NBCDiskImageFormatReadWrite;
 extern NSString *const NBCDiskImageFormatSparseImage;
+
+extern NSString *const NBCTabViewItemGeneral;
+extern NSString *const NBCTabViewItemOptions;
+extern NSString *const NBCTabViewItemExtra;
+extern NSString *const NBCTabViewItemAdvanced;
+extern NSString *const NBCTabViewItemDebug;
 
 
 extern NSString *const NBCCLIArgumentSource;

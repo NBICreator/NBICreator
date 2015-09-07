@@ -65,11 +65,11 @@ DDLogLevel ddLogLevel;
 - (void)viewDidLoad {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [super viewDidLoad];
-
+    
     _keyboardLayoutDict = [[NSMutableDictionary alloc] init];
     _certificateTableViewContents = [[NSMutableArray alloc] init];
     _packagesTableViewContents = [[NSMutableArray alloc] init];
-
+    
     // --------------------------------------------------------------
     //  Add Notification Observers
     // --------------------------------------------------------------
@@ -78,7 +78,7 @@ DDLogLevel ddLogLevel;
     [nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationCasperRemovedSource object:nil];
     [nc addObserver:self selector:@selector(updateNBIIcon:) name:NBCNotificationCasperUpdateNBIIcon object:nil];
     [nc addObserver:self selector:@selector(updateNBIBackground:) name:NBCNotificationCasperUpdateNBIBackground object:nil];
-
+    
     // --------------------------------------------------------------
     //  Add KVO Observers
     // --------------------------------------------------------------
@@ -554,13 +554,12 @@ DDLogLevel ddLogLevel;
     }
 }
 
-- (void)insertCertificateInTableView:(NSDictionary *)certificateDict {
-    
+- (BOOL)insertCertificateInTableView:(NSDictionary *)certificateDict {
     for ( NSDictionary *certDict in _certificateTableViewContents ) {
         if ( [certificateDict[NBCDictionaryKeyCertificateSignature] isEqualToData:certDict[NBCDictionaryKeyCertificateSignature]] ) {
             if ( [certificateDict[NBCDictionaryKeyCertificateSerialNumber] isEqualToString:certDict[NBCDictionaryKeyCertificateSerialNumber]] ) {
                 DDLogWarn(@"Certificate %@ is already added!", certificateDict[NBCDictionaryKeyCertificateName]);
-                return;
+                return NO;
             }
         }
     }
@@ -572,6 +571,7 @@ DDLogLevel ddLogLevel;
     [_tableViewCertificates scrollRowToVisible:index];
     [_certificateTableViewContents insertObject:certificateDict atIndex:(NSUInteger)index];
     [_tableViewCertificates endUpdates];
+    return YES;
 }
 
 - (void)insertPackageInTableView:(NSDictionary *)packageDict {
@@ -608,7 +608,7 @@ DDLogLevel ddLogLevel;
 #pragma unused(reach)
         // Update the UI on the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
-
+            
         });
     };
     
@@ -617,7 +617,7 @@ DDLogLevel ddLogLevel;
 #pragma unused(reach)
         // Update the UI on the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
-
+            
         });
     };
     
@@ -947,6 +947,7 @@ DDLogLevel ddLogLevel;
     [self setUseVerboseBoot:[settingsDict[NBCSettingsUseVerboseBootKey] boolValue]];
     [self setDiskImageReadWrite:[settingsDict[NBCSettingsDiskImageReadWriteKey] boolValue]];
     [self setAllowInvalidCertificate:[settingsDict[NBCSettingsCasperAllowInvalidCertificateKey] boolValue]];
+    [self setJssCACertificate:settingsDict[NBCSettingsCasperJSSCACertificateKey]];
     
     [self uppdatePopUpButtonTool];
     
@@ -994,6 +995,34 @@ DDLogLevel ddLogLevel;
                 [self insertPackageInTableView:packageDict];
             }
         }
+    }
+    
+    if ( [_jssCACertificate count] != 0 ) {
+        if ( _jssCACertificate[_casperJSSURL] ) {
+            NSImage *imageSuccess = [[NSImage alloc] initWithContentsOfFile:IconSuccessPath];
+            [_imageViewDownloadJSSCertificateStatus setImage:imageSuccess];
+            [_buttonShowJSSCertificate setHidden:NO];
+            [_textFieldDownloadJSSCertificateStatus setStringValue:@"Downloaded"];
+            [_imageViewDownloadJSSCertificateStatus setHidden:NO];
+            [_textFieldDownloadJSSCertificateStatus setHidden:NO];
+        } else {
+            [_buttonShowJSSCertificate setHidden:YES];
+            [_textFieldDownloadJSSCertificateStatus setStringValue:@""];
+            [_imageViewDownloadJSSCertificateStatus setHidden:YES];
+            [_textFieldDownloadJSSCertificateStatus setHidden:YES];
+        }
+    } else {
+        [_buttonShowJSSCertificate setHidden:YES];
+        [_textFieldDownloadJSSCertificateStatus setStringValue:@""];
+        [_imageViewDownloadJSSCertificateStatus setHidden:YES];
+        [_textFieldDownloadJSSCertificateStatus setHidden:YES];
+    }
+    
+    NSURL *stringAsURL = [NSURL URLWithString:[_textFieldJSSURL stringValue]];
+    if ( stringAsURL && [stringAsURL scheme] && [stringAsURL host] ) {
+        [self jssURLIsValid];
+    } else {
+        [self jssURLIsInvalid];
     }
     
     NSString *selectedTimeZone = settingsDict[NBCSettingsTimeZoneKey];
@@ -1079,6 +1108,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsUseVerboseBootKey] = @(_useVerboseBoot) ?: @NO;
     settingsDict[NBCSettingsDiskImageReadWriteKey] = @(_diskImageReadWrite) ?: @NO;
     settingsDict[NBCSettingsCasperAllowInvalidCertificateKey] = @(_allowInvalidCertificate) ?: @NO;
+    settingsDict[NBCSettingsCasperJSSCACertificateKey] = _jssCACertificate ?: @{};
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -1115,394 +1145,394 @@ DDLogLevel ddLogLevel;
 - (void)createSettingsFromNBI:(NSURL *)nbiURL {
 #pragma unused(nbiURL)
     /*
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    NSError *err;
-    if ( ! [nbiURL checkResourceIsReachableAndReturnError:&err] ) {
-        NSLog(@"Could not find NBI!");
-        NSLog(@"Error: %@", err);
-        return;
-    }
-    
-    NSURL *nbImageInfoURL = [nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
-    if ( ! [nbImageInfoURL checkResourceIsReachableAndReturnError:&err] ) {
-        NSLog(@"Could not find nbImageInfoURL");
-        NSLog(@"Error: %@", err);
-        return;
-    }
-    
-    NSDictionary *nbImageInfoDict = [[NSDictionary alloc] initWithContentsOfURL:nbImageInfoURL];
-    NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
-    
-    //settingsDict[NBCSettingsCasperSourceIsNBI] = @YES;
-    
-    NSString *nbiName = nbImageInfoDict[NBCNBImageInfoDictNameKey];
-    if ( nbiName != nil ) {
-        settingsDict[NBCSettingsNameKey] = nbiName;
-    } else {
-        settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
-    }
-    
-    NSNumber *nbiIndex = nbImageInfoDict[NBCNBImageInfoDictIndexKey];
-    if ( nbiIndex != nil ) {
-        settingsDict[NBCSettingsIndexKey] = [nbiIndex stringValue];
-    } else if ( _nbiIndex != nil ) {
-        settingsDict[NBCSettingsIndexKey] = _nbiIndex;
-    }
-    
-    NSString *nbiProtocol = nbImageInfoDict[NBCNBImageInfoDictProtocolKey];
-    if ( nbiProtocol != nil ) {
-        settingsDict[NBCSettingsProtocolKey] = nbiProtocol;
-    } else {
-        settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"NFS";
-    }
-    
-    NSString *nbiLanguage = nbImageInfoDict[NBCNBImageInfoDictLanguageKey];
-    if ( nbiLanguage != nil ) {
-        settingsDict[NBCSettingsLanguageKey] = nbiLanguage;
-    } else {
-        settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: @"Current";
-    }
-    
-    BOOL nbiEnabled = [nbImageInfoDict[NBCNBImageInfoDictIsEnabledKey] boolValue];
-    if ( @(nbiEnabled) != nil ) {
-        settingsDict[NBCSettingsEnabledKey] = @(nbiEnabled);
-    } else {
-        settingsDict[NBCSettingsEnabledKey] = @(_nbiEnabled) ?: @NO;
-    }
-    
-    BOOL nbiDefault = [nbImageInfoDict[NBCNBImageInfoDictIsDefaultKey] boolValue];
-    if ( @(nbiDefault) != nil ) {
-        settingsDict[NBCSettingsDefaultKey] = @(nbiDefault);
-    } else {
-        settingsDict[NBCSettingsDefaultKey] = @(_nbiDefault) ?: @NO;
-    }
-    
-    NSString *nbiDescription = nbImageInfoDict[NBCNBImageInfoDictDescriptionKey];
-    if ( [nbiDescription length] != 0 ) {
-        settingsDict[NBCSettingsDescriptionKey] = nbiDescription;
-    } else {
-        settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
-    }
-    
-    NSURL *destinationFolderURL = [_source sourceURL];
-    if ( destinationFolderURL != nil ) {
-        settingsDict[NBCSettingsDestinationFolderKey] = [destinationFolderURL path];
-    } else if ( _destinationFolder != nil ) {
-        NSString *currentUserHome = NSHomeDirectory();
-        if ( [_destinationFolder hasPrefix:currentUserHome] ) {
-            NSString *destinationFolderPath = [_destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
-            settingsDict[NBCSettingsDestinationFolderKey] = destinationFolderPath;
-        } else {
-            settingsDict[NBCSettingsDestinationFolderKey] = _destinationFolder; }
-    }
-    
-    //NSImage *nbiIcon = [[NSWorkspace sharedWorkspace] iconForFile:[nbiURL path]]; // To be fixed later
-    
-    settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"";
-    
-    BOOL nbiCasperConfigurationDictFound = NO;
-    BOOL nbiCasperVersionFound = NO;
-    if ( _target != nil ) {
-        NSURL *nbiNetInstallVolumeURL = [_target nbiNetInstallVolumeURL];
-        NSURL *nbiBaseSystemVolumeURL = [_target baseSystemVolumeURL];
-        if ( [nbiNetInstallVolumeURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSURL *nbiCasperConfigurationDictURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCCasperConfigurationPlistTargetURL];
-            if ( [nbiCasperConfigurationDictURL checkResourceIsReachableAndReturnError:nil] ) {
-                NSDictionary *nbiCasperConfigurationDict = [[NSDictionary alloc] initWithContentsOfURL:nbiCasperConfigurationDictURL];
-                if ( [nbiCasperConfigurationDict count] != 0 ) {
-                    NSString *CasperConfigurationURL = nbiCasperConfigurationDict[NBCSettingsCasperServerURLKey];
-                    if ( CasperConfigurationURL != nil ) {
-                        settingsDict[NBCSettingsCasperConfigurationURL] = CasperConfigurationURL;
-                        [_target setCasperConfigurationPlistURL:nbiCasperConfigurationDictURL];
-                        nbiCasperConfigurationDictFound = YES;
-                    }
-                }
-            }
-            
-            NSURL *nbiApplicationURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCCasperApplicationTargetURL];
-            if ( [nbiApplicationURL checkResourceIsReachableAndReturnError:nil] ) {
-                NSString *nbiCasperVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-                if ( [nbiCasperVersion length] != 0 ) {
-                    settingsDict[NBCSettingsCasperVersion] = nbiCasperVersion;
-                    [_target setCasperApplicationExistOnTarget:YES];
-                    [_target setCasperApplicationURL:nbiApplicationURL];
-                    nbiCasperVersionFound = YES;
-                }
-            }
-        } else if ( [nbiBaseSystemVolumeURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSURL *nbiCasperConfigurationDictURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCCasperConfigurationPlistNBICreatorTargetURL];
-            if ( [nbiCasperConfigurationDictURL checkResourceIsReachableAndReturnError:nil] ) {
-                NSDictionary *nbiCasperConfigurationDict = [[NSDictionary alloc] initWithContentsOfURL:nbiCasperConfigurationDictURL];
-                if ( [nbiCasperConfigurationDict count] != 0 ) {
-                    NSString *CasperConfigurationURL = nbiCasperConfigurationDict[NBCSettingsCasperServerURLKey];
-                    if ( CasperConfigurationURL != nil ) {
-                        settingsDict[NBCSettingsCasperConfigurationURL] = CasperConfigurationURL;
-                        [_target setCasperConfigurationPlistURL:nbiCasperConfigurationDictURL];
-                        nbiCasperConfigurationDictFound = YES;
-                    }
-                }
-            }
-            
-            NSURL *nbiApplicationURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCCasperApplicationNBICreatorTargetURL];
-            if ( [nbiApplicationURL checkResourceIsReachableAndReturnError:nil] ) {
-                NSString *nbiCasperVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-                if ( [nbiCasperVersion length] != 0 ) {
-                    settingsDict[NBCSettingsCasperVersion] = nbiCasperVersion;
-                    [_target setCasperApplicationExistOnTarget:YES];
-                    [_target setCasperApplicationURL:nbiApplicationURL];
-                    nbiCasperVersionFound = YES;
-                }
-            }
-        }
-        
-        if ( ! nbiCasperConfigurationDictFound ) {
-            settingsDict[NBCSettingsCasperConfigurationURL] = @"";
-        }
-        
-        if ( ! nbiCasperVersionFound ) {
-            settingsDict[NBCSettingsCasperVersion] = NBCMenuItemCasperVersionLatest;
-        }
-        
-        if ( @(_includeCasperPreReleaseVersions) != nil ) {
-            settingsDict[NBCSettingsCasperIncludePreReleaseVersions] = @(_includeCasperPreReleaseVersions);
-        }
-        
-        NSString *rcInstall;
-        NSURL *rcInstallURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCCasperRCInstallTargetURL];
-        if ( [rcInstallURL checkResourceIsReachableAndReturnError:nil] ) {
-            rcInstall = [NSString stringWithContentsOfURL:rcInstallURL encoding:NSUTF8StringEncoding error:&err];
-            
-        }
-        
-        NSString *rcImaging;
-        NSURL *rcImagingURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCCasperRCImagingNBICreatorTargetURL];
-        if ( [rcImagingURL checkResourceIsReachableAndReturnError:nil] ) {
-            rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
-            
-        } else {
-            rcImagingURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCCasperRCImagingTargetURL];
-            if ( [rcImagingURL checkResourceIsReachableAndReturnError:nil] ) {
-                rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
-            }
-        }
-        
-        [_target setRcImagingContent:rcImaging];
-        [_target setRcImagingURL:rcImagingURL];
-        
-        NSString *rcFiles = [NSString stringWithFormat:@"%@\n%@", rcInstall, rcImaging];
-        
-        if ( [rcFiles length] != 0 ) {
-            NSArray *rcFilesArray = [rcFiles componentsSeparatedByString:@"\n"];
-            for ( NSString *line in rcFilesArray ) {
-                if ( [line containsString:@"pmset"] && [line containsString:@"displaysleep"] ) {
-                    NSError* regexError = nil;
-                    NSRegularExpression* regex = [NSRegularExpression regularExpressionWithPattern:@"displaysleep [0-9]+"
-                                                                                           options:0
-                                                                                             error:&regexError];
-                    
-                    if ( regex == nil ) {
-                        NSLog(@"Regex creation failed with error: %@", [regexError description]);
-                    }
-                    
-                    NSArray *matches = [regex matchesInString:line
-                                                      options:NSMatchingWithoutAnchoringBounds
-                                                        range:NSMakeRange(0, line.length)];
-                    
-                    for (NSTextCheckingResult *entry in matches) {
-                        NSString *text = [line substringWithRange:entry.range];
-                        if ( [text length] != 0 ) {
-                            NSString *displaySleepTime = [text componentsSeparatedByString:@" "][1];
-                            if ( [displaySleepTime length] != 0 ) {
-                                if ( [displaySleepTime integerValue] == 0 ) {
-                                    settingsDict[NBCSettingsDisplaySleepKey] = @NO;
-                                    settingsDict[NBCSettingsDisplaySleepMinutesKey] = @"0";
-                                } else {
-                                    settingsDict[NBCSettingsDisplaySleepKey] = @YES;
-                                    settingsDict[NBCSettingsDisplaySleepMinutesKey] = displaySleepTime;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        NSURL *wifiKext = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IO80211Family.kext"];
-        if ( [wifiKext checkResourceIsReachableAndReturnError:nil] ) {
-            settingsDict[NBCSettingsDisableWiFiKey] = @NO;
-        } else {
-            settingsDict[NBCSettingsDisableWiFiKey] = @YES;
-        }
-        
-        // Get network Time Server
-        NSURL *ntpConfigurationURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"etc/ntp.conf"];
-        if ( [ntpConfigurationURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSString *ntpConfiguration = [NSString stringWithContentsOfURL:ntpConfigurationURL encoding:NSUTF8StringEncoding error:nil];
-            NSArray *ntpConfigurationArray = [ntpConfiguration componentsSeparatedByString:@"\n"];
-            NSString *ntpConfigurationFirstLine = ntpConfigurationArray[0];
-            if ( [ntpConfigurationFirstLine containsString:@"server"] ) {
-                NSString *ntpServer = [ntpConfigurationFirstLine componentsSeparatedByString:@" "][1];
-                if ( [ntpServer length] != 0 ) {
-                    settingsDict[NBCSettingsNetworkTimeServerKey] = ntpServer;
-                }
-            }
-        }
-        
-        
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                
-                // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification
-                // ------------------------------------------------------------------
-                DDLogError(@"[ERROR] %@", proxyError);
-            }];
-            
-        }] readSettingsFromNBI:nbiBaseSystemVolumeURL settingsDict:[settingsDict copy] withReply:^(NSError *error, BOOL success, NSDictionary *newSettingsDict) {
-            [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
-                if ( success )
-                {
-                    NSLog(@"Success");
-                    NSLog(@"newSettingsDict=%@", newSettingsDict);
-                    [self updateUISettingsFromDict:newSettingsDict];
-                    [self saveUISettingsWithName:nbiName atUrl:[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%@.nbictemplate", NSTemporaryDirectory(), [[NSUUID UUID] UUIDString]]]]; // Temporary, to test
-                    [self->_templates updateTemplateListForPopUpButton:self->_popUpButtonTemplates title:nbiName];
-                    [self verifyBuildButton];
-                } else {
-                    NSLog(@"CopyFailed!");
-                    NSLog(@"Error: %@", error);
-                }
-            }];
-        }];
-         
-         
-         // Get any configured user name
-         NSURL *dsLocalUsersURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
-         if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
-         NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
-         NSMutableArray *userFilesFiltered = [[userFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (self BEGINSWITH '_')"]] mutableCopy];
-         [userFilesFiltered removeObjectsInArray:@[ @"daemon.plist", @"nobody.plist", @"root.plist" ]];
-         if ( [userFilesFiltered count] != 0 ) {
-         NSString *firstUser = userFilesFiltered[0];
-         NSURL *firstUserPlistURL = [dsLocalUsersURL URLByAppendingPathComponent:firstUser];
-         NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
-         if ( firstUserDict ) {
-         NSArray *userNameArray = firstUserDict[@"name"];
-         NSString *userName = userNameArray[0];
-         if ( [userName length] != 0 ) {
-         settingsDict[NBCSettingsARDLoginKey] = userName;
-         }
-         }
-         }
-         } else {
-         NSLog(@"Could not get path to local user database");
-         NSLog(@"Error: %@", err);
-         }
-         
-         // Get any configured user password
-         NSURL *vncPasswordFile = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];
-         if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
-         NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
-         NSMutableArray *args = [NSMutableArray arrayWithObjects:@"-c",
-         [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }; print \"\n\"'", [vncPasswordFile path]],
-         nil];
-         NSPipe *stdOut = [[NSPipe alloc] init];
-         NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
-         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-         __block NSString *outStr;
-         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-         id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-         object:[stdOut fileHandleForReading]
-         queue:nil
-         usingBlock:^(NSNotification *notification){
-         #pragma unused(notification)
-         
-         // ------------------------
-         //  Convert data to string
-         // ------------------------
-         NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
-         outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-         
-         // -----------------------------------------------------------------------
-         //  When output data becomes available, pass it to workflow status parser
-         // -----------------------------------------------------------------------
-         NSLog(@"outStr=%@", outStr);
-         
-         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-         }];
-         
-         // -----------------------------------------------------------------------------------
-         //  Create standard error file handle and register for data available notifications.
-         // -----------------------------------------------------------------------------------
-         NSPipe *stdErr = [[NSPipe alloc] init];
-         NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
-         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-         __block NSString *errStr;
-         id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-         object:[stdErr fileHandleForReading]
-         queue:nil
-         usingBlock:^(NSNotification *notification){
-         #pragma unused(notification)
-         
-         // ------------------------
-         //  Convert data to string
-         // ------------------------
-         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-         errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
-         
-         // -----------------------------------------------------------------------
-         //  When error data becomes available, pass it to workflow status parser
-         // -----------------------------------------------------------------------
-         NSLog(@"errStr=%@", errStr);
-         
-         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-         }];
-         
-         NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-         [helperConnector connectToHelper];
-         
-         [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-         
-         // ------------------------------------------------------------------
-         //  If task failed, post workflow failed notification
-         // ------------------------------------------------------------------
-         NSLog(@"ProxyError? %@", proxyError);
-         [nc removeObserver:stdOutObserver];
-         [nc removeObserver:stdErrObserver];
-         }];
-         
-         }] runTaskWithCommandAtPath:commandURL arguments:args environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
-         #pragma unused(error)
-         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-         [nc removeObserver:stdOutObserver];
-         [nc removeObserver:stdErrObserver];
-         
-         if ( terminationStatus == 0 )
-         {
-         if ( [outStr length] != 0 ) {
-         settingsDict[NBCSettingsARDPasswordKey] = outStr;
-         }
-         [self updateUISettingsFromDict:settingsDict];
-         [self->_templates updateTemplateListForPopUpButton:self->_popUpButtonTemplates title:nbiName];
-         [self verifyBuildButton];
-         [self->_textFieldDestinationFolder setEnabled:NO];
-         [self->_buttonChooseDestinationFolder setEnabled:NO];
-         [self->_popUpButtonTool setEnabled:NO];
-         } else {
-         
-         }
-         }];
-         }];
-         
-         }
- 
-    }
-       */
+     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+     NSError *err;
+     if ( ! [nbiURL checkResourceIsReachableAndReturnError:&err] ) {
+     NSLog(@"Could not find NBI!");
+     NSLog(@"Error: %@", err);
+     return;
+     }
+     
+     NSURL *nbImageInfoURL = [nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
+     if ( ! [nbImageInfoURL checkResourceIsReachableAndReturnError:&err] ) {
+     NSLog(@"Could not find nbImageInfoURL");
+     NSLog(@"Error: %@", err);
+     return;
+     }
+     
+     NSDictionary *nbImageInfoDict = [[NSDictionary alloc] initWithContentsOfURL:nbImageInfoURL];
+     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
+     
+     //settingsDict[NBCSettingsCasperSourceIsNBI] = @YES;
+     
+     NSString *nbiName = nbImageInfoDict[NBCNBImageInfoDictNameKey];
+     if ( nbiName != nil ) {
+     settingsDict[NBCSettingsNameKey] = nbiName;
+     } else {
+     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
+     }
+     
+     NSNumber *nbiIndex = nbImageInfoDict[NBCNBImageInfoDictIndexKey];
+     if ( nbiIndex != nil ) {
+     settingsDict[NBCSettingsIndexKey] = [nbiIndex stringValue];
+     } else if ( _nbiIndex != nil ) {
+     settingsDict[NBCSettingsIndexKey] = _nbiIndex;
+     }
+     
+     NSString *nbiProtocol = nbImageInfoDict[NBCNBImageInfoDictProtocolKey];
+     if ( nbiProtocol != nil ) {
+     settingsDict[NBCSettingsProtocolKey] = nbiProtocol;
+     } else {
+     settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"NFS";
+     }
+     
+     NSString *nbiLanguage = nbImageInfoDict[NBCNBImageInfoDictLanguageKey];
+     if ( nbiLanguage != nil ) {
+     settingsDict[NBCSettingsLanguageKey] = nbiLanguage;
+     } else {
+     settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: @"Current";
+     }
+     
+     BOOL nbiEnabled = [nbImageInfoDict[NBCNBImageInfoDictIsEnabledKey] boolValue];
+     if ( @(nbiEnabled) != nil ) {
+     settingsDict[NBCSettingsEnabledKey] = @(nbiEnabled);
+     } else {
+     settingsDict[NBCSettingsEnabledKey] = @(_nbiEnabled) ?: @NO;
+     }
+     
+     BOOL nbiDefault = [nbImageInfoDict[NBCNBImageInfoDictIsDefaultKey] boolValue];
+     if ( @(nbiDefault) != nil ) {
+     settingsDict[NBCSettingsDefaultKey] = @(nbiDefault);
+     } else {
+     settingsDict[NBCSettingsDefaultKey] = @(_nbiDefault) ?: @NO;
+     }
+     
+     NSString *nbiDescription = nbImageInfoDict[NBCNBImageInfoDictDescriptionKey];
+     if ( [nbiDescription length] != 0 ) {
+     settingsDict[NBCSettingsDescriptionKey] = nbiDescription;
+     } else {
+     settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
+     }
+     
+     NSURL *destinationFolderURL = [_source sourceURL];
+     if ( destinationFolderURL != nil ) {
+     settingsDict[NBCSettingsDestinationFolderKey] = [destinationFolderURL path];
+     } else if ( _destinationFolder != nil ) {
+     NSString *currentUserHome = NSHomeDirectory();
+     if ( [_destinationFolder hasPrefix:currentUserHome] ) {
+     NSString *destinationFolderPath = [_destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
+     settingsDict[NBCSettingsDestinationFolderKey] = destinationFolderPath;
+     } else {
+     settingsDict[NBCSettingsDestinationFolderKey] = _destinationFolder; }
+     }
+     
+     //NSImage *nbiIcon = [[NSWorkspace sharedWorkspace] iconForFile:[nbiURL path]]; // To be fixed later
+     
+     settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"";
+     
+     BOOL nbiCasperConfigurationDictFound = NO;
+     BOOL nbiCasperVersionFound = NO;
+     if ( _target != nil ) {
+     NSURL *nbiNetInstallVolumeURL = [_target nbiNetInstallVolumeURL];
+     NSURL *nbiBaseSystemVolumeURL = [_target baseSystemVolumeURL];
+     if ( [nbiNetInstallVolumeURL checkResourceIsReachableAndReturnError:nil] ) {
+     NSURL *nbiCasperConfigurationDictURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCCasperConfigurationPlistTargetURL];
+     if ( [nbiCasperConfigurationDictURL checkResourceIsReachableAndReturnError:nil] ) {
+     NSDictionary *nbiCasperConfigurationDict = [[NSDictionary alloc] initWithContentsOfURL:nbiCasperConfigurationDictURL];
+     if ( [nbiCasperConfigurationDict count] != 0 ) {
+     NSString *CasperConfigurationURL = nbiCasperConfigurationDict[NBCSettingsCasperServerURLKey];
+     if ( CasperConfigurationURL != nil ) {
+     settingsDict[NBCSettingsCasperConfigurationURL] = CasperConfigurationURL;
+     [_target setCasperConfigurationPlistURL:nbiCasperConfigurationDictURL];
+     nbiCasperConfigurationDictFound = YES;
+     }
+     }
+     }
+     
+     NSURL *nbiApplicationURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCCasperApplicationTargetURL];
+     if ( [nbiApplicationURL checkResourceIsReachableAndReturnError:nil] ) {
+     NSString *nbiCasperVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+     if ( [nbiCasperVersion length] != 0 ) {
+     settingsDict[NBCSettingsCasperVersion] = nbiCasperVersion;
+     [_target setCasperApplicationExistOnTarget:YES];
+     [_target setCasperApplicationURL:nbiApplicationURL];
+     nbiCasperVersionFound = YES;
+     }
+     }
+     } else if ( [nbiBaseSystemVolumeURL checkResourceIsReachableAndReturnError:nil] ) {
+     NSURL *nbiCasperConfigurationDictURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCCasperConfigurationPlistNBICreatorTargetURL];
+     if ( [nbiCasperConfigurationDictURL checkResourceIsReachableAndReturnError:nil] ) {
+     NSDictionary *nbiCasperConfigurationDict = [[NSDictionary alloc] initWithContentsOfURL:nbiCasperConfigurationDictURL];
+     if ( [nbiCasperConfigurationDict count] != 0 ) {
+     NSString *CasperConfigurationURL = nbiCasperConfigurationDict[NBCSettingsCasperServerURLKey];
+     if ( CasperConfigurationURL != nil ) {
+     settingsDict[NBCSettingsCasperConfigurationURL] = CasperConfigurationURL;
+     [_target setCasperConfigurationPlistURL:nbiCasperConfigurationDictURL];
+     nbiCasperConfigurationDictFound = YES;
+     }
+     }
+     }
+     
+     NSURL *nbiApplicationURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCCasperApplicationNBICreatorTargetURL];
+     if ( [nbiApplicationURL checkResourceIsReachableAndReturnError:nil] ) {
+     NSString *nbiCasperVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+     if ( [nbiCasperVersion length] != 0 ) {
+     settingsDict[NBCSettingsCasperVersion] = nbiCasperVersion;
+     [_target setCasperApplicationExistOnTarget:YES];
+     [_target setCasperApplicationURL:nbiApplicationURL];
+     nbiCasperVersionFound = YES;
+     }
+     }
+     }
+     
+     if ( ! nbiCasperConfigurationDictFound ) {
+     settingsDict[NBCSettingsCasperConfigurationURL] = @"";
+     }
+     
+     if ( ! nbiCasperVersionFound ) {
+     settingsDict[NBCSettingsCasperVersion] = NBCMenuItemCasperVersionLatest;
+     }
+     
+     if ( @(_includeCasperPreReleaseVersions) != nil ) {
+     settingsDict[NBCSettingsCasperIncludePreReleaseVersions] = @(_includeCasperPreReleaseVersions);
+     }
+     
+     NSString *rcInstall;
+     NSURL *rcInstallURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCCasperRCInstallTargetURL];
+     if ( [rcInstallURL checkResourceIsReachableAndReturnError:nil] ) {
+     rcInstall = [NSString stringWithContentsOfURL:rcInstallURL encoding:NSUTF8StringEncoding error:&err];
+     
+     }
+     
+     NSString *rcImaging;
+     NSURL *rcImagingURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCCasperRCImagingNBICreatorTargetURL];
+     if ( [rcImagingURL checkResourceIsReachableAndReturnError:nil] ) {
+     rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
+     
+     } else {
+     rcImagingURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCCasperRCImagingTargetURL];
+     if ( [rcImagingURL checkResourceIsReachableAndReturnError:nil] ) {
+     rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
+     }
+     }
+     
+     [_target setRcImagingContent:rcImaging];
+     [_target setRcImagingURL:rcImagingURL];
+     
+     NSString *rcFiles = [NSString stringWithFormat:@"%@\n%@", rcInstall, rcImaging];
+     
+     if ( [rcFiles length] != 0 ) {
+     NSArray *rcFilesArray = [rcFiles componentsSeparatedByString:@"\n"];
+     for ( NSString *line in rcFilesArray ) {
+     if ( [line containsString:@"pmset"] && [line containsString:@"displaysleep"] ) {
+     NSError* regexError = nil;
+     NSRegularExpression* regex = [NSRegularExpression regularExpressionWithPattern:@"displaysleep [0-9]+"
+     options:0
+     error:&regexError];
+     
+     if ( regex == nil ) {
+     NSLog(@"Regex creation failed with error: %@", [regexError description]);
+     }
+     
+     NSArray *matches = [regex matchesInString:line
+     options:NSMatchingWithoutAnchoringBounds
+     range:NSMakeRange(0, line.length)];
+     
+     for (NSTextCheckingResult *entry in matches) {
+     NSString *text = [line substringWithRange:entry.range];
+     if ( [text length] != 0 ) {
+     NSString *displaySleepTime = [text componentsSeparatedByString:@" "][1];
+     if ( [displaySleepTime length] != 0 ) {
+     if ( [displaySleepTime integerValue] == 0 ) {
+     settingsDict[NBCSettingsDisplaySleepKey] = @NO;
+     settingsDict[NBCSettingsDisplaySleepMinutesKey] = @"0";
+     } else {
+     settingsDict[NBCSettingsDisplaySleepKey] = @YES;
+     settingsDict[NBCSettingsDisplaySleepMinutesKey] = displaySleepTime;
+     }
+     }
+     }
+     }
+     }
+     }
+     }
+     
+     NSURL *wifiKext = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IO80211Family.kext"];
+     if ( [wifiKext checkResourceIsReachableAndReturnError:nil] ) {
+     settingsDict[NBCSettingsDisableWiFiKey] = @NO;
+     } else {
+     settingsDict[NBCSettingsDisableWiFiKey] = @YES;
+     }
+     
+     // Get network Time Server
+     NSURL *ntpConfigurationURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"etc/ntp.conf"];
+     if ( [ntpConfigurationURL checkResourceIsReachableAndReturnError:nil] ) {
+     NSString *ntpConfiguration = [NSString stringWithContentsOfURL:ntpConfigurationURL encoding:NSUTF8StringEncoding error:nil];
+     NSArray *ntpConfigurationArray = [ntpConfiguration componentsSeparatedByString:@"\n"];
+     NSString *ntpConfigurationFirstLine = ntpConfigurationArray[0];
+     if ( [ntpConfigurationFirstLine containsString:@"server"] ) {
+     NSString *ntpServer = [ntpConfigurationFirstLine componentsSeparatedByString:@" "][1];
+     if ( [ntpServer length] != 0 ) {
+     settingsDict[NBCSettingsNetworkTimeServerKey] = ntpServer;
+     }
+     }
+     }
+     
+     
+     NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+     [helperConnector connectToHelper];
+     
+     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+     [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+     
+     // ------------------------------------------------------------------
+     //  If task failed, post workflow failed notification
+     // ------------------------------------------------------------------
+     DDLogError(@"[ERROR] %@", proxyError);
+     }];
+     
+     }] readSettingsFromNBI:nbiBaseSystemVolumeURL settingsDict:[settingsDict copy] withReply:^(NSError *error, BOOL success, NSDictionary *newSettingsDict) {
+     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+     
+     if ( success )
+     {
+     NSLog(@"Success");
+     NSLog(@"newSettingsDict=%@", newSettingsDict);
+     [self updateUISettingsFromDict:newSettingsDict];
+     [self saveUISettingsWithName:nbiName atUrl:[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%@.nbictemplate", NSTemporaryDirectory(), [[NSUUID UUID] UUIDString]]]]; // Temporary, to test
+     [self->_templates updateTemplateListForPopUpButton:self->_popUpButtonTemplates title:nbiName];
+     [self verifyBuildButton];
+     } else {
+     NSLog(@"CopyFailed!");
+     NSLog(@"Error: %@", error);
+     }
+     }];
+     }];
+     
+     
+     // Get any configured user name
+     NSURL *dsLocalUsersURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
+     if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
+     NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
+     NSMutableArray *userFilesFiltered = [[userFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (self BEGINSWITH '_')"]] mutableCopy];
+     [userFilesFiltered removeObjectsInArray:@[ @"daemon.plist", @"nobody.plist", @"root.plist" ]];
+     if ( [userFilesFiltered count] != 0 ) {
+     NSString *firstUser = userFilesFiltered[0];
+     NSURL *firstUserPlistURL = [dsLocalUsersURL URLByAppendingPathComponent:firstUser];
+     NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
+     if ( firstUserDict ) {
+     NSArray *userNameArray = firstUserDict[@"name"];
+     NSString *userName = userNameArray[0];
+     if ( [userName length] != 0 ) {
+     settingsDict[NBCSettingsARDLoginKey] = userName;
+     }
+     }
+     }
+     } else {
+     NSLog(@"Could not get path to local user database");
+     NSLog(@"Error: %@", err);
+     }
+     
+     // Get any configured user password
+     NSURL *vncPasswordFile = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];
+     if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
+     NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
+     NSMutableArray *args = [NSMutableArray arrayWithObjects:@"-c",
+     [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }; print \"\n\"'", [vncPasswordFile path]],
+     nil];
+     NSPipe *stdOut = [[NSPipe alloc] init];
+     NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
+     [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+     __block NSString *outStr;
+     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+     id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+     object:[stdOut fileHandleForReading]
+     queue:nil
+     usingBlock:^(NSNotification *notification){
+     #pragma unused(notification)
+     
+     // ------------------------
+     //  Convert data to string
+     // ------------------------
+     NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
+     outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+     
+     // -----------------------------------------------------------------------
+     //  When output data becomes available, pass it to workflow status parser
+     // -----------------------------------------------------------------------
+     NSLog(@"outStr=%@", outStr);
+     
+     [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+     }];
+     
+     // -----------------------------------------------------------------------------------
+     //  Create standard error file handle and register for data available notifications.
+     // -----------------------------------------------------------------------------------
+     NSPipe *stdErr = [[NSPipe alloc] init];
+     NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
+     [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+     __block NSString *errStr;
+     id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+     object:[stdErr fileHandleForReading]
+     queue:nil
+     usingBlock:^(NSNotification *notification){
+     #pragma unused(notification)
+     
+     // ------------------------
+     //  Convert data to string
+     // ------------------------
+     NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
+     errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+     
+     // -----------------------------------------------------------------------
+     //  When error data becomes available, pass it to workflow status parser
+     // -----------------------------------------------------------------------
+     NSLog(@"errStr=%@", errStr);
+     
+     [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+     }];
+     
+     NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+     [helperConnector connectToHelper];
+     
+     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+     [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+     
+     // ------------------------------------------------------------------
+     //  If task failed, post workflow failed notification
+     // ------------------------------------------------------------------
+     NSLog(@"ProxyError? %@", proxyError);
+     [nc removeObserver:stdOutObserver];
+     [nc removeObserver:stdErrObserver];
+     }];
+     
+     }] runTaskWithCommandAtPath:commandURL arguments:args environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
+     #pragma unused(error)
+     [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+     [nc removeObserver:stdOutObserver];
+     [nc removeObserver:stdErrObserver];
+     
+     if ( terminationStatus == 0 )
+     {
+     if ( [outStr length] != 0 ) {
+     settingsDict[NBCSettingsARDPasswordKey] = outStr;
+     }
+     [self updateUISettingsFromDict:settingsDict];
+     [self->_templates updateTemplateListForPopUpButton:self->_popUpButtonTemplates title:nbiName];
+     [self verifyBuildButton];
+     [self->_textFieldDestinationFolder setEnabled:NO];
+     [self->_buttonChooseDestinationFolder setEnabled:NO];
+     [self->_popUpButtonTool setEnabled:NO];
+     } else {
+     
+     }
+     }];
+     }];
+     
+     }
+     
+     }
+     */
 } // returnSettingsFromUI
 
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
@@ -2557,75 +2587,120 @@ DDLogLevel ddLogLevel;
 
 
 - (IBAction)buttonVerifyJSS:(id)sender {
-    if ( [[sender title] isEqualToString:NBCButtonTitleVerify] ) {
-        [self setVerifyingJSS:YES];
-        [_imageViewVerifyJSSStatus setHidden:YES];
-        [_textFieldVerifyJSSStatus setHidden:NO];
-        [_textFieldVerifyJSSStatus setStringValue:@"Contacting JSS..."];
-        
-        NSString *jssURLString = _casperJSSURL;
-        NSURL *jssCertificateURL;
-        if ( [jssURLString length] != 0 ) {
-            jssCertificateURL = [[NSURL URLWithString:jssURLString] URLByAppendingPathComponent:NBCCasperJSSCertificateURLPath];
-            NSURLComponents *components = [[NSURLComponents alloc] initWithURL:jssCertificateURL resolvingAgainstBaseURL:NO];
-            NSURLQueryItem *queryItems = [NSURLQueryItem queryItemWithName:@"operation" value:@"getcacert"];
-            [components setQueryItems:@[ queryItems ]];
-            jssCertificateURL = [components URL];
-        } else {
-            [self stopJSSVerification];
-            [_imageViewVerifyJSSStatus setHidden:NO];
-            [_textFieldVerifyJSSStatus setHidden:NO];
-            [_textFieldVerifyJSSStatus setStringValue:@"No URL was passed!"];
-            // Show Alert
-            return;
-        }
-        
-        if ( ! _jssCertificateDownloader ) {
-            _jssCertificateDownloader = [[NBCDownloader alloc] initWithDelegate:self];
-        }
-        NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagJSSCertificate };
-        [_jssCertificateDownloader downloadPageAsData:jssCertificateURL downloadInfo:downloadInfo];
-    } else {
-        [self stopJSSVerification];
-    }
+#pragma unused(sender)
     
+}
+
+- (void)downloadFailed:(NSDictionary *)downloadInfo withError:(NSError *)error {
+    NSString *downloadTag = downloadInfo[NBCDownloaderTag];
+    if ( [downloadTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
+        NSString *errorMessage = @"";
+        if ( error ) {
+            errorMessage = [error localizedDescription];
+        }
+        
+        [self setDownloadingJSSCertificate:NO];
+        NSImage *imageWarning = [NSImage imageNamed:@"NSCaution"];
+        [_imageViewDownloadJSSCertificateStatus setImage:imageWarning];
+        [_imageViewDownloadJSSCertificateStatus setHidden:NO];
+        [_textFieldDownloadJSSCertificateStatus setStringValue:errorMessage];
+        [_textFieldDownloadJSSCertificateStatus setHidden:NO];
+    } else if ( [downloadTag isEqualToString:NBCDownloaderTagJSSVerify] ) {
+        NSString *errorMessage = @"";
+        if ( error ) {
+            errorMessage = [error localizedDescription];
+        }
+        
+        [self setVerifyingJSS:NO];
+        NSImage *imageWarning = [NSImage imageNamed:@"NSCaution"];
+        [_imageViewVerifyJSSStatus setImage:imageWarning];
+        [_imageViewVerifyJSSStatus setHidden:NO];
+        [_textFieldVerifyJSSStatus setStringValue:errorMessage];
+        [_textFieldVerifyJSSStatus setHidden:NO];
+    }
 }
 
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
+        [self setDownloadingJSSCertificate:NO];
         NSDictionary *certificateDict = [self examineCertificate:data];
         if ( [certificateDict count] != 0 ) {
-            [self insertCertificateInTableView:certificateDict];
+            if ( [_casperJSSURL length] != 0 ) {
+                _jssCACertificate = @{ _casperJSSURL : certificateDict[@"CertificateSignature"] };
+            }
+            NSImage *imageSuccess = [[NSImage alloc] initWithContentsOfFile:IconSuccessPath];
+            [_imageViewDownloadJSSCertificateStatus setImage:imageSuccess];
+            [_buttonShowJSSCertificate setHidden:NO];
+            if ( [self insertCertificateInTableView:certificateDict] ) {
+                [_textFieldDownloadJSSCertificateStatus setStringValue:@"Downloaded"];
+            } else {
+                [_textFieldDownloadJSSCertificateStatus setStringValue:@"Already Exist"];
+            }
+            [_imageViewDownloadJSSCertificateStatus setHidden:NO];
+            [_textFieldDownloadJSSCertificateStatus setHidden:NO];
+        } else {
+            
         }
+    } else if ( [downloadTag isEqualToString:NBCDownloaderTagJSSVerify] ) {
+        [self setVerifyingJSS:NO];
+        NSImage *imageSuccess = [[NSImage alloc] initWithContentsOfFile:IconSuccessPath];
+        [_imageViewVerifyJSSStatus setImage:imageSuccess];
+        [_imageViewVerifyJSSStatus setHidden:NO];
+        [_textFieldVerifyJSSStatus setHidden:YES];
+        [_textFieldVerifyJSSStatus setStringValue:@""];
     }
-    [self setVerifyingJSS:NO];
-    [_textFieldVerifyJSSStatus setHidden:YES];
-    [_textFieldVerifyJSSStatus setStringValue:@""];
-}
-
-- (void)stopJSSVerification {
-    if ( _jssCertificateDownloader ) {
-        [_jssCertificateDownloader cancelDownload];
-    }
-    [self setVerifyingJSS:NO];
-    [_textFieldVerifyJSSStatus setHidden:YES];
-    [_textFieldVerifyJSSStatus setStringValue:@""];
 }
 
 - (IBAction)buttonLaunchPadRestrictions:(id)sender {
-    
     [_popOverLaunchPadRestrictions showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 }
 
 - (IBAction)buttonDownloadJSSCertificate:(id)sender {
 #pragma unused(sender)
+    [_buttonShowJSSCertificate setHidden:YES];
+    [self setDownloadingJSSCertificate:YES];
+    [_imageViewDownloadJSSCertificateStatus setHidden:YES];
+    [_textFieldDownloadJSSCertificateStatus setHidden:NO];
+    [_textFieldDownloadJSSCertificateStatus setStringValue:@"Contacting JSS..."];
     
+    NSString *jssURLString = _casperJSSURL;
+    NSURL *jssCertificateURL;
+    if ( [jssURLString length] != 0 ) {
+        jssCertificateURL = [[NSURL URLWithString:jssURLString] URLByAppendingPathComponent:NBCCasperJSSCertificateURLPath];
+        NSURLComponents *components = [[NSURLComponents alloc] initWithURL:jssCertificateURL resolvingAgainstBaseURL:NO];
+        NSURLQueryItem *queryItems = [NSURLQueryItem queryItemWithName:@"operation" value:@"getcacert"];
+        [components setQueryItems:@[ queryItems ]];
+        jssCertificateURL = [components URL];
+    } else {
+        [_imageViewDownloadJSSCertificateStatus setHidden:NO];
+        [_textFieldDownloadJSSCertificateStatus setHidden:NO];
+        [_textFieldDownloadJSSCertificateStatus setStringValue:@"No URL was passed!"];
+        // Show Alert
+        return;
+    }
+    
+    if ( ! _jssCertificateDownloader ) {
+        _jssCertificateDownloader = [[NBCDownloader alloc] initWithDelegate:self];
+    }
+    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagJSSCertificate };
+    [_jssCertificateDownloader downloadPageAsData:jssCertificateURL downloadInfo:downloadInfo];
 }
 
 - (IBAction)buttonShowJSSCertificate:(id)sender {
 #pragma unused(sender)
-    
+    [_tabViewCasperSettings selectTabViewItemWithIdentifier:NBCTabViewItemExtra];
+    if ( [_casperJSSURL length] != 0 ) {
+        __block NSData *jssCACertificateSignature = _jssCACertificate[_casperJSSURL];
+        if ( jssCACertificateSignature ) {
+            [_certificateTableViewContents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                if ( [jssCACertificateSignature isEqualToData:obj[@"CertificateSignature"]] ) {
+                    [self->_tableViewCertificates selectRowIndexes:[NSIndexSet indexSetWithIndex:idx] byExtendingSelection:NO];
+                    *stop = YES;
+                }
+            }];
+        }
+    }
 }
 
 @end
