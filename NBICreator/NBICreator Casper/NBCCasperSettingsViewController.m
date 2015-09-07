@@ -689,17 +689,16 @@ DDLogLevel ddLogLevel;
             [_textFieldNBIDescriptionPreview setStringValue:nbiDescription];
         }
     } else if ( [sender object] == _textFieldJSSURL ) {
-        if ( [_casperJSSURL length] == 0 ) {
-            [_buttonVerifyJSS setEnabled:NO];
+        NSURL *stringAsURL = [NSURL URLWithString:[_textFieldJSSURL stringValue]];
+        if ( stringAsURL && [stringAsURL scheme] && [stringAsURL host] ) {
+            [self jssURLIsValid];
         } else {
-            [_buttonVerifyJSS setEnabled:YES];
+            [self jssURLIsInvalid];
         }
-    }
-    
-    // --------------------------------------------------------------------
-    //  Expand tilde for destination folder if tilde is used in settings
-    // --------------------------------------------------------------------
-    if ( [sender object] == _textFieldDestinationFolder ) {
+    } else if ( [sender object] == _textFieldDestinationFolder ) {
+        // --------------------------------------------------------------------
+        //  Expand tilde for destination folder if tilde is used in settings
+        // --------------------------------------------------------------------
         if ( [_destinationFolder length] == 0 ) {
             [self setDestinationFolder:@""];
         } else if ( [_destinationFolder hasPrefix:@"~"] ) {
@@ -721,6 +720,20 @@ DDLogLevel ddLogLevel;
     if ( [downloadTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
         NSLog(@"Canceled!");
     }
+}
+
+- (void)jssURLIsValid {
+    [self setJssURLValid:YES];
+    [_buttonVerifyJSS setEnabled:YES];
+    [_buttonDownloadJSSCertificate setEnabled:YES];
+    [_buttonShowJSSCertificate setEnabled:YES];
+}
+
+- (void)jssURLIsInvalid {
+    [self setJssURLValid:NO];
+    [_buttonVerifyJSS setEnabled:NO];
+    [_buttonDownloadJSSCertificate setEnabled:NO];
+    [_buttonShowJSSCertificate setEnabled:NO];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -933,6 +946,7 @@ DDLogLevel ddLogLevel;
     [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
     [self setUseVerboseBoot:[settingsDict[NBCSettingsUseVerboseBootKey] boolValue]];
     [self setDiskImageReadWrite:[settingsDict[NBCSettingsDiskImageReadWriteKey] boolValue]];
+    [self setAllowInvalidCertificate:[settingsDict[NBCSettingsCasperAllowInvalidCertificateKey] boolValue]];
     
     [self uppdatePopUpButtonTool];
     
@@ -1064,6 +1078,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg";
     settingsDict[NBCSettingsUseVerboseBootKey] = @(_useVerboseBoot) ?: @NO;
     settingsDict[NBCSettingsDiskImageReadWriteKey] = @(_diskImageReadWrite) ?: @NO;
+    settingsDict[NBCSettingsCasperAllowInvalidCertificateKey] = @(_allowInvalidCertificate) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2544,7 +2559,7 @@ DDLogLevel ddLogLevel;
 - (IBAction)buttonVerifyJSS:(id)sender {
     if ( [[sender title] isEqualToString:NBCButtonTitleVerify] ) {
         [self setVerifyingJSS:YES];
-        [_buttonVerifyJSS setTitle:NBCButtonTitleCancel];
+        [_imageViewVerifyJSSStatus setHidden:YES];
         [_textFieldVerifyJSSStatus setHidden:NO];
         [_textFieldVerifyJSSStatus setStringValue:@"Contacting JSS..."];
         
@@ -2552,8 +2567,15 @@ DDLogLevel ddLogLevel;
         NSURL *jssCertificateURL;
         if ( [jssURLString length] != 0 ) {
             jssCertificateURL = [[NSURL URLWithString:jssURLString] URLByAppendingPathComponent:NBCCasperJSSCertificateURLPath];
+            NSURLComponents *components = [[NSURLComponents alloc] initWithURL:jssCertificateURL resolvingAgainstBaseURL:NO];
+            NSURLQueryItem *queryItems = [NSURLQueryItem queryItemWithName:@"operation" value:@"getcacert"];
+            [components setQueryItems:@[ queryItems ]];
+            jssCertificateURL = [components URL];
         } else {
             [self stopJSSVerification];
+            [_imageViewVerifyJSSStatus setHidden:NO];
+            [_textFieldVerifyJSSStatus setHidden:NO];
+            [_textFieldVerifyJSSStatus setStringValue:@"No URL was passed!"];
             // Show Alert
             return;
         }
@@ -2569,12 +2591,24 @@ DDLogLevel ddLogLevel;
     
 }
 
+- (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
+    NSString *downloadTag = downloadInfo[NBCDownloaderTag];
+    if ( [downloadTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
+        NSDictionary *certificateDict = [self examineCertificate:data];
+        if ( [certificateDict count] != 0 ) {
+            [self insertCertificateInTableView:certificateDict];
+        }
+    }
+    [self setVerifyingJSS:NO];
+    [_textFieldVerifyJSSStatus setHidden:YES];
+    [_textFieldVerifyJSSStatus setStringValue:@""];
+}
+
 - (void)stopJSSVerification {
     if ( _jssCertificateDownloader ) {
         [_jssCertificateDownloader cancelDownload];
     }
     [self setVerifyingJSS:NO];
-    [_buttonVerifyJSS setTitle:NBCButtonTitleVerify];
     [_textFieldVerifyJSSStatus setHidden:YES];
     [_textFieldVerifyJSSStatus setStringValue:@""];
 }
@@ -2583,4 +2617,15 @@ DDLogLevel ddLogLevel;
     
     [_popOverLaunchPadRestrictions showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 }
+
+- (IBAction)buttonDownloadJSSCertificate:(id)sender {
+#pragma unused(sender)
+    
+}
+
+- (IBAction)buttonShowJSSCertificate:(id)sender {
+#pragma unused(sender)
+    
+}
+
 @end

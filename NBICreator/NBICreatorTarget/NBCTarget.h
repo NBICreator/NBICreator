@@ -24,6 +24,9 @@
 @property NSURL *rcImagingURL;
 @property NSString *rcImagingContent;
 
+@property NSURL *casperImagingApplicationURL;
+@property NSURL *casperJSSPreferencePlistURL;
+
 // Source NBI NetInstall
 @property NBCDisk *nbiNetInstallDisk;
 @property NSURL *nbiNetInstallURL;

@@ -8,14 +8,16 @@
 
 #import "NBCImagrWorkflowResources.h"
 #import "NBCConstants.h"
+#import "NBCVariables.h"
+#import "NBCLogging.h"
+
 #import "NSString+randomString.h"
 
-#import "NBCDiskImageController.h"
-#import "NBCVariables.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
+
 #import "NBCWorkflowNBIController.h"
-#import "NBCLogging.h"
+
 
 DDLogLevel ddLogLevel;
 
@@ -28,7 +30,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Starting workflow Imagr Resources...");
     
     _resourcesNetInstallDict = [[NSMutableDictionary alloc] init];
@@ -46,46 +47,33 @@ DDLogLevel ddLogLevel;
     
     // Imagr.app, Imagr settings, ?
     [self setResourcesCount:3];
-    DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
     
     // -------------------------------------------------------
     //  Update _resourcesCount with all sourceItems
     // -------------------------------------------------------
     NSDictionary *sourceItemsDict = _resourcesSettings[NBCSettingsSourceItemsKey];
-    DDLogDebug(@"sourceItemsDict=%@", sourceItemsDict);
     if ( [sourceItemsDict count] != 0 ) {
         NSArray *sourcePackages = [sourceItemsDict allKeys];
-        DDLogDebug(@"sourcePackages=%@", sourcePackages);
         for ( NSString *packagePath in sourcePackages ) {
-            DDLogDebug(@"packagePath=%@", packagePath);
             NSDictionary *packageDict = sourceItemsDict[packagePath];
-            DDLogDebug(@"packageDict=%@", packageDict);
             NSDictionary *packageDictPath = packageDict[NBCSettingsSourceItemsPathKey];
-            DDLogDebug(@"packageDictPath=%@", packageDictPath);
             int packageCount = (int)[packageDictPath count];
             [self setResourcesCount:( _resourcesCount + packageCount )];
             NSArray *packageRegexArray = packageDict[NBCSettingsSourceItemsRegexKey];
-            DDLogDebug(@"packageRegexArray=%@", packageRegexArray);
             if ( [packageDict count] != 0 ) {
                 [self setResourcesCount:( _resourcesCount + (int)[packageRegexArray count] )];
-                DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
             }
         }
         NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
-        DDLogDebug(@"certificatesArray=%@", certificatesArray);
         if ( [certificatesArray count] != 0 ) {
             [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )];
-            DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
         }
         NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
-        DDLogDebug(@"packagessArray=%@", packagessArray);
         if ( [packagessArray count] != 0 ) {
             [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
-            DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
         }
         if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
             [self setResourcesCount:( _resourcesCount + 1 )];
-            DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
             if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
                 [self setResourcesCount:( _resourcesCount + 1 )];
             }
@@ -131,7 +119,6 @@ DDLogLevel ddLogLevel;
 } // runWorkflow
 
 - (BOOL)prepareDesktopViewer:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Preparing desktop viewer...");
     BOOL retval = YES;
     NSDictionary *userSettings = [workflowItem userSettings];
@@ -139,9 +126,7 @@ DDLogLevel ddLogLevel;
         
         // NBCDesktopViewer.app
         NSURL *desktopViewerURL = [[NSBundle mainBundle] URLForResource:@"NBICreatorDesktopViewer" withExtension:@"app"];
-        DDLogDebug(@"desktopViewerURL=%@", desktopViewerURL);
         NSString *desktopViewerTargetPath = [NSString stringWithFormat:@"%@/NBICreatorDesktopViewer.app", NBCApplicationsTargetPath];
-        DDLogDebug(@"desktopViewerTargetPath=%@", desktopViewerTargetPath);
         NSDictionary *desktopViewerAttributes  = @{
                                                    NSFileOwnerAccountName : @"root",
                                                    NSFileGroupOwnerAccountName : @"wheel",
@@ -154,7 +139,6 @@ DDLogLevel ddLogLevel;
                                                    NBCWorkflowCopyTargetURL : desktopViewerTargetPath,
                                                    NBCWorkflowCopyAttributes : desktopViewerAttributes
                                                    };
-        DDLogDebug(@"desktopViewerCopySetting=%@", desktopViewerCopySetting);
         [self updateBaseSystemCopyDict:desktopViewerCopySetting];
         
         // Background Image
@@ -164,9 +148,7 @@ DDLogLevel ddLogLevel;
                 NSError *error;
                 NSFileManager *fm = [NSFileManager defaultManager];
                 NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-                DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
                 NSURL *temporaryBackgroundImageURL = [temporaryFolderURL URLByAppendingPathComponent:[backgroundImageURL lastPathComponent]];
-                DDLogDebug(@"temporaryBackgroundImageURL=%@", temporaryBackgroundImageURL);
                 if ( [fm copyItemAtURL:[NSURL fileURLWithPath:backgroundImageURL] toURL:temporaryBackgroundImageURL error:&error] ) {
                     NSString *backgroundTargetPath;
                     if ( [_target nbiNetInstallURL] ) {
@@ -211,19 +193,15 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)preparePackages:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Preparing packages...");
     BOOL retval = YES;
     NSError *error;
     NSArray *packagesArray = _resourcesSettings[NBCSettingsPackagesKey];
-    DDLogDebug(@"packagesArray=%@", packagesArray);
     
     if ( [packagesArray count] != 0 ) {
         NSFileManager *fm = [NSFileManager defaultManager];
         NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-        DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
         NSURL *temporaryPackageFolderURL = [temporaryFolderURL URLByAppendingPathComponent:@"Packages"];
-        DDLogDebug(@"temporaryPackageFolderURL=%@", temporaryPackageFolderURL);
         if ( ! [temporaryPackageFolderURL checkResourceIsReachableAndReturnError:nil] ) {
             if ( ! [fm createDirectoryAtURL:temporaryPackageFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
                 DDLogError(@"Creating temporary package folder failed!");
@@ -234,7 +212,6 @@ DDLogLevel ddLogLevel;
         
         for ( NSString *packagePath in packagesArray ) {
             NSURL *temporaryPackageURL = [temporaryPackageFolderURL URLByAppendingPathComponent:[packagePath lastPathComponent]];
-            DDLogDebug(@"temporaryPackageURL=%@", temporaryPackageURL);
             if ( [fm copyItemAtURL:[NSURL fileURLWithPath:packagePath] toURL:temporaryPackageURL error:&error] ) {
                 [self updateBaseSystemInstallerDict:temporaryPackageURL choiceChangesXML:nil];
             } else {
@@ -251,21 +228,17 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)prepareCertificates:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     NSError *error;
     NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
-    DDLogDebug(@"certificatesArray=%@", certificatesArray);
     if ( [certificatesArray count] != 0 ) {
         NSURL *certificateScriptURL = [[NSBundle mainBundle] URLForResource:@"installCertificates" withExtension:@"bash"];
-        DDLogDebug(@"certificateScriptURL=%@", certificateScriptURL);
         NSString *certificateScriptTargetPath;
         if ( [_target nbiNetInstallURL] ) {
             certificateScriptTargetPath = [NSString stringWithFormat:@"%@/%@", NBCScriptsTargetPath, [certificateScriptURL lastPathComponent]];
         } else if ( [_target baseSystemURL] ) {
             certificateScriptTargetPath = [NSString stringWithFormat:@"%@/%@", NBCScriptsNBICreatorTargetPath, [certificateScriptURL lastPathComponent]];
         }
-        DDLogDebug(@"certificateScriptTargetPath=%@", certificateScriptTargetPath);
         NSDictionary *certificateScriptAttributes  = @{
                                                        NSFileOwnerAccountName : @"root",
                                                        NSFileGroupOwnerAccountName : @"wheel",
@@ -278,7 +251,6 @@ DDLogLevel ddLogLevel;
                                                        NBCWorkflowCopyTargetURL : certificateScriptTargetPath,
                                                        NBCWorkflowCopyAttributes : certificateScriptAttributes
                                                        };
-        DDLogDebug(@"certificateScriptCopySetting=%@", certificateScriptCopySetting);
         if ( [_target nbiNetInstallURL] ) {
             [self updateNetInstallCopyDict:certificateScriptCopySetting];
         } else if ( [_target baseSystemURL] ) {
@@ -286,9 +258,7 @@ DDLogLevel ddLogLevel;
         }
         
         NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-        DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
         NSURL *temporaryCertificateFolderURL = [temporaryFolderURL URLByAppendingPathComponent:@"Certificates"];
-        DDLogDebug(@"temporaryCertificateFolderURL=%@", temporaryCertificateFolderURL);
         if ( ! [temporaryCertificateFolderURL checkResourceIsReachableAndReturnError:nil] ) {
             NSFileManager *fm = [NSFileManager defaultManager];
             if ( ! [fm createDirectoryAtURL:temporaryCertificateFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
@@ -300,11 +270,8 @@ DDLogLevel ddLogLevel;
         
         NSInteger index = 0;
         for ( NSData *certificateData in certificatesArray ) {
-            DDLogDebug(@"index=%ld", (long)index);
             NSString *temporaryCertificateName = [NSString stringWithFormat:@"certificate%ld.cer", (long)index];
-            DDLogDebug(@"temporaryCertificateName=%@", temporaryCertificateName);
             NSURL *temporaryCertificateURL = [temporaryCertificateFolderURL URLByAppendingPathComponent:temporaryCertificateName];
-            DDLogDebug(@"temporaryCertificateURL=%@", temporaryCertificateURL);
             if ( [certificateData writeToURL:temporaryCertificateURL atomically:YES] ) {
                 NSString *certificateTargetPath;
                 if ( [_target nbiNetInstallURL] != nil ) {
@@ -312,7 +279,6 @@ DDLogLevel ddLogLevel;
                 } else if ( [_target baseSystemURL] ) {
                     certificateTargetPath = [NSString stringWithFormat:@"%@/%@", NBCCertificatesNBICreatorTargetURL, temporaryCertificateName];
                 }
-                DDLogDebug(@"certificateTargetPath=%@", certificateTargetPath);
                 NSDictionary *certificateAttributes  = @{
                                                          NSFileOwnerAccountName : @"root",
                                                          NSFileGroupOwnerAccountName : @"wheel",
@@ -325,7 +291,6 @@ DDLogLevel ddLogLevel;
                                                          NBCWorkflowCopyTargetURL : certificateTargetPath,
                                                          NBCWorkflowCopyAttributes : certificateAttributes
                                                          };
-                DDLogDebug(@"certificateCopySetting=%@", certificateCopySetting);
                 if ( [_target nbiNetInstallURL] != nil ) {
                     [self updateNetInstallCopyDict:certificateCopySetting];
                 } else if ( [_target baseSystemURL] ) {
@@ -348,14 +313,11 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)fileDownloadCompleted:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     // ------------------------------------------------------
     //  Extract info from downloadInfo Dict
     // ------------------------------------------------------
     NSString *resourceTag = downloadInfo[NBCDownloaderTag];
-    DDLogDebug(@"resourceTag=%@", resourceTag);
     NSString *version = downloadInfo[NBCDownloaderVersion];
-    DDLogDebug(@"version=%@", version);
     // ------------------------------------------------------
     //  Send command to correct copy method based on tag
     // ------------------------------------------------------
@@ -371,21 +333,15 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)copySourceRegexComplete:(NBCWorkflowItem *)workflowItem packagePath:(NSString *)packagePath resourceFolderPackageURL:(NSURL *)resourceFolderPackage {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *sourceItemsResourcesDict = _resourcesSettings[NBCSettingsSourceItemsKey];
-    DDLogDebug(@"sourceItemsResourcesDict=%@", sourceItemsResourcesDict);
     NSDictionary *resourcesPackageDict = sourceItemsResourcesDict[packagePath];
-    DDLogDebug(@"resourcesPackageDict=%@", resourcesPackageDict);
     NSArray *regexes = resourcesPackageDict[NBCSettingsSourceItemsRegexKey];
-    DDLogDebug(@"regexes=%@", regexes);
     for ( NSString *regex in regexes ) {
-        DDLogDebug(@"regex=%@", regex);
         NSDictionary *newRegexCopySetting = @{
                                               NBCWorkflowCopyType : NBCWorkflowCopyRegex,
                                               NBCWorkflowCopyRegexSourceFolderURL : [resourceFolderPackage path],
                                               NBCWorkflowCopyRegex : regex
                                               };
-        DDLogDebug(@"newRegexCopySetting=%@", newRegexCopySetting);
         [self updateBaseSystemCopyDict:newRegexCopySetting];
     }
     
@@ -394,8 +350,6 @@ DDLogLevel ddLogLevel;
 
 - (void)copySourceRegexFailed:(NBCWorkflowItem *)workflowItem temporaryFolderURL:(NSURL *)temporaryFolderURL {
 #pragma unused(workflowItem, temporaryFolderURL)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
 } // copySourceRegexFailed:temporaryFolderURL
 
@@ -406,24 +360,18 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)downloadResource:(NSURL *)resourceDownloadURL resourceTag:(NSString *)resourceTag version:(NSString *)version {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *downloadInfo = @{
                                    NBCDownloaderTag : resourceTag,
                                    NBCDownloaderVersion : version
                                    };
-    DDLogDebug(@"downloadInfo=%@", downloadInfo);
     NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
     [downloader downloadFileFromURL:resourceDownloadURL destinationPath:@"/tmp" downloadInfo:downloadInfo];
 } // downloadResource:resourceTag:version
 
 - (BOOL)getImagrApplication:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogInfo(@"");
-    
     BOOL retval = YES;
     NSString *selectedImagrVersion = _userSettings[NBCSettingsImagrVersion];
-    DDLogDebug(@"selectedImagrVersion=%@", selectedImagrVersion);
     NSString *imagrApplicationTargetPath;
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         imagrApplicationTargetPath = NBCImagrApplicationNBICreatorTargetURL;
@@ -436,13 +384,11 @@ DDLogLevel ddLogLevel;
             return NO;
         }
     }
-    DDLogDebug(@"imagrApplicationTargetPath=%@", imagrApplicationTargetPath);
     if ( [selectedImagrVersion length] == 0 ) {
         DDLogError(@"Could not get selected Imagr version from user settings!");
         return NO;
     } else if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         NSString *imagrLocalVersionPath = _userSettings[NBCSettingsImagrLocalVersionPath];
-        DDLogDebug(@"imagrLocalVersionPath=%@", imagrLocalVersionPath);
         if ( [imagrLocalVersionPath length] != 0 ) {
             NSDictionary *imagrLocalVersionAttributes  = @{
                                                            NSFileOwnerAccountName : @"root",
@@ -456,7 +402,6 @@ DDLogLevel ddLogLevel;
                                                            NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
                                                            NBCWorkflowCopyAttributes : imagrLocalVersionAttributes
                                                            };
-            DDLogDebug(@"imagrLocalVersionCopySetting=%@", imagrLocalVersionCopySetting);
             if ( [_target nbiNetInstallURL] ) {
                 [_resourcesNetInstallCopy addObject:imagrLocalVersionCopySetting];
             } else if ( [_target baseSystemURL] ) {
@@ -485,7 +430,6 @@ DDLogLevel ddLogLevel;
         
         [self setImagrVersion:selectedImagrVersion];
         NSURL *imagrCachedVersionURL = [_resourcesController cachedVersionURL:selectedImagrVersion resourcesFolder:NBCFolderResourcesImagr];
-        DDLogDebug(@"imagrCachedVersionURL=%@", imagrCachedVersionURL);
         if ( [imagrCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *imagrCachedVersionAttributes  = @{
                                                             NSFileOwnerAccountName : @"root",
@@ -499,7 +443,6 @@ DDLogLevel ddLogLevel;
                                                             NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
                                                             NBCWorkflowCopyAttributes : imagrCachedVersionAttributes
                                                             };
-            DDLogDebug(@"imagrCachedVersionCopySetting=%@", imagrCachedVersionCopySetting);
             if ( [_target nbiNetInstallURL] ) {
                 [_resourcesNetInstallCopy addObject:imagrCachedVersionCopySetting];
             } else if ( [_target baseSystemURL] ) {
@@ -509,7 +452,6 @@ DDLogLevel ddLogLevel;
             [self checkCompletedResources];
         } else {
             NSString *imagrDownloadURL = _resourcesSettings[NBCSettingsImagrDownloadURL];
-            DDLogDebug(@"imagrDownloadURL=%@", imagrDownloadURL);
             if ( [imagrDownloadURL length] != 0 ) {
                 DDLogInfo(@"Downloading Imagr version %@", selectedImagrVersion);
                 [_delegate updateProgressStatus:@"Downloading Imagr..." workflow:self];
@@ -524,7 +466,6 @@ DDLogLevel ddLogLevel;
 } // getImagrApplication
 
 - (void)addImagrToResources:(NSURL *)downloadedFileURL version:(NSString *)version {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *imagrApplicationTargetPath;
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         imagrApplicationTargetPath = NBCImagrApplicationNBICreatorTargetURL;
@@ -538,7 +479,6 @@ DDLogLevel ddLogLevel;
             return;
         }
     }
-    DDLogDebug(@"imagrApplicationTargetPath=%@", imagrApplicationTargetPath);
     
     // ---------------------------------------------------------------
     //  Extract Imagr from dmg and copy to resourecs for future use
@@ -547,7 +487,6 @@ DDLogLevel ddLogLevel;
                                                                                                filePath:@"Imagr.app"
                                                                                         resourcesFolder:NBCFolderResourcesImagr
                                                                                                 version:version];
-    DDLogDebug(@"imagrDownloadedApplicationURL=%@", imagrDownloadedVersionURL);
     if ( imagrDownloadedVersionURL ) {
         NSDictionary *imagrDownloadedVersionAttributes  = @{
                                                             NSFileOwnerAccountName : @"root",
@@ -561,7 +500,6 @@ DDLogLevel ddLogLevel;
                                                              NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
                                                              NBCWorkflowCopyAttributes : imagrDownloadedVersionAttributes
                                                              };
-        DDLogDebug(@"imagrDownloadedVersionCopySettings=%@", imagrDownloadedVersionCopySettings);
         if ( [_target nbiNetInstallURL] ) {
             [self updateNetInstallCopyDict:imagrDownloadedVersionCopySettings];
         } else if ( [_target baseSystemURL] ) {
@@ -581,9 +519,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)getItemsFromSource:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *sourceBuildVersion = [[workflowItem source] sourceBuild];
-    DDLogDebug(@"sourceBuildVersion=%@", sourceBuildVersion);
     if ( [sourceBuildVersion length] != 0 ) {
         
         // ---------------------------------------------------------------
@@ -591,63 +527,48 @@ DDLogLevel ddLogLevel;
         //  If not, extract and copy to resources for future use.
         // ---------------------------------------------------------------
         NSDictionary *sourceItemsResourcesDict = [_resourcesController getCachedSourceItemsDict:sourceBuildVersion resourcesFolder:NBCFolderResourcesSource];
-        DDLogDebug(@"sourceItemsResourcesDict=%@", sourceItemsResourcesDict);
         if ( [sourceItemsResourcesDict count] != 0 ) {
             NSMutableDictionary *newSourceItemsDict = [[NSMutableDictionary alloc] init];
             NSDictionary *sourceItemsDict = _resourcesSettings[NBCSettingsSourceItemsKey];
-            DDLogDebug(@"sourceItemsDict=%@", sourceItemsDict);
             
             // -------------------------------------------------------
             //  Loop through all packages that contain required items
             // -------------------------------------------------------
             NSArray *sourcePackages = [sourceItemsDict allKeys];
-            DDLogDebug(@"sourcePackages=%@", sourcePackages);
             for ( NSString *packagePath in sourcePackages ) {
                 NSString *packageName = [[packagePath lastPathComponent] stringByDeletingPathExtension];
-                DDLogDebug(@"packageName=%@", packageName);
                 NSDictionary *packageDict = sourceItemsDict[packagePath];
-                DDLogDebug(@"packageDict=%@", packageDict);
                 if ( [packageDict count] != 0 ) {
                     NSMutableDictionary *newResourcesPackageDict = [[NSMutableDictionary alloc] init];
                     NSMutableArray *newRegexesArray = [[NSMutableArray alloc] init];
                     NSDictionary *resourcesPackageDict = sourceItemsResourcesDict[packageName];
-                    DDLogDebug(@"resourcesPackageDict=%@", resourcesPackageDict);
                     NSArray *regexes = packageDict[NBCSettingsSourceItemsRegexKey];
-                    DDLogDebug(@"regexes=%@", regexes);
                     NSArray *resourcesRegexes = resourcesPackageDict[NBCSettingsSourceItemsRegexKey];
-                    DDLogDebug(@"resourcesRegexes=%@", resourcesRegexes);
                     for ( NSString *regex in regexes ) {
-                        DDLogDebug(@"regex=%@", regex);
                         if ( [resourcesRegexes containsObject:regex] ) {
                             NSString *sourceFolderPath = resourcesPackageDict[NBCSettingsSourceItemsCacheFolderKey];
-                            DDLogDebug(@"sourceFolderPath=%@", sourceFolderPath);
                             if ( [sourceFolderPath length] != 0 ) {
                                 NSDictionary *newRegexCopySetting = @{
                                                                       NBCWorkflowCopyType : NBCWorkflowCopyRegex,
                                                                       NBCWorkflowCopyRegexSourceFolderURL : sourceFolderPath,
                                                                       NBCWorkflowCopyRegex : regex
                                                                       };
-                                DDLogDebug(@"newRegexCopySetting=%@", newRegexCopySetting);
                                 [self updateBaseSystemCopyDict:newRegexCopySetting];
                             } else {
                                 DDLogError(@"Could not get sourceFolderPath from packageDict");
                             }
                         } else {
-                            DDLogDebug(@"Adding regex to regexes to extract");
                             [newRegexesArray addObject:regex];
                         }
                     }
                     
                     if ( [newRegexesArray count] != 0 ) {
                         newResourcesPackageDict[NBCSettingsSourceItemsRegexKey] = newRegexesArray;
-                        DDLogDebug(@"newResourcesPackageDict=%@", newResourcesPackageDict);
                     }
                     
                     NSMutableArray *newPathsArray = [[NSMutableArray alloc] init];
                     NSArray *paths = packageDict[NBCSettingsSourceItemsPathKey];
-                    DDLogDebug(@"paths=%@", paths);
                     NSDictionary *resourcesPathsDict = resourcesPackageDict[NBCSettingsSourceItemsPathKey];
-                    DDLogDebug(@"resourcesPathsDict=%@", resourcesPathsDict);
                     for ( NSString *packageItemPath in paths ) {
                         
                         // -----------------------------------------------------------------------
@@ -656,7 +577,6 @@ DDLogLevel ddLogLevel;
                         //  If it doesn't, add it to a new sourceItemsDict to pass for extraction
                         // -----------------------------------------------------------------------
                         NSString *localItemPath = resourcesPathsDict[packageItemPath];
-                        DDLogDebug(@"localItemPath=%@", localItemPath);
                         if ( [localItemPath length] != 0 ) {
                             NSDictionary *newCopyAttributes  = @{
                                                                  NSFileOwnerAccountName : @"root",
@@ -670,7 +590,6 @@ DDLogLevel ddLogLevel;
                                                              NBCWorkflowCopyTargetURL : packageItemPath,
                                                              NBCWorkflowCopyAttributes : newCopyAttributes
                                                              };
-                            DDLogDebug(@"newCopySetting=%@", newCopySetting);
                             [self updateBaseSystemCopyDict:newCopySetting];
                             
                         } else {
@@ -680,12 +599,10 @@ DDLogLevel ddLogLevel;
                     
                     if ( [newPathsArray count] != 0 ) {
                         newResourcesPackageDict[NBCSettingsSourceItemsPathKey] = newPathsArray;
-                        DDLogDebug(@"newResourcesPackageDict=%@", newResourcesPackageDict);
                     }
                     
                     if ( [newResourcesPackageDict count] != 0 ) {
                         newSourceItemsDict[packagePath] = newResourcesPackageDict;
-                        DDLogDebug(@"newSourceItemsDict=%@", newSourceItemsDict);
                     }
                 } else {
                     DDLogError(@"[ERROR] Package dict was empty!");
@@ -698,9 +615,7 @@ DDLogLevel ddLogLevel;
             // ------------------------------------------------------------------------------------
             if ( [newSourceItemsDict count] != 0 ) {
                 NSMutableDictionary *newResourcesSettings = [_resourcesSettings mutableCopy];
-                DDLogDebug(@"newResourcesSettings=%@", newResourcesSettings);
                 newResourcesSettings[NBCSettingsSourceItemsKey] = newSourceItemsDict;
-                DDLogDebug(@"newResourcesSettings=%@", newResourcesSettings);
                 [self setResourcesSettings:[newResourcesSettings copy]];
                 [self extractItemsFromSource:workflowItem];
             } else {
@@ -715,20 +630,15 @@ DDLogLevel ddLogLevel;
 } // getItemsFromSource
 
 - (void)extractItemsFromSource:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     if ( ! _itemsToExtractFromSource ) {
         _itemsToExtractFromSource = [[NSMutableArray alloc] init];
         NSDictionary *sourceItemsDict = _resourcesSettings[NBCSettingsSourceItemsKey];
-        DDLogDebug(@"sourceItemsDict=%@", sourceItemsDict);
-        _itemsToExtractFromSource = [[sourceItemsDict allKeys] mutableCopy];
-        DDLogDebug(@"_itemsToExtractFromSource=%@", _itemsToExtractFromSource);
+        [self setItemsToExtractFromSource:[[sourceItemsDict allKeys] mutableCopy]];
     }
     
     if ( [_itemsToExtractFromSource count] != 0 ) {
         NSString *packagePath = [_itemsToExtractFromSource firstObject];
-        DDLogDebug(@"packagePath=%@", packagePath);
         [_itemsToExtractFromSource removeObjectAtIndex:0];
-        DDLogDebug(@"_itemsToExtractFromSource=%@", _itemsToExtractFromSource);
         [self extractPackageToTemporaryFolder:workflowItem packagePath:packagePath];
     } else {
         [self checkCompletedResources];
@@ -736,31 +646,24 @@ DDLogLevel ddLogLevel;
 } // extractItemsFromSource
 
 - (void)extractPackageToTemporaryFolder:(NBCWorkflowItem *)workflowItem packagePath:(NSString *)packagePath {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-    DDLogDebug(@"packagePath=%@", packagePath);
     DDLogInfo(@"Extracting resources from %@...", [packagePath lastPathComponent]);
     [_delegate updateProgressStatus:[NSString stringWithFormat:@"Extracting resources from %@...", [packagePath lastPathComponent]] workflow:self];
     NSURL *packageTemporaryFolder = [self getPackageTemporaryFolderURL:workflowItem];
-    DDLogDebug(@"packageTemporaryFolder=%@", packageTemporaryFolder);
     if ( packageTemporaryFolder ) {
         NSURL *temporaryFolder = [workflowItem temporaryFolderURL];
-        DDLogDebug(@"temporaryFolder=%@", temporaryFolder);
         if ( temporaryFolder ) {
             NSArray *scriptArguments;
             int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
-            DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
             if ( sourceVersionMinor <= 9 ) {
                 scriptArguments = @[ @"-c",
                                      [NSString stringWithFormat:@"/usr/bin/xar -x -f \"%@\" Payload -C \"%@\"; /usr/bin/cd \"%@\"; /usr/bin/cpio -idmu -I \"%@/Payload\"", packagePath, [temporaryFolder path], [packageTemporaryFolder path], [temporaryFolder path]]
                                      ];
             } else {
                 NSString *pbzxPath = [[NSBundle mainBundle] pathForResource:@"pbzx" ofType:@""];
-                DDLogDebug(@"pbzxPath=%@", pbzxPath);
                 scriptArguments = @[ @"-c",
                                      [NSString stringWithFormat:@"%@ %@ | /usr/bin/cpio -idmu --quiet", pbzxPath, packagePath],
                                      ];
             }
-            DDLogDebug(@"scriptArguments=%@", scriptArguments);
             NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
             
             // -----------------------------------------------------------------------------------
@@ -842,7 +745,6 @@ DDLogLevel ddLogLevel;
             }] runTaskWithCommandAtPath:commandURL arguments:scriptArguments currentDirectory:[packageTemporaryFolder path] stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
                 [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                    DDLogDebug(@"terminationStatus=%d", terminationStatus);
                     if ( terminationStatus == 0 ) {
                         
                         // ------------------------------------------------------------------
@@ -879,14 +781,10 @@ DDLogLevel ddLogLevel;
 } // extractPackageToTemporaryFolder
 
 - (NSURL *)getPackageTemporaryFolderURL:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSError *error;
     NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-    DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
     NSString *packageTemporaryFolderName = [NSString stringWithFormat:@"pkg.%@", [NSString nbc_randomString]];
-    DDLogDebug(@"packageTemporaryFolderName=%@", packageTemporaryFolderName);
     NSURL *packageTemporaryFolderURL = [temporaryFolderURL URLByAppendingPathComponent:packageTemporaryFolderName isDirectory:YES];
-    DDLogDebug(@"packageTemporaryFolderURL=%@", packageTemporaryFolderURL);
     if ( ! [packageTemporaryFolderURL checkResourceIsReachableAndReturnError:&error] ) {
         NSFileManager *fm = [NSFileManager defaultManager];
         if ( ! [fm createDirectoryAtURL:packageTemporaryFolderURL withIntermediateDirectories:NO attributes:nil error:&error] ){
@@ -900,27 +798,21 @@ DDLogLevel ddLogLevel;
 } // getTemporaryFolderURL
 
 - (void)copySourceItemsToResources:(NSURL *)packageTemporaryFolderURL packagePath:(NSString *)packagePath workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Copying extracted resources to cache folder...");
     [_delegate updateProgressStatus:@"Copying extracted resources to cache folder..." workflow:self];
     NSDictionary *sourceItemsDict = _resourcesSettings[NBCSettingsSourceItemsKey];
-    DDLogDebug(@"sourceItemsDict=%@", sourceItemsDict);
     if ( packageTemporaryFolderURL != nil ) {
         NSDictionary *packageDict = sourceItemsDict[packagePath];
-        DDLogDebug(@"packageDict=%@", packageDict);
         NSArray *pathsToCopy = packageDict[NBCSettingsSourceItemsPathKey];
-        DDLogDebug(@"pathsToCopy=%@", pathsToCopy);
         if ( [pathsToCopy count] != 0 ) {
             for ( NSString *itemPath in pathsToCopy ) {
                 NSURL *destinationURL;
                 NSURL *itemSourceURL = [packageTemporaryFolderURL URLByAppendingPathComponent:itemPath];
-                DDLogDebug(@"itemSourceURL=%@", itemSourceURL);
                 if ( itemSourceURL ) {
                     destinationURL = [_resourcesController copySourceItemToResources:itemSourceURL
                                                                       sourceItemPath:itemPath
                                                                      resourcesFolder:NBCFolderResourcesSource
                                                                          sourceBuild:[[workflowItem source] sourceBuild]];
-                    DDLogDebug(@"destinationURL=%@", destinationURL);
                 } else {
                     DDLogError(@"[ERROR] Could not get itemSourceURL for itemPath=%@", itemPath);
                     return;
@@ -938,14 +830,12 @@ DDLogLevel ddLogLevel;
                                                  NBCWorkflowCopyTargetURL : itemPath,
                                                  NBCWorkflowCopyAttributes : newCopyAttributes
                                                  };
-                DDLogDebug(@"newCopySetting=%@", newCopySetting);
                 [self updateBaseSystemCopyDict:newCopySetting];
                 [_itemsToExtractFromSource removeObject:packagePath];
             }
         }
         
         NSArray *regexArray = packageDict[NBCSettingsSourceItemsRegexKey];
-        DDLogDebug(@"regexArray=%@", regexArray);
         if ( [regexArray count] != 0 ) {
             [_resourcesController copySourceRegexToResources:workflowItem
                                                   regexArray:regexArray
@@ -968,21 +858,12 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkCompletedResources {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     
     // ----------------------------------------------------------------------------------------------
     //  Check if all resources have been prepared. If they have, post notification workflow complete
     // ----------------------------------------------------------------------------------------------
     unsigned long requiredCopyResources = ( [_resourcesNetInstallCopy count] + [_resourcesBaseSystemCopy count] );
     unsigned long requiredInstallResources = ( [_resourcesNetInstallInstall count] + [_resourcesBaseSystemInstall count] );
-    DDLogDebug(@"[_resourcesNetInstallCopy count]=%lu", (unsigned long)[_resourcesNetInstallCopy count]);
-    DDLogDebug(@"[_resourcesBaseSystemCopy count]=%lu", (unsigned long)[_resourcesBaseSystemCopy count]);
-    NSLog(@"_resourcesBaseSystemCopy=%@", _resourcesBaseSystemCopy);
-    DDLogDebug(@"[_resourcesNetInstallInstall count]=%lu", (unsigned long)[_resourcesNetInstallInstall count]);
-    DDLogDebug(@"[_resourcesBaseSystemInstall count]=%lu", (unsigned long)[_resourcesBaseSystemInstall count]);
-    DDLogDebug(@"requiredCopyResources=%lu", requiredCopyResources);
-    DDLogDebug(@"requiredInstallResources=%lu", requiredInstallResources);
-    DDLogDebug(@"_resourcesCount=%d", _resourcesCount);
     if ( ( (int) requiredCopyResources + (int) requiredInstallResources ) == _resourcesCount ) {
         if ( [_resourcesNetInstallCopy count] != 0 ) {
             _resourcesNetInstallDict[NBCWorkflowCopy] = _resourcesNetInstallCopy;
@@ -1016,7 +897,6 @@ DDLogLevel ddLogLevel;
 } // updateBaseSystemCopyDict:copyAttributes
 
 - (void)updateBaseSystemInstallerDict:(NSURL *)packageURL choiceChangesXML:(NSDictionary *)choiceChangesXML {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     
     // ----------------------------------------------------------------------------------------------
     //  Create a dict for package with URL and optionally choiceChangesXML and add to resource dict
@@ -1025,7 +905,6 @@ DDLogLevel ddLogLevel;
     NSMutableDictionary *packageDict = [[NSMutableDictionary alloc] init];
     if ( packageURL ) {
         packageName = [packageURL lastPathComponent];
-        DDLogDebug(@"packageName=%@", packageName);
         packageDict[NBCWorkflowInstallerName] = packageName;
         packageDict[NBCWorkflowInstallerSourceURL] = [packageURL path];
     } else {
@@ -1038,11 +917,8 @@ DDLogLevel ddLogLevel;
         packageDict[NBCWorkflowInstallerChoiceChangeXML] = choiceChangesXML;
     }
     
-    DDLogDebug(@"packageDict=%@", packageDict);
-    
     if ( packageName ) {
         [_resourcesBaseSystemInstall addObject:packageDict];
-        DDLogDebug(@"_resourcesBaseSystemInstall=%@", _resourcesBaseSystemInstall);
     }
     
     [self checkCompletedResources];
@@ -1055,10 +931,8 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)createImagrSettingsPlist:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     NSString *configurationURL = _userSettings[NBCSettingsImagrConfigurationURL];
-    DDLogDebug(@"configurationURL=%@", configurationURL);
     NSString *imagrConfigurationPlistTargetPath;
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         imagrConfigurationPlistTargetPath = NBCImagrConfigurationPlistNBICreatorTargetURL;
@@ -1071,17 +945,15 @@ DDLogLevel ddLogLevel;
             return NO;
         }
     }
-    DDLogDebug(@"imagrConfigurationPlistTargetPath=%@", imagrConfigurationPlistTargetPath);
+    
     if ( configurationURL ) {
         NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-        DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
         if ( temporaryFolderURL ) {
             
             // ------------------------------------------------------------
             //  Create Imagr configuration plist and add to copy resources
             // ------------------------------------------------------------
             NSURL *settingsFileURL = [temporaryFolderURL URLByAppendingPathComponent:@"com.grahamgilbert.Imagr.plist"];
-            DDLogDebug(@"settingsFileURL=%@", settingsFileURL);
             NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] initWithDictionary:@{ @"serverurl" : configurationURL }];
             
             NSString *reportingURL = _userSettings[NBCSettingsImagrReportingURL];
@@ -1089,7 +961,6 @@ DDLogLevel ddLogLevel;
                 settingsDict[@"reporturl"] = reportingURL;
             }
             
-            DDLogDebug(@"settingsDict=%@", settingsDict);
             if ( [settingsDict writeToURL:settingsFileURL atomically:YES] ) {
                 NSDictionary *copyAttributes  = @{
                                                   NSFileOwnerAccountName : @"root",
@@ -1103,7 +974,6 @@ DDLogLevel ddLogLevel;
                                                NBCWorkflowCopyTargetURL : imagrConfigurationPlistTargetPath,
                                                NBCWorkflowCopyAttributes : copyAttributes
                                                };
-                DDLogDebug(@"copySettings=%@", copySettings);
                 if ( [_target nbiNetInstallURL] != nil ) {
                     [_resourcesNetInstallCopy addObject:copySettings];
                 } else if ( [_target baseSystemURL] ) {
@@ -1127,21 +997,17 @@ DDLogLevel ddLogLevel;
 } // createImagrSettingsPlist
 
 - (BOOL)createImagrRCImaging:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     BOOL retval = YES;
     NSError *error;
     NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-    DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
     NSString *imagrRCImagingTargetPath;
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
-    DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
     NSString *imagrRCImagingContent = [NBCWorkflowNBIController generateImagrRCImagingForNBICreator:[workflowItem userSettings] osMinorVersion:sourceVersionMinor];
-    DDLogDebug(@"imagrRCImagingContent=%@", imagrRCImagingContent);
     if ( [imagrRCImagingContent length] != 0 ) {
         if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-            imagrRCImagingTargetPath = NBCImagrRCImagingNBICreatorTargetURL;
+            imagrRCImagingTargetPath = NBCRCImagingNBICreatorTargetURL;
         } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-            imagrRCImagingTargetPath = NBCImagrRCImagingTargetURL;
+            imagrRCImagingTargetPath = NBCRCImagingTargetURL;
         } else {
             if ( [_target rcImagingURL] != nil ) {
                 imagrRCImagingTargetPath = [[_target rcImagingURL] path];
@@ -1157,13 +1023,12 @@ DDLogLevel ddLogLevel;
                 return NO;
             }
         }
-        DDLogDebug(@"imagrRCImagingTargetPath=%@", imagrRCImagingTargetPath);
+
         if ( temporaryFolderURL ) {
             // ---------------------------------------------------
             //  Create Imagr rc.imaging and add to copy resources
             // ---------------------------------------------------
             NSURL *rcImagingURL = [temporaryFolderURL URLByAppendingPathComponent:@"rc.imaging"];
-            DDLogDebug(@"rcImagingURL=%@", rcImagingURL);
             if ( [imagrRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:&error] ) {
                 NSDictionary *copyAttributes  = @{
                                                   NSFileOwnerAccountName : @"root",
@@ -1177,7 +1042,6 @@ DDLogLevel ddLogLevel;
                                                NBCWorkflowCopyTargetURL : imagrRCImagingTargetPath,
                                                NBCWorkflowCopyAttributes : copyAttributes
                                                };
-                DDLogDebug(@"copySettings=%@", copySettings);
                 if ( [_target nbiNetInstallURL] != nil ) {
                     [_resourcesNetInstallCopy addObject:copySettings];
                 } else if ( [_target baseSystemURL] ) {

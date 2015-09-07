@@ -1364,12 +1364,12 @@ DDLogLevel ddLogLevel;
         }
         
         NSString *rcImaging;
-        NSURL *rcImagingURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCImagrRCImagingNBICreatorTargetURL];
+        NSURL *rcImagingURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCRCImagingNBICreatorTargetURL];
         if ( [rcImagingURL checkResourceIsReachableAndReturnError:nil] ) {
             rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
             
         } else {
-            rcImagingURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCImagrRCImagingTargetURL];
+            rcImagingURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCRCImagingTargetURL];
             if ( [rcImagingURL checkResourceIsReachableAndReturnError:nil] ) {
                 rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
             }
@@ -2086,6 +2086,7 @@ DDLogLevel ddLogLevel;
     [chooseDestionation setTitle:@"Select Imagr Application"];
     [chooseDestionation setPrompt:@"Choose"];
     [chooseDestionation setCanChooseFiles:YES];
+    [chooseDestionation setAllowedFileTypes:@[ @"com.apple.application-bundle" ]];
     [chooseDestionation setCanChooseDirectories:NO];
     [chooseDestionation setCanCreateDirectories:NO];
     [chooseDestionation setAllowsMultipleSelection:NO];

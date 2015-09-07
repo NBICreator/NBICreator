@@ -45,6 +45,7 @@ NSString *const NBCFolderResources = @"com.github.NBICreator/Resources";
 NSString *const NBCFolderResourcesDeployStudio = @"com.github.NBICreator/Resources/DeployStudio";;
 NSString *const NBCFolderResourcesPython = @"com.github.NBICreator/Resources/Python";
 NSString *const NBCFolderResourcesImagr = @"com.github.NBICreator/Resources/Imagr";
+NSString *const NBCFolderResourcesCasper = @"com.github.NBICreator/Resources/Casper";
 NSString *const NBCFolderResourcesSource = @"com.github.NBICreator/Resources/Source";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +134,7 @@ NSString *const NBCSettingsKeyboardLayoutKey = @"KeyboardLayout";
 NSString *const NBCSettingsDescriptionKey = @"Description";
 NSString *const NBCSettingsDestinationFolderKey = @"DestinationFolder";
 NSString *const NBCSettingsIconKey = @"Icon";
+NSString *const NBCSettingsAddTrustedNetBootServersKey = @"AddTrustedNetBootServers";
 NSString *const NBCSettingsTrustedNetBootServersKey = @"TrustedNetBootServers";
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -182,9 +184,11 @@ NSString *const NBCSettingsNBICreationToolKey = @"NBICreationTool";
 
 NSString *const NBCSettingsCasperImagingPathKey = @"CasperImagingPath";
 NSString *const NBCSettingsCasperJSSURLKey = @"CasperJSSURL";
+NSString *const NBCSettingsCasperAllowInvalidCertificateKey = @"CasperAllowInvalidCertificate";
+NSString *const NBCSettingsCasperJSSCACertificateKey = @"CasperJSSCACertificate";
 
 
-NSString *const NBCCasperJSSCertificateURLPath = @"/CA/SCEP?operation=getcacert";
+NSString *const NBCCasperJSSCertificateURLPath = @"/CA/SCEP";
 
 
 // --------------------------------------------------------------
@@ -412,15 +416,26 @@ NSString *const NBCImagrApplicationTargetURL = @"Packages/Imagr.app";
 NSString *const NBCImagrApplicationNBICreatorTargetURL = @"Applications/Imagr.app";
 NSString *const NBCImagrConfigurationPlistTargetURL = @"Packages/com.grahamgilbert.Imagr.plist";
 NSString *const NBCImagrConfigurationPlistNBICreatorTargetURL = @"Library/Preferences/com.grahamgilbert.Imagr.plist";
-NSString *const NBCImagrRCImagingTargetURL = @"Packages/Extras/rc.imaging";
-NSString *const NBCImagrRCImagingNBICreatorTargetURL = @"etc/rc.imaging";
 NSString *const NBCImagrRCInstallTargetURL = @"etc/rc.install";
 NSString *const NBCImagrGitHubRepository = @"grahamgilbert/imagr";
 
 NSString *const NBCNBICreatorGitHubRepository = @"NBICreator/NBICreator";
 NSString *const NBCNBICreatorResourcesGitHubRepository = @"NBICreator/NBICreatorResources";
 
+
+
+NSString *const NBCJSSPreferencePlistTargetURL = @"Packages/com.jamfsoftware.jss.plist";
+NSString *const NBCJSSPreferencePlistNBICreatorTargetURL = @"Library/Preferences/com.jamfsoftware.jss.plist";
+
+
+
 NSString *const NBCCasperImagingBundleIdentifier = @"com.jamfsoftware.CasperImaging";
+NSString *const NBCCasperImagingApplicationTargetURL = @"Packages/Casper Imaging.app";
+NSString *const NBCCasperImagingApplicationNBICreatorTargetURL = @"Applications/Casper Imaging.app";
+
+
+NSString *const NBCRCImagingTargetURL = @"Packages/Extras/rc.imaging";
+NSString *const NBCRCImagingNBICreatorTargetURL = @"etc/rc.imaging";
 
 // --------------------------------------------------------------
 //  NBCDownloader

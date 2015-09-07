@@ -89,11 +89,11 @@
 
 
 @property (weak) IBOutlet NSTextField *textFieldTrustedServersCount;
-
 @property (strong) IBOutlet NSPopover *popOverManageTrustedServers;
-@property (weak) IBOutlet NSButton *buttonManageTrustedServers;
 - (IBAction)buttonManageTrustedServers:(id)sender;
 @property (weak) IBOutlet NSTableView *tableViewTrustedServers;
+
+@property BOOL addTrustedNetBootServers;
 @property NSMutableArray *trustedServers;
 
 @property (weak) IBOutlet NSButton *buttonAddTrustedServer;

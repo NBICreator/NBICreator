@@ -8,17 +8,15 @@
 
 #import "NBCImagrWorkflowNBI.h"
 #import "NBCConstants.h"
-
-#import "NBCController.h"
-#import "NBCWorkflowNBIController.h"
-#import "NBCImagrWorkflowModifyNBI.h"
-
-#import "NBCDiskImageController.h"
+#import "NBCLogging.h"
 
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCLogging.h"
+
 #import "NBCWorkflowProgressViewController.h"
+#import "NBCWorkflowNBIController.h"
+
+#import "NBCImagrWorkflowModifyNBI.h"
 
 DDLogLevel ddLogLevel;
 
@@ -31,12 +29,9 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Starting workflow Imagr NBI...");
     [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
-    DDLogDebug(@"[DEBUG] _nbiVolumeName=%@", _nbiVolumeName);
     [self setTemporaryNBIURL:[workflowItem temporaryNBIURL]];
-    DDLogDebug(@"[DEBUG] _temporaryNBIURL=%@", _temporaryNBIURL);
     if ( ! _temporaryNBIURL ) {
         DDLogError(@"[ERROR] Got no path to temporary NBI folder");
         NSDictionary *errorUserInfo = @{
@@ -66,7 +61,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)runWorkflowNBICreator:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Using NBICreator to create base NBI");
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -75,15 +69,12 @@ DDLogLevel ddLogLevel;
     //  Get used space for BaseSystem.dmg for copy progress bar
     // -------------------------------------------------------------
     NSURL *baseSystemURL = [[workflowItem source] baseSystemURL];
-    DDLogDebug(@"[DEBUG] baseSystemURL=%@", baseSystemURL);
     NSString *baseSystemPath = [baseSystemURL path];
-    DDLogDebug(@"[DEBUG] baseSystemPath=%@", baseSystemPath);
     if ( [baseSystemPath length] != 0 ) {
         NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:baseSystemPath error:&error];
         if ( [volumeAttributes count] != 0 ) {
             double fileSize = [volumeAttributes[NSFileSize] doubleValue];
             [self setTemporaryNBIBaseSystemSize:fileSize];
-            DDLogDebug(@"[DEBUG] _temporaryNBIBaseSystemSize=%f", _temporaryNBIBaseSystemSize);
         } else {
             DDLogError(@"[ERROR] Could not get volumeAttributes from InstallESD Volume");
             NSDictionary *userInfo = nil;
@@ -113,7 +104,6 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     DDLogInfo(@"Creating NBI folder...");
     NSURL *temporaryNBIx86FolderURL = [_temporaryNBIURL URLByAppendingPathComponent:@"i386/x86_64"];
-    DDLogDebug(@"[DEBUG] temporaryNBIx86FolderURL=%@", temporaryNBIx86FolderURL);
     if ( temporaryNBIx86FolderURL ) {
         if ( ! [fm createDirectoryAtURL:temporaryNBIx86FolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
             DDLogError(@"[ERROR] Could not create NBI folder!");
@@ -129,18 +119,14 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     DDLogInfo(@"Copying BaseSystem.dmg from source to NBI folder...");
     [self setCopyComplete:NO];
-    DDLogDebug(@"[DEBUG] _copyComplete=%hhd", _copyComplete);
     NSURL *baseSystemTargetURL = [_temporaryNBIURL URLByAppendingPathComponent:@"BaseSystem.dmg"];
-    DDLogDebug(@"[DEBUG] baseSystemTargetURL=%@", baseSystemTargetURL);
     [self setTemporaryNBIBaseSystemPath:[baseSystemTargetURL path]];
-    DDLogDebug(@"[DEBUG] _temporaryNBIBaseSystemPath=%@", _temporaryNBIBaseSystemPath);
     [[workflowItem target] setBaseSystemURL:baseSystemTargetURL];
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(taskQueue, ^{
         NSError *blockError;
         if ( ! [fm copyItemAtURL:baseSystemURL toURL:baseSystemTargetURL error:&blockError] ) {
             [self setCopyComplete:YES];
-            DDLogDebug(@"[DEBUG] _copyComplete=%hhd", self->_copyComplete);
             dispatch_async(dispatch_get_main_queue(), ^{
                 DDLogError(@"[ERROR] Could not copy BaseSystem.dmg to NBI folder!");
                 NSDictionary *userInfo = nil;
@@ -155,7 +141,6 @@ DDLogLevel ddLogLevel;
             });
         } else {
             [self setCopyComplete:YES];
-            DDLogDebug(@"[DEBUG] _copyComplete=%hhd", self->_copyComplete);
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self createNBIFilesNBICreator:workflowItem baseSystemTemporaryURL:baseSystemTargetURL];
             });
@@ -173,7 +158,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)createNBIFilesNBICreator:(NBCWorkflowItem *)workflowItem baseSystemTemporaryURL:(NSURL *)baseSystemTemporaryURL {
-    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Copying NBI specific files...");
     NSError *error;
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -190,9 +174,7 @@ DDLogLevel ddLogLevel;
             DDLogInfo(@"Copying booter file...");
             [_delegate updateProgressStatus:@"Copying booter file..." workflow:self];
             NSURL *booterSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/boot.efi"];
-            DDLogDebug(@"[DEBUG] booterSourceURL=%@", booterSourceURL);
             NSURL *booterTargetURL = [_temporaryNBIURL URLByAppendingPathComponent:@"i386/booter"];
-            DDLogDebug(@"[DEBUG] booterTargetURL=%@", booterTargetURL);
             
             if ( ! [fm copyItemAtURL:booterSourceURL toURL:booterTargetURL error:&error] ) {
                 DDLogError(@"[ERROR] Could not copy booter file!");
@@ -214,13 +196,11 @@ DDLogLevel ddLogLevel;
             [_delegate updateProgressStatus:@"Copying PlatformSupport.plist..." workflow:self];
             NSURL *platformSupportSourceURL;
             NSURL *platformSupportTargetURL = [_temporaryNBIURL URLByAppendingPathComponent:@"i386/PlatformSupport.plist"];
-            DDLogDebug(@"[DEBUG] platformSupportTargetURL=%@", platformSupportTargetURL);
             if ( [[[workflowItem source] sourceVersion] containsString:@"10.7"] ) {
                 platformSupportSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/com.apple.recovery.boot/PlatformSupport.plist"];
             } else {
                 platformSupportSourceURL = [baseSystemTemporaryVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/PlatformSupport.plist"];
             }
-            DDLogDebug(@"[DEBUG] platformSupportSourceURL=%@", platformSupportSourceURL);
             if ( ! [fm copyItemAtURL:platformSupportSourceURL toURL:platformSupportTargetURL error:&error] ) {
                 DDLogError(@"[ERROR] Error while copying platform support plist");
                 DDLogError(@"[ERROR] %@", [error localizedDescription]);
@@ -243,7 +223,6 @@ DDLogLevel ddLogLevel;
                     //[self generateKernelCacheForNBI:workflowItem];
                     
                 } else {
-                    DDLogDebug(@"[DEBUG] kernelCacheSourceURL=%@", kernelCacheSourceURL);
                     if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
                         [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
                     } else {
@@ -257,7 +236,6 @@ DDLogLevel ddLogLevel;
                     }
                 }
             } else {
-                DDLogDebug(@"[DEBUG] kernelCacheSourceURL=%@", kernelCacheSourceURL);
                 if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
                     [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
                 } else {
@@ -275,10 +253,9 @@ DDLogLevel ddLogLevel;
         DDLogError(@"Resizing BaseSystem.dmg failed!");
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
-}
+} // createNBIFilesNBICreator
 
 - (void)runWorkflowSystemImageUtility:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Using System Image Utitlity to create base NBI");
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
@@ -288,15 +265,12 @@ DDLogLevel ddLogLevel;
     //  Get used space on InstallESD source volume for progress bar
     // -------------------------------------------------------------
     NSString *installESDVolumePath = [[[workflowItem source] installESDVolumeURL] path];
-    DDLogDebug(@"[DEBUG] installESDVolumePath=%@", installESDVolumePath);
     if ( [installESDVolumePath length] != 0 ) {
         NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfFileSystemForPath:installESDVolumePath error:&err];
-        DDLogDebug(@"[DEBUG] volumeAttributes=%@", volumeAttributes);
         if ( [volumeAttributes count] != 0 ) {
             double maxSize = [volumeAttributes[NSFileSystemSize] doubleValue];
             double freeSize = [volumeAttributes[NSFileSystemFreeSize] doubleValue];
             [self setNetInstallVolumeSize:( maxSize - freeSize )];
-            DDLogDebug(@"[DEBUG] _netInstallVolumeSize=%f", _netInstallVolumeSize);
         } else {
             DDLogError(@"[ERROR] No attributes returned for InstallESD Volume");
             DDLogError(@"[ERROR] %@", err);
@@ -310,7 +284,6 @@ DDLogLevel ddLogLevel;
     //  Create arguments array for createNetInstall.sh
     // -------------------------------------------------------------
     NSArray *createNetInstallArguments = [nbiController generateScriptArgumentsForCreateNetInstall:workflowItem];
-    DDLogDebug(@"[DEBUG] createNetInstallArguments=%@", createNetInstallArguments);
     if ( [createNetInstallArguments count] != 0 ) {
         [workflowItem setScriptArguments:createNetInstallArguments];
     } else {
@@ -322,7 +295,6 @@ DDLogLevel ddLogLevel;
     //  Create environment variables for createNetInstall.sh
     // -------------------------------------------------------------
     NSDictionary *environmentVariables = [nbiController generateEnvironmentVariablesForCreateNetInstall:workflowItem];
-    DDLogDebug(@"[DEBUG] environmentVariables=%@", environmentVariables);
     if ( [environmentVariables count] != 0 ) {
         [workflowItem setScriptEnvironmentVariables:environmentVariables];
     } else {
@@ -336,7 +308,6 @@ DDLogLevel ddLogLevel;
     //  Copy required files to NBI folder
     // -------------------------------------------------------------
     NSURL *createCommonURL = [[workflowItem applicationSource] createCommonURL];
-    DDLogDebug(@"[DEBUG] createCommonURL=%@", createCommonURL);
     if ( createCommonURL ) {
         if ( ! [self prepareDestinationFolder:_temporaryNBIURL createCommonURL:createCommonURL workflowItem:workflowItem error:&err] ) {
             DDLogError(@"[ERROR] Errror preparing destination folder");
@@ -412,9 +383,7 @@ DDLogLevel ddLogLevel;
     NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
     [helperConnector connectToHelper];
     
-    NSLog(@"_messageDelegate=%@", _messageDelegate);
     [[helperConnector connection] setExportedObject:_messageDelegate];
-    NSLog(@"[helperConnector connection] exportedObject=%@", [[helperConnector connection] exportedObject]),
     [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCMessageDelegate)]];
     
     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
@@ -436,7 +405,6 @@ DDLogLevel ddLogLevel;
     }] runTaskWithCommandAtPath:commandURL arguments:createNetInstallArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-            DDLogDebug(@"[DEBUG] terminationStatus=%d", terminationStatus);
             if ( terminationStatus == 0 ) {
                 // ------------------------------------------------------------------
                 //  If task exited successfully, post workflow complete notification
@@ -461,7 +429,7 @@ DDLogLevel ddLogLevel;
             }
         }];
     }];
-} // runWorkflow
+} // runWorkflowSystemImageUtility
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -470,7 +438,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)prepareDestinationFolder:(NSURL *)destinationFolderURL createCommonURL:(NSURL *)createCommonURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
-    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
     BOOL retval = NO;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -481,20 +448,17 @@ DDLogLevel ddLogLevel;
     if ( ! temporaryItemsNBI ) {
         temporaryItemsNBI = [[NSMutableArray alloc] init];
     }
-    DDLogDebug(@"[DEBUG] temporaryItemsNBI=%@", temporaryItemsNBI);
     
     // ------------------------------------------------------------------
     //  Save URL for NBI NetInstall.dmg
     // ------------------------------------------------------------------
     NSURL *nbiNetInstallURL = [destinationFolderURL URLByAppendingPathComponent:@"NetInstall.dmg"];
-    DDLogDebug(@"[DEBUG] nbiNetInstallURL=%@", nbiNetInstallURL);
     [[workflowItem target] setNbiNetInstallURL:nbiNetInstallURL];
     
     // -------------------------------------------------------------------------------------
     //  Copy createCommon.sh to NBI folder for createNetInstall.sh to use when building NBI
     // -------------------------------------------------------------------------------------
     NSURL *createCommonDestinationURL = [destinationFolderURL URLByAppendingPathComponent:@"createCommon.sh"];
-    DDLogDebug(@"[DEBUG] createCommonDestinationURL=%@", createCommonDestinationURL);
     if ( [fileManager isReadableFileAtPath:[createCommonURL path]] ) {
         if ( [fileManager copyItemAtURL:createCommonURL toURL:createCommonDestinationURL error:error] ) {
             [temporaryItemsNBI addObject:createCommonDestinationURL];
@@ -514,7 +478,6 @@ DDLogLevel ddLogLevel;
 } // prepareDestinationFolder:createCommonURL:workflowItem:error
 
 - (void)removeTemporaryItems:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
     
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
@@ -522,9 +485,7 @@ DDLogLevel ddLogLevel;
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSArray *temporaryItemsNBI = [workflowItem temporaryItemsNBI];
-    DDLogDebug(@"[DEBUG] temporaryItemsNBI=%@", temporaryItemsNBI);
     for ( NSURL *temporaryItemURL in temporaryItemsNBI ) {
-        DDLogDebug(@"[DEBUG] temporaryItemURL=%@", temporaryItemURL);
         if ( ! [fileManager removeItemAtURL:temporaryItemURL error:&error] ) {
             DDLogError(@"[ERROR] Failed Deleting file: %@", [temporaryItemURL path] );
             DDLogError(@"%@", error);
@@ -539,8 +500,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateNetInstallWorkflowStatus:(NSString *)outStr stdErr:(NSString *)stdErr {
-    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
-    DDLogDebug(@"[createNetInstall.sh] %@", outStr);
     
     // -------------------------------------------------------------
     //  Check if string begins with chosen prefix or with PERCENT:
@@ -601,7 +560,6 @@ DDLogLevel ddLogLevel;
 } // updateNetInstallWorkflowStatus:stdErr
 
 - (void)checkDiskVolumeName:(id)sender {
-    DDLogDebug(@"[DEBUG] %@", NSStringFromSelector(_cmd));
     
     // --------------------------------------------------------------------------------
     //  Verify that the volumeName is the expected NBI volume name.

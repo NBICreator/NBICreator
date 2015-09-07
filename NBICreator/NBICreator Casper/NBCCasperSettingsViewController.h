@@ -96,6 +96,15 @@
 
 @property NSString *casperImagingVersion;
 @property BOOL verifyingJSS;
+@property (weak) IBOutlet NSButton *checkboxAllowInvalidCertificate;
+
+@property (weak) IBOutlet NSImageView *imageViewVerifyJSSStatus;
+
+@property (weak) IBOutlet NSButton *buttonDownloadJSSCertificate;
+- (IBAction)buttonDownloadJSSCertificate:(id)sender;
+
+@property (weak) IBOutlet NSButton *buttonShowJSSCertificate;
+- (IBAction)buttonShowJSSCertificate:(id)sender;
 
 @property (weak) IBOutlet NSButton *buttonLaunchPadRestrictions;
 - (IBAction)buttonLaunchPadRestrictions:(id)sender;
@@ -166,6 +175,10 @@
 
 @property NSString *casperImagingPath;
 @property NSString *casperJSSURL;
+@property BOOL allowInvalidCertificate;
+@property BOOL jssURLValid;
+
+
 @property BOOL useBackgroundImage;
 @property NSString *imageBackgroundURL;
 @property NSString *imageBackground;

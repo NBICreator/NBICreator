@@ -45,6 +45,7 @@ extern NSString *const NBCFolderResources;
 extern NSString *const NBCFolderResourcesDeployStudio;
 extern NSString *const NBCFolderResourcesPython;
 extern NSString *const NBCFolderResourcesImagr;
+extern NSString *const NBCFolderResourcesCasper;
 extern NSString *const NBCFolderResourcesSource;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,6 +134,7 @@ extern NSString *const NBCSettingsKeyboardLayoutKey;
 extern NSString *const NBCSettingsDescriptionKey;
 extern NSString *const NBCSettingsDestinationFolderKey;
 extern NSString *const NBCSettingsIconKey;
+extern NSString *const NBCSettingsAddTrustedNetBootServersKey;
 extern NSString *const NBCSettingsTrustedNetBootServersKey;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,6 +170,8 @@ extern NSString *const NBCSettingsCountry;
 
 extern NSString *const NBCSettingsCasperImagingPathKey;
 extern NSString *const NBCSettingsCasperJSSURLKey;
+extern NSString *const NBCSettingsCasperAllowInvalidCertificateKey;
+extern NSString *const NBCSettingsCasperJSSCACertificateKey;
 
 // --------------------------------------------------------------
 //  Template Settings Imagr
@@ -431,14 +435,23 @@ extern NSString *const NBCImagrApplicationTargetURL;
 extern NSString *const NBCImagrApplicationNBICreatorTargetURL;
 extern NSString *const NBCImagrConfigurationPlistTargetURL;
 extern NSString *const NBCImagrConfigurationPlistNBICreatorTargetURL;
-extern NSString *const NBCImagrRCImagingTargetURL;
-extern NSString *const NBCImagrRCImagingNBICreatorTargetURL;
+
 extern NSString *const NBCImagrRCInstallTargetURL;
 extern NSString *const NBCImagrGitHubRepository;
 
 
+extern NSString *const NBCCasperImagingApplicationTargetURL;
+extern NSString *const NBCCasperImagingApplicationNBICreatorTargetURL;
+
 extern NSString *const NBCNBICreatorGitHubRepository;
 extern NSString *const NBCNBICreatorResourcesGitHubRepository;
+
+extern NSString *const NBCRCImagingTargetURL;
+extern NSString *const NBCRCImagingNBICreatorTargetURL;
+
+
+extern NSString *const NBCJSSPreferencePlistTargetURL;
+extern NSString *const NBCJSSPreferencePlistNBICreatorTargetURL;
 
 // --------------------------------------------------------------
 //  Certificate TableView Keys

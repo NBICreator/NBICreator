@@ -578,4 +578,154 @@ DDLogLevel ddLogLevel;
     return rcImaging;
 }
 
++ (NSString *)generateCasperRCImagingForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
+    
+    if ( [settingsDict[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
+        NSString *setDate = [NSString stringWithFormat:@"\n"
+                             "###\n"
+                             "### Set Date\n"
+                             "###\n"
+                             "if [ -e /etc/ntp.conf ]; then\n"
+                             "{"
+                             "\tNTP_SERVERS=$( /usr/bin/awk '{ print $NF }' /etc/ntp.conf )\n"
+                             "\tfor NTP_SERVER in ${NTP_SERVERS}; do\n"
+                             "\t\t/usr/sbin/ntpdate -u \"${NTP_SERVER}\" 2>/dev/null\n"
+                             "\t\tif [ ${?} -eq 0 ]; then\n"
+                             "\t\t\tbreak\n"
+                             "\t\tfi\n"
+                             "\tdone\n"
+                             "} &\n"
+                             "fi\n"];
+        
+        rcImaging = [rcImaging stringByAppendingString:setDate];
+    }
+    
+    NSString *disableGatekeeper = [NSString stringWithFormat:@"\n"
+                                   "###\n"
+                                   "### Disable Gatekeeper\n"
+                                   "###\n"
+                                   "if [ -e /usr/sbin/spctl ]; then\n"
+                                   "\t/usr/sbin/spctl --master-disable\n"
+                                   "fi\n"];
+    rcImaging = [rcImaging stringByAppendingString:disableGatekeeper];
+    
+    if ( settingsDict[NBCSettingsARDPasswordKey] ) {
+        NSString *startScreensharing;
+        if ( osMinorVersion <= 7 ) {
+            startScreensharing = [NSString stringWithFormat:@"\n"
+                                  "### \n"
+                                  "### Start Screensharing\n"
+                                  "###\n"
+                                  "if [ -e /Library/Preferences/com.apple.VNCSettings.txt ]; then\n"
+                                  "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.screensharing.agent.plist\n"
+                                  "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.RemoteDesktop.plist\n"
+                                  "fi\n"];
+        } else if ( 8 <= osMinorVersion ) {
+            startScreensharing = [NSString stringWithFormat:@"\n"
+                                  "### \n"
+                                  "### Start Screensharing\n"
+                                  "###\n"
+                                  "if [ -e /Library/Preferences/com.apple.VNCSettings.txt ]; then\n"
+                                  "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.screensharing.MessagesAgent.plist\n"
+                                  "fi\n"];
+        }
+        
+        rcImaging = [rcImaging stringByAppendingString:startScreensharing];
+    }
+    
+    NSString *displaySleepMinutes;
+    if ( [settingsDict[NBCSettingsDisplaySleepKey] boolValue] ) {
+        displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
+    } else {
+        displaySleepMinutes = @"0";
+    }
+    
+    NSString *powerManagement = @"";
+    if ( osMinorVersion <= 8 ) {
+        powerManagement = [NSString stringWithFormat:@"\n"
+                           "###\n"
+                           "### Set power management policy\n"
+                           "###\n"
+                           "(sleep 30; /usr/bin/pmset force -a sleep 0 displaysleep %@ lessbright 0 powerbutton 0 disksleep 0 ) &\n", displaySleepMinutes];
+    } else {
+        powerManagement = [NSString stringWithFormat:@"\n"
+                           "###\n"
+                           "### Set power management policy\n"
+                           "###\n"
+                           "(sleep 30; /usr/bin/pmset force -a sleep 0 displaysleep %@ lessbright 0 disksleep 0 ) &\n", displaySleepMinutes];
+    }
+    
+    rcImaging = [rcImaging stringByAppendingString:powerManagement];
+    
+    NSString *hostname = [NSString stringWithFormat:@"\n"
+                          "###\n"
+                          "### Set Temporary Hostname\n"
+                          "###\n"
+                          "computer_name=Mac-$( /usr/sbin/ioreg -rd1 -c IOPlatformExpertDevice | /usr/bin/awk -F'\"' '/IOPlatformSerialNumber/ { print $4 }' )\n"
+                          "if [[ -n ${computer_name} ]]; then\n"
+                          "\tcomputer_hostname=$( /usr/bin/tr '[:upper:]' '[:lower:]' <<< \"${computer_name}\" )\n"
+                          "\t/usr/sbin/scutil --set ComputerName  \"${computer_name}\"\n"
+                          "\t/usr/sbin/scutil --set LocalHostName \"${computer_hostname}\"\n"
+                          "fi\n"];
+    rcImaging = [rcImaging stringByAppendingString:hostname];
+    
+    NSString *enableDiskUtilDebugMenu = [NSString stringWithFormat:@"\n"
+                                         "###\n"
+                                         "### Enable DiskUtility Debug menu\n"
+                                         "###\n"
+                                         "/usr/bin/defaults write com.apple.DiskUtility DUShowEveryPartition -bool YES\n"];
+    rcImaging = [rcImaging stringByAppendingString:enableDiskUtilDebugMenu];
+    
+    if ( [settingsDict[NBCSettingsCertificatesKey] count] != 0 ) {
+        NSString *addCertificates = [NSString stringWithFormat:@"\n"
+                                     "###\n"
+                                     "### Add Certificates\n"
+                                     "###\n"
+                                     "if [ -e /usr/local/certificates ]; then\n"
+                                     "\t/usr/local/scripts/installCertificates.bash\n"
+                                     "fi\n"];
+        rcImaging = [rcImaging stringByAppendingString:addCertificates];
+    }
+    
+    
+    if ( [settingsDict[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+        NSString *startDesktopViewer = [NSString stringWithFormat:@"\n"
+                                        "###\n"
+                                        "### Start NBICreatorDesktopViewer\n"
+                                        "###\n"
+                                        "/Applications/NBICreatorDesktopViewer.app/Contents/MacOS/NBICreatorDesktopViewer &\n"];
+        rcImaging = [rcImaging stringByAppendingString:startDesktopViewer];
+    }
+    
+    NSString *startImagr;
+    if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemNBICreator] ) {
+        startImagr = [NSString stringWithFormat:@"\n"
+                      "###\n"
+                      "### Start Imagr\n"
+                      "###\n"
+                      "/Applications/Imagr.app/Contents/MacOS/Imagr\n"];
+    } else if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
+        startImagr = [NSString stringWithFormat:@"\n"
+                      "###\n"
+                      "### Start Imagr\n"
+                      "###\n"
+                      "/Volumes/Image\\ Volume/Packages/Imagr.app/Contents/MacOS/Imagr\n"];
+    }
+    rcImaging = [rcImaging stringByAppendingString:startImagr];
+    
+    if ( [settingsDict[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
+        NSString *stopSystemUIServer = [NSString stringWithFormat:@"\n"
+                                        "###\n"
+                                        "### Stop SystemUIServer\n"
+                                        "###\n"
+                                        "/bin/launchctl unload /System/Library/LaunchDaemons/com.apple.SystemUIServer.plist\n"];
+        rcImaging = [rcImaging stringByAppendingString:stopSystemUIServer];
+    }
+    
+    return rcImaging;
+}
+
+
 @end

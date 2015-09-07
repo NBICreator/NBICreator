@@ -14,7 +14,6 @@
 @class NBCTarget;
 @class NBCTargetController;
 @class NBCWorkflowItem;
-//@class NBCWorkflowProgressViewController;
 
 @protocol NBCImagrWorkflowModifyNBIDelegate
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;
