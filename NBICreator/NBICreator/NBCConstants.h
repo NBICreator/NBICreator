@@ -172,6 +172,7 @@ extern NSString *const NBCSettingsCasperImagingPathKey;
 extern NSString *const NBCSettingsCasperJSSURLKey;
 extern NSString *const NBCSettingsCasperAllowInvalidCertificateKey;
 extern NSString *const NBCSettingsCasperJSSCACertificateKey;
+extern NSString *const NBCSettingsCasperImagingDebugModeKey;
 
 // --------------------------------------------------------------
 //  Template Settings Imagr
@@ -503,6 +504,7 @@ extern NSString *const NBCHelpURL;
 extern NSString *const NBCVariableIndexCounter;
 extern NSString *const NBCVariableDate;
 extern NSString *const NBCVariableNBICreatorVersion;
+extern NSString *const NBCVariableCasperImagingVersion;
 extern NSString *const NBCVariableApplicationResourcesURL;
 
 extern NSString *const NBCTableViewIdentifierCertificates;

@@ -186,6 +186,7 @@ NSString *const NBCSettingsCasperImagingPathKey = @"CasperImagingPath";
 NSString *const NBCSettingsCasperJSSURLKey = @"CasperJSSURL";
 NSString *const NBCSettingsCasperAllowInvalidCertificateKey = @"CasperAllowInvalidCertificate";
 NSString *const NBCSettingsCasperJSSCACertificateKey = @"CasperJSSCACertificateSignature";
+NSString *const NBCSettingsCasperImagingDebugModeKey = @"CasperImagingDebugMode";
 
 
 NSString *const NBCCasperJSSCertificateURLPath = @"/CA/SCEP";
@@ -425,7 +426,7 @@ NSString *const NBCNBICreatorResourcesGitHubRepository = @"NBICreator/NBICreator
 
 
 NSString *const NBCJSSPreferencePlistTargetURL = @"Packages/com.jamfsoftware.jss.plist";
-NSString *const NBCJSSPreferencePlistNBICreatorTargetURL = @"Library/Preferences/com.jamfsoftware.jss.plist";
+NSString *const NBCJSSPreferencePlistNBICreatorTargetURL = @"var/root/Library/Preferences/com.jamfsoftware.jss.plist";
 
 
 
@@ -529,6 +530,7 @@ NSString *const NBCHelpURL = @"https://github.com/NBICreator/NBICreator/wiki";
 NSString *const NBCVariableIndexCounter = @"%COUNTER%";
 NSString *const NBCVariableDate = @"%DATE%";
 NSString *const NBCVariableNBICreatorVersion = @"%NBCVERSION%";
+NSString *const NBCVariableCasperImagingVersion = @"%CIMVERSION%";
 NSString *const NBCVariableApplicationResourcesURL = @"%APPLICATIONRESOURCESURL%";
 
 NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
