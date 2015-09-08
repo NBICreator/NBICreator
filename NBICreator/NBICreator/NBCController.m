@@ -739,7 +739,6 @@ enum {
     // --------------------------------------------------------------
     _internetReachableFoo.reachableBlock = ^(Reachability*reach) {
 #pragma unused(reach)
-        DDLogDebug(@"Reachability: %@ is reachable!", hostToCheck);
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf hideNoInternetConnection];
             
