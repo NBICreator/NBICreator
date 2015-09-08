@@ -563,70 +563,75 @@ DDLogLevel ddLogLevel;
         
         NSString *sourceExtension = [sourceURL pathExtension];
         if ( [sourceExtension isEqualToString:@"nbi"] ) {
-
-            // ----------------------------------------------------------------
-            //  If source is an nbi, verify it contains a valid NetInstall.dmg
-            // ----------------------------------------------------------------
-            NSString *rootPath;
-            NSURL *nbImageInfoURL = [sourceURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
-            if ( [nbImageInfoURL checkPromisedItemIsReachableAndReturnError:&error] ) {
-                NSDictionary *nbImageInfoDict = [NSDictionary dictionaryWithContentsOfURL:nbImageInfoURL];
-                if ( nbImageInfoDict ) {
-                    [newSource setNbImageInfo:nbImageInfoDict];
-                    rootPath = nbImageInfoDict[@"RootPath"];
-                } else {
-                    errorMessage = @"Could not read NBImageInfo.plist dict";
-                    NSLog(@"Could not read NBImageInfo.plist dict");
-                    verified = NO;
-                }
-            } else {
-                errorMessage = @"Could not find NBImageInfo.plist from dropped NBI";
-                NSLog(@"Could not find NBImageInfo.plist from dropped NBI");
-                NSLog(@"Error: %@", error);
-                verified = NO;
-            }
-            
-            if ( verified && [rootPath length] != 0 ) {
-                NSURL *nbiNetInstallURL = [sourceURL URLByAppendingPathComponent:rootPath];
-                if ( [nbiNetInstallURL checkResourceIsReachableAndReturnError:&error] ) {
-                    NSLog(@"nbiNetInstallURL=%@", nbiNetInstallURL);
-                    newTarget = [[NBCTarget alloc] init];
-                    NBCTargetController *targetController = [[NBCTargetController alloc] init];
-                    verified = [targetController verifyNetInstallFromDiskImageURL:nbiNetInstallURL target:newTarget error:&error];
-                    if ( verified ) {
-                        verified = [targetController verifyBaseSystemFromTarget:newTarget source:newSource error:&error];
-                        if ( verified ) {
-                            [newSource setSourceURL:sourceURL];
-                            [newSource setSourceType:NBCSourceTypeNBI];
-                        } else {
-                            errorMessage = @"BaseSystem Verify Failed!";
-                            NSLog(@"BaseSystem Verify Failed!");
-                            NSLog(@"BaseSystem Error: %@", error);
-                        }
-                    } else {
-                        errorMessage = @"NetInstall Verify Failed!";
-                        NSLog(@"NetInstall Verify Failed!");
-                        NSLog(@"NetInstall Error: %@", error);
-                        newTarget = nil;
-                        newTarget = [[NBCTarget alloc] init];
-                        [newTarget setNbiURL:sourceURL];
-                        [newTarget setBaseSystemURL:nbiNetInstallURL];
-                        verified = [targetController verifyBaseSystemFromTarget:newTarget source:newSource error:&error];
-                        if ( verified ) {
-                            [newSource setSourceURL:sourceURL];
-                            [newSource setSourceType:NBCSourceTypeNBI];
-                        } else {
-                            errorMessage = @"BaseSystem Verify Failed!";
-                            NSLog(@"BaseSystem Verify Failed!");
-                            NSLog(@"BaseSystem Error: %@", error);
-                        }
-                    }
-                } else {
-                    errorMessage = @"Could not find nbiNetInstallURL in NBI!";
-                    NSLog(@"Could not find nbiNetInstallURL in NBI!");
-                    verified = NO;
-                }
-            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self restoreDropView];
+                [NBCAlerts showAlertFeatureNotImplemented:@"Using NBI as source"];
+            });
+            return;
+            /*
+             // ----------------------------------------------------------------
+             //  If source is an nbi, verify it contains a valid NetInstall.dmg
+             // ----------------------------------------------------------------
+             NSString *rootPath;
+             NSURL *nbImageInfoURL = [sourceURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
+             if ( [nbImageInfoURL checkPromisedItemIsReachableAndReturnError:&error] ) {
+             NSDictionary *nbImageInfoDict = [NSDictionary dictionaryWithContentsOfURL:nbImageInfoURL];
+             if ( nbImageInfoDict ) {
+             [newSource setNbImageInfo:nbImageInfoDict];
+             rootPath = nbImageInfoDict[@"RootPath"];
+             } else {
+             errorMessage = @"Could not read NBImageInfo.plist dict";
+             NSLog(@"Could not read NBImageInfo.plist dict");
+             verified = NO;
+             }
+             } else {
+             errorMessage = @"Could not find NBImageInfo.plist from dropped NBI";
+             NSLog(@"Could not find NBImageInfo.plist from dropped NBI");
+             NSLog(@"Error: %@", error);
+             verified = NO;
+             }
+             
+             if ( verified && [rootPath length] != 0 ) {
+             NSURL *nbiNetInstallURL = [sourceURL URLByAppendingPathComponent:rootPath];
+             if ( [nbiNetInstallURL checkResourceIsReachableAndReturnError:&error] ) {
+             newTarget = [[NBCTarget alloc] init];
+             NBCTargetController *targetController = [[NBCTargetController alloc] init];
+             verified = [targetController verifyNetInstallFromDiskImageURL:nbiNetInstallURL target:newTarget error:&error];
+             if ( verified ) {
+             verified = [targetController verifyBaseSystemFromTarget:newTarget source:newSource error:&error];
+             if ( verified ) {
+             [newSource setSourceURL:sourceURL];
+             [newSource setSourceType:NBCSourceTypeNBI];
+             } else {
+             errorMessage = @"BaseSystem Verify Failed!";
+             NSLog(@"BaseSystem Verify Failed!");
+             NSLog(@"BaseSystem Error: %@", error);
+             }
+             } else {
+             errorMessage = @"NetInstall Verify Failed!";
+             NSLog(@"NetInstall Verify Failed!");
+             NSLog(@"NetInstall Error: %@", error);
+             newTarget = nil;
+             newTarget = [[NBCTarget alloc] init];
+             [newTarget setNbiURL:sourceURL];
+             [newTarget setBaseSystemURL:nbiNetInstallURL];
+             verified = [targetController verifyBaseSystemFromTarget:newTarget source:newSource error:&error];
+             if ( verified ) {
+             [newSource setSourceURL:sourceURL];
+             [newSource setSourceType:NBCSourceTypeNBI];
+             } else {
+             errorMessage = @"BaseSystem Verify Failed!";
+             NSLog(@"BaseSystem Verify Failed!");
+             NSLog(@"BaseSystem Error: %@", error);
+             }
+             }
+             } else {
+             errorMessage = @"Could not find nbiNetInstallURL in NBI!";
+             NSLog(@"Could not find nbiNetInstallURL in NBI!");
+             verified = NO;
+             }
+             }
+             */
         } else {
             
             // ------------------------------------------------------

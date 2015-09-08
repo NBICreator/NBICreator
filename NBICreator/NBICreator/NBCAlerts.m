@@ -84,6 +84,21 @@ DDLogLevel ddLogLevel;
     }];
 }
 
++ (void)showAlertFeatureNotImplemented:(NSString *)featureName {
+    NSAlert *alert = [[NSAlert alloc] init];
+    NSString *featureNameString = featureName ?: @"Feature";
+    NSString *informativeText = [NSString stringWithFormat:@"%@ is not implemented yet, but will be available in a future release.", featureNameString];
+    [alert addButtonWithTitle:NBCButtonTitleOK];
+    [alert setMessageText:@"Feature Not Implemented Yet"];
+    [alert setInformativeText:informativeText];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+#pragma unused(returnCode)
+        
+    }];
+}
+
+
 + (void)showAlertUnrecognizedImagrApplication {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSAlert *alert = [[NSAlert alloc] init];

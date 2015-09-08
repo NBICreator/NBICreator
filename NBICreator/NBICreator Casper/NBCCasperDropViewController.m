@@ -563,7 +563,12 @@ DDLogLevel ddLogLevel;
         
         NSString *sourceExtension = [sourceURL pathExtension];
         if ( [sourceExtension isEqualToString:@"nbi"] ) {
-            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self restoreDropView];
+                [NBCAlerts showAlertFeatureNotImplemented:@"Using NBI as source"];
+            });
+            return;
+            /*
             // ----------------------------------------------------------------
             //  If source is an nbi, verify it contains a valid NetInstall.dmg
             // ----------------------------------------------------------------
@@ -627,6 +632,7 @@ DDLogLevel ddLogLevel;
                     verified = NO;
                 }
             }
+            */
         } else {
             
             // ------------------------------------------------------
