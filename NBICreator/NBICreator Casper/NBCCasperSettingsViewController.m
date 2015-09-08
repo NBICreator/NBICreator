@@ -133,14 +133,14 @@ DDLogLevel ddLogLevel;
     //  Set Hyperlink to "More Info" text after Allow Invalid Certificate
     // --------------------------------------------------------------
     /*
-    [_textFieldMoreInfo setAllowsEditingTextAttributes: YES];
-    [_textFieldMoreInfo setSelectable: YES];
-    NSURL* url = [NSURL URLWithString:@"https://macmule.com/projects/autocaspernbi/#Enable_Invalid_JSS_Cert_if_a_JSS_URL_is_given"];
-    NSMutableAttributedString* string = [[NSMutableAttributedString alloc] init];
-    [string appendAttributedString:[NSAttributedString hyperlinkFromString:@"More Info" withURL:url]];
-    [_textFieldMoreInfo setAttributedStringValue:string];
-    */
-     
+     [_textFieldMoreInfo setAllowsEditingTextAttributes: YES];
+     [_textFieldMoreInfo setSelectable: YES];
+     NSURL* url = [NSURL URLWithString:@"https://macmule.com/projects/autocaspernbi/#Enable_Invalid_JSS_Cert_if_a_JSS_URL_is_given"];
+     NSMutableAttributedString* string = [[NSMutableAttributedString alloc] init];
+     [string appendAttributedString:[NSAttributedString hyperlinkFromString:@"More Info" withURL:url]];
+     [_textFieldMoreInfo setAttributedStringValue:string];
+     */
+    
     // ------------------------------------------------------------------------------------------
     //  Add contextual menu to NBI background image view to allow to restore original background.
     // ------------------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ DDLogLevel ddLogLevel;
     NSMenuItem *restoreViewBackground = [[NSMenuItem alloc] initWithTitle:NBCMenuItemRestoreOriginalBackground action:@selector(restoreNBIBackground:) keyEquivalent:@""];
     [backgroundImageMenu addItem:restoreViewBackground];
     [_imageViewBackgroundImage setMenu:backgroundImageMenu];
-
+    
     // ------------------------------------------------------------------------------
     //
     // -------------------------------------------------------------------------------
@@ -856,7 +856,7 @@ DDLogLevel ddLogLevel;
     if ( source != nil ) {
         [self setSource:source];
     }
-
+    
     [self updateSettingVisibility];
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
@@ -1067,7 +1067,7 @@ DDLogLevel ddLogLevel;
             for ( NSDictionary *certDict in _certificateTableViewContents ) {
                 if ( [certDict[@"CertificateSignature"] isEqualToData:_jssCACertificate[_casperJSSURL]] ) {
                     [self updateJSSCACertificateExpirationFromDateNotValidAfter:certDict[@"CertificateNotValidAfterDate"]
-                                                                dateNotValidBefore:certDict[@"CertificateNotValidBeforeDate"]];
+                                                             dateNotValidBefore:certDict[@"CertificateNotValidBeforeDate"]];
                 }
             }
         } else {
@@ -2232,7 +2232,7 @@ DDLogLevel ddLogLevel;
                 
                 NSLocale *locale = [NSLocale localeWithLocaleIdentifier:localeFromLanguage];
                 NSString *country = [locale objectForKey:NSLocaleCountryCode];
-
+                
                 if ( [country length] != 0 ) {
                     resourcesSettings[NBCSettingsCountry] = country;
                 }
@@ -2463,85 +2463,96 @@ DDLogLevel ddLogLevel;
                 timeZoneCity = timeZone[1];
             }
             
-            NSMenuItem *cityMenyItem = [[NSMenuItem alloc] initWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
-            [cityMenyItem setEnabled:YES];
+            NSMenuItem *cityMenuItem = [[NSMenuItem alloc] initWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            [cityMenuItem setEnabled:YES];
+            [cityMenuItem setTarget:self];
             
             if ( [timeZoneRegion isEqualToString:@"Africa"] ) {
-                [menuAfrica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAfrica addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"America"] ) {
-                [menuAmerica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAmerica addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Antarctica"] ) {
-                [menuAntarctica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAntarctica addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Arctic"] ) {
-                [menuArctic addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuArctic addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Asia"] ) {
-                [menuAsia addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAsia addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Atlantic"] ) {
-                [menuAtlantic addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAtlantic addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Australia"] ) {
-                [menuAustralia addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAustralia addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Europe"] ) {
-                [menuEurope addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuEurope addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Indian"] ) {
-                [menuIndian addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuIndian addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Pacific"] ) {
-                [menuPacific addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuPacific addItem:cityMenuItem];
             }
         }
         
         [_popUpButtonTimeZone removeAllItems];
-        [_popUpButtonTimeZone setAutoenablesItems:YES];
+        [_popUpButtonTimeZone setAutoenablesItems:NO];
         [_popUpButtonTimeZone addItemWithTitle:NBCMenuItemCurrent];
         [[_popUpButtonTimeZone menu] addItem:[NSMenuItem separatorItem]];
         
         NSMenuItem *menuItemAfrica = [[NSMenuItem alloc] initWithTitle:@"Africa" action:nil keyEquivalent:@""];
         [menuItemAfrica setSubmenu:menuAfrica];
         [menuItemAfrica setTarget:self];
+        [menuItemAfrica setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemAfrica];
         
         NSMenuItem *menuItemAmerica = [[NSMenuItem alloc] initWithTitle:@"America" action:nil keyEquivalent:@""];
         [menuItemAmerica setSubmenu:menuAmerica];
         [menuItemAmerica setTarget:self];
+        [menuItemAmerica setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemAmerica];
         
         NSMenuItem *menuItemAntarctica = [[NSMenuItem alloc] initWithTitle:@"Antarctica" action:nil keyEquivalent:@""];
         [menuItemAntarctica setSubmenu:menuAntarctica];
         [menuItemAntarctica setTarget:self];
+        [menuItemAntarctica setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemAntarctica];
         
         NSMenuItem *menuItemArctic = [[NSMenuItem alloc] initWithTitle:@"Arctic" action:nil keyEquivalent:@""];
         [menuItemArctic setSubmenu:menuArctic];
         [menuItemArctic setTarget:self];
+        [menuItemArctic setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemArctic];
         
         NSMenuItem *menuItemAsia = [[NSMenuItem alloc] initWithTitle:@"Asia" action:nil keyEquivalent:@""];
         [menuItemAsia setSubmenu:menuAsia];
         [menuItemAsia setTarget:self];
+        [menuItemAsia setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemAsia];
         
         NSMenuItem *menuItemAtlantic = [[NSMenuItem alloc] initWithTitle:@"Atlantic" action:nil keyEquivalent:@""];
         [menuItemAtlantic setSubmenu:menuAtlantic];
         [menuItemAtlantic setTarget:self];
+        [menuItemAtlantic setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemAtlantic];
         
         NSMenuItem *menuItemAustralia = [[NSMenuItem alloc] initWithTitle:@"Australia" action:nil keyEquivalent:@""];
         [menuItemAustralia setSubmenu:menuAustralia];
         [menuItemAustralia setTarget:self];
+        [menuItemAustralia setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemAustralia];
         
         NSMenuItem *menuItemEurope = [[NSMenuItem alloc] initWithTitle:@"Europe" action:nil keyEquivalent:@""];
         [menuItemEurope setSubmenu:menuEurope];
         [menuItemEurope setTarget:self];
+        [menuItemEurope setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemEurope];
         
         NSMenuItem *menuItemIndian = [[NSMenuItem alloc] initWithTitle:@"Indian" action:nil keyEquivalent:@""];
         [menuItemIndian setSubmenu:menuIndian];
         [menuItemIndian setTarget:self];
+        [menuItemIndian setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemIndian];
         
         NSMenuItem *menuItemPacific = [[NSMenuItem alloc] initWithTitle:@"Pacific" action:nil keyEquivalent:@""];
         [menuItemPacific setSubmenu:menuPacific];
         [menuItemPacific setTarget:self];
+        [menuItemPacific setEnabled:YES];
         [[_popUpButtonTimeZone menu] addItem:menuItemPacific];
         
         [self setSelectedMenuItem:[_popUpButtonTimeZone selectedItem]];
@@ -2551,6 +2562,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)selectTimeZone:(id)sender {
+    NSLog(@"selectTimeZone=%@", sender);
     if ( ! [sender isKindOfClass:[NSMenuItem class]] ) {
         return;
     }
@@ -2762,7 +2774,7 @@ DDLogLevel ddLogLevel;
     if ( ! _jssVersionDownloader ) {
         _jssVersionDownloader = [[NBCDownloader alloc] initWithDelegate:self];
     }
-
+    
     NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagJSSVerify };
     [_jssVersionDownloader downloadPageAsData:jssURL downloadInfo:downloadInfo];
 }
@@ -2775,7 +2787,7 @@ DDLogLevel ddLogLevel;
         if ( error ) {
             errorMessage = [error localizedDescription];
         }
-
+        
         [self setDownloadingJSSCertificate:NO];
         NSImage *imageWarning = [NSImage imageNamed:@"NSCaution"];
         [_imageViewDownloadJSSCertificateStatus setImage:imageWarning];

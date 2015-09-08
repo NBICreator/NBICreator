@@ -34,7 +34,7 @@
                 <outlet property="popUpButtonLanguage" destination="hsy-Gd-3EY" id="xzk-Ka-o5h"/>
                 <outlet property="popUpButtonProtocol" destination="sT2-1w-Wwj" id="tCT-87-wkK"/>
                 <outlet property="popUpButtonTemplates" destination="0C6-1D-c0n" id="IL1-qq-8vi"/>
-                <outlet property="popUpButtonTimeZone" destination="9mi-zY-JOd" id="cib-ec-vDo"/>
+                <outlet property="popUpButtonTimeZone" destination="9mi-zY-JOd" id="WdQ-WJ-G8M"/>
                 <outlet property="popUpButtonTool" destination="CNk-hy-xlt" id="Wck-Qj-NcK"/>
                 <outlet property="progressIndicatorDownloadJSSCertificate" destination="hH6-kB-Qcd" id="9Yc-Hf-ln9"/>
                 <outlet property="progressIndicatorVerifyJSS" destination="aSw-BG-wJj" id="gFS-ru-dS0"/>
@@ -481,12 +481,12 @@ asdasd</string>
                                     </textField>
                                     <popUpButton horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="aQi-DQ-xmY">
                                         <rect key="frame" x="369" y="121" width="148" height="26"/>
-                                        <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="CrD-hL-Chd" id="ueS-T2-iuf">
+                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="ueS-T2-iuf">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
                                             <menu key="menu" id="ykb-90-Uof">
                                                 <items>
-                                                    <menuItem title="Current" state="on" id="CrD-hL-Chd"/>
+                                                    <menuItem title="Current" id="CrD-hL-Chd"/>
                                                     <menuItem isSeparatorItem="YES" id="0fJ-t5-LR5"/>
                                                     <menuItem title="Canadian French" id="9KY-Fv-Zzl"/>
                                                     <menuItem title="English" id="Ic6-T3-YKg"/>
@@ -521,28 +521,15 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <popUpButton horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="9mi-zY-JOd">
+                                    <popUpButton horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="9mi-zY-JOd">
                                         <rect key="frame" x="369" y="148" width="148" height="26"/>
-                                        <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" autoenablesItems="NO" selectedItem="PB8-Cm-dxH" id="xAR-QO-ERw">
+                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" autoenablesItems="NO" id="xAR-QO-ERw">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
-                                            <menu key="menu" autoenablesItems="NO" id="zVP-ow-can">
-                                                <items>
-                                                    <menuItem title="Current" state="on" id="PB8-Cm-dxH"/>
-                                                    <menuItem isSeparatorItem="YES" id="5dc-4P-Hmd"/>
-                                                    <menuItem title="Canadian French" id="QzN-K4-03q"/>
-                                                    <menuItem title="English" id="BRM-RG-NhN"/>
-                                                    <menuItem title="French" id="aRr-Cy-eaD">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                    </menuItem>
-                                                    <menuItem title="German" id="rKs-oj-4ay">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                    </menuItem>
-                                                </items>
-                                            </menu>
+                                            <menu key="menu" autoenablesItems="NO" id="zVP-ow-can"/>
                                         </popUpButtonCell>
                                         <connections>
-                                            <binding destination="-2" name="selectedValue" keyPath="self.nbiTimeZone" id="WBh-yd-wWr"/>
+                                            <binding destination="-2" name="selectedValue" keyPath="self.nbiTimeZone" id="HZf-zA-jCU"/>
                                         </connections>
                                     </popUpButton>
                                 </subviews>

@@ -32,7 +32,7 @@
                 <outlet property="popUpButtonLanguage" destination="Jqe-jq-TVI" id="KhN-gl-Djc"/>
                 <outlet property="popUpButtonProtocol" destination="QEi-LZ-Ohi" id="Oyk-kz-ABe"/>
                 <outlet property="popUpButtonTemplates" destination="xyr-NJ-OJ4" id="dP4-zt-DWY"/>
-                <outlet property="popUpButtonTimeZone" destination="mJn-mD-4rM" id="t81-rY-9u2"/>
+                <outlet property="popUpButtonTimeZone" destination="RLC-Xb-IqI" id="9Dl-RR-Lhj"/>
                 <outlet property="popUpButtonTool" destination="QBP-92-out" id="iOx-8j-NEJ"/>
                 <outlet property="secureTextFieldARDPassword" destination="R4V-bE-WQo" id="sdq-40-XCy"/>
                 <outlet property="tableViewCertificates" destination="MIA-JF-3FS" id="Tck-em-HlU"/>
@@ -500,30 +500,21 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <popUpButton horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="mJn-mD-4rM">
+                                    <popUpButton verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RLC-Xb-IqI">
                                         <rect key="frame" x="369" y="148" width="148" height="26"/>
-                                        <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" autoenablesItems="NO" selectedItem="MQp-J4-6Ee" id="gbA-qb-tL9">
+                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="NGG-SV-XYH">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
-                                            <menu key="menu" autoenablesItems="NO" id="VjY-q6-hK5">
-                                                <items>
-                                                    <menuItem title="Current" state="on" id="MQp-J4-6Ee"/>
-                                                    <menuItem isSeparatorItem="YES" id="15n-jw-daV"/>
-                                                    <menuItem title="Canadian French" id="vfE-bc-uea"/>
-                                                    <menuItem title="English" id="C8Q-9B-xN1"/>
-                                                    <menuItem title="French" id="cBq-ol-hEe">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                    </menuItem>
-                                                    <menuItem title="German" id="iDa-mk-1xX">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                    </menuItem>
-                                                </items>
-                                            </menu>
+                                            <menu key="menu" id="dP1-uZ-bwD"/>
                                         </popUpButtonCell>
+                                        <connections>
+                                            <binding destination="-2" name="selectedValue" keyPath="self.nbiTimeZone" id="k1a-kU-U1s"/>
+                                        </connections>
                                     </popUpButton>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="6hB-DJ-LNZ" firstAttribute="baseline" secondItem="XmA-LB-TPl" secondAttribute="baseline" id="0n8-kk-SZ4"/>
+                                    <constraint firstItem="RLC-Xb-IqI" firstAttribute="baseline" secondItem="E4B-0c-gtr" secondAttribute="baseline" id="4Z9-C2-scq"/>
                                     <constraint firstItem="i8P-hz-Zva" firstAttribute="trailing" secondItem="RrQ-Hp-pfP" secondAttribute="trailing" id="5aD-SN-IlK"/>
                                     <constraint firstAttribute="bottom" secondItem="qf7-lf-lTR" secondAttribute="bottom" constant="20" symbolic="YES" id="6Do-dK-XVF"/>
                                     <constraint firstItem="QEi-LZ-Ohi" firstAttribute="baseline" secondItem="RrQ-Hp-pfP" secondAttribute="baseline" id="9Ld-ho-BGq"/>
@@ -539,7 +530,6 @@ asdasd</string>
                                     <constraint firstItem="E4B-0c-gtr" firstAttribute="baseline" secondItem="RrQ-Hp-pfP" secondAttribute="baseline" id="I5X-DV-NeS"/>
                                     <constraint firstAttribute="trailing" secondItem="IQ4-bf-UuU" secondAttribute="trailing" constant="20" symbolic="YES" id="Ipi-sd-WLC"/>
                                     <constraint firstItem="Jem-YH-NJE" firstAttribute="centerY" secondItem="FG3-O7-VtP" secondAttribute="centerY" id="Lq0-r6-bkF"/>
-                                    <constraint firstItem="6hB-DJ-LNZ" firstAttribute="width" secondItem="mJn-mD-4rM" secondAttribute="width" id="N7J-Mu-cT8"/>
                                     <constraint firstItem="CAI-C8-GHD" firstAttribute="leading" secondItem="kFx-Ri-40h" secondAttribute="trailing" constant="8" symbolic="YES" id="O4p-W3-TLi"/>
                                     <constraint firstItem="Jem-YH-NJE" firstAttribute="leading" secondItem="iPa-AM-gEo" secondAttribute="leading" id="ODv-eh-5pz"/>
                                     <constraint firstItem="kFx-Ri-40h" firstAttribute="leading" secondItem="rLh-tm-Kjp" secondAttribute="leading" constant="20" symbolic="YES" id="Qnl-Gf-mug"/>
@@ -568,8 +558,8 @@ asdasd</string>
                                     <constraint firstItem="iA8-CA-5jf" firstAttribute="leading" secondItem="rLh-tm-Kjp" secondAttribute="leading" constant="20" symbolic="YES" id="iq6-m3-NU4"/>
                                     <constraint firstItem="FG3-O7-VtP" firstAttribute="trailing" secondItem="RrQ-Hp-pfP" secondAttribute="trailing" id="jf0-CI-T8I"/>
                                     <constraint firstItem="Gse-f7-DdT" firstAttribute="baseline" secondItem="Jqe-jq-TVI" secondAttribute="baseline" id="jjR-xk-MbX"/>
+                                    <constraint firstItem="RLC-Xb-IqI" firstAttribute="leading" secondItem="E4B-0c-gtr" secondAttribute="trailing" constant="8" symbolic="YES" id="k94-45-Sfv"/>
                                     <constraint firstItem="6hB-DJ-LNZ" firstAttribute="leading" secondItem="XmA-LB-TPl" secondAttribute="trailing" constant="8" symbolic="YES" id="kt1-Kh-GoK"/>
-                                    <constraint firstItem="mJn-mD-4rM" firstAttribute="leading" secondItem="E4B-0c-gtr" secondAttribute="trailing" constant="8" symbolic="YES" id="l0l-9A-5fS"/>
                                     <constraint firstItem="i8P-hz-Zva" firstAttribute="trailing" secondItem="Gse-f7-DdT" secondAttribute="trailing" id="l5c-Hn-fLt"/>
                                     <constraint firstItem="CAI-C8-GHD" firstAttribute="top" secondItem="Afi-kT-98c" secondAttribute="bottom" constant="8" symbolic="YES" id="maG-wi-SH9"/>
                                     <constraint firstItem="i8P-hz-Zva" firstAttribute="top" secondItem="iA8-CA-5jf" secondAttribute="bottom" constant="10" id="mm5-wa-cz2"/>
@@ -578,7 +568,7 @@ asdasd</string>
                                     <constraint firstItem="Jem-YH-NJE" firstAttribute="top" secondItem="rLh-tm-Kjp" secondAttribute="top" constant="10" id="qBM-qD-gtE"/>
                                     <constraint firstItem="uBE-Fx-sNU" firstAttribute="baseline" secondItem="Afi-kT-98c" secondAttribute="baseline" id="uG7-NJ-SLi"/>
                                     <constraint firstItem="uIY-db-Don" firstAttribute="leading" secondItem="i8P-hz-Zva" secondAttribute="trailing" constant="8" symbolic="YES" id="vpo-DE-DfG"/>
-                                    <constraint firstItem="mJn-mD-4rM" firstAttribute="baseline" secondItem="E4B-0c-gtr" secondAttribute="baseline" id="w2r-pR-OtI"/>
+                                    <constraint firstItem="6hB-DJ-LNZ" firstAttribute="width" secondItem="RLC-Xb-IqI" secondAttribute="width" id="wHo-Ur-l7V"/>
                                     <constraint firstItem="jXt-HY-YLZ" firstAttribute="leading" secondItem="qf7-lf-lTR" secondAttribute="trailing" constant="8" symbolic="YES" id="wbe-ks-BhA"/>
                                     <constraint firstItem="IQ4-bf-UuU" firstAttribute="leading" secondItem="jXt-HY-YLZ" secondAttribute="trailing" constant="8" symbolic="YES" id="x0H-jE-Mc0"/>
                                     <constraint firstItem="uBE-Fx-sNU" firstAttribute="baseline" secondItem="hXV-gE-Z5m" secondAttribute="baseline" id="xgd-AM-eUt"/>

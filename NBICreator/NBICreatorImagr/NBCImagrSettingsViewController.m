@@ -2605,29 +2605,30 @@ DDLogLevel ddLogLevel;
                 timeZoneCity = timeZone[1];
             }
             
-            NSMenuItem *cityMenyItem = [[NSMenuItem alloc] initWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
-            [cityMenyItem setEnabled:YES];
+            NSMenuItem *cityMenuItem = [[NSMenuItem alloc] initWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            [cityMenuItem setEnabled:YES];
+            [cityMenuItem setTarget:self];
             
             if ( [timeZoneRegion isEqualToString:@"Africa"] ) {
-                [menuAfrica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAfrica addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"America"] ) {
-                [menuAmerica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAmerica addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Antarctica"] ) {
-                [menuAntarctica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAntarctica addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Arctic"] ) {
-                [menuArctic addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuArctic addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Asia"] ) {
-                [menuAsia addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAsia addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Atlantic"] ) {
-                [menuAtlantic addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAtlantic addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Australia"] ) {
-                [menuAustralia addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAustralia addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Europe"] ) {
-                [menuEurope addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuEurope addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Indian"] ) {
-                [menuIndian addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuIndian addItem:cityMenuItem];
             } else if ( [timeZoneRegion isEqualToString:@"Pacific"] ) {
-                [menuPacific addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuPacific addItem:cityMenuItem];
             }
         }
         
