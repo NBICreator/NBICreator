@@ -443,7 +443,7 @@
                                 <segment label="NetInstall" selected="YES"/>
                                 <segment label="DeployStudio" tag="1"/>
                                 <segment label="Imagr" tag="2"/>
-                                <segment label="Casper"/>
+                                <segment label="Casper" tag="3"/>
                             </segments>
                         </segmentedCell>
                         <connections>
