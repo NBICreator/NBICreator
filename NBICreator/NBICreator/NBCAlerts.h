@@ -33,6 +33,7 @@
 + (void)showAlertUnrecognizedImagrApplication;
 + (void)showAlertUnrecognizedCasperImagingApplication;
 + (void)showAlertRecoveryVersionMismatch;
++ (void)showAlertFeatureNotImplemented:(NSString *)featureName;
 + (void)showAlertUnrecognizedSourceForWorkflow:(int)workflowType errorMessage:(NSString *)errorMessage;
 + (void)showAlertSettingsUnchangedNBI;
 + (void)showAlertImportTemplateDuplicate:(NSString *)informativeText;
