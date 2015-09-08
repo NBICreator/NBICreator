@@ -44,7 +44,7 @@ DDLogLevel ddLogLevel;
     [self setNbiCreationTool:_userSettings[NBCSettingsNBICreationToolKey]];
     [self setResourcesSettings:[workflowItem resourcesSettings]];
     
-    // Casper.app, Casper settings, ?
+    // Casper Imaging.app, JSS Preferences
     [self setResourcesCount:3];
     
     // -------------------------------------------------------
@@ -90,12 +90,10 @@ DDLogLevel ddLogLevel;
             return;
         }
         
-        /*
-        if ( ! [self getCasperApplication:workflowItem] ) {
+        if ( ! [self prepareCasperImagingApplication:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
         }
-        */
         
         if ( ! [self createJSSPreferencePlist:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
@@ -227,6 +225,69 @@ DDLogLevel ddLogLevel;
     return retval;
 } // preparePackages
 
+- (BOOL)prepareCasperImagingApplication:(NBCWorkflowItem *)workflowItem {
+#pragma unused(workflowItem)
+    BOOL retval = YES;
+    NSDictionary *userSettings = [workflowItem userSettings];
+    NSString *casperImagingPath = userSettings[NBCSettingsCasperImagingPathKey];
+    if ( [casperImagingPath length] != 0 ) {
+        NSString *casperImagingTargetPath;
+        if ( [_target nbiNetInstallURL] ) {
+            casperImagingTargetPath = NBCCasperImagingApplicationTargetURL;
+        } else if ( [_target baseSystemURL] ) {
+            casperImagingTargetPath = NBCCasperImagingApplicationNBICreatorTargetURL;
+        }
+        NSDictionary *casperImagingAttributes  = @{
+                                                       NSFileOwnerAccountName : @"root",
+                                                       NSFileGroupOwnerAccountName : @"wheel",
+                                                       NSFilePosixPermissions : @0755
+                                                       };
+        
+        NSDictionary *casperImagingSetting = @{
+                                                       NBCWorkflowCopyType : NBCWorkflowCopy,
+                                                       NBCWorkflowCopySourceURL : casperImagingPath,
+                                                       NBCWorkflowCopyTargetURL : casperImagingTargetPath,
+                                                       NBCWorkflowCopyAttributes : casperImagingAttributes
+                                                       };
+        
+        if ( [_target nbiNetInstallURL] ) {
+            [self updateNetInstallCopyDict:casperImagingSetting];
+        } else if ( [_target baseSystemURL] ) {
+            [self updateBaseSystemCopyDict:casperImagingSetting];
+        }
+    }
+    
+    NSTask *newTask =  [[NSTask alloc] init];
+    [newTask setLaunchPath:@"/usr/bin/xattr"];
+    NSMutableArray *args = [NSMutableArray arrayWithArray:@[
+                                                            @"-d", @"com.apple.quarantine",
+                                                            casperImagingPath
+                                                            ]];
+    [newTask setArguments:args];
+    [newTask setStandardOutput:[NSPipe pipe]];
+    [newTask setStandardError:[NSPipe pipe]];
+    
+    // Launch Task
+    [newTask launch];
+    [newTask waitUntilExit];
+    
+    //newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+    //NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
+    
+    NSData *newTaskErrorData = [[newTask.standardError fileHandleForReading] readDataToEndOfFile];
+    NSString *standardError = [[NSString alloc] initWithData:newTaskErrorData encoding:NSUTF8StringEncoding];
+    
+    if ( [newTask terminationStatus] == 0 || [standardError containsString:@"No such xattr: com.apple.quarantine"] ) {
+        retval = YES;
+    } else {
+        DDLogError(@"[ERROR] Removing Quarantine Failed!");
+        DDLogError(@"[ERROR] %@", standardError);
+        retval = NO;
+    }
+
+    return retval;
+}
+
 - (BOOL)prepareCertificates:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
     BOOL retval = YES;
@@ -313,19 +374,7 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)fileDownloadCompleted:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
-    // ------------------------------------------------------
-    //  Extract info from downloadInfo Dict
-    // ------------------------------------------------------
-    NSString *resourceTag = downloadInfo[NBCDownloaderTag];
-    NSString *version = downloadInfo[NBCDownloaderVersion];
-    // ------------------------------------------------------
-    //  Send command to correct copy method based on tag
-    // ------------------------------------------------------
-    if ( [resourceTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
-        [self addCasperToResources:url version:version];
-    }
-} // fileDownloadCompleted:downloadInfo
+
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -467,53 +516,6 @@ DDLogLevel ddLogLevel;
     return retval;
 } // getCasperApplication
 */
-
-- (void)addCasperToResources:(NSURL *)downloadedFileURL version:(NSString *)version {
-    NSString *CasperApplicationTargetPath;
-    if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-        CasperApplicationTargetPath = NBCCasperImagingApplicationNBICreatorTargetURL;
-    } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-        CasperApplicationTargetPath = NBCCasperImagingApplicationTargetURL;
-    } else {
-        CasperApplicationTargetPath = [[_target casperImagingApplicationURL] path];
-        if ( [CasperApplicationTargetPath length] == 0 ) {
-            DDLogError(@"Could not get path to Casper.app from target!");
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            return;
-        }
-    }
-    
-    // ---------------------------------------------------------------
-    //  Extract Casper from dmg and copy to resourecs for future use
-    // ---------------------------------------------------------------
-    NSURL *CasperDownloadedVersionURL = [_resourcesController attachDiskImageAndCopyFileToResourceFolder:downloadedFileURL
-                                                                                               filePath:@"Casper.app"
-                                                                                        resourcesFolder:NBCFolderResourcesCasper
-                                                                                                version:version];
-    if ( CasperDownloadedVersionURL ) {
-        NSDictionary *CasperDownloadedVersionAttributes  = @{
-                                                            NSFileOwnerAccountName : @"root",
-                                                            NSFileGroupOwnerAccountName : @"wheel",
-                                                            NSFilePosixPermissions : @0755
-                                                            };
-        
-        NSDictionary *CasperDownloadedVersionCopySettings = @{
-                                                             NBCWorkflowCopyType : NBCWorkflowCopy,
-                                                             NBCWorkflowCopySourceURL : [CasperDownloadedVersionURL path],
-                                                             NBCWorkflowCopyTargetURL : CasperApplicationTargetPath,
-                                                             NBCWorkflowCopyAttributes : CasperDownloadedVersionAttributes
-                                                             };
-        if ( [_target nbiNetInstallURL] ) {
-            [self updateNetInstallCopyDict:CasperDownloadedVersionCopySettings];
-        } else if ( [_target baseSystemURL] ) {
-            [self updateBaseSystemCopyDict:CasperDownloadedVersionCopySettings];
-        }
-        [self checkCompletedResources];
-    } else {
-        DDLogError(@"Got no URL to copied Casper item, something went wrong!");
-        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-    }
-} // addCasperToResources:version
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -861,12 +863,15 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkCompletedResources {
-    
+    NSLog(@"checkCompletedResources");
     // ----------------------------------------------------------------------------------------------
     //  Check if all resources have been prepared. If they have, post notification workflow complete
     // ----------------------------------------------------------------------------------------------
     unsigned long requiredCopyResources = ( [_resourcesNetInstallCopy count] + [_resourcesBaseSystemCopy count] );
     unsigned long requiredInstallResources = ( [_resourcesNetInstallInstall count] + [_resourcesBaseSystemInstall count] );
+    NSLog(@"_resourcesCount=%d", _resourcesCount);
+    NSLog(@"(int) requiredCopyResources=%d", (int) requiredCopyResources);
+    NSLog(@"(int) requiredInstallResources=%d", (int) requiredInstallResources);
     if ( ( (int) requiredCopyResources + (int) requiredInstallResources ) == _resourcesCount ) {
         if ( [_resourcesNetInstallCopy count] != 0 ) {
             _resourcesNetInstallDict[NBCWorkflowCopy] = _resourcesNetInstallCopy;
@@ -935,36 +940,57 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)createJSSPreferencePlist:(NBCWorkflowItem *)workflowItem {
     BOOL retval = YES;
-    NSString *jssURL = _userSettings[NBCSettingsCasperJSSURLKey];
-    NSString *CasperConfigurationPlistTargetPath;
+    NSString *jssURLString = _userSettings[NBCSettingsCasperJSSURLKey];
+    NSString *jssPreferencePlistTargetPath;
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-        CasperConfigurationPlistTargetPath = NBCJSSPreferencePlistNBICreatorTargetURL;
+        jssPreferencePlistTargetPath = NBCJSSPreferencePlistNBICreatorTargetURL;
     } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-        CasperConfigurationPlistTargetPath = NBCJSSPreferencePlistTargetURL;
+        jssPreferencePlistTargetPath = NBCJSSPreferencePlistTargetURL;
     } else {
-        CasperConfigurationPlistTargetPath = [[_target casperJSSPreferencePlistURL] path];
-        if ( [CasperConfigurationPlistTargetPath length] == 0 ) {
+        jssPreferencePlistTargetPath = [[_target casperJSSPreferencePlistURL] path];
+        if ( [jssPreferencePlistTargetPath length] == 0 ) {
             DDLogError(@"Could not get path to Casper.app from target!");
             return NO;
         }
     }
     
-    if ( jssURL ) {
+    if ( jssURLString ) {
+        NSURL *jssURL = [NSURL URLWithString:jssURLString];
         NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
         if ( temporaryFolderURL ) {
             
             // ------------------------------------------------------------
             //  Create Casper configuration plist and add to copy resources
             // ------------------------------------------------------------
-            NSURL *settingsFileURL = [temporaryFolderURL URLByAppendingPathComponent:@"com.grahamgilbert.Casper.plist"];
-            NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] initWithDictionary:@{ @"serverurl" : jssURL }];
+            NSURL *jssPreferencePlistTargetURL = [temporaryFolderURL URLByAppendingPathComponent:@"com.jamfsoftware.jss.plist"];
             
-            /*NSString *reportingURL = _userSettings[NBCSettingsCasperReportingURL];
-            if ( [reportingURL length] != 0 ) {
-                settingsDict[@"reporturl"] = reportingURL;
-            }*/
+            NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] initWithDictionary:@{ @"url" : [jssURL absoluteString] }];
             
-            if ( [settingsDict writeToURL:settingsFileURL atomically:YES] ) {
+            NSString *jssHost = [jssURL host];
+            if ( [jssHost length] != 0 ) {
+                settingsDict[@"address"] = jssHost;
+            }
+            
+            NSString *jssURLScheme = [jssURL scheme];
+            if ( [jssURLScheme length] != 0 ) {
+                settingsDict[@"secure"] = [[jssURL scheme] isEqualToString:@"https"] ? @YES : @NO;
+            }
+            
+            NSString *jssPort = [[jssURL port] stringValue];
+            if ( [jssPort length] != 0 ) {
+                settingsDict[@"port"] = jssPort;
+            } else {
+                settingsDict[@"port"] = [[jssURL scheme] isEqualToString:@"https"] ? @"443" : @"80";
+            }
+            
+            NSString *jssPath = [jssURL path];
+            if ( [jssPath length] != 0 ) {
+                settingsDict[@"path"] = jssPath;
+            }
+            
+            settingsDict[@"allowInvalidCertificate"] = [_userSettings[NBCSettingsCasperAllowInvalidCertificateKey] boolValue] ? @YES : @NO;
+
+            if ( [settingsDict writeToURL:jssPreferencePlistTargetURL atomically:YES] ) {
                 NSDictionary *copyAttributes  = @{
                                                   NSFileOwnerAccountName : @"root",
                                                   NSFileGroupOwnerAccountName : @"wheel",
@@ -973,8 +999,8 @@ DDLogLevel ddLogLevel;
                 
                 NSDictionary *copySettings = @{
                                                NBCWorkflowCopyType : NBCWorkflowCopy,
-                                               NBCWorkflowCopySourceURL : [settingsFileURL path],
-                                               NBCWorkflowCopyTargetURL : CasperConfigurationPlistTargetPath,
+                                               NBCWorkflowCopySourceURL : [jssPreferencePlistTargetURL path],
+                                               NBCWorkflowCopyTargetURL : jssPreferencePlistTargetPath,
                                                NBCWorkflowCopyAttributes : copyAttributes
                                                };
                 if ( [_target nbiNetInstallURL] != nil ) {
@@ -985,7 +1011,7 @@ DDLogLevel ddLogLevel;
                 
                 [self checkCompletedResources];
             } else {
-                DDLogError(@"[ERROR] Could not write Casper settings to url: %@", settingsFileURL);
+                DDLogError(@"[ERROR] Could not write Casper settings to url: %@", jssPreferencePlistTargetURL);
                 retval = NO;
             }
         } else {

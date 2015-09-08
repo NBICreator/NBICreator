@@ -23,6 +23,7 @@
 @interface NBCCasperWorkflowModifyNBI : NSObject <NBCInstallerPackageDelegate, NBCMessageDelegate>
 
 @property (nonatomic, weak) id delegate;
+@property (weak) id<NBCMessageDelegate> messageDelegate;
 
 // ------------------------------------------------------
 //  Properties

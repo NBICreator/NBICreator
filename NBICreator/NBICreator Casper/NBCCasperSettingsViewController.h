@@ -42,6 +42,7 @@
 @property NBCTemplatesController *templates;
 @property NBCWorkflowResourcesController *resourcesController;
 @property NBCDownloader *jssCertificateDownloader;
+@property NBCDownloader *jssVersionDownloader;
 
 @property (weak) IBOutlet NSButton *checkboxDisableWiFi;
 // ------------------------------------------------------
@@ -114,10 +115,18 @@
 @property (weak) IBOutlet NSButton *buttonShowJSSCertificate;
 - (IBAction)buttonShowJSSCertificate:(id)sender;
 
-@property (weak) IBOutlet NSButton *buttonLaunchPadRestrictions;
-- (IBAction)buttonLaunchPadRestrictions:(id)sender;
+@property (strong) IBOutlet NSPopover *popOverManageTrustedServers;
+@property (weak) IBOutlet NSTextField *textFieldTrustedServersCount;
+- (IBAction)buttonManageTrustedServers:(id)sender;
+@property (weak) IBOutlet NSTableView *tableViewTrustedServers;
 
-@property (strong) IBOutlet NSPopover *popOverLaunchPadRestrictions;
+@property BOOL addTrustedNetBootServers;
+@property NSMutableArray *trustedServers;
+
+@property (weak) IBOutlet NSButton *buttonAddTrustedServer;
+- (IBAction)buttonAddTrustedServer:(id)sender;
+@property (weak) IBOutlet NSButton *buttonRemoveTrustedServer;
+- (IBAction)buttonRemoveTrustedServer:(id)sender;
 
 // ------------------------------------------------------
 //  TabView Options
@@ -144,12 +153,16 @@
 
 // Pop Over
 
+@property BOOL settingTrustedNetBootServersVisible;
 
 @property (weak) IBOutlet NBCCasperDropViewImageBackground *imageViewBackgroundImage;
 
 // ------------------------------------------------------
 //  UI Binding Properties
 // ------------------------------------------------------
+@property BOOL connectedToInternet;
+@property BOOL verifyJSSWhenConnected;
+
 @property NSString *nbiCreationTool;
 @property BOOL useSystemImageUtility;
 
@@ -185,7 +198,10 @@
 @property NSString *casperJSSURL;
 @property BOOL allowInvalidCertificate;
 @property BOOL jssURLValid;
-
+@property NSString *jssVersion;
+@property BOOL jssCACertificateValid;
+@property NSString *jssCACertificateExpirationString;
+@property BOOL enableCasperImagingDebugMode;
 
 @property BOOL useBackgroundImage;
 @property NSString *imageBackgroundURL;

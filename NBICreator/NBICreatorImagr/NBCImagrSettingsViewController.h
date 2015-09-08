@@ -147,6 +147,8 @@
 
 // Pop Over
 
+@property BOOL settingTrustedNetBootServersVisible;
+@property BOOL settingDisableATSVisible;
 
 @property (weak) IBOutlet NBCImagrDropViewImageBackground *imageViewBackgroundImage;
 
@@ -185,7 +187,6 @@
 @property BOOL diskImageReadWrite;
 
 @property BOOL disableATS;
-@property BOOL disableATSVisible;
 @property BOOL includeImagrPreReleaseVersionsEnabled;
 @property BOOL includeImagrPreReleaseVersions;
 @property NSString *imagrVersion;

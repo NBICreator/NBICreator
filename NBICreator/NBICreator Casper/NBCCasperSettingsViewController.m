@@ -10,6 +10,7 @@
 #import "NBCCasperSettingsViewController.h"
 #import "NBCConstants.h"
 #import "NBCVariables.h"
+#import "NSMutableString+hyperlinkFromString.h"
 
 #import "NBCWorkflowItem.h"
 #import "NBCSettingsController.h"
@@ -28,6 +29,9 @@
 #import "NBCCertificateTableCellView.h"
 #import "NBCPackageTableCellView.h"
 #import "NBCDesktopEntity.h"
+#import "TFHpple.h"
+#import "NBCTrustedNetBootServerCellView.h"
+#import "NSString+validIP.h"
 
 DDLogLevel ddLogLevel;
 
@@ -66,6 +70,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [super viewDidLoad];
     
+    [self setConnectedToInternet:NO];
     _keyboardLayoutDict = [[NSMutableDictionary alloc] init];
     _certificateTableViewContents = [[NSMutableArray alloc] init];
     _packagesTableViewContents = [[NSMutableArray alloc] init];
@@ -123,6 +128,19 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     [self updatePopUpButtonTemplates];
     
+    
+    // --------------------------------------------------------------
+    //  Set Hyperlink to "More Info" text after Allow Invalid Certificate
+    // --------------------------------------------------------------
+    /*
+    [_textFieldMoreInfo setAllowsEditingTextAttributes: YES];
+    [_textFieldMoreInfo setSelectable: YES];
+    NSURL* url = [NSURL URLWithString:@"https://macmule.com/projects/autocaspernbi/#Enable_Invalid_JSS_Cert_if_a_JSS_URL_is_given"];
+    NSMutableAttributedString* string = [[NSMutableAttributedString alloc] init];
+    [string appendAttributedString:[NSAttributedString hyperlinkFromString:@"More Info" withURL:url]];
+    [_textFieldMoreInfo setAttributedStringValue:string];
+    */
+     
     // ------------------------------------------------------------------------------------------
     //  Add contextual menu to NBI background image view to allow to restore original background.
     // ------------------------------------------------------------------------------------------
@@ -130,6 +148,11 @@ DDLogLevel ddLogLevel;
     NSMenuItem *restoreViewBackground = [[NSMenuItem alloc] initWithTitle:NBCMenuItemRestoreOriginalBackground action:@selector(restoreNBIBackground:) keyEquivalent:@""];
     [backgroundImageMenu addItem:restoreViewBackground];
     [_imageViewBackgroundImage setMenu:backgroundImageMenu];
+
+    // ------------------------------------------------------------------------------
+    //
+    // -------------------------------------------------------------------------------
+    [self updateSettingVisibility];
     
     // ------------------------------------------------------------------------------
     //  Verify build button so It's not enabled by mistake
@@ -601,14 +624,18 @@ DDLogLevel ddLogLevel;
 - (void)testInternetConnection {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     _internetReachableFoo = [Reachability reachabilityWithHostname:@"github.com"];
-    //__unsafe_unretained typeof(self) weakSelf = self;
+    __unsafe_unretained typeof(self) weakSelf = self;
     
     // Internet is reachable
     _internetReachableFoo.reachableBlock = ^(Reachability*reach) {
 #pragma unused(reach)
         // Update the UI on the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
-            
+            [weakSelf setConnectedToInternet:YES];
+            if ( weakSelf->_verifyJSSWhenConnected ) {
+                [weakSelf setVerifyJSSWhenConnected:NO];
+                [weakSelf buttonVerifyJSS:nil];
+            }
         });
     };
     
@@ -617,7 +644,7 @@ DDLogLevel ddLogLevel;
 #pragma unused(reach)
         // Update the UI on the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
-            
+            [weakSelf setConnectedToInternet:NO];
         });
     };
     
@@ -695,6 +722,12 @@ DDLogLevel ddLogLevel;
         } else {
             [self jssURLIsInvalid];
         }
+        
+        [_imageViewVerifyJSSStatus setHidden:YES];
+        [_textFieldVerifyJSSStatus setHidden:YES];
+        [_imageViewDownloadJSSCertificateStatus setHidden:YES];
+        [_textFieldDownloadJSSCertificateStatus setHidden:YES];
+        [_buttonShowJSSCertificate setHidden:YES];
     } else if ( [sender object] == _textFieldDestinationFolder ) {
         // --------------------------------------------------------------------
         //  Expand tilde for destination folder if tilde is used in settings
@@ -724,7 +757,9 @@ DDLogLevel ddLogLevel;
 
 - (void)jssURLIsValid {
     [self setJssURLValid:YES];
-    [_buttonVerifyJSS setEnabled:YES];
+    if ( ! _verifyingJSS ) {
+        [_buttonVerifyJSS setEnabled:YES];
+    }
     [_buttonDownloadJSSCertificate setEnabled:YES];
     [_buttonShowJSSCertificate setEnabled:YES];
 }
@@ -801,12 +836,28 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void)updateSettingVisibility {
+    if ( _source != nil ) {
+        int sourceVersionMinor = (int)[[_source expandVariables:@"%OSMINOR%"] integerValue];
+        DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
+        if ( _source != nil && 11 <= sourceVersionMinor ) {
+            [self setSettingTrustedNetBootServersVisible:YES];
+        } else {
+            [self setSettingTrustedNetBootServersVisible:NO];
+        }
+    } else {
+        [self setSettingTrustedNetBootServersVisible:NO];
+    }
+}
+
 - (void)updateSource:(NSNotification *)notification {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
         [self setSource:source];
     }
+
+    [self updateSettingVisibility];
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
     if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
@@ -842,6 +893,8 @@ DDLogLevel ddLogLevel;
     if ( _source ) {
         [self setSource:nil];
     }
+    
+    [self updateSettingVisibility];
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
     if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
@@ -918,6 +971,11 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
+    
+    [self setCasperImagingVersion:@""];
+    [self setJssCACertificateExpirationString:@""];
+    [self setJssVersion:@""];
+    
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
     [self setNbiName:settingsDict[NBCSettingsNameKey]];
@@ -948,6 +1006,7 @@ DDLogLevel ddLogLevel;
     [self setDiskImageReadWrite:[settingsDict[NBCSettingsDiskImageReadWriteKey] boolValue]];
     [self setAllowInvalidCertificate:[settingsDict[NBCSettingsCasperAllowInvalidCertificateKey] boolValue]];
     [self setJssCACertificate:settingsDict[NBCSettingsCasperJSSCACertificateKey]];
+    [self setEnableCasperImagingDebugMode:[settingsDict[NBCSettingsCasperImagingDebugModeKey] boolValue]];
     
     [self uppdatePopUpButtonTool];
     
@@ -1005,6 +1064,12 @@ DDLogLevel ddLogLevel;
             [_textFieldDownloadJSSCertificateStatus setStringValue:@"Downloaded"];
             [_imageViewDownloadJSSCertificateStatus setHidden:NO];
             [_textFieldDownloadJSSCertificateStatus setHidden:NO];
+            for ( NSDictionary *certDict in _certificateTableViewContents ) {
+                if ( [certDict[@"CertificateSignature"] isEqualToData:_jssCACertificate[_casperJSSURL]] ) {
+                    [self updateJSSCACertificateExpirationFromDateNotValidAfter:certDict[@"CertificateNotValidAfterDate"]
+                                                                dateNotValidBefore:certDict[@"CertificateNotValidBeforeDate"]];
+                }
+            }
         } else {
             [_buttonShowJSSCertificate setHidden:YES];
             [_textFieldDownloadJSSCertificateStatus setStringValue:@""];
@@ -1018,11 +1083,32 @@ DDLogLevel ddLogLevel;
         [_textFieldDownloadJSSCertificateStatus setHidden:YES];
     }
     
-    NSURL *stringAsURL = [NSURL URLWithString:[_textFieldJSSURL stringValue]];
+    [_imageViewVerifyJSSStatus setHidden:YES];
+    [_textFieldVerifyJSSStatus setHidden:YES];
+    [_textFieldVerifyJSSStatus setStringValue:@""];
+    NSURL *stringAsURL = [NSURL URLWithString:_casperJSSURL];
     if ( stringAsURL && [stringAsURL scheme] && [stringAsURL host] ) {
         [self jssURLIsValid];
+        if ( _connectedToInternet ) {
+            [self buttonVerifyJSS:nil];
+        } else {
+            [self setVerifyJSSWhenConnected:YES];
+        }
     } else {
         [self jssURLIsInvalid];
+    }
+    
+    if ( [_casperImagingPath length] != 0 ) {
+        NSBundle *bundle = [NSBundle bundleWithPath:_casperImagingPath];
+        if ( bundle != nil ) {
+            NSString *bundleIdentifier = [bundle objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+            if ( [bundleIdentifier isEqualToString:NBCCasperImagingBundleIdentifier] ) {
+                NSString *bundleVersion = [bundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+                if ( [bundleVersion length] != 0 ) {
+                    [self setCasperImagingVersion:bundleVersion];
+                }
+            }
+        }
     }
     
     NSString *selectedTimeZone = settingsDict[NBCSettingsTimeZoneKey];
@@ -1053,6 +1139,35 @@ DDLogLevel ddLogLevel;
     }
     /* --------------------------------------------------------------------- */
 } // updateUISettingsFromDict
+
+- (void)updateJSSCACertificateExpirationFromDateNotValidAfter:(NSDate *)dateAfter dateNotValidBefore:(NSDate *)dateBefore {
+#pragma unused(dateBefore)
+    NSDate *dateNow = [NSDate date];
+    
+    BOOL certificateExpired = NO;
+    if ( [dateBefore compare:dateNow] == NSOrderedDescending ) {
+        // Not valid before...
+        
+    }
+    
+    if ( [dateAfter compare:dateNow] == NSOrderedAscending && ! certificateExpired ) {
+        // Expired...
+    } else {
+        // Expires...
+    }
+    
+    NSTimeInterval secondsBetween = [dateAfter timeIntervalSinceDate:dateNow];
+    NSDateComponentsFormatter *dateComponentsFormatter = [[NSDateComponentsFormatter alloc] init];
+    NSCalendar *calendarUS = [NSCalendar calendarWithIdentifier:NSCalendarIdentifierGregorian];
+    [calendarUS setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US"]];
+    [dateComponentsFormatter setCalendar:calendarUS];
+    [dateComponentsFormatter setUnitsStyle:NSDateComponentsFormatterUnitsStyleFull];
+    [dateComponentsFormatter setMaximumUnitCount:3];
+    NSString *expirationString = [dateComponentsFormatter stringFromTimeInterval:secondsBetween];
+    if ( [expirationString length] != 0 ) {
+        [self setJssCACertificateExpirationString:expirationString];
+    }
+}
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -1109,6 +1224,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsDiskImageReadWriteKey] = @(_diskImageReadWrite) ?: @NO;
     settingsDict[NBCSettingsCasperAllowInvalidCertificateKey] = @(_allowInvalidCertificate) ?: @NO;
     settingsDict[NBCSettingsCasperJSSCACertificateKey] = _jssCACertificate ?: @{};
+    settingsDict[NBCSettingsCasperImagingDebugModeKey] = @(_enableCasperImagingDebugMode) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2111,23 +2227,18 @@ DDLogLevel ddLogLevel;
         
         if ( [languageID containsString:@"-"] ) {
             NSString *localeFromLanguage = [languageID stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
-            DDLogDebug(@"localeFromLanguage=%@", localeFromLanguage);
-            NSLog(@"localeFromLanguage=%@", localeFromLanguage);
             if ( [localeFromLanguage length] != 0 ) {
                 resourcesSettings[NBCSettingsLocale] = localeFromLanguage;
                 
                 NSLocale *locale = [NSLocale localeWithLocaleIdentifier:localeFromLanguage];
                 NSString *country = [locale objectForKey:NSLocaleCountryCode];
-                DDLogDebug(@"country=%@", country);
-                NSLog(@"country=%@", country);
+
                 if ( [country length] != 0 ) {
                     resourcesSettings[NBCSettingsCountry] = country;
                 }
             }
         }
-        
     }
-    NSLog(@"resourcesSettings[NBCSettingsLanguageKey]=%@", resourcesSettings[NBCSettingsLanguageKey]);
     
     NSDictionary *hiToolboxDict = [NSDictionary dictionaryWithContentsOfFile:NBCFilePathPreferencesHIToolbox];
     NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsKeyboardLayoutKey];
@@ -2156,14 +2267,12 @@ DDLogLevel ddLogLevel;
     } else {
         resourcesSettings[NBCSettingsKeyboardLayoutID] = selectedKeyboardLayout;
     }
-    NSLog(@"resourcesSettings[NBCSettingsKeyboardLayoutID]=%@", resourcesSettings[NBCSettingsKeyboardLayoutID]);
     
     NSString *selectedTimeZone = [self timeZoneFromMenuItem:_selectedMenuItem];
     if ( [selectedTimeZone length] != 0 ) {
         if ( [selectedTimeZone isEqualToString:NBCMenuItemCurrent] ) {
             NSTimeZone *currentTimeZone = [NSTimeZone defaultTimeZone];
             NSString *currentTimeZoneName = [currentTimeZone name];
-            NSLog(@"currentTimeZoneName=%@", currentTimeZoneName);
             resourcesSettings[NBCSettingsTimeZoneKey] = currentTimeZoneName;
         } else {
             resourcesSettings[NBCSettingsTimeZoneKey] = selectedTimeZone;
@@ -2179,7 +2288,6 @@ DDLogLevel ddLogLevel;
     NBCSourceController *sourceController = [[NBCSourceController alloc] init];
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
-    DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
     
     // - Python is required for Casper
     [sourceController addPython:sourceItemsDict source:_source];
@@ -2312,15 +2420,25 @@ DDLogLevel ddLogLevel;
     [self setTimeZoneArray:[NSTimeZone knownTimeZoneNames]];
     if ( [_timeZoneArray count] != 0 ) {
         NSMenu *menuAfrica = [[NSMenu alloc] initWithTitle:@"Africa"];
+        [menuAfrica setAutoenablesItems:NO];
         NSMenu *menuAmerica = [[NSMenu alloc] initWithTitle:@"America"];
+        [menuAmerica setAutoenablesItems:NO];
         NSMenu *menuAntarctica = [[NSMenu alloc] initWithTitle:@"Antarctica"];
+        [menuAntarctica setAutoenablesItems:NO];
         NSMenu *menuArctic = [[NSMenu alloc] initWithTitle:@"Arctic"];
+        [menuArctic setAutoenablesItems:NO];
         NSMenu *menuAsia = [[NSMenu alloc] initWithTitle:@"Asia"];
+        [menuAsia setAutoenablesItems:NO];
         NSMenu *menuAtlantic = [[NSMenu alloc] initWithTitle:@"Atlantic"];
+        [menuAtlantic setAutoenablesItems:NO];
         NSMenu *menuAustralia = [[NSMenu alloc] initWithTitle:@"Australia"];
+        [menuAustralia setAutoenablesItems:NO];
         NSMenu *menuEurope = [[NSMenu alloc] initWithTitle:@"Europe"];
+        [menuEurope setAutoenablesItems:NO];
         NSMenu *menuIndian = [[NSMenu alloc] initWithTitle:@"Indian"];
+        [menuIndian setAutoenablesItems:NO];
         NSMenu *menuPacific = [[NSMenu alloc] initWithTitle:@"Pacific"];
+        [menuPacific setAutoenablesItems:NO];
         for ( NSString *timeZoneName in _timeZoneArray ) {
             if ( [timeZoneName isEqualToString:@"GMT"] ) {
                 continue;
@@ -2345,71 +2463,85 @@ DDLogLevel ddLogLevel;
                 timeZoneCity = timeZone[1];
             }
             
+            NSMenuItem *cityMenyItem = [[NSMenuItem alloc] initWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            [cityMenyItem setEnabled:YES];
+            
             if ( [timeZoneRegion isEqualToString:@"Africa"] ) {
-                [menuAfrica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAfrica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"America"] ) {
-                [menuAmerica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAmerica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Antarctica"] ) {
-                [menuAntarctica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAntarctica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Arctic"] ) {
-                [menuArctic addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuArctic addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Asia"] ) {
-                [menuAsia addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAsia addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Atlantic"] ) {
-                [menuAtlantic addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAtlantic addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Australia"] ) {
-                [menuAustralia addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAustralia addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Europe"] ) {
-                [menuEurope addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuEurope addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Indian"] ) {
-                [menuIndian addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuIndian addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Pacific"] ) {
-                [menuPacific addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuPacific addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             }
         }
         
         [_popUpButtonTimeZone removeAllItems];
+        [_popUpButtonTimeZone setAutoenablesItems:YES];
         [_popUpButtonTimeZone addItemWithTitle:NBCMenuItemCurrent];
         [[_popUpButtonTimeZone menu] addItem:[NSMenuItem separatorItem]];
         
         NSMenuItem *menuItemAfrica = [[NSMenuItem alloc] initWithTitle:@"Africa" action:nil keyEquivalent:@""];
         [menuItemAfrica setSubmenu:menuAfrica];
+        [menuItemAfrica setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAfrica];
         
         NSMenuItem *menuItemAmerica = [[NSMenuItem alloc] initWithTitle:@"America" action:nil keyEquivalent:@""];
         [menuItemAmerica setSubmenu:menuAmerica];
+        [menuItemAmerica setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAmerica];
         
         NSMenuItem *menuItemAntarctica = [[NSMenuItem alloc] initWithTitle:@"Antarctica" action:nil keyEquivalent:@""];
         [menuItemAntarctica setSubmenu:menuAntarctica];
+        [menuItemAntarctica setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAntarctica];
         
         NSMenuItem *menuItemArctic = [[NSMenuItem alloc] initWithTitle:@"Arctic" action:nil keyEquivalent:@""];
         [menuItemArctic setSubmenu:menuArctic];
+        [menuItemArctic setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemArctic];
         
         NSMenuItem *menuItemAsia = [[NSMenuItem alloc] initWithTitle:@"Asia" action:nil keyEquivalent:@""];
         [menuItemAsia setSubmenu:menuAsia];
+        [menuItemAsia setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAsia];
         
         NSMenuItem *menuItemAtlantic = [[NSMenuItem alloc] initWithTitle:@"Atlantic" action:nil keyEquivalent:@""];
         [menuItemAtlantic setSubmenu:menuAtlantic];
+        [menuItemAtlantic setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAtlantic];
         
         NSMenuItem *menuItemAustralia = [[NSMenuItem alloc] initWithTitle:@"Australia" action:nil keyEquivalent:@""];
         [menuItemAustralia setSubmenu:menuAustralia];
+        [menuItemAustralia setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAustralia];
         
         NSMenuItem *menuItemEurope = [[NSMenuItem alloc] initWithTitle:@"Europe" action:nil keyEquivalent:@""];
         [menuItemEurope setSubmenu:menuEurope];
+        [menuItemEurope setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemEurope];
         
         NSMenuItem *menuItemIndian = [[NSMenuItem alloc] initWithTitle:@"Indian" action:nil keyEquivalent:@""];
         [menuItemIndian setSubmenu:menuIndian];
+        [menuItemIndian setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemIndian];
         
         NSMenuItem *menuItemPacific = [[NSMenuItem alloc] initWithTitle:@"Pacific" action:nil keyEquivalent:@""];
         [menuItemPacific setSubmenu:menuPacific];
+        [menuItemPacific setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemPacific];
         
         [self setSelectedMenuItem:[_popUpButtonTimeZone selectedItem]];
@@ -2585,20 +2717,65 @@ DDLogLevel ddLogLevel;
     [_tableViewPackages removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
 }
 
+- (NSString *)jssVersionFromDownloadData:(NSData *)data {
+    NSString *jssVersion;
+    
+    TFHpple *parser = [TFHpple hppleWithHTMLData:data];
+    
+    NSString *xpathQueryString = @"/html/head/meta[@name='version']/@content";
+    NSArray *nodes = [parser searchWithXPathQuery:xpathQueryString];
+    
+    if ( ! nodes ) {
+        NSString *downloadString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"downloadString=%@", downloadString);
+    }
+    
+    for ( TFHppleElement *element in nodes ) {
+        NSArray *children = [element children];
+        for (TFHppleElement *childElement in children) {
+            jssVersion = [childElement content];
+        }
+    }
+    
+    return [jssVersion copy];
+}
 
 - (IBAction)buttonVerifyJSS:(id)sender {
 #pragma unused(sender)
+    [self setVerifyingJSS:YES];
+    [_imageViewVerifyJSSStatus setHidden:YES];
+    [_textFieldVerifyJSSStatus setStringValue:@"Contacting JSS..."];
+    [_textFieldVerifyJSSStatus setHidden:NO];
     
+    NSString *jssURLString = _casperJSSURL;
+    NSURL *jssURL;
+    if ( [jssURLString length] == 0 ) {
+        [_imageViewVerifyJSSStatus setHidden:NO];
+        [_textFieldVerifyJSSStatus setHidden:NO];
+        [_textFieldVerifyJSSStatus setStringValue:@"No URL was passed!"];
+        // Show Alert
+        return;
+    } else {
+        jssURL = [NSURL URLWithString:jssURLString];
+    }
+    
+    if ( ! _jssVersionDownloader ) {
+        _jssVersionDownloader = [[NBCDownloader alloc] initWithDelegate:self];
+    }
+
+    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagJSSVerify };
+    [_jssVersionDownloader downloadPageAsData:jssURL downloadInfo:downloadInfo];
 }
 
 - (void)downloadFailed:(NSDictionary *)downloadInfo withError:(NSError *)error {
+    NSLog(@"error=%@", error);
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
         NSString *errorMessage = @"";
         if ( error ) {
             errorMessage = [error localizedDescription];
         }
-        
+
         [self setDownloadingJSSCertificate:NO];
         NSImage *imageWarning = [NSImage imageNamed:@"NSCaution"];
         [_imageViewDownloadJSSCertificateStatus setImage:imageWarning];
@@ -2629,31 +2806,55 @@ DDLogLevel ddLogLevel;
             if ( [_casperJSSURL length] != 0 ) {
                 _jssCACertificate = @{ _casperJSSURL : certificateDict[@"CertificateSignature"] };
             }
-            NSImage *imageSuccess = [[NSImage alloc] initWithContentsOfFile:IconSuccessPath];
-            [_imageViewDownloadJSSCertificateStatus setImage:imageSuccess];
-            [_buttonShowJSSCertificate setHidden:NO];
+            
+            NSString *status;
+            NSImage *image;
+            
             if ( [self insertCertificateInTableView:certificateDict] ) {
-                [_textFieldDownloadJSSCertificateStatus setStringValue:@"Downloaded"];
+                status = @"Downloaded";
             } else {
-                [_textFieldDownloadJSSCertificateStatus setStringValue:@"Already Exist"];
+                status = @"Already Exist";
             }
-            [_imageViewDownloadJSSCertificateStatus setHidden:NO];
+            
+            if ( [certificateDict[@"CertificateExpired"] boolValue] ) {
+                image = [NSImage imageNamed:@"NSCaution"];
+                NSMutableAttributedString *certificateExpired = [[NSMutableAttributedString alloc] initWithString:@"Certificate Expired"];
+                [certificateExpired addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[certificateExpired length])];
+                [_textFieldDownloadJSSCertificateStatus setAttributedStringValue:certificateExpired];
+            } else {
+                image = [[NSImage alloc] initWithContentsOfFile:IconSuccessPath];
+                [_textFieldDownloadJSSCertificateStatus setStringValue:status];
+            }
+            
+            [self updateJSSCACertificateExpirationFromDateNotValidAfter:certificateDict[@"CertificateNotValidAfterDate"]
+                                                     dateNotValidBefore:certificateDict[@"CertificateNotValidBeforeDate"]];
+            
+            [_imageViewDownloadJSSCertificateStatus setImage:image];
             [_textFieldDownloadJSSCertificateStatus setHidden:NO];
+            [_imageViewDownloadJSSCertificateStatus setHidden:NO];
+            [_buttonShowJSSCertificate setHidden:NO];
         } else {
             
         }
     } else if ( [downloadTag isEqualToString:NBCDownloaderTagJSSVerify] ) {
-        [self setVerifyingJSS:NO];
-        NSImage *imageSuccess = [[NSImage alloc] initWithContentsOfFile:IconSuccessPath];
-        [_imageViewVerifyJSSStatus setImage:imageSuccess];
-        [_imageViewVerifyJSSStatus setHidden:NO];
-        [_textFieldVerifyJSSStatus setHidden:YES];
-        [_textFieldVerifyJSSStatus setStringValue:@""];
+        NSString *jssVersion = [self jssVersionFromDownloadData:data];
+        if ( [jssVersion length] != 0 ) {
+            [self setJssVersion:jssVersion];
+            [self setVerifyingJSS:NO];
+            NSImage *imageSuccess = [[NSImage alloc] initWithContentsOfFile:IconSuccessPath];
+            [_imageViewVerifyJSSStatus setImage:imageSuccess];
+            [_imageViewVerifyJSSStatus setHidden:NO];
+            [_textFieldVerifyJSSStatus setHidden:NO];
+            [_textFieldVerifyJSSStatus setStringValue:[NSString stringWithFormat:@"Verified JSS Version: %@", jssVersion]];
+        } else {
+            [self setVerifyingJSS:NO];
+            NSImage *imageCaution = [NSImage imageNamed:@"NSCaution"];
+            [_imageViewVerifyJSSStatus setImage:imageCaution];
+            [_imageViewVerifyJSSStatus setHidden:NO];
+            [_textFieldVerifyJSSStatus setHidden:NO];
+            [_textFieldVerifyJSSStatus setStringValue:@"Unable to determine JSS version"];
+        }
     }
-}
-
-- (IBAction)buttonLaunchPadRestrictions:(id)sender {
-    [_popOverLaunchPadRestrictions showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 }
 
 - (IBAction)buttonDownloadJSSCertificate:(id)sender {
@@ -2701,6 +2902,72 @@ DDLogLevel ddLogLevel;
             }];
         }
     }
+}
+
+- (IBAction)buttonManageTrustedServers:(id)sender {
+    [_popOverManageTrustedServers showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
+}
+
+- (NSInteger)insertNetBootServerIPInTableView:(NSString *)netBootServerIP {
+    NSInteger index = [_tableViewTrustedServers selectedRow];
+    index++;
+    [_tableViewTrustedServers beginUpdates];
+    [_tableViewTrustedServers insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewTrustedServers scrollRowToVisible:index];
+    [_trustedServers insertObject:netBootServerIP atIndex:(NSUInteger)index];
+    [_tableViewTrustedServers endUpdates];
+    return index;
+}
+
+- (IBAction)buttonAddTrustedServer:(id)sender {
+#pragma unused(sender)
+    // Insert new view
+    NSInteger index = [self insertNetBootServerIPInTableView:@"123"];
+    NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:(NSUInteger)index];
+    
+    // Select the newly created text field in the new view
+    [_tableViewTrustedServers selectRowIndexes:indexSet byExtendingSelection:NO];
+    [[[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn]
+                                         row:index
+                             makeIfNecessary:NO] textFieldTrustedNetBootServer] selectText:self];
+    [self updateTrustedNetBootServersCount];
+}
+
+- (void)updateTrustedNetBootServersCount {
+    __block int validNetBootServersCounter = 0;
+    __block BOOL containsInvalidNetBootServer = NO;
+    
+    [_trustedServers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+#pragma unused(stop)
+        NBCTrustedNetBootServerCellView *cellView = [self->_tableViewTrustedServers viewAtColumn:0 row:(NSInteger)idx makeIfNecessary:NO];
+        
+        if ( [obj isValidIPAddress] ) {
+            validNetBootServersCounter++;
+            [[cellView textFieldTrustedNetBootServer] setStringValue:obj];
+        } else {
+            NSMutableAttributedString *trustedNetBootServerAttributed = [[NSMutableAttributedString alloc] initWithString:obj];
+            [trustedNetBootServerAttributed addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[trustedNetBootServerAttributed length])];
+            [[cellView textFieldTrustedNetBootServer] setAttributedStringValue:trustedNetBootServerAttributed];
+            containsInvalidNetBootServer = YES;
+        }
+    }];
+    
+    NSString *trustedNetBootServerCount = [[NSNumber numberWithInt:validNetBootServersCounter] stringValue];
+    if ( containsInvalidNetBootServer ) {
+        NSMutableAttributedString *trustedNetBootServerCountMutable = [[NSMutableAttributedString alloc] initWithString:trustedNetBootServerCount];
+        [trustedNetBootServerCountMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[trustedNetBootServerCountMutable length])];
+        [_textFieldTrustedServersCount setAttributedStringValue:trustedNetBootServerCountMutable];
+    } else {
+        [_textFieldTrustedServersCount setStringValue:trustedNetBootServerCount];
+    }
+}
+
+- (IBAction)buttonRemoveTrustedServer:(id)sender {
+#pragma unused(sender)
+    NSIndexSet *indexes = [_tableViewTrustedServers selectedRowIndexes];
+    [_trustedServers removeObjectsAtIndexes:indexes];
+    [_tableViewTrustedServers removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [self updateTrustedNetBootServersCount];
 }
 
 @end

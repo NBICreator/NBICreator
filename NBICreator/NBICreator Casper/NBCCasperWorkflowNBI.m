@@ -53,10 +53,10 @@ DDLogLevel ddLogLevel;
     NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
     if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         [[workflowItem target] setCreationTool:NBCMenuItemSystemImageUtility];
-        //[self runWorkflowSystemImageUtility:workflowItem];
+        [self runWorkflowSystemImageUtility:workflowItem];
     } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         [[workflowItem target] setCreationTool:NBCMenuItemNBICreator];
-        //[self runWorkflowNBICreator:workflowItem];
+        [self runWorkflowNBICreator:workflowItem];
     }
 }
 
@@ -151,11 +151,11 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------------------
     //  Loop to check size of BaseSystem.dmg during copy and update progress bar
     // --------------------------------------------------------------------------
-   /* [NSTimer scheduledTimerWithTimeInterval:0.5
+    [NSTimer scheduledTimerWithTimeInterval:0.5
                                      target:self
                                    selector:@selector(checkCopyProgressBaseSystem:)
                                    userInfo:nil
-                                    repeats:YES];*/
+                                    repeats:YES];
 } // runWorkflowNBICreator
 
 - (void)createNBIFilesNBICreator:(NBCWorkflowItem *)workflowItem baseSystemTemporaryURL:(NSURL *)baseSystemTemporaryURL {
@@ -632,7 +632,7 @@ DDLogLevel ddLogLevel;
 } // checkCopyProgressNetInstall
 
 -(void)checkCopyProgressBaseSystem:(NSTimer *)timer {
-    
+
     // -------------------------------------------------
     //  Get attributes for target BaseSystem.dmg
     // -------------------------------------------------

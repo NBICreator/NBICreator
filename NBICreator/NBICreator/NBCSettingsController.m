@@ -21,6 +21,7 @@
 #import "NBCConstants.h"
 #import "NBCVariables.h"
 #import "NBCWorkflowManager.h"
+#import "NSString+validIP.h"
 
 #import "NBCImagrSettingsViewController.h"
 #import "NBCLogging.h"
@@ -86,6 +87,12 @@ DDLogLevel ddLogLevel;
             [settings addObject:settingsTabExtra];
             
             // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Advanced"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsTabAdvanced = [self verifySettingsTabAdvanced:workflowItem];
+            [settings addObject:settingsTabAdvanced];
+            
+            // ------------------------------------------------------------------------
             //  Check all settings in the tab "Imagr"
             // ------------------------------------------------------------------------
             NSDictionary *settingsLocalImagrURL = [self verifySettingsImagrLocalImagrURL:workflowItem];
@@ -118,6 +125,12 @@ DDLogLevel ddLogLevel;
             // ------------------------------------------------------------------------
             NSDictionary *settingsTabExtra = [self verifySettingsTabExtra:workflowItem];
             [settings addObject:settingsTabExtra];
+            
+            // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Advanced"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsTabAdvanced = [self verifySettingsTabAdvanced:workflowItem];
+            [settings addObject:settingsTabAdvanced];
             
             // ------------------------------------------------------------------------
             //  Check all settings in the tab "Casper"
@@ -260,6 +273,61 @@ DDLogLevel ddLogLevel;
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 } // verifySettingsTabExtra
 
+- (NSDictionary *)verifySettingsTabAdvanced:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 11 <= sourceVersionMinor && [userSettings[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
+        NSDictionary *settingsTrustedNetBootServers = [self verifySettingsTrustedNetBootServers:workflowItem];
+        [settings addObject:settingsTrustedNetBootServers];
+    }
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    for ( NSDictionary *dict in settings ) {
+        NSArray *errorArr = dict[NBCSettingsError];
+        if ( [errorArr count] != 0 ) {
+            [settingsErrors addObjectsFromArray:errorArr];
+        }
+        
+        NSArray *warningArr = dict[NBCSettingsWarning];
+        if ( [warningArr count] != 0 ) {
+            [settingsWarnings addObjectsFromArray:warningArr];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+} // verifySettingsTabAdvanced
+
+/*
+- (NSDictionary *)verifySettingsTabDebug:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settings = [[NSMutableArray alloc] init];
+    
+
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    for ( NSDictionary *dict in settings ) {
+        NSArray *errorArr = dict[NBCSettingsError];
+        if ( [errorArr count] != 0 ) {
+            [settingsErrors addObjectsFromArray:errorArr];
+        }
+        
+        NSArray *warningArr = dict[NBCSettingsWarning];
+        if ( [warningArr count] != 0 ) {
+            [settingsWarnings addObjectsFromArray:warningArr];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+} // verifySettingsTabDebug
+*/
+ 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Settings Tab General
@@ -428,9 +496,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
-    NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
-    
-    NSArray *packages = userSettings[NBCSettingsPackagesKey];
+    NSArray *packages = [workflowItem userSettings][NBCSettingsPackagesKey];
     
     for ( NSString *packagePath in packages ) {
         NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
@@ -441,6 +507,43 @@ DDLogLevel ddLogLevel;
     
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Settings Tab Advanced
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSDictionary *)verifySettingsTrustedNetBootServers:(NBCWorkflowItem *)workflowItem {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSArray *trustedNetBootServers = [workflowItem userSettings][NBCSettingsTrustedNetBootServersKey];
+    
+    if ( [trustedNetBootServers count] != 0 ) {
+        
+        NSMutableArray *invalidNetBootServers = [[NSMutableArray alloc] init];
+        for ( NSString *netBootServer in trustedNetBootServers ) {
+            if ( ! [netBootServer isValidIPAddress] ) {
+                [invalidNetBootServers addObject:netBootServer];
+            }
+        }
+        
+        if ( [invalidNetBootServers count] != 0 ) {
+            [settingsErrors addObject:[NSString stringWithFormat:@"\"Trusted NetBoot Servers\" contains %lu invalid IP addresses!", (unsigned long)[invalidNetBootServers count]]];
+        }
+    } else {
+        [settingsErrors addObject:[NSString stringWithFormat:@"\"Add Trusted NetBoot Servers\" is enabled but you have not entered any IP addresses"]];
+    }
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Settings Tab Debug
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -536,12 +639,12 @@ DDLogLevel ddLogLevel;
     NSDictionary *userSettings = [workflowItem userSettings];
     NSString *casperImagingPathString = userSettings[NBCSettingsCasperImagingPathKey];
     if ( [casperImagingPathString length] != 0 ) {
-        NSURL *casperImagingURL = [NSURL URLWithString:casperImagingPathString];
+        NSURL *casperImagingURL = [NSURL fileURLWithPath:casperImagingPathString];
         if ( ! [casperImagingURL checkResourceIsReachableAndReturnError:nil] ) {
-            [settingsErrors addObject:@"\"Casper Imaging URL\" is not valid"];
+            [settingsErrors addObject:@"\"Casper Imaging App\" did not exist"];
         }
     } else {
-        [settingsErrors addObject:@"\"Casper Imaging URL\" cannot be empty"];
+        [settingsErrors addObject:@"\"Casper Imaging App\" cannot be empty"];
     }
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }

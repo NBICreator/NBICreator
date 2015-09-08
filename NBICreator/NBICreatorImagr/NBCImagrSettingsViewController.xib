@@ -22,6 +22,7 @@
                 <outlet property="constraintLocalPathToImagrVersion" destination="yUx-We-0gf" id="s5l-W1-mgZ"/>
                 <outlet property="constraintSavedTemplatesToTool" destination="sh2-t3-eBW" id="LRK-IX-RTE"/>
                 <outlet property="constraintTemplatesBoxHeight" destination="7Yp-vP-OKn" id="FYp-Mn-Mfk"/>
+                <outlet property="imageViewBackgroundImage" destination="Y8c-MD-vdM" id="kja-o5-0H0"/>
                 <outlet property="imageViewIcon" destination="6d7-au-Ch5" id="wRh-Sw-RR2"/>
                 <outlet property="imageViewNetworkWarning" destination="7hf-ex-xpe" id="7Dh-aY-TGm"/>
                 <outlet property="popOverManageTrustedServers" destination="TUJ-F9-bq4" id="uyY-hl-gOl"/>
@@ -54,6 +55,7 @@
                 <outlet property="textFieldReportingURL" destination="kCs-xy-MZx" id="UlH-Zh-8kh"/>
                 <outlet property="textFieldSIUVersionLabel" destination="fiB-Ot-zWb" id="RmZ-gY-Yck"/>
                 <outlet property="textFieldSIUVersionString" destination="95e-4J-jZL" id="K0K-LS-lwT"/>
+                <outlet property="textFieldTrustedServersCount" destination="qsT-rq-zbq" id="Fe4-4p-ADb"/>
                 <outlet property="view" destination="1FD-oy-yMF" id="7Sw-5Y-J1y"/>
             </connections>
         </customObject>
@@ -500,10 +502,10 @@ asdasd</string>
                                     </textField>
                                     <popUpButton horizontalHuggingPriority="249" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="mJn-mD-4rM">
                                         <rect key="frame" x="369" y="148" width="148" height="26"/>
-                                        <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="MQp-J4-6Ee" id="gbA-qb-tL9">
+                                        <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" autoenablesItems="NO" selectedItem="MQp-J4-6Ee" id="gbA-qb-tL9">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
-                                            <menu key="menu" id="VjY-q6-hK5">
+                                            <menu key="menu" autoenablesItems="NO" id="VjY-q6-hK5">
                                                 <items>
                                                     <menuItem title="Current" state="on" id="MQp-J4-6Ee"/>
                                                     <menuItem isSeparatorItem="YES" id="15n-jw-daV"/>
@@ -1120,7 +1122,7 @@ asdasd</string>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="qsT-rq-zbq">
-                                        <rect key="frame" x="396" y="289" width="12" height="17"/>
+                                        <rect key="frame" x="312" y="262" width="12" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="0" id="ZBA-xU-s7l">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1128,8 +1130,8 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tU0-xT-OWO">
-                                        <rect key="frame" x="408" y="279" width="102" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Manage..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="y14-XY-xVn">
+                                        <rect key="frame" x="371" y="252" width="149" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Trusted Servers..." bezelStyle="rounded" alignment="center" refusesFirstResponder="YES" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="y14-XY-xVn">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -1138,8 +1140,8 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button translatesAutoresizingMaskIntoConstraints="NO" id="LDr-J1-Sdx">
-                                        <rect key="frame" x="102" y="128" width="170" height="18"/>
-                                        <buttonCell key="cell" type="check" title="Add background image:" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="cn8-Vf-CnH">
+                                        <rect key="frame" x="18" y="62" width="157" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Add background:" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="cn8-Vf-CnH">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -1147,49 +1149,70 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.useBackgroundImage" id="bHB-3C-jWr"/>
                                         </connections>
                                     </button>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WUm-ir-5Jw">
-                                        <rect key="frame" x="280" y="63" width="153" height="17"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="(Currently only .jpg files)" id="AbA-aB-Mak">
-                                            <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                        </textFieldCell>
-                                    </textField>
                                     <button translatesAutoresizingMaskIntoConstraints="NO" id="SPY-n8-g0d">
-                                        <rect key="frame" x="102" y="288" width="290" height="18"/>
-                                        <buttonCell key="cell" type="check" title="Automatically add trusted NetBoot Servers:" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="j6m-0N-fbK">
+                                        <rect key="frame" x="18" y="261" width="290" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Automatically add trusted NetBoot Servers:" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="j6m-0N-fbK">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="DSA-6j-J7i"/>
                                             <binding destination="-2" name="value" keyPath="self.addTrustedNetBootServers" id="BFj-Cx-NzD"/>
                                         </connections>
                                     </button>
                                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Y8c-MD-vdM" customClass="NBCImagrDropViewImageBackground">
-                                        <rect key="frame" x="101" y="17" width="176" height="108"/>
+                                        <rect key="frame" x="179" y="17" width="176" height="108"/>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="102" id="Lm6-Dz-0CT"/>
-                                            <constraint firstAttribute="width" constant="170" id="P8J-Hr-eVA"/>
+                                            <constraint firstAttribute="width" constant="170" id="QYg-3G-L6V"/>
+                                            <constraint firstAttribute="height" constant="102" id="Z6w-Rg-avr"/>
                                         </constraints>
                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" imageFrameStyle="grayBezel" id="PvX-Yl-IKN"/>
                                         <connections>
                                             <binding destination="-2" name="valuePath" keyPath="self.imageBackground" id="aVL-l0-ax7"/>
                                         </connections>
                                     </imageView>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="WUm-ir-5Jw">
+                                        <rect key="frame" x="18" y="39" width="157" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="(Currently only .jpg files)" id="AbA-aB-Mak">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lMb-x3-PKP">
+                                        <rect key="frame" x="18" y="287" width="190" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Requires OS X 10.11 or newer" id="kjf-TX-fr4">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <box verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="63y-jf-OUg">
+                                        <rect key="frame" x="20" y="242" width="494" height="5"/>
+                                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        <font key="titleFont" metaFont="system"/>
+                                    </box>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="LDr-J1-Sdx" firstAttribute="leading" secondItem="Y8c-MD-vdM" secondAttribute="leading" id="3E0-Bs-4ZJ"/>
-                                    <constraint firstItem="Y8c-MD-vdM" firstAttribute="leading" secondItem="SPY-n8-g0d" secondAttribute="leading" id="5je-Ce-em7"/>
+                                    <constraint firstItem="WUm-ir-5Jw" firstAttribute="width" secondItem="LDr-J1-Sdx" secondAttribute="width" id="0RT-F7-uzj"/>
+                                    <constraint firstItem="WUm-ir-5Jw" firstAttribute="top" secondItem="LDr-J1-Sdx" secondAttribute="bottom" constant="8" symbolic="YES" id="3GJ-9B-OYy"/>
+                                    <constraint firstAttribute="bottom" secondItem="Y8c-MD-vdM" secondAttribute="bottom" constant="20" symbolic="YES" id="5q3-sF-bMT"/>
                                     <constraint firstItem="tU0-xT-OWO" firstAttribute="baseline" secondItem="qsT-rq-zbq" secondAttribute="baseline" id="9fB-3g-C9n"/>
-                                    <constraint firstAttribute="bottom" secondItem="Y8c-MD-vdM" secondAttribute="bottom" constant="20" symbolic="YES" id="9gf-w4-3hg"/>
-                                    <constraint firstItem="Y8c-MD-vdM" firstAttribute="centerY" secondItem="WUm-ir-5Jw" secondAttribute="centerY" id="B2Y-G8-YFx"/>
-                                    <constraint firstItem="Y8c-MD-vdM" firstAttribute="top" secondItem="LDr-J1-Sdx" secondAttribute="bottom" constant="8" symbolic="YES" id="MKC-hd-QB8"/>
-                                    <constraint firstItem="SPY-n8-g0d" firstAttribute="top" secondItem="3ww-3o-gZx" secondAttribute="top" constant="20" symbolic="YES" id="XFo-VT-ihM"/>
-                                    <constraint firstItem="tU0-xT-OWO" firstAttribute="leading" secondItem="qsT-rq-zbq" secondAttribute="trailing" constant="8" symbolic="YES" id="XTc-Ht-QPX"/>
+                                    <constraint firstItem="63y-jf-OUg" firstAttribute="top" secondItem="SPY-n8-g0d" secondAttribute="bottom" constant="18" id="Cek-rx-KIF"/>
+                                    <constraint firstItem="WUm-ir-5Jw" firstAttribute="leading" secondItem="LDr-J1-Sdx" secondAttribute="leading" id="GZU-Pp-Uy3"/>
+                                    <constraint firstItem="63y-jf-OUg" firstAttribute="leading" secondItem="3ww-3o-gZx" secondAttribute="leading" constant="20" symbolic="YES" id="JO9-Si-TqD"/>
+                                    <constraint firstAttribute="trailing" secondItem="63y-jf-OUg" secondAttribute="trailing" constant="20" symbolic="YES" id="JyO-gY-ctA"/>
+                                    <constraint firstAttribute="trailing" secondItem="tU0-xT-OWO" secondAttribute="trailing" constant="20" symbolic="YES" id="N0I-hc-6om"/>
+                                    <constraint firstItem="lMb-x3-PKP" firstAttribute="leading" secondItem="3ww-3o-gZx" secondAttribute="leading" constant="20" symbolic="YES" id="UXg-FG-p6z"/>
+                                    <constraint firstItem="SPY-n8-g0d" firstAttribute="top" secondItem="lMb-x3-PKP" secondAttribute="bottom" constant="10" id="bHs-Hw-SMh"/>
+                                    <constraint firstAttribute="centerX" secondItem="Y8c-MD-vdM" secondAttribute="centerX" id="fDg-CR-6rH"/>
                                     <constraint firstItem="qsT-rq-zbq" firstAttribute="leading" secondItem="SPY-n8-g0d" secondAttribute="trailing" constant="8" symbolic="YES" id="fgO-9W-rMc"/>
-                                    <constraint firstItem="SPY-n8-g0d" firstAttribute="leading" secondItem="3ww-3o-gZx" secondAttribute="leading" constant="104" id="mLC-kW-9DR"/>
-                                    <constraint firstItem="WUm-ir-5Jw" firstAttribute="leading" secondItem="Y8c-MD-vdM" secondAttribute="trailing" constant="8" symbolic="YES" id="pRu-5X-j8J"/>
+                                    <constraint firstItem="SPY-n8-g0d" firstAttribute="leading" secondItem="3ww-3o-gZx" secondAttribute="leading" constant="20" symbolic="YES" id="mLC-kW-9DR"/>
+                                    <constraint firstItem="lMb-x3-PKP" firstAttribute="top" secondItem="3ww-3o-gZx" secondAttribute="top" constant="20" symbolic="YES" id="oug-cd-BHD"/>
                                     <constraint firstItem="qsT-rq-zbq" firstAttribute="baseline" secondItem="SPY-n8-g0d" secondAttribute="baseline" id="qYW-qs-XZM"/>
+                                    <constraint firstItem="Y8c-MD-vdM" firstAttribute="centerY" secondItem="LDr-J1-Sdx" secondAttribute="centerY" id="qr4-7v-gwg"/>
+                                    <constraint firstItem="SPY-n8-g0d" firstAttribute="leading" secondItem="LDr-J1-Sdx" secondAttribute="leading" id="x2c-Dk-f7S"/>
                                 </constraints>
                             </view>
                         </tabViewItem>
@@ -1200,7 +1223,7 @@ asdasd</string>
                                 <subviews>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="1g8-Qp-E2l">
                                         <rect key="frame" x="18" y="288" width="293" height="18"/>
-                                        <buttonCell key="cell" type="check" title="Always boot in verbose mode (Command-V)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="0xF-8l-xa7">
+                                        <buttonCell key="cell" type="check" title="Always boot in verbose mode (Command-V)" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="0xF-8l-xa7">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -1210,7 +1233,7 @@ asdasd</string>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hOf-pF-SVA">
                                         <rect key="frame" x="18" y="265" width="389" height="18"/>
-                                        <buttonCell key="cell" type="check" title="Make NetInstall images Read/Write ( dmg -&gt; sparse image )" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="yjo-DP-1Fe">
+                                        <buttonCell key="cell" type="check" title="Make NetInstall images Read/Write ( dmg -&gt; sparse image )" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="yjo-DP-1Fe">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -1340,10 +1363,10 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
-                                            <binding destination="-2" name="value" keyPath="self.imagrReportingURL" id="lXh-7T-y6P">
+                                            <binding destination="-2" name="value" keyPath="self.imagrReportingURL" id="drt-hg-DZt">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                                    <string key="NSNullPlaceholder">http://192.168.178.135/report</string>
+                                                    <string key="NSNullPlaceholder">(Optional)</string>
                                                 </dictionary>
                                             </binding>
                                             <outlet property="delegate" destination="-2" id="OH3-vs-mli"/>
@@ -1364,12 +1387,12 @@ asdasd</string>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <binding destination="-2" name="value" keyPath="self.disableATS" id="I40-er-BGK"/>
-                                            <binding destination="-2" name="hidden" keyPath="self.disableATSVisible" id="iJz-dp-m2t">
+                                            <binding destination="-2" name="hidden" keyPath="self.settingDisableATSVisible" id="3Wb-1k-0R4">
                                                 <dictionary key="options">
                                                     <string key="NSValueTransformerName">NSNegateBoolean</string>
                                                 </dictionary>
                                             </binding>
+                                            <binding destination="-2" name="value" keyPath="self.disableATS" id="I40-er-BGK"/>
                                         </connections>
                                     </button>
                                 </subviews>

@@ -42,6 +42,7 @@
 //  Modify
 // ------------------------------------------------------
 - (BOOL)settingsToRemove:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
+- (BOOL)modifySettingsForCasperImaging:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifySettingsForDesktopViewer:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifyRCInstall:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifySettingsForImagr:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;

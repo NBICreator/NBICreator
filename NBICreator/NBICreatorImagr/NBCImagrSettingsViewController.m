@@ -81,6 +81,7 @@ DDLogLevel ddLogLevel;
     [nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationImagrRemovedSource object:nil];
     [nc addObserver:self selector:@selector(updateNBIIcon:) name:NBCNotificationImagrUpdateNBIIcon object:nil];
     [nc addObserver:self selector:@selector(updateNBIBackground:) name:NBCNotificationImagrUpdateNBIBackground object:nil];
+    [nc addObserver:self selector:@selector(editingDidEnd:) name:NSControlTextDidEndEditingNotification object:nil];
     
     // --------------------------------------------------------------
     //  Add KVO Observers
@@ -137,7 +138,7 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------------------------------------------
     //
     // -------------------------------------------------------------------------------
-    [self setATSButtonVisiblility];
+    [self updateSettingVisibility];
     
     // ------------------------------------------------------------------------------
     //  Verify build button so It's not enabled by mistake
@@ -416,6 +417,12 @@ DDLogLevel ddLogLevel;
         }
     }
     return nil;
+}
+
+- (void)editingDidEnd:(NSNotification *)notification {
+    if ( [[[[notification object] superview] class] isSubclassOfClass:[NBCTrustedNetBootServerCellView class]] ) {
+        [self updateTrustedNetBootServersCount];
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -702,7 +709,7 @@ DDLogLevel ddLogLevel;
 
 - (void)controlTextDidChange:(NSNotification *)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
-
+    
     // --------------------------------------------------------------------
     //  Expand variables for the NBI preview text fields
     // --------------------------------------------------------------------
@@ -841,17 +848,20 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)setATSButtonVisiblility {
+- (void)updateSettingVisibility {
     if ( _source != nil ) {
         int sourceVersionMinor = (int)[[_source expandVariables:@"%OSMINOR%"] integerValue];
         DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
         if ( _source != nil && 11 <= sourceVersionMinor ) {
-            [self setDisableATSVisible:YES];
+            [self setSettingDisableATSVisible:YES];
+            [self setSettingTrustedNetBootServersVisible:YES];
         } else {
-            [self setDisableATSVisible:NO];
+            [self setSettingDisableATSVisible:NO];
+            [self setSettingTrustedNetBootServersVisible:NO];
         }
     } else {
-        [self setDisableATSVisible:NO];
+        [self setSettingDisableATSVisible:NO];
+        [self setSettingTrustedNetBootServersVisible:NO];
     }
 }
 
@@ -862,7 +872,7 @@ DDLogLevel ddLogLevel;
         [self setSource:source];
     }
     
-    [self setATSButtonVisiblility];
+    [self updateSettingVisibility];
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
     if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
@@ -899,7 +909,7 @@ DDLogLevel ddLogLevel;
         [self setSource:nil];
     }
     
-    [self setATSButtonVisiblility];
+    [self updateSettingVisibility];
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
     if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
@@ -1122,7 +1132,7 @@ DDLogLevel ddLogLevel;
 - (NSDictionary *)returnSettingsFromUI {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
-
+    
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"1";
@@ -1181,9 +1191,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsPackagesKey] = packageArray ?: @[];
     
     NSMutableArray *trustedNetBootServersArray = [[NSMutableArray alloc] init];
-    NSLog(@"_trustedServers=%@", _trustedServers);
     for ( NSString *trustedNetBootServer in _trustedServers ) {
-        NSLog(@"trustedNetBootServer=%@", trustedNetBootServer);
         if ( [trustedNetBootServer length] != 0 ) {
             [trustedNetBootServersArray insertObject:trustedNetBootServer atIndex:0];
         }
@@ -2166,7 +2174,6 @@ DDLogLevel ddLogLevel;
 } // buildNBI
 
 - (void)verifySettings {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     DDLogInfo(@"Verifying settings...");
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeImagr
                                                               workflowSessionType:kWorkflowSessionTypeGUI];
@@ -2185,7 +2192,6 @@ DDLogLevel ddLogLevel;
         
         // Instantiate settingsController and run verification
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
-        //NSDictionary *errorInfoDict = [sc verifySettingsImagr:workflowItem];
         NSDictionary *errorInfoDict = [sc verifySettings:workflowItem];
         
         if ( [errorInfoDict count] != 0 ) {
@@ -2377,6 +2383,16 @@ DDLogLevel ddLogLevel;
         return;
     }
     
+    NSMutableArray *validatedTrustedNetBootServers = [[NSMutableArray alloc] init];
+    for ( NSString *netBootServerIP in _trustedServers ) {
+        if ( [netBootServerIP isValidIPAddress] ) {
+            [validatedTrustedNetBootServers addObject:netBootServerIP];
+        }
+    }
+    if ( [validatedTrustedNetBootServers count] != 0 ) {
+        resourcesSettings[NBCSettingsTrustedNetBootServersKey] = [validatedTrustedNetBootServers copy];
+    }
+    
     // -------------------------------------------------------------
     //  Create list of items to extract from installer
     // -------------------------------------------------------------
@@ -2546,15 +2562,25 @@ DDLogLevel ddLogLevel;
     [self setTimeZoneArray:[NSTimeZone knownTimeZoneNames]];
     if ( [_timeZoneArray count] != 0 ) {
         NSMenu *menuAfrica = [[NSMenu alloc] initWithTitle:@"Africa"];
+        [menuAfrica setAutoenablesItems:NO];
         NSMenu *menuAmerica = [[NSMenu alloc] initWithTitle:@"America"];
+        [menuAmerica setAutoenablesItems:NO];
         NSMenu *menuAntarctica = [[NSMenu alloc] initWithTitle:@"Antarctica"];
+        [menuAntarctica setAutoenablesItems:NO];
         NSMenu *menuArctic = [[NSMenu alloc] initWithTitle:@"Arctic"];
+        [menuArctic setAutoenablesItems:NO];
         NSMenu *menuAsia = [[NSMenu alloc] initWithTitle:@"Asia"];
+        [menuAsia setAutoenablesItems:NO];
         NSMenu *menuAtlantic = [[NSMenu alloc] initWithTitle:@"Atlantic"];
+        [menuAtlantic setAutoenablesItems:NO];
         NSMenu *menuAustralia = [[NSMenu alloc] initWithTitle:@"Australia"];
+        [menuAustralia setAutoenablesItems:NO];
         NSMenu *menuEurope = [[NSMenu alloc] initWithTitle:@"Europe"];
+        [menuEurope setAutoenablesItems:NO];
         NSMenu *menuIndian = [[NSMenu alloc] initWithTitle:@"Indian"];
+        [menuIndian setAutoenablesItems:NO];
         NSMenu *menuPacific = [[NSMenu alloc] initWithTitle:@"Pacific"];
+        [menuPacific setAutoenablesItems:NO];
         for ( NSString *timeZoneName in _timeZoneArray ) {
             if ( [timeZoneName isEqualToString:@"GMT"] ) {
                 continue;
@@ -2579,71 +2605,85 @@ DDLogLevel ddLogLevel;
                 timeZoneCity = timeZone[1];
             }
             
+            NSMenuItem *cityMenyItem = [[NSMenuItem alloc] initWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            [cityMenyItem setEnabled:YES];
+            
             if ( [timeZoneRegion isEqualToString:@"Africa"] ) {
-                [menuAfrica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAfrica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"America"] ) {
-                [menuAmerica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAmerica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Antarctica"] ) {
-                [menuAntarctica addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAntarctica addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Arctic"] ) {
-                [menuArctic addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuArctic addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Asia"] ) {
-                [menuAsia addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAsia addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Atlantic"] ) {
-                [menuAtlantic addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAtlantic addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Australia"] ) {
-                [menuAustralia addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuAustralia addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Europe"] ) {
-                [menuEurope addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuEurope addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Indian"] ) {
-                [menuIndian addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuIndian addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             } else if ( [timeZoneRegion isEqualToString:@"Pacific"] ) {
-                [menuPacific addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+                [menuPacific addItem:cityMenyItem]; //addItemWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
             }
         }
         
         [_popUpButtonTimeZone removeAllItems];
+        [_popUpButtonTimeZone setAutoenablesItems:NO];
         [_popUpButtonTimeZone addItemWithTitle:NBCMenuItemCurrent];
         [[_popUpButtonTimeZone menu] addItem:[NSMenuItem separatorItem]];
         
         NSMenuItem *menuItemAfrica = [[NSMenuItem alloc] initWithTitle:@"Africa" action:nil keyEquivalent:@""];
         [menuItemAfrica setSubmenu:menuAfrica];
+        [menuItemAfrica setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAfrica];
         
         NSMenuItem *menuItemAmerica = [[NSMenuItem alloc] initWithTitle:@"America" action:nil keyEquivalent:@""];
         [menuItemAmerica setSubmenu:menuAmerica];
+        [menuItemAmerica setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAmerica];
         
         NSMenuItem *menuItemAntarctica = [[NSMenuItem alloc] initWithTitle:@"Antarctica" action:nil keyEquivalent:@""];
         [menuItemAntarctica setSubmenu:menuAntarctica];
+        [menuItemAntarctica setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAntarctica];
         
         NSMenuItem *menuItemArctic = [[NSMenuItem alloc] initWithTitle:@"Arctic" action:nil keyEquivalent:@""];
         [menuItemArctic setSubmenu:menuArctic];
+        [menuItemArctic setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemArctic];
         
         NSMenuItem *menuItemAsia = [[NSMenuItem alloc] initWithTitle:@"Asia" action:nil keyEquivalent:@""];
         [menuItemAsia setSubmenu:menuAsia];
+        [menuItemAsia setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAsia];
         
         NSMenuItem *menuItemAtlantic = [[NSMenuItem alloc] initWithTitle:@"Atlantic" action:nil keyEquivalent:@""];
         [menuItemAtlantic setSubmenu:menuAtlantic];
+        [menuItemAtlantic setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAtlantic];
         
         NSMenuItem *menuItemAustralia = [[NSMenuItem alloc] initWithTitle:@"Australia" action:nil keyEquivalent:@""];
         [menuItemAustralia setSubmenu:menuAustralia];
+        [menuItemAustralia setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemAustralia];
         
         NSMenuItem *menuItemEurope = [[NSMenuItem alloc] initWithTitle:@"Europe" action:nil keyEquivalent:@""];
         [menuItemEurope setSubmenu:menuEurope];
+        [menuItemEurope setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemEurope];
         
         NSMenuItem *menuItemIndian = [[NSMenuItem alloc] initWithTitle:@"Indian" action:nil keyEquivalent:@""];
         [menuItemIndian setSubmenu:menuIndian];
+        [menuItemIndian setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemIndian];
         
         NSMenuItem *menuItemPacific = [[NSMenuItem alloc] initWithTitle:@"Pacific" action:nil keyEquivalent:@""];
         [menuItemPacific setSubmenu:menuPacific];
+        [menuItemPacific setTarget:self];
         [[_popUpButtonTimeZone menu] addItem:menuItemPacific];
         
         [self setSelectedMenuItem:[_popUpButtonTimeZone selectedItem]];
@@ -2844,4 +2884,5 @@ DDLogLevel ddLogLevel;
     [_tableViewTrustedServers removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
     [self updateTrustedNetBootServersCount];
 }
+
 @end

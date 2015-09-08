@@ -467,6 +467,11 @@ DDLogLevel ddLogLevel;
             retval = [sc verifySourceIsMountedInstallESD:[_currentWorkflowItem source]];
             break;
         }
+        case kWorkflowTypeCasper:
+        {
+            retval = [sc verifySourceIsMountedInstallESD:[_currentWorkflowItem source]];
+            break;
+        }
     }
     
     return retval;

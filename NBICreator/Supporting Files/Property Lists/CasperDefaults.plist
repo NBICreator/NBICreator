@@ -32,6 +32,8 @@
 	<string></string>
 	<key>ARDLogin</key>
 	<string></string>
+	<key>CasperImagingDebugMode</key>
+	<string></string>
 	<key>CasperImagingPath</key>
 	<string></string>
 	<key>CasperJSSURL</key>

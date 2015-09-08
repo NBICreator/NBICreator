@@ -13,6 +13,7 @@
 
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
+#import "NBCMessageDelegate.h"
 
 #import "NBCWorkflowItem.h"
 
@@ -20,6 +21,7 @@
 #import "NBCTargetController.h"
 
 #import "NBCDiskImageController.h"
+
 
 DDLogLevel ddLogLevel;
 
@@ -240,13 +242,9 @@ DDLogLevel ddLogLevel;
     BOOL retval = NO;
     
     NSString *sparseImageFolderPath = [[sparseImageURL URLByDeletingLastPathComponent] path];
-    NSLog(@"sparseImageFolderPath=%@", sparseImageFolderPath);
     NSString *sparseImageName = [[sparseImageURL lastPathComponent] stringByDeletingPathExtension];
-    NSLog(@"sparseImageName=%@", sparseImageName);
     NSString *sparseImagePath = [NSString stringWithFormat:@"%@.sparseimage", sparseImageName];
-    NSLog(@"sparseImagePath=%@", sparseImagePath);
     NSString *dmgLinkPath = [NSString stringWithFormat:@"%@.dmg", sparseImageName];
-    NSLog(@"dmgLinkPath=%@", dmgLinkPath);
     
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/bin/ln"];
@@ -636,8 +634,12 @@ DDLogLevel ddLogLevel;
         }
         
         /*if ( verified && [userSettings[NBCSettingsCasperDisableATS] boolValue] ) {
-            verified = [_targetController modifySettingsForCasper:modifyDictArray workflowItem:_workflowItem];
-        }*/
+         verified = [_targetController modifySettingsForCasper:modifyDictArray workflowItem:_workflowItem];
+         }*/
+    }
+    
+    if ( verified && [userSettings[NBCSettingsCasperImagingDebugModeKey] boolValue] ) {
+        verified = [_targetController modifySettingsForCasperImaging:modifyDictArray workflowItem:_workflowItem];
     }
     
     if ( verified && [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
@@ -1246,7 +1248,7 @@ DDLogLevel ddLogLevel;
         }] modifyResourcesOnVolume:volumeURL resourcesDictArray:spotlightSettings withReply:^(NSError *error, int terminationStatus) {
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                 if ( terminationStatus == 0 ) {
-                    [self finalizeWorkflow];
+                    [self modifyCasperImagingPermissions];
                 } else {
                     DDLogError(@"%@", error);
                     [self modifyFailed];
@@ -1257,6 +1259,102 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] spotlightSettings is nil!");
         [self modifyFailed];
     }
+}
+
+- (void)modifyCasperImagingPermissions {
+    NSURL *volumeURL = [[_workflowItem target] baseSystemVolumeURL];
+    NSURL *casperImagingURL = [volumeURL URLByAppendingPathComponent:NBCCasperImagingApplicationNBICreatorTargetURL];
+    
+    NSURL *command = [NSURL fileURLWithPath:@"/usr/sbin/chown"];
+    NSArray *arguments = @[
+                           @"-R", @"root:wheel", [casperImagingURL path]
+                           ];
+    NSLog(@"command=%@", command);
+    NSLog(@"arguments=%@", arguments);
+    
+    // -----------------------------------------------------------------------------------
+    //  Create standard output file handle and register for data available notifications.
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdOut = [[NSPipe alloc] init];
+    NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
+    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+    
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdOut fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
+                                        NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When output data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        NSLog(@"outStr=%@", outStr);
+                                        
+                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    // -----------------------------------------------------------------------------------
+    //  Create standard error file handle and register for data available notifications.
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdErr = [[NSPipe alloc] init];
+    NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
+    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+    
+    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdErr fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
+                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When error data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        NSLog(@"errStr=%@", errStr);
+                                        
+                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+    [helperConnector connectToHelper];
+    
+    [[helperConnector connection] setExportedObject:_messageDelegate];
+    [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCMessageDelegate)]];
+    
+    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            
+            // ------------------------------------------------------------------
+            //  If task failed, post workflow failed notification
+            // ------------------------------------------------------------------
+            DDLogError(@"%@", proxyError);
+            [self modifyFailed];
+        }];
+        
+    }] runTaskWithCommandAtPath:command arguments:arguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
+        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            if ( terminationStatus == 0 ) {
+                [self finalizeWorkflow];
+                [nc removeObserver:stdOutObserver];
+                [nc removeObserver:stdErrObserver];
+            } else {
+                DDLogError(@"%@", error);
+                [nc removeObserver:stdOutObserver];
+                [nc removeObserver:stdErrObserver];
+                [self modifyFailed];
+            }
+        }];
+    }];
 }
 
 - (void)generateBootCachePlaylist {

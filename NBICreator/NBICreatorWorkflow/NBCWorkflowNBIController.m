@@ -433,6 +433,22 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
     
+    if ( 11 <= osMinorVersion ) {
+        if ( [settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
+            NSString *setAddTrustedNetBootServers = [NSString stringWithFormat:@"\n"
+                                                     "###\n"
+                                                     "### Add Trusted NetBoot Servers\n"
+                                                     "###\n"
+                                                     "if [[ -f /usr/bin/csrutil ]] && [[ -f /usr/local/bsdpSources.txt ]]; then\n"
+                                                     "\twhile read netBootServer\n"
+                                                     "\tdo\n"
+                                                     "\t\t/usr/bin/csrutil netboot add \"${netBootServer}\"\n"
+                                                     "\tdone < \"/usr/local/bsdpSources.txt\"\n"
+                                                     "fi\n"];
+            rcImaging = [rcImaging stringByAppendingString:setAddTrustedNetBootServers];
+        }
+    }
+    
     if ( [settingsDict[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
         NSString *setDate = [NSString stringWithFormat:@"\n"
                              "###\n"
@@ -582,6 +598,22 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
     
+    if ( 11 <= osMinorVersion ) {
+        if ( [settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
+            NSString *setAddTrustedNetBootServers = [NSString stringWithFormat:@"\n"
+                                                     "###\n"
+                                                     "### Add Trusted NetBoot Servers\n"
+                                                     "###\n"
+                                                     "if [[ -f /usr/bin/csrutil ]] && [[ -f /usr/local/bsdpSources.txt ]]; then\n"
+                                                     "\twhile read netBootServer\n"
+                                                     "\tdo\n"
+                                                     "\t\t/usr/bin/csrutil netboot add \"${netBootServer}\"\n"
+                                                     "\tdone < \"/usr/local/bsdpSources.txt\"\n"
+                                                     "fi\n"];
+            rcImaging = [rcImaging stringByAppendingString:setAddTrustedNetBootServers];
+        }
+    }
+    
     if ( [settingsDict[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
         NSString *setDate = [NSString stringWithFormat:@"\n"
                              "###\n"
@@ -703,15 +735,15 @@ DDLogLevel ddLogLevel;
     if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemNBICreator] ) {
         startImagr = [NSString stringWithFormat:@"\n"
                       "###\n"
-                      "### Start Imagr\n"
+                      "### Start Casper Imaging\n"
                       "###\n"
-                      "/Applications/Imagr.app/Contents/MacOS/Imagr\n"];
+                      "/Applications/Casper\\ Imaging.app/Contents/MacOS/Casper\\ Imaging\n"];
     } else if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
         startImagr = [NSString stringWithFormat:@"\n"
                       "###\n"
-                      "### Start Imagr\n"
+                      "### Start Casper Imaging\n"
                       "###\n"
-                      "/Volumes/Image\\ Volume/Packages/Imagr.app/Contents/MacOS/Imagr\n"];
+                      "/Volumes/Image\\ Volume/Packages/Casper\\ Imaging.app/Contents/MacOS/Casper\\ Imaging\n"];
     }
     rcImaging = [rcImaging stringByAppendingString:startImagr];
     
@@ -725,7 +757,7 @@ DDLogLevel ddLogLevel;
     }
     
     return rcImaging;
-}
+} // generateCasperRCImagingForNBICreator
 
 
 @end

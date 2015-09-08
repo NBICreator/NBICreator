@@ -1195,10 +1195,10 @@ DDLogLevel ddLogLevel;
     }
     
     NSDictionary *modifyDesktopPicture = @{
-                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                          NBCWorkflowModifySourceURL : [desktopPictureSourceURL path],
-                                          NBCWorkflowModifyTargetURL : [desktopPictureTargetURL path]
-                                          };
+                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                           NBCWorkflowModifySourceURL : [desktopPictureSourceURL path],
+                                           NBCWorkflowModifyTargetURL : [desktopPictureTargetURL path]
+                                           };
     DDLogDebug(@"modifyDesktopPicture=%@", modifyDesktopPicture);
     [modifyDictArray addObject:modifyDesktopPicture];
     
@@ -1384,7 +1384,7 @@ DDLogLevel ddLogLevel;
         imagrInfoPlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:imagrInfoPlistURL];
         imagrInfoPlistAttributes = [fm attributesOfItemAtPath:[imagrInfoPlistURL path] error:&error];
     }
-
+    
     if ( [imagrInfoPlistDict count] == 0 ) {
         imagrInfoPlistDict = [[NSMutableDictionary alloc] init];
         imagrInfoPlistAttributes = @{
@@ -1652,6 +1652,94 @@ DDLogLevel ddLogLevel;
     
     return retval;
 } // modifySettingsForMenuBar
+
+- (BOOL)modifySettingsForTrustedNetBootServers:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    BOOL retval = YES;
+    NSDictionary *resourcesSettings = [workflowItem resourcesSettings];
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // --------------------------------------------------------------
+    //  /usr/local/bsdpSources.txt
+    // --------------------------------------------------------------
+    NSArray *bsdpSourcesArray = resourcesSettings[NBCSettingsTrustedNetBootServersKey];
+    if ( [bsdpSourcesArray count] != 0 ) {
+        NSURL *usrLocalBsdpSourcesURL = [volumeURL URLByAppendingPathComponent:@"usr/local/bsdpSources.txt"];
+        
+        NSMutableString *bsdpSourcesContent = [[NSMutableString alloc] init];
+        for ( NSString *trustedNetBootServer in bsdpSourcesArray ) {
+            [bsdpSourcesContent appendString:[NSString stringWithFormat:@"%@\n", trustedNetBootServer]];
+        }
+        
+        if ( [bsdpSourcesContent length] != 0 ) {
+            NSData *bsdpSourcesData = [bsdpSourcesContent dataUsingEncoding:NSUTF8StringEncoding];
+            
+            NSDictionary *usrLocalBsdpSourcesAttributes = @{
+                                                            NSFileOwnerAccountName : @"root",
+                                                            NSFileGroupOwnerAccountName : @"wheel",
+                                                            NSFilePosixPermissions : @0644
+                                                            };
+            NSDictionary *modifyUsrLocalBsdpSources = @{
+                                                        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
+                                                        NBCWorkflowModifyContent : bsdpSourcesData,
+                                                        NBCWorkflowModifyTargetURL : [usrLocalBsdpSourcesURL path],
+                                                        NBCWorkflowModifyAttributes : usrLocalBsdpSourcesAttributes
+                                                        };
+            
+            [modifyDictArray addObject:modifyUsrLocalBsdpSources];
+        } else {
+            DDLogError(@"[ERROR] bsdp Sources List is empty!");
+        }
+    } else {
+        DDLogError(@"[ERROR] bsdp Sources List is empty!");
+    }
+    
+    return retval;
+}
+
+- (BOOL)modifySettingsForCasperImaging:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    BOOL retval = YES;
+    NSDictionary *userSettings = [workflowItem userSettings];
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"volumeURL=%@", volumeURL);
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // --------------------------------------------------------------
+    //
+    // --------------------------------------------------------------
+    NSString *casperImagingPath = userSettings[NBCSettingsCasperImagingPathKey];
+    NSLog(@"casperImagingPath=%@", casperImagingPath);
+    if ( [casperImagingPath length] != 0 ) {
+        NSURL *casperImagingDebugURL = [[NSURL fileURLWithPath:casperImagingPath] URLByAppendingPathComponent:@"Contents/Support/debug" isDirectory:YES];
+        NSLog(@"casperImagingDebugURL=%@", casperImagingDebugURL);
+        // --------------------------------------------------------------
+        //  /Library/Security/Trust Settings
+        // --------------------------------------------------------------
+        NSDictionary *folderCasperImagingDebugAttributes = @{
+                                                             NSFileOwnerAccountName : @"root",
+                                                             NSFileGroupOwnerAccountName : @"wheel",
+                                                             NSFilePosixPermissions : @0755
+                                                             };
+        
+        NSDictionary *modifyFolderCasperImagingDebug = @{
+                                                         NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                         NBCWorkflowModifyTargetURL : [casperImagingDebugURL path],
+                                                         NBCWorkflowModifyAttributes : folderCasperImagingDebugAttributes
+                                                         };
+        [modifyDictArray addObject:modifyFolderCasperImagingDebug];
+    } else {
+        DDLogError(@"[ERROR] Path to Casper Imaging.app was empty!");
+        return NO;
+    }
+    
+    return retval;
+}
 
 - (BOOL)modifySettingsForVNC:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
@@ -2247,7 +2335,7 @@ DDLogLevel ddLogLevel;
     
     NSDictionary *userSettings = [workflowItem userSettings];
     DDLogDebug(@"userSettings=%@", userSettings);
-
+    
     // ---------------------------------------------------------------
     //  /var/root/Library/Preferences/com.jamfsoftware.jss
     // ---------------------------------------------------------------
@@ -2263,14 +2351,14 @@ DDLogLevel ddLogLevel;
     if ( [jssSettingsDict count] == 0 ) {
         jssSettingsDict = [[NSMutableDictionary alloc] init];
         jssSettingsAttributes = @{
-                                   NSFileOwnerAccountName : @"root",
-                                   NSFileGroupOwnerAccountName : @"wheel",
-                                   NSFilePosixPermissions : @0644
-                                   };
+                                  NSFileOwnerAccountName : @"root",
+                                  NSFileGroupOwnerAccountName : @"wheel",
+                                  NSFilePosixPermissions : @0644
+                                  };
     }
     DDLogDebug(@"jssSettingsDict=%@", jssSettingsDict);
     DDLogDebug(@"jssSettingsAttributes=%@", jssSettingsAttributes);
-
+    
     jssSettingsDict[@"allowInvalidCertificate"] = @NO;
     
     NSString *jssURLString = userSettings[NBCSettingsCasperJSSURLKey];
@@ -2294,11 +2382,11 @@ DDLogLevel ddLogLevel;
     
     DDLogDebug(@"jssSettingsDict=%@", jssSettingsDict);
     NSDictionary *modifyJSSSettings = @{
-                                         NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                         NBCWorkflowModifyContent : jssSettingsDict,
-                                         NBCWorkflowModifyAttributes : jssSettingsAttributes,
-                                         NBCWorkflowModifyTargetURL : [jssSettingsURL path]
-                                         };
+                                        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                        NBCWorkflowModifyContent : jssSettingsDict,
+                                        NBCWorkflowModifyAttributes : jssSettingsAttributes,
+                                        NBCWorkflowModifyTargetURL : [jssSettingsURL path]
+                                        };
     DDLogDebug(@"modifyJSSSettings=%@", modifyJSSSettings);
     [modifyDictArray addObject:modifyJSSSettings];
     
@@ -2391,7 +2479,7 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] volumeURL is nil");
         return NO;
     }
-
+    
     // --------------------------------------------------------------
     //  /Library/Caches
     // --------------------------------------------------------------
@@ -2417,16 +2505,16 @@ DDLogLevel ddLogLevel;
     NSURL *folderVarDbLsd = [volumeURL URLByAppendingPathComponent:@"var/db/lsd" isDirectory:YES];
     DDLogDebug(@"folderVarDbLsd=%@", folderVarDbLsd);
     NSDictionary *folderVarDbLsdAttributes = @{
-                                                   NSFileOwnerAccountName : @"root",
-                                                   NSFileGroupOwnerAccountName : @"wheel",
-                                                   NSFilePosixPermissions : @0777
-                                                   };
+                                               NSFileOwnerAccountName : @"root",
+                                               NSFileGroupOwnerAccountName : @"wheel",
+                                               NSFilePosixPermissions : @0777
+                                               };
     DDLogDebug(@"folderVarDbLsdAttributes=%@", folderVarDbLsdAttributes);
     NSDictionary *modifyFolderVarDbLsd = @{
-                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
-                                               NBCWorkflowModifyTargetURL : [folderVarDbLsd path],
-                                               NBCWorkflowModifyAttributes : folderVarDbLsdAttributes
-                                               };
+                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                           NBCWorkflowModifyTargetURL : [folderVarDbLsd path],
+                                           NBCWorkflowModifyAttributes : folderVarDbLsdAttributes
+                                           };
     DDLogDebug(@"modifyFolderVarDbLsd=%@", modifyFolderVarDbLsd);
     [modifyDictArray addObject:modifyFolderVarDbLsd];
     
@@ -2436,16 +2524,16 @@ DDLogLevel ddLogLevel;
     NSURL *folderVarDbLaunchdb = [volumeURL URLByAppendingPathComponent:@"var/db/launchd.db" isDirectory:YES];
     DDLogDebug(@"folderVarDbLaunchdb=%@", folderVarDbLaunchdb);
     NSDictionary *folderVarDbLaunchdbAttributes = @{
-                                               NSFileOwnerAccountName : @"root",
-                                               NSFileGroupOwnerAccountName : @"wheel",
-                                               NSFilePosixPermissions : @0777
-                                               };
+                                                    NSFileOwnerAccountName : @"root",
+                                                    NSFileGroupOwnerAccountName : @"wheel",
+                                                    NSFilePosixPermissions : @0777
+                                                    };
     DDLogDebug(@"folderVarDbLaunchdbAttributes=%@", folderVarDbLaunchdbAttributes);
     NSDictionary *modifyFolderVarDbLaunchdb = @{
-                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
-                                           NBCWorkflowModifyTargetURL : [folderVarDbLaunchdb path],
-                                           NBCWorkflowModifyAttributes : folderVarDbLaunchdbAttributes
-                                           };
+                                                NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                NBCWorkflowModifyTargetURL : [folderVarDbLaunchdb path],
+                                                NBCWorkflowModifyAttributes : folderVarDbLaunchdbAttributes
+                                                };
     DDLogDebug(@"modifyFolderVarDbLaunchdb=%@", modifyFolderVarDbLaunchdb);
     [modifyDictArray addObject:modifyFolderVarDbLaunchdb];
     
