@@ -710,6 +710,23 @@ DDLogLevel ddLogLevel;
 - (void)controlTextDidChange:(NSNotification *)sender {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     
+    if ( [[[[sender object] superview] class] isSubclassOfClass:[NBCTrustedNetBootServerCellView class]] ) {
+        if ( [sender object] == [[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:[_tableViewTrustedServers selectedRow] makeIfNecessary:NO] textFieldTrustedNetBootServer] ) {
+            NSIndexSet *rowIndexes = [_tableViewTrustedServers selectedRowIndexes];
+            NSDictionary *userInfo = [sender userInfo];
+            NSString *inputText = [[userInfo valueForKey:@"NSFieldEditor"] string];
+            
+            // Only allow numers and periods
+            NSCharacterSet *allowedCharacters = [NSCharacterSet characterSetWithCharactersInString:@"0123456789."];
+            if ( [[inputText stringByTrimmingCharactersInSet:allowedCharacters] length] != 0 ) {
+                [[sender object] setStringValue:[inputText stringByTrimmingCharactersInSet:[allowedCharacters invertedSet]]];
+                return;
+            }
+            
+            [_trustedServers replaceObjectAtIndex:[rowIndexes firstIndex] withObject:[inputText copy]];
+        }
+    }
+    
     // --------------------------------------------------------------------
     //  Expand variables for the NBI preview text fields
     // --------------------------------------------------------------------
@@ -744,19 +761,6 @@ DDLogLevel ddLogLevel;
             NSString *destinationFolder = [_destinationFolder stringByExpandingTildeInPath];
             [self setDestinationFolder:destinationFolder];
         }
-    } else if ( [sender object] == [[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:[_tableViewTrustedServers selectedRow] makeIfNecessary:NO] textFieldTrustedNetBootServer] ) {
-        NSIndexSet *rowIndexes = [_tableViewTrustedServers selectedRowIndexes];
-        NSDictionary *userInfo = [sender userInfo];
-        NSString *inputText = [[userInfo valueForKey:@"NSFieldEditor"] string];
-        
-        // Only allow numers and periods
-        NSCharacterSet *allowedCharacters = [NSCharacterSet characterSetWithCharactersInString:@"0123456789."];
-        if ( [[inputText stringByTrimmingCharactersInSet:allowedCharacters] length] != 0 ) {
-            [[sender object] setStringValue:[inputText stringByTrimmingCharactersInSet:[allowedCharacters invertedSet]]];
-            return;
-        }
-        
-        [_trustedServers replaceObjectAtIndex:[rowIndexes firstIndex] withObject:[inputText copy]];
     }
     
     // --------------------------------------------------------------------

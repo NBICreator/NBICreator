@@ -333,15 +333,6 @@
                                             <menu key="menu" id="CrO-Yv-6EA">
                                                 <items>
                                                     <menuItem title="Current" state="on" id="eZq-de-1k9"/>
-                                                    <menuItem isSeparatorItem="YES" id="KYS-lf-NPz"/>
-                                                    <menuItem title="Canadian French" id="jLA-C8-wEf"/>
-                                                    <menuItem title="English" id="nSX-3n-e4J"/>
-                                                    <menuItem title="French" id="NkJ-0q-mzl">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                    </menuItem>
-                                                    <menuItem title="German" id="r1i-Bg-9zU">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                    </menuItem>
                                                 </items>
                                             </menu>
                                         </popUpButtonCell>
@@ -466,15 +457,6 @@ asdasd</string>
                                             <menu key="menu" id="cJT-0J-OSl">
                                                 <items>
                                                     <menuItem title="Current" state="on" id="2lb-VC-3qR"/>
-                                                    <menuItem isSeparatorItem="YES" id="SO2-4P-Bws"/>
-                                                    <menuItem title="Canadian French" id="dc4-2j-15Y"/>
-                                                    <menuItem title="English" id="Vna-5y-4N5"/>
-                                                    <menuItem title="French" id="nDr-aC-VjG">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                    </menuItem>
-                                                    <menuItem title="German" id="TaE-Rr-LvU">
-                                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                                    </menuItem>
                                                 </items>
                                             </menu>
                                         </popUpButtonCell>
@@ -500,12 +482,18 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <popUpButton verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="RLC-Xb-IqI">
+                                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RLC-Xb-IqI">
                                         <rect key="frame" x="369" y="148" width="148" height="26"/>
-                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="NGG-SV-XYH">
+                                        <popUpButtonCell key="cell" type="push" title="Current" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="Gym-I8-35v" id="NGG-SV-XYH">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
-                                            <menu key="menu" id="dP1-uZ-bwD"/>
+                                            <menu key="menu" id="dP1-uZ-bwD">
+                                                <items>
+                                                    <menuItem title="Current" state="on" id="Gym-I8-35v">
+                                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                                    </menuItem>
+                                                </items>
+                                            </menu>
                                         </popUpButtonCell>
                                         <connections>
                                             <binding destination="-2" name="selectedValue" keyPath="self.nbiTimeZone" id="k1a-kU-U1s"/>
@@ -1146,8 +1134,8 @@ asdasd</string>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="DSA-6j-J7i"/>
                                             <binding destination="-2" name="value" keyPath="self.addTrustedNetBootServers" id="BFj-Cx-NzD"/>
+                                            <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="DSA-6j-J7i"/>
                                         </connections>
                                     </button>
                                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Y8c-MD-vdM" customClass="NBCImagrDropViewImageBackground">
@@ -1377,12 +1365,12 @@ asdasd</string>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
+                                            <binding destination="-2" name="value" keyPath="self.disableATS" id="I40-er-BGK"/>
                                             <binding destination="-2" name="hidden" keyPath="self.settingDisableATSVisible" id="3Wb-1k-0R4">
                                                 <dictionary key="options">
                                                     <string key="NSValueTransformerName">NSNegateBoolean</string>
                                                 </dictionary>
                                             </binding>
-                                            <binding destination="-2" name="value" keyPath="self.disableATS" id="I40-er-BGK"/>
                                         </connections>
                                     </button>
                                 </subviews>

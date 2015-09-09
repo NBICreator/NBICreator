@@ -2562,7 +2562,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)selectTimeZone:(id)sender {
-    NSLog(@"selectTimeZone=%@", sender);
     if ( ! [sender isKindOfClass:[NSMenuItem class]] ) {
         return;
     }
