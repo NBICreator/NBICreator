@@ -31,7 +31,7 @@
 // Windows
 @property (weak) IBOutlet NSWindow *window;
 
-@property (weak) IBOutlet NSMenuItem *menuItemWindowWorkflows;
+
 
 - (IBAction)menuItemPreferences:(id)sender;
 - (IBAction)menuItemHelp:(id)sender;
@@ -65,6 +65,7 @@
 @property (weak) IBOutlet NSMenuItem *menuItemDelete;
 @property (weak) IBOutlet NSMenuItem *menuItemShowInFinder;
 @property (weak) IBOutlet NSMenuItem *menuItemHelp;
+@property (weak) IBOutlet NSMenuItem *menuItemWindowWorkflows;
 
 @property (weak) IBOutlet NSView *viewMainWindow;
 @property (weak) IBOutlet NSView *viewDropView;

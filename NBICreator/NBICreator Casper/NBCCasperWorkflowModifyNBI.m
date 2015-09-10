@@ -1269,8 +1269,6 @@ DDLogLevel ddLogLevel;
     NSArray *arguments = @[
                            @"-R", @"root:wheel", [casperImagingURL path]
                            ];
-    NSLog(@"command=%@", command);
-    NSLog(@"arguments=%@", arguments);
     
     // -----------------------------------------------------------------------------------
     //  Create standard output file handle and register for data available notifications.

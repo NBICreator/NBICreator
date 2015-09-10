@@ -863,15 +863,11 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkCompletedResources {
-    NSLog(@"checkCompletedResources");
     // ----------------------------------------------------------------------------------------------
     //  Check if all resources have been prepared. If they have, post notification workflow complete
     // ----------------------------------------------------------------------------------------------
     unsigned long requiredCopyResources = ( [_resourcesNetInstallCopy count] + [_resourcesBaseSystemCopy count] );
     unsigned long requiredInstallResources = ( [_resourcesNetInstallInstall count] + [_resourcesBaseSystemInstall count] );
-    NSLog(@"_resourcesCount=%d", _resourcesCount);
-    NSLog(@"(int) requiredCopyResources=%d", (int) requiredCopyResources);
-    NSLog(@"(int) requiredInstallResources=%d", (int) requiredInstallResources);
     if ( ( (int) requiredCopyResources + (int) requiredInstallResources ) == _resourcesCount ) {
         if ( [_resourcesNetInstallCopy count] != 0 ) {
             _resourcesNetInstallDict[NBCWorkflowCopy] = _resourcesNetInstallCopy;
