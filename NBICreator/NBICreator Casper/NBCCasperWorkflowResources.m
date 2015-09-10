@@ -658,6 +658,7 @@ DDLogLevel ddLogLevel;
         NSURL *temporaryFolder = [workflowItem temporaryFolderURL];
         if ( temporaryFolder ) {
             NSArray *scriptArguments;
+            __block BOOL openFailure = NO;
             int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
             if ( sourceVersionMinor <= 9 ) {
                 scriptArguments = @[ @"-c",
@@ -721,6 +722,9 @@ DDLogLevel ddLogLevel;
                                                 //  When error data becomes available, pass it to workflow status parser
                                                 // -----------------------------------------------------------------------
                                                 DDLogError(@"[ERROR] %@", errStr);
+                                                if ( [errStr containsString:@"XAR open failure"] ) {
+                                                    openFailure = YES;
+                                                }
                                                 
                                                 [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                             }];
@@ -740,6 +744,7 @@ DDLogLevel ddLogLevel;
                     NSDictionary *userInfo = nil;
                     if ( proxyError ) {
                         DDLogError(@"[ERROR] %@", proxyError);
+                        openFailure = YES;
                         userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
                     }
                     [nc removeObserver:stdOutObserver];
@@ -750,8 +755,8 @@ DDLogLevel ddLogLevel;
             }] runTaskWithCommandAtPath:commandURL arguments:scriptArguments currentDirectory:[packageTemporaryFolder path] stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
                 [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                    if ( terminationStatus == 0 ) {
-                        
+                    if ( terminationStatus == 0 && ! openFailure ) {
+
                         // ------------------------------------------------------------------
                         //  If task exited successfully, post workflow complete notification
                         // ------------------------------------------------------------------
