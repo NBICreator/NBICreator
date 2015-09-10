@@ -14,13 +14,14 @@
 #pragma unused(dirtyRect)
     [[NSColor whiteColor] set];
     NSRectFill([self bounds]);
+    
     /*
     [self setWantsLayer:YES];
     self.layer.masksToBounds   = YES;
-    self.layer.borderWidth      = 1.0f ;
+    self.layer.borderWidth      = 0.5f ;
     
     [self.layer setBorderColor:CGColorGetConstantColor(kCGColorBlack)];
-     */
+    */
 }
 
 @end

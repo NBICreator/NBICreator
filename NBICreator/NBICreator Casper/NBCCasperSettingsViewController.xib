@@ -2110,14 +2110,14 @@ asdasd</string>
                         <rect key="frame" x="1" y="17" width="238" height="117"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView identifier="tableViewTrustedServers" focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="vZE-5j-sKg">
+                            <tableView identifier="CasperTableViewTrustedServers" focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="vZE-5j-sKg">
                                 <rect key="frame" x="0.0" y="0.0" width="123" height="0.0"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="2" height="3"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn identifier="TrustedNetBootTableColumn" width="121" minWidth="40" maxWidth="1000" id="Ja7-ag-2mo">
+                                    <tableColumn identifier="CasperTrustedNetBootTableColumn" width="121" minWidth="40" maxWidth="1000" id="Ja7-ag-2mo">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -2130,7 +2130,7 @@ asdasd</string>
                                         </textFieldCell>
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
-                                            <tableCellView identifier="NetBootServerCellView" id="f7a-Vp-aLj" customClass="NBCTrustedNetBootServerCellView">
+                                            <tableCellView identifier="CasperNetBootServerCellView" id="f7a-Vp-aLj" customClass="NBCCasperTrustedNetBootServerCellView">
                                                 <rect key="frame" x="1" y="1" width="121" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -2142,7 +2142,7 @@ asdasd</string>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                         <connections>
-                                                            <outlet property="delegate" destination="-2" id="FeD-bV-t8c"/>
+                                                            <outlet property="delegate" destination="-2" id="Xh1-Tp-Mnl"/>
                                                         </connections>
                                                     </textField>
                                                 </subviews>
@@ -2153,12 +2153,16 @@ asdasd</string>
                                                     <constraint firstItem="gdF-Gu-ttO" firstAttribute="top" secondItem="f7a-Vp-aLj" secondAttribute="top" id="wKa-aT-WdN"/>
                                                 </constraints>
                                                 <connections>
-                                                    <outlet property="textFieldTrustedNetBootServer" destination="gdF-Gu-ttO" id="MQ7-L2-tUp"/>
+                                                    <outlet property="textFieldTrustedNetBootServer" destination="gdF-Gu-ttO" id="c2E-lR-Ggi"/>
                                                 </connections>
                                             </tableCellView>
                                         </prototypeCellViews>
                                     </tableColumn>
                                 </tableColumns>
+                                <connections>
+                                    <outlet property="dataSource" destination="-2" id="8Ri-sG-7ND"/>
+                                    <outlet property="delegate" destination="-2" id="Zjw-lc-B1F"/>
+                                </connections>
                             </tableView>
                         </subviews>
                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -2186,7 +2190,7 @@ asdasd</string>
                 <constraint firstAttribute="trailing" secondItem="7FL-Cz-iRW" secondAttribute="trailing" constant="5" id="uae-YB-pT1"/>
                 <constraint firstAttribute="bottom" secondItem="B3H-pp-CWI" secondAttribute="bottom" constant="5" id="wbT-yo-3Oq"/>
             </constraints>
-            <point key="canvasLocation" x="-1483.5" y="558.5"/>
+            <point key="canvasLocation" x="-1369.5" y="684.5"/>
         </customView>
     </objects>
     <resources>

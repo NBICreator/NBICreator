@@ -6,9 +6,9 @@
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
 
-#import "NBCTrustedNetBootServerCellView.h"
+#import "NBCImagrTrustedNetBootServerCellView.h"
 
-@implementation NBCTrustedNetBootServerCellView
+@implementation NBCImagrTrustedNetBootServerCellView
 
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];

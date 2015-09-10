@@ -103,6 +103,16 @@ extern NSString *const NBCMenuItemWorkflows;
 extern NSString *const NBCMenuItemMainWindow;
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark Buttons
+////////////////////////////////////////////////////////////////////////////////
+extern NSString *const NBCButtonTitleCancel;
+extern NSString *const NBCButtonTitleContinue;
+extern NSString *const NBCButtonTitleOK;
+extern NSString *const NBCButtonTitleSave;
+extern NSString *const NBCButtonTitleQuit;
+extern NSString *const NBCButtonTitleVerify;
+
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Values - Main
 ////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCSettingsFileVersion;
@@ -134,8 +144,6 @@ extern NSString *const NBCSettingsKeyboardLayoutKey;
 extern NSString *const NBCSettingsDescriptionKey;
 extern NSString *const NBCSettingsDestinationFolderKey;
 extern NSString *const NBCSettingsIconKey;
-extern NSString *const NBCSettingsAddTrustedNetBootServersKey;
-extern NSString *const NBCSettingsTrustedNetBootServersKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Options
@@ -145,8 +153,6 @@ extern NSString *const NBCSettingsDisableBluetoothKey;
 extern NSString *const NBCSettingsDisplaySleepKey;
 extern NSString *const NBCSettingsDisplaySleepMinutesKey;
 extern NSString *const NBCSettingsIncludeSystemUIServerKey;
-extern NSString *const NBCSettingsUseVerboseBootKey;
-extern NSString *const NBCSettingsDiskImageReadWriteKey;
 extern NSString *const NBCSettingsARDLoginKey;
 extern NSString *const NBCSettingsARDPasswordKey;
 extern NSString *const NBCSettingsUseNetworkTimeServerKey;
@@ -158,6 +164,49 @@ extern NSString *const NBCSettingsNetworkTimeServerKey;
 extern NSString *const NBCSettingsCertificatesKey;
 extern NSString *const NBCSettingsPackagesKey;
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Advanced
+////////////////////////////////////////////////////////////////////////////////
+extern NSString *const NBCSettingsAddTrustedNetBootServersKey;
+extern NSString *const NBCSettingsTrustedNetBootServersKey;
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Debug
+////////////////////////////////////////////////////////////////////////////////
+extern NSString *const NBCSettingsUseVerboseBootKey;
+extern NSString *const NBCSettingsDiskImageReadWriteKey;
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - NetInstall
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - DeployStudio
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Imagr
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Casper
+////////////////////////////////////////////////////////////////////////////////
+extern NSString *const NBCSettingsCasperJSSURLKey;
+extern NSString *const NBCSettingsCasperImagingPathKey;
+extern NSString *const NBCSettingsCasperImagingDebugModeKey;
+extern NSString *const NBCSettingsCasperAllowInvalidCertificateKey;
+extern NSString *const NBCSettingsCasperJSSCACertificateKey;
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark NBImageInfo Keys
+////////////////////////////////////////////////////////////////////////////////
+extern NSString *const NBCNBImageInfoDictNameKey;
+extern NSString *const NBCNBImageInfoDictDescriptionKey;
+extern NSString *const NBCNBImageInfoDictIndexKey;
+extern NSString *const NBCNBImageInfoDictIsDefaultKey;
+extern NSString *const NBCNBImageInfoDictIsEnabledKey;
+extern NSString *const NBCNBImageInfoDictLanguageKey;
+extern NSString *const NBCNBImageInfoDictProtocolKey;
 
 
 
@@ -168,11 +217,7 @@ extern NSString *const NBCSettingsKeyboardLayoutID;
 extern NSString *const NBCSettingsLocale;
 extern NSString *const NBCSettingsCountry;
 
-extern NSString *const NBCSettingsCasperImagingPathKey;
-extern NSString *const NBCSettingsCasperJSSURLKey;
-extern NSString *const NBCSettingsCasperAllowInvalidCertificateKey;
-extern NSString *const NBCSettingsCasperJSSCACertificateKey;
-extern NSString *const NBCSettingsCasperImagingDebugModeKey;
+
 
 // --------------------------------------------------------------
 //  Template Settings Imagr
@@ -228,13 +273,7 @@ extern NSString *const NBCSettingsPythonDefaultVersion;
 // --------------------------------------------------------------
 //  NBImageInfo
 // --------------------------------------------------------------
-extern NSString *const NBCNBImageInfoDictNameKey;
-extern NSString *const NBCNBImageInfoDictDescriptionKey;
-extern NSString *const NBCNBImageInfoDictIndexKey;
-extern NSString *const NBCNBImageInfoDictIsDefaultKey;
-extern NSString *const NBCNBImageInfoDictIsEnabledKey;
-extern NSString *const NBCNBImageInfoDictLanguageKey;
-extern NSString *const NBCNBImageInfoDictProtocolKey;
+
 
 // --------------------------------------------------------------
 //  Workflow Types
@@ -328,12 +367,7 @@ extern NSString *const NBCSystemImageUtilityNetBootImageSize;
 // --------------------------------------------------------------
 //  Buttons
 // --------------------------------------------------------------
-extern NSString *const NBCButtonTitleCancel;
-extern NSString *const NBCButtonTitleContinue;
-extern NSString *const NBCButtonTitleOK;
-extern NSString *const NBCButtonTitleSave;
-extern NSString *const NBCButtonTitleQuit;
-extern NSString *const NBCButtonTitleVerify;
+
 
 // --------------------------------------------------------------
 //  Alerts
@@ -343,21 +377,19 @@ extern NSString *const NBCAlertTagSettingsWarning;
 extern NSString *const NBCAlertTagSettingsUnsaved;
 extern NSString *const NBCAlertTagSettingsUnsavedQuit;
 extern NSString *const NBCAlertTagSettingsUnsavedBuild;
-extern NSString *const NBCAlertWorkflowItemKey;
+extern NSString *const NBCAlertTagDeleteTemplate;
 extern NSString *const NBCAlertTagWorkflowRunningQuit;
+extern NSString *const NBCAlertWorkflowItemKey;
 
 extern NSString *const NBCAlertUserInfoSelectedTemplate;
 extern NSString *const NBCAlertUserInfoTemplateURL;
+extern NSString *const NBCAlertUserInfoBuildNBI;
 
 extern NSString *const NBCErrorDomain;
 
 extern NSString *const NBCWorkflowNetInstallLogPrefix;
 
 extern NSString *const NBCDeployStudioRepository;
-
-extern NSString *const NBCAlertTagDeleteTemplate;
-
-// PYTHON
 
 extern NSString *const NBCPythonRepositoryURL;
 extern NSString *const NBCPythonInstallerPathInDiskImage;
@@ -376,8 +408,6 @@ extern NSString *const NBCSettingsSourceItemsCacheFolderKey;
 
 extern NSString *const NBCImagrBundleIdentifier;
 extern NSString *const NBCCasperImagingBundleIdentifier;
-
-// GITHUB
 
 extern NSString *const NBCCasperJSSCertificateURLPath;
 
@@ -497,7 +527,7 @@ extern NSString *const NBCDeployStudioLatestVersionURL;
 
 extern NSString *const NBCResourcesDeployStudioLatestVersionKey;
 
-extern NSString *const NBCAlertUserInfoBuildNBI;
+
 
 extern NSString *const NBCHelpURL;
 
@@ -509,7 +539,8 @@ extern NSString *const NBCVariableApplicationResourcesURL;
 
 extern NSString *const NBCTableViewIdentifierCertificates;
 extern NSString *const NBCTableViewIdentifierPackages;
-extern NSString *const NBCTableViewTrustedServers;
+extern NSString *const NBCTableViewIdentifierImagrTrustedServers;
+extern NSString *const NBCTableViewIdentifierCasperTrustedServers;
 
 extern NSString *const NBCDiskImageFormatReadOnly;
 extern NSString *const NBCDiskImageFormatReadWrite;

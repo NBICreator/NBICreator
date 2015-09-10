@@ -64,7 +64,7 @@ NSString *const NBCFileNameCasperDefaults = @"CasperDefaults";
 NSString *const NBCFilePathNBIIconImagr = @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
 NSString *const NBCFilePathNBIIconNetInstall = @"%APPLICATIONRESOURCESURL%/IconNetBootNBI.icns";
 NSString *const NBCFilePathNBIIconDeployStudio = @"%APPLICATIONRESOURCESURL%/IconDeployStudioNBI.icns";
-NSString *const NBCFilePathNBIIconCasper = @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
+NSString *const NBCFilePathNBIIconCasper = @"%APPLICATIONRESOURCESURL%/IconNetBootNBI.icns";
 NSString *const NBCFilePathPreferencesGlobal = @"/Library/Preferences/.GlobalPreferences.plist";
 NSString *const NBCFilePathPreferencesHIToolbox = @"/Library/Preferences/com.apple.HIToolbox.plist";
 
@@ -103,6 +103,16 @@ NSString *const NBCMenuItemWorkflows = @"Workflows";
 NSString *const NBCMenuItemMainWindow = @"MainWindow";
 
 ////////////////////////////////////////////////////////////////////////////////
+#pragma mark Buttons
+////////////////////////////////////////////////////////////////////////////////
+NSString *const NBCButtonTitleCancel = @"Cancel";
+NSString *const NBCButtonTitleContinue = @"Continue";
+NSString *const NBCButtonTitleOK = @"OK";
+NSString *const NBCButtonTitleSave = @"Save";
+NSString *const NBCButtonTitleQuit = @"Quit";
+NSString *const NBCButtonTitleVerify = @"Verify...";
+
+////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Values - Main
 ////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCSettingsFileVersion = @"1.0";
@@ -134,8 +144,6 @@ NSString *const NBCSettingsKeyboardLayoutKey = @"KeyboardLayout";
 NSString *const NBCSettingsDescriptionKey = @"Description";
 NSString *const NBCSettingsDestinationFolderKey = @"DestinationFolder";
 NSString *const NBCSettingsIconKey = @"Icon";
-NSString *const NBCSettingsAddTrustedNetBootServersKey = @"AddTrustedNetBootServers";
-NSString *const NBCSettingsTrustedNetBootServersKey = @"TrustedNetBootServers";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Options
@@ -145,8 +153,6 @@ NSString *const NBCSettingsDisableBluetoothKey = @"DisableBluetooth";
 NSString *const NBCSettingsDisplaySleepKey = @"DisplaySleep";
 NSString *const NBCSettingsDisplaySleepMinutesKey = @"DisplaySleepMinutes";
 NSString *const NBCSettingsIncludeSystemUIServerKey = @"IncludeSystemUIServer";
-NSString *const NBCSettingsUseVerboseBootKey = @"UseVerboseBoot";
-NSString *const NBCSettingsDiskImageReadWriteKey = @"DiskImageReadWrite";
 NSString *const NBCSettingsARDLoginKey = @"ARDLogin";
 NSString *const NBCSettingsARDPasswordKey = @"ARDPassword";
 NSString *const NBCSettingsUseNetworkTimeServerKey = @"UseNetworkTimeServer";
@@ -158,6 +164,53 @@ NSString *const NBCSettingsNetworkTimeServerKey = @"NetworkTimeServer";
 NSString *const NBCSettingsCertificatesKey = @"Certificates";
 NSString *const NBCSettingsPackagesKey = @"Packages";
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Advanced
+////////////////////////////////////////////////////////////////////////////////
+NSString *const NBCSettingsAddTrustedNetBootServersKey = @"AddTrustedNetBootServers";
+NSString *const NBCSettingsTrustedNetBootServersKey = @"TrustedNetBootServers";
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Debug
+////////////////////////////////////////////////////////////////////////////////
+NSString *const NBCSettingsUseVerboseBootKey = @"UseVerboseBoot";
+NSString *const NBCSettingsDiskImageReadWriteKey = @"DiskImageReadWrite";
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - NetInstall
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - DeployStudio
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Imagr
+////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark Template Keys - Casper
+////////////////////////////////////////////////////////////////////////////////
+NSString *const NBCSettingsCasperJSSURLKey = @"CasperJSSURL";
+NSString *const NBCSettingsCasperImagingPathKey = @"CasperImagingPath";
+NSString *const NBCSettingsCasperImagingDebugModeKey = @"CasperImagingDebugMode";
+NSString *const NBCSettingsCasperAllowInvalidCertificateKey = @"CasperAllowInvalidCertificate";
+NSString *const NBCSettingsCasperJSSCACertificateKey = @"CasperJSSCACertificateSignature";
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark NBImageInfo Keys
+////////////////////////////////////////////////////////////////////////////////
+NSString *const NBCNBImageInfoDictNameKey = @"Name";
+NSString *const NBCNBImageInfoDictDescriptionKey = @"Description";
+NSString *const NBCNBImageInfoDictIndexKey = @"Index";
+NSString *const NBCNBImageInfoDictIsDefaultKey = @"IsDefault";
+NSString *const NBCNBImageInfoDictIsEnabledKey = @"IsEnabled";
+NSString *const NBCNBImageInfoDictLanguageKey = @"Language";
+NSString *const NBCNBImageInfoDictProtocolKey = @"Type";
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark NBImageInfo Keys
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -172,25 +225,8 @@ NSString *const NBCSettingsSourceItemsCacheFolderKey = @"CacheFolder";
 
 
 NSString *const NBCSettingsKeyboardLayoutID = @"KeyboardLayoutID";
-
-
-
-
 NSString *const NBCSettingsNBICreationToolKey = @"NBICreationTool";
-
-
-
-
-
-NSString *const NBCSettingsCasperImagingPathKey = @"CasperImagingPath";
-NSString *const NBCSettingsCasperJSSURLKey = @"CasperJSSURL";
-NSString *const NBCSettingsCasperAllowInvalidCertificateKey = @"CasperAllowInvalidCertificate";
-NSString *const NBCSettingsCasperJSSCACertificateKey = @"CasperJSSCACertificateSignature";
-NSString *const NBCSettingsCasperImagingDebugModeKey = @"CasperImagingDebugMode";
-
-
 NSString *const NBCCasperJSSCertificateURLPath = @"/CA/SCEP";
-
 
 // --------------------------------------------------------------
 //  Template Settings Imagr
@@ -245,14 +281,6 @@ NSString *const NBCSettingsPythonDefaultVersion = @"2.7.6";
 // --------------------------------------------------------------
 //  NBImageInfo
 // --------------------------------------------------------------
-NSString *const NBCNBImageInfoDictNameKey = @"Name";
-NSString *const NBCNBImageInfoDictDescriptionKey = @"Description";
-NSString *const NBCNBImageInfoDictIndexKey = @"Index";
-NSString *const NBCNBImageInfoDictIsDefaultKey = @"IsDefault";
-NSString *const NBCNBImageInfoDictIsEnabledKey = @"IsEnabled";
-NSString *const NBCNBImageInfoDictLanguageKey = @"Language";
-NSString *const NBCNBImageInfoDictProtocolKey = @"Type";
-
 
 NSString *const NBCSettingsLocale = @"NBCSettingsLocale";
 NSString *const NBCSettingsCountry = @"NBCSettingsCountry";
@@ -392,12 +420,7 @@ NSString *const NBCAlertUserInfoBuildNBI = @"BuildNBI";
 // --------------------------------------------------------------
 //  Buttons
 // --------------------------------------------------------------
-NSString *const NBCButtonTitleCancel = @"Cancel";
-NSString *const NBCButtonTitleContinue = @"Continue";
-NSString *const NBCButtonTitleOK = @"OK";
-NSString *const NBCButtonTitleSave = @"Save";
-NSString *const NBCButtonTitleQuit = @"Quit";
-NSString *const NBCButtonTitleVerify = @"Verify...";
+
 
 // --------------------------------------------------------------
 //  DeployStudio
@@ -535,7 +558,8 @@ NSString *const NBCVariableApplicationResourcesURL = @"%APPLICATIONRESOURCESURL%
 
 NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
 NSString *const NBCTableViewIdentifierPackages = @"tableViewPackages";
-NSString *const NBCTableViewTrustedServers = @"tableViewTrustedServers";
+NSString *const NBCTableViewIdentifierImagrTrustedServers = @"ImagrTableViewTrustedServers";
+NSString *const NBCTableViewIdentifierCasperTrustedServers = @"CasperTableViewTrustedServers";
 
 
 NSString *const NBCTabViewItemGeneral = @"General";

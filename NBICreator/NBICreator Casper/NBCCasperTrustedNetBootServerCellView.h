@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface NBCTrustedNetBootServerCellView : NSTableCellView
+@interface NBCCasperTrustedNetBootServerCellView : NSTableCellView
 
 @property (weak) IBOutlet NSTextField *textFieldTrustedNetBootServer;
 

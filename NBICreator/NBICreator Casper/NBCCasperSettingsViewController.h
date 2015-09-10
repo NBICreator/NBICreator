@@ -219,4 +219,17 @@
 @property NSString *siuVersion;
 @property NSString *cimVersion;
 
+// ------------------------------------------------------
+//  Instance Methods
+// ------------------------------------------------------
+- (void)buildNBI;
+- (void)verifyBuildButton;
+- (void)verifySettings;
+- (BOOL)haveSettingsChanged;
+- (void)updateUISettingsFromDict:(NSDictionary *)settingsDict;
+- (void)updateUISettingsFromURL:(NSURL *)url;
+- (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo;
+- (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL;
+- (void)expandVariablesForCurrentSettings;
+
 @end

@@ -1954,14 +1954,14 @@ asdasd</string>
                         <rect key="frame" x="1" y="17" width="238" height="117"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <tableView identifier="tableViewTrustedServers" focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="Ppi-kq-H3r">
+                            <tableView identifier="ImagrTableViewTrustedServers" focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="Ppi-kq-H3r">
                                 <rect key="frame" x="0.0" y="0.0" width="123" height="0.0"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="2" height="3"/>
                                 <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                                 <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
                                 <tableColumns>
-                                    <tableColumn identifier="TrustedNetBootTableColumn" width="121" minWidth="40" maxWidth="1000" id="nVS-pO-Voj">
+                                    <tableColumn identifier="ImagrTrustedNetBootTableColumn" width="121" minWidth="40" maxWidth="1000" id="nVS-pO-Voj">
                                         <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
                                             <font key="font" metaFont="smallSystem"/>
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
@@ -1974,7 +1974,7 @@ asdasd</string>
                                         </textFieldCell>
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
                                         <prototypeCellViews>
-                                            <tableCellView identifier="NetBootServerCellView" id="lWW-4a-BjY" customClass="NBCTrustedNetBootServerCellView">
+                                            <tableCellView identifier="ImagrNetBootServerCellView" id="lWW-4a-BjY" customClass="NBCImagrTrustedNetBootServerCellView">
                                                 <rect key="frame" x="1" y="1" width="121" height="17"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
@@ -1997,15 +1997,15 @@ asdasd</string>
                                                     <constraint firstAttribute="bottom" secondItem="otm-ro-etN" secondAttribute="bottom" id="rVT-4n-d7c"/>
                                                 </constraints>
                                                 <connections>
-                                                    <outlet property="textFieldTrustedNetBootServer" destination="otm-ro-etN" id="NnD-Rz-lqZ"/>
+                                                    <outlet property="textFieldTrustedNetBootServer" destination="otm-ro-etN" id="u2q-dF-car"/>
                                                 </connections>
                                             </tableCellView>
                                         </prototypeCellViews>
                                     </tableColumn>
                                 </tableColumns>
                                 <connections>
-                                    <outlet property="dataSource" destination="-2" id="ydD-NT-iwv"/>
-                                    <outlet property="delegate" destination="-2" id="XeD-SP-6Cm"/>
+                                    <outlet property="dataSource" destination="-2" id="At6-Tk-atc"/>
+                                    <outlet property="delegate" destination="-2" id="aeO-0P-crz"/>
                                 </connections>
                             </tableView>
                         </subviews>
@@ -2034,7 +2034,7 @@ asdasd</string>
                 <constraint firstAttribute="trailing" secondItem="za1-i3-jap" secondAttribute="trailing" constant="5" id="jmB-BJ-PlT"/>
                 <constraint firstItem="PEn-Y1-AIs" firstAttribute="leading" secondItem="395-jk-mun" secondAttribute="leading" constant="5" id="qRs-9I-e1x"/>
             </constraints>
-            <point key="canvasLocation" x="-2643.5" y="233.5"/>
+            <point key="canvasLocation" x="-2870.5" y="174.5"/>
         </customView>
     </objects>
     <resources>
