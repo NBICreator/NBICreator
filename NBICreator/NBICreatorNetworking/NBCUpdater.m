@@ -23,7 +23,7 @@
         sharedUpdater = [[self alloc] initWithWindowNibName:@"NBCUpdater"];
     });
     return sharedUpdater;
-}
+} // sharedUpdater
 
 - (id)initWithWindowNibName:(NSString *)windowNibName {
     self = [super initWithWindowNibName:windowNibName];
@@ -32,13 +32,11 @@
         
     }
     return self;
-}
+} // initWithWindowNibName
 
 - (void)windowDidLoad {
     [super windowDidLoad];
-    
-    // Implement this method to handle any initialization after your window controller's window has been loaded from its nib file.
-}
+} // windowDidLoad
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -47,7 +45,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)fileDownloadCompleted:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagNBICreator] ) {
         [_textFieldTitle setStringValue:@"Download Complete!"];
@@ -55,15 +52,14 @@
         [_buttonDownload setTitle:@"Show In Finder"];
         [self setIsDownloading:NO];
         if ( url ) {
-            _targetURL = url;
+            [self setTargetURL:url];
             [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ _targetURL ]];
         }
         [self setDownloader:nil];
     }
-}
+} // fileDownloadCompleted
 
 - (void)downloadCanceled:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagNBICreator] ) {
         [self setIsDownloading:NO];
@@ -71,10 +67,9 @@
         [_textFieldTitle setStringValue:@"Download Canceled!"];
         [_textFieldMessage setStringValue:_updateMessage];
     }
-}
+} // downloadCanceled
 
 - (void)updateProgressBytesRecieved:(float)bytesRecieved expectedLength:(long long)expectedLength downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagNBICreator] ) {
         if ( _windowUpdates ) {
@@ -86,30 +81,27 @@
             [_textFieldMessage setStringValue:[NSString stringWithFormat:@"%@ / %@", downloaded, downloadMax]];
         }
     }
-}
+} // updateProgressBytesRecieved
 
 - (void)checkForUpdates {
     DDLogInfo(@"Checking for application updates!");
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationStartSearchingForUpdates object:self userInfo:nil];
     [self getNBICreatorVersions];
-}
+} // checkForUpdates
 
 - (void)getNBICreatorVersions {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCNBICreatorGitHubRepository
                                                  downloadInfo:@{ NBCDownloaderTag : NBCDownloaderTagNBICreator }];
 } // getNBICreatorVersions
 
 - (void)getNBICreatorResourcesVersions {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCNBICreatorResourcesGitHubRepository
                                                  downloadInfo:@{ NBCDownloaderTag : NBCDownloaderTagNBICreatorResources }];
 } // getNBICreatorVersions
 
 - (void)githubReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagNBICreator] ) {
         [self compareCurrentVersionToLatest:[versionsArray firstObject] downloadDict:downloadDict];
@@ -120,29 +112,27 @@
 
 - (void)compareCurrentVersionToLatest:(NSString *)latestVersion downloadDict:(NSDictionary *)downloadDict {
     if ( [latestVersion length] != 0 ) {
-        _latestVersion = latestVersion;
+        [self setLatestVersion:latestVersion];
     } else {
         DDLogError(@"[ERROR] No version tag was passed, can't continue without.");
         return;
     }
     NSString *currentVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-    DDLogDebug(@"currentVersion=%@", currentVersion);
     NSString *currentBuild = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
-    DDLogDebug(@"currentBuild=%@", currentBuild);
     if ( [latestVersion containsString:@"beta"] ) {
         NSString *latestVersionGitHub = [[latestVersion componentsSeparatedByString:@"-"] firstObject];
-        DDLogDebug(@"latestVersionGitHub=%@", latestVersionGitHub);
         NSString *latestBuildGitHub = [[latestVersion componentsSeparatedByString:@"."] lastObject];
-        DDLogDebug(@"latestBuildGitHub=%@", latestBuildGitHub);
         NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
         if ( ! [currentVersion isEqualToString:latestVersionGitHub] || ! [currentBuild isEqualToString:latestBuildGitHub] ) {
             _updateMessage = [NSString stringWithFormat:@"Version %@ is available on GitHub!", latestVersion];
             [_textFieldMessage setStringValue:_updateMessage];
             [_textFieldTitle setStringValue:@"An update to NBICreator is available!"];
+            
             DDLogInfo(@"Version %@ is available for download!", latestVersion);
+            
             userInfo[@"UpdateAvailable"] = @YES;
             userInfo[@"LatestVersion"] = latestVersion;
-            _downloadURL = downloadDict[latestVersion];
+            [self setDownloadURL:downloadDict[latestVersion]];
             if ( _downloadURL ) {
                 [_buttonDownload setEnabled:YES];
             } else {
