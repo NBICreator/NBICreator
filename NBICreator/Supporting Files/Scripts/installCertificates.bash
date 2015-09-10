@@ -34,11 +34,16 @@ get_certificates() {
 add_certificate() {
     local path_certificate="${1}"
 
-    security_output=$( /usr/bin/security add-trusted-cert -r trustRoot -k "${path_keychain_system}" -i "${path_keychain_trust_plist}" -o "${path_keychain_trust_plist}" "${path_certificate}" 2>&1 )
-    security_exit_status=${?}
+    if [[ -w "${path_keychain_trust_plist}" ]]; then
+        security_output=$( /usr/bin/security add-trusted-cert -r trustRoot -k "${path_keychain_system}" -i "${path_keychain_trust_plist}" -o "${path_keychain_trust_plist}" "${path_certificate}" 2>&1 )
+        security_exit_status=${?}
+    else
+        security_output=$( /usr/bin/security add-trusted-cert -r trustRoot -k "${path_keychain_system}" "${path_certificate}" 2>&1 )
+        security_exit_status=${?}
+    fi
 
     if [[ ${security_exit_status} -ne 0 ]]; then
-        printf "%s\n" "Unable to add certificate ${path_certificate##*/} to kechain at path ${path_keychain}!"
+        printf "%s\n" "Unable to add certificate ${path_certificate##*/} to kechain at path ${path_keychain_system}!"
         printf "%s\n" "security_output=${security_output}"
         printf "%s\n" "security_exit_status=${security_exit_status}"
     fi
