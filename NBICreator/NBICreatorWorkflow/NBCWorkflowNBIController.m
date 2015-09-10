@@ -643,6 +643,15 @@ DDLogLevel ddLogLevel;
                                    "fi\n"];
     rcImaging = [rcImaging stringByAppendingString:disableGatekeeper];
     
+    NSString *loadSystemUIServer = [NSString stringWithFormat:@"\n"
+                                   "###\n"
+                                   "### Load SystemUIServerAgent\n"
+                                   "###\n"
+                                   "if [ -e /System/Library/LaunchAgents/com.apple.coreservices.uiagent.plist ]; then\n"
+                                   "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.coreservices.uiagent.plist\n"
+                                   "fi\n"];
+    rcImaging = [rcImaging stringByAppendingString:loadSystemUIServer];
+    
     if ( settingsDict[NBCSettingsARDPasswordKey] ) {
         NSString *startScreensharing;
         if ( osMinorVersion <= 7 ) {
@@ -731,21 +740,21 @@ DDLogLevel ddLogLevel;
         rcImaging = [rcImaging stringByAppendingString:startDesktopViewer];
     }
     
-    NSString *startImagr;
+    NSString *startCasperImaging;
     if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemNBICreator] ) {
-        startImagr = [NSString stringWithFormat:@"\n"
+        startCasperImaging = [NSString stringWithFormat:@"\n"
                       "###\n"
                       "### Start Casper Imaging\n"
                       "###\n"
                       "/Applications/Casper\\ Imaging.app/Contents/MacOS/Casper\\ Imaging\n"];
     } else if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
-        startImagr = [NSString stringWithFormat:@"\n"
+        startCasperImaging = [NSString stringWithFormat:@"\n"
                       "###\n"
                       "### Start Casper Imaging\n"
                       "###\n"
                       "/Volumes/Image\\ Volume/Packages/Casper\\ Imaging.app/Contents/MacOS/Casper\\ Imaging\n"];
     }
-    rcImaging = [rcImaging stringByAppendingString:startImagr];
+    rcImaging = [rcImaging stringByAppendingString:startCasperImaging];
     
     if ( [settingsDict[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
         NSString *stopSystemUIServer = [NSString stringWithFormat:@"\n"
