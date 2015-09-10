@@ -17,6 +17,7 @@
 #import "NBCVariables.h"
 #import "NBCImagrSettingsViewController.h"
 #import "NBCLogging.h"
+#import "ServerInformationComputerModelInfo.h"
 
 DDLogLevel ddLogLevel;
 
@@ -128,6 +129,9 @@ DDLogLevel ddLogLevel;
     NSString *nbiLanguage;
     NSString *nbiType;
     NSString *nbiOSVersion;
+    NSArray *supportedBoardIds;
+    NSArray *supportedModelProperties;
+    NSMutableArray *disabledSystemIdentifiers = [[NSMutableArray alloc] init];
     
     NSMutableDictionary *newNBImageInfoDict = nbImageInfoDict;
     if ( [newNBImageInfoDict count] == 0 ) {
@@ -140,6 +144,33 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] workflowSettings are empty!");
         return nil;
     }
+    
+    [disabledSystemIdentifiers addObjectsFromArray:newNBImageInfoDict[@"DisabledSystemIdentifiers"]];
+    NSDictionary *platformSupportDict;
+    NSURL *platformSupportURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"i386/PlatformSupport.plist"];
+    if ( platformSupportURL ) {
+        platformSupportDict = [[NSDictionary alloc] initWithContentsOfURL:platformSupportURL];
+    } else {
+        DDLogWarn(@"[WARN] Could not find PlatformSupport.plist on source!");
+    }
+    
+    if ( [platformSupportDict count] != 0 ) {
+        supportedBoardIds = platformSupportDict[@"SupportedBoardIds"] ?: @[];
+        supportedModelProperties = platformSupportDict[@"SupportedModelProperties"] ?: @[];
+    }
+    
+    if ( [supportedModelProperties count] != 0 ) {
+        [disabledSystemIdentifiers addObjectsFromArray:supportedModelProperties];
+    }
+
+    if ( [supportedBoardIds count] != 0 ) {
+        NSArray *modelIDsFromBoardIDs = [ServerInformationComputerModelInfo modelPropertiesForBoardIDs:supportedBoardIds];
+        if ( [modelIDsFromBoardIDs count] != 0 ) {
+            [disabledSystemIdentifiers addObjectsFromArray:modelIDsFromBoardIDs];
+        }
+    }
+
+    NSArray *newDisabledSystemIdentifiers = [[disabledSystemIdentifiers copy] valueForKeyPath:@"@distinctUnionOfObjects.self"];
     
     availabilityEnabled = [workflowSettings[NBCSettingsEnabledKey] boolValue];
     availabilityDefault = [workflowSettings[NBCSettingsDefaultKey] boolValue];
@@ -187,24 +218,18 @@ DDLogLevel ddLogLevel;
     }
     
     if ( newNBImageInfoDict ) {
-        if ( @(availabilityEnabled) != nil ) {
-            newNBImageInfoDict[@"IsEnabled"] = @(availabilityEnabled); }
-        if ( @(availabilityDefault) != nil ) {
-            newNBImageInfoDict[@"IsDefault"] = @(availabilityDefault); }
-        if ( nbiLanguage != nil ) {
-            if ( [nbiLanguage isEqualToString:@"Current"] ) {
-                nbiLanguage = @"Default"; }
-            newNBImageInfoDict[@"Language"] = nbiLanguage; }
-        if ( nbiType != nil ) {
-            newNBImageInfoDict[@"Type"] = nbiType; }
-        if ( nbiDescription != nil ) {
-            newNBImageInfoDict[@"Description"] = nbiDescription; }
-        if ( nbiIndex != nil ) {
-            newNBImageInfoDict[@"Index"] = nbiIndex; }
-        if ( nbiName != nil ) {
-            newNBImageInfoDict[@"Name"] = nbiName; }
-        if ( nbiOSVersion != nil ) {
-            newNBImageInfoDict[@"osVersion"] = nbiOSVersion; }
+        newNBImageInfoDict[@"IsEnabled"] = @(availabilityEnabled) ?: @NO;
+        newNBImageInfoDict[@"DisabledSystemIdentifiers"] = [newDisabledSystemIdentifiers sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)]?: @[];
+        newNBImageInfoDict[@"IsDefault"] = @(availabilityDefault) ?: @NO;
+        if ( [nbiLanguage isEqualToString:@"Current"] ) {
+            nbiLanguage = @"Default";
+        }
+        newNBImageInfoDict[@"Language"] = nbiLanguage ?: @"Default";
+        newNBImageInfoDict[@"Type"] = nbiType ?: @"NFS";
+        newNBImageInfoDict[@"Description"] = nbiDescription ?: @"";
+        newNBImageInfoDict[@"Index"] = nbiIndex ?: @1;
+        newNBImageInfoDict[@"Name"] = nbiName ?: @"";
+        newNBImageInfoDict[@"osVersion"] = nbiOSVersion ?: @"10.x";
     } else {
         DDLogError(@"[ERROR] newNBImageInfoDict is nil!");
     }
@@ -1234,7 +1259,6 @@ DDLogLevel ddLogLevel;
     //  /Applications/Imagr.app/Contents/Info.plist
     // --------------------------------------------------------------
     NSURL *imagrInfoPlistURL = [volumeURL URLByAppendingPathComponent:@"Applications/Imagr.app/Contents/Info.plist"];
-    NSLog(@"imagrInfoPlistURL=%@", imagrInfoPlistURL);
     NSMutableDictionary *imagrInfoPlistDict;
     NSDictionary *imagrInfoPlistAttributes;
     if ( [imagrInfoPlistURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1945,18 +1969,18 @@ DDLogLevel ddLogLevel;
         
         NSData *rcCdmCdromNewData = [rcCdmCdromNew dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *rcCdmCdromNewAttributes = @{
-                                               NSFileOwnerAccountName : @"root",
-                                               NSFileGroupOwnerAccountName : @"wheel",
-                                               NSFilePosixPermissions : @0555
-                                               };
+                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileGroupOwnerAccountName : @"wheel",
+                                                  NSFilePosixPermissions : @0555
+                                                  };
         
         NSDictionary *modifyRcCdmCdromNew = @{
-                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
-                                           NBCWorkflowModifyContent : rcCdmCdromNewData,
-                                           NBCWorkflowModifyTargetURL : [rcCdromURL path],
-                                           NBCWorkflowModifyAttributes : rcCdmCdromNewAttributes
-                                           };
-
+                                              NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
+                                              NBCWorkflowModifyContent : rcCdmCdromNewData,
+                                              NBCWorkflowModifyTargetURL : [rcCdromURL path],
+                                              NBCWorkflowModifyAttributes : rcCdmCdromNewAttributes
+                                              };
+        
         [modifyDictArray addObject:modifyRcCdmCdromNew];
     } else {
         DDLogError(@"[ERROR] rcCdromURL doesn't exist!");
@@ -2265,15 +2289,15 @@ DDLogLevel ddLogLevel;
     
     NSURL *folderVarDbLaunchdbLaunchdURL = [volumeURL URLByAppendingPathComponent:@"var/db/launchd.db/com.apple.launchd" isDirectory:YES];
     NSDictionary *folderVarDbLaunchdbLaunchdAttributes = @{
-                                                    NSFileOwnerAccountName : @"root",
-                                                    NSFileGroupOwnerAccountName : @"wheel",
-                                                    NSFilePosixPermissions : @0755
-                                                    };
+                                                           NSFileOwnerAccountName : @"root",
+                                                           NSFileGroupOwnerAccountName : @"wheel",
+                                                           NSFilePosixPermissions : @0755
+                                                           };
     NSDictionary *modifyFolderVarDbLaunchdbLaunchd = @{
-                                                NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
-                                                NBCWorkflowModifyTargetURL : [folderVarDbLaunchdbLaunchdURL path],
-                                                NBCWorkflowModifyAttributes : folderVarDbLaunchdbLaunchdAttributes
-                                                };
+                                                       NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                       NBCWorkflowModifyTargetURL : [folderVarDbLaunchdbLaunchdURL path],
+                                                       NBCWorkflowModifyAttributes : folderVarDbLaunchdbLaunchdAttributes
+                                                       };
     [modifyDictArray addObject:modifyFolderVarDbLaunchdbLaunchd];
     
     // --------------------------------------------------------------
@@ -2317,7 +2341,7 @@ DDLogLevel ddLogLevel;
                                                          NSFileGroupOwnerAccountName : @"wheel",
                                                          NSFilePosixPermissions : @0755
                                                          };
-
+    
     NSDictionary *modifyFolderSystemLibraryCache = @{
                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
                                                      NBCWorkflowModifyTargetURL : [folderSystemLibraryCache path],
@@ -2334,7 +2358,7 @@ DDLogLevel ddLogLevel;
                                                         NSFileGroupOwnerAccountName : @"wheel",
                                                         NSFilePosixPermissions : @0755
                                                         };
-
+    
     NSDictionary *modifyFolderSystemLibraryCVMS = @{
                                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
                                                     NBCWorkflowModifyTargetURL : [folderSystemLibraryCVMS path],
@@ -2351,7 +2375,7 @@ DDLogLevel ddLogLevel;
                                                                   NSFileGroupOwnerAccountName : @"wheel",
                                                                   NSFilePosixPermissions : @0755
                                                                   };
-
+    
     NSDictionary *modifyFolderSystemLibraryKextExtensions = @{
                                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
                                                               NBCWorkflowModifyTargetURL : [folderSystemLibraryKextExtensions path],
@@ -2368,7 +2392,7 @@ DDLogLevel ddLogLevel;
                                                                NSFileGroupOwnerAccountName : @"wheel",
                                                                NSFilePosixPermissions : @0755
                                                                };
-
+    
     NSDictionary *modifyFolderSystemLibraryKextStartup = @{
                                                            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
                                                            NBCWorkflowModifyTargetURL : [folderSystemLibraryKextStartup path],
@@ -2381,16 +2405,16 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     NSURL *folderRootLibraryCachesOcspd = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Caches/ocspd" isDirectory:YES];
     NSDictionary *folderRootLibraryCachesOcspdAttributes = @{
-                                                               NSFileOwnerAccountName : @"root",
-                                                               NSFileGroupOwnerAccountName : @"wheel",
-                                                               NSFilePosixPermissions : @0755
-                                                               };
+                                                             NSFileOwnerAccountName : @"root",
+                                                             NSFileGroupOwnerAccountName : @"wheel",
+                                                             NSFilePosixPermissions : @0755
+                                                             };
     
     NSDictionary *modifyFolderRootLibraryCachesOcspd = @{
-                                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
-                                                           NBCWorkflowModifyTargetURL : [folderRootLibraryCachesOcspd path],
-                                                           NBCWorkflowModifyAttributes : folderRootLibraryCachesOcspdAttributes
-                                                           };
+                                                         NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                         NBCWorkflowModifyTargetURL : [folderRootLibraryCachesOcspd path],
+                                                         NBCWorkflowModifyAttributes : folderRootLibraryCachesOcspdAttributes
+                                                         };
     [modifyDictArray addObject:modifyFolderRootLibraryCachesOcspd];
     
     
