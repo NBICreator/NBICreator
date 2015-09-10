@@ -2359,7 +2359,7 @@ DDLogLevel ddLogLevel;
         [sourceController addLibSsl:sourceItemsDict source:_source];
     }
     
-    //[sourceController addNSURLStoraged:sourceItemsDict source:_source];
+    [sourceController addNSURLStoraged:sourceItemsDict source:_source];
     
     // - Kernel
     if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] || [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
