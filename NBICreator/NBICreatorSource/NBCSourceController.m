@@ -835,6 +835,9 @@ DDLogLevel ddLogLevel;
     NSString *regexNSURLStoraged = @".*nsurlstoraged.*";
     [packageBSDRegexes addObject:regexNSURLStoraged];
     
+    NSString *regexNSURLSessiond = @".*nsurlsessiond.*";
+    [packageBSDRegexes addObject:regexNSURLSessiond];
+    
     packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
     sourceItemsDict[packageBSDPath] = packageBSDDict;
     
@@ -853,6 +856,7 @@ DDLogLevel ddLogLevel;
     }
     
     [packageEssentialsRegexes addObject:regexNSURLStoraged];
+    [packageEssentialsRegexes addObject:regexNSURLSessiond];
     
     packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
     sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
@@ -923,11 +927,75 @@ DDLogLevel ddLogLevel;
     }
     
     NSString *regexSpctl = @".*spctl.*";
-    DDLogDebug(@"regexSpctl=%@", regexSpctl);
     [packageBSDRegexes addObject:regexSpctl];
     
     packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
     sourceItemsDict[packageBSDPath] = packageBSDDict;
+}
+
+- (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil )
+        {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexTaskgated = @".*taskgated.*";
+    [packageEssentialsRegexes addObject:regexTaskgated];
+    
+    NSString *regexConfigurationProfiles = @".*ConfigurationProfiles.framework.*";
+    [packageEssentialsRegexes addObject:regexConfigurationProfiles];
+    
+    NSString *regexUniversalAccess = @".*UniversalAccess.framework.*";
+    [packageEssentialsRegexes addObject:regexUniversalAccess];
+    
+    NSString *regexManagedClient = @".*ManagedClient.*";
+    [packageEssentialsRegexes addObject:regexManagedClient];
+    
+    NSString *regexSyspolicy = @".*syspolicy.*";
+    [packageEssentialsRegexes addObject:regexSyspolicy];
+    
+    
+    // For CoreServicesUIAgent
+    NSString *regexCoreServicesUIAgent = @".*CoreServicesUIAgent.*";
+    [packageEssentialsRegexes addObject:regexCoreServicesUIAgent];
+    
+    NSString *regexCoreServicesUIAgentPlist = @".*coreservices.uiagent.plist.*";
+    [packageEssentialsRegexes addObject:regexCoreServicesUIAgentPlist];
+    
+    NSString *regexXprotectFramework = @".*XprotectFramework.framework.*";
+    [packageEssentialsRegexes addObject:regexXprotectFramework];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+    
+    NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
+    NSMutableArray *packageBSDRegexes;
+    if ( [packageBSDDict count] != 0 ) {
+        packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageBSDRegexes == nil ) {
+            packageBSDRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageBSDDict = [[NSMutableDictionary alloc] init];
+        packageBSDRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    [packageBSDRegexes addObject:regexTaskgated];
+    
+    packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
+    sourceItemsDict[packageBSDPath] = packageBSDDict;
+
 }
 
 - (void)addPython:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
