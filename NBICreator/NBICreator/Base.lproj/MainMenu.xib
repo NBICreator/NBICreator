@@ -436,14 +436,13 @@
                         <rect key="frame" x="20" y="53" width="560" height="179"/>
                     </customView>
                     <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uL8-j3-eig">
-                        <rect key="frame" x="145" y="242" width="310" height="24"/>
+                        <rect key="frame" x="178" y="242" width="244" height="24"/>
                         <segmentedCell key="cell" refusesFirstResponder="YES" borderStyle="border" alignment="left" identifier="netinstall" style="rounded" trackingMode="selectOne" id="cuq-FX-eII">
                             <font key="font" metaFont="system"/>
                             <segments>
                                 <segment label="NetInstall" selected="YES"/>
                                 <segment label="DeployStudio" tag="1"/>
                                 <segment label="Imagr" tag="2"/>
-                                <segment label="Casper" tag="3"/>
                             </segments>
                         </segmentedCell>
                         <connections>

@@ -690,19 +690,19 @@ DDLogLevel ddLogLevel;
         verified = [_targetController modifySettingsAddFolders:modifyDictArray workflowItem:_workflowItem];
     }
     
-    //if ( sourceVersionMinor < 11 ) {
-    if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
-        if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
-            if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
-                shouldAddUsers = YES;
+    if ( sourceVersionMinor < 11 ) {
+        if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
+            if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
+                if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
+                    shouldAddUsers = YES;
+                } else {
+                    verified = NO;
+                }
             } else {
                 verified = NO;
             }
-        } else {
-            verified = NO;
         }
     }
-    //}
     
     if ( verified ) {
         [self modifyBaseSystemFiles:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL shouldAddUsers:shouldAddUsers];

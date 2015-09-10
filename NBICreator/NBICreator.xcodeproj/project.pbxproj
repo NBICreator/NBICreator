@@ -245,7 +245,7 @@
 		5303EBBC1AF42A9E00F6120D /* NBCNetInstallWorkflowNBI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCNetInstallWorkflowNBI.h; path = NBICreatorNetInstall/NBCNetInstallWorkflowNBI.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		5303EBBD1AF42A9E00F6120D /* NBCNetInstallWorkflowNBI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCNetInstallWorkflowNBI.m; path = NBICreatorNetInstall/NBCNetInstallWorkflowNBI.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		5304B4A41BA1E601007D7A9F /* ServerInformationComputerModelInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ServerInformationComputerModelInfo.h; sourceTree = "<group>"; };
-		5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServerInformation.framework; path = ../../../../../System/Library/PrivateFrameworks/ServerInformation.framework; sourceTree = "<group>"; };
+		5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServerInformation.framework; path = /System/Library/PrivateFrameworks/ServerInformation.framework; sourceTree = "<absolute>"; };
 		530532451B13B32D00AD5934 /* NBCMessageDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCMessageDelegate.h; sourceTree = "<group>"; };
 		5308C3651A9A63F7001CFEF5 /* NBCDeployStudioDropViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCDeployStudioDropViewController.h; path = NBICreatorDeployStudio/NBCDeployStudioDropViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		5308C3661A9A63F7001CFEF5 /* NBCDeployStudioDropViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCDeployStudioDropViewController.m; path = NBICreatorDeployStudio/NBCDeployStudioDropViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -584,7 +584,6 @@
 		53968BFE1A8E7A3E0079AA95 = {
 			isa = PBXGroup;
 			children = (
-				5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */,
 				53968C091A8E7A3E0079AA95 /* NBICreator */,
 				533BED671B9A360900524AE4 /* NBICreator CLI */,
 				53B91EE41AD9BDDC0056CFC0 /* NBICreator Categories */,
@@ -861,6 +860,7 @@
 			isa = PBXGroup;
 			children = (
 				5304B4A41BA1E601007D7A9F /* ServerInformationComputerModelInfo.h */,
+				5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */,
 				53F229CC1B6837E200CC0B09 /* Lumberjack.xcodeproj */,
 				532A678F1B18D98C007528AE /* SystemConfiguration.framework */,
 			);

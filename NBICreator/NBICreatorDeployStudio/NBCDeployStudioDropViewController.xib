@@ -33,7 +33,7 @@
             <rect key="frame" x="0.0" y="0.0" width="540" height="98"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <box autoresizesSubviews="NO" wantsLayer="YES" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" title="DropImageView" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="EUl-sf-uvk" customClass="NBCDeployStudioDropViewBox">
+                <box autoresizesSubviews="NO" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" title="DropImageView" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="EUl-sf-uvk" customClass="NBCDeployStudioDropViewBox">
                     <rect key="frame" x="-3" y="-4" width="546" height="104"/>
                     <view key="contentView">
                         <rect key="frame" x="1" y="1" width="544" height="102"/>
@@ -115,14 +115,6 @@
                                     <constraint firstAttribute="width" secondItem="KDh-6z-WZ5" secondAttribute="height" multiplier="1:1" id="LFn-jQ-UMa"/>
                                     <constraint firstAttribute="width" constant="61" id="tHp-8e-r24"/>
                                 </constraints>
-                                <contentFilters>
-                                    <ciFilter name="CIGaussianBlur">
-                                        <configuration>
-                                            <null key="inputImage"/>
-                                            <real key="inputRadius" value="0.0"/>
-                                        </configuration>
-                                    </ciFilter>
-                                </contentFilters>
                                 <imageCell key="cell" continuous="YES" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconDMG" id="uD8-5z-yoY"/>
                             </imageView>
                             <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="tAC-9S-YSM">

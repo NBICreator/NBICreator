@@ -34,7 +34,7 @@
             <rect key="frame" x="0.0" y="0.0" width="540" height="98"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <box autoresizesSubviews="NO" wantsLayer="YES" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" title="DropImageView" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="CxL-bd-NMr" customClass="NBCImagrDropViewBox">
+                <box autoresizesSubviews="NO" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" title="DropImageView" borderType="line" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="CxL-bd-NMr" customClass="NBCImagrDropViewBox">
                     <rect key="frame" x="-3" y="-4" width="546" height="104"/>
                     <view key="contentView">
                         <rect key="frame" x="1" y="1" width="544" height="102"/>
@@ -107,14 +107,6 @@
                                 <constraints>
                                     <constraint firstAttribute="width" constant="61" id="qPB-L4-gUU"/>
                                 </constraints>
-                                <contentFilters>
-                                    <ciFilter name="CIGaussianBlur">
-                                        <configuration>
-                                            <null key="inputImage"/>
-                                            <real key="inputRadius" value="0.0"/>
-                                        </configuration>
-                                    </ciFilter>
-                                </contentFilters>
                                 <imageCell key="cell" continuous="YES" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconDMG" id="FcY-VE-hkD"/>
                             </imageView>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="c4G-z1-zuk" customClass="NBCImagrDropViewImageView">
@@ -122,14 +114,6 @@
                                 <constraints>
                                     <constraint firstAttribute="width" secondItem="c4G-z1-zuk" secondAttribute="height" multiplier="1:1" id="GM5-6t-IAM"/>
                                 </constraints>
-                                <contentFilters>
-                                    <ciFilter name="CIGaussianBlur">
-                                        <configuration>
-                                            <null key="inputImage"/>
-                                            <real key="inputRadius" value="0.0"/>
-                                        </configuration>
-                                    </ciFilter>
-                                </contentFilters>
                                 <imageCell key="cell" continuous="YES" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconNetBootNBI" id="8RG-lR-KFz"/>
                             </imageView>
                             <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="u4N-ZV-9E7">
@@ -143,7 +127,7 @@
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="PWS-lP-3ax">
                                 <rect key="frame" x="472" y="38" width="56" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="&quot;Source Field 1&quot;" id="gxv-rK-gVc">
-                                    <font key="font" metaFont="titleBar" size="12"/>
+                                    <font key="font" metaFont="cellTitle"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>
@@ -167,7 +151,7 @@
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="4bl-nO-WZ2">
                                 <rect key="frame" x="472" y="18" width="56" height="16"/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="&quot;Source Field 2&quot;" id="VEz-R0-qik">
-                                    <font key="font" metaFont="titleBar" size="12"/>
+                                    <font key="font" metaFont="cellTitle"/>
                                     <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                 </textFieldCell>

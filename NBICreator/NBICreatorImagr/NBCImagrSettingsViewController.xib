@@ -669,6 +669,11 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.settingDisableATSVisible" id="2rp-Iq-dRU">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
                                             <binding destination="-2" name="value" keyPath="self.ardLogin" id="rDw-La-jWg">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
@@ -689,12 +694,17 @@ asdasd</string>
                                             </allowedInputSourceLocales>
                                         </secureTextFieldCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.settingDisableATSVisible" id="baW-43-e1a">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
+                                            <binding destination="-2" name="hidden" keyPath="self.showARDPassword" previousBinding="baW-43-e1a" id="fV5-U8-rV1"/>
                                             <binding destination="-2" name="value" keyPath="self.ardPassword" id="DZz-3m-aCT">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
                                                 </dictionary>
                                             </binding>
-                                            <binding destination="-2" name="hidden" keyPath="self.showARDPassword" id="tSB-Xf-Sav"/>
                                             <outlet property="delegate" destination="-2" id="qYm-Y3-Agq"/>
                                         </connections>
                                     </secureTextField>
@@ -705,6 +715,11 @@ asdasd</string>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.settingDisableATSVisible" id="vUv-LR-XxZ">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
                                             <binding destination="-2" name="value" keyPath="self.showARDPassword" id="Ovr-lS-gam"/>
                                         </connections>
                                     </button>
@@ -716,14 +731,19 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.settingDisableATSVisible" id="RTc-ou-3a0">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
+                                            <binding destination="-2" name="hidden" keyPath="self.showARDPassword" previousBinding="RTc-ou-3a0" id="VyI-pZ-sjB">
+                                                <dictionary key="options">
+                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
+                                                </dictionary>
+                                            </binding>
                                             <binding destination="-2" name="value" keyPath="self.ardPassword" id="6e1-GJ-XoW">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                                </dictionary>
-                                            </binding>
-                                            <binding destination="-2" name="hidden" keyPath="self.showARDPassword" id="VYF-OI-PQN">
-                                                <dictionary key="options">
-                                                    <string key="NSValueTransformerName">NSNegateBoolean</string>
                                                 </dictionary>
                                             </binding>
                                             <outlet property="delegate" destination="-2" id="9Bk-rN-sEv"/>
@@ -1903,7 +1923,7 @@ asdasd</string>
                 <constraint firstAttribute="trailing" secondItem="sJ6-Ig-M55" secondAttribute="trailing" constant="20" symbolic="YES" id="ySd-tU-es2"/>
                 <constraint firstItem="vXo-HW-s9M" firstAttribute="leading" secondItem="hVH-aa-uan" secondAttribute="leading" id="yTP-YA-qjk"/>
             </constraints>
-            <point key="canvasLocation" x="-2221.5" y="300"/>
+            <point key="canvasLocation" x="-2480.5" y="263"/>
         </customView>
         <customView id="395-jk-mun" userLabel="PopOver NetBoot Servers">
             <rect key="frame" x="0.0" y="0.0" width="133" height="147"/>
@@ -2034,7 +2054,7 @@ asdasd</string>
                 <constraint firstAttribute="trailing" secondItem="za1-i3-jap" secondAttribute="trailing" constant="5" id="jmB-BJ-PlT"/>
                 <constraint firstItem="PEn-Y1-AIs" firstAttribute="leading" secondItem="395-jk-mun" secondAttribute="leading" constant="5" id="qRs-9I-e1x"/>
             </constraints>
-            <point key="canvasLocation" x="-2870.5" y="174.5"/>
+            <point key="canvasLocation" x="-2760.5" y="189.5"/>
         </customView>
     </objects>
     <resources>
