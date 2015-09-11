@@ -504,7 +504,7 @@ DDLogLevel ddLogLevel;
     
     NSString *displaySleepMinutes;
     if ( [settingsDict[NBCSettingsDisplaySleepKey] boolValue] ) {
-        displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
+        displaySleepMinutes = [settingsDict[NBCSettingsDisplaySleepMinutesKey] stringValue];
     } else {
         displaySleepMinutes = @"0";
     }
@@ -678,7 +678,7 @@ DDLogLevel ddLogLevel;
     
     NSString *displaySleepMinutes;
     if ( [settingsDict[NBCSettingsDisplaySleepKey] boolValue] ) {
-        displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
+        displaySleepMinutes = [settingsDict[NBCSettingsDisplaySleepMinutesKey] stringValue];
     } else {
         displaySleepMinutes = @"0";
     }

@@ -1047,8 +1047,6 @@ DDLogLevel ddLogLevel;
     [self setNbiIconPath:settingsDict[NBCSettingsIconKey]];
     [self setDisableWiFi:[settingsDict[NBCSettingsDisableWiFiKey] boolValue]];
     [self setDisableBluetooth:[settingsDict[NBCSettingsDisableBluetoothKey] boolValue]];
-    [self setDisplaySleep:[settingsDict[NBCSettingsDisplaySleepKey] boolValue]];
-    [self setDisplaySleepMinutes:settingsDict[NBCSettingsDisplaySleepMinutesKey]];
     [self setIncludeSystemUIServer:[settingsDict[NBCSettingsIncludeSystemUIServerKey] boolValue]];
     [self setArdLogin:settingsDict[NBCSettingsARDLoginKey]];
     [self setArdPassword:settingsDict[NBCSettingsARDPasswordKey]];
@@ -1064,6 +1062,23 @@ DDLogLevel ddLogLevel;
     [self setAllowInvalidCertificate:[settingsDict[NBCSettingsCasperAllowInvalidCertificateKey] boolValue]];
     [self setJssCACertificate:settingsDict[NBCSettingsCasperJSSCACertificateKey]];
     [self setEnableCasperImagingDebugMode:[settingsDict[NBCSettingsCasperImagingDebugModeKey] boolValue]];
+    
+    NSNumber *displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
+    int displaySleepMinutesInteger = 20;
+    if ( displaySleepMinutes != nil ) {
+        displaySleepMinutesInteger = [displaySleepMinutes intValue];
+        [self setDisplaySleepMinutes:displaySleepMinutesInteger];
+    } else {
+        [self setDisplaySleepMinutes:displaySleepMinutesInteger];
+    }
+    
+    [_sliderDisplaySleep setIntegerValue:displaySleepMinutesInteger];
+    [self updateSliderPreview:displaySleepMinutesInteger];
+    if ( displaySleepMinutesInteger < 120 ) {
+        [self setDisplaySleep:NO];
+    } else {
+        [self setDisplaySleep:YES];
+    }
     
     [self uppdatePopUpButtonTool];
     
@@ -1265,8 +1280,8 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"%APPLICATIONRESOURCESURL%/IconCasper.icns";
     settingsDict[NBCSettingsDisableWiFiKey] = @(_disableWiFi) ?: @NO;
     settingsDict[NBCSettingsDisableBluetoothKey] = @(_disableBluetooth) ?: @NO;
-    settingsDict[NBCSettingsDisplaySleepKey] = @(_displaySleep) ?: @NO;
-    settingsDict[NBCSettingsDisplaySleepMinutesKey] = _displaySleepMinutes ?: @"30";
+    settingsDict[NBCSettingsDisplaySleepMinutesKey] = @(_displaySleepMinutes) ?: @30;
+    settingsDict[NBCSettingsDisplaySleepKey] = ( _displaySleepMinutes == 120 ) ? @NO : @YES;
     settingsDict[NBCSettingsIncludeSystemUIServerKey] = @(_includeSystemUIServer) ?: @NO;
     settingsDict[NBCSettingsCasperImagingPathKey] = _casperImagingPath ?: @"";
     settingsDict[NBCSettingsCasperJSSURLKey] = _casperJSSURL ?: @"";
@@ -1518,10 +1533,10 @@ DDLogLevel ddLogLevel;
      if ( [displaySleepTime length] != 0 ) {
      if ( [displaySleepTime integerValue] == 0 ) {
      settingsDict[NBCSettingsDisplaySleepKey] = @NO;
-     settingsDict[NBCSettingsDisplaySleepMinutesKey] = @"0";
+     settingsDict[NBCSettingsDisplaySleepMinutesKey] = @120;
      } else {
      settingsDict[NBCSettingsDisplaySleepKey] = @YES;
-     settingsDict[NBCSettingsDisplaySleepMinutesKey] = displaySleepTime;
+     settingsDict[NBCSettingsDisplaySleepMinutesKey] = @([displaySleepTime intValue]);
      }
      }
      }
@@ -2360,6 +2375,7 @@ DDLogLevel ddLogLevel;
     }
     
     [sourceController addNSURLStoraged:sourceItemsDict source:_source];
+    [sourceController addConsole:sourceItemsDict source:_source];
     
     // - Kernel
     if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] || [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
@@ -2402,6 +2418,27 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     if ( 11 <= sourceVersionMinor ) {
         [sourceController addNetworkd:sourceItemsDict source:_source];
+        
+        NSString *packageAdditionalEssentialsPath = [NSString stringWithFormat:@"%@/Packages/AdditionalEssentials.pkg", [[_source installESDVolumeURL] path]];
+        NSMutableDictionary *packageAdditionalEssentialsDict = sourceItemsDict[packageAdditionalEssentialsPath];
+        NSMutableArray *packageAdditionalEssentialsRegexes;
+        if ( [packageAdditionalEssentialsDict count] != 0 ) {
+            packageAdditionalEssentialsRegexes = packageAdditionalEssentialsDict[NBCSettingsSourceItemsRegexKey];
+            NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
+            NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+            NSMutableArray *packageEssentialsRegexes;
+            if ( [packageEssentialsDict count] == 0 ) {
+                packageEssentialsDict = [[NSMutableDictionary alloc] init];
+            }
+            packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+            if ( packageEssentialsRegexes == nil ) {
+                packageEssentialsRegexes = [[NSMutableArray alloc] init];
+            }
+            [packageEssentialsRegexes addObjectsFromArray:packageAdditionalEssentialsRegexes];
+            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+            sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+            [sourceItemsDict removeObjectForKey:packageAdditionalEssentialsPath];
+        }
         
         NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[_source installESDVolumeURL] path]];
         NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
@@ -3034,6 +3071,30 @@ DDLogLevel ddLogLevel;
     } else {
         [_textFieldTrustedServersCount setStringValue:trustedNetBootServerCount];
     }
+}
+
+- (IBAction)sliderDisplaySleep:(id)sender {
+#pragma unused(sender)
+    [self setDisplaySleepMinutes:(int)[_sliderDisplaySleep integerValue]];
+    [self updateSliderPreview:(int)[_sliderDisplaySleep integerValue]];
+}
+
+- (void)updateSliderPreview:(int)sliderValue {
+    NSString *sliderPreviewString;
+    if ( 120 <= sliderValue ) {
+        sliderPreviewString = @"Never";
+    } else {
+        NSCalendar *calendarUS = [NSCalendar calendarWithIdentifier: NSCalendarIdentifierGregorian];
+        calendarUS.locale = [NSLocale localeWithLocaleIdentifier: @"en_US"];
+        NSDateComponentsFormatter *dateComponentsFormatter = [[NSDateComponentsFormatter alloc] init];
+        dateComponentsFormatter.maximumUnitCount = 2;
+        dateComponentsFormatter.unitsStyle = NSDateComponentsFormatterUnitsStyleFull;
+        dateComponentsFormatter.calendar = calendarUS;
+        
+        sliderPreviewString = [dateComponentsFormatter stringFromTimeInterval:(sliderValue * 60)];
+    }
+    
+    [_textFieldDisplaySleepPreview setStringValue:sliderPreviewString];
 }
 
 @end

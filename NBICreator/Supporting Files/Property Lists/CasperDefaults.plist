@@ -19,7 +19,7 @@
 	<key>UseNetworkTimeServerKey</key>
 	<false/>
 	<key>DisplaySleepMinutes</key>
-	<string>30</string>
+	<integer>30</integer>
 	<key>DisplaySleep</key>
 	<false/>
 	<key>DisableWiFi</key>

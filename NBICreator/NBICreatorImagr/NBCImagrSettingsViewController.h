@@ -101,6 +101,12 @@
 @property (weak) IBOutlet NSButton *buttonRemoveTrustedServer;
 - (IBAction)buttonRemoveTrustedServer:(id)sender;
 
+@property (weak) IBOutlet NSSlider *sliderDisplaySleep;
+- (IBAction)sliderDisplaySleep:(id)sender;
+
+@property (weak) IBOutlet NSTextField *textFieldDisplaySleepPreview;
+
+
 // ------------------------------------------------------
 //  TabView Imagr Settings
 // ------------------------------------------------------
@@ -177,7 +183,7 @@
 @property BOOL disableBluetooth;
 @property BOOL displaySleep;
 @property BOOL includeSystemUIServer;
-@property NSString *displaySleepMinutes;
+@property int displaySleepMinutes;
 @property NSString *ardLogin;
 @property NSString *ardPassword;
 @property BOOL showARDPassword;
