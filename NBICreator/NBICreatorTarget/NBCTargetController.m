@@ -1960,6 +1960,7 @@ DDLogLevel ddLogLevel;
     }
     
     NSDictionary *userSettings = [workflowItem userSettings];
+    NSDictionary *resourcesSettings = [workflowItem resourcesSettings];
     
     // --------------------------------------------------------------
     //  /etc/rc.cdm.cdrom
@@ -2061,21 +2062,21 @@ DDLogLevel ddLogLevel;
             [rcCdmCdrom appendString:@"RAMDisk /Library/Logs 16384\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Logs/DiagnosticReports 4096\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Caches 65536\n"];
-                        
+            
             if ( [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
                 [rcCdmCdrom appendString:@"RAMDisk '/Library/Security/Trust Settings' 2048\n"];
             }
             
-            switch ( [workflowItem workflowType] ) {
-                case kWorkflowTypeImagr:
-                {
-                    [rcCdmCdrom appendString:@"RAMDisk /var/root/Library/Caches/com.grahamgilbert.Imagr 2048\n"];
-                    break;
+            if ( [userSettings[NBCSettingsAddCustomRAMDisksKey] boolValue] && [resourcesSettings[NBCSettingsRAMDisksKey] count] != 0 ) {
+                for ( NSDictionary *ramDiskDict in resourcesSettings[NBCSettingsRAMDisksKey] ) {
+                    NSString *ramDiskSizeMB = ramDiskDict[@"size"];
+                    if ( [ramDiskSizeMB length] != 0 ) {
+                        // Uses 1024
+                        NSString *ramDiskSizekB = [[NSNumber numberWithInt:( [ramDiskSizeMB intValue] * 1024 )] stringValue];
+                        [rcCdmCdrom appendString:[NSString stringWithFormat:@"RAMDisk %@ %@\n", ramDiskDict[@"path"], ramDiskSizekB]];
+                    }
                 }
-                default:
-                    break;
             }
-            
         } else {
             DDLogError(@"[ERROR] rcCdmCdrom is nil!");
             return NO;
@@ -2547,29 +2548,31 @@ DDLogLevel ddLogLevel;
                                                          };
     [modifyDictArray addObject:modifyFolderRootLibraryCachesOcspd];
     
-    switch ( [workflowItem workflowType] ) {
-        case kWorkflowTypeImagr:
-        {
-            // --------------------------------------------------------------
-            //  /var/root/Library/Caches/ocspd
-            // --------------------------------------------------------------
-            NSURL *folderRootLibraryCachesImagr = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Caches/com.grahamgilbert.Imagr" isDirectory:YES];
-            NSDictionary *folderRootLibraryCachesImagrAttributes = @{
-                                                                     NSFileOwnerAccountName : @"root",
-                                                                     NSFileGroupOwnerAccountName : @"wheel",
-                                                                     NSFilePosixPermissions : @0755
-                                                                     };
-            
-            NSDictionary *modifyFolderRootLibraryCachesImagr = @{
-                                                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
-                                                                 NBCWorkflowModifyTargetURL : [folderRootLibraryCachesImagr path],
-                                                                 NBCWorkflowModifyAttributes : folderRootLibraryCachesImagrAttributes
-                                                                 };
-            [modifyDictArray addObject:modifyFolderRootLibraryCachesImagr];
-            break;
+    if ( [[workflowItem userSettings][NBCSettingsAddCustomRAMDisksKey] boolValue] ) {
+        NSDictionary *resourcesSettings = [workflowItem resourcesSettings];
+        NSArray *customRAMDisks = resourcesSettings[NBCSettingsRAMDisksKey];
+        for ( NSDictionary *ramDiskDict in customRAMDisks ) {
+            NSString *ramDiskPath = ramDiskDict[@"path"];
+            if ([ramDiskPath hasPrefix:@"/"] && [ramDiskPath length] > 1) {
+                NSURL *ramDiskURL = [volumeURL URLByAppendingPathComponent:[ramDiskPath substringFromIndex:1]];
+                if ( ramDiskURL ) {
+                    if ( ! [ramDiskURL checkResourceIsReachableAndReturnError:nil] ) {
+                        NSDictionary *ramDiskAttributes = @{
+                                                            NSFileOwnerAccountName : @"root",
+                                                            NSFileGroupOwnerAccountName : @"wheel",
+                                                            NSFilePosixPermissions : @0755
+                                                            };
+                        
+                        NSDictionary *modifyFolderRamDisk = @{
+                                                              NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                              NBCWorkflowModifyTargetURL : [ramDiskURL path],
+                                                              NBCWorkflowModifyAttributes : ramDiskAttributes
+                                                              };
+                        [modifyDictArray addObject:modifyFolderRamDisk];
+                    }
+                }
+            }
         }
-        default:
-            break;
     }
     
     return retval;

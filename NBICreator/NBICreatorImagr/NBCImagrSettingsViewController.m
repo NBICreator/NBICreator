@@ -1109,7 +1109,7 @@ DDLogLevel ddLogLevel;
     [self setEnableLaunchdLogging:[settingsDict[NBCSettingsEnableLaunchdLoggingKey] boolValue]];
     [self setLaunchConsoleApp:[settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue]];
     [self setAddCustomRAMDisks:[settingsDict[NBCSettingsAddCustomRAMDisksKey] boolValue]];
-    [self setImagrSyslogServerURL:settingsDict[NBCSettingsImagrSyslogServerURL]];
+    [self setImagrSyslogServerURI:settingsDict[NBCSettingsImagrSyslogServerURI]];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -1297,7 +1297,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsEnableLaunchdLoggingKey] = @(_enableLaunchdLogging) ?: @NO;
     settingsDict[NBCSettingsLaunchConsoleAppKey] = @(_launchConsoleApp) ?: @NO;
     settingsDict[NBCSettingsAddCustomRAMDisksKey] = @(_addCustomRAMDisks) ?: @NO;
-    settingsDict[NBCSettingsImagrSyslogServerURL] = _imagrSyslogServerURL ?: @"";
+    settingsDict[NBCSettingsImagrSyslogServerURI] = _imagrSyslogServerURI ?: @"";
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2659,6 +2659,14 @@ DDLogLevel ddLogLevel;
     }
     resourcesSettings[NBCSettingsPackagesKey] = packages;
     
+    NSMutableArray *ramDisks = [[NSMutableArray alloc] init];
+    for ( NSDictionary *ramDiskDict in _ramDisks ) {
+        if ( [self validateRAMDisk:ramDiskDict] ) {
+            [ramDisks addObject:ramDiskDict];
+        }
+    }
+    resourcesSettings[NBCSettingsRAMDisksKey] = ramDisks;
+    
     [workflowItem setResourcesSettings:[resourcesSettings copy]];
     // -------------------------------------------------------------
     //  Instantiate all workflows to be used to create a Imagr NBI
@@ -3204,6 +3212,17 @@ DDLogLevel ddLogLevel;
     } else {
         [_textFieldRAMDiskCount setStringValue:ramDisksCount];
     }
+}
+
+- (BOOL)validateRAMDisk:(NSDictionary *)ramDiskDict {
+    BOOL retval = YES;
+    NSString *path = ramDiskDict[@"path"];
+    NSString *size = ramDiskDict[@"size"];
+    if ( [path length] == 0 || [size length] == 0 ) {
+        return NO;
+    }
+    
+    return retval;
 }
 
 @end
