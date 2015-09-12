@@ -1534,7 +1534,7 @@ asdasd</string>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                         <connections>
-                                            <binding destination="-2" name="value" keyPath="self.imagrSyslogServerURL" id="XoZ-0F-Q90">
+                                            <binding destination="-2" name="value" keyPath="self.imagrSyslogServerURI" id="h7P-Vt-Qbb">
                                                 <dictionary key="options">
                                                     <bool key="NSContinuouslyUpdatesValue" value="YES"/>
                                                     <string key="NSNullPlaceholder">(Optional)</string>
@@ -1544,8 +1544,8 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Tgc-0n-d1m">
-                                        <rect key="frame" x="16" y="198" width="124" height="17"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Syslog Server URL:" id="u5x-tZ-Jwp">
+                                        <rect key="frame" x="20" y="198" width="120" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Syslog Server URI:" id="u5x-tZ-Jwp">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

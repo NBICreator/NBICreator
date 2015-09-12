@@ -217,7 +217,7 @@
 @property NSString *imagrVersion;
 @property NSString *imagrConfigurationURL;
 @property NSString *imagrReportingURL;
-@property NSString *imagrSyslogServerURL;
+@property NSString *imagrSyslogServerURI;
 @property BOOL imagrUseLocalVersion;
 @property NSString *imagrLocalVersionPath;
 @property BOOL useBackgroundImage;

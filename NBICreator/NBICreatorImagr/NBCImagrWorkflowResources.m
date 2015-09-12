@@ -961,9 +961,9 @@ DDLogLevel ddLogLevel;
                 settingsDict[@"reporturl"] = reportingURL;
             }
             
-            NSString *syslogServerURL = _userSettings[NBCSettingsImagrSyslogServerURL];
-            if ( [syslogServerURL length] != 0 ) {
-                settingsDict[@"syslog"] = syslogServerURL;
+            NSString *syslogServerURI = _userSettings[NBCSettingsImagrSyslogServerURI];
+            if ( [syslogServerURI length] != 0 ) {
+                settingsDict[@"syslog"] = syslogServerURI;
             }
             
             if ( [settingsDict writeToURL:settingsFileURL atomically:YES] ) {

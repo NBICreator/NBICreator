@@ -232,7 +232,7 @@ extern NSString *const NBCSettingsImagrIncludePreReleaseVersions;
 extern NSString *const NBCSettingsImagrConfigurationURL;
 extern NSString *const NBCSettingsImagrReportingURL;
 extern NSString *const NBCSettingsImagrServerURLKey;
-extern NSString *const NBCSettingsImagrSyslogServerURL;
+extern NSString *const NBCSettingsImagrSyslogServerURI;
 extern NSString *const NBCSettingsImagrDownloadURL;
 extern NSString *const NBCSettingsImagrDownloadPython;
 extern NSString *const NBCSettingsImagrUseLocalVersion;

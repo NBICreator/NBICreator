@@ -40,7 +40,7 @@
 	<false/>
 	<key>ImagrConfigurationURL</key>
 	<string></string>
-	<key>ImagrSyslogServerURL</key>
+	<key>ImagrSyslogServerURI</key>
 	<string></string>
 	<key>ImagrReportingURL</key>
 	<string></string>
