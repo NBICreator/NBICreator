@@ -162,14 +162,14 @@ DDLogLevel ddLogLevel;
     if ( [supportedModelProperties count] != 0 ) {
         [disabledSystemIdentifiers addObjectsFromArray:supportedModelProperties];
     }
-
+    
     if ( [supportedBoardIds count] != 0 ) {
         NSArray *modelIDsFromBoardIDs = [ServerInformationComputerModelInfo modelPropertiesForBoardIDs:supportedBoardIds];
         if ( [modelIDsFromBoardIDs count] != 0 ) {
             [disabledSystemIdentifiers addObjectsFromArray:modelIDsFromBoardIDs];
         }
     }
-
+    
     NSArray *newDisabledSystemIdentifiers = [[disabledSystemIdentifiers copy] valueForKeyPath:@"@distinctUnionOfObjects.self"];
     
     availabilityEnabled = [workflowSettings[NBCSettingsEnabledKey] boolValue];
@@ -1512,6 +1512,123 @@ DDLogLevel ddLogLevel;
     return retval;
 }
 
+- (BOOL)modifySettingsForLaunchdLogging:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogInfo(@"Configure settings for launchd settings...");
+    BOOL retval = YES;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    NSURL *systemLaunchDaemonsFolderURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons"];
+    NSURL *systemLaunchAgentsFolderURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchAgents"];
+    
+    // Add all LaunchDaemons
+    NSMutableArray *allLaunchdItemURLs = [[NSMutableArray alloc] initWithArray:[fm contentsOfDirectoryAtURL:systemLaunchDaemonsFolderURL
+                                                                                 includingPropertiesForKeys:@[]
+                                                                                                    options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                                                      error:nil]];
+    
+    // Add all LaunchAgents
+    [allLaunchdItemURLs arrayByAddingObjectsFromArray:[fm contentsOfDirectoryAtURL:systemLaunchAgentsFolderURL
+                                                        includingPropertiesForKeys:@[]
+                                                                           options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                             error:nil]];
+    
+    NSDictionary *plistAttributes = @{
+                                      NSFileOwnerAccountName : @"root",
+                                      NSFileGroupOwnerAccountName : @"wheel",
+                                      NSFilePosixPermissions : @0644
+                                      };
+    
+    NSPredicate *predicatePlist = [NSPredicate predicateWithFormat:@"pathExtension == 'plist'"];
+    NSString *plistName;
+    NSString *plistStdOutPath;
+    NSString *plistStdErrPath;
+    for ( NSURL *fileURL in [allLaunchdItemURLs filteredArrayUsingPredicate:predicatePlist] ) {
+        NSMutableDictionary *fileDict = [NSMutableDictionary dictionaryWithContentsOfURL:fileURL];
+        if ( [fileDict count] != 0 ) {
+            plistName = [[fileURL lastPathComponent]  stringByDeletingPathExtension];
+            plistStdOutPath = [NSString stringWithFormat:@"/tmp/%@-stdout", plistName];
+            plistStdErrPath = [NSString stringWithFormat:@"/tmp/%@-stderr", plistName];
+            
+            fileDict[@"StandardOutPath"] = plistStdOutPath;
+            fileDict[@"StandardErrorPath"] = plistStdErrPath;
+            
+            NSDictionary *modifyPlist = @{
+                                          NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                          NBCWorkflowModifyContent : fileDict,
+                                          NBCWorkflowModifyAttributes : plistAttributes,
+                                          NBCWorkflowModifyTargetURL : [fileURL path]
+                                          };
+            
+            [modifyDictArray addObject:modifyPlist];
+        } else {
+            DDLogError(@"[ERROR] Could not read plist at path: %@", [fileURL path]);
+        }
+    }
+    
+    return retval;
+}
+
+- (BOOL)modifySettingsForConsole:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogInfo(@"Configure settings for Console...");
+    BOOL retval = YES;
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
+    if ( ! volumeURL ) {
+        DDLogError(@"[ERROR] volumeURL is nil");
+        return NO;
+    }
+    
+    // --------------------------------------------------------------
+    //  /System/Installation/CDIS/OS X Utilities.app/Contents/Resources/Utilities.plist
+    // --------------------------------------------------------------
+    NSURL *utilitiesPlistURL = [volumeURL URLByAppendingPathComponent:@"System/Installation/CDIS/OS X Utilities.app/Contents/Resources/Utilities.plist"];
+    NSMutableDictionary *utilitiesPlistDict;
+    NSDictionary *utilitiesPlistAttributes;
+    if ( [utilitiesPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        utilitiesPlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:utilitiesPlistURL];
+        utilitiesPlistAttributes = [fm attributesOfItemAtPath:[utilitiesPlistURL path] error:&error];
+    }
+    
+    if ( [utilitiesPlistDict count] == 0 ) {
+        utilitiesPlistDict = [[NSMutableDictionary alloc] init];
+        utilitiesPlistAttributes = @{
+                                     NSFileOwnerAccountName : @"root",
+                                     NSFileGroupOwnerAccountName : @"wheel",
+                                     NSFilePosixPermissions : @0644
+                                     };
+    }
+    
+    NSMutableArray *menuArray = [[NSMutableArray alloc] initWithArray:utilitiesPlistDict[@"Menu"]];
+    if ( [menuArray count] != 0 ) {
+        NSDictionary *consoleMenuDict = @{
+                                          @"BundlePath" : @"/Applications/Utilities/Console.app",
+                                          @"Path" : @"/Applications/Utilities/Console.app/Contents/MacOS/Console",
+                                          @"TitleKey" : @"Console"
+                                          };
+        [menuArray addObject:consoleMenuDict];
+        utilitiesPlistDict[@"Menu"] = menuArray;
+    }
+    
+    NSDictionary *modifyUtilitiesPlist = @{
+                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                           NBCWorkflowModifyContent : utilitiesPlistDict,
+                                           NBCWorkflowModifyAttributes : utilitiesPlistAttributes,
+                                           NBCWorkflowModifyTargetURL : [utilitiesPlistURL path]
+                                           };
+    
+    [modifyDictArray addObject:modifyUtilitiesPlist];
+    
+    return retval;
+}
+
 - (BOOL)modifySettingsForVNC:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogInfo(@"Configure settings for ARD/VNC...");
     BOOL retval = YES;
@@ -1842,6 +1959,8 @@ DDLogLevel ddLogLevel;
         return NO;
     }
     
+    NSDictionary *userSettings = [workflowItem userSettings];
+    
     // --------------------------------------------------------------
     //  /etc/rc.cdm.cdrom
     // --------------------------------------------------------------
@@ -1942,9 +2061,20 @@ DDLogLevel ddLogLevel;
             [rcCdmCdrom appendString:@"RAMDisk /Library/Logs 16384\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Logs/DiagnosticReports 4096\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Caches 65536\n"];
+                        
+            if ( [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
+                [rcCdmCdrom appendString:@"RAMDisk '/Library/Security/Trust Settings' 2048\n"];
+            }
             
-            // Used when adding certificates - 2048 = 2 MB
-            [rcCdmCdrom appendString:@"RAMDisk '/Library/Security/Trust Settings' 2048\n"];
+            switch ( [workflowItem workflowType] ) {
+                case kWorkflowTypeImagr:
+                {
+                    [rcCdmCdrom appendString:@"RAMDisk /var/root/Library/Caches/com.grahamgilbert.Imagr 2048\n"];
+                    break;
+                }
+                default:
+                    break;
+            }
             
         } else {
             DDLogError(@"[ERROR] rcCdmCdrom is nil!");
@@ -2417,6 +2547,30 @@ DDLogLevel ddLogLevel;
                                                          };
     [modifyDictArray addObject:modifyFolderRootLibraryCachesOcspd];
     
+    switch ( [workflowItem workflowType] ) {
+        case kWorkflowTypeImagr:
+        {
+            // --------------------------------------------------------------
+            //  /var/root/Library/Caches/ocspd
+            // --------------------------------------------------------------
+            NSURL *folderRootLibraryCachesImagr = [volumeURL URLByAppendingPathComponent:@"var/root/Library/Caches/com.grahamgilbert.Imagr" isDirectory:YES];
+            NSDictionary *folderRootLibraryCachesImagrAttributes = @{
+                                                                     NSFileOwnerAccountName : @"root",
+                                                                     NSFileGroupOwnerAccountName : @"wheel",
+                                                                     NSFilePosixPermissions : @0755
+                                                                     };
+            
+            NSDictionary *modifyFolderRootLibraryCachesImagr = @{
+                                                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                                 NBCWorkflowModifyTargetURL : [folderRootLibraryCachesImagr path],
+                                                                 NBCWorkflowModifyAttributes : folderRootLibraryCachesImagrAttributes
+                                                                 };
+            [modifyDictArray addObject:modifyFolderRootLibraryCachesImagr];
+            break;
+        }
+        default:
+            break;
+    }
     
     return retval;
 } // modifySettingsAddFolders

@@ -690,7 +690,7 @@ DDLogLevel ddLogLevel;
         verified = [_targetController modifySettingsAddFolders:modifyDictArray workflowItem:_workflowItem];
     }
     
-    if ( sourceVersionMinor < 11 ) {
+    //if ( sourceVersionMinor < 11 ) {
         if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
             if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
                 if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
@@ -702,6 +702,14 @@ DDLogLevel ddLogLevel;
                 verified = NO;
             }
         }
+    //}
+    
+    if ( verified && [userSettings[NBCSettingsEnableLaunchdLoggingKey] boolValue] ) {
+        verified = [_targetController modifySettingsForLaunchdLogging:modifyDictArray workflowItem:_workflowItem];
+    }
+    
+    if ( verified && [userSettings[NBCSettingsIncludeConsoleAppKey] boolValue] ) {
+        verified = [_targetController modifySettingsForConsole:modifyDictArray workflowItem:_workflowItem];
     }
     
     if ( verified ) {

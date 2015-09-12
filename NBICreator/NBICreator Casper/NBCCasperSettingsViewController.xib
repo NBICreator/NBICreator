@@ -1262,12 +1262,48 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.diskImageReadWrite" id="nq0-qu-awQ"/>
                                         </connections>
                                     </button>
+                                    <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="jct-vi-yLB">
+                                        <rect key="frame" x="18" y="242" width="149" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Include Console.app" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="lkn-8v-3JZ">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.includeConsoleApp" id="LPj-2k-WD4"/>
+                                        </connections>
+                                    </button>
+                                    <button hidden="YES" horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="UiM-58-X3t">
+                                        <rect key="frame" x="18" y="200" width="348" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Add stdout and stderr logging to all LaunchDaemons" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="cxp-oO-brF">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.enableLaunchdLogging" id="DTM-oh-9Ri"/>
+                                        </connections>
+                                    </button>
+                                    <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="weA-wb-Ce2">
+                                        <rect key="frame" x="34" y="221" width="261" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Launch Console.app behind main application" bezelStyle="regularSquare" imagePosition="left" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="uXy-lz-8TD">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="smallSystem"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.launchConsoleApp" id="lTZ-6Z-uHL"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="KaC-qv-2hF" firstAttribute="top" secondItem="mvC-mU-QIX" secondAttribute="top" constant="20" symbolic="YES" id="67I-cb-Gro"/>
+                                    <constraint firstItem="weA-wb-Ce2" firstAttribute="top" secondItem="jct-vi-yLB" secondAttribute="bottom" constant="6" symbolic="YES" id="Cr0-ag-MUS"/>
+                                    <constraint firstItem="UiM-58-X3t" firstAttribute="leading" secondItem="jct-vi-yLB" secondAttribute="leading" id="JW3-ae-vyc"/>
                                     <constraint firstItem="KaC-qv-2hF" firstAttribute="leading" secondItem="mvC-mU-QIX" secondAttribute="leading" constant="20" symbolic="YES" id="Kge-kr-gHy"/>
                                     <constraint firstItem="n52-4f-pfp" firstAttribute="leading" secondItem="KaC-qv-2hF" secondAttribute="leading" id="P7Q-Av-1Jd"/>
+                                    <constraint firstItem="UiM-58-X3t" firstAttribute="top" secondItem="weA-wb-Ce2" secondAttribute="bottom" constant="6" symbolic="YES" id="Wzi-uN-Rf9"/>
+                                    <constraint firstItem="weA-wb-Ce2" firstAttribute="leading" secondItem="jct-vi-yLB" secondAttribute="leading" constant="17" id="a6G-hJ-wcN"/>
+                                    <constraint firstItem="jct-vi-yLB" firstAttribute="leading" secondItem="n52-4f-pfp" secondAttribute="leading" id="cD2-85-WDd"/>
                                     <constraint firstItem="n52-4f-pfp" firstAttribute="top" secondItem="KaC-qv-2hF" secondAttribute="bottom" constant="9" id="xe7-Yr-vlj"/>
+                                    <constraint firstItem="jct-vi-yLB" firstAttribute="top" secondItem="n52-4f-pfp" secondAttribute="bottom" constant="9" id="yGL-8c-hgZ"/>
                                 </constraints>
                             </view>
                         </tabViewItem>

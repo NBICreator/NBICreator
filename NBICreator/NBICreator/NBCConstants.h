@@ -169,12 +169,17 @@ extern NSString *const NBCSettingsPackagesKey;
 ////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCSettingsAddTrustedNetBootServersKey;
 extern NSString *const NBCSettingsTrustedNetBootServersKey;
+extern NSString *const NBCSettingsAddCustomRAMDisksKey;
+extern NSString *const NBCSettingsRAMDisksKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug
 ////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCSettingsUseVerboseBootKey;
 extern NSString *const NBCSettingsDiskImageReadWriteKey;
+extern NSString *const NBCSettingsIncludeConsoleAppKey;
+extern NSString *const NBCSettingsLaunchConsoleAppKey;
+extern NSString *const NBCSettingsEnableLaunchdLoggingKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - NetInstall
@@ -227,6 +232,7 @@ extern NSString *const NBCSettingsImagrIncludePreReleaseVersions;
 extern NSString *const NBCSettingsImagrConfigurationURL;
 extern NSString *const NBCSettingsImagrReportingURL;
 extern NSString *const NBCSettingsImagrServerURLKey;
+extern NSString *const NBCSettingsImagrSyslogServerURL;
 extern NSString *const NBCSettingsImagrDownloadURL;
 extern NSString *const NBCSettingsImagrDownloadPython;
 extern NSString *const NBCSettingsImagrUseLocalVersion;
@@ -541,6 +547,8 @@ extern NSString *const NBCTableViewIdentifierCertificates;
 extern NSString *const NBCTableViewIdentifierPackages;
 extern NSString *const NBCTableViewIdentifierImagrTrustedServers;
 extern NSString *const NBCTableViewIdentifierCasperTrustedServers;
+extern NSString *const NBCTableViewIdentifierImagrRAMDisks;
+extern NSString *const NBCTableViewIdentifierCasperRAMDisks;
 
 extern NSString *const NBCDiskImageFormatReadOnly;
 extern NSString *const NBCDiskImageFormatReadWrite;

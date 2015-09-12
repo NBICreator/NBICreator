@@ -44,6 +44,10 @@
 	<dict/>
 	<key>IncludeSystemUIServer</key>
 	<false/>
+	<key>IncludeConsole</key>
+	<false/>
+	<key>LaunchConsole</key>
+	<false/>
 	<key>DiskImageReadWrite</key>
 	<false/>
 	<key>Default</key>

@@ -1059,9 +1059,12 @@ DDLogLevel ddLogLevel;
     [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
     [self setUseVerboseBoot:[settingsDict[NBCSettingsUseVerboseBootKey] boolValue]];
     [self setDiskImageReadWrite:[settingsDict[NBCSettingsDiskImageReadWriteKey] boolValue]];
+    [self setIncludeConsoleApp:[settingsDict[NBCSettingsIncludeConsoleAppKey] boolValue]];
     [self setAllowInvalidCertificate:[settingsDict[NBCSettingsCasperAllowInvalidCertificateKey] boolValue]];
     [self setJssCACertificate:settingsDict[NBCSettingsCasperJSSCACertificateKey]];
     [self setEnableCasperImagingDebugMode:[settingsDict[NBCSettingsCasperImagingDebugModeKey] boolValue]];
+    [self setEnableLaunchdLogging:[settingsDict[NBCSettingsEnableLaunchdLoggingKey] boolValue]];
+    [self setLaunchConsoleApp:[settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue]];
     
     NSNumber *displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
     int displaySleepMinutesInteger = 20;
@@ -1294,9 +1297,12 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg";
     settingsDict[NBCSettingsUseVerboseBootKey] = @(_useVerboseBoot) ?: @NO;
     settingsDict[NBCSettingsDiskImageReadWriteKey] = @(_diskImageReadWrite) ?: @NO;
+    settingsDict[NBCSettingsIncludeConsoleAppKey] = @(_includeConsoleApp) ?: @NO;
     settingsDict[NBCSettingsCasperAllowInvalidCertificateKey] = @(_allowInvalidCertificate) ?: @NO;
     settingsDict[NBCSettingsCasperJSSCACertificateKey] = _jssCACertificate ?: @{};
     settingsDict[NBCSettingsCasperImagingDebugModeKey] = @(_enableCasperImagingDebugMode) ?: @NO;
+    settingsDict[NBCSettingsEnableLaunchdLoggingKey] = @(_enableLaunchdLogging) ?: @NO;
+    settingsDict[NBCSettingsLaunchConsoleAppKey] = @(_launchConsoleApp) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2370,12 +2376,17 @@ DDLogLevel ddLogLevel;
     // - taskgated
     [sourceController addTaskgated:sourceItemsDict source:_source];
     
+    // - NSURLStoraged + NSURLSessiond
+    [sourceController addNSURLStoraged:sourceItemsDict source:_source];
+    
     if ( 11 <= sourceVersionMinor ) {
         [sourceController addLibSsl:sourceItemsDict source:_source];
     }
     
-    [sourceController addNSURLStoraged:sourceItemsDict source:_source];
-    [sourceController addConsole:sourceItemsDict source:_source];
+    // - Console.app
+    if ( [userSettings[NBCSettingsIncludeConsoleAppKey] boolValue] ) {
+        [sourceController addConsole:sourceItemsDict source:_source];
+    }
     
     // - Kernel
     if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] || [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {

@@ -961,6 +961,11 @@ DDLogLevel ddLogLevel;
                 settingsDict[@"reporturl"] = reportingURL;
             }
             
+            NSString *syslogServerURL = _userSettings[NBCSettingsImagrSyslogServerURL];
+            if ( [syslogServerURL length] != 0 ) {
+                settingsDict[@"syslog"] = syslogServerURL;
+            }
+            
             if ( [settingsDict writeToURL:settingsFileURL atomically:YES] ) {
                 NSDictionary *copyAttributes  = @{
                                                   NSFileOwnerAccountName : @"root",

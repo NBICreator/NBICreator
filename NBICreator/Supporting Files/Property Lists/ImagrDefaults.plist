@@ -40,11 +40,17 @@
 	<false/>
 	<key>ImagrConfigurationURL</key>
 	<string></string>
+	<key>ImagrSyslogServerURL</key>
+	<string></string>
 	<key>ImagrReportingURL</key>
 	<string></string>
 	<key>ImagrVersion</key>
 	<string>Latest Release</string>
 	<key>IncludeSystemUIServer</key>
+	<false/>
+	<key>IncludeConsole</key>
+	<false/>
+	<key>LaunchConsole</key>
 	<false/>
 	<key>DiskImageReadWrite</key>
 	<false/>
@@ -70,6 +76,10 @@
 	<string>%COUNTER%</string>
 	<key>Name</key>
 	<string>%OSVERSION%_%OSBUILD%_Imagr</string>
+	<key>AddRAMDisks</key>
+	<false/>
+	<key>RAMDisks</key>
+	<array/>
 	<key>TrustedNetBootServers</key>
 	<array/>
 </dict>

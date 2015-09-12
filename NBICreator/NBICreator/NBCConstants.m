@@ -169,12 +169,17 @@ NSString *const NBCSettingsPackagesKey = @"Packages";
 ////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCSettingsAddTrustedNetBootServersKey = @"AddTrustedNetBootServers";
 NSString *const NBCSettingsTrustedNetBootServersKey = @"TrustedNetBootServers";
+NSString *const NBCSettingsAddCustomRAMDisksKey = @"AddRAMDisks";
+NSString *const NBCSettingsRAMDisksKey = @"RAMDisks";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug
 ////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCSettingsUseVerboseBootKey = @"UseVerboseBoot";
 NSString *const NBCSettingsDiskImageReadWriteKey = @"DiskImageReadWrite";
+NSString *const NBCSettingsIncludeConsoleAppKey = @"IncludeConsole";
+NSString *const NBCSettingsLaunchConsoleAppKey = @"LaunchConsole";
+NSString *const NBCSettingsEnableLaunchdLoggingKey = @"EnableLaunchdLogging";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - NetInstall
@@ -235,6 +240,7 @@ NSString *const NBCSettingsImagrVersion = @"ImagrVersion";
 NSString *const NBCSettingsImagrIncludePreReleaseVersions = @"ImagrIncludePreReleaseVersions";
 NSString *const NBCSettingsImagrConfigurationURL = @"ImagrConfigurationURL";
 NSString *const NBCSettingsImagrReportingURL = @"ImagrReportingURL";
+NSString *const NBCSettingsImagrSyslogServerURL = @"ImagrSyslogServerURL";
 NSString *const NBCSettingsImagrServerURLKey = @"serverurl";
 NSString *const NBCSettingsImagrDownloadURL = @"ImagrDownloadURL";
 NSString *const NBCSettingsImagrDownloadPython = @"ImagrDownloadPython";
@@ -560,7 +566,8 @@ NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
 NSString *const NBCTableViewIdentifierPackages = @"tableViewPackages";
 NSString *const NBCTableViewIdentifierImagrTrustedServers = @"ImagrTableViewTrustedServers";
 NSString *const NBCTableViewIdentifierCasperTrustedServers = @"CasperTableViewTrustedServers";
-
+NSString *const NBCTableViewIdentifierImagrRAMDisks = @"ImagrTableViewRAMDisk";
+NSString *const NBCTableViewIdentifierCasperRAMDisks = @"CasperTableViewRAMDisk";
 
 NSString *const NBCTabViewItemGeneral = @"General";
 NSString *const NBCTabViewItemOptions = @"Options";

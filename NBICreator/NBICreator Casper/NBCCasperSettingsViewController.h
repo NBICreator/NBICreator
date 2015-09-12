@@ -198,6 +198,9 @@
 @property NSString *networkTimeServer;
 @property BOOL useVerboseBoot;
 @property BOOL diskImageReadWrite;
+@property BOOL includeConsoleApp;
+@property BOOL enableLaunchdLogging;
+@property BOOL launchConsoleApp;
 
 @property NSString *casperImagingPath;
 @property NSString *casperJSSURL;

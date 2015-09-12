@@ -54,6 +54,7 @@
 - (void)addSystemkeychain:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addSpctl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
+- (void)addConsole:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addNSURLStoraged:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addPython:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addNTP:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;

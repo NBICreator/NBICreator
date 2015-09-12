@@ -206,7 +206,7 @@ Gw
                 <rect key="frame" x="0.0" y="5" width="392" height="91"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GnA-20-HEe">
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="GnA-20-HEe">
                         <rect key="frame" x="287" y="13" width="91" height="32"/>
                         <buttonCell key="cell" type="push" title="Rename" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="8jV-6H-Rwz">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -219,7 +219,7 @@ DQ
                             <action selector="buttonSheetRenameRename:" target="-2" id="8m6-tp-cyg"/>
                         </connections>
                     </button>
-                    <textField verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bcD-bL-LRL">
+                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bcD-bL-LRL">
                         <rect key="frame" x="160" y="49" width="212" height="22"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="sqk-Hv-Xpp">
                             <font key="font" metaFont="system"/>
@@ -230,15 +230,7 @@ DQ
                             <outlet property="delegate" destination="-2" id="GO3-lL-MGQ"/>
                         </connections>
                     </textField>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="xzg-Ld-uOu">
-                        <rect key="frame" x="18" y="51" width="136" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="New Template Name:" id="5nw-SZ-Qgh">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <button verticalHuggingPriority="750" ambiguous="YES" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="C2v-TX-BcM">
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="C2v-TX-BcM">
                         <rect key="frame" x="204" y="13" width="83" height="32"/>
                         <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="jAH-bh-YX9">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -251,9 +243,26 @@ Gw
                             <action selector="buttonSheetRenameCancel:" target="-2" id="yT6-Nc-s9G"/>
                         </connections>
                     </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xzg-Ld-uOu">
+                        <rect key="frame" x="18" y="51" width="136" height="17"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="New Template Name:" id="5nw-SZ-Qgh">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
                 </subviews>
                 <constraints>
                     <constraint firstItem="GnA-20-HEe" firstAttribute="leading" secondItem="C2v-TX-BcM" secondAttribute="trailing" constant="12" symbolic="YES" id="4lt-eq-lIy"/>
+                    <constraint firstItem="bcD-bL-LRL" firstAttribute="top" secondItem="NyV-pz-ydA" secondAttribute="top" constant="20" symbolic="YES" id="5wN-qV-444"/>
+                    <constraint firstAttribute="bottom" secondItem="GnA-20-HEe" secondAttribute="bottom" constant="20" symbolic="YES" id="7KK-Cb-3Ud"/>
+                    <constraint firstAttribute="trailing" secondItem="bcD-bL-LRL" secondAttribute="trailing" constant="20" symbolic="YES" id="HVe-1L-a1R"/>
+                    <constraint firstItem="bcD-bL-LRL" firstAttribute="baseline" secondItem="xzg-Ld-uOu" secondAttribute="baseline" id="Ihw-S2-tEC"/>
+                    <constraint firstItem="xzg-Ld-uOu" firstAttribute="leading" secondItem="NyV-pz-ydA" secondAttribute="leading" constant="20" symbolic="YES" id="PgU-2O-azN"/>
+                    <constraint firstItem="bcD-bL-LRL" firstAttribute="leading" secondItem="xzg-Ld-uOu" secondAttribute="trailing" constant="8" symbolic="YES" id="TFq-pe-yQJ"/>
+                    <constraint firstItem="GnA-20-HEe" firstAttribute="top" secondItem="bcD-bL-LRL" secondAttribute="bottom" constant="8" symbolic="YES" id="YHp-sq-Bbz"/>
+                    <constraint firstItem="GnA-20-HEe" firstAttribute="centerY" secondItem="C2v-TX-BcM" secondAttribute="centerY" id="aIj-Gv-64h"/>
+                    <constraint firstAttribute="trailing" secondItem="GnA-20-HEe" secondAttribute="trailing" constant="20" symbolic="YES" id="jPD-yO-Dg5"/>
                 </constraints>
             </view>
             <point key="canvasLocation" x="-2680" y="509.5"/>

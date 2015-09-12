@@ -96,6 +96,9 @@
 @property BOOL addTrustedNetBootServers;
 @property NSMutableArray *trustedServers;
 
+@property NSMutableArray *ramDisks;
+@property (weak) IBOutlet NSTableView *tableViewRAMDisks;
+
 @property (weak) IBOutlet NSButton *buttonAddTrustedServer;
 - (IBAction)buttonAddTrustedServer:(id)sender;
 @property (weak) IBOutlet NSButton *buttonRemoveTrustedServer;
@@ -105,7 +108,15 @@
 - (IBAction)sliderDisplaySleep:(id)sender;
 
 @property (weak) IBOutlet NSTextField *textFieldDisplaySleepPreview;
+- (IBAction)buttonRamDisks:(id)sender;
 
+@property (weak) IBOutlet NSButton *buttonAddRAMDisk;
+- (IBAction)buttonAddRAMDisk:(id)sender;
+@property (weak) IBOutlet NSButton *buttonRemoveRAMDisk;
+- (IBAction)buttonRemoveRAMDisk:(id)sender;
+
+@property (weak) IBOutlet NSTextField *textFieldRAMDiskCount;
+@property (weak) IBOutlet NSTextField *textFieldRAMDiskSize;
 
 // ------------------------------------------------------
 //  TabView Imagr Settings
@@ -127,6 +138,10 @@
 
 @property (weak) IBOutlet NSImageView *imageViewNetworkWarning;
 @property (weak) IBOutlet NSTextField *textFieldNetworkWarning;
+
+
+@property (strong) IBOutlet NSPopover *popOverRAMDisks;
+
 
 // ------------------------------------------------------
 //  TabView Options
@@ -191,6 +206,10 @@
 @property NSString *networkTimeServer;
 @property BOOL useVerboseBoot;
 @property BOOL diskImageReadWrite;
+@property BOOL includeConsoleApp;
+@property BOOL enableLaunchdLogging;
+@property BOOL launchConsoleApp;
+@property BOOL addCustomRAMDisks;
 
 @property BOOL disableATS;
 @property BOOL includeImagrPreReleaseVersionsEnabled;
@@ -198,6 +217,7 @@
 @property NSString *imagrVersion;
 @property NSString *imagrConfigurationURL;
 @property NSString *imagrReportingURL;
+@property NSString *imagrSyslogServerURL;
 @property BOOL imagrUseLocalVersion;
 @property NSString *imagrLocalVersionPath;
 @property BOOL useBackgroundImage;

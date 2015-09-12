@@ -952,6 +952,8 @@ DDLogLevel ddLogLevel;
     NSString *regexTaskgated = @".*taskgated.*";
     [packageEssentialsRegexes addObject:regexTaskgated];
     
+    
+    // For taskgated-helper
     NSString *regexConfigurationProfiles = @".*ConfigurationProfiles.framework.*";
     [packageEssentialsRegexes addObject:regexConfigurationProfiles];
     
@@ -991,6 +993,7 @@ DDLogLevel ddLogLevel;
         packageBSDRegexes = [[NSMutableArray alloc] init];
     }
     
+    [packageBSDRegexes addObject:regexSyspolicy];
     [packageBSDRegexes addObject:regexTaskgated];
     
     packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
@@ -1123,6 +1126,58 @@ DDLogLevel ddLogLevel;
     
     packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
     sourceItemsDict[packageBSDPath] = packageBSDDict;
+}
+
+- (void)addConsole:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    NSString *packageAdditionalEssentialsPath = [NSString stringWithFormat:@"%@/Packages/AdditionalEssentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageAdditionalEssentialsDict = sourceItemsDict[packageAdditionalEssentialsPath];
+    NSMutableArray *packageAdditionalEssentialsRegexes;
+    if ( [packageAdditionalEssentialsDict count] != 0 ) {
+        packageAdditionalEssentialsRegexes = packageAdditionalEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageAdditionalEssentialsRegexes == nil )
+        {
+            packageAdditionalEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageAdditionalEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageAdditionalEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexConsole = @".*Console.app.*";
+    [packageAdditionalEssentialsRegexes addObject:regexConsole];
+    
+    packageAdditionalEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageAdditionalEssentialsRegexes;
+    sourceItemsDict[packageAdditionalEssentialsPath] = packageAdditionalEssentialsDict;
+    
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil )
+        {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexShareKit = @".*ShareKit.framework.*";
+    [packageEssentialsRegexes addObject:regexShareKit];
+    
+    NSString *regexViewBridge = @".*ViewBridge.framework.*";
+    [packageEssentialsRegexes addObject:regexViewBridge];
+    
+    NSString *regexSocial = @".*/Social.framework.*";
+    [packageEssentialsRegexes addObject:regexSocial];
+    
+    NSString *regexAccountsDaemon = @".*AccountsDaemon.framework.*";
+    [packageEssentialsRegexes addObject:regexAccountsDaemon];
+    
+    NSString *regexCloudDocs = @".*CloudDocs.framework.*";
+    [packageEssentialsRegexes addObject:regexCloudDocs];
 }
 
 - (void)addVNC:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
