@@ -48,6 +48,8 @@
 	<string>Latest Release</string>
 	<key>IncludeSystemUIServer</key>
 	<false/>
+	<key>IncludeRuby</key>
+	<false/>
 	<key>IncludeConsole</key>
 	<false/>
 	<key>LaunchConsole</key>

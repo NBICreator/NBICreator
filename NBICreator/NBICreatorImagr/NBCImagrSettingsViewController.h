@@ -210,6 +210,7 @@
 @property BOOL enableLaunchdLogging;
 @property BOOL launchConsoleApp;
 @property BOOL addCustomRAMDisks;
+@property BOOL includeRuby;
 
 @property BOOL disableATS;
 @property BOOL includeImagrPreReleaseVersionsEnabled;

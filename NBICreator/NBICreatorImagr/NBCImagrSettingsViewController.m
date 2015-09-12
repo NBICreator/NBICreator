@@ -1110,6 +1110,7 @@ DDLogLevel ddLogLevel;
     [self setLaunchConsoleApp:[settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue]];
     [self setAddCustomRAMDisks:[settingsDict[NBCSettingsAddCustomRAMDisksKey] boolValue]];
     [self setImagrSyslogServerURI:settingsDict[NBCSettingsImagrSyslogServerURI]];
+    [self setIncludeRuby:[settingsDict[NBCSettingsIncludeRubyKey] boolValue]];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -1298,6 +1299,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsLaunchConsoleAppKey] = @(_launchConsoleApp) ?: @NO;
     settingsDict[NBCSettingsAddCustomRAMDisksKey] = @(_addCustomRAMDisks) ?: @NO;
     settingsDict[NBCSettingsImagrSyslogServerURI] = _imagrSyslogServerURI ?: @"";
+    settingsDict[NBCSettingsIncludeRubyKey] = @(_includeRuby) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2580,6 +2582,11 @@ DDLogLevel ddLogLevel;
     // - systemkeychain
     if ( [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
         [sourceController addSystemkeychain:sourceItemsDict source:_source];
+    }
+    
+    // - Ruby
+    if ( [userSettings[NBCSettingsIncludeRubyKey] boolValue] ) {
+        [sourceController addRuby:sourceItemsDict source:_source];
     }
     
     // - VNC if an ARD/VNC password has been set
