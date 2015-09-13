@@ -35,6 +35,7 @@
 		53383D151AFA9D3000C041F9 /* NBCConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53383D141AFA9D3000C041F9 /* NBCConstants.m */; };
 		533BED661B9A34E200524AE4 /* NBCCLIArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 533BED651B9A34E200524AE4 /* NBCCLIArguments.m */; };
 		533BED6D1B9A385D00524AE4 /* NBCCLIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 533BED6C1B9A385D00524AE4 /* NBCCLIManager.m */; };
+		534C17D31BA4C88500D94F07 /* Resources.plist in Resources */ = {isa = PBXBuildFile; fileRef = 534C17D21BA4C88500D94F07 /* Resources.plist */; };
 		534C66A31AE37422004A6DEE /* NBCSettingsController.m in Sources */ = {isa = PBXBuildFile; fileRef = 534C66A21AE37422004A6DEE /* NBCSettingsController.m */; };
 		534DFB241B7C988800C9CE0E /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; };
 		534DFB261B7C9E3B00C9CE0E /* CocoaLumberjack.framework in Copy CocoaLumberjack */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -290,6 +291,7 @@
 		533BED651B9A34E200524AE4 /* NBCCLIArguments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCLIArguments.m; path = "../NBICreator CLI/NBCCLIArguments.m"; sourceTree = "<group>"; };
 		533BED6B1B9A385D00524AE4 /* NBCCLIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCLIManager.h; path = "NBICreator CLI/NBCCLIManager.h"; sourceTree = SOURCE_ROOT; };
 		533BED6C1B9A385D00524AE4 /* NBCCLIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCLIManager.m; path = "NBICreator CLI/NBCCLIManager.m"; sourceTree = SOURCE_ROOT; };
+		534C17D21BA4C88500D94F07 /* Resources.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Resources.plist; path = "Supporting Files/Property Lists/Resources.plist"; sourceTree = "<group>"; };
 		534C66A11AE37422004A6DEE /* NBCSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCSettingsController.h; path = NBICreator/NBCSettingsController.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		534C66A21AE37422004A6DEE /* NBCSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCSettingsController.m; path = NBICreator/NBCSettingsController.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		534FA9EB1AF4B39D005B40F6 /* NBCSourceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCSourceController.h; path = NBICreatorSource/NBCSourceController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -761,6 +763,7 @@
 				538DAF331AD7179600F2A3DD /* DeployStudioDefaults.plist */,
 				531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */,
 				53FB3EB11B97763600CCE413 /* CasperDefaults.plist */,
+				534C17D21BA4C88500D94F07 /* Resources.plist */,
 			);
 			name = "Property Lists";
 			sourceTree = "<group>";
@@ -1091,6 +1094,7 @@
 				538DAF341AD7179600F2A3DD /* DeployStudioDefaults.plist in Resources */,
 				53968C121A8E7A3E0079AA95 /* NBICreatorImages.xcassets in Resources */,
 				53F3B2871B7D1A54005BEAD3 /* IconCertPersonal.png in Resources */,
+				534C17D31BA4C88500D94F07 /* Resources.plist in Resources */,
 				53E5B8651B06FE1500A771F7 /* NBCTemplatesController.xib in Resources */,
 				53FB3EB21B97763600CCE413 /* CasperDefaults.plist in Resources */,
 				53DED1531B91723E00A95B6C /* NBICreatorTemplate.iconset in Resources */,

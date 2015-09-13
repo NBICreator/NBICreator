@@ -46,6 +46,8 @@
 	<false/>
 	<key>IncludeConsole</key>
 	<false/>
+	<key>IncludeRuby</key>
+	<string></string>
 	<key>LaunchConsole</key>
 	<false/>
 	<key>DiskImageReadWrite</key>

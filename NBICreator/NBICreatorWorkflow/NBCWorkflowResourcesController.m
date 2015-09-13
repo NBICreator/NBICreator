@@ -191,7 +191,7 @@ DDLogLevel ddLogLevel;
             resourceDict = [[NSMutableDictionary alloc] init];
             resourceDict[version] = [targetFileURL path];
         }
-        
+
         if ( [resourceDict writeToURL:resourcesDictURL atomically:YES] ) {
             if ( ! [[fileURL path] hasPrefix:@"/Volumes"] ) {
                 if ( ! [fileManager removeItemAtURL:fileURL error:&error] ) {

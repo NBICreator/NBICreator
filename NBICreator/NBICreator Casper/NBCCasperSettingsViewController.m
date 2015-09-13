@@ -1065,6 +1065,7 @@ DDLogLevel ddLogLevel;
     [self setEnableCasperImagingDebugMode:[settingsDict[NBCSettingsCasperImagingDebugModeKey] boolValue]];
     [self setEnableLaunchdLogging:[settingsDict[NBCSettingsEnableLaunchdLoggingKey] boolValue]];
     [self setLaunchConsoleApp:[settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue]];
+    [self setIncludeRuby:[settingsDict[NBCSettingsIncludeRubyKey] boolValue]];
     
     NSNumber *displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
     int displaySleepMinutesInteger = 20;
@@ -1303,6 +1304,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsCasperImagingDebugModeKey] = @(_enableCasperImagingDebugMode) ?: @NO;
     settingsDict[NBCSettingsEnableLaunchdLoggingKey] = @(_enableLaunchdLogging) ?: @NO;
     settingsDict[NBCSettingsLaunchConsoleAppKey] = @(_launchConsoleApp) ?: @NO;
+    settingsDict[NBCSettingsIncludeRubyKey] = @(_includeRuby) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2367,8 +2369,10 @@ DDLogLevel ddLogLevel;
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     
-    // - Python is required for Casper
-    [sourceController addPython:sourceItemsDict source:_source];
+    //[sourceController addPython:sourceItemsDict source:_source];
+    
+    // - AppleScript is required for Casper
+    [sourceController addAppleScript:sourceItemsDict source:_source];
     
     // - spctl
     [sourceController addSpctl:sourceItemsDict source:_source];
@@ -2413,19 +2417,27 @@ DDLogLevel ddLogLevel;
         [sourceController addSystemkeychain:sourceItemsDict source:_source];
     }
     
+    // - Ruby
+    if ( [userSettings[NBCSettingsIncludeRubyKey] boolValue] ) {
+        [sourceController addRuby:sourceItemsDict source:_source];
+    }
+    
     // - VNC if an ARD/VNC password has been set
     if ( [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
         [sourceController addVNC:sourceItemsDict source:_source];
     }
     
+    
+    
     // - ARD if both ARD login name and ARD/VNC password has been set
     if ( [userSettings[NBCSettingsARDLoginKey] length] != 0 && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
         [sourceController addARD:sourceItemsDict source:_source];
+        //[sourceController addKerberos:sourceItemsDict source:_source];
     }
     
     // -------------------------------------------------------------
     //  In OS X 10.11 all sources moved to Essentials.pkg
-    //  This moves all BSD-regexes to Essentials
+    //  This moves all BSD and AdditionalEssentials-regexes to Essentials
     // -------------------------------------------------------------
     if ( 11 <= sourceVersionMinor ) {
         [sourceController addNetworkd:sourceItemsDict source:_source];

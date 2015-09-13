@@ -201,6 +201,7 @@
 @property BOOL includeConsoleApp;
 @property BOOL enableLaunchdLogging;
 @property BOOL launchConsoleApp;
+@property BOOL includeRuby;
 
 @property NSString *casperImagingPath;
 @property NSString *casperJSSURL;

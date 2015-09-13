@@ -638,7 +638,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qYb-MC-CFZ">
-                                        <rect key="frame" x="18" y="84" width="137" height="17"/>
+                                        <rect key="frame" x="18" y="79" width="137" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="ARD password:" id="HJz-f6-W8o">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -646,7 +646,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bra-6W-hae">
-                                        <rect key="frame" x="161" y="107" width="292" height="22"/>
+                                        <rect key="frame" x="161" y="102" width="292" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="Ybq-KG-Hl4">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -657,7 +657,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <secureTextField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BqW-ov-6H4">
-                                        <rect key="frame" x="161" y="82" width="292" height="22"/>
+                                        <rect key="frame" x="161" y="77" width="292" height="22"/>
                                         <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesSingleLineMode="YES" id="iAV-La-XMX">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -676,14 +676,14 @@ asdasd</string>
                                         </connections>
                                     </secureTextField>
                                     <button translatesAutoresizingMaskIntoConstraints="NO" id="aUC-1C-Ccv">
-                                        <rect key="frame" x="459" y="83" width="57" height="18"/>
+                                        <rect key="frame" x="459" y="78" width="57" height="18"/>
                                         <buttonCell key="cell" type="check" title="Show" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="oXb-16-glU">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                     </button>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UaD-ql-OlJ">
-                                        <rect key="frame" x="161" y="82" width="292" height="22"/>
+                                        <rect key="frame" x="161" y="77" width="292" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="zV7-rO-nS8">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -699,7 +699,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Tzk-jh-mHD">
-                                        <rect key="frame" x="18" y="141" width="414" height="17"/>
+                                        <rect key="frame" x="18" y="136" width="414" height="17"/>
                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Choose a username and password to enable remote management:" id="Yj8-bZ-Kyl">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -707,7 +707,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="d0f-nn-VGQ">
-                                        <rect key="frame" x="18" y="109" width="137" height="17"/>
+                                        <rect key="frame" x="18" y="104" width="137" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="ARD user login:" id="X7g-z8-Yld">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -715,7 +715,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="FPK-vP-rLi">
-                                        <rect key="frame" x="18" y="240" width="259" height="18"/>
+                                        <rect key="frame" x="18" y="217" width="259" height="18"/>
                                         <buttonCell key="cell" type="check" title="Include SystemUIServer (Menu Extras)" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="WgS-QG-CcT">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -745,14 +745,14 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="eVo-A6-QFc">
-                                        <rect key="frame" x="156" y="199" width="360" height="27"/>
+                                        <rect key="frame" x="156" y="176" width="360" height="27"/>
                                         <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="1" maxValue="120" doubleValue="20" tickMarkPosition="below" numberOfTickMarks="13" sliderType="linear" id="Wef-wE-M6Q"/>
                                         <connections>
                                             <action selector="sliderDisplaySleep:" target="-2" id="Sj1-LD-2aZ"/>
                                         </connections>
                                     </slider>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3Mq-2b-yvg">
-                                        <rect key="frame" x="18" y="210" width="134" height="17"/>
+                                        <rect key="frame" x="18" y="187" width="134" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Turn off display after:" id="UKK-MG-yZY">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -760,7 +760,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="88S-qv-gbh">
-                                        <rect key="frame" x="156" y="186" width="29" height="11"/>
+                                        <rect key="frame" x="156" y="163" width="29" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1 min" id="Gjb-xb-4hr">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -768,7 +768,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oeb-wd-4qe">
-                                        <rect key="frame" x="234" y="186" width="34" height="11"/>
+                                        <rect key="frame" x="234" y="163" width="34" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="30 min" id="Q8s-jt-7Up">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -776,7 +776,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EBx-5W-YZF">
-                                        <rect key="frame" x="322" y="186" width="22" height="11"/>
+                                        <rect key="frame" x="322" y="163" width="22" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1 hr" id="EHV-fm-wcB">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -784,7 +784,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="PZg-Kn-y3d">
-                                        <rect key="frame" x="486" y="186" width="30" height="11"/>
+                                        <rect key="frame" x="486" y="163" width="30" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Never" id="Du6-WS-AEq">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -792,7 +792,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EMx-7w-Fe2">
-                                        <rect key="frame" x="463" y="232" width="53" height="11"/>
+                                        <rect key="frame" x="463" y="209" width="53" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="30 Minutes" id="RCX-rx-nV6">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -800,13 +800,23 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uGH-ta-cED">
-                                        <rect key="frame" x="403" y="186" width="35" height="11"/>
+                                        <rect key="frame" x="403" y="163" width="35" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1,5 hrs" id="bpe-Yd-uc2">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
+                                    <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="4bS-ke-MSf">
+                                        <rect key="frame" x="18" y="240" width="103" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Include Ruby" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="Awm-xd-Lhk">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.includeRuby" id="IY9-Db-43r"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="Vzu-DK-8f3" firstAttribute="leading" secondItem="VSC-Nk-d1Z" secondAttribute="leading" constant="20" symbolic="YES" id="0M6-ng-naw"/>
@@ -816,6 +826,7 @@ asdasd</string>
                                     <constraint firstItem="3Mq-2b-yvg" firstAttribute="leading" secondItem="FPK-vP-rLi" secondAttribute="leading" id="4xZ-k2-QG8"/>
                                     <constraint firstItem="OvQ-PP-4Po" firstAttribute="top" secondItem="aeI-Pu-jo2" secondAttribute="bottom" constant="8" symbolic="YES" id="5PE-9L-msc"/>
                                     <constraint firstItem="3Mq-2b-yvg" firstAttribute="centerY" secondItem="eVo-A6-QFc" secondAttribute="centerY" constant="-7" id="80S-3z-1h8"/>
+                                    <constraint firstItem="4bS-ke-MSf" firstAttribute="top" secondItem="QWT-wK-0EX" secondAttribute="bottom" constant="9" id="CPM-IK-SMB"/>
                                     <constraint firstItem="UaD-ql-OlJ" firstAttribute="centerX" secondItem="BqW-ov-6H4" secondAttribute="centerX" id="CYA-pY-k8G"/>
                                     <constraint firstItem="aeI-Pu-jo2" firstAttribute="leading" secondItem="FPK-vP-rLi" secondAttribute="leading" id="DTm-25-WuP"/>
                                     <constraint firstItem="oeb-wd-4qe" firstAttribute="baseline" secondItem="EBx-5W-YZF" secondAttribute="baseline" id="Dgf-LH-iYB"/>
@@ -834,7 +845,8 @@ asdasd</string>
                                     <constraint firstItem="FPK-vP-rLi" firstAttribute="leading" secondItem="Vzu-DK-8f3" secondAttribute="leading" id="Ty7-MC-Rd2"/>
                                     <constraint firstItem="QWT-wK-0EX" firstAttribute="leading" secondItem="JV6-sF-KVi" secondAttribute="trailing" constant="8" symbolic="YES" id="X40-rl-aav"/>
                                     <constraint firstItem="EBx-5W-YZF" firstAttribute="baseline" secondItem="uGH-ta-cED" secondAttribute="baseline" id="Yoh-bk-chQ"/>
-                                    <constraint firstItem="aeI-Pu-jo2" firstAttribute="top" secondItem="UaD-ql-OlJ" secondAttribute="bottom" constant="20" id="ZAu-TQ-iuN"/>
+                                    <constraint firstItem="aeI-Pu-jo2" firstAttribute="top" secondItem="UaD-ql-OlJ" secondAttribute="bottom" constant="15" id="ZAu-TQ-iuN"/>
+                                    <constraint firstItem="FPK-vP-rLi" firstAttribute="top" secondItem="4bS-ke-MSf" secondAttribute="bottom" constant="9" id="aN0-U7-TFO"/>
                                     <constraint firstItem="Tzk-jh-mHD" firstAttribute="leading" secondItem="Vzu-DK-8f3" secondAttribute="leading" id="cvN-xB-OWJ"/>
                                     <constraint firstItem="JV6-sF-KVi" firstAttribute="top" secondItem="Vzu-DK-8f3" secondAttribute="bottom" constant="8" symbolic="YES" id="df3-qy-w3X"/>
                                     <constraint firstItem="Tzk-jh-mHD" firstAttribute="leading" secondItem="d0f-nn-VGQ" secondAttribute="leading" id="f0U-Q6-oaL"/>
@@ -843,6 +855,7 @@ asdasd</string>
                                     <constraint firstItem="aUC-1C-Ccv" firstAttribute="leading" secondItem="UaD-ql-OlJ" secondAttribute="trailing" constant="8" symbolic="YES" id="gMR-dD-wSq"/>
                                     <constraint firstItem="Vzu-DK-8f3" firstAttribute="top" secondItem="VSC-Nk-d1Z" secondAttribute="top" constant="20" symbolic="YES" id="hMi-hl-4SS"/>
                                     <constraint firstItem="Vzu-DK-8f3" firstAttribute="leading" secondItem="JV6-sF-KVi" secondAttribute="leading" id="iQz-Jz-vIp"/>
+                                    <constraint firstItem="JV6-sF-KVi" firstAttribute="leading" secondItem="4bS-ke-MSf" secondAttribute="leading" id="iog-YB-idw"/>
                                     <constraint firstAttribute="trailing" secondItem="eVo-A6-QFc" secondAttribute="trailing" constant="20" symbolic="YES" id="jO2-cW-LeF"/>
                                     <constraint firstItem="UaD-ql-OlJ" firstAttribute="width" secondItem="OvQ-PP-4Po" secondAttribute="width" id="mBv-GQ-PKr"/>
                                     <constraint firstItem="oeb-wd-4qe" firstAttribute="baseline" secondItem="88S-qv-gbh" secondAttribute="baseline" id="mdk-C3-im1"/>
@@ -860,7 +873,6 @@ asdasd</string>
                                     <constraint firstItem="UaD-ql-OlJ" firstAttribute="baseline" secondItem="qYb-MC-CFZ" secondAttribute="baseline" id="uyZ-hB-cgr"/>
                                     <constraint firstItem="bra-6W-hae" firstAttribute="width" secondItem="UaD-ql-OlJ" secondAttribute="width" id="yJx-Ah-rZm"/>
                                     <constraint firstItem="3Mq-2b-yvg" firstAttribute="top" secondItem="FPK-vP-rLi" secondAttribute="bottom" constant="15" id="yZ5-zo-rvj"/>
-                                    <constraint firstItem="FPK-vP-rLi" firstAttribute="top" secondItem="QWT-wK-0EX" secondAttribute="bottom" constant="9" id="zg3-p0-c93"/>
                                 </constraints>
                             </view>
                         </tabViewItem>
@@ -1299,7 +1311,7 @@ asdasd</string>
                                     <constraint firstItem="UiM-58-X3t" firstAttribute="leading" secondItem="jct-vi-yLB" secondAttribute="leading" id="JW3-ae-vyc"/>
                                     <constraint firstItem="KaC-qv-2hF" firstAttribute="leading" secondItem="mvC-mU-QIX" secondAttribute="leading" constant="20" symbolic="YES" id="Kge-kr-gHy"/>
                                     <constraint firstItem="n52-4f-pfp" firstAttribute="leading" secondItem="KaC-qv-2hF" secondAttribute="leading" id="P7Q-Av-1Jd"/>
-                                    <constraint firstItem="UiM-58-X3t" firstAttribute="top" secondItem="weA-wb-Ce2" secondAttribute="bottom" constant="6" symbolic="YES" id="Wzi-uN-Rf9"/>
+                                    <constraint firstItem="UiM-58-X3t" firstAttribute="top" secondItem="weA-wb-Ce2" secondAttribute="bottom" constant="8" symbolic="YES" id="Wzi-uN-Rf9"/>
                                     <constraint firstItem="weA-wb-Ce2" firstAttribute="leading" secondItem="jct-vi-yLB" secondAttribute="leading" constant="17" id="a6G-hJ-wcN"/>
                                     <constraint firstItem="jct-vi-yLB" firstAttribute="leading" secondItem="n52-4f-pfp" secondAttribute="leading" id="cD2-85-WDd"/>
                                     <constraint firstItem="n52-4f-pfp" firstAttribute="top" secondItem="KaC-qv-2hF" secondAttribute="bottom" constant="9" id="xe7-Yr-vlj"/>
