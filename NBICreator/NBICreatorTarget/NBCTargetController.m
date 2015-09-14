@@ -2410,7 +2410,24 @@ DDLogLevel ddLogLevel;
                                                NBCWorkflowModifyTargetURL : [folderLibraryCache path],
                                                NBCWorkflowModifyAttributes : folderLibraryCacheAttributes
                                                };
-    [modifyDictArray addObject:modifyFolderLibraryCache];
+    [modifyDictArray insertObject:modifyFolderLibraryCache atIndex:0];
+    
+    // --------------------------------------------------------------
+    //  /Library/Caches
+    // --------------------------------------------------------------
+    NSURL *folderUsrLocal = [volumeURL URLByAppendingPathComponent:@"usr/local" isDirectory:YES];
+    NSDictionary *folderUsrLocalAttributes = @{
+                                                   NSFileOwnerAccountName : @"root",
+                                                   NSFileGroupOwnerAccountName : @"wheel",
+                                                   NSFilePosixPermissions : @0755
+                                                   };
+    
+    NSDictionary *modifyFolderUsrLocal = @{
+                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                               NBCWorkflowModifyTargetURL : [folderUsrLocal path],
+                                               NBCWorkflowModifyAttributes : folderUsrLocalAttributes
+                                               };
+    [modifyDictArray insertObject:modifyFolderUsrLocal atIndex:0];
     
     // --------------------------------------------------------------
     //  /var/db/lsd
@@ -2427,7 +2444,7 @@ DDLogLevel ddLogLevel;
                                            NBCWorkflowModifyTargetURL : [folderVarDbLsd path],
                                            NBCWorkflowModifyAttributes : folderVarDbLsdAttributes
                                            };
-    [modifyDictArray addObject:modifyFolderVarDbLsd];
+    [modifyDictArray insertObject:modifyFolderVarDbLsd atIndex:0];
     
     // --------------------------------------------------------------
     //  /var/db/launchd.db
@@ -2456,7 +2473,7 @@ DDLogLevel ddLogLevel;
                                                        NBCWorkflowModifyTargetURL : [folderVarDbLaunchdbLaunchdURL path],
                                                        NBCWorkflowModifyAttributes : folderVarDbLaunchdbLaunchdAttributes
                                                        };
-    [modifyDictArray addObject:modifyFolderVarDbLaunchdbLaunchd];
+    [modifyDictArray insertObject:modifyFolderVarDbLaunchdbLaunchd atIndex:0];
     
     // --------------------------------------------------------------
     //  /Library/LaunchAgents
@@ -2472,7 +2489,7 @@ DDLogLevel ddLogLevel;
                                                       NBCWorkflowModifyTargetURL : [folderLibraryLaunchAgents path],
                                                       NBCWorkflowModifyAttributes : folderLibraryLaunchAgentsAttributes
                                                       };
-    [modifyDictArray addObject:modifyFolderLibraryLaunchAgents];
+    [modifyDictArray insertObject:modifyFolderLibraryLaunchAgents atIndex:0];
     
     // --------------------------------------------------------------
     //  /Library/LaunchDaemons
@@ -2488,7 +2505,7 @@ DDLogLevel ddLogLevel;
                                                        NBCWorkflowModifyTargetURL : [folderLibraryLaunchDaemons path],
                                                        NBCWorkflowModifyAttributes : folderLibraryLaunchDaemonsAttributes
                                                        };
-    [modifyDictArray addObject:modifyFolderLibraryLaunchDaemons];
+    [modifyDictArray insertObject:modifyFolderLibraryLaunchDaemons atIndex:0];
     
     // --------------------------------------------------------------
     //  /System/Library/Caches
@@ -2505,7 +2522,7 @@ DDLogLevel ddLogLevel;
                                                      NBCWorkflowModifyTargetURL : [folderSystemLibraryCache path],
                                                      NBCWorkflowModifyAttributes : folderSystemLibraryCacheAttributes
                                                      };
-    [modifyDictArray addObject:modifyFolderSystemLibraryCache];
+    [modifyDictArray insertObject:modifyFolderSystemLibraryCache atIndex:0];
     
     // --------------------------------------------------------------
     //  /System/Library/Caches/com.apple.CVMS
@@ -2522,7 +2539,7 @@ DDLogLevel ddLogLevel;
                                                     NBCWorkflowModifyTargetURL : [folderSystemLibraryCVMS path],
                                                     NBCWorkflowModifyAttributes : folderSystemLibraryCVMSAttributes
                                                     };
-    [modifyDictArray addObject:modifyFolderSystemLibraryCVMS];
+    [modifyDictArray insertObject:modifyFolderSystemLibraryCVMS atIndex:0];
     
     // --------------------------------------------------------------
     //  /System/Library/Caches/com.apple.kext.caches/Directories/System/Library/Extensions
@@ -2539,7 +2556,7 @@ DDLogLevel ddLogLevel;
                                                               NBCWorkflowModifyTargetURL : [folderSystemLibraryKextExtensions path],
                                                               NBCWorkflowModifyAttributes : folderSystemLibraryKextExtensionsAttributes
                                                               };
-    [modifyDictArray addObject:modifyFolderSystemLibraryKextExtensions];
+    [modifyDictArray insertObject:modifyFolderSystemLibraryKextExtensions atIndex:0];
     
     // --------------------------------------------------------------
     //  /System/Library/Caches/com.apple.kext.caches/Startup
@@ -2556,7 +2573,7 @@ DDLogLevel ddLogLevel;
                                                            NBCWorkflowModifyTargetURL : [folderSystemLibraryKextStartup path],
                                                            NBCWorkflowModifyAttributes : folderSystemLibraryKextStartupAttributes
                                                            };
-    [modifyDictArray addObject:modifyFolderSystemLibraryKextStartup];
+    [modifyDictArray insertObject:modifyFolderSystemLibraryKextStartup atIndex:0];
     
     // --------------------------------------------------------------
     //  /var/root/Library/Caches/ocspd
@@ -2573,7 +2590,7 @@ DDLogLevel ddLogLevel;
                                                          NBCWorkflowModifyTargetURL : [folderRootLibraryCachesOcspd path],
                                                          NBCWorkflowModifyAttributes : folderRootLibraryCachesOcspdAttributes
                                                          };
-    [modifyDictArray addObject:modifyFolderRootLibraryCachesOcspd];
+    [modifyDictArray insertObject:modifyFolderRootLibraryCachesOcspd atIndex:0];
     
     if ( [[workflowItem userSettings][NBCSettingsAddCustomRAMDisksKey] boolValue] ) {
         NSDictionary *resourcesSettings = [workflowItem resourcesSettings];
@@ -2595,7 +2612,7 @@ DDLogLevel ddLogLevel;
                                                               NBCWorkflowModifyTargetURL : [ramDiskURL path],
                                                               NBCWorkflowModifyAttributes : ramDiskAttributes
                                                               };
-                        [modifyDictArray addObject:modifyFolderRamDisk];
+                        [modifyDictArray insertObject:modifyFolderRamDisk atIndex:0];
                     }
                 }
             }

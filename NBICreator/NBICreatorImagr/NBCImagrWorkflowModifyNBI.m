@@ -693,10 +693,6 @@ DDLogLevel ddLogLevel;
         verified = [_targetController modifyNBIRemoveBluetooth:modifyDictArray workflowItem:_workflowItem];
     }
     
-    if ( verified ) {
-        verified = [_targetController modifySettingsAddFolders:modifyDictArray workflowItem:_workflowItem];
-    }
-    
     if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
         if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
             if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
@@ -721,6 +717,11 @@ DDLogLevel ddLogLevel;
     
     if ( verified && [userSettings[NBCSettingsIncludeConsoleAppKey] boolValue] ) {
         verified = [_targetController modifySettingsForConsole:modifyDictArray workflowItem:_workflowItem];
+    }
+    
+    // Need to be last
+    if ( verified ) {
+        verified = [_targetController modifySettingsAddFolders:modifyDictArray workflowItem:_workflowItem];
     }
     
     if ( verified ) {
