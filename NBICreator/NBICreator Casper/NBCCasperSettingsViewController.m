@@ -100,8 +100,8 @@ DDLogLevel ddLogLevel;
     if ( userApplicationSupport ) {
         _templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesCasper isDirectory:YES];
     } else {
-        NSLog(@"Could not get user Application Support Folder");
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR] Could not get user Application Support Folder");
+        DDLogError(@"[ERROR] %@", error);
     }
     _siuSource = [[NBCSystemImageUtilitySource alloc] init];
     _templatesDict = [[NSMutableDictionary alloc] init];
@@ -799,10 +799,9 @@ DDLogLevel ddLogLevel;
 } // controlTextDidChange
 
 - (void)downloadCanceled:(NSDictionary *)downloadInfo {
-    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
-        NSLog(@"Canceled!");
+        DDLogError(@"Download with tag %@ canceled!", downloadTag);
     }
 }
 
@@ -1254,10 +1253,10 @@ DDLogLevel ddLogLevel;
         if ( settingsDict ) {
             [self updateUISettingsFromDict:settingsDict];
         } else {
-            NSLog(@"No key named Settings i plist at URL: %@", url);
+            DDLogError(@"[ERROR] No key named 'Settings' i plist at URL: %@", url);
         }
     } else {
-        NSLog(@"Could not read plist at URL: %@", url);
+        DDLogError(@"[ERROR] Could not read plist at URL: %@", url);
     }
 } // updateUISettingsFromURL
 
@@ -1778,7 +1777,8 @@ DDLogLevel ddLogLevel;
     
     if ( ! [_templatesFolderURL checkResourceIsReachableAndReturnError:&error] ) {
         if ( ! [fm createDirectoryAtURL:_templatesFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-            NSLog(@"Casper template folder create failed: %@", error);
+            DDLogError(@"[ERROR] Casper template folder create failed!");
+            DDLogError(@"[ERROR] %@", error);
         }
     }
     

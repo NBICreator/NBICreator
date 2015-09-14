@@ -1239,24 +1239,21 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromDict
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
-    
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     if ( mainDict ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
         if ( settingsDict ) {
             [self updateUISettingsFromDict:settingsDict];
         } else {
-            NSLog(@"No key named Settings i plist at URL: %@", url);
+            DDLogError(@"[ERROR] No key named Settings i plist at URL: %@", url);
         }
     } else {
-        NSLog(@"Could not read plist at URL: %@", url);
+        DDLogError(@"[ERROR] Could not read plist at URL: %@", url);
     }
 } // updateUISettingsFromURL
 
 - (NSDictionary *)returnSettingsFromUI {
-    
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
-    
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"1";
@@ -2098,14 +2095,13 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)getImagrVersions {
-    
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
     NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagImagr };
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCImagrGitHubRepository downloadInfo:downloadInfo];
 } // getImagrVersions
 
 - (void)updatePopUpButtonImagrVersionsLocal {
-    
+
     if ( ! _resourcesController ) {
         [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
     }
@@ -2194,7 +2190,6 @@ DDLogLevel ddLogLevel;
 } // updateCachedImagrVersions
 
 - (IBAction)popUpButtonImagrVersion:(id)sender {
-    
     NSString *selectedVersion = [[sender selectedItem] title];
     if ( [selectedVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -2205,7 +2200,6 @@ DDLogLevel ddLogLevel;
 } // popUpButtonImagrVersion
 
 - (void)showImagrLocalVersionInput {
-    
     [self setImagrUseLocalVersion:YES];
     [_constraintConfigurationURLToImagrVersion setConstant:42];
     [_textFieldImagrLocalPathLabel setHidden:NO];
@@ -2214,7 +2208,6 @@ DDLogLevel ddLogLevel;
 } // showImagrLocalVersionInput
 
 - (void)hideImagrLocalVersionInput {
-    
     [self setImagrUseLocalVersion:NO];
     [_constraintConfigurationURLToImagrVersion setConstant:13];
     [_textFieldImagrLocalPathLabel setHidden:YES];
@@ -2224,7 +2217,6 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonChooseImagrLocalPath:(id)sender {
 #pragma unused(sender)
-    
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------

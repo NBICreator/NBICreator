@@ -184,9 +184,7 @@ DDLogLevel ddLogLevel;
         NSImage *image = [[NSWorkspace sharedWorkspace] iconForFile:[[_target nbiURL] path]];
         [_imageViewSourceMini setImage:image];
     } else {
-        
-        NSLog(@"Unknown source type!");
-        NSLog(@"sourceType: %@", sourceType);
+        DDLogError(@"[ERROR] Unknown source type: %@", sourceType);
         return;
     }
     
@@ -490,9 +488,7 @@ DDLogLevel ddLogLevel;
 } // addSourceToPopUpButton
 
 - (NSArray *)installerApplications {
-    
     NSMutableArray *installerApplications = [[NSMutableArray alloc] init];
-    
     CFErrorRef error = NULL;
     for ( NSString *bundleIdentifier in _installerApplicationIdentifiers ) {
         NSArray *applicationURLs = (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier((__bridge CFStringRef)(bundleIdentifier), &error));
@@ -503,8 +499,8 @@ DDLogLevel ddLogLevel;
                 }
             }
         } else if ( CFErrorGetCode(error) != kLSApplicationNotFoundErr ) {
-            NSLog(@"Got no URLs from bundle Identifier \"%@\"", bundleIdentifier);
-            NSLog(@"Error: %@", error);
+            DDLogError(@"[ERROR] Got no URLs from bundle Identifier: %@", bundleIdentifier);
+            DDLogError(@"[ERROR] %@", error);
         }
     }
     
@@ -523,7 +519,8 @@ DDLogLevel ddLogLevel;
             NSURL *diskImageURL = [NBCDiskImageController getDiskImageURLFromMountURL:[selectedItem volumeURL]];
             [self verifySource:diskImageURL];
         } else {
-            NSLog(@"Selected Item is not Mounted!");
+            // Should fix this
+            DDLogError(@"[ERROR] Selected item is not mounted!");
         }
     }
 } // verifyPopUpButtonSelection
@@ -663,8 +660,8 @@ DDLogLevel ddLogLevel;
                 verified = [sourceController verifyBaseSystemFromSource:newSource error:&error];
                 if ( ! verified ) {
                     errorMessage = @"BaseSystem Verify Failed!";
-                    NSLog(@"BaseSystem Verify Failed!");
-                    NSLog(@"BaseSystem Error: %@", error);
+                    DDLogError(@"[ERROR] %@", errorMessage);
+                    DDLogError(@"[ERROR] %@", error);
                 }
             } else {
                 DDLogError(@"Verification failed!");
