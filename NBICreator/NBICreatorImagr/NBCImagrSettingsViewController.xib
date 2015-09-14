@@ -1344,8 +1344,8 @@ asdasd</string>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="1g8-Qp-E2l">
-                                        <rect key="frame" x="18" y="288" width="293" height="18"/>
-                                        <buttonCell key="cell" type="check" title="Always boot in verbose mode (Command-V)" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="0xF-8l-xa7">
+                                        <rect key="frame" x="18" y="288" width="301" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Always boot in verbose mode ( Command-V )" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="0xF-8l-xa7">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
