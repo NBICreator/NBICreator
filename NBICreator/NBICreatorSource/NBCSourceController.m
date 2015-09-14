@@ -1244,6 +1244,13 @@ DDLogLevel ddLogLevel;
     NSString *regexShareKit = @".*ShareKit.framework.*";
     [packageEssentialsRegexes addObject:regexShareKit];
     
+    int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 11 <= sourceVersionMinor ) {
+        // Required for ShareKit
+        NSString *regexAccountsUI = @".*AccountsUI.framework.*";
+        [packageEssentialsRegexes addObject:regexAccountsUI];
+    }
+    
     NSString *regexViewBridge = @".*ViewBridge.framework.*";
     [packageEssentialsRegexes addObject:regexViewBridge];
     
