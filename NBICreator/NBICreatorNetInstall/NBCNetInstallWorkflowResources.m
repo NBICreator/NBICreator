@@ -21,7 +21,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setTarget:[workflowItem target]];
     _resourcesNetInstallDict = [[NSMutableDictionary alloc] init];
     _resourcesBaseSystemDict = [[NSMutableDictionary alloc] init];
@@ -51,7 +51,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkCompletedResources {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ----------------------------------------------------------------------------------------------
     //  Check if all resources have been prepared. If they have, post notification workflow complete
     // ----------------------------------------------------------------------------------------------

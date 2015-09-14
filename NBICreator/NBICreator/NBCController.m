@@ -109,7 +109,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)dealloc {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -120,7 +120,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)createEmptyAuthorizationRef {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"Creating empty authorization reference...");
     NSError                     *error;
     OSStatus                    status;
@@ -214,7 +214,7 @@ enum {
             break;
     }
     DDLogInfo(@"Log level: %@", logLevelName);
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
 } // configureCocoaLumberjack
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -306,14 +306,14 @@ enum {
 } // applicationDidFinishLaunching
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
 #pragma unused(sender)
     return YES;
 } // applicationShouldTerminateAfterLastWindowClosed
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Run some checks before terminating application
@@ -324,7 +324,7 @@ enum {
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Unmount all disks and disk images mounted by NBICreator
@@ -344,7 +344,7 @@ enum {
  /// FUTURE FUNCTIONALITY - OPEN/IMPORT TEMPLATES                             ///
  //////////////////////////////////////////////////////////////////////////////*/
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"filename=%@", filename);
     DDLogInfo(@"Recieved file to open: %@", filename);
 #pragma unused(theApplication)
@@ -441,7 +441,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkUnsavedSettingsQuit {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Alert user if there are unsaved settings before quitting
@@ -461,7 +461,7 @@ enum {
 } // checkUnsavedSettingsQuit
 
 - (void)checkWorkflowRunningQuit {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Alert user if there are any workflows currently running before quitting
@@ -478,7 +478,7 @@ enum {
 } // checkWorkflowRunningQuit
 
 - (void)terminateApp {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
 } // terminateApp
 
@@ -489,7 +489,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsavedQuit] ) {
         if ( returnCode == NSAlertFirstButtonReturn ) {             // Save and Quit
@@ -525,7 +525,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateButtonBuild:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL buttonState = [[notification userInfo][NBCNotificationUpdateButtonBuildUserInfoButtonState] boolValue];
     
     // --------------------------------------------------------------
@@ -543,28 +543,28 @@ enum {
  //////////////////////////////////////////////////////////////////////////////*/
 
 - (void)diskDidChange:(NSNotification *)notif {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCDisk *disk = [notif object];
     if ( [disk isMounted] ) {
     }
 }
 
 - (void)didAttemptMount:(NSNotification *)notif {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCDisk *disk = [notif object];
     if ( [disk isMounted] ) {
     }
 }
 
 - (void)didAttemptUnmount:(NSNotification *)notif {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCDisk *disk = [notif object];
     if ( [disk isMounted] ) {
     }
 }
 
 - (void)didAttemptEject:(NSNotification *)notif {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCDisk *disk = [notif object];
     if ( [disk isMounted] ) {
     }
@@ -578,7 +578,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)blessHelperWithLabel:(NSString *)label {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Installing helper tool...");
     BOOL result = NO;
     NSError *error = nil;
@@ -625,7 +625,7 @@ enum {
 } // blessHelperWithLabel
 
 - (void)showHelperToolInstallBox {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Show box with "Install Helper" button just above build button
@@ -645,7 +645,7 @@ enum {
 } // showHelperToolInstallBox
 
 - (void)showHelperToolUpgradeBox {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Show box with "Upgrade Helper" button just above build button
@@ -656,7 +656,7 @@ enum {
 } // showHelperToolUpgradeBox
 
 - (void)hideHelperToolInstallBox {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Hide box with "Install/Upgrade Helper" button
@@ -666,7 +666,7 @@ enum {
 } // hideHelperToolInstallBox
 
 - (void)checkHelperVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"Checking currently installed helper tool version...");
     
     // --------------------------------------------------------------
@@ -726,7 +726,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)testInternetConnection {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *hostToCheck = @"github.com";
     // --------------------------------------------------------------
     //  Check if connection against github.com is succesful
@@ -769,7 +769,7 @@ enum {
 } // testInternetConnection
 
 - (void)showNoInternetConnection {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Show banner at top of application with text "No Internet Connection"
@@ -792,7 +792,7 @@ enum {
 } // showNoInternetConnection
 
 - (void)hideNoInternetConnection {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Hider banner with text "No Internet Connection"
@@ -807,7 +807,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 + (NBCDisk *)diskFromBSDName:(NSString *)bsdName {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Return NBCDisk object for passed BSD identifier (if found)
@@ -824,7 +824,7 @@ enum {
 } // diskFromBSDName
 
 + (NBCDisk *)diskFromVolumeURL:(NSURL *)volumeURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Return NBCDisk object for passed VolumeURL (if found)
@@ -847,7 +847,7 @@ enum {
 } // diskFromVolumeURL
 
 +(NSArray *)mountedDiskUUUIDs {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Return array of UUIDs for all mounted disks
@@ -874,12 +874,12 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSInteger)selectedSegment {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     return [_segmentedControlNBI selectedSegment];
 } // selectedSegment
 
 - (void)selectSegmentedControl:(NSInteger)selectedSegment {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Add selected workflows views to main window placeholders
@@ -988,7 +988,7 @@ enum {
 } // selectSegmentedControl
 
 - (void)addViewToSettingsView:(NSView *)settingsView {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Remove current view(s) from settings view placeholder
@@ -1017,7 +1017,7 @@ enum {
 } // addViewToSettingsView
 
 - (void)addViewToDropView:(NSView *)dropView {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // --------------------------------------------------------------
     //  Remove current view(s) from drop view placeholder
@@ -1053,7 +1053,7 @@ enum {
 
 - (IBAction)buttonInstallHelper:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( [self blessHelperWithLabel:NBCBundleIdentifierHelper] ) {
         [self setHelperAvailable:YES];
         [_currentSettingsController verifyBuildButton];
@@ -1063,19 +1063,19 @@ enum {
 
 - (IBAction)buttonBuild:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_currentSettingsController buildNBI];
 } // buttonBuild
 
 - (IBAction)segmentedControlNBI:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSSegmentedControl *segmentedControl = (NSSegmentedControl *) sender;
     [self selectSegmentedControl:[segmentedControl selectedSegment]];
 } // segmentedControlNBI
 
 - (IBAction)menuItemPreferences:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( ! _preferencesWindow ) {
         _preferencesWindow = [[NBCPreferences alloc] initWithWindowNibName:@"NBCPreferences"];
     }
@@ -1085,14 +1085,14 @@ enum {
 
 - (IBAction)menuItemHelp:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Opening help URL: %@", NBCHelpURL);
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NBCHelpURL]];
 } // menuItemHelp
 
 - (IBAction)menuItemMainWindow:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _window ) {
         [_window makeKeyAndOrderFront:self];
     }

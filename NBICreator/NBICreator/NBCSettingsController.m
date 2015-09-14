@@ -35,7 +35,7 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 
 - (NSDictionary *)verifySettings:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     NSMutableArray *settings = [[NSMutableArray alloc] init];
     
@@ -166,7 +166,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)createErrorInfoDictFromError:(NSArray *)error warning:(NSArray *)warning {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableDictionary *errorInfoDict = [[NSMutableDictionary alloc] init];
     
     if ( [error count] != 0 ) {
@@ -187,7 +187,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsTabGeneral:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settings = [[NSMutableArray alloc] init];
     
     NSDictionary *settingsNBIName = [self verifySettingsNBIName:workflowItem];
@@ -221,7 +221,7 @@ DDLogLevel ddLogLevel;
 } // verifySettingsTabGeneral
 
 - (NSDictionary *)verifySettingsTabOptions:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settings = [[NSMutableArray alloc] init];
     
     NSDictionary *settingsNBINTP = [self verifySettingsNBINTP:workflowItem];
@@ -249,7 +249,7 @@ DDLogLevel ddLogLevel;
 } // verifySettingsTabOptions
 
 - (NSDictionary *)verifySettingsTabExtra:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settings = [[NSMutableArray alloc] init];
     
     NSDictionary *settingsPackages = [self verifySettingsPackages:workflowItem];
@@ -274,7 +274,7 @@ DDLogLevel ddLogLevel;
 } // verifySettingsTabExtra
 
 - (NSDictionary *)verifySettingsTabAdvanced:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settings = [[NSMutableArray alloc] init];
     
     NSDictionary *userSettings = [workflowItem userSettings];
@@ -304,7 +304,7 @@ DDLogLevel ddLogLevel;
 
 /*
 - (NSDictionary *)verifySettingsTabDebug:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settings = [[NSMutableArray alloc] init];
     
 
@@ -335,7 +335,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsNBIName:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -358,7 +358,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)verifySettingsNBIIndex:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -388,7 +388,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)verifySettingsDestinationFolder:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -423,7 +423,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)verifySettingsNBIURL:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -446,7 +446,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsNBINTP:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -492,7 +492,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsPackages:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -515,7 +515,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsTrustedNetBootServers:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -552,7 +552,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsImagrConfigurationURL:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -580,7 +580,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)verifySettingsImagrReportingURL:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -606,7 +606,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)verifySettingsImagrLocalImagrURL:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -614,7 +614,7 @@ DDLogLevel ddLogLevel;
     if ( [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
         NSString *imagrLocalVersionURLString = userSettings[NBCSettingsImagrLocalVersionPath];
         if ( [imagrLocalVersionURLString length] != 0 ) {
-            NSURL *imagrLocalVersionURL = [NSURL URLWithString:imagrLocalVersionURLString];
+            NSURL *imagrLocalVersionURL = [NSURL fileURLWithPath:imagrLocalVersionURLString];
             if ( ! [imagrLocalVersionURL checkResourceIsReachableAndReturnError:nil] ) {
                 [settingsErrors addObject:@"\"Local Version URL\" is not valid"];
             }
@@ -632,7 +632,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsCasperImagingPath:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -650,7 +650,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)verifySettingsCasperJSSURL:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -682,7 +682,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSDictionary *)verifySettingsOsVersionForSystemImageUtility:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -701,7 +701,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)verifySettingsRemoteManagement:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -738,7 +738,7 @@ DDLogLevel ddLogLevel;
 
 
 - (NSDictionary *)verifySettingsEqualToQueuedWorkflow:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
     NSDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
@@ -756,7 +756,7 @@ DDLogLevel ddLogLevel;
 
 - (NSDictionary *)verifyMountedVolumeName:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -769,7 +769,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (int)getFreeDiskSpaceInGBFromPath:(NSString *)path {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     int freeDiskSpace = -1;
     
     NSError *error;

@@ -41,7 +41,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)viewDidLoad {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [super viewDidLoad];
     
     // --------------------------------------------------------------
@@ -110,7 +110,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalIcon] ) {
@@ -133,7 +133,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)controlTextDidChange:(NSNotification *)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // --------------------------------------------------------------------
     //  Expand variables for the NBI preview text fields
     // --------------------------------------------------------------------
@@ -186,7 +186,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsWarning] ) {
         if ( returnCode == NSAlertSecondButtonReturn ) {        // Continue
@@ -220,7 +220,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateSource:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
         _source = source;
@@ -233,7 +233,7 @@ DDLogLevel ddLogLevel;
 
 - (void)removedSource:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _source ) {
         _source = nil;
     }
@@ -243,7 +243,7 @@ DDLogLevel ddLogLevel;
 } // removedSource
 
 - (void)updateNBIIcon:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *nbiIconURL = [notification userInfo][NBCNotificationUpdateNBIIconUserInfoIconURL];
     if ( nbiIconURL != nil ) {
         // To get the view to update I have to first set the nbiIcon property to @""
@@ -255,7 +255,7 @@ DDLogLevel ddLogLevel;
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setNbiIconPath:NBCFilePathNBIIconNetInstall];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
@@ -268,7 +268,7 @@ DDLogLevel ddLogLevel;
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ([keyPath isEqualToString:NBCUserDefaultsIndexCounter]) {
         NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_siuSource];
         [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
@@ -283,7 +283,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setNbiName:settingsDict[NBCSettingsNameKey]];
     [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
     [self setNbiProtocol:settingsDict[NBCSettingsProtocolKey]];
@@ -298,7 +298,7 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromDict
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     if ( mainDict ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
@@ -313,7 +313,7 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromURL
 
 - (NSDictionary *)returnSettingsFromUI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
@@ -337,7 +337,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromUI
 
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     NSDictionary *settingsDict;
     if ( mainDict ) {
@@ -348,7 +348,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromURL
 
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *settingsURL = url;
     // -------------------------------------------------------------
     //  Create an empty dict and add template type, name and version
@@ -396,7 +396,7 @@ DDLogLevel ddLogLevel;
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameNetInstallDefaults withExtension:@"plist"];
@@ -436,7 +436,7 @@ DDLogLevel ddLogLevel;
 } // haveSettingsChanged
 
 - (void)expandVariablesForCurrentSettings {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------------------
     //  Expand tilde in destination folder path
     // -------------------------------------------------------------
@@ -479,7 +479,7 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonChooseDestinationFolder:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
@@ -503,7 +503,7 @@ DDLogLevel ddLogLevel;
 } // buttonChooseDestinationFolder
 
 - (IBAction)buttonPopOver:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self updatePopOver];
     [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 } // buttonPopOver
@@ -593,7 +593,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL settingsChanged = [self haveSettingsChanged];
     
     if ( settingsChanged ) {
@@ -611,12 +611,12 @@ DDLogLevel ddLogLevel;
 } // importTemplateAtURL
 
 - (void)updatePopUpButtonTemplates {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
 } // updatePopUpButtonTemplates
 
 - (IBAction)popUpButtonTemplates:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *selectedTemplate = [[sender selectedItem] title];
     BOOL settingsChanged = [self haveSettingsChanged];
     
@@ -645,7 +645,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifyBuildButton {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL buildEnabled = YES;
     
     // -------------------------------------------------------------
@@ -677,7 +677,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeNetInstall
                                                               workflowSessionType:kWorkflowSessionTypeGUI];
     [workflowItem setSource:_source];
@@ -744,7 +744,7 @@ DDLogLevel ddLogLevel;
 } // buildNBI
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ------------------------------------------------------------------
     //  Instantiate all workflows to be used to create a NetInstall NBI
     // ------------------------------------------------------------------

@@ -156,7 +156,6 @@ DDLogLevel ddLogLevel;
                     } else if ( [_target baseSystemURL] ) {
                         backgroundTargetPath = @"Library/Application Support/NBICreator/Background.jpg";
                     }
-                    DDLogDebug(@"backgroundTargetPath=%@", backgroundTargetPath);
                     NSDictionary *backgroundImageAttributes  = @{
                                                                  NSFileOwnerAccountName : @"root",
                                                                  NSFileGroupOwnerAccountName : @"wheel",
@@ -425,7 +424,6 @@ DDLogLevel ddLogLevel;
                 return NO;
             }
             selectedImagrVersion = _resourcesSettings[NBCSettingsImagrVersion];
-            DDLogDebug(@"selectedImagrVersion=%@", selectedImagrVersion);
         }
         
         [self setImagrVersion:selectedImagrVersion];

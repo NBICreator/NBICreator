@@ -24,7 +24,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)getReleaseVersionsAndURLsFromDeployStudioRepository:(NSString *)repositoryURL downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *dsRepositoryUrl = [NSURL URLWithString:repositoryURL];
     
     NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
@@ -32,7 +32,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *releaseVersions = [[NSMutableArray alloc] init];
     NSMutableDictionary *releaseVersionsURLsDict = [[NSMutableDictionary alloc] init];
     NSString *versionNumber;
@@ -54,7 +54,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSArray *)parseDownloadData:(NSData *)data {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *dsDownloadURLs = [[NSMutableArray alloc] init];
     NSString *childElementContent;
     

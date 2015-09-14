@@ -71,7 +71,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"alertInfo=%@", alertInfo);
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     
@@ -97,7 +97,7 @@ enum {
 }
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     if ( [menuItem tag] == kTemplateSelectionSave || [[menuItem title] isEqualToString:NBCMenuItemSave] ) {
@@ -140,7 +140,7 @@ enum {
 }
 
 - (void)deleteTemplateAtURL:(NSURL *)templateURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"templateURL=%@", templateURL);
     DDLogInfo(@"Deleting template: %@", [templateURL lastPathComponent]);
     NSError *error;
@@ -153,7 +153,7 @@ enum {
 }
 
 - (void)controlTextDidChange:(NSNotification *)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // -----------------------------------------------------------------------
     //  Don't allow empty template names or names that are already being used
@@ -182,7 +182,7 @@ enum {
 }
 
 - (void)disableTemplateAtURL:(NSURL *)templateURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"templateURL=%@", templateURL);
     DDLogError(@"[ERROR] Disabling template: %@", [templateURL lastPathComponent]);
     NSError *error;
@@ -215,7 +215,7 @@ enum {
 }
 
 - (void)updateTemplateListForPopUpButton:(NSPopUpButton *)popUpButton title:(NSString *)title {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"popUpButton=%@", popUpButton);
     DDLogDebug(@"title=%@", title);
     
@@ -461,7 +461,7 @@ enum {
 }
 
 - (void)addUntitledTemplate {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_popUpButton insertItemWithTitle:NBCMenuItemUntitled atIndex:0];
     [_popUpButton selectItemWithTitle:NBCMenuItemUntitled];
     [_settingsViewController setSelectedTemplate:NBCMenuItemUntitled];
@@ -515,7 +515,7 @@ enum {
 
 - (void)menuItemNew:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL settingsChanged = [_settingsViewController haveSettingsChanged];
     
     // -----------------------------------------------------------------------
@@ -568,7 +568,7 @@ enum {
 
 - (void)menuItemSave:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *currentTemplateURL = [_settingsViewController templatesDict][[_settingsViewController selectedTemplate]];
     [_settingsViewController saveUISettingsWithName:[_settingsViewController selectedTemplate] atUrl:currentTemplateURL];
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
@@ -576,25 +576,25 @@ enum {
 
 - (void)menuItemSaveAs:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self showSheetSaveAs];
 } // menuItemSaveAs
 
 - (void)menuItemRename:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self showSheetRename];
 } // menuItemRename
 
 - (void)menuItemExport:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self showSheetExport];
 } // menuItemExport
 
 - (void)menuItemShowInFinder:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *currentTemplateURL = [_settingsViewController templatesDict][[_settingsViewController selectedTemplate]];
     if ( currentTemplateURL ) {
         NSArray *currentTemplateURLArray = @[ currentTemplateURL ];
@@ -607,7 +607,7 @@ enum {
 
 - (void)menuItemDelete:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *currentTemplateName = [_settingsViewController selectedTemplate];
     NSURL *currentTemplateURL = [_settingsViewController templatesDict][currentTemplateName];
     if ( [currentTemplateURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -629,7 +629,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)showSheetSaveUntitled:(NSString *)senderTitle buildNBI:(BOOL)buildNBI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_textFieldSheetSaveUntitledName setStringValue:@""];
     [[NSApp mainWindow] beginSheet:_sheetSaveUntitled completionHandler:^(NSModalResponse returnCode) {
         if ( returnCode == NSModalResponseOK ) {
@@ -649,7 +649,7 @@ enum {
 } // showSheetSaveUntitled
 
 - (void)showSheetSaveAs {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_textFieldSheetSaveAsName setStringValue:@""];
     [[NSApp mainWindow] beginSheet:_sheetSaveAs completionHandler:^(NSModalResponse returnCode) {
         if ( returnCode == NSModalResponseOK ) {
@@ -659,7 +659,7 @@ enum {
 } // showSheetSaveAs
 
 - (void)showSheetRename {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_textFieldSheetRenameName setStringValue:@""];
     [[NSApp mainWindow] beginSheet:_sheetRename completionHandler:^(NSModalResponse returnCode) {
 #pragma unused(returnCode)
@@ -667,7 +667,7 @@ enum {
 } // showSheetSaveAs
 
 - (void)showSheetExport {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     __block NSError *error;
     NSURL *selectedTemplateURL;
@@ -720,14 +720,14 @@ enum {
 
 - (IBAction)buttonSheetSaveAsCancel:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     [[NSApp mainWindow] endSheet:_sheetSaveAs returnCode:NSModalResponseCancel];
 } // buttonSheetCancel
 
 - (IBAction)buttonSheetSaveAsSaveAs:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *newName = [_textFieldSheetSaveAsName stringValue];
     [_popUpButton insertItemWithTitle:newName atIndex:0];
     [_popUpButton selectItemWithTitle:newName];
@@ -744,14 +744,14 @@ enum {
 
 - (IBAction)buttonSheetSaveUntitledCancel:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     [[NSApp mainWindow] endSheet:_sheetSaveUntitled returnCode:NSModalResponseCancel];
 } // buttonSaveUntitledCancel
 
 - (IBAction)buttonSheetSaveUntitledSaveAs:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *newName = [_textFieldSheetSaveUntitledName stringValue];
     [_popUpButton insertItemWithTitle:newName atIndex:0];
     [_popUpButton selectItemWithTitle:newName];
@@ -768,14 +768,14 @@ enum {
 
 - (IBAction)buttonSheetSaveUntitledDelete:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_popUpButton removeItemWithTitle:NBCMenuItemUntitled];
     [[NSApp mainWindow] endSheet:_sheetSaveUntitled returnCode:NSModalResponseContinue];
 } // buttonSaveUntitledDelete
 
 - (IBAction)buttonSheetRenameRename:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *newName = [_textFieldSheetRenameName stringValue];
     NSString *selectedTemplate = [_settingsViewController selectedTemplate];
     if ( [selectedTemplate length] != 0 ) {
@@ -804,7 +804,7 @@ enum {
 
 - (IBAction)buttonSheetRenameCancel:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     [[NSApp mainWindow] endSheet:_sheetRename returnCode:NSModalResponseCancel];
 } // buttonSheetRenameCancel

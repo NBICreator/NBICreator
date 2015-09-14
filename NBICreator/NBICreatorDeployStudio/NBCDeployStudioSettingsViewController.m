@@ -48,7 +48,7 @@ DDLogLevel ddLogLevel;
 } // init
 
 - (void)viewDidLoad {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [super viewDidLoad];
     
     // --------------------------------------------------------------
@@ -143,7 +143,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)testInternetConnection {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     _internetReachableFoo = [Reachability reachabilityWithHostname:@"www.deploystudio.com"];
     __unsafe_unretained typeof(self) weakSelf = self;
     
@@ -175,7 +175,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalIcon] ) {
@@ -204,7 +204,7 @@ DDLogLevel ddLogLevel;
 } // validateMenuItem
 
 - (void)dealloc {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_comboBoxServerURL1 setDataSource:nil];
     [_comboBoxServerURL2 setDataSource:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
@@ -217,7 +217,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)controlTextDidChange:(NSNotification *)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // --------------------------------------------------------------------
     //  Expand variables for the NBI preview text fields
     // --------------------------------------------------------------------
@@ -270,7 +270,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)fileDownloadCompleted:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
         [_progressIndicatorDeployStudioDownloadProgress setIndeterminate:YES];
@@ -285,7 +285,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
         NSString *latestVersion = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -303,7 +303,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)downloadCanceled:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
         [_progressIndicatorDeployStudioDownloadProgress setIndeterminate:YES];
@@ -315,7 +315,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateProgressBytesRecieved:(float)bytesRecieved expectedLength:(long long)expectedLength downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
         if ( _windowDeployStudioDownloadProgress ) {
@@ -336,7 +336,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)dsReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
         [self setDeployStudioVersions:versionsArray];
@@ -353,7 +353,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsWarning] ) {
         if ( returnCode == NSAlertSecondButtonReturn ) { // Continue
@@ -407,7 +407,7 @@ DDLogLevel ddLogLevel;
 
 - (void)tabView:(NSTabView *)tabView willSelectTabViewItem:(NSTabViewItem *)tabViewItem {
 #pragma unused(tabView)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *tabViewTitle = [tabViewItem label];
     
     if ( [tabViewTitle isEqualToString:NBCDeployStudioTabTitleRuntime] ) {
@@ -427,7 +427,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateSource:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
         _source = source;
@@ -448,7 +448,7 @@ DDLogLevel ddLogLevel;
 
 - (void)removedSource:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _source ) {
         _source = nil;
     }
@@ -466,7 +466,7 @@ DDLogLevel ddLogLevel;
 } // removedSource
 
 - (void)updateNBIIcon:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *nbiIconURL = [notification userInfo][NBCNotificationUpdateNBIIconUserInfoIconURL];
     if ( nbiIconURL != nil ) {
         // To get the view to update I have to first set the nbiIcon property to @""
@@ -478,13 +478,13 @@ DDLogLevel ddLogLevel;
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setNbiIconPath:NBCFilePathNBIIconDeployStudio];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
 
 - (void)updateNBIBackground:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *nbiBackgroundURL = [notification userInfo][NBCNotificationUpdateNBIBackgroundUserInfoIconURL];
     if ( nbiBackgroundURL != nil ) {
         // To get the view to update I have to first set the nbiIcon property to @""
@@ -496,7 +496,7 @@ DDLogLevel ddLogLevel;
 
 - (void)restoreNBIBackground:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _source == nil ) {
         //NSURL *deployStudioBackgroundURL = [_dsSource deployStudioBackgroundURL];
         [self setImageBackground:@""];
@@ -510,7 +510,7 @@ DDLogLevel ddLogLevel;
 } // restoreNBIBackground
 
 - (void)addBonjourService:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSArray *serverURLs = [notification userInfo][@"serverURLs"];
     for ( NSString *url in serverURLs ) {
         if ( ! [_discoveredServers containsObject:url] ) {
@@ -534,7 +534,7 @@ DDLogLevel ddLogLevel;
 } // addBonjourService
 
 - (void)removeBonjourService:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSArray *serverURLs = [notification userInfo][@"serverURLs"];
     for ( NSString *url in serverURLs ) {
         [_discoveredServers removeObject:url];
@@ -556,7 +556,7 @@ DDLogLevel ddLogLevel;
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ([keyPath isEqualToString:NBCUserDefaultsIndexCounter]) {
         NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_dsSource];
         [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
@@ -570,7 +570,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setNbiName:settingsDict[NBCSettingsNameKey]];
     [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
     [self setNbiProtocol:settingsDict[NBCSettingsProtocolKey]];
@@ -608,7 +608,7 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromDict
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"url=%@", url);
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     if ( [mainDict count] != 0 ) {
@@ -624,7 +624,7 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromURL
 
 - (NSDictionary *)returnSettingsFromUI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
     
@@ -682,7 +682,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromUI
 
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"url=%@", url);
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     NSDictionary *settingsDict;
@@ -694,7 +694,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromURL
 
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"name=%@", name);
     DDLogDebug(@"settingsURL=%@", settingsURL);
     
@@ -745,7 +745,7 @@ DDLogLevel ddLogLevel;
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameDeployStudioDefaults withExtension:@"plist"];
@@ -793,7 +793,7 @@ DDLogLevel ddLogLevel;
 } // haveSettingsChanged
 
 - (void)expandVariablesForCurrentSettings {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------------------
     //  Expand tilde in destination folder path
     // -------------------------------------------------------------
@@ -842,7 +842,7 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonChooseDestinationFolder:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
@@ -866,7 +866,7 @@ DDLogLevel ddLogLevel;
 } // buttonChooseDestinationFolder
 
 - (IBAction)matrixUseCustomServers:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( [sender isEqualTo:_matrixUseCustomServers] ) {
         if ( _useCustomServers == YES && _isSearching == NO ) {
             [self setIsSearching:YES];
@@ -886,21 +886,21 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)getDeployStudioVersions {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCDownloaderDeployStudio *downloader =  [[NBCDownloaderDeployStudio alloc] initWithDelegate:self];
     NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagDeployStudio };
     [downloader getReleaseVersionsAndURLsFromDeployStudioRepository:NBCDeployStudioRepository downloadInfo:downloadInfo];
 } // getDeployStudioVersions
 
 - (void)getDeployStudioVersionLatest {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCDownloader *downloader =  [[NBCDownloader alloc] initWithDelegate:self];
     NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagDeployStudio };
     [downloader downloadPageAsData:[NSURL URLWithString:NBCDeployStudioLatestVersionURL] downloadInfo:downloadInfo];
 } // getDeployStudioVersions
 
 - (void)updateDeployStudioVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setDeployStudioVersion:[_dsSource deployStudioAdminVersion]];
     if ( [_deployStudioVersion length] != 0 ) {
         [_textFieldDeployStudioVersion setStringValue:_deployStudioVersion];
@@ -914,7 +914,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showUpdateAvailable:(NSString *)latestVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_buttonDownloadDeployStudio setHidden:NO];
     if ( [_dsSource isInstalled] ) {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Update available: %@)", latestVersion]];
@@ -925,7 +925,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showUpdateAvailableCached:(NSString *)latestVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_buttonDownloadDeployStudio setHidden:YES];
     if ( [_dsSource isInstalled] ) {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Update available: %@)", latestVersion]];
@@ -936,14 +936,14 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)hideUpdateAvailable {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_buttonDownloadDeployStudio setHidden:YES];
     [_textFieldUpdateAvailable setHidden:YES];
 }
 
 - (void)showDeployStudioNotInstalled:(NSString *)latestVersion {
 #pragma unused(latestVersion)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_buttonDownloadDeployStudio setHidden:NO];
     [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Latest version: %@)", latestVersion]];
     [_textFieldUpdateAvailable setHidden:NO];
@@ -951,7 +951,7 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonDownloadDeployStudio:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if (([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask) != 0 ) {
         [[NSApp mainWindow] beginSheet:_windowDeployStudioDownload completionHandler:nil];
     } else {
@@ -993,7 +993,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updatePopUpButtonDeployStudioVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _popUpButtonDeployStudioVersion ) {
         [_popUpButtonDeployStudioVersion removeAllItems];
         [_popUpButtonDeployStudioVersion addItemWithTitle:NBCMenuItemDeployStudioVersionLatest];
@@ -1014,7 +1014,7 @@ DDLogLevel ddLogLevel;
 } // updatePopUpButtonImagrVersions
 
 - (void)cachedDeployStudioVersionLocal {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCWorkflowResourcesController *resourcesController = [[NBCWorkflowResourcesController alloc] init];
     NSDictionary *cachedDownloadsDict = [resourcesController cachedDownloadsDictFromResourceFolder:NBCFolderResourcesDeployStudio];
     if ( [cachedDownloadsDict count] != 0 ) {
@@ -1030,7 +1030,7 @@ DDLogLevel ddLogLevel;
 } // cachedDeployStudioVersionLocal
 
 - (void)updateCachedDeployStudioLatestVersion:(NSString *)deployStudioLatestVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCWorkflowResourcesController *resourcesController = [[NBCWorkflowResourcesController alloc] init];
     NSURL *deployStudioDownloadsDictURL = [resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesDeployStudio];
     if ( deployStudioDownloadsDictURL != nil ) {
@@ -1057,13 +1057,13 @@ DDLogLevel ddLogLevel;
 } // updateCachedDeployStudioLatestVersion
 
 - (void)showPopUpButtonDeployStudioVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_textFieldDeployStudioVersion setHidden:YES];
     [_popUpButtonDeployStudioVersion setHidden:NO];
 } // showPopUpButtonDeployStudioVersion
 
 - (void)hidePopUpButtonDeployStudioVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_popUpButtonDeployStudioVersion setHidden:YES];
     [_textFieldDeployStudioVersion setHidden:NO];
 } // hidePopUpButtonDeployStudioVersion
@@ -1075,18 +1075,18 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSLog(@"Importing %@", url);
     NSLog(@"templateInfo=%@", templateInfo);
 } // importTemplateAtURL
 
 - (void)updatePopUpButtonTemplates {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
 } // updatePopUpButtonTemplates
 
 - (IBAction)popUpButtonTemplates:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *selectedTemplate = [[sender selectedItem] title];
     BOOL settingsChanged = [self haveSettingsChanged];
     
@@ -1115,7 +1115,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifyBuildButton {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL buildEnabled = YES;
     
     // -------------------------------------------------------------
@@ -1141,7 +1141,7 @@ DDLogLevel ddLogLevel;
 } // verifyBuildButton
 
 - (IBAction)buttonPopOver:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self updatePopOver];
     [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 } // buttonPopOver
@@ -1235,7 +1235,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeDeployStudio
                                                               workflowSessionType:kWorkflowSessionTypeGUI];
     [workflowItem setSource:_source];
@@ -1300,7 +1300,7 @@ DDLogLevel ddLogLevel;
 } // buildNBI
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------------------------
     //  Instantiate all workflows to be used to create a DeployStudio NBI
     // -------------------------------------------------------------------
@@ -1323,7 +1323,7 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonDeployStudioDownloadDownload:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *selectedVersion = [_popUpButtonDeployStudioDownload titleOfSelectedItem];
     if ( [selectedVersion isEqualToString:NBCMenuItemDeployStudioVersionLatest] ) {
         selectedVersion = _deployStudioLatestVersion;
@@ -1367,7 +1367,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showDeployStudioDownloadProgess:(NSString *)version {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_textFieldDeployStudioDownloadProgressTitle setStringValue:[NSString stringWithFormat:@"Downloading DeployStudio v.%@", version]];
     [_progressIndicatorDeployStudioDownloadProgress setIndeterminate:NO];
     [_progressIndicatorDeployStudioDownloadProgress setMinValue:0];
@@ -1377,13 +1377,13 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonDeployStudioDownloadCancel:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [[NSApp mainWindow] endSheet:_windowDeployStudioDownload];
 }
 
 - (IBAction)buttonDeployStudioDownloadProgressCancel:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _deployStudioDownloader ) {
         [_deployStudioDownloader cancelDownload];
     }

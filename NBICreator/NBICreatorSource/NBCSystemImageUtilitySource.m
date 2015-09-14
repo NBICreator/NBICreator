@@ -24,7 +24,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSArray *)systemImageUtilityURLs {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *systemImageUtilityURLs = [[NSMutableArray alloc] init];
     
     [systemImageUtilityURLs addObjectsFromArray:(__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.apple.SystemImageUtility"), NULL))];
@@ -33,7 +33,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)setSystemImageUtilityURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSError *error;
     
     NSArray *systemImageUtilityURLs = [self systemImageUtilityURLs];
@@ -49,7 +49,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)systemImageUtilityResourcesFromURL:(NSURL *)systemImageUtilityURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     [self setSystemImageUtilityVersion:[[NSBundle bundleWithURL:systemImageUtilityURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
     [self setSelectedVersion:_systemImageUtilityVersion];
@@ -89,7 +89,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSString *)expandVariables:(NSString *)string {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *newString = string;
     NSString *variableSIUVersion = @"%SIUVERSION%";
     
@@ -109,7 +109,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (NSArray *)systemImageUtilityVersions {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSArray *versions;
     return versions;
 }

@@ -698,7 +698,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)testInternetConnection {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     _internetReachableFoo = [Reachability reachabilityWithHostname:@"github.com"];
     __unsafe_unretained typeof(self) weakSelf = self;
     
@@ -730,7 +730,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalIcon] ) {
@@ -834,7 +834,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)githubReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagImagr] ) {
         [self setImagrVersions:versionsArray];
@@ -851,7 +851,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsWarning] ) {
         if ( returnCode == NSAlertSecondButtonReturn ) {        // Continue
@@ -927,7 +927,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateSource:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
         [self setSource:source];
@@ -965,7 +965,7 @@ DDLogLevel ddLogLevel;
 
 - (void)removedSource:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _source ) {
         [self setSource:nil];
     }
@@ -988,7 +988,7 @@ DDLogLevel ddLogLevel;
 } // removedSource
 
 - (void)updateNBIIcon:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *nbiIconURL = [notification userInfo][NBCNotificationUpdateNBIIconUserInfoIconURL];
     if ( nbiIconURL != nil )
     {
@@ -1001,13 +1001,13 @@ DDLogLevel ddLogLevel;
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setNbiIconPath:NBCFilePathNBIIconImagr];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
 
 - (void)updateNBIBackground:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *nbiBackgroundURL = [notification userInfo][NBCNotificationUpdateNBIBackgroundUserInfoIconURL];
     if ( nbiBackgroundURL != nil ) {
         // To get the view to update I have to first set the nbiIcon property to @""
@@ -1019,7 +1019,7 @@ DDLogLevel ddLogLevel;
 
 - (void)restoreNBIBackground:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setImageBackground:@""];
     [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
     [self expandVariablesForCurrentSettings];
@@ -1060,7 +1060,7 @@ DDLogLevel ddLogLevel;
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( [keyPath isEqualToString:NBCUserDefaultsIndexCounter] ) {
         NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_siuSource];
         [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
@@ -1074,7 +1074,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
     [self setNbiName:settingsDict[NBCSettingsNameKey]];
     [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
@@ -1239,7 +1239,7 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromDict
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     if ( mainDict ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
@@ -1254,7 +1254,7 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromURL
 
 - (NSDictionary *)returnSettingsFromUI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
@@ -1351,7 +1351,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromUI
 
 - (void)createSettingsFromNBI:(NSURL *)nbiURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSError *err;
     if ( ! [nbiURL checkResourceIsReachableAndReturnError:&err] ) {
         NSLog(@"Could not find NBI!");
@@ -1743,7 +1743,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromUI
 
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     NSDictionary *settingsDict;
     if ( mainDict ) {
@@ -1754,7 +1754,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromURL
 
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *settingsURL = url;
     // -------------------------------------------------------------
     //  Create an empty dict and add template type, name and version
@@ -1802,7 +1802,7 @@ DDLogLevel ddLogLevel;
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameImagrDefaults withExtension:@"plist"];
     if ( defaultSettingsURL ) {
@@ -1840,7 +1840,7 @@ DDLogLevel ddLogLevel;
 } // haveSettingsChanged
 
 - (void)expandVariablesForCurrentSettings {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------------------
     //  Expand tilde in destination folder path
     // -------------------------------------------------------------
@@ -1889,7 +1889,7 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonChooseDestinationFolder:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
@@ -1913,7 +1913,7 @@ DDLogLevel ddLogLevel;
 } // buttonChooseDestinationFolder
 
 - (IBAction)buttonPopOver:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self updatePopOver];
     [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 } // buttonPopOver
@@ -2002,18 +2002,18 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSLog(@"Importing %@", url);
     NSLog(@"templateInfo=%@", templateInfo);
 } // importTemplateAtURL
 
 - (void)updatePopUpButtonTemplates {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
 } // updatePopUpButtonTemplates
 
 - (IBAction)popUpButtonTemplates:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *selectedTemplate = [[sender selectedItem] title];
     BOOL settingsChanged = [self haveSettingsChanged];
     
@@ -2040,7 +2040,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)uppdatePopUpButtonTool {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *systemUtilityVersion = [_siuSource systemImageUtilityVersion];
     if ( [systemUtilityVersion length] != 0 ) {
         [_textFieldSIUVersionString setStringValue:systemUtilityVersion];
@@ -2058,7 +2058,7 @@ DDLogLevel ddLogLevel;
 } // uppdatePopUpButtonTool
 
 - (IBAction)popUpButtonTool:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *selectedVersion = [[sender selectedItem] title];
     if ( [selectedVersion isEqualToString:NBCMenuItemSystemImageUtility] ) {
         [self showSystemImageUtilityVersion];
@@ -2078,14 +2078,14 @@ DDLogLevel ddLogLevel;
 } // popUpButtonTool
 
 - (void)showSystemImageUtilityVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setUseSystemImageUtility:YES];
     [_constraintTemplatesBoxHeight setConstant:93];
     [_constraintSavedTemplatesToTool setConstant:32];
 } // showImagrLocalVersionInput
 
 - (void)hideSystemImageUtilityVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setUseSystemImageUtility:NO];
     [_constraintTemplatesBoxHeight setConstant:70];
     [_constraintSavedTemplatesToTool setConstant:8];
@@ -2098,14 +2098,14 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)getImagrVersions {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
     NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagImagr };
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCImagrGitHubRepository downloadInfo:downloadInfo];
 } // getImagrVersions
 
 - (void)updatePopUpButtonImagrVersionsLocal {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( ! _resourcesController ) {
         [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
     }
@@ -2149,7 +2149,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updatePopUpButtonImagrVersions {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _popUpButtonImagrVersion ) {
         [_popUpButtonImagrVersion removeAllItems];
         [_popUpButtonImagrVersion addItemWithTitle:NBCMenuItemImagrVersionLatest];
@@ -2169,7 +2169,7 @@ DDLogLevel ddLogLevel;
 } // updatePopUpButtonImagrVersions
 
 - (void)updateCachedImagrVersions:(NSDictionary *)imagrVersionsDict {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( ! _resourcesController ) {
         [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
     }
@@ -2194,7 +2194,7 @@ DDLogLevel ddLogLevel;
 } // updateCachedImagrVersions
 
 - (IBAction)popUpButtonImagrVersion:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *selectedVersion = [[sender selectedItem] title];
     if ( [selectedVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -2205,7 +2205,7 @@ DDLogLevel ddLogLevel;
 } // popUpButtonImagrVersion
 
 - (void)showImagrLocalVersionInput {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setImagrUseLocalVersion:YES];
     [_constraintConfigurationURLToImagrVersion setConstant:42];
     [_textFieldImagrLocalPathLabel setHidden:NO];
@@ -2214,7 +2214,7 @@ DDLogLevel ddLogLevel;
 } // showImagrLocalVersionInput
 
 - (void)hideImagrLocalVersionInput {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setImagrUseLocalVersion:NO];
     [_constraintConfigurationURLToImagrVersion setConstant:13];
     [_textFieldImagrLocalPathLabel setHidden:YES];
@@ -2224,7 +2224,7 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonChooseImagrLocalPath:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
@@ -2264,7 +2264,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifyBuildButton {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL buildEnabled = YES;
     
     // -------------------------------------------------------------
@@ -2296,7 +2296,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( [self haveSettingsChanged] ) {
         NSDictionary *alertInfo = @{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
                                      NBCAlertUserInfoSelectedTemplate : _selectedTemplate };
@@ -2380,33 +2380,32 @@ DDLogLevel ddLogLevel;
 } // verifySettings
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSDictionary *userSettings = [workflowItem userSettings];
     NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
     
-    NSString *selectedImagrVersion = userSettings[NBCSettingsImagrVersion];
-    if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
-        if ( [_imagrVersions count] == 0 ) {
-            DDLogError(@"[ERROR] Imagr versions array is empty!");
-            return;
+    if ( ! [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
+        NSString *selectedImagrVersion = userSettings[NBCSettingsImagrVersion];
+        if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
+            if ( [_imagrVersions count] == 0 ) {
+                DDLogError(@"[ERROR] Imagr versions array is empty!");
+                return;
+            }
+            selectedImagrVersion = [_imagrVersions firstObject];
+            
+            NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
+            if ( [imagrDownloadURL length] == 0 ) {
+                DDLogError(@"[ERROR] Imagr download link is empty!");
+                return;
+            }
+            resourcesSettings[NBCSettingsImagrVersion] = selectedImagrVersion;
+            resourcesSettings[NBCSettingsImagrDownloadURL] = imagrDownloadURL;
         }
-        selectedImagrVersion = [_imagrVersions firstObject];
     }
-    
-    NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
-    if ( [imagrDownloadURL length] == 0 ) {
-        DDLogError(@"[ERROR] Imagr download link is empty!");
-        return;
-    }
-    resourcesSettings[NBCSettingsImagrVersion] = selectedImagrVersion;
-    resourcesSettings[NBCSettingsImagrDownloadURL] = imagrDownloadURL;
     
     NSString *selectedLanguage = userSettings[NBCSettingsLanguageKey];
-    NSLog(@"selectedLanguage=%@", selectedLanguage);
     if ( [selectedLanguage isEqualToString:NBCMenuItemCurrent] ) {
         NSLocale *currentLocale = [NSLocale currentLocale];
         NSString *currentLanguageID = [NSLocale preferredLanguages][0];
-        NSLog(@"currentLanguageID=%@", currentLanguageID);
         if ( [currentLanguageID length] != 0 ) {
             resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
         } else {
@@ -2415,13 +2414,11 @@ DDLogLevel ddLogLevel;
         }
         
         NSString *currentLocaleIdentifier = [currentLocale localeIdentifier];
-        DDLogDebug(@"currentLocaleIdentifier=%@", currentLocaleIdentifier);
         if ( [currentLocaleIdentifier length] != 0 ) {
             resourcesSettings[NBCSettingsLocale] = currentLocaleIdentifier;
         }
         
         NSString *currentCountry = [currentLocale objectForKey:NSLocaleCountryCode];
-        DDLogDebug(@"currentCountry=%@", currentCountry);
         if ( [currentCountry length] != 0 ) {
             resourcesSettings[NBCSettingsCountry] = currentCountry;
         }
@@ -2460,23 +2457,17 @@ DDLogLevel ddLogLevel;
         
         if ( [languageID containsString:@"-"] ) {
             NSString *localeFromLanguage = [languageID stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
-            DDLogDebug(@"localeFromLanguage=%@", localeFromLanguage);
-            NSLog(@"localeFromLanguage=%@", localeFromLanguage);
             if ( [localeFromLanguage length] != 0 ) {
                 resourcesSettings[NBCSettingsLocale] = localeFromLanguage;
                 
                 NSLocale *locale = [NSLocale localeWithLocaleIdentifier:localeFromLanguage];
                 NSString *country = [locale objectForKey:NSLocaleCountryCode];
-                DDLogDebug(@"country=%@", country);
-                NSLog(@"country=%@", country);
                 if ( [country length] != 0 ) {
                     resourcesSettings[NBCSettingsCountry] = country;
                 }
             }
         }
-        
     }
-    NSLog(@"resourcesSettings[NBCSettingsLanguageKey]=%@", resourcesSettings[NBCSettingsLanguageKey]);
     
     NSDictionary *hiToolboxDict = [NSDictionary dictionaryWithContentsOfFile:NBCFilePathPreferencesHIToolbox];
     NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsKeyboardLayoutKey];

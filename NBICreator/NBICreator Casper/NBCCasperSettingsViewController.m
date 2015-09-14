@@ -67,7 +67,7 @@ DDLogLevel ddLogLevel;
 } // dealloc
 
 - (void)viewDidLoad {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [super viewDidLoad];
     
     [self setConnectedToInternet:NO];
@@ -656,7 +656,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)testInternetConnection {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     _internetReachableFoo = [Reachability reachabilityWithHostname:@"github.com"];
     __unsafe_unretained typeof(self) weakSelf = self;
     
@@ -692,7 +692,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalIcon] ) {
@@ -799,7 +799,7 @@ DDLogLevel ddLogLevel;
 } // controlTextDidChange
 
 - (void)downloadCanceled:(NSDictionary *)downloadInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
         NSLog(@"Canceled!");
@@ -829,7 +829,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsWarning] ) {
         if ( returnCode == NSAlertSecondButtonReturn ) {        // Continue
@@ -902,7 +902,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateSource:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
         [self setSource:source];
@@ -940,7 +940,7 @@ DDLogLevel ddLogLevel;
 
 - (void)removedSource:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _source ) {
         [self setSource:nil];
     }
@@ -963,7 +963,7 @@ DDLogLevel ddLogLevel;
 } // removedSource
 
 - (void)updateNBIIcon:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *nbiIconURL = [notification userInfo][NBCNotificationUpdateNBIIconUserInfoIconURL];
     if ( nbiIconURL != nil )
     {
@@ -976,13 +976,13 @@ DDLogLevel ddLogLevel;
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setNbiIconPath:NBCFilePathNBIIconCasper];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
 
 - (void)updateNBIBackground:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *nbiBackgroundURL = [notification userInfo][NBCNotificationUpdateNBIBackgroundUserInfoIconURL];
     if ( nbiBackgroundURL != nil ) {
         // To get the view to update I have to first set the nbiIcon property to @""
@@ -994,7 +994,7 @@ DDLogLevel ddLogLevel;
 
 - (void)restoreNBIBackground:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setImageBackground:@""];
     [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
     [self expandVariablesForCurrentSettings];
@@ -1014,7 +1014,7 @@ DDLogLevel ddLogLevel;
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( [keyPath isEqualToString:NBCUserDefaultsIndexCounter] ) {
         NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_siuSource];
         [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
@@ -1033,7 +1033,7 @@ DDLogLevel ddLogLevel;
     [self setJssCACertificateExpirationString:@""];
     [self setJssVersion:@""];
     
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
     [self setNbiName:settingsDict[NBCSettingsNameKey]];
     [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
@@ -1247,7 +1247,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     if ( mainDict ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
@@ -1262,7 +1262,7 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromURL
 
 - (NSDictionary *)returnSettingsFromUI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
@@ -1343,7 +1343,7 @@ DDLogLevel ddLogLevel;
 - (void)createSettingsFromNBI:(NSURL *)nbiURL {
 #pragma unused(nbiURL)
     /*
-     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+     
      NSError *err;
      if ( ! [nbiURL checkResourceIsReachableAndReturnError:&err] ) {
      NSLog(@"Could not find NBI!");
@@ -1734,7 +1734,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromUI
 
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     NSDictionary *settingsDict;
     if ( mainDict ) {
@@ -1745,7 +1745,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromURL
 
 - (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)url {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *settingsURL = url;
     // -------------------------------------------------------------
     //  Create an empty dict and add template type, name and version
@@ -1793,7 +1793,7 @@ DDLogLevel ddLogLevel;
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameCasperDefaults withExtension:@"plist"];
@@ -1832,7 +1832,7 @@ DDLogLevel ddLogLevel;
 } // haveSettingsChanged
 
 - (void)expandVariablesForCurrentSettings {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------------------
     //  Expand tilde in destination folder path
     // -------------------------------------------------------------
@@ -1881,7 +1881,7 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonChooseDestinationFolder:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
@@ -1905,7 +1905,7 @@ DDLogLevel ddLogLevel;
 } // buttonChooseDestinationFolder
 
 - (IBAction)buttonPopOver:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self updatePopOver];
     [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 } // buttonPopOver
@@ -1994,18 +1994,18 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSLog(@"Importing %@", url);
     NSLog(@"templateInfo=%@", templateInfo);
 } // importTemplateAtURL
 
 - (void)updatePopUpButtonTemplates {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
 } // updatePopUpButtonTemplates
 
 - (IBAction)popUpButtonTemplates:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *selectedTemplate = [[sender selectedItem] title];
     BOOL settingsChanged = [self haveSettingsChanged];
     
@@ -2032,7 +2032,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)uppdatePopUpButtonTool {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *systemUtilityVersion = [_siuSource systemImageUtilityVersion];
     if ( [systemUtilityVersion length] != 0 ) {
         [_textFieldSIUVersionString setStringValue:systemUtilityVersion];
@@ -2051,7 +2051,7 @@ DDLogLevel ddLogLevel;
 } // uppdatePopUpButtonTool
 
 - (IBAction)popUpButtonTool:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *selectedVersion = [[sender selectedItem] title];
     if ( [selectedVersion isEqualToString:NBCMenuItemSystemImageUtility] ) {
         [self showSystemImageUtilityVersion];
@@ -2071,14 +2071,14 @@ DDLogLevel ddLogLevel;
 } // popUpButtonTool
 
 - (void)showSystemImageUtilityVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setUseSystemImageUtility:YES];
     [_constraintTemplatesBoxHeight setConstant:93];
     [_constraintSavedTemplatesToTool setConstant:32];
 } // showCasperLocalVersionInput
 
 - (void)hideSystemImageUtilityVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setUseSystemImageUtility:NO];
     [_constraintTemplatesBoxHeight setConstant:70];
     [_constraintSavedTemplatesToTool setConstant:8];
@@ -2086,7 +2086,7 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonChooseCasperImagingPath:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
@@ -2129,7 +2129,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifyBuildButton {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL buildEnabled = YES;
     
     // -------------------------------------------------------------
@@ -2161,7 +2161,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( [self haveSettingsChanged] ) {
         NSDictionary *alertInfo = @{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
                                      NBCAlertUserInfoSelectedTemplate : _selectedTemplate };
@@ -2178,7 +2178,7 @@ DDLogLevel ddLogLevel;
 } // buildNBI
 
 - (void)verifySettings {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Verifying settings...");
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeCasper
                                                               workflowSessionType:kWorkflowSessionTypeGUI];
@@ -2246,7 +2246,7 @@ DDLogLevel ddLogLevel;
 } // verifySettings
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *userSettings = [workflowItem userSettings];
     NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
     

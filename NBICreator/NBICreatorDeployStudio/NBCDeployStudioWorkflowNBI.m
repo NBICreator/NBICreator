@@ -25,7 +25,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
     [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
@@ -174,7 +174,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)prepareDestinationFolder:(NSURL *)destinationFolderURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     #pragma unused(error)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     // ------------------------------------------------------------------
@@ -188,7 +188,7 @@ DDLogLevel ddLogLevel;
 } // prepareDestinationFolder:createCommonURL:workflowItem:error
 
 - (void)removeTemporaryItems:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
@@ -206,7 +206,7 @@ DDLogLevel ddLogLevel;
 
 - (void)updateDeployStudioWorkflowStatus:(NSString *)stdOut stdErr:(NSString *)stdErr {
 #pragma unused(stdErr)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *statusString = stdOut;
     
     if ( [stdOut containsString:@"Adding lib"] ) {

@@ -83,7 +83,7 @@ DDLogLevel ddLogLevel;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( [keyPath isEqualToString:NBCUserDefaultsLogLevel] ) {
         NSNumber *logLevel = [[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsLogLevel];
         if ( logLevel ) {
@@ -106,7 +106,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)createPopUpButtonDateFormats {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *dateFormats = [[NSMutableArray alloc] init];
     [dateFormats addObject:@"yyyy-MM-dd"];
     [dateFormats addObject:@"yyMMdd"];
@@ -119,7 +119,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateDatePreview {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     NSString *dateFormat = [_comboBoxDateFormat stringValue];
     NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
@@ -203,19 +203,19 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)comboBoxDateFormat:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self updateDatePreview];
 }
 
 - (IBAction)buttonClearCache:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self cleanCacheFolder];
 }
 
 - (IBAction)buttonShowCache:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *cacheFolderURL = [self cacheFolderURL];
     if ( [cacheFolderURL checkResourceIsReachableAndReturnError:nil] ) {
         NSArray *currentTemplateURLArray = @[ cacheFolderURL ];

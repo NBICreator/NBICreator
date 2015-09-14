@@ -62,7 +62,7 @@ DDLogLevel ddLogLevel;
 } // init
 
 - (void)dealloc {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -73,7 +73,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = NO;
     
     if ( [[menuItem title] isEqualToString:NBCMenuItemWorkflows] ) {
@@ -87,7 +87,7 @@ DDLogLevel ddLogLevel;
 
 - (void)menuItemWindowWorkflows:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // -------------------------------------------------------------
     //  If sent from NBCController, just order front, not key
@@ -115,7 +115,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)addWorkflowItemToQueue:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     // -------------------------------------------------------------
     //  Get workflow item from sender
@@ -193,7 +193,7 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Base NBI created successfully!");
     [self setCurrentWorkflowNBIComplete:YES];
     
@@ -206,7 +206,7 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"All resources prepared!");
     [self setCurrentWorkflowResourcesComplete:YES];
     
@@ -219,13 +219,13 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteModifyNBI:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"NBI modifications complete!");
     [self moveNBIToDestination:[_currentWorkflowItem temporaryNBIURL] destinationURL:[_currentWorkflowItem nbiURL]];
 } // workflowCompleteModifyNBI
 
 - (void)endWorkflow {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( [[NSUserDefaults standardUserDefaults] boolForKey:NBCUserDefaultsUserNotificationsEnabled] ) {
         NSString *name = [_currentWorkflowItem nbiName];
         NSString *workflowTime = [_currentWorkflowItem workflowTime];
@@ -250,7 +250,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)workflowFailed:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSError *error = [notification userInfo][NBCUserInfoNSErrorKey];
     NSString *progressViewErrorMessage = nil;
     if ( error ) {
@@ -272,7 +272,7 @@ DDLogLevel ddLogLevel;
 } // workflowFailed
 
 - (void)removeWorkflowItem:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCWorkflowProgressViewController *workflowView = [notification object];
     NBCWorkflowItem *workflowItem = [notification userInfo][NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem];
     [[_workflowPanel stackView] removeView:[workflowView view]];
@@ -280,7 +280,7 @@ DDLogLevel ddLogLevel;
 } // removeWorkflowItem
 
 - (void)removeTemporaryFolder {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSURL *temporaryFolderURL = [_currentWorkflowItem temporaryFolderURL];
@@ -301,13 +301,13 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateWorkflowStatusComplete {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_currentWorkflowProgressView workflowCompleted];
     [self endWorkflow];
 } // updateWorkflowStatusComplete
 
 - (void)updateWorkflowStatusErrorWithMessage:(NSString *)errorMessage {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *errorString = errorMessage;
     if ( errorString == nil ) {
         errorString = @"Unknown Error (-1)";
@@ -323,7 +323,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)workflowQueueRunWorkflow {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( ! _workflowRunning && [_workflowQueue count] != 0 ) {
         
         // -------------------------------------------------------------
@@ -431,7 +431,7 @@ DDLogLevel ddLogLevel;
 } // workflowQueueRunWorkflow
 
 - (void)workflowQueueRunWorkflowPostprocessing {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setCurrentWorkflowModifyNBI:[_currentWorkflowItem workflowModifyNBI]];
     if ( _currentWorkflowModifyNBI ) {
         [_currentWorkflowModifyNBI setDelegate:_currentWorkflowProgressView];
@@ -448,7 +448,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)mountSource {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     NBCSourceController *sc = [[NBCSourceController alloc] init];
     switch ( [_currentWorkflowItem workflowType] ) {
@@ -478,7 +478,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)incrementIndexCounter {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     NSNumber *currentIndex = [ud objectForKey:NBCUserDefaultsIndexCounter];
     if ( [currentIndex integerValue] == 65535 ) {
@@ -490,7 +490,7 @@ DDLogLevel ddLogLevel;
 } // incrementIndexCounter
 
 - (void)moveNBIToDestination:(NSURL *)sourceURL destinationURL:(NSURL *)destinationURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSError *err;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -561,7 +561,7 @@ DDLogLevel ddLogLevel;
 } // moveNBIToDestination:destinationURL
 
 - (NSURL *)temporaryFolderURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *temporaryFolderURL;
     NSString *tmpFolderName = [NSString stringWithFormat:@"%@/workflow.%@", NBCBundleIdentifier, [NSString nbc_randomString]];
     NSString *tmpFolderPath = [NSTemporaryDirectory() stringByAppendingPathComponent:tmpFolderName];

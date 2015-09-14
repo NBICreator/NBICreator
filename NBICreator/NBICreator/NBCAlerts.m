@@ -37,7 +37,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertError:(NSError *)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [NSAlert alertWithError:error];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         #pragma unused(returnCode)
@@ -46,7 +46,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertOKWithTitle:(NSString *)title informativeText:(NSString *)informativeText {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:title];
@@ -59,7 +59,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertSettingsUnchangedNBI {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Nothing to update"];
@@ -72,7 +72,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertRecoveryVersionMismatch {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Recovery Version Mismatch"];
@@ -100,7 +100,7 @@ DDLogLevel ddLogLevel;
 
 
 + (void)showAlertUnrecognizedImagrApplication {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Imagr Application"];
@@ -112,7 +112,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertUnrecognizedCasperImagingApplication {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Casper Imaging Application"];
@@ -124,7 +124,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertUnrecognizedSourceForWorkflow:(int)workflowType errorMessage:(NSString *)errorMessage {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     NSString *informativeText;
     switch ( workflowType ) {
@@ -161,7 +161,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertSettingsError:(NSString *)informativeText {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *text = [NSString stringWithFormat:@"The current settings contain errors that need to be addressed in order to create a valid NBI.\n%@", informativeText];
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
@@ -185,7 +185,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertSettingsWarning:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *text = [NSString stringWithFormat:@"The current settings contain warnings that you need to approve before creating a NBI.\n%@", informativeText];
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleCancel];     // NSAlertFirstButtonReturn
@@ -199,7 +199,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertSettingsUnsaved:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleSave];   //NSAlertFirstButton
     [alert addButtonWithTitle:@"Discard"];          //NSAlertSecondButton
@@ -213,7 +213,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertSettingsUnsavedBuild:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save and Continue"];    //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleContinue];  //NSAlertSecondButton
@@ -227,7 +227,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertSettingsUnsavedQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save and Quit"];        //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleQuit];      //NSAlertSecondButton
@@ -241,7 +241,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertWorkflowRunningQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Quit Anyway"];          //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertSecondButton
@@ -254,7 +254,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertDeleteTemplate:(NSString *)informativeText templateName:(NSString *)templateName  alertInfo:(NSDictionary *)alertInfo {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertFirstButton
     [alert addButtonWithTitle:@"Delete"];               //NSAlertSecondButton

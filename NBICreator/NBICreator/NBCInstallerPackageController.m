@@ -36,7 +36,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)installPackagesToVolume:(NSURL *)volumeURL packages:(NSArray *)packages {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"volumeURL=%@", volumeURL);
     DDLogDebug(@"packages=%@", packages);
     if ( [packages count] != 0 ) {
@@ -49,14 +49,14 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)installSuccessfulForPackage:(NSURL *)packageURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"%@ installed successfully!", [packageURL lastPathComponent]);
     [_packagesQueue removeObjectAtIndex:0];
     [self runPackageQueue];
 }
 
 - (void)runPackageQueue {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( [_packagesQueue count] != 0 ) {
         NSDictionary *packageDict = [_packagesQueue firstObject];
         NSLog(@"packageDict=%@", packageDict);
@@ -80,7 +80,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)installPackageOnTargetVolume:(NSURL *)volumeURL packageURL:(NSURL *)packageURL choiceChangesXML:(NSDictionary *)choiceChangesXML {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"volumeURL=%@", volumeURL);
     DDLogDebug(@"packageURL=%@", packageURL);
     DDLogDebug(@"choiceChangesXML=%@", choiceChangesXML);

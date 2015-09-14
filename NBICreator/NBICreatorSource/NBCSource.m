@@ -31,7 +31,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 }
 
 - (BOOL)detachImage {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     if ( _systemVolumeURL != nil ) {
         retval = [NBCDiskImageController detachDiskImageAtPath:[_systemVolumeURL path]];
@@ -40,7 +40,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 } // detachImage
 
 - (BOOL)unmountImage {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     if ( [[_systemVolumeURL path] length] != 0 ) {
         if ( [NBCDiskImageController unmountVolumeAtPath:[_systemVolumeURL path]] ) {
@@ -53,7 +53,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 } // unmountImage
 
 - (BOOL)detachRecoveryHD {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     if ( [[_recoveryVolumeURL path] length] != 0 ) {
         retval = [NBCDiskImageController detachDiskImageAtPath:[_recoveryVolumeURL path]];
@@ -62,7 +62,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 } // detachImage
 
 - (BOOL)unmountRecoveryHD {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     if ( [[_recoveryVolumeURL path] length] != 0 ) {
         retval = [NBCDiskImageController unmountVolumeAtPath:[_recoveryVolumeURL path]];
@@ -71,7 +71,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 } // unmountRecoveryHD
 
 - (BOOL)detachBaseSystem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     if ( [_baseSystemDisk isMounted] ) {
         retval = [NBCDiskImageController unmountVolumeAtPath:[_baseSystemVolumeURL path]];
@@ -84,7 +84,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 } // detachBaseSystem
 
 - (BOOL)unmountBaseSystem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     if ( [[_baseSystemVolumeURL path] length] != 0 ) {
         retval = [NBCDiskImageController unmountVolumeAtPath:[_baseSystemVolumeURL path]];
@@ -93,7 +93,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 } // unmountBaseSystem
 
 - (BOOL)detachAll {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
         if ( [[_baseSystemVolumeURL path] length] != 0 ) {
             retval = [self unmountBaseSystem];
@@ -110,7 +110,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 } // detachAll
 
 - (NSString *)expandVariables:(NSString *)string {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *newString = string;
     NSString *variableOSVersion = @"%OSVERSION%";
     NSString *variableOSMajorVersion = @"%OSMAJOR%";
@@ -202,7 +202,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 }
 
 - (NSImage *)productImageForOSVersion:(NSString *)osVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSImage *productImage;
     if ([osVersion containsString:@"10.6"]) {
         productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconYosemite" withExtension:@"icns"]];
@@ -221,7 +221,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 }
 
 - (void)printAllVariables {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"sourceVersion=%@", _sourceVersion);
     DDLogDebug(@"sourceBuild=%@", _sourceBuild);
     DDLogDebug(@"sourceType=%@", _sourceType);

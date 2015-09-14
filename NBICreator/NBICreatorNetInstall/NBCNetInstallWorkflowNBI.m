@@ -27,7 +27,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
     _nbiVolumeName = [[workflowItem nbiName] stringByDeletingPathExtension];
@@ -209,7 +209,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)prepareDestinationFolder:(NSURL *)destinationFolderURL createCommonURL:(NSURL *)createCommonURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = NO;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -260,7 +260,7 @@ DDLogLevel ddLogLevel;
 } // prepareDestinationFolder:createCommonURL:workflowItem:error
 
 - (void)removeTemporaryItems:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
     // -------------------------------------------------------------
@@ -282,7 +282,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateNetInstallWorkflowStatus:(NSString *)outStr stdErr:(NSString *)stdErr {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"[createNetInstall.sh] %@", outStr);
     
     // -------------------------------------------------------------
@@ -349,7 +349,7 @@ DDLogLevel ddLogLevel;
 } // updateNetInstallWorkflowStatus:stdErr
 
 - (void)checkDiskVolumeName:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // --------------------------------------------------------------------------------
     //  Verify that the volumeName is the expected NBI volume name.
     //  Verify that the disk that's mounting has mounted completely (have a volumeURL)
@@ -371,7 +371,7 @@ DDLogLevel ddLogLevel;
 } // checkDiskVolumeName
 
 - (void)updateProgressBarCopy {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ---------------------------------------------------
     //  Loop to check volume size and update progress bar
     // ---------------------------------------------------
@@ -383,7 +383,7 @@ DDLogLevel ddLogLevel;
 } // updateProgressBarCopy
 
 -(void)checkCopyProgress:(NSTimer *)timer {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // -------------------------------------------------
     //  Get attributes for volume URL mounted by script
     // -------------------------------------------------
@@ -419,7 +419,7 @@ DDLogLevel ddLogLevel;
 } // checkCopyProgress
 
 - (void)updateProgressBar:(double)value {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
 
     if ( value <= 0 ) {
         return;

@@ -34,7 +34,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSURL *)urlForResourceFolder:(NSString *)resourceFolder {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *resourceFolderURL;
     NSFileManager *fm = [NSFileManager defaultManager];
     
@@ -56,7 +56,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSArray *)cachedVersionsFromResourceFolder:(NSString *)resourceFolder {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"resourceFolder=%@", resourceFolder);
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
     DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
@@ -76,7 +76,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"resourceFolder=%@", resourceFolder);
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
     DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
@@ -92,7 +92,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"resourceFolder=%@", resourceFolder);
     NSURL *cachedDownloadsDictURL;
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
@@ -105,7 +105,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogDebug(@"resourcesFolder=%@", resourcesFolder);
     NSURL *cachedVersionURL;
     NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
@@ -132,7 +132,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)getCachedSourceItemsDict:(NSString *)buildVersion resourcesFolder:(NSString *)resourcesFolder {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *cachedSourceItemsDict;
     NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
     
@@ -156,7 +156,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSURL *)copyFileToResources:(NSURL *)fileURL resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *destinationURL;
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -210,7 +210,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSURL *)copySourceItemToResources:(NSURL *)fileURL sourceItemPath:(NSString *)sourceItemPath resourcesFolder:(NSString *)resourcesFolder sourceBuild:(NSString *)sourceBuild {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *destinationURL;
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -276,7 +276,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)copySourceRegexToResources:(NBCWorkflowItem *)workflowItem regexArray:(NSArray *)regexArray packagePath:(NSString *)packagePath sourceFolder:(NSString *)sourceFolder resourcesFolder:(NSString *)resourcesFolder sourceBuild:(NSString *)sourceBuild {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     __block NSString *regexString = @"";
     [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
 #pragma unused(stop)
@@ -422,7 +422,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)copySourceRegexToResourcesComplete:(NBCWorkflowItem *)workflowItem regexArray:(NSArray *)regexArray packagePath:(NSString *)packagePath resourcesFolder:(NSURL *)resourcesFolder resourceFolderPackage:(NSURL *)resourceFolderPackage sourceBuild:(NSString *)sourceBuild {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *resourcesDictURL = [resourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
     NSString *packageName = [[packagePath lastPathComponent] stringByDeletingPathExtension];
     NSMutableDictionary *sourceDict;
@@ -472,7 +472,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *destinationURL;
     
     NSError *error;

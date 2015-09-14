@@ -30,7 +30,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSError *error;
     [self setWorkflowItem:workflowItem];
     _targetController = [[NBCTargetController alloc] init];
@@ -64,7 +64,7 @@ DDLogLevel ddLogLevel;
 } // runWorkflow
 
 - (void)finalizeWorkflow {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
 } // finalizeWorkflow
 

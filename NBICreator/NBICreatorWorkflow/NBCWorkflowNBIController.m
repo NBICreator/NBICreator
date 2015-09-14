@@ -17,7 +17,7 @@ DDLogLevel ddLogLevel;
 @implementation NBCWorkflowNBIController
 
 - (NSArray *)generateScriptArgumentsForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *createNetInstallArguments = [[NSMutableArray alloc] init];
     
     // -------------------------------------------------------------------
@@ -46,7 +46,7 @@ DDLogLevel ddLogLevel;
 } // generateSysBuilderArgumentsFromSettingsDict
 
 - (NSDictionary *)generateEnvironmentVariablesForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableDictionary *environmentVariables = [[NSMutableDictionary alloc] init];
     NSString *envVariablesContent;
     
@@ -124,7 +124,7 @@ DDLogLevel ddLogLevel;
 } // generateEnvironmentVariablesForCreateNetInstall
 
 - (NSArray *)generateScriptArgumentsForSysBuilder:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSMutableArray *sysBuilderArguments = [[NSMutableArray alloc] init];
     // -------------------------------------------------------------------
     //  Retrieve user settings from workflowItem
@@ -430,7 +430,7 @@ DDLogLevel ddLogLevel;
 } // generateScriptArgumentsForSysBuilder
 
 + (NSString *)generateImagrRCImagingForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
     NSLog(@"osMinorVersion=%d", osMinorVersion);
     if ( 11 <= osMinorVersion ) {
@@ -606,7 +606,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (NSString *)generateCasperRCImagingForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
     
     if ( 11 <= osMinorVersion ) {

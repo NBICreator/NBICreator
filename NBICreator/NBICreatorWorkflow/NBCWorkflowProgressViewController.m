@@ -49,7 +49,7 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     
     if ( [[_workflowItem workflowNBI] isEqualTo:[notification object]] ) {
         [self setWorkflowNBIComplete:YES];
@@ -69,13 +69,13 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
 #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setWorkflowNBIResourcesComplete:YES];
 }
 
 - (IBAction)buttonCancel:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
                                                         object:self
                                                       userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
@@ -117,14 +117,14 @@ DDLogLevel ddLogLevel;
 
 
 - (void)updateProgressBar:(double)value {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_progressIndicator setDoubleValue:value];
     [_progressIndicator setNeedsDisplay:YES];
 }
 
 - (IBAction)buttonShowInFinder:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _nbiURL ) {
         NSString *destinationFileName = [_nbiURL lastPathComponent];
         if ( [destinationFileName containsString:@" "] ) {
@@ -140,14 +140,14 @@ DDLogLevel ddLogLevel;
 }
 - (IBAction)buttonOpenLog:(id)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _nbiLogURL ) {
         [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ _nbiLogURL ]];
     }
 }
 
 - (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setWorkflowItem:workflowItem];
     [self setNbiURL:[_workflowItem nbiURL]];
     [self setIsRunning:YES];
@@ -155,7 +155,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)workflowFailedWithError:(NSString *)errorMessage {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_layoutContraintStatusInfoLeading setConstant:1.0];
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
@@ -171,7 +171,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)workflowCompleted {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_layoutContraintStatusInfoLeading setConstant:1.0];
     
     NSCalendar *calendarUS = [NSCalendar calendarWithIdentifier: NSCalendarIdentifierGregorian];

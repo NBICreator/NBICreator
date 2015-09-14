@@ -46,7 +46,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)viewDidLoad {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [super viewDidLoad];
     
     // --------------------------------------------------------------
@@ -81,7 +81,7 @@ DDLogLevel ddLogLevel;
 } // viewDidLoad
 
 - (void)showSourceInFinder {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _source ) {
         NSURL *sourceURL;
         
@@ -106,7 +106,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     if ( [[menuItem title] isEqualToString:NBCMenuItemShowInFinder] ) {
@@ -127,13 +127,13 @@ DDLogLevel ddLogLevel;
 
 - (void)updateSourceList:(NSNotification *)notification {
     #pragma unused(notification)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self updatePopUpButtonSource];
     
 } // updateSourceList
 
 - (void)verifyDroppedSource:(NSNotification *)notification {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *sourceURL = [notification userInfo][NBCNotificationVerifyDroppedSourceUserInfoSourceURL];
     [self verifyDiskImage:sourceURL];
     
@@ -146,7 +146,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateSourceInfo:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCDisk *sourceSystemDisk = [source systemDisk];
     NSString *sourceType = [source sourceType];
     NSString *systemOSVersion = [source systemOSVersion];
@@ -218,7 +218,7 @@ DDLogLevel ddLogLevel;
 } // updateSourceInfo
 
 - (void)updateRecoveryMismatchInfo:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *systemOSVersion = [source systemOSVersion];
     NSString *systemOSBuild = [source systemOSBuild];
     NSString *baseSystemOSVersion = [source baseSystemOSVersion];
@@ -284,7 +284,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)showProgress {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ------------------------------------------------------
     //  Hide and Resize Source PopUpButton
     // ------------------------------------------------------
@@ -320,7 +320,7 @@ DDLogLevel ddLogLevel;
 } // showProgress
 
 - (void)showSource {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ------------------------------------------------------
     //  Resize Source PopUpButton
     // ------------------------------------------------------
@@ -360,7 +360,7 @@ DDLogLevel ddLogLevel;
 } // showSource
 
 - (void)showRecoveryVersionMismatch {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ------------------------------------------------------
     //  Resize Source PopUpButton
     // ------------------------------------------------------
@@ -405,7 +405,7 @@ DDLogLevel ddLogLevel;
 } // showRecoveryVersionMismatch
 
 - (void)restoreDropView {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ------------------------------------------------------
     //  Resize Source PopUpButton
     // ------------------------------------------------------
@@ -460,7 +460,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction)popUpButtonSource:(id)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self setSelectedSource:[[sender selectedItem] title]];
     
     // --------------------------------------------------------------------------------------------
@@ -491,7 +491,7 @@ DDLogLevel ddLogLevel;
 } // popUpButtonSource
 
 - (void)updatePopUpButtonSource {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_popUpButtonSource removeAllItems];
     [_popUpButtonSource addItemWithTitle:NBCMenuItemNoSelection];
     
@@ -541,7 +541,7 @@ DDLogLevel ddLogLevel;
 } // updatePopUpButtonSource
 
 - (void)selecteSourceInPupUpButton:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ------------------------------------------------------
     //  Update source menu to include the newly mounted disk
     // ------------------------------------------------------
@@ -564,7 +564,7 @@ DDLogLevel ddLogLevel;
 } // addSourceToPopUpButton
 
 - (void)verifyPopUpButtonSelection:(NBCDisk *)disk {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *diskVolumeURL = [disk volumeURL];
     NSString *deviceModel = [disk deviceModel];
     if ([deviceModel isEqualToString:NBCDiskDeviceModelDiskImage]) {
@@ -591,7 +591,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifyDisk:(NBCDisk *)systemDisk {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ------------------------------------------------------
     //  Disable build button while checking new source
     // ------------------------------------------------------
@@ -667,7 +667,7 @@ DDLogLevel ddLogLevel;
 } // verifyDisk
 
 - (void)verifyDiskImage:(NSURL *)diskImageURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     // ------------------------------------------------------
     //  Disable build button while checking new source
     // ------------------------------------------------------
@@ -773,7 +773,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *draggedFileURL = [self getDraggedSourceURLFromPasteboard:[sender draggingPasteboard]];
     if ( draggedFileURL ) {
         NSDictionary * userInfo = @{ NBCNotificationVerifyDroppedSourceUserInfoSourceURL : draggedFileURL };

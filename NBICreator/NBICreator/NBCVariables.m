@@ -30,7 +30,7 @@ DDLogLevel ddLogLevel;
 @implementation NBCVariables
 
 + (NSString *)expandVariables:(NSString *)string source:(NBCSource *)source applicationSource:(id)applicationSource {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *newString = string;
     
     // -------------------------------------------------------------

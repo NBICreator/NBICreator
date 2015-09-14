@@ -15,7 +15,7 @@ DDLogLevel ddLogLevel;
 @implementation NBCBonjourBrowser
 
 - (void)startBonjourDiscovery {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _services ) {
         [_services removeAllObjects];
     } else {
@@ -31,7 +31,7 @@ DDLogLevel ddLogLevel;
 } // startBonjourDiscovery
 
 - (void)startSearch {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( ! _browser ) {
         _browser = [[NSNetServiceBrowser alloc] init];
     }
@@ -40,12 +40,12 @@ DDLogLevel ddLogLevel;
 } // startSearch
 
 - (void)dealloc {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_browser setDelegate:nil];
 } // dealloc
 
 - (void)restartBonjourDiscovery {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if (_browser) {
         [_browser stop];
         [NSTimer scheduledTimerWithTimeInterval:0.5f
@@ -58,12 +58,12 @@ DDLogLevel ddLogLevel;
 
 - (void)netServiceBrowserWillSearch:(NSNetServiceBrowser *)aNetServiceBrowser {
     #pragma unused(aNetServiceBrowser)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
 } // netServiceBrowserWillSearch
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)serviceBrowser didFindService:(NSNetService *)aNetService moreComing:(BOOL)moreComing {
     #pragma unused(serviceBrowser, moreComing)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [_services addObject:aNetService];
     [aNetService setDelegate:self];
     [aNetService resolveWithTimeout:10];
@@ -71,11 +71,11 @@ DDLogLevel ddLogLevel;
 
 - (void)netServiceDidStop:(NSNetService *)sender {
 #pragma unused(sender)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
 } // netServiceDidStop
 
 - (void)netServiceDidResolveAddress:(NSNetService *)aNetService {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *txtRecordDict = [NSNetService dictionaryFromTXTRecordData:[aNetService TXTRecordData]];
     if ( [txtRecordDict count] == 0) {
         [self restartBonjourDiscovery];
@@ -100,11 +100,11 @@ DDLogLevel ddLogLevel;
 
 - (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary *)errorDict {
     #pragma unused(sender, errorDict)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
 } // netService:didNotResolve
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)aNetServiceBrowser didRemoveService:(NSNetService *)aNetService moreComing:(BOOL)moreComing {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     #pragma unused(aNetServiceBrowser, moreComing)
     if ([_services containsObject:aNetService]) {
         NSDictionary *txtRecordDict = [NSNetService dictionaryFromTXTRecordData:[aNetService TXTRecordData]];
@@ -128,18 +128,18 @@ DDLogLevel ddLogLevel;
 
 - (void)netServiceBrowserDidStopSearch:(NSNetServiceBrowser *)serviceBrowser {
     #pragma unused(serviceBrowser)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self stopBonjourDiscovery];
 } // netServiceBrowserDidStopSearch
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)aBrowser didNotSearch:(NSDictionary *)userInfo {
     #pragma unused(aBrowser, userInfo)
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     [self stopBonjourDiscovery];
 } // netServiceBrowser:didNotSearch
 
 - (void)stopBonjourDiscovery {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     if ( _browser ) {
         [_browser stop];
         [_browser setDelegate:nil];

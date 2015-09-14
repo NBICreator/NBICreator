@@ -40,7 +40,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)attachDiskImageAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     NSData *newTaskOutputData;
     NSMutableDictionary *errorInfo;
@@ -96,7 +96,7 @@ DDLogLevel ddLogLevel;
 } // attachDiskImageAndReturnPropertyList
 
 + (BOOL)attachDiskImageVolumeByOffsetAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options offset:(NSString *)offset error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     NSData *newTaskOutputData;
     NSMutableDictionary *errorInfo;
@@ -156,7 +156,7 @@ DDLogLevel ddLogLevel;
 } // attachDiskImageAndReturnPropertyList
 
 + (BOOL)mountDiskImageVolumeByDeviceAndReturnMountURL:(id *)mountURL deviceName:(NSString *)devName error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     NSData *newTaskOutputData;
     NSMutableDictionary *errorInfo;
@@ -213,7 +213,7 @@ DDLogLevel ddLogLevel;
 } // attachDiskImageAndReturnPropertyList
 
 + (BOOL)mountAtPath:(NSString *)path withArguments:(NSArray *)args forDisk:(NSString *)diskID {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DASessionRef session = NULL;
     session = DASessionCreate(kCFAllocatorDefault);
     if ( ! session ) {
@@ -248,7 +248,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)detachDiskImageAtPath:(NSString *)mountPath {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     NSTask *newTask =  [[NSTask alloc] init];
@@ -286,7 +286,7 @@ DDLogLevel ddLogLevel;
 } // detachDiskImageAtPath
 
 + (BOOL)detachDiskImageDevice:(NSString *)devName {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     // Setup Task
@@ -329,7 +329,7 @@ DDLogLevel ddLogLevel;
 } // detachDiskImageDevice
 
 + (BOOL)unmountVolumeAtPath:(NSString *)mountPath {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = YES;
     
     // Setup Task
@@ -370,7 +370,7 @@ DDLogLevel ddLogLevel;
 } // unmountVolumeAtPath
 
 + (BOOL)compactDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Compacting disk image...");
     BOOL retval = NO;
     
@@ -413,7 +413,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)convertDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath format:(NSString *)format destinationPath:(NSString *)destinationPath {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Converting disk image and shadow file to sparsimage...");
     BOOL retval = NO;
     //NSData *newTaskOutputData;
@@ -466,7 +466,7 @@ DDLogLevel ddLogLevel;
 } // convertDiskImageAtPath:shadowImagePath
 
 + (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Resizing disk image using shadow file...");
     BOOL retval = NO;
     
@@ -509,7 +509,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)getOffsetForRecoveryPartitionOnImageDevice:(id *)offset diskIdentifier:(NSString *)diskIdentifier {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     BOOL retval = NO;
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/usr/bin/hdiutil"];
@@ -549,7 +549,7 @@ DDLogLevel ddLogLevel;
 } // getOffsetForRecoveryPartitionOnImageDevice
 
 + (NSURL *)getMountURLFromHdiutilOutputPropertyList:(NSDictionary *)propertyList {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *mountURL;
     NSArray *systemEntities = [propertyList[@"system-entities"] copy];
     for ( NSDictionary *dict in systemEntities ) {
@@ -568,7 +568,7 @@ DDLogLevel ddLogLevel;
 } // getMountURLFromHdiutilOutputPropertyList
 
 + (NSString *)getRecoveryPartitionIdentifierFromHdiutilOutputPropertyList:(NSDictionary *)propertyList {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *recoveryPartitionIdentifier;
     NSArray *systemEntities = [propertyList[@"system-entities"] copy];
     for (NSDictionary *dict in systemEntities)
@@ -583,7 +583,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (NSString *)getRecoveryPartitionIdentifierFromVolumeMountURL:(NSURL *)mountURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *recoveryPartitionIdentifier;
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/bin/bash"];
@@ -611,7 +611,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (NSDictionary *)getHdiutilInfoDict {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSDictionary *hdiutilDict;
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/bin/bash"];
@@ -639,7 +639,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (NSURL *)getDiskImageURLFromMountURL:(NSURL *)mountURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSURL *diskImageURL;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
     for (NSDictionary *image in hdiutilDict[@"images"]) {
@@ -661,7 +661,7 @@ DDLogLevel ddLogLevel;
 
 
 + (NBCDisk *)getBaseSystemDiskFromDiskImageURL:(NSURL *)diskImageURL {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NBCDisk *disk;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
     for ( NSDictionary *image in hdiutilDict[@"images"] ) {
@@ -681,7 +681,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (NBCDisk *)checkDiskImageAlreadyMounted:(NSURL *)diskImageURL imageType:(NSString *)imageType {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Checking if %@ is already mounted...", [diskImageURL path]);
     DDLogDebug(@"diskImageURL=%@", diskImageURL);
     DDLogDebug(@"imageType=%@", imageType);

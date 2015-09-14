@@ -24,7 +24,7 @@ DDLogLevel ddLogLevel;
 //  Drop Destination
 // ------------------------------------------------------
 - (BOOL)getInstallESDURLfromSourceURL:(NSURL *)sourceURL source:(NBCSource *)source error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Getting InstallESD from %@", [sourceURL path]);
     DDLogDebug(@"sourceURL=%@", sourceURL);
     if ( ! sourceURL ) {
@@ -90,7 +90,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)verifySystemFromDisk:(NBCDisk *)systemDisk source:(NBCSource *)source error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Verifying that disk contains a valid OS X System...");
     BOOL verified = NO;
     
@@ -139,7 +139,7 @@ DDLogLevel ddLogLevel;
 } // verifySystemFromDisk:source:error
 
 - (BOOL)verifySystemFromDiskImageURL:(NSURL *)systemDiskImageURL source:(NBCSource *)source error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Verifying that disk image contains a valid OS X System...");
     DDLogDebug(@"systemDiskImageURL=%@", systemDiskImageURL);
     BOOL verified = NO;
@@ -253,7 +253,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)verifyRecoveryPartitionFromSystemDisk:(NBCDisk *)systemDisk source:(NBCSource *)source error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Verifying that system disk contains a valid Recovery Partition...");
     BOOL verified = NO;
     
@@ -325,7 +325,7 @@ DDLogLevel ddLogLevel;
 } // verifyRecoveryPartitionFromSystemDisk
 
 - (BOOL)verifyRecoveryPartitionFromSystemDiskImageURL:(NSURL *)systemDiskImageURL source:(NBCSource *)source error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Verifying that %@ contains a valid Recovery Partition...", [systemDiskImageURL path]);
     BOOL verified = NO;
     NSURL *recoveryVolumeURL;
@@ -430,7 +430,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)verifyBaseSystemFromSource:(NBCSource *)source error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Verifying that disk contains a valid BaseSystem.dmg...");
     BOOL verified = NO;
     NSURL *baseSystemVolumeURL;
@@ -542,7 +542,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)verifyInstallESDFromDiskImageURL:(NSURL *)installESDDiskImageURL source:(NBCSource *)source error:(NSError **)error {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     DDLogInfo(@"Verifying that %@ is a valid InstallESD.dmg", [installESDDiskImageURL path]);
     DDLogDebug(@"installESDDiskImageURL=%@", installESDDiskImageURL);
     BOOL verified = NO;
@@ -789,7 +789,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addNTP:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
     NSMutableArray *packageBSDRegexes;
@@ -818,7 +818,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addNSURLStoraged:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
     NSMutableArray *packageBSDRegexes;
@@ -863,7 +863,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addNetworkd:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -885,7 +885,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addLibSsl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -912,7 +912,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addSpctl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
     NSMutableArray *packageBSDRegexes;
@@ -1004,7 +1004,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -1080,7 +1080,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addPython:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
     NSMutableArray *packageBSDRegexes;
@@ -1102,7 +1102,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addSystemUIServer:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -1164,7 +1164,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addSystemkeychain:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -1206,7 +1206,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addConsole:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageAdditionalEssentialsPath = [NSString stringWithFormat:@"%@/Packages/AdditionalEssentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageAdditionalEssentialsDict = sourceItemsDict[packageAdditionalEssentialsPath];
     NSMutableArray *packageAdditionalEssentialsRegexes;
@@ -1265,7 +1265,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addRuby:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -1427,7 +1427,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addARD:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -1449,7 +1449,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)addKerberos:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
+    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
