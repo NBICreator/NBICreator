@@ -606,7 +606,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)verifySettingsImagrLocalImagrURL:(NBCWorkflowItem *)workflowItem {
-    
+    NSError *error;
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -615,11 +615,21 @@ DDLogLevel ddLogLevel;
         NSString *imagrLocalVersionURLString = userSettings[NBCSettingsImagrLocalVersionPath];
         if ( [imagrLocalVersionURLString length] != 0 ) {
             NSURL *imagrLocalVersionURL = [NSURL fileURLWithPath:imagrLocalVersionURLString];
-            if ( ! [imagrLocalVersionURL checkResourceIsReachableAndReturnError:nil] ) {
-                [settingsErrors addObject:@"\"Local Version URL\" is not valid"];
+            if ( [imagrLocalVersionURL checkResourceIsReachableAndReturnError:&error] ) {
+                NSBundle *bundle = [NSBundle bundleWithURL:imagrLocalVersionURL];
+                if ( bundle != nil ) {
+                    NSString *bundleIdentifier = [bundle objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+                    if ( ! [bundleIdentifier isEqualToString:NBCImagrBundleIdentifier] ) {
+                        [settingsErrors addObject:[NSString stringWithFormat:@"\"Local Path\" - CFBundleIdentifier is %@. It should be %@", bundleIdentifier, NBCImagrBundleIdentifier]];
+                    }
+                } else {
+                    [settingsErrors addObject:@"\"Local Path\" - Could not get bundle from path!"];
+                }
+            } else {
+                [settingsErrors addObject:[NSString stringWithFormat:@"\"Local Path\" - %@", [error localizedDescription]]];
             }
         } else {
-            [settingsErrors addObject:@"\"Local Version URL\" cannot be empty"];
+            [settingsErrors addObject:@"\"Local Path\" cannot be empty"];
         }
     }
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
