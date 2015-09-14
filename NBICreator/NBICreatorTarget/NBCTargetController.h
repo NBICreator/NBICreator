@@ -58,6 +58,7 @@
 - (BOOL)modifySettingsForLaunchdLogging:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifySettingsForConsole:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifyNBIRemoveBluetooth:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
+- (BOOL)modifySettingsForTrustedNetBootServers:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifyNBIRemoveWiFi:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 - (BOOL)modifyNBINTP:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem;
 

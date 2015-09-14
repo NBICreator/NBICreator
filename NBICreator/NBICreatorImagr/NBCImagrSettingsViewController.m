@@ -1111,6 +1111,7 @@ DDLogLevel ddLogLevel;
     [self setAddCustomRAMDisks:[settingsDict[NBCSettingsAddCustomRAMDisksKey] boolValue]];
     [self setImagrSyslogServerURI:settingsDict[NBCSettingsImagrSyslogServerURI]];
     [self setIncludeRuby:[settingsDict[NBCSettingsIncludeRubyKey] boolValue]];
+    [self setAddTrustedNetBootServers:[settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -1300,6 +1301,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsAddCustomRAMDisksKey] = @(_addCustomRAMDisks) ?: @NO;
     settingsDict[NBCSettingsImagrSyslogServerURI] = _imagrSyslogServerURI ?: @"";
     settingsDict[NBCSettingsIncludeRubyKey] = @(_includeRuby) ?: @NO;
+    settingsDict[NBCSettingsAddTrustedNetBootServersKey] = @(_addTrustedNetBootServers) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {

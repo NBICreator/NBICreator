@@ -1066,6 +1066,7 @@ DDLogLevel ddLogLevel;
     [self setEnableLaunchdLogging:[settingsDict[NBCSettingsEnableLaunchdLoggingKey] boolValue]];
     [self setLaunchConsoleApp:[settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue]];
     [self setIncludeRuby:[settingsDict[NBCSettingsIncludeRubyKey] boolValue]];
+    [self setAddTrustedNetBootServers:[settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]];
     
     NSNumber *displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
     int displaySleepMinutesInteger = 20;
@@ -1305,6 +1306,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsEnableLaunchdLoggingKey] = @(_enableLaunchdLogging) ?: @NO;
     settingsDict[NBCSettingsLaunchConsoleAppKey] = @(_launchConsoleApp) ?: @NO;
     settingsDict[NBCSettingsIncludeRubyKey] = @(_includeRuby) ?: @NO;
+    settingsDict[NBCSettingsAddTrustedNetBootServersKey] = @(_addTrustedNetBootServers) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2370,6 +2372,8 @@ DDLogLevel ddLogLevel;
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     
     //[sourceController addPython:sourceItemsDict source:_source];
+    
+    [sourceController addCasperImaging:sourceItemsDict source:_source];
     
     // - AppleScript is required for Casper
     [sourceController addAppleScript:sourceItemsDict source:_source];

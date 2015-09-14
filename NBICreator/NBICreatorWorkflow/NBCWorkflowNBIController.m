@@ -432,8 +432,10 @@ DDLogLevel ddLogLevel;
 + (NSString *)generateImagrRCImagingForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
-    
+    NSLog(@"osMinorVersion=%d", osMinorVersion);
     if ( 11 <= osMinorVersion ) {
+        NSLog(@"Adding!");
+        NSLog(@"[settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]=%hhd", [settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]);
         if ( [settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
             NSString *setAddTrustedNetBootServers = [NSString stringWithFormat:@"\n"
                                                      "###\n"
@@ -713,8 +715,8 @@ DDLogLevel ddLogLevel;
                           "###\n"
                           "### Set Temporary Hostname\n"
                           "###\n"
-                          "computer_name=Mac-$( /usr/sbin/ioreg -rd1 -c IOPlatformExpertDevice | /usr/bin/awk -F'\"' '/IOPlatformSerialNumber/ { print $4 }' )\n"
-                          "if [[ -n ${computer_name} ]]; then\n"
+                          "computer_name=$( ipconfig netbootoption machine_name 2>&1 )\n"
+                          "if [[ ${?} -eq 0 ]] && [[ -n ${computer_name} ]]; then\n"
                           "\tcomputer_hostname=$( /usr/bin/tr '[:upper:]' '[:lower:]' <<< \"${computer_name}\" )\n"
                           "\t/usr/sbin/scutil --set ComputerName  \"${computer_name}\"\n"
                           "\t/usr/sbin/scutil --set LocalHostName \"${computer_hostname}\"\n"
