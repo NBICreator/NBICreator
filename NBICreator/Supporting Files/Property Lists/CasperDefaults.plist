@@ -76,5 +76,7 @@
 	<string>%OSVERSION%_%OSBUILD%_Casper</string>
 	<key>TrustedNetBootServers</key>
 	<array/>
+	<key>AddTrustedNetBootServers</key>
+	<false/>
 </dict>
 </plist>

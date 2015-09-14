@@ -80,6 +80,8 @@
 	<string>%OSVERSION%_%OSBUILD%_Imagr</string>
 	<key>AddRAMDisks</key>
 	<false/>
+	<key>AddTrustedNetBootServers</key>
+	<false/>
 	<key>RAMDisks</key>
 	<array/>
 	<key>TrustedNetBootServers</key>
