@@ -2067,6 +2067,33 @@ DDLogLevel ddLogLevel;
                 [rcCdmCdrom appendString:@"RAMDisk '/Library/Security/Trust Settings' 2048\n"];
             }
             
+            switch ( [workflowItem workflowType] ) {
+                case kWorkflowTypeNetInstall:
+                {
+                    break;
+                }
+                case kWorkflowTypeDeployStudio:
+                {
+                    break;
+                }
+                case kWorkflowTypeImagr:
+                {
+                    break;
+                }
+                case kWorkflowTypeCasper:
+                {
+                    // The following RAMDisk is created so that Casper Imaging knows that the client is net$
+                    [rcCdmCdrom appendString:@"RAMDisk /var/netboot 2048\n"];
+                    [rcCdmCdrom appendString:@"RAMDisk '/Library/Application Support' 16384\n"];
+                    [rcCdmCdrom appendString:@"/bin/chmod 777 /tmp\n"];
+                    [rcCdmCdrom appendString:@"RAMDisk /var/log/ 8192\n"];
+                    [rcCdmCdrom appendString:@"RAMDisk /etc 1024\n"];
+                    break;
+                }
+                default:
+                    break;
+            }
+            
             if ( [userSettings[NBCSettingsAddCustomRAMDisksKey] boolValue] && [resourcesSettings[NBCSettingsRAMDisksKey] count] != 0 ) {
                 for ( NSDictionary *ramDiskDict in resourcesSettings[NBCSettingsRAMDisksKey] ) {
                     NSString *ramDiskSizeMB = ramDiskDict[@"size"];

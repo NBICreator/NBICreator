@@ -933,6 +933,76 @@ DDLogLevel ddLogLevel;
     sourceItemsDict[packageBSDPath] = packageBSDDict;
 }
 
+- (void)addCasperImaging:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil )
+        {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    // For 'Casper Imaging'
+    NSString *regexGLUT = @".*GLUT.framework.*";
+    [packageEssentialsRegexes addObject:regexGLUT];
+
+    NSString *regexQuickTime = @".*QuickTime.framework.*";
+    [packageEssentialsRegexes addObject:regexQuickTime];
+    
+    // (in Carbon) For QuickTime.framework
+    NSString *regexNavigationServices = @".*NavigationServices.framework.*";
+    [packageEssentialsRegexes addObject:regexNavigationServices];
+    
+    // (in Carbon) For QuickTime.framework
+    NSString *regexCarbonSound = @".*CarbonSound.framework.*";
+    [packageEssentialsRegexes addObject:regexCarbonSound];
+    
+    // for 'jamf'
+    NSString *regexCollaboration = @".*Collaboration.framework.*";
+    [packageEssentialsRegexes addObject:regexCollaboration];
+    
+    // for Collaboration.framework <-
+    NSString *regexAddressBook = @".*AddressBook.framework.*";
+    [packageEssentialsRegexes addObject:regexAddressBook];
+    
+    // for AddressBook.framework <-
+    NSString *regexIntlPreferences = @".*IntlPreferences.framework.*";
+    [packageEssentialsRegexes addObject:regexIntlPreferences];
+    
+    // for AddressBook.framework <-
+    NSString *regexToneLibrary = @".*ToneLibrary.framework.*";
+    [packageEssentialsRegexes addObject:regexToneLibrary];
+    
+    // for AddressBook.framework <-
+    NSString *regexToneKit = @".*ToneKit.framework.*";
+    [packageEssentialsRegexes addObject:regexToneKit];
+    
+    // for AddressBook.framework <-
+    NSString *regexvCard = @".*vCard.framework.*";
+    [packageEssentialsRegexes addObject:regexvCard];
+    
+    // for AddressBook.framework <-
+    NSString *regexContactsData = @".*ContactsData.framework.*";
+    [packageEssentialsRegexes addObject:regexContactsData];
+    
+    // for AddressBook.framework <-
+    NSString *regexContactsFoundation = @".*ContactsFoundation.framework.*";
+    [packageEssentialsRegexes addObject:regexContactsFoundation];
+    
+    // for AddressBook.framework <-
+    NSString *regexPhoneNumbers = @".*PhoneNumbers.framework.*";
+    [packageEssentialsRegexes addObject:regexPhoneNumbers];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+}
+
 - (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
     DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
@@ -977,6 +1047,10 @@ DDLogLevel ddLogLevel;
     NSString *regexXprotectFramework = @".*XprotectFramework.framework.*";
     [packageEssentialsRegexes addObject:regexXprotectFramework];
     
+    // For Kernel
+    NSString *regexMobileFileIntegrity = @".*MobileFileIntegrity.plist*";
+    [packageEssentialsRegexes addObject:regexMobileFileIntegrity];
+    
     packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
     sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
     
@@ -992,6 +1066,10 @@ DDLogLevel ddLogLevel;
         packageBSDDict = [[NSMutableDictionary alloc] init];
         packageBSDRegexes = [[NSMutableArray alloc] init];
     }
+    
+    // For Kernel
+    NSString *regexAmfid = @".*amfid.*";
+    [packageBSDRegexes addObject:regexAmfid];
     
     [packageBSDRegexes addObject:regexSyspolicy];
     [packageBSDRegexes addObject:regexTaskgated];
@@ -1219,9 +1297,80 @@ DDLogLevel ddLogLevel;
     packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
     sourceItemsDict[packageBSDPath] = packageBSDDict;
 }
+
+- (void)addAppleScript:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil )
+        {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
     
+    NSString *regexAppleScript = @".*/[Aa]pple[Ss]cript.*";
+    [packageEssentialsRegexes addObject:regexAppleScript];
+    
+    NSString *regexAppleEvents = @".*appleevents.*";
+    [packageEssentialsRegexes addObject:regexAppleEvents];
+    
+    NSString *regexSdefDTD = @".*/sdef.dtd.*";
+    [packageEssentialsRegexes addObject:regexSdefDTD];
+    
+    NSString *regexScriptingAdditions = @".*ScriptingAdditions.*";
+    [packageEssentialsRegexes addObject:regexScriptingAdditions];
+    
+    // TESTING
+    //NSString *regexScript = @".*/[Ss]cript\\ [Ee]ditor.*";
+    //[packageEssentialsRegexes addObject:regexScript];
+    
+    // Still need to get this to launch through launchd somehow?
+    
+    // System Events.app
+    NSString *regexSystemEvents = @".*/[Ss]ystem\\ [Ee]vents.*";
+    [packageEssentialsRegexes addObject:regexSystemEvents];
+
+    // Required for System Events.app
+    NSString *regexAutomator = @".*/Automator.framework.*";
+    [packageEssentialsRegexes addObject:regexAutomator];
+
+    // Required for System Events.app
+    NSString *regexOSAKit = @".*/OSAKit.framework.*";
+    [packageEssentialsRegexes addObject:regexOSAKit];
+    
+    // Required for System Events.app
+    NSString *regexScriptingBridge = @".*/ScriptingBridge.framework.*";
+    [packageEssentialsRegexes addObject:regexScriptingBridge];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+    
+    NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
+    NSMutableArray *packageBSDRegexes;
+    if ( [packageBSDDict count] != 0 ) {
+        packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageBSDRegexes == nil ) {
+            packageBSDRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageBSDDict = [[NSMutableDictionary alloc] init];
+        packageBSDRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexOSAScript = @".*/osascript.*";
+    [packageBSDRegexes addObject:regexOSAScript];
+    
+    packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
+    sourceItemsDict[packageBSDPath] = packageBSDDict;
+}
+
 - (void)addVNC:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    DDLogDebug(@"%@", NSStringFromSelector(_cmd));
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;

@@ -46,6 +46,7 @@
 // ------------------------------------------------------
 //  Prepare Workflow
 // ------------------------------------------------------
+- (void)addCasperImaging:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addLibSsl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addDesktopPicture:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addNetworkd:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
@@ -54,6 +55,7 @@
 - (void)addSystemkeychain:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addSpctl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
+- (void)addAppleScript:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addConsole:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addRuby:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 - (void)addNSURLStoraged:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
