@@ -56,20 +56,13 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)runPackageQueue {
-    
     if ( [_packagesQueue count] != 0 ) {
         NSDictionary *packageDict = [_packagesQueue firstObject];
-        NSLog(@"packageDict=%@", packageDict);
         if ( [packageDict count] != 0 ) {
-            NSString *packageName = packageDict[NBCWorkflowInstallerName];
-            NSLog(@"packageName=%@", packageName);
             NSString *packageSourcePath = packageDict[NBCWorkflowInstallerSourceURL];
-            NSLog(@"packageSourcePath=%@", packageSourcePath);
             if ( [packageSourcePath length] != 0 ) {
                 NSURL *packageURL = [NSURL fileURLWithPath:packageSourcePath];
-                NSLog(@"packageURL=%@", packageURL);
                 NSDictionary *packageChoiceChangeXML = packageDict[NBCWorkflowInstallerChoiceChangeXML];
-                NSLog(@"packageChoiceChangeXML=%@", packageChoiceChangeXML);
                 //[_delegate updateProgressStatus:[NSString stringWithFormat:@"Installing %@ to BaseSystem.dmg...", packageName] workflow:self];
                 [self installPackageOnTargetVolume:_volumeURL packageURL:packageURL choiceChangesXML:packageChoiceChangeXML];
             }
@@ -80,10 +73,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)installPackageOnTargetVolume:(NSURL *)volumeURL packageURL:(NSURL *)packageURL choiceChangesXML:(NSDictionary *)choiceChangesXML {
-    
-    DDLogDebug(@"volumeURL=%@", volumeURL);
-    DDLogDebug(@"packageURL=%@", packageURL);
-    DDLogDebug(@"choiceChangesXML=%@", choiceChangesXML);
     DDLogInfo(@"Installing %@ on volume %@...", [packageURL lastPathComponent], [volumeURL path]);
     
     NSURL *commandURL = [NSURL fileURLWithPath:@"/usr/sbin/installer"];
@@ -118,12 +107,9 @@ DDLogLevel ddLogLevel;
         return;
     }
     
-    DDLogDebug(@"%@ %@", commandURL, installerArguments);
-    
     // -----------------------------------------------------------------------------------
     //  Create standard output file handle and register for data available notifications.
     // -----------------------------------------------------------------------------------
-    
     NSPipe *stdOut = [[NSPipe alloc] init];
     NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
     [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
@@ -176,7 +162,6 @@ DDLogLevel ddLogLevel;
         
     }] runTaskWithCommandAtPath:commandURL arguments:installerArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
-        DDLogDebug(@"terminationStatus=%d", terminationStatus);
         if ( terminationStatus == 0 ) {
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];

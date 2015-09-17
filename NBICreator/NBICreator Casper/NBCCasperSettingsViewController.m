@@ -204,7 +204,7 @@ DDLogLevel ddLogLevel;
         NSArray *classes = @[ [NBCDesktopCertificateEntity class], [NSPasteboardItem class] ];
         __block NBCCertificateTableCellView *certCellView = [tableView makeViewWithIdentifier:@"CertificateCellView" owner:self];
         __block NSInteger validCount = 0;
-        [draggingInfo enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:nil
+        [draggingInfo enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                              usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
                                                  if ( [[draggingItem item] isKindOfClass:[NBCDesktopCertificateEntity class]] ) {
@@ -233,7 +233,7 @@ DDLogLevel ddLogLevel;
         NSArray *classes = @[ [NBCDesktopPackageEntity class], [NSPasteboardItem class] ];
         __block NBCPackageTableCellView *packageCellView = [tableView makeViewWithIdentifier:@"PackageCellView" owner:self];
         __block NSInteger validCount = 0;
-        [draggingInfo enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:nil
+        [draggingInfo enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                              usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
                                                  if ( [[draggingItem item] isKindOfClass:[NBCDesktopPackageEntity class]] ) {
@@ -262,7 +262,7 @@ DDLogLevel ddLogLevel;
 - (void)insertCertificatesInTableView:(NSTableView *)tableView draggingInfo:(id<NSDraggingInfo>)info row:(NSInteger)row {
     NSArray *classes = @[ [NBCDesktopCertificateEntity class] ];
     __block NSInteger insertionIndex = row;
-    [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:nil
+    [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                  usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
                                      NBCDesktopCertificateEntity *entity = (NBCDesktopCertificateEntity *)[draggingItem item];
@@ -292,7 +292,7 @@ DDLogLevel ddLogLevel;
 - (void)insertPackagesInTableView:(NSTableView *)tableView draggingInfo:(id<NSDraggingInfo>)info row:(NSInteger)row {
     NSArray *classes = @[ [NBCDesktopPackageEntity class] ];
     __block NSInteger insertionIndex = row;
-    [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:nil
+    [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                  usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
                                      NBCDesktopPackageEntity *entity = (NBCDesktopPackageEntity *)[draggingItem item];
@@ -2377,6 +2377,9 @@ DDLogLevel ddLogLevel;
     
     // - AppleScript is required for Casper
     [sourceController addAppleScript:sourceItemsDict source:_source];
+    
+    // - Dtrace for now
+    [sourceController addDtrace:sourceItemsDict source:_source];
     
     // - spctl
     [sourceController addSpctl:sourceItemsDict source:_source];
