@@ -682,7 +682,7 @@ DDLogLevel ddLogLevel;
 
 + (NBCDisk *)checkDiskImageAlreadyMounted:(NSURL *)diskImageURL imageType:(NSString *)imageType {
     
-    DDLogInfo(@"Checking if %@ is already mounted...", [diskImageURL path]);
+    DDLogInfo(@"Checking if %@ is mounted...", [diskImageURL path]);
     DDLogDebug(@"diskImageURL=%@", diskImageURL);
     DDLogDebug(@"imageType=%@", imageType);
     NBCDisk *disk;
