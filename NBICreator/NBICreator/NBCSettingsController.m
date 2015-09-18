@@ -224,8 +224,10 @@ DDLogLevel ddLogLevel;
     
     NSMutableArray *settings = [[NSMutableArray alloc] init];
     
-    NSDictionary *settingsNBINTP = [self verifySettingsNBINTP:workflowItem];
-    [settings addObject:settingsNBINTP];
+    if ( [[workflowItem userSettings][NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
+        NSDictionary *settingsNBINTP = [self verifySettingsNBINTP:workflowItem];
+        [settings addObject:settingsNBINTP];
+    }
     
     NSDictionary *settingsRemoteManagement = [self verifySettingsRemoteManagement:workflowItem];
     [settings addObject:settingsRemoteManagement];
