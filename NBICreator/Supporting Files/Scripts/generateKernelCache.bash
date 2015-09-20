@@ -7,8 +7,8 @@
 #  Copyright (c) 2015 NBICreator. All rights reserved.
 #
 
-if [[ $# -ne 3 ]]; then
-	printf "%s\n" "Script needs exactly 3 input variables"
+if [[ $# -lt 3 ]] || [[ $# -gt 4 ]]; then
+	printf "%s\n" "Script needs 3 or 4 input variables"
 	exit 1
 fi
 
@@ -29,6 +29,8 @@ if [[ -z ${osVersionMinor} ]]; then
     printf "%s\n" "Input variable 3 (osVersionMinor=${osVersionMinor}) cannot be empty";
     exit 1
 fi
+
+dyldArchi386="${4}"
 
 case ${osVersionMinor} in
 	6)
@@ -73,6 +75,10 @@ case ${osVersionMinor} in
 							-c "${nbiVolumePath}/i386/x86_64/kernelcache" \
 							"${targetVolumePath}/System/Library/Extensions"
 		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
+		
+		if [[ ${dyldArchi386} == yes ]]; then
+			/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch i386 -force
+		fi
 	;;
 	10|11)
 		/usr/sbin/kextcache -update-volume "${targetVolumePath}" -verbose 2
@@ -85,9 +91,13 @@ case ${osVersionMinor} in
                             -c "${nbiVolumePath}/i386/x86_64/kernelcache" \
 							"${targetVolumePath}/System/Library/Extensions"
 		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
+		
+		if [[ ${dyldArchi386} == yes ]]; then
+			/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch i386 -force
+		fi
 	;;
 	*)
-        printf "%s\n" "Unknown OS Version: 10.${osVersionMinor}"
+        printf "%s\n" "Unsupported OS Version: 10.${osVersionMinor}"
 	;;
 esac
 
