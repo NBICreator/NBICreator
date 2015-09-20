@@ -42,8 +42,32 @@ DDLogLevel ddLogLevel;
     [self setTarget:[workflowItem target]];
     [self setUserSettings:[workflowItem userSettings]];
     [self setNbiCreationTool:_userSettings[NBCSettingsNBICreationToolKey]];
-    [self setResourcesSettings:[workflowItem resourcesSettings]];
-    
+    [self addDependenciesToExtract:workflowItem];
+}
+
+- (void)addDependenciesToExtract:(NBCWorkflowItem *)workflowItem {
+    DDLogInfo(@"Preparing Dependencies for Casper Imaging...");
+    [_delegate updateProgressStatus:@"Preparing Dependencies for Casper Imaging..." workflow:self];
+    NBCSourceController *sourceController = [[NBCSourceController alloc] initWithDelegate:self];
+    NSString *casperImagingPath = [workflowItem userSettings][NBCSettingsCasperImagingPathKey];
+    NSMutableDictionary *sourceItemsDict = [[workflowItem resourcesSettings][NBCSettingsSourceItemsKey] mutableCopy];
+    [sourceController addDependenciesForBinaryAtPath:casperImagingPath sourceItemsDict:sourceItemsDict workflowItem:workflowItem];
+}
+
+- (void)dependencyCheckComplete:(NSDictionary *)sourceItemsDict workflowItem:(NBCWorkflowItem *)workflowItem {
+    if ( [sourceItemsDict count] != 0 ) {
+        NSMutableDictionary *resourcesSettings = [[workflowItem resourcesSettings] mutableCopy];
+        resourcesSettings[NBCSettingsSourceItemsKey] = sourceItemsDict;
+        [workflowItem setResourcesSettings:resourcesSettings];
+        [self setResourcesSettings:[workflowItem resourcesSettings]];
+        [self updateResourceCount:workflowItem];
+    } else {
+        DDLogError(@"[ERROR] Dependency check failed!");
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+    }
+}
+
+- (void)updateResourceCount:(NBCWorkflowItem *)workflowItem {
     // Casper Imaging.app, JSS Preferences
     [self setResourcesCount:3];
     
@@ -118,7 +142,8 @@ DDLogLevel ddLogLevel;
 } // runWorkflow
 
 - (BOOL)prepareDesktopViewer:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Preparing desktop viewer...");
+    DDLogInfo(@"Preparing Desktop Viewer...");
+    [_delegate updateProgressStatus:@"Preparing Desktop Viewer..." workflow:self];
     BOOL retval = YES;
     NSDictionary *userSettings = [workflowItem userSettings];
     if ( [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
@@ -192,7 +217,8 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)preparePackages:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
-    DDLogInfo(@"Preparing packages...");
+    DDLogInfo(@"Preparing Packages...");
+    [_delegate updateProgressStatus:@"Preparing Packages..." workflow:self];
     BOOL retval = YES;
     NSError *error;
     NSArray *packagesArray = _resourcesSettings[NBCSettingsPackagesKey];
@@ -220,13 +246,15 @@ DDLogLevel ddLogLevel;
             }
         }
     } else {
-        DDLogInfo(@"No packages found!");
+        DDLogDebug(@"No packages found!");
     }
     return retval;
 } // preparePackages
 
 - (BOOL)prepareCasperImagingApplication:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
+    DDLogInfo(@"Preparing Casper Imaging...");
+    [_delegate updateProgressStatus:@"Preparing Casper Imaging..." workflow:self];
     BOOL retval = YES;
     NSDictionary *userSettings = [workflowItem userSettings];
     NSString *casperImagingPath = userSettings[NBCSettingsCasperImagingPathKey];
@@ -290,6 +318,8 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)prepareCertificates:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
+    DDLogInfo(@"Preparing Certificates...");
+    [_delegate updateProgressStatus:@"Preparing Certificates..." workflow:self];
     BOOL retval = YES;
     NSError *error;
     NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
