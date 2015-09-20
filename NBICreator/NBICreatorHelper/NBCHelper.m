@@ -320,8 +320,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
-    NSLog(@"mutableSettingsDict=%@", mutableSettingsDict);
-    
     reply(nil, retval, [mutableSettingsDict copy] );
 }
 
@@ -330,22 +328,19 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *error;
     BOOL verified = YES;
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    
     NSURL *blockVolumeURL = volumeURL;
     NSArray *copyArray = resourcesDict[NBCWorkflowCopy];
+    NSLog(@"copyArray=%@", copyArray);
+    NSMutableDictionary *regexDict = [[NSMutableDictionary alloc] init];
     for ( NSDictionary *copyDict in copyArray ) {
-        
         NSString *copyType = copyDict[NBCWorkflowCopyType];
-        
+        NSLog(@"copyType=%@", copyType);
         if ( [copyType isEqualToString:NBCWorkflowCopy] ) {
             NSURL *targetURL;
             NSString *targetURLString = copyDict[NBCWorkflowCopyTargetURL];
-            NSLog(@"targetURLString=%@", targetURLString);
             if ( [targetURLString length] != 0 ) {
                 targetURL = [blockVolumeURL URLByAppendingPathComponent:targetURLString];
-                NSLog(@"targetURL=%@", targetURL);
                 if ( ! [[targetURL URLByDeletingLastPathComponent] checkResourceIsReachableAndReturnError:&error] ) {
-                    NSLog(@"Folder: %@ not found!", [targetURL URLByDeletingLastPathComponent]);
                     if ( ! [fileManager createDirectoryAtURL:[targetURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error] ) {
                         NSLog(@"Could not create target folder: %@", [targetURL URLByDeletingLastPathComponent]);
                         continue;
@@ -358,9 +353,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             }
             
             NSString *sourceURLString = copyDict[NBCWorkflowCopySourceURL];
-            NSLog(@"sourceURLString=%@", sourceURLString);
             NSURL *sourceURL = [NSURL fileURLWithPath:sourceURLString];
-            NSLog(@"sourceURL=%@", sourceURL);
             
             if ( ! [fileManager copyItemAtURL:sourceURL toURL:targetURL error:&error] ) {
                 if ( ! [fileManager moveItemAtURL:targetURL toURL:[targetURL URLByAppendingPathExtension:@"bak"] error:&error] ) {
@@ -388,6 +381,37 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             }
             
         } else if ( [copyType isEqualToString:NBCWorkflowCopyRegex] ) {
+            NSString *sourceFolderPath = copyDict[NBCWorkflowCopyRegexSourceFolderURL];
+            NSLog(@"sourceFolderPath=%@", sourceFolderPath);
+            NSString *regexString = copyDict[NBCWorkflowCopyRegex];
+            NSLog(@"regexString=%@", regexString);
+            NSMutableArray *sourceFolderRegexes = [regexDict[sourceFolderPath] mutableCopy];
+            if ( [sourceFolderRegexes count] != 0 ) {
+                [sourceFolderRegexes addObject:regexString];
+            } else {
+                sourceFolderRegexes = [[NSMutableArray alloc] initWithObjects:regexString, nil];
+            }
+            
+            regexDict[sourceFolderPath] = [sourceFolderRegexes copy];
+        }
+    }
+    
+    if ( [regexDict count] != 0 ) {
+        NSArray *keys = [regexDict allKeys];
+        NSLog(@"keys=%@", keys);
+        for ( NSString *sourceFolderPath in keys ) {
+            NSLog(@"sourceFolderPath=%@", sourceFolderPath);
+            NSArray *regexArray = regexDict[sourceFolderPath];
+            __block NSString *regexString = @"";
+            [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+#pragma unused(stop)
+                if ( idx == 0 )
+                {
+                    regexString = [regexString stringByAppendingString:[NSString stringWithFormat:@" -regex '%@'", obj]];
+                } else {
+                    regexString = [regexString stringByAppendingString:[NSString stringWithFormat:@" -o -regex '%@'", obj]];
+                }
+            }];
             
             // -----------------------------------------------------------------------------------
             //  Create standard output file handle and register for data available notifications.
@@ -441,13 +465,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                 
                                                 [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                             }];
-            
-            NSString *sourceFolderPath = copyDict[NBCWorkflowCopyRegexSourceFolderURL];
-            NSLog(@"sourceFolderPath=%@", sourceFolderPath);
-            NSString *regexString = copyDict[NBCWorkflowCopyRegex];
-            NSLog(@"regexString=%@", regexString);
+
             NSMutableArray *scriptArguments = [NSMutableArray arrayWithObjects:@"-c",
-                                               [NSString stringWithFormat:@"/usr/bin/find -E . -depth -regex '%@' | /usr/bin/cpio -admp --quiet '%@'", regexString, [volumeURL path]],
+                                               [NSString stringWithFormat:@"/usr/bin/find -E . -depth%@ | /usr/bin/cpio -admpu --quiet '%@'", regexString, [volumeURL path]],
                                                nil];
             NSLog(@"scriptArguments=%@", scriptArguments);
             NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
@@ -475,9 +495,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            
-            NSLog(@"EXIT: %d", [newTask terminationStatus]);
         }
+    } else {
+        NSLog(@"REGEXDICT IS EMPTY!?");
     }
     
     reply(nil, 0);

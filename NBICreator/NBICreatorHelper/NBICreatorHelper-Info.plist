@@ -9,7 +9,7 @@
 	<key>CFBundleName</key>
 	<string>com.github.NBICreatorHelper</string>
 	<key>CFBundleVersion</key>
-	<string>1.0.2</string>
+	<string>1.0.3</string>
 	<key>SMAuthorizedClients</key>
 	<array>
 		<string>identifier com.github.NBICreator and certificate leaf[subject.OU] = Y7QFC8672N</string>
