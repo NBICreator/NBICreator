@@ -10,8 +10,17 @@
 
 @class NBCDisk;
 @class NBCSource;
+@class NBCWorkflowItem;
+
+@protocol NBCSourceControllerDelegate
+- (void)dependencyCheckComplete:(NSDictionary *)sourceItemsDict workflowItem:(NBCWorkflowItem *)workflowItem;
+@end
 
 @interface NBCSourceController : NSObject
+
+@property id delegate;
+
+- (id)initWithDelegate:(id<NBCSourceControllerDelegate>)delegate;
 
 // ------------------------------------------------------
 //  Drop Destination
@@ -46,23 +55,25 @@
 // ------------------------------------------------------
 //  Prepare Workflow
 // ------------------------------------------------------
-- (void)addCasperImaging:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addLibSsl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addDesktopPicture:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addNetworkd:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addKernel:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addSystemUIServer:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addSystemkeychain:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addSpctl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addAppleScript:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addConsole:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addRuby:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addNSURLStoraged:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addPython:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addNTP:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addVNC:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addARD:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
-- (void)addKerberos:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
+- (void)addDependenciesForBinaryAtPath:(NSString *)binaryPath sourceItemsDict:(NSMutableDictionary *)sourceItemsDict workflowItem:(NBCWorkflowItem *)workflowItem;
++ (void)addCasperImaging:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addLibSsl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addDesktopPicture:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addNetworkd:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addKernel:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addSystemUIServer:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addSystemkeychain:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addSpctl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addDtrace:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addAppleScript:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addConsole:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addRuby:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addNSURLStoraged:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addPython:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addNTP:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addVNC:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addARD:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addKerberos:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 
 @end

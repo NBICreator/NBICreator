@@ -2518,70 +2518,69 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     //  Create list of items to extract from installer
     // -------------------------------------------------------------
-    NBCSourceController *sourceController = [[NBCSourceController alloc] init];
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
     
     // - Python is required for Imagr
-    [sourceController addPython:sourceItemsDict source:_source];
+    [NBCSourceController addPython:sourceItemsDict source:_source];
     
     // - spctl
-    [sourceController addSpctl:sourceItemsDict source:_source];
+    [NBCSourceController addSpctl:sourceItemsDict source:_source];
     
     // - taskgated
-    [sourceController addTaskgated:sourceItemsDict source:_source];
+    //[NBCSourceController addTaskgated:sourceItemsDict source:_source];
     
     // - NSURLStoraged + NSURLSessiond
-    [sourceController addNSURLStoraged:sourceItemsDict source:_source];
+    [NBCSourceController addNSURLStoraged:sourceItemsDict source:_source];
     
     if ( 11 <= sourceVersionMinor ) {
-        [sourceController addLibSsl:sourceItemsDict source:_source];
+        [NBCSourceController addLibSsl:sourceItemsDict source:_source];
     }
     
     // - Console
     if ( [userSettings[NBCSettingsIncludeConsoleAppKey] boolValue] ) {
-        [sourceController addConsole:sourceItemsDict source:_source];
+        [NBCSourceController addConsole:sourceItemsDict source:_source];
     }
     
     // - Kernel
     if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] || [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
-        [sourceController addKernel:sourceItemsDict source:_source];
+        [NBCSourceController addKernel:sourceItemsDict source:_source];
     }
     
     // - Desktop Picture
     if ( [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
-        [sourceController addDesktopPicture:sourceItemsDict source:_source];
+        [NBCSourceController addDesktopPicture:sourceItemsDict source:_source];
     }
     
     // - NTP
     if ( [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
-        [sourceController addNTP:sourceItemsDict source:_source];
+        [NBCSourceController addNTP:sourceItemsDict source:_source];
     }
     
     // - SystemUIServer
     if ( [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
-        [sourceController addSystemUIServer:sourceItemsDict source:_source];
+        [NBCSourceController addSystemUIServer:sourceItemsDict source:_source];
     }
     
     // - systemkeychain
     if ( [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
-        [sourceController addSystemkeychain:sourceItemsDict source:_source];
+        [NBCSourceController addSystemkeychain:sourceItemsDict source:_source];
     }
     
     // - Ruby
     if ( [userSettings[NBCSettingsIncludeRubyKey] boolValue] ) {
-        [sourceController addRuby:sourceItemsDict source:_source];
+        [NBCSourceController addRuby:sourceItemsDict source:_source];
     }
     
     // - VNC if an ARD/VNC password has been set
     if ( [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
-        [sourceController addVNC:sourceItemsDict source:_source];
+        [NBCSourceController addVNC:sourceItemsDict source:_source];
     }
     
     // - ARD if both ARD login name and ARD/VNC password has been set
     if ( [userSettings[NBCSettingsARDLoginKey] length] != 0 && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
-        [sourceController addARD:sourceItemsDict source:_source];
+        [NBCSourceController addARD:sourceItemsDict source:_source];
         //[sourceController addKerberos:sourceItemsDict source:_source];
     }
     
@@ -2590,7 +2589,7 @@ DDLogLevel ddLogLevel;
     //  This moves all BSD-regexes to Essentials
     // -------------------------------------------------------------
     if ( 11 <= sourceVersionMinor ) {
-        [sourceController addNetworkd:sourceItemsDict source:_source];
+        [NBCSourceController addNetworkd:sourceItemsDict source:_source];
         
         NSString *packageAdditionalEssentialsPath = [NSString stringWithFormat:@"%@/Packages/AdditionalEssentials.pkg", [[_source installESDVolumeURL] path]];
         NSMutableDictionary *packageAdditionalEssentialsDict = sourceItemsDict[packageAdditionalEssentialsPath];

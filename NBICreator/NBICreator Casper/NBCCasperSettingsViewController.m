@@ -14,7 +14,6 @@
 
 #import "NBCWorkflowItem.h"
 #import "NBCSettingsController.h"
-#import "NBCSourceController.h"
 #import "NBCController.h"
 
 #import "NBCCasperWorkflowNBI.h"
@@ -2246,16 +2245,13 @@ DDLogLevel ddLogLevel;
 } // verifySettings
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
-    
     NSDictionary *userSettings = [workflowItem userSettings];
     NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
     
     NSString *selectedLanguage = userSettings[NBCSettingsLanguageKey];
-    NSLog(@"selectedLanguage=%@", selectedLanguage);
     if ( [selectedLanguage isEqualToString:NBCMenuItemCurrent] ) {
         NSLocale *currentLocale = [NSLocale currentLocale];
         NSString *currentLanguageID = [NSLocale preferredLanguages][0];
-        NSLog(@"currentLanguageID=%@", currentLanguageID);
         if ( [currentLanguageID length] != 0 ) {
             resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
         } else {
@@ -2264,13 +2260,11 @@ DDLogLevel ddLogLevel;
         }
         
         NSString *currentLocaleIdentifier = [currentLocale localeIdentifier];
-        DDLogDebug(@"currentLocaleIdentifier=%@", currentLocaleIdentifier);
         if ( [currentLocaleIdentifier length] != 0 ) {
             resourcesSettings[NBCSettingsLocale] = currentLocaleIdentifier;
         }
         
         NSString *currentCountry = [currentLocale objectForKey:NSLocaleCountryCode];
-        DDLogDebug(@"currentCountry=%@", currentCountry);
         if ( [currentCountry length] != 0 ) {
             resourcesSettings[NBCSettingsCountry] = currentCountry;
         }
@@ -2364,90 +2358,101 @@ DDLogLevel ddLogLevel;
         return;
     }
     
+    NSMutableArray *certificates = [[NSMutableArray alloc] init];
+    for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
+        NSData *certificate = certificateDict[NBCDictionaryKeyCertificate];
+        [certificates addObject:certificate];
+    }
+    resourcesSettings[NBCSettingsCertificatesKey] = certificates;
+    
+    NSMutableArray *packages = [[NSMutableArray alloc] init];
+    for ( NSDictionary *packageDict in _packagesTableViewContents ) {
+        NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
+        [packages addObject:packagePath];
+    }
+    resourcesSettings[NBCSettingsPackagesKey] = packages;
+    
     // -------------------------------------------------------------
     //  Create list of items to extract from installer
     // -------------------------------------------------------------
-    NBCSourceController *sourceController = [[NBCSourceController alloc] init];
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     
     //[sourceController addPython:sourceItemsDict source:_source];
     
-    [sourceController addCasperImaging:sourceItemsDict source:_source];
+    [NBCSourceController addCasperImaging:sourceItemsDict source:_source];
     
     // - AppleScript is required for Casper
-    [sourceController addAppleScript:sourceItemsDict source:_source];
+    [NBCSourceController addAppleScript:sourceItemsDict source:_source];
     
     // - Dtrace for now
-    [sourceController addDtrace:sourceItemsDict source:_source];
+    //[NBCSourceController addDtrace:sourceItemsDict source:_source];
     
     // - spctl
-    [sourceController addSpctl:sourceItemsDict source:_source];
+    [NBCSourceController addSpctl:sourceItemsDict source:_source];
     
     // - taskgated
-    [sourceController addTaskgated:sourceItemsDict source:_source];
+    //[NBCSourceController addTaskgated:sourceItemsDict source:_source];
     
     // - NSURLStoraged + NSURLSessiond
-    [sourceController addNSURLStoraged:sourceItemsDict source:_source];
+    [NBCSourceController addNSURLStoraged:sourceItemsDict source:_source];
     
     if ( 11 <= sourceVersionMinor ) {
-        [sourceController addLibSsl:sourceItemsDict source:_source];
+        [NBCSourceController addLibSsl:sourceItemsDict source:_source];
     }
     
     // - Console.app
     if ( [userSettings[NBCSettingsIncludeConsoleAppKey] boolValue] ) {
-        [sourceController addConsole:sourceItemsDict source:_source];
+        [NBCSourceController addConsole:sourceItemsDict source:_source];
     }
     
     // - Kernel
     if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] || [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
-        [sourceController addKernel:sourceItemsDict source:_source];
+        [NBCSourceController addKernel:sourceItemsDict source:_source];
     }
     
     // - Desktop Picture
     if ( [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
-        [sourceController addDesktopPicture:sourceItemsDict source:_source];
+        [NBCSourceController addDesktopPicture:sourceItemsDict source:_source];
     }
     
     // - NTP
     if ( [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
-        [sourceController addNTP:sourceItemsDict source:_source];
+        [NBCSourceController addNTP:sourceItemsDict source:_source];
     }
     
     // - SystemUIServer
     if ( [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
-        [sourceController addSystemUIServer:sourceItemsDict source:_source];
+        [NBCSourceController addSystemUIServer:sourceItemsDict source:_source];
     }
     
     // - systemkeychain
     if ( [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
-        [sourceController addSystemkeychain:sourceItemsDict source:_source];
+        [NBCSourceController addSystemkeychain:sourceItemsDict source:_source];
     }
     
     // - Ruby
     if ( [userSettings[NBCSettingsIncludeRubyKey] boolValue] ) {
-        [sourceController addRuby:sourceItemsDict source:_source];
+        [NBCSourceController addRuby:sourceItemsDict source:_source];
     }
     
     // - VNC if an ARD/VNC password has been set
     if ( [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
-        [sourceController addVNC:sourceItemsDict source:_source];
+        [NBCSourceController addVNC:sourceItemsDict source:_source];
     }
-    
-    
     
     // - ARD if both ARD login name and ARD/VNC password has been set
     if ( [userSettings[NBCSettingsARDLoginKey] length] != 0 && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
-        [sourceController addARD:sourceItemsDict source:_source];
-        //[sourceController addKerberos:sourceItemsDict source:_source];
+        [NBCSourceController addARD:sourceItemsDict source:_source];
+        //[NBCSourceController addKerberos:sourceItemsDict source:_source];
     }
-    
+
     // -------------------------------------------------------------
     //  In OS X 10.11 all sources moved to Essentials.pkg
     //  This moves all BSD and AdditionalEssentials-regexes to Essentials
     // -------------------------------------------------------------
     if ( 11 <= sourceVersionMinor ) {
-        [sourceController addNetworkd:sourceItemsDict source:_source];
+        [NBCSourceController addNetworkd:sourceItemsDict source:_source];
         
         NSString *packageAdditionalEssentialsPath = [NSString stringWithFormat:@"%@/Packages/AdditionalEssentials.pkg", [[_source installESDVolumeURL] path]];
         NSMutableDictionary *packageAdditionalEssentialsDict = sourceItemsDict[packageAdditionalEssentialsPath];
@@ -2493,22 +2498,8 @@ DDLogLevel ddLogLevel;
     }
     
     resourcesSettings[NBCSettingsSourceItemsKey] = sourceItemsDict;
-    
-    NSMutableArray *certificates = [[NSMutableArray alloc] init];
-    for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
-        NSData *certificate = certificateDict[NBCDictionaryKeyCertificate];
-        [certificates addObject:certificate];
-    }
-    resourcesSettings[NBCSettingsCertificatesKey] = certificates;
-    
-    NSMutableArray *packages = [[NSMutableArray alloc] init];
-    for ( NSDictionary *packageDict in _packagesTableViewContents ) {
-        NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
-        [packages addObject:packagePath];
-    }
-    resourcesSettings[NBCSettingsPackagesKey] = packages;
-    
     [workflowItem setResourcesSettings:[resourcesSettings copy]];
+    
     // -------------------------------------------------------------
     //  Instantiate all workflows to be used to create a Casper NBI
     // -------------------------------------------------------------

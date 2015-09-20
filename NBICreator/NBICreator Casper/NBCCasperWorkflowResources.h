@@ -12,13 +12,14 @@
 #import "NBCDownloader.h"
 #import "NBCWorkflowItem.h"
 #import "NBCTarget.h"
+#import "NBCSourceController.h"
 
 @protocol NBCCasperWorkflowResourcesDelegate
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;
 - (void)updateProgressBar:(double)value;
 @end
 
-@interface NBCCasperWorkflowResources : NSObject <NBCDownloaderDelegate, NBCResourcesControllerDelegate>
+@interface NBCCasperWorkflowResources : NSObject <NBCDownloaderDelegate, NBCResourcesControllerDelegate, NBCSourceControllerDelegate>
 
 @property (nonatomic, weak) id delegate;
 
