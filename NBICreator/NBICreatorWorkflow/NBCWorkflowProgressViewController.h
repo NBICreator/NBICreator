@@ -26,12 +26,14 @@
 @property NSURL *nbiURL;
 @property NSURL *nbiLogURL;
 
+@property (weak) IBOutlet NSTextField *textFieldTimer;
 @property (weak) IBOutlet NSImageView *nbiIcon;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicatorSpinner;
 @property (weak) IBOutlet NSTextField *textFieldTitle;
 @property (weak) IBOutlet NSTextField *textFieldStatusInfo;
 
+@property NSTimer *timer;
 @property BOOL isRunning;
 @property BOOL workflowNBIComplete;
 @property BOOL workflowNBIResourcesComplete;

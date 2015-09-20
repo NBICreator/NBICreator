@@ -78,6 +78,7 @@ extern NSString *const NBCUserDefaultsLogLevel;
 extern NSString *const NBCUserDefaultsCheckForUpdates;
 extern NSString *const NBCUserDefaultsUserNotificationsEnabled;
 extern NSString *const NBCUserDefaultsUserNotificationsSoundEnabled;
+extern NSString *const NBCUserDefaultsWorkflowTimerEnabled;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Menu Items

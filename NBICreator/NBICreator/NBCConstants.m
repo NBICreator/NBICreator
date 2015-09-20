@@ -78,6 +78,7 @@ NSString *const NBCUserDefaultsLogLevel = @"LogLevel";
 NSString *const NBCUserDefaultsCheckForUpdates = @"CheckForUpdates";
 NSString *const NBCUserDefaultsUserNotificationsEnabled = @"UserNotificationsEnabled";
 NSString *const NBCUserDefaultsUserNotificationsSoundEnabled = @"UserNotificationsSoundEnabled";
+NSString *const NBCUserDefaultsWorkflowTimerEnabled = @"WorkflowTimerEnabled";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Menu Items

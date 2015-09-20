@@ -38,7 +38,6 @@ DDLogLevel ddLogLevel;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
     [self setWorkflowComplete:NO];
     [_textFieldStatusInfo setStringValue:@"Waiting..."];
 }
@@ -49,8 +48,6 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
-    
-    
     if ( [[_workflowItem workflowNBI] isEqualTo:[notification object]] ) {
         [self setWorkflowNBIComplete:YES];
         if ( ! _workflowNBIResourcesComplete ) {
@@ -69,13 +66,11 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
 #pragma unused(notification)
-    
     [self setWorkflowNBIResourcesComplete:YES];
 }
 
 - (IBAction)buttonCancel:(id)sender {
 #pragma unused(sender)
-    
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
                                                         object:self
                                                       userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
@@ -95,7 +90,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
-    
     if ( [workflow isEqualTo:[_workflowItem workflowNBI]] && ! _workflowNBIComplete ) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self->_textFieldStatusInfo setStringValue:statusMessage];
@@ -117,14 +111,12 @@ DDLogLevel ddLogLevel;
 
 
 - (void)updateProgressBar:(double)value {
-    
     [_progressIndicator setDoubleValue:value];
     [_progressIndicator setNeedsDisplay:YES];
 }
 
 - (IBAction)buttonShowInFinder:(id)sender {
 #pragma unused(sender)
-    
     if ( _nbiURL ) {
         NSString *destinationFileName = [_nbiURL lastPathComponent];
         if ( [destinationFileName containsString:@" "] ) {
@@ -140,26 +132,54 @@ DDLogLevel ddLogLevel;
 }
 - (IBAction)buttonOpenLog:(id)sender {
 #pragma unused(sender)
-    
     if ( _nbiLogURL ) {
         [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ _nbiLogURL ]];
     }
 }
 
 - (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem {
-    
     [self setWorkflowItem:workflowItem];
     [self setNbiURL:[_workflowItem nbiURL]];
     [self setIsRunning:YES];
+    if ( [[[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsWorkflowTimerEnabled] boolValue] ) {
+        [self setTimer:[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerTick) userInfo:nil repeats:YES]];
+        [_textFieldTimer setHidden:NO];
+    }
     [_layoutContraintStatusInfoLeading setConstant:24.0];
 }
 
-- (void)workflowFailedWithError:(NSString *)errorMessage {
+- (void)timerTick {
+    static NSDateComponentsFormatter *dateComponentsFormatter;
+    if ( ! dateComponentsFormatter) {
+        dateComponentsFormatter = [[NSDateComponentsFormatter alloc] init];
+        dateComponentsFormatter.maximumUnitCount = 4;
+        dateComponentsFormatter.allowedUnits = NSCalendarUnitMinute + NSCalendarUnitSecond;
+        dateComponentsFormatter.unitsStyle = NSDateComponentsFormatterUnitsStylePositional;
+        dateComponentsFormatter.zeroFormattingBehavior = NSDateComponentsFormatterZeroFormattingBehaviorPad;
+        
+        NSCalendar *calendarUS = [NSCalendar calendarWithIdentifier: NSCalendarIdentifierGregorian];
+        calendarUS.locale = [NSLocale localeWithLocaleIdentifier: @"en_US"];
+        dateComponentsFormatter.calendar = calendarUS;
+    }
     
+    NSDate *startTime = [_workflowItem startTime];
+    NSDate *endTime = [NSDate date];
+    NSTimeInterval secondsBetween = [endTime timeIntervalSinceDate:startTime];
+    NSString *workflowTime = [dateComponentsFormatter stringFromTimeInterval:secondsBetween];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_textFieldTimer setStringValue:workflowTime];
+    });
+}
+
+- (void)workflowFailedWithError:(NSString *)errorMessage {
     [_layoutContraintStatusInfoLeading setConstant:1.0];
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
     [self setIsRunning:NO];
+    if ( _timer ) {
+        [_timer invalidate];
+        [_textFieldTimer setHidden:YES];
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         [self->_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"ERROR: %@", errorMessage]];
     });
@@ -171,7 +191,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)workflowCompleted {
-    
     [_layoutContraintStatusInfoLeading setConstant:1.0];
     
     NSCalendar *calendarUS = [NSCalendar calendarWithIdentifier: NSCalendarIdentifierGregorian];
@@ -194,6 +213,10 @@ DDLogLevel ddLogLevel;
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
     [self setIsRunning:NO];
+    if ( _timer ) {
+        [_timer invalidate];
+        [_textFieldTimer setHidden:YES];
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         [self->_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"NBI created successfully in %@!", workflowTime]];
     });

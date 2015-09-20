@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="7706" systemVersion="14E46" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="7706"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NBCWorkflowProgressViewController">
@@ -14,6 +14,7 @@
                 <outlet property="progressIndicator" destination="uBP-ur-nNv" id="Gbi-yA-V2n"/>
                 <outlet property="progressIndicatorSpinner" destination="McW-gO-jJv" id="iLr-U6-g7E"/>
                 <outlet property="textFieldStatusInfo" destination="60L-Th-Xvx" id="C71-cQ-MgO"/>
+                <outlet property="textFieldTimer" destination="Svh-zL-y2Z" id="NTZ-nH-IzL"/>
                 <outlet property="textFieldTitle" destination="bI5-Ub-8db" id="hBn-Zv-coj"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
             </connections>
@@ -56,8 +57,8 @@
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="60L-Th-Xvx">
-                    <rect key="frame" x="67" y="9" width="53" height="14"/>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="60L-Th-Xvx">
+                    <rect key="frame" x="67" y="9" width="292" height="14"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="14" id="LKh-i0-4sg"/>
                     </constraints>
@@ -117,15 +118,25 @@
                         </binding>
                     </connections>
                 </button>
+                <textField hidden="YES" horizontalHuggingPriority="252" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Svh-zL-y2Z">
+                    <rect key="frame" x="363" y="10" width="29" height="12"/>
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" id="j72-TA-JPr">
+                        <font key="font" metaFont="miniSystem"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
             </subviews>
             <constraints>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="12" id="09s-0i-FgE"/>
+                <constraint firstItem="Svh-zL-y2Z" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" id="2sX-HI-8AX"/>
                 <constraint firstItem="x75-uz-1IE" firstAttribute="top" secondItem="bI5-Ub-8db" secondAttribute="bottom" constant="3" id="5hh-dZ-Qoz"/>
                 <constraint firstItem="McW-gO-jJv" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" constant="-1" id="HLP-Nm-lNb"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="12" id="HiP-nI-gsi"/>
                 <constraint firstItem="60L-Th-Xvx" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" constant="1" id="JKg-Z3-V8G"/>
                 <constraint firstAttribute="bottom" secondItem="dl5-Dn-LjZ" secondAttribute="bottom" constant="12" id="Keg-Jo-GnF"/>
                 <constraint firstItem="McW-gO-jJv" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="leading" id="MHP-vE-cBO"/>
+                <constraint firstItem="OCM-Cq-6q3" firstAttribute="trailing" secondItem="Svh-zL-y2Z" secondAttribute="trailing" id="MuY-3t-0KP"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="top" secondItem="bI5-Ub-8db" secondAttribute="top" constant="2" id="Qtw-Vu-vD0"/>
                 <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="trailing" constant="8" symbolic="YES" id="RVW-NN-8Ik"/>
                 <constraint firstItem="6s6-PX-ioV" firstAttribute="leading" secondItem="x75-uz-1IE" secondAttribute="trailing" constant="8" symbolic="YES" id="V7G-PJ-e1E"/>
@@ -137,6 +148,7 @@
                 <constraint firstItem="uBP-ur-nNv" firstAttribute="centerY" secondItem="OCM-Cq-6q3" secondAttribute="centerY" id="stM-Pk-aHt"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="centerY" secondItem="uBP-ur-nNv" secondAttribute="centerY" id="vb8-aR-ww1"/>
                 <constraint firstItem="bI5-Ub-8db" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="leading" id="wJX-qP-5i8"/>
+                <constraint firstItem="Svh-zL-y2Z" firstAttribute="leading" secondItem="60L-Th-Xvx" secondAttribute="trailing" constant="8" symbolic="YES" id="zW2-Ka-Oaf"/>
             </constraints>
             <point key="canvasLocation" x="-219" y="241"/>
         </customView>
