@@ -576,7 +576,6 @@ DDLogLevel ddLogLevel;
 } // copyFilesToBaseSystem
 
 - (BOOL)createVNCPasswordHash:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem volumeURL:(NSURL *)volumeURL {
-    DDLogInfo(@"Creating VNC Password Hash...");
     BOOL retval = YES;
     NSDictionary *userSettings = [workflowItem userSettings];
     
@@ -839,7 +838,6 @@ DDLogLevel ddLogLevel;
                                     }];
     
     if ( [createUserVariables count] == 6 ) {
-        DDLogInfo(@"Launch task createUser.bash...");
         NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
         [helperConnector connectToHelper];
         
@@ -880,7 +878,7 @@ DDLogLevel ddLogLevel;
 } // addUsersToNBI
 
 - (NSArray *)generateUserVariablesForCreateUsers:(NSDictionary *)userSettings {
-    DDLogInfo(@"Generating variables for script createUsers.bash...");
+    DDLogDebug(@"Generating variables for script createUsers.bash...");
     NSMutableArray *userVariables = [[NSMutableArray alloc] init];
     NSString *createUserScriptPath = [[NSBundle mainBundle] pathForResource:@"createUser" ofType:@"bash"];
     if ( [createUserScriptPath length] != 0 ) {
@@ -1029,7 +1027,7 @@ DDLogLevel ddLogLevel;
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
     
-    if ( [generateKernelCacheVariables count] == 4 ) {
+    if ( 3 < [generateKernelCacheVariables count] ) {
         NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
         [helperConnector connectToHelper];
         
@@ -1068,7 +1066,7 @@ DDLogLevel ddLogLevel;
             }];
         }];
     } else {
-        DDLogError(@"[ERROR] Variable count to be passed to script is %lu, script requires exactly 4", (unsigned long)[generateKernelCacheVariables count]);
+        DDLogError(@"[ERROR] Variable count to be passed to script is %lu, script requires at least 4", (unsigned long)[generateKernelCacheVariables count]);
     }
 }
 
@@ -1087,7 +1085,7 @@ DDLogLevel ddLogLevel;
 } // modifyFailed
 
 - (void)copyComplete {
-    DDLogInfo(@"Copy Completed!");
+    DDLogInfo(@"Copy Complete!");
     [self modifyFilesInBaseSystem];
 } // copyComplete
 
@@ -1205,7 +1203,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogError(@"[mdutil][ERROR] %@", errStr);
+                                        DDLogDebug(@"[mdutil][ERROR] %@", errStr);
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];

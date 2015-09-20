@@ -946,7 +946,7 @@ DDLogLevel ddLogLevel;
 } // keyboardLayoutIDFromSourceID
 
 - (BOOL)modifySettingsForKextd:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Adding language and keyboard settings...");
+    DDLogInfo(@"Configure settings for com.apple.kextd.plist...");
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1041,7 +1041,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForDesktopViewer:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Adding language and keyboard settings...");
+    DDLogInfo(@"Configure settings for Desktop Viewer...");
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1109,7 +1109,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForLanguageAndKeyboardLayout:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Adding language and keyboard settings...");
+    DDLogInfo(@"Configure settings for Language and Keyboard...");
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1949,7 +1949,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)modifySettingsForRCCdrom:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
 #pragma unused(modifyDictArray)
-    DDLogInfo(@"Disabling WiFi in NBI...");
+    DDLogInfo(@"Configure settings for rc.cdrom...");
     BOOL retval = YES;
     NSError *error;
     
@@ -2223,7 +2223,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifyNBIRemoveWiFi:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Disabling WiFi in NBI...");
+    DDLogInfo(@"Configure settings for WiFi...");
     BOOL retval = YES;
     
     NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
