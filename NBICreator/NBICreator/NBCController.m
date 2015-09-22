@@ -302,7 +302,6 @@ enum {
     //  Display Main Window
     // --------------------------------------------------------------
     [_window makeKeyAndOrderFront:self];
-    
 } // applicationDidFinishLaunching
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
@@ -988,8 +987,7 @@ enum {
 } // selectSegmentedControl
 
 - (void)addViewToSettingsView:(NSView *)settingsView {
-    
-    
+
     // --------------------------------------------------------------
     //  Remove current view(s) from settings view placeholder
     // --------------------------------------------------------------

@@ -1069,11 +1069,11 @@ DDLogLevel ddLogLevel;
 
 - (void)modifyComplete {
     DDLogInfo(@"Modifications Complete!");
-    if ( [[_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] || [[_workflowItem userSettings][NBCSettingsDisableBluetoothKey] boolValue] ) {
+    //if ( [[_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] || [[_workflowItem userSettings][NBCSettingsDisableBluetoothKey] boolValue] ) {
         [self generateKernelCacheForNBI:_workflowItem];
-    } else {
-        [self disableSpotlight];
-    }
+    //} else {
+    //    [self disableSpotlight];
+    //}
 } // modifyComplete
 
 - (void)modifyFailed {

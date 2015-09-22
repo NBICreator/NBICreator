@@ -42,6 +42,8 @@
 		534DFB261B7C9E3B00C9CE0E /* CocoaLumberjack.framework in Copy CocoaLumberjack */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		534FA9ED1AF4B39D005B40F6 /* NBCSourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 534FA9EC1AF4B39D005B40F6 /* NBCSourceController.m */; };
 		53546DC31AA9EE7C00564A3D /* NBCDeployStudioSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 53546DC21AA9EE7C00564A3D /* NBCDeployStudioSource.m */; };
+		535753E51BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 535753E41BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m */; settings = {ASSET_TAGS = (); }; };
+		535753E81BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 535753E71BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m */; settings = {ASSET_TAGS = (); }; };
 		5359BB9B1B2AE87F00839417 /* IconElCapitanBeta.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5359BB9A1B2AE87F00839417 /* IconElCapitanBeta.icns */; };
 		535A898B1AD3247A00DC08F4 /* IconMavericks.icns in Resources */ = {isa = PBXBuildFile; fileRef = 535A89881AD3247A00DC08F4 /* IconMavericks.icns */; };
 		535A898C1AD3247A00DC08F4 /* IconMountainLion.icns in Resources */ = {isa = PBXBuildFile; fileRef = 535A89891AD3247A00DC08F4 /* IconMountainLion.icns */; };
@@ -56,6 +58,8 @@
 		5381B76E1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5381B76C1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m */; };
 		5381B76F1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5381B76D1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib */; };
 		5386EA8E1AFFB0EA0091D57A /* NBCDownloaderPython.m in Sources */ = {isa = PBXBuildFile; fileRef = 5386EA8D1AFFB0EA0091D57A /* NBCDownloaderPython.m */; };
+		538AC3CE1BB1B281006BC343 /* NBCOverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 538AC3CC1BB1B281006BC343 /* NBCOverlayViewController.m */; settings = {ASSET_TAGS = (); }; };
+		538AC3CF1BB1B281006BC343 /* NBCOverlayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 538AC3CD1BB1B281006BC343 /* NBCOverlayViewController.xib */; settings = {ASSET_TAGS = (); }; };
 		538DAF341AD7179600F2A3DD /* DeployStudioDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 538DAF331AD7179600F2A3DD /* DeployStudioDefaults.plist */; };
 		53909A8F1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53909A8E1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m */; };
 		53909A9A1BA35E1C00AD7F51 /* NBCImagrRAMDiskSizeCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53909A991BA35E1C00AD7F51 /* NBCImagrRAMDiskSizeCellView.m */; };
@@ -77,6 +81,8 @@
 		539DAEF71AF15ACB0037F06B /* NBCImagrDropViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 539DAEF51AF15ACB0037F06B /* NBCImagrDropViewController.m */; };
 		539DAEF81AF15ACB0037F06B /* NBCImagrDropViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 539DAEF61AF15ACB0037F06B /* NBCImagrDropViewController.xib */; };
 		539DAEFB1AF162A10037F06B /* NetInstallDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 539DAEFA1AF162A10037F06B /* NetInstallDefaults.plist */; };
+		539EA5011BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 539EA5001BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m */; settings = {ASSET_TAGS = (); }; };
+		539EA5041BB110ED007F1175 /* NBCDDReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 539EA5031BB110ED007F1175 /* NBCDDReader.m */; settings = {ASSET_TAGS = (); }; };
 		53A195A81AD4F29500489CCF /* IconLion.icns in Resources */ = {isa = PBXBuildFile; fileRef = 53A195A71AD4F29500489CCF /* IconLion.icns */; };
 		53A643421B1A5872003BFF71 /* createUser.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53A643411B1A5872003BFF71 /* createUser.bash */; };
 		53A9B9941AAB2804000E06BA /* NBCNetInstallDropViewImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A9B9931AAB2804000E06BA /* NBCNetInstallDropViewImage.m */; };
@@ -300,6 +306,10 @@
 		534FA9EC1AF4B39D005B40F6 /* NBCSourceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCSourceController.m; path = NBICreatorSource/NBCSourceController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53546DC11AA9EE7C00564A3D /* NBCDeployStudioSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCDeployStudioSource.h; path = NBICreatorSource/NBCDeployStudioSource.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53546DC21AA9EE7C00564A3D /* NBCDeployStudioSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCDeployStudioSource.m; path = NBICreatorSource/NBCDeployStudioSource.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		535753E31BAF4062000C9935 /* NBCCasperRAMDiskPathCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCasperRAMDiskPathCellView.h; path = "NBICreator Casper/NBCCasperRAMDiskPathCellView.h"; sourceTree = "<group>"; };
+		535753E41BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCasperRAMDiskPathCellView.m; path = "NBICreator Casper/NBCCasperRAMDiskPathCellView.m"; sourceTree = "<group>"; };
+		535753E61BAF40F7000C9935 /* NBCCasperRAMDiskSizeCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCasperRAMDiskSizeCellView.h; path = "NBICreator Casper/NBCCasperRAMDiskSizeCellView.h"; sourceTree = "<group>"; };
+		535753E71BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCasperRAMDiskSizeCellView.m; path = "NBICreator Casper/NBCCasperRAMDiskSizeCellView.m"; sourceTree = "<group>"; };
 		5359BB9A1B2AE87F00839417 /* IconElCapitanBeta.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconElCapitanBeta.icns; sourceTree = "<group>"; };
 		535A89881AD3247A00DC08F4 /* IconMavericks.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconMavericks.icns; sourceTree = "<group>"; };
 		535A89891AD3247A00DC08F4 /* IconMountainLion.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconMountainLion.icns; sourceTree = "<group>"; };
@@ -321,6 +331,9 @@
 		5381B76D1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCNetInstallSettingsViewController.xib; path = NBICreatorNetInstall/NBCNetInstallSettingsViewController.xib; sourceTree = "<group>"; };
 		5386EA8C1AFFB0EA0091D57A /* NBCDownloaderPython.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCDownloaderPython.h; path = NBICreatorNetworking/NBCDownloaderPython.h; sourceTree = "<group>"; };
 		5386EA8D1AFFB0EA0091D57A /* NBCDownloaderPython.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCDownloaderPython.m; path = NBICreatorNetworking/NBCDownloaderPython.m; sourceTree = "<group>"; };
+		538AC3CB1BB1B281006BC343 /* NBCOverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCOverlayViewController.h; sourceTree = "<group>"; };
+		538AC3CC1BB1B281006BC343 /* NBCOverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCOverlayViewController.m; sourceTree = "<group>"; };
+		538AC3CD1BB1B281006BC343 /* NBCOverlayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NBCOverlayViewController.xib; sourceTree = "<group>"; };
 		538DAF331AD7179600F2A3DD /* DeployStudioDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = DeployStudioDefaults.plist; path = "Supporting Files/Property Lists/DeployStudioDefaults.plist"; sourceTree = "<group>"; };
 		53909A8D1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCImagrRAMDiskPathCellView.h; path = NBICreatorImagr/NBCImagrRAMDiskPathCellView.h; sourceTree = "<group>"; };
 		53909A8E1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCImagrRAMDiskPathCellView.m; path = NBICreatorImagr/NBCImagrRAMDiskPathCellView.m; sourceTree = "<group>"; };
@@ -357,6 +370,10 @@
 		539DAEF51AF15ACB0037F06B /* NBCImagrDropViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCImagrDropViewController.m; path = NBICreatorImagr/NBCImagrDropViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		539DAEF61AF15ACB0037F06B /* NBCImagrDropViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCImagrDropViewController.xib; path = NBICreatorImagr/NBCImagrDropViewController.xib; sourceTree = "<group>"; };
 		539DAEFA1AF162A10037F06B /* NetInstallDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = NetInstallDefaults.plist; path = "Supporting Files/Property Lists/NetInstallDefaults.plist"; sourceTree = "<group>"; };
+		539EA4F71BB0D6C8007F1175 /* NBCConfigurationProfileTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCConfigurationProfileTableCellView.h; sourceTree = "<group>"; };
+		539EA5001BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCConfigurationProfileTableCellView.m; sourceTree = "<group>"; };
+		539EA5021BB110ED007F1175 /* NBCDDReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCDDReader.h; sourceTree = "<group>"; };
+		539EA5031BB110ED007F1175 /* NBCDDReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCDDReader.m; sourceTree = "<group>"; };
 		53A195A71AD4F29500489CCF /* IconLion.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconLion.icns; sourceTree = "<group>"; };
 		53A643411B1A5872003BFF71 /* createUser.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = createUser.bash; path = "Supporting Files/Scripts/createUser.bash"; sourceTree = "<group>"; };
 		53A9B9921AAB2804000E06BA /* NBCNetInstallDropViewImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCNetInstallDropViewImage.h; path = NBICreatorNetInstall/NBCNetInstallDropViewImage.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -625,6 +642,11 @@
 		53968C091A8E7A3E0079AA95 /* NBICreator */ = {
 			isa = PBXGroup;
 			children = (
+				538AC3CB1BB1B281006BC343 /* NBCOverlayViewController.h */,
+				538AC3CC1BB1B281006BC343 /* NBCOverlayViewController.m */,
+				538AC3CD1BB1B281006BC343 /* NBCOverlayViewController.xib */,
+				539EA5021BB110ED007F1175 /* NBCDDReader.h */,
+				539EA5031BB110ED007F1175 /* NBCDDReader.m */,
 				53B9CEBA1A95DFD600C8015E /* NBCController.h */,
 				53B9CEBB1A95DFD600C8015E /* NBCController.m */,
 				53383D131AFA9D3000C041F9 /* NBCConstants.h */,
@@ -637,6 +659,8 @@
 				5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */,
 				53D34D9E1B740D7F00F11CFF /* NBCPackageTableCellView.h */,
 				53D34D9F1B740DA600F11CFF /* NBCPackageTableCellView.m */,
+				539EA4F71BB0D6C8007F1175 /* NBCConfigurationProfileTableCellView.h */,
+				539EA5001BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m */,
 				530E0C791B190C550025A9C3 /* NBCViewNoInternetConnection.h */,
 				530E0C7A1B190C550025A9C3 /* NBCViewNoInternetConnection.m */,
 				53EFC5121A9DF304005A68E6 /* NBCDiskImageController.h */,
@@ -910,6 +934,10 @@
 				53FB3EA21B975DAD00CCE413 /* NBCCasperDropViewController.xib */,
 				53FB3EA51B975DC400CCE413 /* NBCCasperDropViewImage.h */,
 				53FB3EA61B975DC400CCE413 /* NBCCasperDropViewImage.m */,
+				535753E31BAF4062000C9935 /* NBCCasperRAMDiskPathCellView.h */,
+				535753E41BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m */,
+				535753E61BAF40F7000C9935 /* NBCCasperRAMDiskSizeCellView.h */,
+				535753E71BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m */,
 				53D2B9B11BA0B870000ACD23 /* NBCCasperTrustedNetBootServerCellView.h */,
 				53D2B9BA1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m */,
 				53FB3EA81B975DE500CCE413 /* NBCCasperWorkflowNBI.h */,
@@ -1099,6 +1127,7 @@
 				53F3B2871B7D1A54005BEAD3 /* IconCertPersonal.png in Resources */,
 				534C17D31BA4C88500D94F07 /* Resources.plist in Resources */,
 				53E5B8651B06FE1500A771F7 /* NBCTemplatesController.xib in Resources */,
+				538AC3CF1BB1B281006BC343 /* NBCOverlayViewController.xib in Resources */,
 				53FB3EB21B97763600CCE413 /* CasperDefaults.plist in Resources */,
 				53DED1531B91723E00A95B6C /* NBICreatorTemplate.iconset in Resources */,
 				53346BD71AD657DF00C3831B /* NBCNetInstallDropViewController.xib in Resources */,
@@ -1135,6 +1164,7 @@
 				53FB3EAD1B975DF700CCE413 /* NBCCasperWorkflowResources.m in Sources */,
 				53A9B9941AAB2804000E06BA /* NBCNetInstallDropViewImage.m in Sources */,
 				53346BD61AD657DF00C3831B /* NBCNetInstallDropViewController.m in Sources */,
+				535753E51BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m in Sources */,
 				53121EA11AD5C24A004515D6 /* NBCPreferences.m in Sources */,
 				530E0C7B1B190C550025A9C3 /* NBCViewNoInternetConnection.m in Sources */,
 				5303EBBE1AF42A9E00F6120D /* NBCNetInstallWorkflowNBI.m in Sources */,
@@ -1153,6 +1183,8 @@
 				53B9CEB81A95D68700C8015E /* NBCDeployStudioSettingsViewController.m in Sources */,
 				53B05C091B0CBA89000C7D67 /* NBCDownloaderDeployStudio.m in Sources */,
 				539C92011B9DC2AB0012BBFC /* NSMutableString+hyperlinkFromString.m in Sources */,
+				539EA5011BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m in Sources */,
+				538AC3CE1BB1B281006BC343 /* NBCOverlayViewController.m in Sources */,
 				530BFF571B00F3160012D067 /* NBCWorkflowNBIController.m in Sources */,
 				530E8F3D1A948DA700CAD93C /* NBCHelperConnection.m in Sources */,
 				53FB3EAA1B975DE500CCE413 /* NBCCasperWorkflowNBI.m in Sources */,
@@ -1165,6 +1197,7 @@
 				530D3AA81AFF654C00BDC6B0 /* NBCDeployStudioWorkflowNBI.m in Sources */,
 				53609D751B80F4D0007F874F /* NBCUpdater.m in Sources */,
 				5381B76E1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m in Sources */,
+				539EA5041BB110ED007F1175 /* NBCDDReader.m in Sources */,
 				53546DC31AA9EE7C00564A3D /* NBCDeployStudioSource.m in Sources */,
 				533BED661B9A34E200524AE4 /* NBCCLIArguments.m in Sources */,
 				53EFC5141A9DF304005A68E6 /* NBCDiskImageController.m in Sources */,
@@ -1177,6 +1210,7 @@
 				53BC04061AD278230037DCBA /* NBCDiskArbitrator.m in Sources */,
 				53BC03FF1AD1D5BF0037DCBA /* NBCDisk.m in Sources */,
 				53EFC5181A9E00E1005A68E6 /* NBCSource.m in Sources */,
+				535753E81BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m in Sources */,
 				536D1B6D1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m in Sources */,
 				539DAEF21AF158150037F06B /* NBCImagrSettingsViewController.m in Sources */,
 				53909A8F1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m in Sources */,

@@ -22,5 +22,9 @@
 	<string>%OSVERSION%_%OSBUILD%_NetInstall</string>
 	<key>TrustedNetBootServers</key>
 	<array/>
+	<key>Packages</key>
+	<array/>
+	<key>ConfigurationProfiles</key>
+	<array/>
 </dict>
 </plist>

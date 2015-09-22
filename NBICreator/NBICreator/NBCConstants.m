@@ -294,6 +294,8 @@ NSString *const NBCSettingsLocale = @"NBCSettingsLocale";
 NSString *const NBCSettingsCountry = @"NBCSettingsCountry";
 
 
+NSString *const NBCSettingsConfigurationProfilesKey = @"ConfigurationProfiles";
+
 // --------------------------------------------------------------
 //  Notifications
 // --------------------------------------------------------------
@@ -383,6 +385,13 @@ NSString *const NBCDictionaryKeyCertificateExpired = @"CertificateExpired";
 NSString *const NBCDictionaryKeyPackagePath = @"PackagePath";
 NSString *const NBCDictionaryKeyPackageName = @"PackageName";
 
+NSString *const NBCDictionaryKeyConfigurationProfilePath = @"ConfigurationProfilePath";
+NSString *const NBCDictionaryKeyConfigurationProfilePayloadDisplayName = @"PayloadDisplayName";
+NSString *const NBCDictionaryKeyConfigurationProfilePayloadDescription = @"PayloadDescription";
+
+NSString *const NBCDictionaryKeyScriptType = @"ScriptType";
+NSString *const NBCDictionaryKeyScriptPath = @"ScriptPath";
+
 // --------------------------------------------------------------
 //  Imagr
 // --------------------------------------------------------------
@@ -470,6 +479,8 @@ NSString *const NBCRCImagingTargetURL = @"Packages/Extras/rc.imaging";
 NSString *const NBCRCImagingNBICreatorTargetURL = @"etc/rc.imaging";
 
 NSString *const IconSuccessPath = @"/System/Library/CoreServices/Installer.app/Contents/PlugIns/Summary.bundle/Contents/Resources/Success.pdf";
+NSString *const IconMetaPackagePath = @"/System/Library/CoreServices/Installer.app/Contents/Resources/metapackage.icns";
+NSString *const IconConfigurationProfilePath = @"/Applications/System Preferences.app/Contents/Resources/Document-Config.icns";
 
 // --------------------------------------------------------------
 //  NBCDownloader
@@ -570,6 +581,7 @@ NSString *const NBCTableViewIdentifierImagrTrustedServers = @"ImagrTableViewTrus
 NSString *const NBCTableViewIdentifierCasperTrustedServers = @"CasperTableViewTrustedServers";
 NSString *const NBCTableViewIdentifierImagrRAMDisks = @"ImagrTableViewRAMDisk";
 NSString *const NBCTableViewIdentifierCasperRAMDisks = @"CasperTableViewRAMDisk";
+NSString *const NBCTableViewIdentifierConfigurationProfiles = @"TableViewConfigurationProfiles";
 
 NSString *const NBCTabViewItemGeneral = @"General";
 NSString *const NBCTabViewItemOptions = @"Options";

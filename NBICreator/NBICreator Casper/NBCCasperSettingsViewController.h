@@ -133,6 +133,19 @@
 @property (weak) IBOutlet NSButton *buttonRemoveTrustedServer;
 - (IBAction)buttonRemoveTrustedServer:(id)sender;
 
+@property NSMutableArray *ramDisks;
+@property (weak) IBOutlet NSTableView *tableViewRAMDisks;
+@property (strong) IBOutlet NSPopover *popOverRAMDisks;
+@property (weak) IBOutlet NSButton *buttonAddRAMDisk;
+- (IBAction)buttonAddRAMDisk:(id)sender;
+@property (weak) IBOutlet NSButton *buttonRemoveRAMDisk;
+- (IBAction)buttonRemoveRAMDisk:(id)sender;
+- (IBAction)buttonRamDisks:(id)sender;
+@property (strong) NSView *viewOverlayPackages;
+@property (strong) NSView *viewOverlayCertificates;
+@property (weak) IBOutlet NSTextField *textFieldRAMDiskCount;
+@property (weak) IBOutlet NSTextField *textFieldRAMDiskSize;
+
 // ------------------------------------------------------
 //  TabView Options
 // ------------------------------------------------------
@@ -140,6 +153,11 @@
 @property (weak) IBOutlet NSTextField *textFieldARDPassword;
 @property (weak) IBOutlet NSSecureTextField *secureTextFieldARDPassword;
 @property (weak) IBOutlet NSTextField *textFieldNetworkTimeServer;
+
+@property (weak) IBOutlet NSView *superViewPackages;
+@property (weak) IBOutlet NSView *superViewCertificates;
+@property (weak) IBOutlet NSScrollView *scrollViewPackages;
+@property (weak) IBOutlet NSScrollView *scrollViewCertificates;
 
 // ------------------------------------------------------
 //  TabView Extras
@@ -201,6 +219,7 @@
 @property BOOL includeConsoleApp;
 @property BOOL enableLaunchdLogging;
 @property BOOL launchConsoleApp;
+@property BOOL addCustomRAMDisks;
 @property BOOL includeRuby;
 
 @property NSString *casperImagingPath;

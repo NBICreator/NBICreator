@@ -31,6 +31,9 @@
 #import "TFHpple.h"
 #import "NBCCasperTrustedNetBootServerCellView.h"
 #import "NSString+validIP.h"
+#import "NBCCasperRAMDiskPathCellView.h"
+#import "NBCCasperRAMDiskSizeCellView.h"
+#import "NBCOverlayViewController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -170,9 +173,53 @@ DDLogLevel ddLogLevel;
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
-        return (NSInteger)[_certificateTableViewContents count];
+        if ( ! _viewOverlayPackages ) {
+            NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypeCertificates];
+            _viewOverlayCertificates = [vc view];
+        }
+        NSInteger count = (NSInteger)[_certificateTableViewContents count];
+        if ( count == 0 && [[[_superViewCertificates subviews] firstObject] isNotEqualTo:_viewOverlayCertificates] ) {
+            [_superViewCertificates addSubview:_viewOverlayCertificates positioned:NSWindowAbove relativeTo:_scrollViewCertificates];
+            [_viewOverlayCertificates setTranslatesAutoresizingMaskIntoConstraints:NO];
+            NSArray *constraintsArray;
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayCertificates]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayCertificates)];
+            [_superViewCertificates addConstraints:constraintsArray];
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[_viewOverlayCertificates]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayCertificates)];
+            [_superViewCertificates addConstraints:constraintsArray];
+        } else if ( count > 0 && [[_superViewCertificates subviews] containsObject:_viewOverlayCertificates] ) {
+            [_viewOverlayCertificates removeFromSuperview];
+        }
+        return count;
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
-        return (NSInteger)[_packagesTableViewContents count];
+        if ( ! _viewOverlayPackages ) {
+            NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypePackages];
+            _viewOverlayPackages = [vc view];
+        }
+        NSInteger count = (NSInteger)[_packagesTableViewContents count];
+        if ( count == 0 && [[[_superViewPackages subviews] firstObject] isNotEqualTo:_viewOverlayPackages] ) {
+            [_superViewPackages addSubview:_viewOverlayPackages positioned:NSWindowAbove relativeTo:_scrollViewPackages];
+            [_viewOverlayPackages setTranslatesAutoresizingMaskIntoConstraints:NO];
+            NSArray *constraintsArray;
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayPackages]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayPackages)];
+            [_superViewPackages addConstraints:constraintsArray];
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[_viewOverlayPackages]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayPackages)];
+            [_superViewPackages addConstraints:constraintsArray];
+        } else if ( count > 0 && [[_superViewPackages subviews] containsObject:_viewOverlayPackages] ) {
+            [_viewOverlayPackages removeFromSuperview];
+        }
+        return count;
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCasperTrustedServers] ) {
         return (NSInteger)[_trustedServers count];
     } else {
@@ -283,6 +330,7 @@ DDLogLevel ddLogLevel;
                                              [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
                                              [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
                                              insertionIndex++;
+                                             [tableView reloadData];
                                          }
                                      }
                                  }];
@@ -311,6 +359,7 @@ DDLogLevel ddLogLevel;
                                              [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
                                              [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
                                              insertionIndex++;
+                                             [tableView reloadData];
                                          }
                                      }
                                  }];
@@ -412,6 +461,41 @@ DDLogLevel ddLogLevel;
     return cellView;
 }
 
+- (NBCCasperRAMDiskPathCellView *)populateRAMDiskPathCellView:(NBCCasperRAMDiskPathCellView *)cellView ramDiskDict:(NSDictionary *)ramDiskDict row:(NSInteger)row {
+    NSString *ramDiskPath = ramDiskDict[@"path"] ?: @"";
+    [[cellView textFieldRAMDiskPath] setStringValue:ramDiskPath];
+    [[cellView textFieldRAMDiskPath] setTag:row];
+    /*
+     NSMutableAttributedString *ramDiskMutable;
+     if ( [netBootServerIP isValidIPAddress] ) {
+     [[cellView textFieldTrustedNetBootServer] setStringValue:netBootServerIP];
+     } else {
+     netBootServerIPMutable = [[NSMutableAttributedString alloc] initWithString:netBootServerIP];
+     [netBootServerIPMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[netBootServerIPMutable length])];
+     [[cellView textFieldTrustedNetBootServer] setAttributedStringValue:netBootServerIPMutable];
+     }
+     */
+    return cellView;
+}
+
+- (NBCCasperRAMDiskSizeCellView *)populateRAMDiskSizeCellView:(NBCCasperRAMDiskSizeCellView *)cellView ramDiskDict:(NSDictionary *)ramDiskDict row:(NSInteger)row {
+    NSString *ramDiskSize = ramDiskDict[@"size"] ?: @"1";
+    [[cellView textFieldRAMDiskSize] setStringValue:ramDiskSize];
+    [[cellView textFieldRAMDiskSize] setTag:row];
+    /*
+     NSMutableAttributedString *ramDiskMutable;
+     if ( [netBootServerIP isValidIPAddress] ) {
+     [[cellView textFieldTrustedNetBootServer] setStringValue:netBootServerIP];
+     } else {
+     netBootServerIPMutable = [[NSMutableAttributedString alloc] initWithString:netBootServerIP];
+     [netBootServerIPMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[netBootServerIPMutable length])];
+     [[cellView textFieldTrustedNetBootServer] setAttributedStringValue:netBootServerIPMutable];
+     }
+     */
+    return cellView;
+}
+
+
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
         NSDictionary *certificateDict = _certificateTableViewContents[(NSUInteger)row];
@@ -431,6 +515,16 @@ DDLogLevel ddLogLevel;
         if ( [[tableColumn identifier] isEqualToString:@"CasperTrustedNetBootTableColumn"] ) {
             NBCCasperTrustedNetBootServerCellView *cellView = [tableView makeViewWithIdentifier:@"CasperNetBootServerCellView" owner:self];
             return [self populateTrustedNetBootServerCellView:cellView netBootServerIP:trustedServer];
+        }
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierImagrRAMDisks] ) {
+        [self updateRAMDisksCount];
+        NSDictionary *ramDiskDict = _ramDisks[(NSUInteger)row];
+        if ( [[tableColumn identifier] isEqualToString:@"CasperRAMDiskPathTableColumn"] ) {
+            NBCCasperRAMDiskPathCellView *cellView = [tableView makeViewWithIdentifier:@"CasperRAMDiskPathCellView" owner:self];
+            return [self populateRAMDiskPathCellView:cellView ramDiskDict:ramDiskDict row:row];
+        } else if ( [[tableColumn identifier] isEqualToString:@"CasperRAMDiskSizeTableColumn"] ) {
+            NBCCasperRAMDiskSizeCellView *cellView = [tableView makeViewWithIdentifier:@"CasperRAMDiskSizeCellView" owner:self];
+            return [self populateRAMDiskSizeCellView:cellView ramDiskDict:ramDiskDict row:row];
         }
     }
     return nil;
@@ -615,6 +709,7 @@ DDLogLevel ddLogLevel;
     [_tableViewCertificates insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
     [_tableViewCertificates scrollRowToVisible:index];
     [_certificateTableViewContents insertObject:certificateDict atIndex:(NSUInteger)index];
+    [_tableViewCertificates reloadData];
     [_tableViewCertificates endUpdates];
     return YES;
 }
@@ -634,6 +729,7 @@ DDLogLevel ddLogLevel;
     [_tableViewPackages insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
     [_tableViewPackages scrollRowToVisible:index];
     [_packagesTableViewContents insertObject:packageDict atIndex:(NSUInteger)index];
+    [_tableViewPackages reloadData];
     [_tableViewPackages endUpdates];
 }
 
@@ -645,6 +741,17 @@ DDLogLevel ddLogLevel;
     [_tableViewTrustedServers scrollRowToVisible:index];
     [_trustedServers insertObject:netBootServerIP atIndex:(NSUInteger)index];
     [_tableViewTrustedServers endUpdates];
+    return index;
+}
+
+- (NSInteger)insertRAMDiskInTableView:(NSDictionary *)ramDiskDict {
+    NSInteger index = [_tableViewRAMDisks selectedRow];
+    index++;
+    [_tableViewRAMDisks beginUpdates];
+    [_tableViewRAMDisks insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewRAMDisks scrollRowToVisible:index];
+    [_ramDisks insertObject:ramDiskDict atIndex:(NSUInteger)index];
+    [_tableViewRAMDisks endUpdates];
     return index;
 }
 
@@ -1065,6 +1172,7 @@ DDLogLevel ddLogLevel;
     [self setLaunchConsoleApp:[settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue]];
     [self setIncludeRuby:[settingsDict[NBCSettingsIncludeRubyKey] boolValue]];
     [self setAddTrustedNetBootServers:[settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]];
+    [self setAddCustomRAMDisks:[settingsDict[NBCSettingsAddCustomRAMDisksKey] boolValue]];
     
     NSNumber *displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
     int displaySleepMinutesInteger = 20;
@@ -1127,6 +1235,17 @@ DDLogLevel ddLogLevel;
             NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
             if ( [packageDict count] != 0 ) {
                 [self insertPackageInTableView:packageDict];
+            }
+        }
+    }
+    
+    [_ramDisks removeAllObjects];
+    [_tableViewRAMDisks reloadData];
+    if ( [settingsDict[NBCSettingsRAMDisksKey] count] != 0 ) {
+        NSArray *ramDisksArray = settingsDict[NBCSettingsRAMDisksKey];
+        for ( NSDictionary *ramDiskDict in ramDisksArray ) {
+            if ( [ramDiskDict count] != 0 ) {
+                [self insertRAMDiskInTableView:ramDiskDict];
             }
         }
     }
@@ -1305,6 +1424,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsLaunchConsoleAppKey] = @(_launchConsoleApp) ?: @NO;
     settingsDict[NBCSettingsIncludeRubyKey] = @(_includeRuby) ?: @NO;
     settingsDict[NBCSettingsAddTrustedNetBootServersKey] = @(_addTrustedNetBootServers) ?: @NO;
+    settingsDict[NBCSettingsAddCustomRAMDisksKey] = @(_addCustomRAMDisks) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -1323,6 +1443,14 @@ DDLogLevel ddLogLevel;
         }
     }
     settingsDict[NBCSettingsPackagesKey] = packageArray ?: @[];
+    
+    NSMutableArray *ramDisksArray = [[NSMutableArray alloc] init];
+    for ( NSDictionary *ramDiskDict in _ramDisks ) {
+        if ( [ramDiskDict count] != 0 ) {
+            [ramDisksArray insertObject:ramDiskDict atIndex:0];
+        }
+    }
+    settingsDict[NBCSettingsRAMDisksKey] = ramDisksArray ?: @[];
     
     NSString *selectedTimeZone;
     NSString *selectedTimeZoneCity = [_selectedMenuItem title];
@@ -2811,6 +2939,7 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewCertificates selectedRowIndexes];
     [_certificateTableViewContents removeObjectsAtIndexes:indexes];
     [_tableViewCertificates removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewCertificates reloadData];
 }
 
 - (IBAction)buttonAddPackage:(id)sender {
@@ -2844,6 +2973,7 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewPackages selectedRowIndexes];
     [_packagesTableViewContents removeObjectsAtIndexes:indexes];
     [_tableViewPackages removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewPackages reloadData];
 }
 
 - (NSString *)jssVersionFromDownloadData:(NSData *)data {
@@ -2897,7 +3027,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)downloadFailed:(NSDictionary *)downloadInfo withError:(NSError *)error {
-    NSLog(@"error=%@", error);
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagJSSCertificate] ) {
         NSString *errorMessage = @"";
@@ -3116,6 +3245,119 @@ DDLogLevel ddLogLevel;
     }
     
     [_textFieldDisplaySleepPreview setStringValue:sliderPreviewString];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark RAM Disks
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (IBAction)buttonRamDisks:(id)sender {
+    [_popOverRAMDisks showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
+}
+
+- (IBAction)buttonAddRAMDisk:(id)sender {
+#pragma unused(sender)
+    
+    // Check if empty view already exist
+    __block NSNumber *index;
+    [_ramDisks enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ( [obj[@"path"] length] == 0 && [obj[@"size"] isEqualToString:@"1"] ) {
+            index = [NSNumber numberWithInteger:(NSInteger)idx];
+            *stop = YES;
+        }
+    }];
+    
+    if ( index == nil ) {
+        // Insert new view
+        NSDictionary *newRamDiskDict = @{
+                                         @"path" : @"",
+                                         @"size" : @"1",
+                                         };
+        index = [NSNumber numberWithInteger:[self insertRAMDiskInTableView:newRamDiskDict]];
+    }
+    
+    NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:(NSUInteger)index];
+    
+    // Select the newly created text field in the new view
+    [_tableViewRAMDisks selectRowIndexes:indexSet byExtendingSelection:NO];
+    [[[_tableViewRAMDisks viewAtColumn:[_tableViewRAMDisks selectedColumn]
+                                   row:[index integerValue]
+                       makeIfNecessary:NO] textFieldRAMDiskPath] selectText:self];
+    [self updateRAMDisksCount];
+}
+
+- (IBAction)buttonRemoveRAMDisk:(id)sender {
+#pragma unused(sender)
+    NSIndexSet *indexes = [_tableViewRAMDisks selectedRowIndexes];
+    [_ramDisks removeObjectsAtIndexes:indexes];
+    [_tableViewRAMDisks removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [self updateRAMDisksCount];
+}
+
+- (void)updateRAMDisksCount {
+    __block BOOL containsInvalidRAMDisk = NO;
+    __block int validRAMDisksCounter = 0;
+    __block int sumRAMDiskSize = 0;
+    [_ramDisks enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+#pragma unused(stop, idx, obj)
+        BOOL validPath = NO;
+        BOOL validSize = NO;
+        NSString *path = obj[@"path"];
+        NSString *size = obj[@"size"];
+        if ( [path length] == 0 && [size isEqualToString:@"1"] ) {
+            return;
+        }
+        
+        NBCCasperRAMDiskPathCellView *cellView = [self->_tableViewRAMDisks viewAtColumn:0
+                                                                                   row:(NSInteger)idx
+                                                                       makeIfNecessary:NO];
+        if ( [path length] != 0 ) {
+            [[cellView textFieldRAMDiskPath] setStringValue:path];
+            validPath = YES;
+        } else {
+            /*
+             NSMutableAttributedString *pathathAttributed = [[NSMutableAttributedString alloc] initWithString:path];
+             [pathathAttributed addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[pathathAttributed length])];
+             [[cellView textFieldRAMDiskPath] setAttributedStringValue:pathathAttributed];
+             */
+        }
+        
+        if ( [size length] != 0 ) {
+            sumRAMDiskSize = ( sumRAMDiskSize  + [size intValue] );
+            validSize = YES;
+        }
+        
+        if ( validPath && validSize ) {
+            validRAMDisksCounter++;
+        } else {
+            containsInvalidRAMDisk = YES;
+        }
+    }];
+    
+    NSString *ramDisksCount = [[NSNumber numberWithInt:validRAMDisksCounter] stringValue];
+    NSString *ramDiskSize = [NSByteCountFormatter stringFromByteCount:(long long)(sumRAMDiskSize * 1000000) countStyle:NSByteCountFormatterCountStyleDecimal];
+    [_textFieldRAMDiskSize setStringValue:ramDiskSize];
+    
+    if ( containsInvalidRAMDisk ) {
+        NSMutableAttributedString *ramDisksCountMutable = [[NSMutableAttributedString alloc] initWithString:ramDisksCount];
+        [ramDisksCountMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[ramDisksCountMutable length])];
+        [_textFieldRAMDiskCount setAttributedStringValue:ramDisksCountMutable];
+    } else {
+        [_textFieldRAMDiskCount setStringValue:ramDisksCount];
+    }
+}
+
+- (BOOL)validateRAMDisk:(NSDictionary *)ramDiskDict {
+    BOOL retval = YES;
+    NSString *path = ramDiskDict[@"path"];
+    NSString *size = ramDiskDict[@"size"];
+    if ( [path length] == 0 || [size length] == 0 ) {
+        return NO;
+    }
+    
+    return retval;
 }
 
 @end

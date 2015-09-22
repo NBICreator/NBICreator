@@ -6,12 +6,13 @@
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
 
-#import "NBCImagrRAMDiskPathCellView.h"
+#import "NBCCasperRAMDiskPathCellView.h"
 
-@implementation NBCImagrRAMDiskPathCellView
+@implementation NBCCasperRAMDiskPathCellView
 
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
+    
     // Drawing code here.
 }
 

@@ -430,11 +430,8 @@ DDLogLevel ddLogLevel;
 } // generateScriptArgumentsForSysBuilder
 
 + (NSString *)generateImagrRCImagingForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion {
-    
     NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
-    NSLog(@"osMinorVersion=%d", osMinorVersion);
     if ( 11 <= osMinorVersion ) {
-        NSLog(@"Adding!");
         NSLog(@"[settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]=%hhd", [settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]);
         if ( [settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
             NSString *setAddTrustedNetBootServers = [NSString stringWithFormat:@"\n"

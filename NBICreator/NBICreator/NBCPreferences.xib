@@ -23,7 +23,7 @@
         <window title="NBICreator Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <rect key="contentRect" x="196" y="240" width="509" height="322"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" horizontalCompressionResistancePriority="749" id="se5-gp-TjO">
                 <rect key="frame" x="0.0" y="0.0" width="509" height="322"/>
                 <autoresizingMask key="autoresizingMask"/>

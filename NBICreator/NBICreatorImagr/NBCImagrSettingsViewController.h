@@ -86,12 +86,17 @@
 - (IBAction)buttonChooseDestinationFolder:(id)sender;
 @property (weak) IBOutlet NSPopover *popOverVariables;
 - (IBAction)buttonPopOver:(id)sender;
-
+@property (weak) IBOutlet NSView *superViewPackages;
+@property (weak) IBOutlet NSView *superViewCertificates;
+@property (weak) IBOutlet NSScrollView *scrollViewCertificates;
+@property (weak) IBOutlet NSScrollView *scrollViewPackages;
 
 @property (weak) IBOutlet NSTextField *textFieldTrustedServersCount;
 @property (strong) IBOutlet NSPopover *popOverManageTrustedServers;
 - (IBAction)buttonManageTrustedServers:(id)sender;
 @property (weak) IBOutlet NSTableView *tableViewTrustedServers;
+@property (strong) NSView *viewOverlayPackages;
+@property (strong) NSView *viewOverlayCertificates;
 
 @property BOOL addTrustedNetBootServers;
 @property NSMutableArray *trustedServers;
@@ -132,7 +137,6 @@
 @property (weak) IBOutlet NSTextField *textFieldConfigurationURL;
 
 @property (weak) IBOutlet NSTextField *textFieldReportingURL;
-
 
 @property (weak) IBOutlet NSButton *checkboxDisableWiFi;
 

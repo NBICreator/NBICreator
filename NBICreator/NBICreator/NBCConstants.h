@@ -187,6 +187,7 @@ extern NSString *const NBCSettingsEnableLaunchdLoggingKey;
 #pragma mark Template Keys - NetInstall
 ////////////////////////////////////////////////////////////////////////////////
 
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - DeployStudio
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,6 +271,10 @@ extern NSString *const NBCSettingsUseBackgroundImageKey;
 extern NSString *const NBCSettingsBackgroundImageKey;
 
 extern NSString *const NBCBackgroundImageDefaultPath;
+
+
+extern NSString *const NBCSettingsConfigurationProfilesKey;
+
 
 // --------------------------------------------------------------
 //  Template Settings Python
@@ -494,6 +499,8 @@ extern NSString *const NBCJSSPreferencePlistTargetURL;
 extern NSString *const NBCJSSPreferencePlistNBICreatorTargetURL;
 
 extern NSString *const IconSuccessPath;
+extern NSString *const IconMetaPackagePath;
+extern NSString *const IconConfigurationProfilePath;
 
 // --------------------------------------------------------------
 //  Certificate TableView Keys
@@ -515,6 +522,12 @@ extern NSString *const NBCDictionaryKeyCertificateExpired;
 extern NSString *const NBCDictionaryKeyPackagePath;
 extern NSString *const NBCDictionaryKeyPackageName;
 
+extern NSString *const NBCDictionaryKeyConfigurationProfilePath;
+extern NSString *const NBCDictionaryKeyConfigurationProfilePayloadDisplayName;
+extern NSString *const NBCDictionaryKeyConfigurationProfilePayloadDescription;
+
+extern NSString *const NBCDictionaryKeyScriptType;
+extern NSString *const NBCDictionaryKeyScriptPath;
 
 extern NSString *const NBCCertificatesNBICreatorTargetURL;
 extern NSString *const NBCCertificatesTargetURL;
@@ -551,6 +564,7 @@ extern NSString *const NBCTableViewIdentifierImagrTrustedServers;
 extern NSString *const NBCTableViewIdentifierCasperTrustedServers;
 extern NSString *const NBCTableViewIdentifierImagrRAMDisks;
 extern NSString *const NBCTableViewIdentifierCasperRAMDisks;
+extern NSString *const NBCTableViewIdentifierConfigurationProfiles;
 
 extern NSString *const NBCDiskImageFormatReadOnly;
 extern NSString *const NBCDiskImageFormatReadWrite;

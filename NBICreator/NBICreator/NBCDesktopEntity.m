@@ -91,9 +91,15 @@
             return [[NBCDesktopPackageEntity alloc] initWithFileURL:url];
             
             // --------------------------------------------------------------
+            //  If url points to a configuration profile, allocate a NBCDesktopConfigurationProfileEntity
+            // --------------------------------------------------------------
+        } else if ( [@[ @"com.apple.mobileconfig" ] containsObject:typeIdentifier] ) {
+            return [[NBCDesktopConfigurationProfileEntity alloc] initWithFileURL:url];
+            
+            // --------------------------------------------------------------
             //  If url points to a folder, allocate a NBCDesktopFolderEntity
             // --------------------------------------------------------------
-        } else if ( [typeIdentifier isEqualToString:(NSString *)kUTTypeFolder] ) {
+        }else if ( [typeIdentifier isEqualToString:(NSString *)kUTTypeFolder] ) {
             return [[NBCDesktopFolderEntity alloc] initWithFileURL:url];
         }
     }
@@ -159,6 +165,15 @@
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 @implementation NBCDesktopPackageEntity
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark NBCDesktopConfigurationProfileEntity Implementation
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+@implementation NBCDesktopConfigurationProfileEntity
 
 @end
 

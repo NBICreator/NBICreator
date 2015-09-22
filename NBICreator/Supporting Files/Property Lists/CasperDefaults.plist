@@ -74,6 +74,10 @@
 	<string>%COUNTER%</string>
 	<key>Name</key>
 	<string>%OSVERSION%_%OSBUILD%_Casper</string>
+	<key>AddRAMDisks</key>
+	<false/>
+	<key>RAMDisks</key>
+	<array/>
 	<key>TrustedNetBootServers</key>
 	<array/>
 	<key>AddTrustedNetBootServers</key>

@@ -32,6 +32,7 @@
 #import "NSString+validIP.h"
 #import "NBCImagrRAMDiskPathCellView.h"
 #import "NBCImagrRAMDiskSizeCellView.h"
+#import "NBCOverlayViewController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -157,9 +158,53 @@ DDLogLevel ddLogLevel;
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
-        return (NSInteger)[_certificateTableViewContents count];
+        if ( ! _viewOverlayPackages ) {
+            NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypeCertificates];
+            _viewOverlayCertificates = [vc view];
+        }
+        NSInteger count = (NSInteger)[_certificateTableViewContents count];
+        if ( count == 0 && [[[_superViewCertificates subviews] firstObject] isNotEqualTo:_viewOverlayCertificates] ) {
+            [_superViewCertificates addSubview:_viewOverlayCertificates positioned:NSWindowAbove relativeTo:_scrollViewCertificates];
+            [_viewOverlayCertificates setTranslatesAutoresizingMaskIntoConstraints:NO];
+            NSArray *constraintsArray;
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayCertificates]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayCertificates)];
+            [_superViewCertificates addConstraints:constraintsArray];
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[_viewOverlayCertificates]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayCertificates)];
+            [_superViewCertificates addConstraints:constraintsArray];
+        } else if ( count > 0 && [[_superViewCertificates subviews] containsObject:_viewOverlayCertificates] ) {
+            [_viewOverlayCertificates removeFromSuperview];
+        }
+        return count;
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
-        return (NSInteger)[_packagesTableViewContents count];
+        if ( ! _viewOverlayPackages ) {
+            NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypePackages];
+            _viewOverlayPackages = [vc view];
+        }
+        NSInteger count = (NSInteger)[_packagesTableViewContents count];
+        if ( count == 0 && [[[_superViewPackages subviews] firstObject] isNotEqualTo:_viewOverlayPackages] ) {
+            [_superViewPackages addSubview:_viewOverlayPackages positioned:NSWindowAbove relativeTo:_scrollViewPackages];
+            [_viewOverlayPackages setTranslatesAutoresizingMaskIntoConstraints:NO];
+            NSArray *constraintsArray;
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayPackages]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayPackages)];
+            [_superViewPackages addConstraints:constraintsArray];
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[_viewOverlayPackages]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayPackages)];
+            [_superViewPackages addConstraints:constraintsArray];
+        } else if ( count > 0 && [[_superViewPackages subviews] containsObject:_viewOverlayPackages] ) {
+            [_viewOverlayPackages removeFromSuperview];
+        }
+        return count;
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierImagrTrustedServers] ) {
         return (NSInteger)[_trustedServers count];
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierImagrRAMDisks] ) {
@@ -272,6 +317,7 @@ DDLogLevel ddLogLevel;
                                              [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
                                              [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
                                              insertionIndex++;
+                                             [tableView reloadData];
                                          }
                                      }
                                  }];
@@ -300,6 +346,7 @@ DDLogLevel ddLogLevel;
                                              [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
                                              [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
                                              insertionIndex++;
+                                             [tableView reloadData];
                                          }
                                      }
                                  }];
@@ -648,6 +695,7 @@ DDLogLevel ddLogLevel;
     [_tableViewCertificates insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
     [_tableViewCertificates scrollRowToVisible:index];
     [_certificateTableViewContents insertObject:certificateDict atIndex:(NSUInteger)index];
+    [_tableViewCertificates reloadData];
     [_tableViewCertificates endUpdates];
 }
 
@@ -659,13 +707,14 @@ DDLogLevel ddLogLevel;
             return;
         }
     }
-    
+
     NSInteger index = [_tableViewPackages selectedRow];
     index++;
     [_tableViewPackages beginUpdates];
     [_tableViewPackages insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
     [_tableViewPackages scrollRowToVisible:index];
     [_packagesTableViewContents insertObject:packageDict atIndex:(NSUInteger)index];
+    [_tableViewPackages reloadData];
     [_tableViewPackages endUpdates];
 }
 
@@ -2960,6 +3009,7 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewCertificates selectedRowIndexes];
     [_certificateTableViewContents removeObjectsAtIndexes:indexes];
     [_tableViewCertificates removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewCertificates reloadData];
 }
 
 - (IBAction)buttonAddPackage:(id)sender {
@@ -2993,6 +3043,7 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewPackages selectedRowIndexes];
     [_packagesTableViewContents removeObjectsAtIndexes:indexes];
     [_tableViewPackages removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewPackages reloadData];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

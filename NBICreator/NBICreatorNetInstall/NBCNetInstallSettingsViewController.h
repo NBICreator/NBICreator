@@ -17,7 +17,7 @@
 #import "NBCDownloader.h"
 #import "NBCDownloaderGitHub.h"
 
-@interface NBCNetInstallSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate>
+@interface NBCNetInstallSettingsViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate, NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate>
 
 // ------------------------------------------------------
 //  Properties
@@ -56,6 +56,19 @@
 @property (weak) IBOutlet NSButton *checkboxAvailabilityEnabled;
 @property (weak) IBOutlet NSButton *checkboxAvailabilityDefault;
 - (IBAction)buttonChooseDestinationFolder:(id)sender;
+
+// ------------------------------------------------------
+//  TabView NetInstall1
+// ------------------------------------------------------
+@property NSMutableArray *configurationProfilesTableViewContents;
+@property (weak) IBOutlet NSTableView *tableViewConfigurationProfiles;
+- (IBAction)buttonAddConfigurationProfile:(id)sender;
+- (IBAction)buttonRemoveConfigurationProfile:(id)sender;
+
+@property NSMutableArray *packagesTableViewContents;
+@property (weak) IBOutlet NSTableView *tableViewPackages;
+- (IBAction)buttonAddPackage:(id)sender;
+- (IBAction)buttonRemovePackage:(id)sender;
 
 // ------------------------------------------------------
 //  PopOver

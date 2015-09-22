@@ -1495,6 +1495,12 @@ DDLogLevel ddLogLevel;
     NSString *regexHelveticaNeue = @".*/System/Library/Fonts/HelveticaNeue.dfont.*";
     [packageEssentialsRegexes addObject:regexHelveticaNeue];
     
+    NSString *regexLucidaGrande = @".*/System/Library/Fonts/LucidaGrande.ttc.*";
+    [packageEssentialsRegexes addObject:regexLucidaGrande];
+    
+    NSString *regexQuickTime = @".*System/Library/QuickTime.*";
+    [packageEssentialsRegexes addObject:regexQuickTime];
+    
     NSString *baseSystemBinariesPath = [NSString stringWithFormat:@"%@/Packages/BaseSystemBinaries.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *baseSystemBinariesDict = sourceItemsDict[baseSystemBinariesPath];
     NSMutableArray *baseSystemBinariesRegexes;
@@ -1520,30 +1526,14 @@ DDLogLevel ddLogLevel;
                       @"-t", binaryPath,
                       @"-t", @"/Users/erikberglund/Desktop/Casper/Casper Imaging.app/Contents/Support/jamf",
                       @"-t", @"/System/Library/Frameworks/AppleScriptObjC.framework/Versions/A/AppleScriptObjC",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/CVMCompiler",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/CVMServer",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/DumpGPURestart",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/ReportGPURestart",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/Legacy/CVMCompiler",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/Legacy/libCoreVMClient.mono.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/Legacy/libLLVMContainer.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreVMClient.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCVMSPluginSupport.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGFXShared.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLImage.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLProgrammability.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLVMPlugin.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libLLVMContainer.dylib",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Resources/GLEngine.bundle/GLEngine",
-                      //@"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Resources/GLRendererFloat.bundle/GLRendererFloat",
+                      @"-t", @"/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libLLVMContainer.dylib",
                       @"-t", @"/System/Library/PrivateFrameworks/ViewBridge.framework/Versions/A/ViewBridge",
                       @"-t", @"/System/Library/Extensions/GeForceGLDriver.bundle/Contents/MacOS/libclh.dylib",
                       @"-t", @"/System/Library/Frameworks/OpenCL.framework/Versions/A/Libraries/libcldcpuengine.dylib",
+                      @"-t", @"/System/Library/PrivateFrameworks/AppleGVA.framework/Versions/A/AppleGVA",
                       @"-t", @"/System/Library/QuickTime/QuickTimeComponents.component/Contents/MacOS/QuickTimeComponents",
                       @"-e", @".*OpenGL.*",
+                      @"-i", @".*libCoreVMClient.dylib$", // There is something special with the included version of this dylib, have not investigated
                       @"-a",
                       @"-x"
                       ];
@@ -1571,7 +1561,6 @@ DDLogLevel ddLogLevel;
                 [packageEssentialsRegexes addObject:regex];
                 [baseSystemBinariesRegexes addObject:regex];
             }
-            
             packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
             sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
             
