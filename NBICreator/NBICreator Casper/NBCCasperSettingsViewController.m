@@ -69,7 +69,6 @@ DDLogLevel ddLogLevel;
 } // dealloc
 
 - (void)viewDidLoad {
-    
     [super viewDidLoad];
     
     [self setConnectedToInternet:NO];
@@ -77,6 +76,7 @@ DDLogLevel ddLogLevel;
     _certificateTableViewContents = [[NSMutableArray alloc] init];
     _packagesTableViewContents = [[NSMutableArray alloc] init];
     _trustedServers = [[NSMutableArray alloc] init];
+    _ramDisks = [[NSMutableArray alloc] init];
     
     // --------------------------------------------------------------
     //  Add Notification Observers
@@ -222,6 +222,8 @@ DDLogLevel ddLogLevel;
         return count;
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCasperTrustedServers] ) {
         return (NSInteger)[_trustedServers count];
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCasperRAMDisks] ) {
+        return (NSInteger)[_ramDisks count];
     } else {
         return 0;
     }
@@ -516,7 +518,7 @@ DDLogLevel ddLogLevel;
             NBCCasperTrustedNetBootServerCellView *cellView = [tableView makeViewWithIdentifier:@"CasperNetBootServerCellView" owner:self];
             return [self populateTrustedNetBootServerCellView:cellView netBootServerIP:trustedServer];
         }
-    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierImagrRAMDisks] ) {
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCasperRAMDisks] ) {
         [self updateRAMDisksCount];
         NSDictionary *ramDiskDict = _ramDisks[(NSUInteger)row];
         if ( [[tableColumn identifier] isEqualToString:@"CasperRAMDiskPathTableColumn"] ) {
@@ -594,7 +596,7 @@ DDLogLevel ddLogLevel;
                                                                                                                              (__bridge id)kSecOIDX509V1SerialNumber,
                                                                                                                              (__bridge id)kSecOIDTitle
                                                                                                                              ], error));
-
+    
     if ( [certificateValues count] != 0 ) {
         // --------------------------------------------
         //  Certificate IsSelfSigned
@@ -830,77 +832,81 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)controlTextDidChange:(NSNotification *)sender {
-    
-    if ( [[[[sender object] superview] class] isSubclassOfClass:[NBCCasperTrustedNetBootServerCellView class]] ) {
-        if ( [sender object] == [[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:[_tableViewTrustedServers selectedRow] makeIfNecessary:NO] textFieldTrustedNetBootServer] ) {
-            NSIndexSet *rowIndexes = [_tableViewTrustedServers selectedRowIndexes];
-            NSDictionary *userInfo = [sender userInfo];
-            NSString *inputText = [[userInfo valueForKey:@"NSFieldEditor"] string];
-            
-            // Only allow numers and periods
-            NSCharacterSet *allowedCharacters = [NSCharacterSet characterSetWithCharactersInString:@"0123456789."];
-            if ( [[inputText stringByTrimmingCharactersInSet:allowedCharacters] length] != 0 ) {
-                [[sender object] setStringValue:[inputText stringByTrimmingCharactersInSet:[allowedCharacters invertedSet]]];
-                return;
+    if ( [[[sender object] class] isSubclassOfClass:[NSTextField class]] ) {
+        NSTextField *textField = [sender object];
+        if ( [[[textField superview] class] isSubclassOfClass:[NBCCasperTrustedNetBootServerCellView class]] ) {
+            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            if ( textFieldTag != nil ) {
+                if ( [sender object] == [[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:[textFieldTag integerValue] makeIfNecessary:NO] textFieldTrustedNetBootServer] ) {
+                    NSDictionary *userInfo = [sender userInfo];
+                    NSString *inputText = [[userInfo valueForKey:@"NSFieldEditor"] string];
+                    
+                    // Only allow numers and periods
+                    NSCharacterSet *allowedCharacters = [NSCharacterSet characterSetWithCharactersInString:@"0123456789."];
+                    if ( [[inputText stringByTrimmingCharactersInSet:allowedCharacters] length] != 0 ) {
+                        [textField setStringValue:[inputText stringByTrimmingCharactersInSet:[allowedCharacters invertedSet]]];
+                        return;
+                    }
+                    
+                    [_trustedServers replaceObjectAtIndex:(NSUInteger)[textFieldTag integerValue] withObject:[inputText copy]];
+                }
             }
-            
-            [_trustedServers replaceObjectAtIndex:[rowIndexes firstIndex] withObject:[inputText copy]];
-        }
-    }
-    
-    // --------------------------------------------------------------------
-    //  Expand variables for the NBI preview text fields
-    // --------------------------------------------------------------------
-    if ( [sender object] == _textFieldNBIName ) {
-        if ( [_nbiName length] == 0 ) {
-            [_textFieldNBINamePreview setStringValue:@""];
-        } else {
-            NSString *nbiName = [NBCVariables expandVariables:_nbiName source:_source applicationSource:_siuSource];
-            [_textFieldNBINamePreview setStringValue:[NSString stringWithFormat:@"%@.nbi", nbiName]];
-        }
-    } else if ( [sender object] == _textFieldIndex ) {
-        if ( [_nbiIndex length] == 0 ) {
-            [_textFieldIndexPreview setStringValue:@""];
-        } else {
-            NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_siuSource];
-            [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
-        }
-    } else if ( [sender object] == _textFieldNBIDescription ) {
-        if ( [_nbiDescription length] == 0 ) {
-            [_textFieldNBIDescriptionPreview setStringValue:@""];
-        } else {
-            NSString *nbiDescription = [NBCVariables expandVariables:_nbiDescription source:_source applicationSource:_siuSource];
-            [_textFieldNBIDescriptionPreview setStringValue:nbiDescription];
-        }
-    } else if ( [sender object] == _textFieldJSSURL ) {
-        NSURL *stringAsURL = [NSURL URLWithString:[_textFieldJSSURL stringValue]];
-        if ( stringAsURL && [stringAsURL scheme] && [stringAsURL host] ) {
-            [self jssURLIsValid];
-        } else {
-            [self jssURLIsInvalid];
         }
         
-        [_imageViewVerifyJSSStatus setHidden:YES];
-        [_textFieldVerifyJSSStatus setHidden:YES];
-        [_imageViewDownloadJSSCertificateStatus setHidden:YES];
-        [_textFieldDownloadJSSCertificateStatus setHidden:YES];
-        [_buttonShowJSSCertificate setHidden:YES];
-    } else if ( [sender object] == _textFieldDestinationFolder ) {
         // --------------------------------------------------------------------
-        //  Expand tilde for destination folder if tilde is used in settings
+        //  Expand variables for the NBI preview text fields
         // --------------------------------------------------------------------
-        if ( [_destinationFolder length] == 0 ) {
-            [self setDestinationFolder:@""];
-        } else if ( [_destinationFolder hasPrefix:@"~"] ) {
-            NSString *destinationFolder = [_destinationFolder stringByExpandingTildeInPath];
-            [self setDestinationFolder:destinationFolder];
+        if ( textField == _textFieldNBIName ) {
+            if ( [_nbiName length] == 0 ) {
+                [_textFieldNBINamePreview setStringValue:@""];
+            } else {
+                NSString *nbiName = [NBCVariables expandVariables:_nbiName source:_source applicationSource:_siuSource];
+                [_textFieldNBINamePreview setStringValue:[NSString stringWithFormat:@"%@.nbi", nbiName]];
+            }
+        } else if ( textField == _textFieldIndex ) {
+            if ( [_nbiIndex length] == 0 ) {
+                [_textFieldIndexPreview setStringValue:@""];
+            } else {
+                NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_siuSource];
+                [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
+            }
+        } else if ( textField == _textFieldNBIDescription ) {
+            if ( [_nbiDescription length] == 0 ) {
+                [_textFieldNBIDescriptionPreview setStringValue:@""];
+            } else {
+                NSString *nbiDescription = [NBCVariables expandVariables:_nbiDescription source:_source applicationSource:_siuSource];
+                [_textFieldNBIDescriptionPreview setStringValue:nbiDescription];
+            }
+        } else if ( textField == _textFieldJSSURL ) {
+            NSURL *stringAsURL = [NSURL URLWithString:[_textFieldJSSURL stringValue]];
+            if ( stringAsURL && [stringAsURL scheme] && [stringAsURL host] ) {
+                [self jssURLIsValid];
+            } else {
+                [self jssURLIsInvalid];
+            }
+            
+            [_imageViewVerifyJSSStatus setHidden:YES];
+            [_textFieldVerifyJSSStatus setHidden:YES];
+            [_imageViewDownloadJSSCertificateStatus setHidden:YES];
+            [_textFieldDownloadJSSCertificateStatus setHidden:YES];
+            [_buttonShowJSSCertificate setHidden:YES];
+        } else if ( textField == _textFieldDestinationFolder ) {
+            // --------------------------------------------------------------------
+            //  Expand tilde for destination folder if tilde is used in settings
+            // --------------------------------------------------------------------
+            if ( [_destinationFolder length] == 0 ) {
+                [self setDestinationFolder:@""];
+            } else if ( [_destinationFolder hasPrefix:@"~"] ) {
+                NSString *destinationFolder = [_destinationFolder stringByExpandingTildeInPath];
+                [self setDestinationFolder:destinationFolder];
+            }
         }
+        
+        // --------------------------------------------------------------------
+        //  Continuously verify build button
+        // --------------------------------------------------------------------
+        [self verifyBuildButton];
     }
-    
-    // --------------------------------------------------------------------
-    //  Continuously verify build button
-    // --------------------------------------------------------------------
-    [self verifyBuildButton];
     
 } // controlTextDidChange
 
@@ -1106,8 +1112,29 @@ DDLogLevel ddLogLevel;
 } // restoreNBIBackground
 
 - (void)editingDidEnd:(NSNotification *)notification {
-    if ( [[[[notification object] superview] class] isSubclassOfClass:[NBCCasperTrustedNetBootServerCellView class]] ) {
-        [self updateTrustedNetBootServersCount];
+    if ( [[[notification object] class] isSubclassOfClass:[NSTextField class]] ) {
+        NSTextField *textField = [notification object];
+        if ( [[[textField superview] class] isSubclassOfClass:[NBCCasperTrustedNetBootServerCellView class]] ) {
+            [self updateTrustedNetBootServersCount];
+        } else if ( [[[textField superview] class] isSubclassOfClass:[NBCCasperRAMDiskPathCellView class]] ) {
+            NSString *newPath = [textField stringValue];
+            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            if ( textFieldTag != nil ) {
+                NSMutableDictionary *ramDiskDict = [NSMutableDictionary dictionaryWithDictionary:[_ramDisks objectAtIndex:(NSUInteger)[textFieldTag integerValue]]];
+                ramDiskDict[@"path"] = newPath ?: @"";
+                [_ramDisks replaceObjectAtIndex:(NSUInteger)[textFieldTag integerValue] withObject:[ramDiskDict copy]];
+                [self updateRAMDisksCount];
+            }
+        } else if ( [[[textField superview] class] isSubclassOfClass:[NBCCasperRAMDiskSizeCellView class]] ) {
+            NSString *newSize = [[notification object] stringValue];
+            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            if ( textFieldTag != nil ) {
+                NSMutableDictionary *ramDiskDict = [NSMutableDictionary dictionaryWithDictionary:[_ramDisks objectAtIndex:(NSUInteger)[textFieldTag integerValue]]];
+                ramDiskDict[@"size"] = newSize ?: @"";
+                [_ramDisks replaceObjectAtIndex:(NSUInteger)[textFieldTag integerValue] withObject:[ramDiskDict copy]];
+                [self updateRAMDisksCount];
+            }
+        }
     }
 } // editingDidEnd
 
@@ -2574,7 +2601,7 @@ DDLogLevel ddLogLevel;
         [NBCSourceController addARD:sourceItemsDict source:_source];
         //[NBCSourceController addKerberos:sourceItemsDict source:_source];
     }
-
+    
     // -------------------------------------------------------------
     //  In OS X 10.11 all sources moved to Essentials.pkg
     //  This moves all BSD and AdditionalEssentials-regexes to Essentials
@@ -3311,8 +3338,8 @@ DDLogLevel ddLogLevel;
         }
         
         NBCCasperRAMDiskPathCellView *cellView = [self->_tableViewRAMDisks viewAtColumn:0
-                                                                                   row:(NSInteger)idx
-                                                                       makeIfNecessary:NO];
+                                                                                    row:(NSInteger)idx
+                                                                        makeIfNecessary:NO];
         if ( [path length] != 0 ) {
             [[cellView textFieldRAMDiskPath] setStringValue:path];
             validPath = YES;
@@ -3339,6 +3366,7 @@ DDLogLevel ddLogLevel;
     NSString *ramDisksCount = [[NSNumber numberWithInt:validRAMDisksCounter] stringValue];
     NSString *ramDiskSize = [NSByteCountFormatter stringFromByteCount:(long long)(sumRAMDiskSize * 1000000) countStyle:NSByteCountFormatterCountStyleDecimal];
     [_textFieldRAMDiskSize setStringValue:ramDiskSize];
+    NSLog(@"ramDiskSize=%@", ramDiskSize);
     
     if ( containsInvalidRAMDisk ) {
         NSMutableAttributedString *ramDisksCountMutable = [[NSMutableAttributedString alloc] initWithString:ramDisksCount];

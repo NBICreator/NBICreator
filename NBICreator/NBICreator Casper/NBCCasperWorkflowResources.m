@@ -994,18 +994,7 @@ DDLogLevel ddLogLevel;
             //  Create Casper configuration plist and add to copy resources
             // ------------------------------------------------------------
             NSURL *jssPreferencePlistTargetURL = [temporaryFolderURL URLByAppendingPathComponent:@"com.jamfsoftware.jss.plist"];
-            
             NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] initWithDictionary:@{ @"url" : [jssURL absoluteString] }];
-            
-            NSString *jssHost = [jssURL host];
-            if ( [jssHost length] != 0 ) {
-                settingsDict[@"address"] = jssHost;
-            }
-            
-            NSString *jssURLScheme = [jssURL scheme];
-            if ( [jssURLScheme length] != 0 ) {
-                settingsDict[@"secure"] = [[jssURL scheme] isEqualToString:@"https"] ? @YES : @NO;
-            }
             
             NSString *jssPort = [[jssURL port] stringValue];
             if ( [jssPort length] != 0 ) {
@@ -1013,12 +1002,9 @@ DDLogLevel ddLogLevel;
             } else {
                 settingsDict[@"port"] = [[jssURL scheme] isEqualToString:@"https"] ? @"443" : @"80";
             }
-            
-            NSString *jssPath = [jssURL path];
-            if ( [jssPath length] != 0 ) {
-                settingsDict[@"path"] = jssPath;
-            }
-            
+            settingsDict[@"address"] = [jssURL host] ?: @"";
+            settingsDict[@"secure"] = [[jssURL scheme] isEqualToString:@"https"] ? @YES : @NO;
+            settingsDict[@"path"] = [jssURL path] ?: @"";
             settingsDict[@"allowInvalidCertificate"] = [_userSettings[NBCSettingsCasperAllowInvalidCertificateKey] boolValue] ? @YES : @NO;
 
             if ( [settingsDict writeToURL:jssPreferencePlistTargetURL atomically:YES] ) {
