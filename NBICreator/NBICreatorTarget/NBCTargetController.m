@@ -2088,6 +2088,10 @@ DDLogLevel ddLogLevel;
                     [rcCdmCdrom appendString:@"/bin/chmod 777 /tmp\n"];
                     [rcCdmCdrom appendString:@"RAMDisk /var/log/ 8192\n"];
                     [rcCdmCdrom appendString:@"RAMDisk /etc 1024\n"];
+                    [rcCdmCdrom appendString:@"/bin/mkdir -p /var/root/Library/Caches/jamf/fsCachedData\n"];
+                    [rcCdmCdrom appendString:@"/bin/chmod 777 /var/root/Library/Caches/jamf/fsCachedData\n"];
+                    [rcCdmCdrom appendString:@"/bin/mkdir -p /var/root/Library/Caches/com.jamfsoftware.CasperImaging/fsCachedData\n"];
+                    [rcCdmCdrom appendString:@"/bin/chmod 777 /var/root/Library/Caches/com.jamfsoftware.CasperImaging/fsCachedData\n"];
                     break;
                 }
                 default:
