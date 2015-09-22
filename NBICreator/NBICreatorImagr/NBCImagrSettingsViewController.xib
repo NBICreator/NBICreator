@@ -917,7 +917,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="MJI-f4-yw8">
-                                        <rect key="frame" x="19" y="163" width="60" height="16"/>
+                                        <rect key="frame" x="19" y="166" width="60" height="16"/>
                                         <buttonCell key="cell" type="push" title="Add" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oGq-dV-O2f">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -927,7 +927,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UBT-OQ-O35">
-                                        <rect key="frame" x="18" y="126" width="498" height="17"/>
+                                        <rect key="frame" x="18" y="129" width="498" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Packages to install in the NetInstall Image:" id="zh8-PI-CjH">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -935,13 +935,13 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <box verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="bVf-Oq-lLF">
-                                        <rect key="frame" x="20" y="151" width="494" height="5"/>
+                                        <rect key="frame" x="20" y="154" width="494" height="5"/>
                                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <font key="titleFont" metaFont="system"/>
                                     </box>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="tuo-wh-aZG">
-                                        <rect key="frame" x="19" y="7" width="60" height="16"/>
+                                        <rect key="frame" x="19" y="13" width="60" height="16"/>
                                         <buttonCell key="cell" type="push" title="Add" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Ber-45-u6b">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -951,7 +951,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="51l-fu-EQU">
-                                        <rect key="frame" x="82" y="7" width="60" height="16"/>
+                                        <rect key="frame" x="82" y="13" width="60" height="16"/>
                                         <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="mpH-5U-V8X">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -961,7 +961,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QuY-Kq-kYJ">
-                                        <rect key="frame" x="82" y="163" width="60" height="16"/>
+                                        <rect key="frame" x="82" y="166" width="60" height="16"/>
                                         <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Y3S-RH-NhF">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -971,7 +971,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="hyc-RF-nk8" userLabel="Holding View Packages">
-                                        <rect key="frame" x="20" y="31" width="494" height="87"/>
+                                        <rect key="frame" x="20" y="34" width="494" height="87"/>
                                         <subviews>
                                             <scrollView autohidesScrollers="YES" horizontalLineScroll="21" horizontalPageScroll="10" verticalLineScroll="21" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="797-0L-l1A">
                                                 <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
@@ -1179,14 +1179,14 @@ asdasd</string>
                                     <constraint firstAttribute="trailing" secondItem="UBT-OQ-O35" secondAttribute="trailing" constant="20" symbolic="YES" id="Szf-HU-hhM"/>
                                     <constraint firstItem="MJI-f4-yw8" firstAttribute="width" secondItem="QuY-Kq-kYJ" secondAttribute="width" id="Tby-nH-1lZ"/>
                                     <constraint firstItem="UBT-OQ-O35" firstAttribute="top" secondItem="bVf-Oq-lLF" secondAttribute="bottom" constant="10" id="Z4w-rK-wAA"/>
-                                    <constraint firstItem="MJI-f4-yw8" firstAttribute="top" secondItem="laR-h0-Csa" secondAttribute="bottom" constant="8" symbolic="YES" id="Zx1-4Q-qmS"/>
+                                    <constraint firstItem="MJI-f4-yw8" firstAttribute="top" secondItem="laR-h0-Csa" secondAttribute="bottom" constant="5" id="Zx1-4Q-qmS"/>
                                     <constraint firstItem="QuY-Kq-kYJ" firstAttribute="centerY" secondItem="MJI-f4-yw8" secondAttribute="centerY" id="af9-be-kVB"/>
                                     <constraint firstItem="QuY-Kq-kYJ" firstAttribute="leading" secondItem="MJI-f4-yw8" secondAttribute="trailing" constant="5" id="auo-AA-W0S"/>
                                     <constraint firstItem="laR-h0-Csa" firstAttribute="top" secondItem="yGH-X8-ur8" secondAttribute="bottom" constant="8" symbolic="YES" id="cBj-22-sAT"/>
                                     <constraint firstItem="laR-h0-Csa" firstAttribute="leading" secondItem="Wk2-ZM-AtK" secondAttribute="leading" constant="20" symbolic="YES" id="f0i-dm-veL"/>
                                     <constraint firstItem="UBT-OQ-O35" firstAttribute="leading" secondItem="Wk2-ZM-AtK" secondAttribute="leading" constant="20" symbolic="YES" id="g2w-zI-8o8"/>
                                     <constraint firstItem="hyc-RF-nk8" firstAttribute="leading" secondItem="laR-h0-Csa" secondAttribute="leading" id="gGP-fj-owJ"/>
-                                    <constraint firstItem="tuo-wh-aZG" firstAttribute="top" secondItem="hyc-RF-nk8" secondAttribute="bottom" constant="8" symbolic="YES" id="hNg-Da-ShW"/>
+                                    <constraint firstItem="tuo-wh-aZG" firstAttribute="top" secondItem="hyc-RF-nk8" secondAttribute="bottom" constant="5" id="hNg-Da-ShW"/>
                                     <constraint firstItem="51l-fu-EQU" firstAttribute="leading" secondItem="tuo-wh-aZG" secondAttribute="trailing" constant="5" id="iTx-kd-T4W"/>
                                     <constraint firstItem="hyc-RF-nk8" firstAttribute="top" secondItem="UBT-OQ-O35" secondAttribute="bottom" constant="8" symbolic="YES" id="k3e-ee-GvB"/>
                                     <constraint firstItem="51l-fu-EQU" firstAttribute="centerY" secondItem="tuo-wh-aZG" secondAttribute="centerY" id="n0o-Om-7mT"/>

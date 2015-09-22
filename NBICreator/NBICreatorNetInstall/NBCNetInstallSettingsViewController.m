@@ -23,6 +23,7 @@
 #import "NBCConfigurationProfileTableCellView.h"
 
 #import "NBCDDReader.h"
+#import "NBCOverlayViewController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -855,6 +856,7 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewConfigurationProfiles selectedRowIndexes];
     [_configurationProfilesTableViewContents removeObjectsAtIndexes:indexes];
     [_tableViewConfigurationProfiles removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewConfigurationProfiles reloadData];
 }
 
 - (void)insertPackageInTableView:(NSDictionary *)packageDict {
@@ -872,6 +874,7 @@ DDLogLevel ddLogLevel;
     [_tableViewPackages insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
     [_tableViewPackages scrollRowToVisible:index];
     [_packagesTableViewContents insertObject:packageDict atIndex:(NSUInteger)index];
+    [_tableViewPackages reloadData];
     [_tableViewPackages endUpdates];
 }
 
@@ -890,6 +893,7 @@ DDLogLevel ddLogLevel;
     [_tableViewConfigurationProfiles insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
     [_tableViewConfigurationProfiles scrollRowToVisible:index];
     [_configurationProfilesTableViewContents insertObject:configurationProfileDict atIndex:(NSUInteger)index];
+    [_tableViewConfigurationProfiles reloadData];
     [_tableViewConfigurationProfiles endUpdates];
 }
 
@@ -1016,9 +1020,53 @@ DDLogLevel ddLogLevel;
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
-        return (NSInteger)[_packagesTableViewContents count];
+        if ( ! _viewOverlayPackages ) {
+            NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypePackages];
+            _viewOverlayPackages = [vc view];
+        }
+        NSInteger count = (NSInteger)[_packagesTableViewContents count];
+        if ( count == 0 && [[[_superViewPackages subviews] firstObject] isNotEqualTo:_viewOverlayPackages] ) {
+            [_superViewPackages addSubview:_viewOverlayPackages positioned:NSWindowAbove relativeTo:_scrollViewPackages];
+            [_viewOverlayPackages setTranslatesAutoresizingMaskIntoConstraints:NO];
+            NSArray *constraintsArray;
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayPackages]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayPackages)];
+            [_superViewPackages addConstraints:constraintsArray];
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[_viewOverlayPackages]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayPackages)];
+            [_superViewPackages addConstraints:constraintsArray];
+        } else if ( count > 0 && [[_superViewPackages subviews] containsObject:_viewOverlayPackages] ) {
+            [_viewOverlayPackages removeFromSuperview];
+        }
+        return count;
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierConfigurationProfiles] ) {
-        return (NSInteger)[_configurationProfilesTableViewContents count];
+        if ( ! _viewOverlayConfigurationProfiles ) {
+            NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypeConfigurationProfiles];
+            _viewOverlayConfigurationProfiles = [vc view];
+        }
+        NSInteger count = (NSInteger)[_configurationProfilesTableViewContents count];
+        if ( count == 0 && [[[_superViewConfigurationProfiles subviews] firstObject] isNotEqualTo:_viewOverlayConfigurationProfiles] ) {
+            [_superViewConfigurationProfiles addSubview:_viewOverlayConfigurationProfiles positioned:NSWindowAbove relativeTo:_scrollViewConfigurationProfiles];
+            [_viewOverlayConfigurationProfiles setTranslatesAutoresizingMaskIntoConstraints:NO];
+            NSArray *constraintsArray;
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayConfigurationProfiles]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayConfigurationProfiles)];
+            [_superViewConfigurationProfiles addConstraints:constraintsArray];
+            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[_viewOverlayConfigurationProfiles]-1-|"
+                                                                       options:0
+                                                                       metrics:nil
+                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayConfigurationProfiles)];
+            [_superViewConfigurationProfiles addConstraints:constraintsArray];
+        } else if ( count > 0 && [[_superViewPackages subviews] containsObject:_viewOverlayPackages] ) {
+            [_viewOverlayPackages removeFromSuperview];
+        }
+        return count;
     } else {
         return 0;
     }
@@ -1123,6 +1171,7 @@ DDLogLevel ddLogLevel;
                                              [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
                                              [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
                                              insertionIndex++;
+                                             [tableView reloadData];
                                          }
                                      }
                                  }];
@@ -1151,6 +1200,7 @@ DDLogLevel ddLogLevel;
                                              [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
                                              [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
                                              insertionIndex++;
+                                             [tableView reloadData];
                                          }
                                      }
                                  }];
@@ -1212,6 +1262,7 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewPackages selectedRowIndexes];
     [_packagesTableViewContents removeObjectsAtIndexes:indexes];
     [_tableViewPackages removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewPackages reloadData];
 }
 
 @end

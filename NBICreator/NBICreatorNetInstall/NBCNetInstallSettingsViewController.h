@@ -69,6 +69,13 @@
 @property (weak) IBOutlet NSTableView *tableViewPackages;
 - (IBAction)buttonAddPackage:(id)sender;
 - (IBAction)buttonRemovePackage:(id)sender;
+@property (weak) IBOutlet NSScrollView *scrollViewPackages;
+@property (weak) IBOutlet NSView *superViewPackages;
+@property (weak) IBOutlet NSView *superViewConfigurationProfiles;
+@property (weak) IBOutlet NSScrollView *scrollViewConfigurationProfiles;
+
+@property (strong) NSView *viewOverlayPackages;
+@property (strong) NSView *viewOverlayConfigurationProfiles;
 
 // ------------------------------------------------------
 //  PopOver

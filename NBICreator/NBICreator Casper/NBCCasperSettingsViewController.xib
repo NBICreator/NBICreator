@@ -108,14 +108,6 @@
                         <rect key="frame" x="1" y="1" width="544" height="74"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="o8G-DB-GR7">
-                                <rect key="frame" x="16" y="45" width="184" height="17"/>
-                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="NetInstall Creation Tool:" id="aXn-gg-hJ6">
-                                    <font key="font" metaFont="system"/>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
                             <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="g9a-By-5nS">
                                 <rect key="frame" x="16" y="20" width="184" height="17"/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Saved Templates:" id="3ID-ns-jhA">
@@ -178,6 +170,14 @@
                                         </dictionary>
                                     </binding>
                                 </connections>
+                            </textField>
+                            <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="o8G-DB-GR7">
+                                <rect key="frame" x="16" y="45" width="184" height="17"/>
+                                <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="NetInstall Creation Tool:" id="aXn-gg-hJ6">
+                                    <font key="font" metaFont="system"/>
+                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                </textFieldCell>
                             </textField>
                         </subviews>
                     </view>
@@ -901,7 +901,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Tgx-L5-Slf">
-                                        <rect key="frame" x="19" y="166" width="60" height="16"/>
+                                        <rect key="frame" x="19" y="169" width="60" height="16"/>
                                         <buttonCell key="cell" type="push" title="Add" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="r41-0X-ENB">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -911,7 +911,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cf0-Rj-D4i">
-                                        <rect key="frame" x="18" y="129" width="498" height="17"/>
+                                        <rect key="frame" x="18" y="132" width="498" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Packages to install in the NetInstall Image:" id="bIJ-xS-HAj">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -919,13 +919,13 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <box verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="PdG-Rt-b7p">
-                                        <rect key="frame" x="20" y="154" width="494" height="5"/>
+                                        <rect key="frame" x="20" y="157" width="494" height="5"/>
                                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         <font key="titleFont" metaFont="system"/>
                                     </box>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="KtS-VU-eCP">
-                                        <rect key="frame" x="19" y="10" width="60" height="16"/>
+                                        <rect key="frame" x="19" y="16" width="60" height="16"/>
                                         <buttonCell key="cell" type="push" title="Add" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="h8H-sN-eoe">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -935,7 +935,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9WL-Is-6hA">
-                                        <rect key="frame" x="82" y="10" width="60" height="16"/>
+                                        <rect key="frame" x="82" y="16" width="60" height="16"/>
                                         <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ee1-nt-QtK">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -945,7 +945,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QEH-me-ehO">
-                                        <rect key="frame" x="82" y="166" width="60" height="16"/>
+                                        <rect key="frame" x="82" y="169" width="60" height="16"/>
                                         <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="raq-T6-im8">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -955,7 +955,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="ReY-aP-6de" userLabel="Super View Packages">
-                                        <rect key="frame" x="20" y="34" width="494" height="87"/>
+                                        <rect key="frame" x="20" y="37" width="494" height="87"/>
                                         <subviews>
                                             <scrollView autohidesScrollers="YES" horizontalLineScroll="21" horizontalPageScroll="10" verticalLineScroll="21" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eth-Sh-s0m">
                                                 <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
@@ -1157,7 +1157,7 @@ asdasd</string>
                                     <constraint firstItem="Uon-mp-pY0" firstAttribute="top" secondItem="CL9-Pg-vlZ" secondAttribute="bottom" constant="5" id="8nZ-dK-Pqj"/>
                                     <constraint firstItem="PdG-Rt-b7p" firstAttribute="top" secondItem="QEH-me-ehO" secondAttribute="bottom" constant="10" id="EWH-as-DBW"/>
                                     <constraint firstItem="CL9-Pg-vlZ" firstAttribute="top" secondItem="Nkv-gR-JLj" secondAttribute="top" constant="20" symbolic="YES" id="FDj-g8-cCJ"/>
-                                    <constraint firstItem="KtS-VU-eCP" firstAttribute="top" secondItem="ReY-aP-6de" secondAttribute="bottom" constant="8" symbolic="YES" id="LiG-Ql-QRj"/>
+                                    <constraint firstItem="KtS-VU-eCP" firstAttribute="top" secondItem="ReY-aP-6de" secondAttribute="bottom" constant="5" id="LiG-Ql-QRj"/>
                                     <constraint firstAttribute="trailing" secondItem="CL9-Pg-vlZ" secondAttribute="trailing" constant="20" symbolic="YES" id="NZ4-Gz-M2i"/>
                                     <constraint firstItem="9WL-Is-6hA" firstAttribute="leading" secondItem="KtS-VU-eCP" secondAttribute="trailing" constant="5" id="NsX-Wa-zni"/>
                                     <constraint firstItem="Tgx-L5-Slf" firstAttribute="width" secondItem="QEH-me-ehO" secondAttribute="width" id="OxX-SL-pzU"/>
@@ -1176,7 +1176,7 @@ asdasd</string>
                                     <constraint firstItem="Tgx-L5-Slf" firstAttribute="leading" secondItem="CL9-Pg-vlZ" secondAttribute="leading" id="mmx-6R-W2p"/>
                                     <constraint firstItem="PdG-Rt-b7p" firstAttribute="leading" secondItem="Nkv-gR-JLj" secondAttribute="leading" constant="20" symbolic="YES" id="rNs-NM-Yho"/>
                                     <constraint firstItem="ReY-aP-6de" firstAttribute="width" secondItem="Uon-mp-pY0" secondAttribute="width" id="rZf-Vc-nrL"/>
-                                    <constraint firstItem="Tgx-L5-Slf" firstAttribute="top" secondItem="Uon-mp-pY0" secondAttribute="bottom" constant="8" symbolic="YES" id="vs4-wA-meO"/>
+                                    <constraint firstItem="Tgx-L5-Slf" firstAttribute="top" secondItem="Uon-mp-pY0" secondAttribute="bottom" constant="5" id="vs4-wA-meO"/>
                                     <constraint firstAttribute="trailing" secondItem="cf0-Rj-D4i" secondAttribute="trailing" constant="20" symbolic="YES" id="z22-fv-Vxe"/>
                                 </constraints>
                             </view>
