@@ -1194,6 +1194,7 @@ asdasd</string>
                                         </buttonCell>
                                         <connections>
                                             <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="rlY-S4-JI4"/>
+                                            <binding destination="-2" name="value" keyPath="self.addTrustedNetBootServers" id="vbj-A7-FEu"/>
                                         </connections>
                                     </button>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="8IO-9N-LoC">

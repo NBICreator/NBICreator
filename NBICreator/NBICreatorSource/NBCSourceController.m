@@ -1556,7 +1556,7 @@ DDLogLevel ddLogLevel;
         if ( [newTask terminationStatus] == 0 ) {
             NSMutableArray *regexArray = [[stdOut componentsSeparatedByString:@"\n"] mutableCopy];
             [regexArray removeObject:@""];
-            DDLogInfo(@"Found %lu dependencies...", (unsigned long)[regexArray count]);
+            DDLogInfo(@"Found %lu dependencies", (unsigned long)[regexArray count]);
             for ( NSString *regex in regexArray ) {
                 [packageEssentialsRegexes addObject:regex];
                 [baseSystemBinariesRegexes addObject:regex];

@@ -2681,6 +2681,27 @@ DDLogLevel ddLogLevel;
             sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
             [sourceItemsDict removeObjectForKey:packageBSDPath];
         }
+        
+        NSString *packageBaseSystemBinariesPath = [NSString stringWithFormat:@"%@/Packages/BaseSystemBinaries.pkg", [[_source installESDVolumeURL] path]];
+        NSMutableDictionary *packageBaseSystemBinariesDict = sourceItemsDict[packageBaseSystemBinariesPath];
+        NSArray *packageBaseSystemBinariesRegexes;
+        if ( [packageBaseSystemBinariesDict count] != 0 ) {
+            packageBaseSystemBinariesRegexes = packageBaseSystemBinariesDict[NBCSettingsSourceItemsRegexKey];
+            NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
+            NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+            NSMutableArray *packageEssentialsRegexes;
+            if ( [packageEssentialsDict count] == 0 ) {
+                packageEssentialsDict = [[NSMutableDictionary alloc] init];
+            }
+            packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+            if ( packageEssentialsRegexes == nil ) {
+                packageEssentialsRegexes = [[NSMutableArray alloc] init];
+            }
+            [packageEssentialsRegexes addObjectsFromArray:packageBaseSystemBinariesRegexes];
+            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+            sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+            [sourceItemsDict removeObjectForKey:packageBaseSystemBinariesPath];
+        }
     }
     
     resourcesSettings[NBCSettingsSourceItemsKey] = sourceItemsDict;
