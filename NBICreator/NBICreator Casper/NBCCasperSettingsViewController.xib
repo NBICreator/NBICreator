@@ -416,7 +416,10 @@
                                                         <constraint firstAttribute="height" constant="68" id="6o1-jv-exb"/>
                                                         <constraint firstAttribute="width" constant="68" id="WCh-AX-c74"/>
                                                     </constraints>
-                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconImagr" id="ben-0w-SLY"/>
+                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconCasperImaging" id="ben-0w-SLY"/>
+                                                    <connections>
+                                                        <binding destination="-2" name="valuePath" keyPath="self.nbiIcon" id="BIH-Y2-Hg6"/>
+                                                    </connections>
                                                 </imageView>
                                                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3hE-bn-XMg">
                                                     <rect key="frame" x="81" y="38" width="318" height="13"/>
@@ -746,7 +749,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button translatesAutoresizingMaskIntoConstraints="NO" id="QWT-wK-0EX">
-                                        <rect key="frame" x="121" y="263" width="132" height="18"/>
+                                        <rect key="frame" x="125" y="263" width="132" height="18"/>
                                         <buttonCell key="cell" type="check" title="Disable Bluetooth" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="5m9-eh-cBx">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
@@ -755,8 +758,8 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.disableBluetooth" id="wDg-Zf-S3w"/>
                                         </connections>
                                     </button>
-                                    <slider verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eVo-A6-QFc">
-                                        <rect key="frame" x="156" y="177" width="360" height="27"/>
+                                    <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="eVo-A6-QFc">
+                                        <rect key="frame" x="156" y="176" width="360" height="27"/>
                                         <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="1" maxValue="120" doubleValue="20" tickMarkPosition="below" numberOfTickMarks="13" sliderType="linear" id="Wef-wE-M6Q"/>
                                         <connections>
                                             <action selector="sliderDisplaySleep:" target="-2" id="Sj1-LD-2aZ"/>
@@ -770,48 +773,48 @@ asdasd</string>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="88S-qv-gbh">
-                                        <rect key="frame" x="156" y="164" width="29" height="11"/>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="88S-qv-gbh">
+                                        <rect key="frame" x="156" y="163" width="29" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1 min" id="Gjb-xb-4hr">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="oeb-wd-4qe">
-                                        <rect key="frame" x="234" y="164" width="34" height="11"/>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oeb-wd-4qe">
+                                        <rect key="frame" x="234" y="163" width="34" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="30 min" id="Q8s-jt-7Up">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EBx-5W-YZF">
-                                        <rect key="frame" x="322" y="164" width="22" height="11"/>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EBx-5W-YZF">
+                                        <rect key="frame" x="322" y="163" width="22" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1 hr" id="EHV-fm-wcB">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PZg-Kn-y3d">
-                                        <rect key="frame" x="486" y="164" width="30" height="11"/>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="PZg-Kn-y3d">
+                                        <rect key="frame" x="486" y="163" width="30" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Never" id="Du6-WS-AEq">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="EMx-7w-Fe2">
-                                        <rect key="frame" x="463" y="208" width="53" height="11"/>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EMx-7w-Fe2">
+                                        <rect key="frame" x="463" y="209" width="53" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="30 Minutes" id="RCX-rx-nV6">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
                                     </textField>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uGH-ta-cED">
-                                        <rect key="frame" x="403" y="164" width="35" height="11"/>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uGH-ta-cED">
+                                        <rect key="frame" x="403" y="163" width="35" height="11"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1,5 hrs" id="bpe-Yd-uc2">
                                             <font key="font" metaFont="miniSystem"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -826,6 +829,16 @@ asdasd</string>
                                         </buttonCell>
                                         <connections>
                                             <binding destination="-2" name="value" keyPath="self.includeRuby" id="IY9-Db-43r"/>
+                                        </connections>
+                                    </button>
+                                    <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cKa-Hl-5xh">
+                                        <rect key="frame" x="125" y="240" width="115" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Include Python" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="jus-0t-XS2">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.includePython" id="6b2-e4-wQg"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -848,13 +861,15 @@ asdasd</string>
                                     <constraint firstItem="bra-6W-hae" firstAttribute="leading" secondItem="UaD-ql-OlJ" secondAttribute="leading" id="Gwu-dD-kGe"/>
                                     <constraint firstItem="OvQ-PP-4Po" firstAttribute="leading" secondItem="k94-od-5fG" secondAttribute="trailing" constant="8" symbolic="YES" id="Hcm-Tt-eyx"/>
                                     <constraint firstItem="qYb-MC-CFZ" firstAttribute="top" secondItem="d0f-nn-VGQ" secondAttribute="bottom" constant="8" symbolic="YES" id="Iy9-l0-UDY"/>
+                                    <constraint firstItem="cKa-Hl-5xh" firstAttribute="baseline" secondItem="4bS-ke-MSf" secondAttribute="baseline" id="Kep-hI-8za"/>
+                                    <constraint firstItem="cKa-Hl-5xh" firstAttribute="leading" secondItem="QWT-wK-0EX" secondAttribute="leading" id="Lyh-Ow-vrC"/>
                                     <constraint firstItem="d0f-nn-VGQ" firstAttribute="top" secondItem="Tzk-jh-mHD" secondAttribute="bottom" constant="15" id="MOy-oh-IKV"/>
                                     <constraint firstItem="oeb-wd-4qe" firstAttribute="top" secondItem="eVo-A6-QFc" secondAttribute="bottom" constant="3" id="Nci-mx-NNy"/>
+                                    <constraint firstItem="cKa-Hl-5xh" firstAttribute="leading" secondItem="4bS-ke-MSf" secondAttribute="trailing" constant="8" symbolic="YES" id="QFi-ej-kcL"/>
                                     <constraint firstItem="Tzk-jh-mHD" firstAttribute="leading" secondItem="qYb-MC-CFZ" secondAttribute="leading" id="Qsh-sN-9v3"/>
                                     <constraint firstAttribute="trailing" secondItem="aUC-1C-Ccv" secondAttribute="trailing" constant="20" symbolic="YES" id="Qy6-KR-Xe4"/>
                                     <constraint firstItem="PZg-Kn-y3d" firstAttribute="leading" secondItem="uGH-ta-cED" secondAttribute="trailing" constant="52" id="RE9-tL-CJ1"/>
                                     <constraint firstItem="FPK-vP-rLi" firstAttribute="leading" secondItem="Vzu-DK-8f3" secondAttribute="leading" id="Ty7-MC-Rd2"/>
-                                    <constraint firstItem="QWT-wK-0EX" firstAttribute="leading" secondItem="JV6-sF-KVi" secondAttribute="trailing" constant="8" symbolic="YES" id="X40-rl-aav"/>
                                     <constraint firstItem="EBx-5W-YZF" firstAttribute="baseline" secondItem="uGH-ta-cED" secondAttribute="baseline" id="Yoh-bk-chQ"/>
                                     <constraint firstItem="aeI-Pu-jo2" firstAttribute="top" secondItem="UaD-ql-OlJ" secondAttribute="bottom" constant="15" id="ZAu-TQ-iuN"/>
                                     <constraint firstItem="FPK-vP-rLi" firstAttribute="top" secondItem="4bS-ke-MSf" secondAttribute="bottom" constant="9" id="aN0-U7-TFO"/>
@@ -1193,8 +1208,8 @@ asdasd</string>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="rlY-S4-JI4"/>
                                             <binding destination="-2" name="value" keyPath="self.addTrustedNetBootServers" id="vbj-A7-FEu"/>
+                                            <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="rlY-S4-JI4"/>
                                         </connections>
                                     </button>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="8IO-9N-LoC">
@@ -2566,7 +2581,7 @@ asdasd</string>
         </customView>
     </objects>
     <resources>
-        <image name="IconImagr" width="512" height="512"/>
+        <image name="IconCasperImaging" width="512" height="512"/>
         <image name="NSAddTemplate" width="11" height="11"/>
         <image name="NSCaution" width="32" height="32"/>
         <image name="NSRemoveTemplate" width="11" height="11"/>

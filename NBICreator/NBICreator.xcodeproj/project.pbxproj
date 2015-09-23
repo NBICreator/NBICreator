@@ -54,6 +54,7 @@
 		53609D761B80F4D0007F874F /* NBCUpdater.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53609D741B80F4D0007F874F /* NBCUpdater.xib */; };
 		53695BB41B80A6510038F3DD /* generateKernelCache.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53695BB31B80A6510038F3DD /* generateKernelCache.bash */; };
 		536D1B6D1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m in Sources */ = {isa = PBXBuildFile; fileRef = 536D1B6C1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m */; };
+		5374C28E1BB2CDCE008C8679 /* IconCasperImaging.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5374C28D1BB2CDCE008C8679 /* IconCasperImaging.icns */; settings = {ASSET_TAGS = (); }; };
 		537FF2281B9B0CE200924E04 /* NSString+validIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 537FF2271B9B0CE200924E04 /* NSString+validIP.m */; };
 		5381B76E1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5381B76C1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m */; };
 		5381B76F1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5381B76D1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib */; };
@@ -324,6 +325,7 @@
 		53695BB31B80A6510038F3DD /* generateKernelCache.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = generateKernelCache.bash; path = "Supporting Files/Scripts/generateKernelCache.bash"; sourceTree = "<group>"; };
 		536D1B6B1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCBackgroundViewWhite.h; sourceTree = "<group>"; };
 		536D1B6C1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCBackgroundViewWhite.m; sourceTree = "<group>"; };
+		5374C28D1BB2CDCE008C8679 /* IconCasperImaging.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconCasperImaging.icns; sourceTree = "<group>"; };
 		537FF2261B9B0CE200924E04 /* NSString+validIP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+validIP.h"; path = "NBICreatorCategories/NSString+validIP.h"; sourceTree = "<group>"; };
 		537FF2271B9B0CE200924E04 /* NSString+validIP.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+validIP.m"; path = "NBICreatorCategories/NSString+validIP.m"; sourceTree = "<group>"; };
 		5381B76B1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCNetInstallSettingsViewController.h; path = NBICreatorNetInstall/NBCNetInstallSettingsViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -527,6 +529,7 @@
 				535A89891AD3247A00DC08F4 /* IconMountainLion.icns */,
 				535A898A1AD3247A00DC08F4 /* IconYosemite.icns */,
 				53BD1F871B80A72C004391D6 /* IconDeployStudioNBI.icns */,
+				5374C28D1BB2CDCE008C8679 /* IconCasperImaging.icns */,
 				53121E951AD5B805004515D6 /* IconNetBootNBI.icns */,
 				53F3B28A1B7D1A88005BEAD3 /* WorkflowCancel.png */,
 			);
@@ -1134,6 +1137,7 @@
 				53B2B2771B83BED80062F6A2 /* NBICreatorDesktopViewer.app in Resources */,
 				53AF66611AF95E860093DD26 /* IconImagr.icns in Resources */,
 				53F3B2891B7D1A54005BEAD3 /* IconCertStandard.png in Resources */,
+				5374C28E1BB2CDCE008C8679 /* IconCasperImaging.icns in Resources */,
 				53695BB41B80A6510038F3DD /* generateKernelCache.bash in Resources */,
 				5308C3691A9A63F7001CFEF5 /* NBCDeployStudioDropViewController.xib in Resources */,
 				5381B76F1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib in Resources */,

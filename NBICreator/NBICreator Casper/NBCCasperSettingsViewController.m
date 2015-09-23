@@ -1200,6 +1200,7 @@ DDLogLevel ddLogLevel;
     [self setIncludeRuby:[settingsDict[NBCSettingsIncludeRubyKey] boolValue]];
     [self setAddTrustedNetBootServers:[settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]];
     [self setAddCustomRAMDisks:[settingsDict[NBCSettingsAddCustomRAMDisksKey] boolValue]];
+    [self setIncludePython:[settingsDict[NBCSettingsIncludePythonKey] boolValue]];
     
     NSNumber *displaySleepMinutes = settingsDict[NBCSettingsDisplaySleepMinutesKey];
     int displaySleepMinutesInteger = 20;
@@ -1426,7 +1427,7 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsDestinationFolderKey] = _destinationFolder ?: @"~/Desktop"; }
     }
-    settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"%APPLICATIONRESOURCESURL%/IconCasper.icns";
+    settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"%APPLICATIONRESOURCESURL%/IconCasperImaging.icns";
     settingsDict[NBCSettingsDisableWiFiKey] = @(_disableWiFi) ?: @NO;
     settingsDict[NBCSettingsDisableBluetoothKey] = @(_disableBluetooth) ?: @NO;
     settingsDict[NBCSettingsDisplaySleepMinutesKey] = @(_displaySleepMinutes) ?: @30;
@@ -1452,6 +1453,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsIncludeRubyKey] = @(_includeRuby) ?: @NO;
     settingsDict[NBCSettingsAddTrustedNetBootServersKey] = @(_addTrustedNetBootServers) ?: @NO;
     settingsDict[NBCSettingsAddCustomRAMDisksKey] = @(_addCustomRAMDisks) ?: @NO;
+    settingsDict[NBCSettingsIncludePythonKey] = @(_includePython) ?: @NO;
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2533,7 +2535,9 @@ DDLogLevel ddLogLevel;
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     
-    //[sourceController addPython:sourceItemsDict source:_source];
+    if ( [userSettings[NBCSettingsIncludePythonKey] boolValue] ) {
+        [NBCSourceController addPython:sourceItemsDict source:_source];
+    }
     
     [NBCSourceController addCasperImaging:sourceItemsDict source:_source];
     
@@ -2620,12 +2624,12 @@ DDLogLevel ddLogLevel;
             if ( [packageEssentialsDict count] == 0 ) {
                 packageEssentialsDict = [[NSMutableDictionary alloc] init];
             }
-            packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+            packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
             if ( packageEssentialsRegexes == nil ) {
                 packageEssentialsRegexes = [[NSMutableArray alloc] init];
             }
             [packageEssentialsRegexes addObjectsFromArray:packageAdditionalEssentialsRegexes];
-            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects] ;
             sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
             [sourceItemsDict removeObjectForKey:packageAdditionalEssentialsPath];
         }
@@ -2641,12 +2645,12 @@ DDLogLevel ddLogLevel;
             if ( [packageEssentialsDict count] == 0 ) {
                 packageEssentialsDict = [[NSMutableDictionary alloc] init];
             }
-            packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+            packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
             if ( packageEssentialsRegexes == nil ) {
                 packageEssentialsRegexes = [[NSMutableArray alloc] init];
             }
             [packageEssentialsRegexes addObjectsFromArray:packageBSDRegexes];
-            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
             sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
             [sourceItemsDict removeObjectForKey:packageBSDPath];
         }
@@ -2662,12 +2666,12 @@ DDLogLevel ddLogLevel;
             if ( [packageEssentialsDict count] == 0 ) {
                 packageEssentialsDict = [[NSMutableDictionary alloc] init];
             }
-            packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+            packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
             if ( packageEssentialsRegexes == nil ) {
                 packageEssentialsRegexes = [[NSMutableArray alloc] init];
             }
             [packageEssentialsRegexes addObjectsFromArray:packageBaseSystemBinariesRegexes];
-            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
             sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
             [sourceItemsDict removeObjectForKey:packageBaseSystemBinariesPath];
         }

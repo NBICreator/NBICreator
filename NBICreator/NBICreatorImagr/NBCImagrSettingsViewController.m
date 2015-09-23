@@ -2646,7 +2646,7 @@ DDLogLevel ddLogLevel;
         if ( [packageAdditionalEssentialsDict count] != 0 ) {
             packageAdditionalEssentialsRegexes = packageAdditionalEssentialsDict[NBCSettingsSourceItemsRegexKey];
             NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
-            NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+            NSMutableDictionary *packageEssentialsDict = [sourceItemsDict[packageEssentialsPath] mutableCopy];
             NSMutableArray *packageEssentialsRegexes;
             if ( [packageEssentialsDict count] == 0 ) {
                 packageEssentialsDict = [[NSMutableDictionary alloc] init];
@@ -2656,7 +2656,7 @@ DDLogLevel ddLogLevel;
                 packageEssentialsRegexes = [[NSMutableArray alloc] init];
             }
             [packageEssentialsRegexes addObjectsFromArray:packageAdditionalEssentialsRegexes];
-            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
             sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
             [sourceItemsDict removeObjectForKey:packageAdditionalEssentialsPath];
         }
@@ -2672,12 +2672,12 @@ DDLogLevel ddLogLevel;
             if ( [packageEssentialsDict count] == 0 ) {
                 packageEssentialsDict = [[NSMutableDictionary alloc] init];
             }
-            packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+            packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
             if ( packageEssentialsRegexes == nil ) {
                 packageEssentialsRegexes = [[NSMutableArray alloc] init];
             }
             [packageEssentialsRegexes addObjectsFromArray:packageBSDRegexes];
-            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
             sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
             [sourceItemsDict removeObjectForKey:packageBSDPath];
         }
@@ -2693,12 +2693,12 @@ DDLogLevel ddLogLevel;
             if ( [packageEssentialsDict count] == 0 ) {
                 packageEssentialsDict = [[NSMutableDictionary alloc] init];
             }
-            packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+            packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
             if ( packageEssentialsRegexes == nil ) {
                 packageEssentialsRegexes = [[NSMutableArray alloc] init];
             }
             [packageEssentialsRegexes addObjectsFromArray:packageBaseSystemBinariesRegexes];
-            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+            packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
             sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
             [sourceItemsDict removeObjectForKey:packageBaseSystemBinariesPath];
         }

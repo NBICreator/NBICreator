@@ -155,6 +155,7 @@ extern NSString *const NBCSettingsDisplaySleepKey;
 extern NSString *const NBCSettingsDisplaySleepMinutesKey;
 extern NSString *const NBCSettingsIncludeSystemUIServerKey;
 extern NSString *const NBCSettingsIncludeRubyKey;
+extern NSString *const NBCSettingsIncludePythonKey;
 extern NSString *const NBCSettingsARDLoginKey;
 extern NSString *const NBCSettingsARDPasswordKey;
 extern NSString *const NBCSettingsUseNetworkTimeServerKey;

@@ -221,6 +221,7 @@
 @property BOOL launchConsoleApp;
 @property BOOL addCustomRAMDisks;
 @property BOOL includeRuby;
+@property BOOL includePython;
 
 @property NSString *casperImagingPath;
 @property NSString *casperJSSURL;

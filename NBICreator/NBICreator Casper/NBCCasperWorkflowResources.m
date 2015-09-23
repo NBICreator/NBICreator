@@ -56,9 +56,37 @@ DDLogLevel ddLogLevel;
 
 - (void)dependencyCheckComplete:(NSDictionary *)sourceItemsDict workflowItem:(NBCWorkflowItem *)workflowItem {
     if ( [sourceItemsDict count] != 0 ) {
+        NSMutableDictionary *sourceItemsDictMutable = [NSMutableDictionary dictionaryWithDictionary:sourceItemsDict];
+        int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+        if ( 11 <= sourceVersionMinor ) {
+            NSString *packageBaseSystemBinariesPath = [NSString stringWithFormat:@"%@/Packages/BaseSystemBinaries.pkg", [[[workflowItem source] installESDVolumeURL] path]];
+            NSMutableDictionary *packageBaseSystemBinariesDict = [sourceItemsDict[packageBaseSystemBinariesPath] mutableCopy];
+            NSArray *packageBaseSystemBinariesRegexes;
+            if ( [packageBaseSystemBinariesDict count] != 0 ) {
+                packageBaseSystemBinariesRegexes = packageBaseSystemBinariesDict[NBCSettingsSourceItemsRegexKey];
+                NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[[workflowItem source] installESDVolumeURL] path]];
+                NSMutableDictionary *packageEssentialsDict = [sourceItemsDict[packageEssentialsPath] mutableCopy];
+                NSMutableArray *packageEssentialsRegexes;
+                if ( [packageEssentialsDict count] == 0 ) {
+                    packageEssentialsDict = [[NSMutableDictionary alloc] init];
+                }
+                packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
+                if ( packageEssentialsRegexes == nil ) {
+                    packageEssentialsRegexes = [[NSMutableArray alloc] init];
+                }
+                
+                
+                
+                [packageEssentialsRegexes addObjectsFromArray:packageBaseSystemBinariesRegexes];
+                packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];
+                sourceItemsDictMutable[packageEssentialsPath] = packageEssentialsDict;
+                [sourceItemsDictMutable removeObjectForKey:packageBaseSystemBinariesPath];
+            }
+        }
         NSMutableDictionary *resourcesSettings = [[workflowItem resourcesSettings] mutableCopy];
-        resourcesSettings[NBCSettingsSourceItemsKey] = sourceItemsDict;
+        resourcesSettings[NBCSettingsSourceItemsKey] = [sourceItemsDictMutable copy];
         [workflowItem setResourcesSettings:resourcesSettings];
+        NSLog(@"workflowItem=%@", [workflowItem resourcesSettings]);
         [self setResourcesSettings:[workflowItem resourcesSettings]];
         [self updateResourceCount:workflowItem];
     } else {

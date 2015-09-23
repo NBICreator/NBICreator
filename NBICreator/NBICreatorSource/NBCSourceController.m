@@ -950,74 +950,119 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
-    // For 'Casper Imaging'
-    NSString *regexGLUT = @".*GLUT.framework.*";
-    [packageEssentialsRegexes addObject:regexGLUT];
+    NSString *regexHelveticaNeue = @".*/System/Library/Fonts/HelveticaNeue.dfont.*";
+    [packageEssentialsRegexes addObject:regexHelveticaNeue];
     
-    NSString *regexQuickTime = @".*QuickTime.framework.*";
+    NSString *regexLucidaGrande = @".*/System/Library/Fonts/LucidaGrande.ttc.*";
+    [packageEssentialsRegexes addObject:regexLucidaGrande];
+    
+    NSString *regexQuickTime = @".*System/Library/QuickTime.*";
     [packageEssentialsRegexes addObject:regexQuickTime];
     
-    // (in Carbon) For QuickTime.framework
-    NSString *regexNavigationServices = @".*NavigationServices.framework.*";
-    [packageEssentialsRegexes addObject:regexNavigationServices];
-    
-    // (in Carbon) For QuickTime.framework
-    NSString *regexCarbonSound = @".*CarbonSound.framework.*";
-    [packageEssentialsRegexes addObject:regexCarbonSound];
-    
-    // for 'jamf'
-    NSString *regexCollaboration = @".*Collaboration.framework.*";
-    [packageEssentialsRegexes addObject:regexCollaboration];
-    
-    // for Collaboration.framework <-
-    NSString *regexAddressBook = @".*AddressBook.framework.*";
-    [packageEssentialsRegexes addObject:regexAddressBook];
-    
-    // for AddressBook.framework <-
-    NSString *regexIntlPreferences = @".*IntlPreferences.framework.*";
-    [packageEssentialsRegexes addObject:regexIntlPreferences];
-    
-    // for AddressBook.framework <-
-    NSString *regexToneLibrary = @".*ToneLibrary.framework.*";
-    [packageEssentialsRegexes addObject:regexToneLibrary];
-    
-    // for AddressBook.framework <-
-    NSString *regexToneKit = @".*ToneKit.framework.*";
-    [packageEssentialsRegexes addObject:regexToneKit];
-    
-    // for AddressBook.framework <-
-    NSString *regexvCard = @".*vCard.framework.*";
-    [packageEssentialsRegexes addObject:regexvCard];
-    
-    // for AddressBook.framework <-
-    NSString *regexContactsData = @".*ContactsData.framework.*";
-    [packageEssentialsRegexes addObject:regexContactsData];
-    
-    // for AddressBook.framework <-
-    NSString *regexContactsFoundation = @".*ContactsFoundation.framework.*";
-    [packageEssentialsRegexes addObject:regexContactsFoundation];
-    
-    // for AddressBook.framework <-
-    NSString *regexPhoneNumbers = @".*PhoneNumbers.framework.*";
-    [packageEssentialsRegexes addObject:regexPhoneNumbers];
-    
-    NSString *regexAVFoundation = @".*/Frameworks/AVFoundation.framework.*";
-    [packageEssentialsRegexes addObject:regexAVFoundation];
-    
-    NSString *regexCoreAVCHD = @".*/PrivateFrameworks/CoreAVCHD.framework.*";
-    [packageEssentialsRegexes addObject:regexCoreAVCHD];
-    
-    NSString *regexFaceCore = @".*/PrivateFrameworks/FaceCore.framework.*";
-    [packageEssentialsRegexes addObject:regexFaceCore];
-    
-    NSString *regexSafariServices = @".*/PrivateFrameworks/SafariServices.framework.*";
-    [packageEssentialsRegexes addObject:regexSafariServices];
-    
-    NSString *regexSpeechRecognitionCore = @".*/PrivateFrameworks/SpeechRecognitionCore.framework.*";
-    [packageEssentialsRegexes addObject:regexSpeechRecognitionCore];
+    int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 11 <= sourceVersionMinor ) {
+        
+        // For 'IOKit'
+        NSString *regexLibenergytrace = @".*/lib/libenergytrace.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibenergytrace];
+        
+        // For 'CoreGraphics'
+        NSString *regexMetal = @".*/Frameworks/Metal.framework.*";
+        [packageEssentialsRegexes addObject:regexMetal];
+    }
     
     packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
     sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+    
+    NSString *baseSystemBinariesPath = [NSString stringWithFormat:@"%@/Packages/BaseSystemBinaries.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *baseSystemBinariesDict = [sourceItemsDict[baseSystemBinariesPath] mutableCopy];
+    NSMutableArray *baseSystemBinariesRegexes;
+    if ( [baseSystemBinariesDict count] != 0 ) {
+        baseSystemBinariesRegexes = [baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
+        if ( baseSystemBinariesRegexes == nil )
+        {
+            baseSystemBinariesRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        baseSystemBinariesDict = [[NSMutableDictionary alloc] init];
+        baseSystemBinariesRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexDyld = @".*dyld.*";
+    [baseSystemBinariesRegexes addObject:regexDyld];
+    
+    baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey] = baseSystemBinariesRegexes;
+    sourceItemsDict[baseSystemBinariesPath] = baseSystemBinariesDict;
+    
+    // Testing without these as they get added by script
+    
+    // For 'Casper Imaging'
+    //NSString *regexGLUT = @".*GLUT.framework.*"; <- Not added by script, but apparently not needed either.
+    //[packageEssentialsRegexes addObject:regexGLUT];
+    
+    //NSString *regexQuickTime = @".*QuickTime.framework.*";
+    //[packageEssentialsRegexes addObject:regexQuickTime];
+    
+    // (in Carbon) For QuickTime.framework
+    //NSString *regexNavigationServices = @".*NavigationServices.framework.*";
+    //[packageEssentialsRegexes addObject:regexNavigationServices];
+    
+    // (in Carbon) For QuickTime.framework
+    //NSString *regexCarbonSound = @".*CarbonSound.framework.*";
+    //[packageEssentialsRegexes addObject:regexCarbonSound];
+    
+    // for 'jamf'
+    //NSString *regexCollaboration = @".*Collaboration.framework.*";
+    //[packageEssentialsRegexes addObject:regexCollaboration];
+    
+    // for Collaboration.framework <-
+    //NSString *regexAddressBook = @".*AddressBook.framework.*";
+    //[packageEssentialsRegexes addObject:regexAddressBook];
+    
+    // for AddressBook.framework <-
+    //NSString *regexIntlPreferences = @".*IntlPreferences.framework.*";
+    //[packageEssentialsRegexes addObject:regexIntlPreferences];
+    
+    // for AddressBook.framework <-
+    //NSString *regexToneLibrary = @".*ToneLibrary.framework.*";
+    //[packageEssentialsRegexes addObject:regexToneLibrary];
+    
+    // for AddressBook.framework <-
+    //NSString *regexToneKit = @".*ToneKit.framework.*";
+    //[packageEssentialsRegexes addObject:regexToneKit];
+    
+    // for AddressBook.framework <-
+    //NSString *regexvCard = @".*vCard.framework.*";
+    //[packageEssentialsRegexes addObject:regexvCard];
+    
+    // for AddressBook.framework <-
+    //NSString *regexContactsData = @".*ContactsData.framework.*";
+    //[packageEssentialsRegexes addObject:regexContactsData];
+    
+    // for AddressBook.framework <-
+    //NSString *regexContactsFoundation = @".*ContactsFoundation.framework.*";
+    //[packageEssentialsRegexes addObject:regexContactsFoundation];
+    
+    // for AddressBook.framework <-
+    //NSString *regexPhoneNumbers = @".*PhoneNumbers.framework.*";
+    //[packageEssentialsRegexes addObject:regexPhoneNumbers];
+    
+    //NSString *regexAVFoundation = @".*/Frameworks/AVFoundation.framework.*";
+    //[packageEssentialsRegexes addObject:regexAVFoundation];
+    
+    //NSString *regexCoreAVCHD = @".*/PrivateFrameworks/CoreAVCHD.framework.*";
+    //[packageEssentialsRegexes addObject:regexCoreAVCHD];
+    
+    //NSString *regexFaceCore = @".*/PrivateFrameworks/FaceCore.framework.*";
+    //[packageEssentialsRegexes addObject:regexFaceCore];
+    
+    //NSString *regexSafariServices = @".*/PrivateFrameworks/SafariServices.framework.*";
+    //[packageEssentialsRegexes addObject:regexSafariServices];
+    
+    //NSString *regexSpeechRecognitionCore = @".*/PrivateFrameworks/SpeechRecognitionCore.framework.*";
+    //[packageEssentialsRegexes addObject:regexSpeechRecognitionCore];
+    
+    
 }
 
 + (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
@@ -1478,10 +1523,10 @@ DDLogLevel ddLogLevel;
 - (void)addDependenciesForBinaryAtPath:(NSString *)binaryPath sourceItemsDict:(NSMutableDictionary *)sourceItemsDict workflowItem:(NBCWorkflowItem *)workflowItem  {
     NBCSource *source = [workflowItem source];
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
-    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableDictionary *packageEssentialsDict = [sourceItemsDict[packageEssentialsPath] mutableCopy];
     NSMutableArray *packageEssentialsRegexes;
     if ( [packageEssentialsDict count] != 0 ) {
-        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
         if ( packageEssentialsRegexes == nil )
         {
             packageEssentialsRegexes = [[NSMutableArray alloc] init];
@@ -1491,21 +1536,11 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
-    // Else app crashes with ""
-    NSString *regexHelveticaNeue = @".*/System/Library/Fonts/HelveticaNeue.dfont.*";
-    [packageEssentialsRegexes addObject:regexHelveticaNeue];
-    
-    NSString *regexLucidaGrande = @".*/System/Library/Fonts/LucidaGrande.ttc.*";
-    [packageEssentialsRegexes addObject:regexLucidaGrande];
-    
-    NSString *regexQuickTime = @".*System/Library/QuickTime.*";
-    [packageEssentialsRegexes addObject:regexQuickTime];
-    
     NSString *baseSystemBinariesPath = [NSString stringWithFormat:@"%@/Packages/BaseSystemBinaries.pkg", [[source installESDVolumeURL] path]];
-    NSMutableDictionary *baseSystemBinariesDict = sourceItemsDict[baseSystemBinariesPath];
+    NSMutableDictionary *baseSystemBinariesDict = [sourceItemsDict[baseSystemBinariesPath] mutableCopy];
     NSMutableArray *baseSystemBinariesRegexes;
     if ( [baseSystemBinariesDict count] != 0 ) {
-        baseSystemBinariesRegexes = baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey];
+        baseSystemBinariesRegexes = [baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
         if ( baseSystemBinariesRegexes == nil )
         {
             baseSystemBinariesRegexes = [[NSMutableArray alloc] init];

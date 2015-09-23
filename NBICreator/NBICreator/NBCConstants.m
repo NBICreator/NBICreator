@@ -64,7 +64,7 @@ NSString *const NBCFileNameCasperDefaults = @"CasperDefaults";
 NSString *const NBCFilePathNBIIconImagr = @"%APPLICATIONRESOURCESURL%/IconImagr.icns";
 NSString *const NBCFilePathNBIIconNetInstall = @"%APPLICATIONRESOURCESURL%/IconNetBootNBI.icns";
 NSString *const NBCFilePathNBIIconDeployStudio = @"%APPLICATIONRESOURCESURL%/IconDeployStudioNBI.icns";
-NSString *const NBCFilePathNBIIconCasper = @"%APPLICATIONRESOURCESURL%/IconNetBootNBI.icns";
+NSString *const NBCFilePathNBIIconCasper = @"%APPLICATIONRESOURCESURL%/IconCasperImaging.icns";
 NSString *const NBCFilePathPreferencesGlobal = @"/Library/Preferences/.GlobalPreferences.plist";
 NSString *const NBCFilePathPreferencesHIToolbox = @"/Library/Preferences/com.apple.HIToolbox.plist";
 
@@ -155,6 +155,7 @@ NSString *const NBCSettingsDisplaySleepKey = @"DisplaySleep";
 NSString *const NBCSettingsDisplaySleepMinutesKey = @"DisplaySleepMinutes";
 NSString *const NBCSettingsIncludeSystemUIServerKey = @"IncludeSystemUIServer";
 NSString *const NBCSettingsIncludeRubyKey = @"IncludeRuby";
+NSString *const NBCSettingsIncludePythonKey = @"IncludePython";
 NSString *const NBCSettingsARDLoginKey = @"ARDLogin";
 NSString *const NBCSettingsARDPasswordKey = @"ARDPassword";
 NSString *const NBCSettingsUseNetworkTimeServerKey = @"UseNetworkTimeServer";

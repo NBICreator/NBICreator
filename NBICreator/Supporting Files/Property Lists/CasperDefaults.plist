@@ -47,7 +47,9 @@
 	<key>IncludeConsole</key>
 	<false/>
 	<key>IncludeRuby</key>
-	<string></string>
+	<false/>
+	<key>IncludePython</key>
+	<false/>
 	<key>LaunchConsole</key>
 	<false/>
 	<key>DiskImageReadWrite</key>
@@ -57,7 +59,7 @@
 	<key>Enabled</key>
 	<true/>
 	<key>Icon</key>
-	<string>%APPLICATIONRESOURCESURL%/IconNetBootNBI.icns</string>
+	<string>%APPLICATIONRESOURCESURL%/IconCasperImaging.icns</string>
 	<key>DestinationFolder</key>
 	<string>~/Desktop</string>
 	<key>Description</key>
