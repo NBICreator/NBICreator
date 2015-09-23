@@ -12,7 +12,5 @@
 
 @property NSImage *backgroundImage;
 
-@property (weak) IBOutlet NSImageView *imageViewBackgroundImage;
-
 @end
 
