@@ -56,16 +56,11 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSArray *)cachedVersionsFromResourceFolder:(NSString *)resourceFolder {
-    
-    DDLogDebug(@"resourceFolder=%@", resourceFolder);
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
-    DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
     if ( currentResourceFolder ) {
         NSURL *currentResourceDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
-        DDLogDebug(@"currentResourceDictURL=%@", currentResourceDictURL);
         if ( [currentResourceDictURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *resourceDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourceDictURL];
-            DDLogDebug(@"resourceDict=%@", resourceDict);
             if ( resourceDict ) {
                 return [resourceDict allKeys];
             }
@@ -76,13 +71,9 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder {
-    
-    DDLogDebug(@"resourceFolder=%@", resourceFolder);
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
-    DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
     if ( currentResourceFolder ) {
         NSURL *currentDownloadsDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileNameDownloadsDict];
-        DDLogDebug(@"currentDownloadsDictURL=%@", currentDownloadsDictURL);
         if ( [currentDownloadsDictURL checkResourceIsReachableAndReturnError:nil] ) {
             return [[NSDictionary alloc] initWithContentsOfURL:currentDownloadsDictURL];
         }
@@ -105,20 +96,14 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder {
-    
-    DDLogDebug(@"resourcesFolder=%@", resourcesFolder);
     NSURL *cachedVersionURL;
     NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
-    DDLogDebug(@"currentResourcesFolder=%@", currentResourcesFolder);
     if ( currentResourcesFolder ) {
         NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
-        DDLogDebug(@"currentResourcesDictURL=%@", currentResourcesDictURL);
         if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *resourcesDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourcesDictURL];
-            DDLogDebug(@"resourcesDict=%@", resourcesDict);
             if ( resourcesDict ) {
                 NSString *resourcePath = resourcesDict[version];
-                DDLogDebug(@"resourcePath=%@", resourcePath);
                 if ( [resourcePath length] != 0 ) {
                     cachedVersionURL = [NSURL fileURLWithPath:resourcePath];
                 } else {

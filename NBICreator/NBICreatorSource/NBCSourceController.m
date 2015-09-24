@@ -901,13 +901,11 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
-    NSString *regexLibSsl = @".*libssl.*";
-    DDLogDebug(@"regexLibSsl=%@", regexLibSsl);
+    NSString *regexLibSsl = @".*/lib/libssl.*";
     [packageEssentialsRegexes addObject:regexLibSsl];
     
-    NSString *regexSystemClr = @".*/Colors/System.clr.*";
-    DDLogDebug(@"regexSystemClr=%@", regexSystemClr);
-    [packageEssentialsRegexes addObject:regexSystemClr];
+    NSString *regexLibcrypto = @".*/lib/libcrypto.*";
+    [packageEssentialsRegexes addObject:regexLibcrypto];
     
     packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
     sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
@@ -950,6 +948,9 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
+    NSString *regexSystemClr = @".*/Colors/System.clr.*";
+    [packageEssentialsRegexes addObject:regexSystemClr];
+    
     NSString *regexHelveticaNeue = @".*/System/Library/Fonts/HelveticaNeue.dfont.*";
     [packageEssentialsRegexes addObject:regexHelveticaNeue];
     
@@ -969,6 +970,169 @@ DDLogLevel ddLogLevel;
         // For 'CoreGraphics'
         NSString *regexMetal = @".*/Frameworks/Metal.framework.*";
         [packageEssentialsRegexes addObject:regexMetal];
+        
+        // For 'Metal'
+        NSString *regexLibCoreFSCache = @".*/Libraries/libCoreFSCache.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibCoreFSCache];
+        
+        // For 'libmecabra'
+        NSString *regexLibmarisa = @".*/lib/libmarisa.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibmarisa];
+        
+        // For 'libmecabra'
+        NSString *regexLibChineseTokenizer = @".*/lib/libChineseTokenizer.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibChineseTokenizer];
+        
+        // For 'CoreImage'
+        NSString *regexLibFosl_dynamic = @".*/lib/libFosl_dynamic.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibFosl_dynamic];
+        
+        // For 'libCVMSPluginSupport'
+        NSString *regexLibCoreVMClient = @".*/Libraries/libCoreVMClient.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibCoreVMClient];
+        
+        // For 'AppKit'
+        NSString *regexLibScreenReader = @".*/lib/libScreenReader.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibScreenReader];
+        
+        // For 'DiskImages/CoreData'
+        NSString *regexLibcompression = @".*/lib/libcompression.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibcompression];
+        
+        NSString *regexLibcldcpuengine = @".*/Libraries/libcldcpuengine.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibcldcpuengine];
+        
+        //-- BELOW ARE TESTING ONLY --
+        NSString *regexKernel = @".*/Kernels/kernel.*";
+        [packageEssentialsRegexes addObject:regexKernel];
+        
+        // warning, could not bind /Volumes/dmg.Zn4BY5/usr/lib/libUniversalAccess.dylib because realpath() failed on /Volumes/dmg.Zn4BY5/System/Library/PrivateFrameworks/UniversalAccess.framework/Versions/A/Libraries/libUAPreferences.dylib
+        NSString *regexUniversalAccess = @".*/PrivateFrameworks/UniversalAccess.framework.*";
+        [packageEssentialsRegexes addObject:regexUniversalAccess];
+        
+        // warning, could not bind /Volumes/dmg.Zn4BY5/System/Library/Frameworks/Automator.framework/Versions/A/Automator because realpath() failed on /Volumes/dmg.Zn4BY5/System/Library/PrivateFrameworks/XprotectFramework.framework/Versions/A/XprotectFramework
+        NSString *regexXprotectFramework = @".*/PrivateFrameworks/XprotectFramework.framework.*";
+        [packageEssentialsRegexes addObject:regexXprotectFramework];
+        
+        // warning, could not bind /System/Library/Frameworks/MultipeerConnectivity.framework/Versions/A/MultipeerConnectivity because realpath() failed on /Volumes/dmg.Zn4BY5/System/Library/PrivateFrameworks/AVConference.framework/Frameworks/ViceroyTrace.framework/Versions/A/ViceroyTrace
+        NSString *regexAVConference = @".*/PrivateFrameworks/AVConference.framework.*";
+        [packageEssentialsRegexes addObject:regexAVConference];
+        
+        // warning, could not bind /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/AVConference.framework/Frameworks/ViceroyTrace.framework/Versions/A/ViceroyTrace because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/Marco.framework/Versions/A/Marco
+        NSString *regexMarco = @".*/PrivateFrameworks/Marco.framework.*";
+        [packageEssentialsRegexes addObject:regexMarco];
+        
+        // warning, could not bind /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/AVConference.framework/Versions/A/AVConference because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/VideoProcessing.framework/Versions/A/VideoProcessing
+        NSString *regexVideoProcessing = @".*/PrivateFrameworks/VideoProcessing.framework.*";
+        [packageEssentialsRegexes addObject:regexVideoProcessing];
+        
+        // warning, could not bind /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/AVConference.framework/Versions/A/AVConference because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/FTServices.framework/Versions/A/FTServices
+        NSString *regexFTServices = @".*/PrivateFrameworks/FTServices.framework.*";
+        [packageEssentialsRegexes addObject:regexFTServices];
+        
+        // warning, could not bind /System/Library/PrivateFrameworks/IMAVCore.framework/Versions/A/IMAVCore because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/Marco.framework/Versions/A/Marco
+        NSString *regexFTAWD = @".*/PrivateFrameworks/FTAWD.framework.*";
+        [packageEssentialsRegexes addObject:regexFTAWD];
+        
+        // warning, could not bind /System/Library/PrivateFrameworks/IMAVCore.framework/Versions/A/IMAVCore because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/IMCore.framework/Versions/A/IMCore
+        NSString *regexIMCore = @".*/PrivateFrameworks/IMCore.framework.*";
+        [packageEssentialsRegexes addObject:regexIMCore];
+        
+        // warning, could not bind /System/Library/PrivateFrameworks/IMAVCore.framework/Versions/A/IMAVCore because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/VideoConference.framework/Versions/A/VideoConference
+        NSString *regexVideoConference = @".*/PrivateFrameworks/VideoConference.framework.*";
+        [packageEssentialsRegexes addObject:regexVideoConference];
+        
+        // warning, could not bind /System/Library/PrivateFrameworks/IMTranscoding.framework/Versions/A/IMTranscoding because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/IMFoundation.framework/Versions/A/IMFoundation
+        NSString *regexIMFoundation = @".*/PrivateFrameworks/IMFoundation.framework.*";
+        [packageEssentialsRegexes addObject:regexIMFoundation];
+        
+        // warning, could not bind /System/Library/PrivateFrameworks/StoreUI.framework/Versions/A/StoreUI because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/WebKit2.framework/Versions/A/WebKit2
+        NSString *regexWebKit2 = @".*/PrivateFrameworks/WebKit2.framework.*";
+        [packageEssentialsRegexes addObject:regexWebKit2];
+        
+        // warning, could not bind /System/Library/PrivateFrameworks/StoreUI.framework/Versions/A/StoreUI because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/CoreRecognition.framework/Versions/A/CoreRecognition
+        NSString *regexCoreRecognition = @".*/PrivateFrameworks/CoreRecognition.framework.*";
+        [packageEssentialsRegexes addObject:regexCoreRecognition];
+        
+        // warning, could not bind /System/Library/PrivateFrameworks/Shortcut.framework/Versions/A/Shortcut because realpath() failed on /Volumes/dmg.igPP5Y/System/Library/PrivateFrameworks/HelpData.framework/Versions/A/HelpData
+        NSString *regexHelpData = @".*/PrivateFrameworks/HelpData.framework.*";
+        [packageEssentialsRegexes addObject:regexHelpData];
+        
+        // warning, could not bind /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/FTServices.framework/Versions/A/FTServices because realpath() failed on /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/IDSFoundation.framework/Versions/A/IDSFoundation
+        NSString *regexIDSFoundation = @".*/PrivateFrameworks/IDSFoundation.framework.*";
+        [packageEssentialsRegexes addObject:regexIDSFoundation];
+        
+        // warning, could not bind /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/Marco.framework/Versions/A/Marco because realpath() failed on /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/DiagnosticLogCollection.framework/Versions/A/DiagnosticLogCollection
+        NSString *regexDiagnosticLogCollection = @".*/PrivateFrameworks/DiagnosticLogCollection.framework.*";
+        [packageEssentialsRegexes addObject:regexDiagnosticLogCollection];
+        
+        // warning, could not bind /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/IMCore.framework/Versions/A/IMCore because realpath() failed on /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/IDS.framework/Versions/A/IDS
+        NSString *regexIDS = @".*/PrivateFrameworks/IDS.framework.*";
+        [packageEssentialsRegexes addObject:regexIDS];
+        
+        // warning, could not bind /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/IMCore.framework/Versions/A/IMCore because realpath() failed on /Volumes/dmg.vBWxTy/System/Library/Frameworks/InstantMessage.framework/Versions/A/InstantMessage
+        NSString *regexInstantMessage = @".*/Frameworks/InstantMessage.framework.*";
+        [packageEssentialsRegexes addObject:regexInstantMessage];
+        
+        // warning, could not bind /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/IMFoundation.framework/Versions/A/IMFoundation because /Volumes/dmg.vBWxTy/usr/lib/libtidy.A.dylib is missing arch i386
+        NSString *regexLibtidy = @".*/lib/libtidy.A.dylib.*";
+        [packageEssentialsRegexes addObject:regexLibtidy];
+        
+        // warning, could not bind /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/IMFoundation.framework/Versions/A/IMFoundation because /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/CommonUtilities.framework/Versions/A/CommonUtilities is missing arch i386
+        NSString *regexCommonUtilities = @".*/PrivateFrameworks/CommonUtilities.framework.*";
+        [packageEssentialsRegexes addObject:regexCommonUtilities];
+        
+        // warning, could not bind /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/IMFoundation.framework/Versions/A/IMFoundation because /Volumes/dmg.vBWxTy/System/Library/PrivateFrameworks/Bom.framework/Versions/A/Bom is missing arch i386
+        NSString *regexBom = @".*/PrivateFrameworks/Bom.framework.*";
+        [packageEssentialsRegexes addObject:regexBom];
+        
+        // update_dyld_shared_cache: warning can't use root '/System/Library/CoreServices/FolderActionsDispatcher.app/Contents/MacOS/FolderActionsDispatcher': file not found
+        NSString *regexFolderActionsDispatcher = @".*/FolderActionsDispatcher.app.*";
+        [packageEssentialsRegexes addObject:regexFolderActionsDispatcher];
+        
+        // update_dyld_shared_cache: warning can't use root '/System/Library/Image Capture/Support/icdd': file not found
+        NSString *regexIcdd = @".*/Support/icdd.*";
+        [packageEssentialsRegexes addObject:regexIcdd];
+        
+        // update_dyld_shared_cache: warning can't use root '/System/Library/PrivateFrameworks/CoreSuggestions.framework/Versions/A/Support/suggestd': file not found
+        NSString *regexCoreSuggestions = @".*/PrivateFrameworks/CoreSuggestions.framework.*";
+        [packageEssentialsRegexes addObject:regexCoreSuggestions];
+        
+        // update_dyld_shared_cache: warning can't use root '/usr/libexec/symptomsd': file not found
+        NSString *regexSymptomsd = @".*/libexec/symptomsd.*";
+        [packageEssentialsRegexes addObject:regexSymptomsd];
+        
+        // update_dyld_shared_cache: warning can't use root '/usr/libexec/systemstats_boot': file not found
+        NSString *regexSystemstats_boot = @".*/libexec/systemstats_boot.*";
+        [packageEssentialsRegexes addObject:regexSystemstats_boot];
+        
+        // warning, could not bind /Volumes/dmg.JCWQr8/System/Library/PrivateFrameworks/Bom.framework/Versions/A/Bom because /Volumes/dmg.JCWQr8/System/Library/PrivateFrameworks/AppleFSCompression.framework/Versions/A/AppleFSCompression is missing arch i386
+        NSString *regexAppleFSCompression = @".*/PrivateFrameworks/AppleFSCompression.framework.*";
+        [packageEssentialsRegexes addObject:regexAppleFSCompression];
+        
+        // warning, could not bind /Volumes/dmg.IuuO1f/System/Library/PrivateFrameworks/CoreSuggestions.framework/Versions/A/CoreSuggestions because realpath() failed on /Volumes/dmg.IuuO1f/System/Library/Frameworks/Contacts.framework/Versions/A/Contacts
+        NSString *regexContacts = @".*/Frameworks/Contacts.framework.*";
+        [packageEssentialsRegexes addObject:regexContacts];
+        
+        // warning, could not bind /Volumes/dmg.IuuO1f/System/Library/PrivateFrameworks/CoreSuggestions.framework/Versions/A/CoreSuggestions because realpath() failed on /Volumes/dmg.IuuO1f/System/Library/PrivateFrameworks/CoreSpotlight.framework/Versions/A/CoreSpotlight
+        NSString *regexCoreSpotlight = @".*/PrivateFrameworks/CoreSpotlight.framework.*";
+        [packageEssentialsRegexes addObject:regexCoreSpotlight];
+        
+        // update_dyld_shared_cache failed: could not bind symbol _FZAVErrorDomain in /System/Library/PrivateFrameworks/IMAVCore.framework/Versions/A/IMAVCore expected in /System/Library/PrivateFrameworks/IMCore.framework/Versions/A/IMCore in /System/Library/PrivateFrameworks/IMAVCore.framework/Versions/A/IMAVCore
+        NSString *regexIMAVCore = @".*/PrivateFrameworks/IMAVCore.framework.*";
+        [packageEssentialsRegexes addObject:regexIMAVCore];
+
+        //NSString *regexOpenGLAll = @".*[Oo]pen[Gg][Ll].*";
+        //[packageEssentialsRegexes addObject:regexOpenGLAll];
+        
+        NSString *regexGLEngine = @".*/Resources/GLEngine.bundle.*";
+        [packageEssentialsRegexes addObject:regexGLEngine];
+        
+        NSString *regexGLRendererFloat = @".*/Resources/GLRendererFloat.bundle.*";
+        [packageEssentialsRegexes addObject:regexGLRendererFloat];
+        
+        NSString *regexGPUCompiler = @".*/PrivateFrameworks/GPUCompiler.framework.*";
+        [packageEssentialsRegexes addObject:regexGPUCompiler];
     }
     
     packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
@@ -1268,7 +1432,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)addConsole:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    
     NSString *packageAdditionalEssentialsPath = [NSString stringWithFormat:@"%@/Packages/AdditionalEssentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageAdditionalEssentialsDict = sourceItemsDict[packageAdditionalEssentialsPath];
     NSMutableArray *packageAdditionalEssentialsRegexes;
@@ -1306,11 +1469,19 @@ DDLogLevel ddLogLevel;
     NSString *regexShareKit = @".*ShareKit.framework.*";
     [packageEssentialsRegexes addObject:regexShareKit];
     
+    NSString *regexSystemClr = @".*/Colors/System.clr.*";
+    [packageEssentialsRegexes addObject:regexSystemClr];
+    
     int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
     if ( 11 <= sourceVersionMinor ) {
-        // Required for ShareKit
+        
+        // For 'ShareKit'
         NSString *regexAccountsUI = @".*AccountsUI.framework.*";
         [packageEssentialsRegexes addObject:regexAccountsUI];
+        
+        // For 'AddressBook'
+        NSString *regexContactsPersistence = @".*ContactsPersistence.framework.*";
+        [packageEssentialsRegexes addObject:regexContactsPersistence];
     }
     
     NSString *regexViewBridge = @".*ViewBridge.framework.*";
@@ -1550,9 +1721,6 @@ DDLogLevel ddLogLevel;
         baseSystemBinariesRegexes = [[NSMutableArray alloc] init];
     }
     
-    NSString *regexDyld = @".*dyld.*";
-    [baseSystemBinariesRegexes addObject:regexDyld];
-    
     NSURL *dependencyCheckerScript = [[NSBundle mainBundle] URLForResource:@"sharedLibraryDependencyChecker" withExtension:@"bash"];
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:[dependencyCheckerScript path]];
@@ -1574,6 +1742,9 @@ DDLogLevel ddLogLevel;
                       ];
 
     [newTask setArguments:args];
+    
+    
+    
     [newTask setStandardOutput:[NSPipe pipe]];
     [newTask setStandardError:[NSPipe pipe]];
     
