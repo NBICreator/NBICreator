@@ -30,6 +30,7 @@
 @property NSDictionary *languageDict;
 @property NSArray *timeZoneArray;
 @property NSMenuItem *selectedMenuItem;
+@property NSMenuItem *selectedImagrMenuItem;
 
 // ------------------------------------------------------
 //  Constraints
@@ -128,6 +129,8 @@
 // ------------------------------------------------------
 @property NSArray *imagrVersions;
 @property NSDictionary *imagrVersionsDownloadLinks;
+@property NSArray *imagrBranches;
+@property NSDictionary *imagrBranchesDownloadLinks;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonImagrVersion;
 - (IBAction)popUpButtonImagrVersion:(id)sender;
 @property (weak) IBOutlet NSTextField *textFieldImagrLocalPathLabel;
@@ -143,9 +146,19 @@
 @property (weak) IBOutlet NSImageView *imageViewNetworkWarning;
 @property (weak) IBOutlet NSTextField *textFieldNetworkWarning;
 
+@property (weak) IBOutlet NSTextField *textFieldImagrGitBranchLabel;
+@property (weak) IBOutlet NSPopUpButton *popUpButtonImagrGitBranch;
+- (IBAction)popUpButtonImagrGitBranch:(id)sender;
+@property (weak) IBOutlet NSTextField *textFieldImagrGitBranchBuildTargetLabel;
+@property (weak) IBOutlet NSPopUpButton *popUpButtonImagrGitBranchBuildTarget;
+- (IBAction)popUpButtonImagrGitBranchBuildTarget:(id)sender;
+
+@property (weak) IBOutlet NSButton *buttonInstallXcodeTools;
+- (IBAction)buttonInstallXcodeTools:(id)sender;
 
 @property (strong) IBOutlet NSPopover *popOverRAMDisks;
 
+@property BOOL devCommandLineToolsInstalled;
 
 // ------------------------------------------------------
 //  TabView Options
@@ -224,7 +237,10 @@
 @property NSString *imagrReportingURL;
 @property NSString *imagrSyslogServerURI;
 @property BOOL imagrUseLocalVersion;
+@property BOOL imagrUseGitBranch;
 @property NSString *imagrLocalVersionPath;
+@property NSString *imagrGitBranch;
+@property NSString *imagrBuildTarget;
 @property BOOL useBackgroundImage;
 @property NSString *imageBackgroundURL;
 @property NSString *imageBackground;

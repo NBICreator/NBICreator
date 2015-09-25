@@ -2,6 +2,9 @@
 //  NBCDisk.h
 //  NBICreator
 //
+//  Copyright (c) 2010, Aaron Burghardt
+//  All rights reserved.
+//
 //  Created by Erik Berglund on 2015-04-05.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //

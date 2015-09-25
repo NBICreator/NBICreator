@@ -1133,6 +1133,9 @@ DDLogLevel ddLogLevel;
         
         NSString *regexGPUCompiler = @".*/PrivateFrameworks/GPUCompiler.framework.*";
         [packageEssentialsRegexes addObject:regexGPUCompiler];
+        
+        NSString *regexGeForceGLDriver = @".*/PrivateFrameworks/GeForceGLDriver.bundle.*";
+        [packageEssentialsRegexes addObject:regexGeForceGLDriver];
     }
     
     packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;

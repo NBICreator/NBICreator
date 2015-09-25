@@ -316,12 +316,15 @@ DDLogLevel ddLogLevel;
     //  Extract info from downloadInfo Dict
     // ------------------------------------------------------
     NSString *resourceTag = downloadInfo[NBCDownloaderTag];
-    NSString *version = downloadInfo[NBCDownloaderVersion];
     // ------------------------------------------------------
     //  Send command to correct copy method based on tag
     // ------------------------------------------------------
     if ( [resourceTag isEqualToString:NBCDownloaderTagImagr] ) {
+        NSString *version = downloadInfo[NBCDownloaderVersion];
         [self addImagrToResources:url version:version];
+    } else if ( [resourceTag isEqualToString:NBCDownloaderTagImagrBranch] ) {
+        NSDictionary *branchDict = downloadInfo[NBCSettingsImagrGitBranchDict];
+        [self addImagrBranchToResources:url branchDict:branchDict];
     }
 } // fileDownloadCompleted:downloadInfo
 
@@ -358,20 +361,12 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)downloadResource:(NSURL *)resourceDownloadURL resourceTag:(NSString *)resourceTag version:(NSString *)version {
-    NSDictionary *downloadInfo = @{
-                                   NBCDownloaderTag : resourceTag,
-                                   NBCDownloaderVersion : version
-                                   };
-    NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
-    [downloader downloadFileFromURL:resourceDownloadURL destinationPath:@"/tmp" downloadInfo:downloadInfo];
-} // downloadResource:resourceTag:version
-
 - (BOOL)getImagrApplication:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
     BOOL retval = YES;
     NSString *selectedImagrVersion = _userSettings[NBCSettingsImagrVersion];
     NSString *imagrApplicationTargetPath;
+    
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         imagrApplicationTargetPath = NBCImagrApplicationNBICreatorTargetURL;
     } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
@@ -383,6 +378,7 @@ DDLogLevel ddLogLevel;
             return NO;
         }
     }
+    
     if ( [selectedImagrVersion length] == 0 ) {
         DDLogError(@"Could not get selected Imagr version from user settings!");
         return NO;
@@ -411,6 +407,28 @@ DDLogLevel ddLogLevel;
         } else {
             DDLogError(@"[ERROR] Could not get imagrLocalVersionPath from user settings!");
             return NO;
+        }
+    } else if ( [selectedImagrVersion isEqualToString:NBCMenuItemGitBranch] ) {
+        NSString *imagrDownloadURL = _resourcesSettings[NBCSettingsImagrDownloadURL];
+        NSString *branch = _resourcesSettings[NBCSettingsImagrGitBranch];
+        NSString *sha = _resourcesSettings[NBCSettingsImagrGitBranchSHA];
+        if ( [imagrDownloadURL length] != 0 ) {
+            DDLogInfo(@"Downloading Imagr Git Branch %@...", branch);
+            [_delegate updateProgressStatus:@"Downloading Imagr..." workflow:self];
+            NSDictionary *branchDict = @{
+                                         NBCSettingsImagrGitBranch : branch,
+                                         NBCSettingsImagrGitBranchSHA : sha
+                                         };
+            
+            NSDictionary *downloadInfo = @{
+                                           NBCDownloaderTag : NBCDownloaderTagImagrBranch,
+                                           NBCSettingsImagrGitBranchDict : branchDict
+                                           };
+            NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
+            [downloader downloadFileFromURL:[NSURL URLWithString:imagrDownloadURL] destinationPath:@"/tmp" downloadInfo:downloadInfo];
+        } else {
+            DDLogError(@"[ERROR] Could not get Imagr download url from resources settings!");
+            retval = NO;
         }
     } else {
         
@@ -453,7 +471,12 @@ DDLogLevel ddLogLevel;
             if ( [imagrDownloadURL length] != 0 ) {
                 DDLogInfo(@"Downloading Imagr version %@", selectedImagrVersion);
                 [_delegate updateProgressStatus:@"Downloading Imagr..." workflow:self];
-                [self downloadResource:[NSURL URLWithString:imagrDownloadURL] resourceTag:NBCDownloaderTagImagr version:selectedImagrVersion];
+                NSDictionary *downloadInfo = @{
+                                               NBCDownloaderTag : NBCDownloaderTagImagr,
+                                               NBCDownloaderVersion : selectedImagrVersion
+                                               };
+                NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
+                [downloader downloadFileFromURL:[NSURL URLWithString:imagrDownloadURL] destinationPath:@"/tmp" downloadInfo:downloadInfo];
             } else {
                 DDLogError(@"[ERROR] Could not get Imagr download url from resources settings!");
                 retval = NO;
@@ -462,6 +485,34 @@ DDLogLevel ddLogLevel;
     }
     return retval;
 } // getImagrApplication
+
+- (void)addImagrBranchToResources:(NSURL *)downloadedFileURL branchDict:(NSDictionary *)branchDict {
+    NSString *imagrApplicationTargetPath;
+    if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
+        imagrApplicationTargetPath = NBCImagrApplicationNBICreatorTargetURL;
+    } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+        imagrApplicationTargetPath = NBCImagrApplicationTargetURL;
+    } else {
+        imagrApplicationTargetPath = [[_target imagrApplicationURL] path];
+        if ( [imagrApplicationTargetPath length] == 0 ) {
+            DDLogError(@"Could not get path to Imagr.app from target!");
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+    }
+    
+    // ---------------------------------------------------------------
+    //  Extract Imagr from zip and copy to resourecs for future use
+    // ---------------------------------------------------------------
+    NSURL *imagrProjectURL = [_resourcesController unzipAndCopyFileToResourceFolder:downloadedFileURL resourcesFolder:NBCFolderResourcesImagr branchDict:branchDict];
+    if ( imagrProjectURL ) {
+        NSLog(@"imagrProjectURL=%@", imagrProjectURL);
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+    } else {
+        DDLogError(@"Got no URL to copied Imagr item, something went wrong!");
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+    }
+}
 
 - (void)addImagrToResources:(NSURL *)downloadedFileURL version:(NSString *)version {
     NSString *imagrApplicationTargetPath;
@@ -732,7 +783,7 @@ DDLogLevel ddLogLevel;
                 [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                     
                     // ------------------------------------------------------------------
-                    //  If task failed, post workflow failed notification  
+                    //  If task failed, post workflow failed notification
                     // ------------------------------------------------------------------
                     NSDictionary *userInfo = nil;
                     if ( proxyError ) {
@@ -1031,7 +1082,7 @@ DDLogLevel ddLogLevel;
                 return NO;
             }
         }
-
+        
         if ( temporaryFolderURL ) {
             // ---------------------------------------------------
             //  Create Imagr rc.imaging and add to copy resources

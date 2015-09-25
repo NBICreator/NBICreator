@@ -34,25 +34,22 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)downloadPageAsData:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
-    
     [self setDownloadInfo:downloadInfo];
     [self setRequest:[NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0]];
     [NSURLConnection connectionWithRequest:_request delegate:self];
 }
 
 - (void)downloadFileFromURL:(NSURL *)url destinationPath:(NSString *)destinationPath downloadInfo:(NSDictionary *)downloadInfo {
-    
     [self setDestinationFolder:destinationPath];
     [self setDownloadInfo:downloadInfo];
     [self setRequest:[NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0]];
     [self setDownload:[[NSURLDownload alloc] initWithRequest:_request delegate:self]];
     if ( ! _download ) {
-        NSLog(@"Download Failed!");
+        DDLogError(@"[ERROR] Download Failed!");
     }
 }
 
 - (void)cancelDownload {
-    
     [_download cancel];
     [_delegate downloadCanceled:_downloadInfo];
 }
@@ -104,7 +101,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)download:(NSURLDownload *)download decideDestinationWithSuggestedFilename:(NSString *)filename {
-    
     NSString *destinationFilePath = [_destinationFolder stringByAppendingPathComponent:filename];
     
     [self setDestinationPath:destinationFilePath];
@@ -113,7 +109,6 @@ DDLogLevel ddLogLevel;
 
 - (void)download:(NSURLDownload *)download didReceiveDataOfLength:(NSUInteger)length {
     #pragma unused(download)
-    
     long long expectedLength = [[self downloadResponseTest] expectedContentLength];
     
     [self setBytesRecieved:(_bytesRecieved + length)];
@@ -129,7 +124,6 @@ DDLogLevel ddLogLevel;
 
 - (void)downloadDidFinish:(NSURLDownload *)download {
     #pragma unused(download)
-    
     NSURL *destinationURL = [NSURL fileURLWithPath:_destinationPath];
     if ( [_delegate respondsToSelector:@selector(fileDownloadCompleted:downloadInfo:)] ) {
         [_delegate fileDownloadCompleted:destinationURL downloadInfo:_downloadInfo];
@@ -145,7 +139,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)setDownloadResponse:(NSURLResponse *)aDownloadResponse {
-    
     _downloadResponseTest = aDownloadResponse;
 }
 

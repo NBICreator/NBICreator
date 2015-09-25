@@ -12,6 +12,7 @@
 @protocol NBCDownloaderGitHubDelegate
 @optional
 - (void)githubReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo;
+- (void)githubBranchesArray:(NSArray *)branchesArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo;
 @end
 
 @interface NBCDownloaderGitHub : NSObject <NBCDownloaderDelegate> {
@@ -20,5 +21,6 @@
 
 - (id)initWithDelegate:(id<NBCDownloaderGitHubDelegate>)delegate;
 - (void)getReleaseVersionsAndURLsFromGithubRepository:(NSString *)repository downloadInfo:(NSDictionary *)downloadInfo;
+- (void)getBranchesAndURLsFromGithubRepository:(NSString *)repository downloadInfo:(NSDictionary *)downloadInfo;
 
 @end

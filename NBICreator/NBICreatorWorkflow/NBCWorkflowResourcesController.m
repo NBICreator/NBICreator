@@ -456,6 +456,37 @@ DDLogLevel ddLogLevel;
     [_delegate copySourceRegexComplete:workflowItem packagePath:packagePath resourceFolderPackageURL:resourceFolderPackage];
 }
 
+- (NSURL *)unzipAndCopyFileToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict {
+    
+    NSError *error;
+    NSURL *destinationURL;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSString *branchName = branchDict[NBCSettingsImagrGitBranch];
+    
+    NSURL *resouresFolderURL = [self urlForResourceFolder:resourcesFolder];
+    NSURL *targetFolderURL = [resouresFolderURL URLByAppendingPathComponent:branchName];
+    if ( [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+        if ( ! [fm removeItemAtURL:targetFolderURL error:&error] ) {
+            DDLogError(@"[ERROR] Could not remove folder");
+            DDLogError(@"[ERROR] %@", error);
+        }
+    }
+    
+    if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
+        DDLogError(@"[ERROR] Could not create target folder!");
+        DDLogError(@"[ERROR] %@", error);
+    }
+    
+    // Unzip Archive
+    NSLog(@"Unzipping %@", zipURL);
+    
+    NSString *branchSHA = branchDict[NBCSettingsImagrGitBranchSHA];
+    NSLog(@"branchSHA=%@", branchSHA);
+    
+    return destinationURL;
+}
+
 - (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
     
     NSURL *destinationURL;

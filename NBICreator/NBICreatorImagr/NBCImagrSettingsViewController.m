@@ -107,6 +107,8 @@ DDLogLevel ddLogLevel;
     _templatesDict = [[NSMutableDictionary alloc] init];
     [self setShowARDPassword:NO];
     
+    [self checkIfDeveloperToolsAreInstalled];
+    
     // --------------------------------------------------------------
     //  Test Internet Connectivity
     // --------------------------------------------------------------
@@ -138,12 +140,12 @@ DDLogLevel ddLogLevel;
     [backgroundImageMenu addItem:restoreViewBackground];
     [_imageViewBackgroundImage setMenu:backgroundImageMenu];
     
-    // ------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------
     //
     // -------------------------------------------------------------------------------
     [self updateSettingVisibility];
     
-    // ------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------
     //  Verify build button so It's not enabled by mistake
     // -------------------------------------------------------------------------------
     [self verifyBuildButton];
@@ -707,7 +709,7 @@ DDLogLevel ddLogLevel;
             return;
         }
     }
-
+    
     NSInteger index = [_tableViewPackages selectedRow];
     index++;
     [_tableViewPackages beginUpdates];
@@ -757,6 +759,7 @@ DDLogLevel ddLogLevel;
         // Update the UI on the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf getImagrVersions];
+            [weakSelf getImagrBranches];
         });
     };
     
@@ -883,7 +886,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)githubReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
-    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagImagr] ) {
         [self setImagrVersions:versionsArray];
@@ -892,6 +894,18 @@ DDLogLevel ddLogLevel;
         [self updateCachedImagrVersions:downloadDict];
     }
 } // githubReleaseVersionsArray:downloadDict:downloadInfo
+
+- (void)githubBranchesArray:(NSArray *)branchesArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
+    NSString *downloadTag = downloadInfo[NBCDownloaderTag];
+    if ( [downloadTag isEqualToString:NBCDownloaderTagImagr] ) {
+        [self setImagrBranches:branchesArray];
+        [self setImagrBranchesDownloadLinks:downloadDict];
+        [self updatePopUpButtonImagrVersions];
+        [self updatePopUpButtonImagrBranches];
+        [self updatePopUpButtonImagrBranchesBuildTarget];
+        //[self updateCachedImagrBranches:downloadDict];
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -1123,7 +1137,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
-    
     [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
     [self setNbiName:settingsDict[NBCSettingsNameKey]];
     [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
@@ -1161,10 +1174,16 @@ DDLogLevel ddLogLevel;
     [self setImagrSyslogServerURI:settingsDict[NBCSettingsImagrSyslogServerURI]];
     [self setIncludeRuby:[settingsDict[NBCSettingsIncludeRubyKey] boolValue]];
     [self setAddTrustedNetBootServers:[settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]];
+    [self setImagrUseGitBranch:[settingsDict[NBCSettingsImagrUseGitBranch] boolValue]];
+    [self setImagrGitBranch:settingsDict[NBCSettingsImagrGitBranch]];
+    [self setImagrBuildTarget:settingsDict[NBCSettingsImagrBuildTarget]];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
+    } else if ( [_imagrVersion isEqualToString:NBCMenuItemGitBranch] ) {
+        [self showImagrBranchSelection];
     } else {
+        [self hideImagrBranchSelection];
         [self hideImagrLocalVersionInput];
     }
     
@@ -1348,6 +1367,23 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsImagrSyslogServerURI] = _imagrSyslogServerURI ?: @"";
     settingsDict[NBCSettingsIncludeRubyKey] = @(_includeRuby) ?: @NO;
     settingsDict[NBCSettingsAddTrustedNetBootServersKey] = @(_addTrustedNetBootServers) ?: @NO;
+    settingsDict[NBCSettingsImagrUseGitBranch] = @(_imagrUseGitBranch) ?: @NO;
+    settingsDict[NBCSettingsImagrGitBranch] = _imagrGitBranch ?: @"";
+    settingsDict[NBCSettingsImagrBuildTarget] = _imagrBuildTarget ?: @"";
+    
+    NSString *selectedGitBranch = [_popUpButtonImagrGitBranch titleOfSelectedItem];
+    if ( [selectedGitBranch length] != 0 && [_imagrGitBranch length] != 0 ) {
+        if ( ! [_imagrGitBranch isEqualToString:selectedGitBranch] ) {
+            settingsDict[NBCSettingsImagrGitBranch] = selectedGitBranch ?: @"";
+        }
+    }
+    
+    NSString *selectedBuildTarget = [_popUpButtonImagrGitBranchBuildTarget titleOfSelectedItem];
+    if ( [selectedBuildTarget length] != 0 && [_imagrBuildTarget length] != 0 ) {
+        if ( ! [_imagrBuildTarget isEqualToString:selectedBuildTarget] ) {
+            settingsDict[NBCSettingsImagrBuildTarget] = selectedBuildTarget ?: @"";
+        }
+    }
     
     NSMutableArray *certificateArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
@@ -2149,8 +2185,13 @@ DDLogLevel ddLogLevel;
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCImagrGitHubRepository downloadInfo:downloadInfo];
 } // getImagrVersions
 
-- (void)updatePopUpButtonImagrVersionsLocal {
+- (void)getImagrBranches {
+    NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
+    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagImagr };
+    [downloader getBranchesAndURLsFromGithubRepository:NBCImagrGitHubRepository downloadInfo:downloadInfo];
+} // getImagrBranches
 
+- (void)updatePopUpButtonImagrVersionsLocal {
     if ( ! _resourcesController ) {
         [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
     }
@@ -2194,7 +2235,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updatePopUpButtonImagrVersions {
-    
     if ( _popUpButtonImagrVersion ) {
         [_popUpButtonImagrVersion removeAllItems];
         [_popUpButtonImagrVersion addItemWithTitle:NBCMenuItemImagrVersionLatest];
@@ -2202,8 +2242,11 @@ DDLogLevel ddLogLevel;
         [menuItemVersionLocal setTitle:NBCMenuItemImagrVersionLocal];
         [menuItemVersionLocal setTarget:self];
         [[_popUpButtonImagrVersion menu] addItem:menuItemVersionLocal];
+        NSMenuItem *menuItemBranches = [[NSMenuItem alloc] init];
+        [menuItemBranches setTitle:NBCMenuItemGitBranch];
+        [menuItemBranches setTarget:self];
+        [[_popUpButtonImagrVersion menu] addItem:menuItemBranches];
         [[_popUpButtonImagrVersion menu] addItem:[NSMenuItem separatorItem]];
-        
         [_popUpButtonImagrVersion addItemsWithTitles:_imagrVersions];
         [_popUpButtonImagrVersion selectItemWithTitle:_imagrVersion];
         [self setImagrVersion:[_popUpButtonImagrVersion titleOfSelectedItem]];
@@ -2213,8 +2256,30 @@ DDLogLevel ddLogLevel;
     [_textFieldNetworkWarning setHidden:YES];
 } // updatePopUpButtonImagrVersions
 
+- (void)updatePopUpButtonImagrBranches {
+    if ( _popUpButtonImagrGitBranch ) {
+        [_popUpButtonImagrGitBranch removeAllItems];
+        [_popUpButtonImagrGitBranch addItemsWithTitles:_imagrBranches];
+    }
+    if ( [_imagrBranches containsObject:_imagrGitBranch] ) {
+        [_popUpButtonImagrGitBranch selectItemWithTitle:_imagrGitBranch];
+    } else {
+        DDLogError(@"[ERROR] Git branch %@ is not available!", _imagrGitBranch);
+    }
+}
+
+- (void)updatePopUpButtonImagrBranchesBuildTarget {
+    NSArray *buildTargets = @[ @"Release", @"Testing" ];
+    if ( _popUpButtonImagrGitBranchBuildTarget ) {
+        [_popUpButtonImagrGitBranchBuildTarget removeAllItems];
+        [_popUpButtonImagrGitBranchBuildTarget addItemsWithTitles:buildTargets];
+    }
+    if ( [buildTargets containsObject:_imagrBuildTarget] ) {
+        [_popUpButtonImagrGitBranchBuildTarget selectItemWithTitle:_imagrBuildTarget];
+    }
+}
+
 - (void)updateCachedImagrVersions:(NSDictionary *)imagrVersionsDict {
-    
     if ( ! _resourcesController ) {
         [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
     }
@@ -2242,26 +2307,96 @@ DDLogLevel ddLogLevel;
     NSString *selectedVersion = [[sender selectedItem] title];
     if ( [selectedVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
+    } else if ( [selectedVersion isEqualToString:NBCMenuItemGitBranch] ) {
+        [self showImagrBranchSelection];
     } else {
         [self hideImagrLocalVersionInput];
+        [self hideImagrBranchSelection];
     }
-    
 } // popUpButtonImagrVersion
 
-- (void)showImagrLocalVersionInput {
-    [self setImagrUseLocalVersion:YES];
-    [_constraintConfigurationURLToImagrVersion setConstant:42];
-    [_textFieldImagrLocalPathLabel setHidden:NO];
-    [_textFieldImagrLocalPath setHidden:NO];
-    [_buttonChooseImagrLocalPath setHidden:NO];
-} // showImagrLocalVersionInput
+- (BOOL)checkIfDeveloperToolsAreInstalled {
+    NSTask *newTask =  [[NSTask alloc] init];
+    [newTask setLaunchPath:@"/usr/bin/xcode-select"];
+    [newTask setArguments:@[ @"-p" ]];
+    [newTask setStandardOutput:[NSPipe pipe]];
+    [newTask setStandardError:[NSPipe pipe]];
+    [newTask launch];
+    [newTask waitUntilExit];
+    if ( [newTask terminationStatus] == 0 ) {
+        _devCommandLineToolsInstalled = YES;
+    } else {
+        _devCommandLineToolsInstalled = NO;
+    }
+    return _devCommandLineToolsInstalled;
+} // developerToolsInstalled
 
-- (void)hideImagrLocalVersionInput {
+- (void)showImagrBranchSelection {
     [self setImagrUseLocalVersion:NO];
+    [self setImagrUseGitBranch:YES];
+    [_constraintConfigurationURLToImagrVersion setConstant:42];
+    [_textFieldImagrLocalPathLabel setHidden:YES];
+    [_textFieldImagrLocalPath setHidden:YES];
+    [_buttonChooseImagrLocalPath setHidden:YES];
+    [_textFieldImagrGitBranchLabel setHidden:NO];
+    [_popUpButtonImagrGitBranch setHidden:NO];
+    [_textFieldImagrGitBranchBuildTargetLabel setHidden:NO];
+    [_popUpButtonImagrGitBranchBuildTarget setHidden:NO];
+    if ( ! _devCommandLineToolsInstalled ) {
+        [_buttonInstallXcodeTools setHidden:NO];
+        [[_buttonInstallXcodeTools window] makeFirstResponder:_buttonInstallXcodeTools];
+        [_textFieldImagrGitBranchLabel setEnabled:NO];
+        [_popUpButtonImagrGitBranch setEnabled:NO];
+        [_textFieldImagrGitBranchBuildTargetLabel setEnabled:NO];
+        [_popUpButtonImagrGitBranchBuildTarget setEnabled:NO];
+    } else {
+        [_textFieldImagrGitBranchLabel setEnabled:YES];
+        [_popUpButtonImagrGitBranch setEnabled:YES];
+        [_textFieldImagrGitBranchBuildTargetLabel setEnabled:YES];
+        [_popUpButtonImagrGitBranchBuildTarget setEnabled:YES];
+    }
+} // showImagrBranchSelection
+
+- (void)hideImagrBranchSelection {
+    [self setImagrUseLocalVersion:NO];
+    [self setImagrUseGitBranch:NO];
     [_constraintConfigurationURLToImagrVersion setConstant:13];
     [_textFieldImagrLocalPathLabel setHidden:YES];
     [_textFieldImagrLocalPath setHidden:YES];
     [_buttonChooseImagrLocalPath setHidden:YES];
+    [_textFieldImagrGitBranchLabel setHidden:YES];
+    [_popUpButtonImagrGitBranch setHidden:YES];
+    [_textFieldImagrGitBranchBuildTargetLabel setHidden:YES];
+    [_popUpButtonImagrGitBranchBuildTarget setHidden:YES];
+    [_buttonInstallXcodeTools setHidden:YES];
+} // hideImagrBranchSelection
+
+- (void)showImagrLocalVersionInput {
+    [self setImagrUseLocalVersion:YES];
+    [self setImagrUseGitBranch:NO];
+    [_constraintConfigurationURLToImagrVersion setConstant:42];
+    [_textFieldImagrLocalPathLabel setHidden:NO];
+    [_textFieldImagrLocalPath setHidden:NO];
+    [_buttonChooseImagrLocalPath setHidden:NO];
+    [_textFieldImagrGitBranchLabel setHidden:YES];
+    [_popUpButtonImagrGitBranch setHidden:YES];
+    [_textFieldImagrGitBranchBuildTargetLabel setHidden:YES];
+    [_popUpButtonImagrGitBranchBuildTarget setHidden:YES];
+    [_buttonInstallXcodeTools setHidden:YES];
+} // showImagrLocalVersionInput
+
+- (void)hideImagrLocalVersionInput {
+    [self setImagrUseLocalVersion:NO];
+    [self setImagrUseGitBranch:NO];
+    [_constraintConfigurationURLToImagrVersion setConstant:13];
+    [_textFieldImagrLocalPathLabel setHidden:YES];
+    [_textFieldImagrLocalPath setHidden:YES];
+    [_buttonChooseImagrLocalPath setHidden:YES];
+    [_textFieldImagrGitBranchLabel setHidden:YES];
+    [_popUpButtonImagrGitBranch setHidden:YES];
+    [_textFieldImagrGitBranchBuildTargetLabel setHidden:YES];
+    [_popUpButtonImagrGitBranchBuildTarget setHidden:YES];
+    [_buttonInstallXcodeTools setHidden:YES];
 } // hideImagrLocalVersionInput
 
 - (IBAction)buttonChooseImagrLocalPath:(id)sender {
@@ -2424,7 +2559,37 @@ DDLogLevel ddLogLevel;
     NSDictionary *userSettings = [workflowItem userSettings];
     NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
     
-    if ( ! [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
+    if ( [userSettings[NBCSettingsImagrUseGitBranch] boolValue] ) {
+        NSString *selectedGitBranch = _imagrGitBranch;
+        if ( ! [selectedGitBranch isEqualToString:[_popUpButtonImagrGitBranch titleOfSelectedItem]] ) {
+            selectedGitBranch = [_popUpButtonImagrGitBranch titleOfSelectedItem];
+        }
+        resourcesSettings[NBCSettingsImagrGitBranch] = selectedGitBranch;
+        
+        NSString *selectedBuildTarget = _imagrBuildTarget;
+        if ( ! [selectedBuildTarget isEqualToString:[_popUpButtonImagrGitBranchBuildTarget titleOfSelectedItem]] ) {
+            selectedBuildTarget = [_popUpButtonImagrGitBranchBuildTarget titleOfSelectedItem];
+        }
+        resourcesSettings[NBCSettingsImagrBuildTarget] = selectedBuildTarget;
+
+        NSDictionary *imagrGitBranchesDownloadLinks = _imagrBranchesDownloadLinks[selectedGitBranch];
+        NSString *imagrGitDownloadURL = imagrGitBranchesDownloadLinks[@"url"];
+        if ( [imagrGitDownloadURL length] != 0 ) {
+            resourcesSettings[NBCSettingsImagrDownloadURL] = imagrGitDownloadURL;
+        } else {
+            DDLogError(@"[ERROR] Could not get Imagr Git Branch download URL!");
+            return;
+        }
+        
+        NSString *imagrGitBranchSHA = imagrGitBranchesDownloadLinks[@"sha"];
+        if ( [imagrGitBranchSHA length] != 0 ) {
+            resourcesSettings[NBCSettingsImagrGitBranchSHA] = imagrGitBranchSHA;
+        } else {
+            DDLogError(@"[ERROR] Could not get Imagr Git Branch SHA");
+            return;
+        }
+        
+    } else if ( ! [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
         NSString *selectedImagrVersion = userSettings[NBCSettingsImagrVersion];
         if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
             if ( [_imagrVersions count] == 0 ) {
@@ -3288,4 +3453,27 @@ DDLogLevel ddLogLevel;
     return retval;
 }
 
+- (IBAction)popUpButtonImagrGitBranch:(id)sender {
+#pragma unused(sender)
+}
+
+- (IBAction)popUpButtonImagrGitBranchBuildTarget:(id)sender {
+#pragma unused(sender)
+}
+- (IBAction)buttonInstallXcodeTools:(id)sender {
+#pragma unused(sender)
+    NSTask *newTask =  [[NSTask alloc] init];
+    [newTask setLaunchPath:@"/usr/bin/xcode-select"];
+    [newTask setArguments:@[ @"--install" ]];
+    [newTask setStandardError:[NSPipe pipe]];
+    [newTask launch];
+    [newTask waitUntilExit];
+    
+    NSData *newTaskStandardErrorData = [[[newTask standardError] fileHandleForReading] readDataToEndOfFile];
+    
+    if ( [newTask terminationStatus] != 0 ) {
+        NSString *stdErr = [[NSString alloc] initWithData:newTaskStandardErrorData encoding:NSUTF8StringEncoding];
+        DDLogError(@"[ERROR][xcode-select] %@", stdErr);
+    }
+}
 @end

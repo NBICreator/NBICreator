@@ -90,6 +90,7 @@ extern NSString *const NBCMenuItemSaveAs;
 extern NSString *const NBCMenuItemExport;
 extern NSString *const NBCMenuItemRename;
 extern NSString *const NBCMenuItemDelete;
+extern NSString *const NBCMenuItemGitBranch;
 extern NSString *const NBCMenuItemShowInFinder;
 extern NSString *const NBCMenuItemImagrVersionLatest;
 extern NSString *const NBCMenuItemImagrVersionLocal;
@@ -244,6 +245,11 @@ extern NSString *const NBCSettingsImagrLocalVersionPath;
 extern NSString *const NBCSettingsImagrSourceIsNBI;
 extern NSString *const NBCSettingsImagrDisableATS;
 extern NSString *const NBCSettingsImagrVersionLatest;
+extern NSString *const NBCSettingsImagrUseGitBranch;
+extern NSString *const NBCSettingsImagrGitBranch;
+extern NSString *const NBCSettingsImagrGitBranchDict;
+extern NSString *const NBCSettingsImagrGitBranchSHA;
+extern NSString *const NBCSettingsImagrBuildTarget;
 
 // --------------------------------------------------------------
 //  Template Settings DeployStudio
@@ -426,8 +432,13 @@ extern NSString *const NBCCasperImagingBundleIdentifier;
 extern NSString *const NBCCasperJSSCertificateURLPath;
 
 extern NSString *const NBCDownloaderTag;
+extern NSString *const NBCDownloaderTagGitRepoName;
+extern NSString *const NBCDownloaderTagGitRepoPath;
+extern NSString *const NBCDownloaderTagGitRepoPathReleases;
+extern NSString *const NBCDownloaderTagGitRepoPathBranches;
 extern NSString *const NBCDownloaderTagPython;
 extern NSString *const NBCDownloaderTagImagr;
+extern NSString *const NBCDownloaderTagImagrBranch;
 extern NSString *const NBCDownloaderTagDeployStudio;
 extern NSString *const NBCDownloaderTagNBICreator;
 extern NSString *const NBCDownloaderTagNBICreatorResources;

@@ -34,5 +34,6 @@
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder;
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder;
 - (NSURL *)urlForResourceFolder:(NSString *)resourceFolder;
+- (NSURL *)unzipAndCopyFileToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict;
 
 @end

@@ -90,6 +90,7 @@ NSString *const NBCMenuItemSaveAs = @"Save As...";
 NSString *const NBCMenuItemExport = @"Export...";
 NSString *const NBCMenuItemRename = @"Rename...";
 NSString *const NBCMenuItemDelete = @"Delete";
+NSString *const NBCMenuItemGitBranch = @"Git Branch...";
 NSString *const NBCMenuItemShowInFinder = @"Show in Finder...";
 NSString *const NBCMenuItemImagrVersionLatest = @"Latest Release";
 NSString *const NBCMenuItemImagrVersionLocal = @"Local Version...";
@@ -252,6 +253,11 @@ NSString *const NBCSettingsImagrLocalVersionPath = @"ImagrLocalVersionPath";
 NSString *const NBCSettingsImagrSourceIsNBI = @"IsNBI";
 NSString *const NBCSettingsImagrDisableATS = @"ImagrDisableATS";
 NSString *const NBCSettingsImagrVersionLatest = @"ImagrVersionLatest";
+NSString *const NBCSettingsImagrUseGitBranch = @"ImagrUseGitBranch";
+NSString *const NBCSettingsImagrGitBranch = @"ImagrGitBranch";
+NSString *const NBCSettingsImagrGitBranchDict = @"ImagrGitBranchDict"; // This is used when downloading, should rename?
+NSString *const NBCSettingsImagrGitBranchSHA = @"ImagrGitBranchSHA";
+NSString *const NBCSettingsImagrBuildTarget = @"ImagrBuildTarget";
 
 // --------------------------------------------------------------
 //  Template Settings DeployStudio
@@ -487,8 +493,13 @@ NSString *const IconConfigurationProfilePath = @"/Applications/System Preference
 //  NBCDownloader
 // --------------------------------------------------------------
 NSString *const NBCDownloaderTag = @"Tag";
+NSString *const NBCDownloaderTagGitRepoName = @"NBCDownloaderTagGitRepoName";
+NSString *const NBCDownloaderTagGitRepoPath = @"NBCDownloaderTagGitRepoPath";
+NSString *const NBCDownloaderTagGitRepoPathReleases = @"NBCDownloaderTagGitRepoPathReleases";
+NSString *const NBCDownloaderTagGitRepoPathBranches = @"NBCDownloaderTagGitRepoPathBranches";
 NSString *const NBCDownloaderTagPython = @"NBCDownloaderTagPython";
 NSString *const NBCDownloaderTagImagr = @"NBCDownloaderTagImagr";
+NSString *const NBCDownloaderTagImagrBranch = @"NBCDownloaderTagImagrBranch";
 NSString *const NBCDownloaderTagDeployStudio = @"NBCDownloaderTagDeployStudio";
 NSString *const NBCDownloaderTagNBICreator = @"NBCDownloaderTagNBICreator";
 NSString *const NBCDownloaderTagNBICreatorResources = @"NBCDownloaderTagNBICreatorResources";

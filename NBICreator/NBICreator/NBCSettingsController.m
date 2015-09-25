@@ -36,8 +36,9 @@ DDLogLevel ddLogLevel;
 
 - (NSDictionary *)verifySettings:(NBCWorkflowItem *)workflowItem {
     
-    
     NSMutableArray *settings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
     
     // ------------------------------------------------------------------------
     //  Check if current settings are equal to any currently queued workflow
@@ -103,6 +104,11 @@ DDLogLevel ddLogLevel;
             
             NSDictionary *settingsReportingURL = [self verifySettingsImagrReportingURL:workflowItem];
             [settings addObject:settingsReportingURL];
+            
+            if ( [userSettings[NBCSettingsImagrUseGitBranch] boolValue] ) {
+                NSDictionary *settingsXcodeToolsInstalled = [self verifySettingsXcodeToolsInstalled];
+                [settings addObject:settingsXcodeToolsInstalled];
+            }
             
             break;
         }
@@ -305,31 +311,31 @@ DDLogLevel ddLogLevel;
 } // verifySettingsTabAdvanced
 
 /*
-- (NSDictionary *)verifySettingsTabDebug:(NBCWorkflowItem *)workflowItem {
-    
-    NSMutableArray *settings = [[NSMutableArray alloc] init];
-    
-
-    
-    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
-    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
-    
-    for ( NSDictionary *dict in settings ) {
-        NSArray *errorArr = dict[NBCSettingsError];
-        if ( [errorArr count] != 0 ) {
-            [settingsErrors addObjectsFromArray:errorArr];
-        }
-        
-        NSArray *warningArr = dict[NBCSettingsWarning];
-        if ( [warningArr count] != 0 ) {
-            [settingsWarnings addObjectsFromArray:warningArr];
-        }
-    }
-    
-    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-} // verifySettingsTabDebug
-*/
+ - (NSDictionary *)verifySettingsTabDebug:(NBCWorkflowItem *)workflowItem {
  
+ NSMutableArray *settings = [[NSMutableArray alloc] init];
+ 
+ 
+ 
+ NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+ NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+ 
+ for ( NSDictionary *dict in settings ) {
+ NSArray *errorArr = dict[NBCSettingsError];
+ if ( [errorArr count] != 0 ) {
+ [settingsErrors addObjectsFromArray:errorArr];
+ }
+ 
+ NSArray *warningArr = dict[NBCSettingsWarning];
+ if ( [warningArr count] != 0 ) {
+ [settingsWarnings addObjectsFromArray:warningArr];
+ }
+ }
+ 
+ return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+ } // verifySettingsTabDebug
+ */
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Settings Tab General
@@ -692,6 +698,23 @@ DDLogLevel ddLogLevel;
 #pragma mark Settings Other
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+- (NSDictionary *)verifySettingsXcodeToolsInstalled {
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSTask *newTask =  [[NSTask alloc] init];
+    [newTask setLaunchPath:@"/usr/bin/xcode-select"];
+    [newTask setArguments:@[ @"-p" ]];
+    [newTask setStandardOutput:[NSPipe pipe]];
+    [newTask setStandardError:[NSPipe pipe]];
+    [newTask launch];
+    [newTask waitUntilExit];
+    if ( [newTask terminationStatus] != 0 ) {
+        [settingsErrors addObject:@"The Command Line Developer Tools is not installed, cannot compile Imagr from Git Branch until the required tools are installed."];
+    }
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
 
 - (NSDictionary *)verifySettingsOsVersionForSystemImageUtility:(NBCWorkflowItem *)workflowItem {
     

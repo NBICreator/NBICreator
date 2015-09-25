@@ -82,6 +82,12 @@
 	<false/>
 	<key>AddTrustedNetBootServers</key>
 	<false/>
+	<key>ImagrUseGitBranch</key>
+	<false/>
+	<key>ImagrGitBranch</key>
+	<string></string>
+	<key>ImagrBuildTarget</key>
+	<string></string>
 	<key>RAMDisks</key>
 	<array/>
 	<key>TrustedNetBootServers</key>
