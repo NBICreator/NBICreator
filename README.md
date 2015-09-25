@@ -42,6 +42,15 @@ Documentation is available in the [Wiki](https://github.com/NBICreator/NBICreato
 # Acknowledgements
 * Application and file icons created by T-Short
 
+# Included Frameworks and Resources
+This application includes code from the following Open Source projects:
+* [CocoaLumberjack] (https://github.com/CocoaLumberjack/CocoaLumberjack)
+* [DiskArbitrator] (https://github.com/aburgh/Disk-Arbitrator)
+* [Hpple] (https://github.com/topfunky/hpple)
+* [pbzx stream Parser] (http://www.tonymacx86.com/general-help/135458-pbzx-stream-parser.html)
+* [Reachability] (https://github.com/tonymillion/Reachability)
+* [ZipArchive] (https://github.com/ZipArchive/ZipArchive)
+
 # License
     Copyright 2015 Erik Berglund. All rights reserved.
     
