@@ -430,7 +430,8 @@ enum {
 
 - (void)windowDidBecomeKey:(NSNotification *)notification {
 #pragma unused(notification)
-    [[NBCWorkflowManager sharedManager] menuItemWindowWorkflows:self];
+    // I'm seeing strange behaviour when using this. Going to try and disable and run without for testing.
+    //[[NBCWorkflowManager sharedManager] menuItemWindowWorkflows:self];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
