@@ -2269,7 +2269,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updatePopUpButtonImagrBranchesBuildTarget {
-    NSArray *buildTargets = @[ @"Release", @"Testing" ];
+    NSArray *buildTargets = @[ @"Release", @"Debug" ];
     if ( _popUpButtonImagrGitBranchBuildTarget ) {
         [_popUpButtonImagrGitBranchBuildTarget removeAllItems];
         [_popUpButtonImagrGitBranchBuildTarget addItemsWithTitles:buildTargets];
@@ -2702,14 +2702,12 @@ DDLogLevel ddLogLevel;
     } else {
         resourcesSettings[NBCSettingsKeyboardLayoutID] = selectedKeyboardLayout;
     }
-    NSLog(@"resourcesSettings[NBCSettingsKeyboardLayoutID]=%@", resourcesSettings[NBCSettingsKeyboardLayoutID]);
     
     NSString *selectedTimeZone = [self timeZoneFromMenuItem:_selectedMenuItem];
     if ( [selectedTimeZone length] != 0 ) {
         if ( [selectedTimeZone isEqualToString:NBCMenuItemCurrent] ) {
             NSTimeZone *currentTimeZone = [NSTimeZone defaultTimeZone];
             NSString *currentTimeZoneName = [currentTimeZone name];
-            NSLog(@"currentTimeZoneName=%@", currentTimeZoneName);
             resourcesSettings[NBCSettingsTimeZoneKey] = currentTimeZoneName;
         } else {
             resourcesSettings[NBCSettingsTimeZoneKey] = selectedTimeZone;

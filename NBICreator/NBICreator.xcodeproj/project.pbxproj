@@ -41,6 +41,10 @@
 		534DFB241B7C988800C9CE0E /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; };
 		534DFB261B7C9E3B00C9CE0E /* CocoaLumberjack.framework in Copy CocoaLumberjack */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		534FA9ED1AF4B39D005B40F6 /* NBCSourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = 534FA9EC1AF4B39D005B40F6 /* NBCSourceController.m */; };
+		5353A0091BB534D400679A4F /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 5353A0011BB534D400679A4F /* ioapi.c */; settings = {ASSET_TAGS = (); COMPILER_FLAGS = "-w"; }; };
+		5353A00A1BB534D400679A4F /* mztools.c in Sources */ = {isa = PBXBuildFile; fileRef = 5353A0031BB534D400679A4F /* mztools.c */; settings = {ASSET_TAGS = (); COMPILER_FLAGS = "-w"; }; };
+		5353A00B1BB534D400679A4F /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 5353A0051BB534D400679A4F /* unzip.c */; settings = {ASSET_TAGS = (); COMPILER_FLAGS = "-w"; }; };
+		5353A00C1BB534D400679A4F /* zip.c in Sources */ = {isa = PBXBuildFile; fileRef = 5353A0071BB534D400679A4F /* zip.c */; settings = {ASSET_TAGS = (); COMPILER_FLAGS = "-w"; }; };
 		53546DC31AA9EE7C00564A3D /* NBCDeployStudioSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 53546DC21AA9EE7C00564A3D /* NBCDeployStudioSource.m */; };
 		535753E51BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 535753E41BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m */; settings = {ASSET_TAGS = (); }; };
 		535753E81BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 535753E71BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m */; settings = {ASSET_TAGS = (); }; };
@@ -55,7 +59,7 @@
 		53695BB41B80A6510038F3DD /* generateKernelCache.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53695BB31B80A6510038F3DD /* generateKernelCache.bash */; };
 		536D1B6D1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m in Sources */ = {isa = PBXBuildFile; fileRef = 536D1B6C1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m */; };
 		536E68121BB5242100B7E1A1 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 536E68111BB5242100B7E1A1 /* libz.tbd */; };
-		536E68251BB532E800B7E1A1 /* minizip in Resources */ = {isa = PBXBuildFile; fileRef = 536E68241BB532E800B7E1A1 /* minizip */; settings = {ASSET_TAGS = (); }; };
+		536E68291BB533C700B7E1A1 /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = 536E68281BB533C700B7E1A1 /* Main.m */; settings = {ASSET_TAGS = (); COMPILER_FLAGS = "-w"; }; };
 		5374C28E1BB2CDCE008C8679 /* IconCasperImaging.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5374C28D1BB2CDCE008C8679 /* IconCasperImaging.icns */; settings = {ASSET_TAGS = (); }; };
 		5374C2991BB2E1BD008C8679 /* NBICreatorDesktopViewer.app in Resources */ = {isa = PBXBuildFile; fileRef = 5374C2981BB2E1BD008C8679 /* NBICreatorDesktopViewer.app */; settings = {ASSET_TAGS = (); }; };
 		537FF2281B9B0CE200924E04 /* NSString+validIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 537FF2271B9B0CE200924E04 /* NSString+validIP.m */; };
@@ -307,6 +311,15 @@
 		534C66A21AE37422004A6DEE /* NBCSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCSettingsController.m; path = NBICreator/NBCSettingsController.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		534FA9EB1AF4B39D005B40F6 /* NBCSourceController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCSourceController.h; path = NBICreatorSource/NBCSourceController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		534FA9EC1AF4B39D005B40F6 /* NBCSourceController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCSourceController.m; path = NBICreatorSource/NBCSourceController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		5353A0001BB534D400679A4F /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crypt.h; sourceTree = "<group>"; };
+		5353A0011BB534D400679A4F /* ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ioapi.c; sourceTree = "<group>"; };
+		5353A0021BB534D400679A4F /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ioapi.h; sourceTree = "<group>"; };
+		5353A0031BB534D400679A4F /* mztools.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mztools.c; sourceTree = "<group>"; };
+		5353A0041BB534D400679A4F /* mztools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mztools.h; sourceTree = "<group>"; };
+		5353A0051BB534D400679A4F /* unzip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = unzip.c; sourceTree = "<group>"; };
+		5353A0061BB534D400679A4F /* unzip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unzip.h; sourceTree = "<group>"; };
+		5353A0071BB534D400679A4F /* zip.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zip.c; sourceTree = "<group>"; };
+		5353A0081BB534D400679A4F /* zip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zip.h; sourceTree = "<group>"; };
 		53546DC11AA9EE7C00564A3D /* NBCDeployStudioSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCDeployStudioSource.h; path = NBICreatorSource/NBCDeployStudioSource.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53546DC21AA9EE7C00564A3D /* NBCDeployStudioSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCDeployStudioSource.m; path = NBICreatorSource/NBCDeployStudioSource.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		535753E31BAF4062000C9935 /* NBCCasperRAMDiskPathCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCasperRAMDiskPathCellView.h; path = "NBICreator Casper/NBCCasperRAMDiskPathCellView.h"; sourceTree = "<group>"; };
@@ -328,7 +341,8 @@
 		536D1B6B1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCBackgroundViewWhite.h; sourceTree = "<group>"; };
 		536D1B6C1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCBackgroundViewWhite.m; sourceTree = "<group>"; };
 		536E68111BB5242100B7E1A1 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
-		536E68241BB532E800B7E1A1 /* minizip */ = {isa = PBXFileReference; lastKnownFileType = folder; name = minizip; path = "Supporting Files/Libraries/ZipArchive/minizip"; sourceTree = "<group>"; };
+		536E68271BB533C700B7E1A1 /* Main.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Main.h; path = "Supporting Files/Libraries/ZipArchive/Main.h"; sourceTree = "<group>"; };
+		536E68281BB533C700B7E1A1 /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Main.m; path = "Supporting Files/Libraries/ZipArchive/Main.m"; sourceTree = "<group>"; };
 		5374C28D1BB2CDCE008C8679 /* IconCasperImaging.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconCasperImaging.icns; sourceTree = "<group>"; };
 		5374C2981BB2E1BD008C8679 /* NBICreatorDesktopViewer.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = NBICreatorDesktopViewer.app; path = "Supporting Files/Applications/NBICreatorDesktopViewer.app"; sourceTree = "<group>"; };
 		537FF2261B9B0CE200924E04 /* NSString+validIP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+validIP.h"; path = "NBICreatorCategories/NSString+validIP.h"; sourceTree = "<group>"; };
@@ -557,7 +571,17 @@
 		536E68011BB5230E00B7E1A1 /* ZipArchive */ = {
 			isa = PBXGroup;
 			children = (
-				536E68241BB532E800B7E1A1 /* minizip */,
+				536E68271BB533C700B7E1A1 /* Main.h */,
+				536E68281BB533C700B7E1A1 /* Main.m */,
+				5353A0001BB534D400679A4F /* crypt.h */,
+				5353A0011BB534D400679A4F /* ioapi.c */,
+				5353A0021BB534D400679A4F /* ioapi.h */,
+				5353A0031BB534D400679A4F /* mztools.c */,
+				5353A0041BB534D400679A4F /* mztools.h */,
+				5353A0051BB534D400679A4F /* unzip.c */,
+				5353A0061BB534D400679A4F /* unzip.h */,
+				5353A0071BB534D400679A4F /* zip.c */,
+				5353A0081BB534D400679A4F /* zip.h */,
 				536E68111BB5242100B7E1A1 /* libz.tbd */,
 			);
 			name = ZipArchive;
@@ -1133,7 +1157,6 @@
 				53F3B28B1B7D1A88005BEAD3 /* WorkflowCancel.png in Resources */,
 				53CBB1BC1ACF1DF900B83089 /* NBCWorkflowProgressViewController.xib in Resources */,
 				53C97FA01B07DEEF00034B60 /* pbzx in Resources */,
-				536E68251BB532E800B7E1A1 /* minizip in Resources */,
 				535A898C1AD3247A00DC08F4 /* IconMountainLion.icns in Resources */,
 				53FB3EA41B975DAD00CCE413 /* NBCCasperDropViewController.xib in Resources */,
 				53DF9CF21AA36DC8004B68D8 /* Defaults.plist in Resources */,
@@ -1202,6 +1225,7 @@
 				5324C1551AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m in Sources */,
 				53B9CEB81A95D68700C8015E /* NBCDeployStudioSettingsViewController.m in Sources */,
 				53B05C091B0CBA89000C7D67 /* NBCDownloaderDeployStudio.m in Sources */,
+				5353A00C1BB534D400679A4F /* zip.c in Sources */,
 				539C92011B9DC2AB0012BBFC /* NSMutableString+hyperlinkFromString.m in Sources */,
 				539EA5011BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m in Sources */,
 				538AC3CE1BB1B281006BC343 /* NBCOverlayViewController.m in Sources */,
@@ -1209,6 +1233,7 @@
 				530E8F3D1A948DA700CAD93C /* NBCHelperConnection.m in Sources */,
 				53FB3EAA1B975DE500CCE413 /* NBCCasperWorkflowNBI.m in Sources */,
 				53383D151AFA9D3000C041F9 /* NBCConstants.m in Sources */,
+				5353A00A1BB534D400679A4F /* mztools.c in Sources */,
 				53B9CEBC1A95DFD600C8015E /* NBCController.m in Sources */,
 				53CBB1BB1ACF1DF900B83089 /* NBCWorkflowProgressViewController.m in Sources */,
 				53DFA2521BA153620009EFEC /* NBCImagrTrustedNetBootServerCellView.m in Sources */,
@@ -1238,8 +1263,10 @@
 				5386EA8E1AFFB0EA0091D57A /* NBCDownloaderPython.m in Sources */,
 				5390CAE31B0A8173000369F4 /* NBCDeployStudioWorkflowResources.m in Sources */,
 				539DAEF71AF15ACB0037F06B /* NBCImagrDropViewController.m in Sources */,
+				536E68291BB533C700B7E1A1 /* Main.m in Sources */,
 				53E51C211AF5647B009364E7 /* NBCNetInstallWorkflowResources.m in Sources */,
 				53FB3EA71B975DC400CCE413 /* NBCCasperDropViewImage.m in Sources */,
+				5353A0091BB534D400679A4F /* ioapi.c in Sources */,
 				5390CAE01B0A815E000369F4 /* NBCDeployStudioWorkflowModifyNBI.m in Sources */,
 				53F6122F1AFFEA3B00CFD435 /* NBCWorkflowResourcesController.m in Sources */,
 				53E5B8641B06FE1500A771F7 /* NBCTemplatesController.m in Sources */,
@@ -1254,6 +1281,7 @@
 				53D34DA01B740DA600F11CFF /* NBCPackageTableCellView.m in Sources */,
 				53931B9D1AED511B0076C1CC /* NBCVariables.m in Sources */,
 				534C66A31AE37422004A6DEE /* NBCSettingsController.m in Sources */,
+				5353A00B1BB534D400679A4F /* unzip.c in Sources */,
 				53CBB1C51ACF253200B83089 /* NBCWorkflowPanelController.m in Sources */,
 				53BC04021AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.m in Sources */,
 				53CBA96B1ADE556600385C89 /* TFHpple.m in Sources */,
@@ -1397,10 +1425,7 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Supporting Files/Property Lists/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/minizip",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_CFLAGS = (
 					"-Wall",
 					"-Wconversion",
@@ -1440,10 +1465,7 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Supporting Files/Property Lists/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/minizip",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_CFLAGS = (
 					"-Wall",
 					"-Wconversion",

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Main.h"
 
 @class NBCWorkflowItem;
 
@@ -14,9 +15,11 @@
 @optional
 - (void)copySourceRegexComplete:(NBCWorkflowItem *)workflowItem packagePath:(NSString *)packagePath resourceFolderPackageURL:(NSURL *)resourceFolderPackage;
 - (void)copySourceRegexFailed:(NBCWorkflowItem *)workflowItem temporaryFolderURL:(NSURL *)temporaryFolderURL;
+- (void)xcodeBuildComplete:(NSURL *)productURL;
+- (void)xcodeBuildFailed:(NSString *)errorOutput;
 @end
 
-@interface NBCWorkflowResourcesController : NSObject {
+@interface NBCWorkflowResourcesController : NSObject <ZipArchiveDelegate> {
     id _delegate;
 }
 
@@ -25,6 +28,7 @@
 // -------------------------------------------------------------
 - (id)initWithDelegate:(id<NBCResourcesControllerDelegate>)delegate;
 - (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder;
+- (NSURL *)cachedBranchURL:(NSString *)branch sha:(NSString *)sha resourcesFolder:(NSString *)resourcesFolder;
 - (NSDictionary *)getCachedSourceItemsDict:(NSString *)buildVersion resourcesFolder:(NSString *)resourcesFolder;
 - (NSURL *)copyFileToResources:(NSURL *)fileURL resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version;
 - (NSURL *)copySourceItemToResources:(NSURL *)fileURL sourceItemPath:(NSString *)sourceItemPath resourcesFolder:(NSString *)resourcesFolder sourceBuild:(NSString *)sourceBuild;
@@ -34,6 +38,7 @@
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder;
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder;
 - (NSURL *)urlForResourceFolder:(NSString *)resourceFolder;
-- (NSURL *)unzipAndCopyFileToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict;
+- (NSURL *)unzipAndCopyGitBranchToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict;
+- (void)buildProjectAtURL:(NSURL *)projectURL buildTarget:(NSString *)buildTarget;
 
 @end

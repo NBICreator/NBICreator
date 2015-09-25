@@ -118,7 +118,7 @@ DDLogLevel ddLogLevel;
             [_delegate updateProgressBytesRecieved:_bytesRecieved expectedLength:expectedLength downloadInfo:_downloadInfo];
         }
     } else {
-        NSLog(@"Bytes received - %f",_bytesRecieved);
+        //NSLog(@"Bytes received - %f",_bytesRecieved);
     }
 }
 

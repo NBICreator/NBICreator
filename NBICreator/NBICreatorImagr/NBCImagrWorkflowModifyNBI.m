@@ -249,13 +249,9 @@ DDLogLevel ddLogLevel;
     BOOL retval = NO;
     
     NSString *sparseImageFolderPath = [[sparseImageURL URLByDeletingLastPathComponent] path];
-    NSLog(@"sparseImageFolderPath=%@", sparseImageFolderPath);
     NSString *sparseImageName = [[sparseImageURL lastPathComponent] stringByDeletingPathExtension];
-    NSLog(@"sparseImageName=%@", sparseImageName);
     NSString *sparseImagePath = [NSString stringWithFormat:@"%@.sparseimage", sparseImageName];
-    NSLog(@"sparseImagePath=%@", sparseImagePath);
     NSString *dmgLinkPath = [NSString stringWithFormat:@"%@.dmg", sparseImageName];
-    NSLog(@"dmgLinkPath=%@", dmgLinkPath);
     
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/bin/ln"];

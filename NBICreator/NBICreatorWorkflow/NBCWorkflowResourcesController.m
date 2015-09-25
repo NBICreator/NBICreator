@@ -14,6 +14,7 @@
 #import "NBCHelperProtocol.h"
 #import "NBCHelperConnection.h"
 #import "NBCLogging.h"
+#import "NSString+randomString.h"
 
 DDLogLevel ddLogLevel;
 
@@ -95,14 +96,39 @@ DDLogLevel ddLogLevel;
     return cachedDownloadsDictURL;
 }
 
-- (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder {
-    NSURL *cachedVersionURL;
+- (NSURL *)cachedBranchURL:(NSString *)branch sha:(NSString *)sha resourcesFolder:(NSString *)resourcesFolder {
+    NSURL *cachedBranchURL;
     NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
-    if ( currentResourcesFolder ) {
+    if ( [currentResourcesFolder checkResourceIsReachableAndReturnError:nil] ) {
         NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *resourcesDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourcesDictURL];
-            if ( resourcesDict ) {
+            if ( [resourcesDict count] != 0 ) {
+                NSDictionary *branchDict = resourcesDict[branch];
+                if ( [branchDict count] != 0 ) {
+                    NSString *cachedBranchSHA = branchDict[@"sha"];
+                    NSString *cachedBranchPath = branchDict[@"url"];
+                    if ( [cachedBranchSHA isEqualToString:sha] && [cachedBranchPath length] != 0 ) {
+                        cachedBranchURL = [NSURL fileURLWithPath:cachedBranchPath];
+                    } else {
+                        DDLogError(@"[ERROR] Resource path is empty!");
+                    }
+                }
+            }
+        }
+    }
+    
+    return cachedBranchURL;
+}
+
+- (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder {
+    NSURL *cachedVersionURL;
+    NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
+    if ( [currentResourcesFolder checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
+        if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
+            NSDictionary *resourcesDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourcesDictURL];
+            if ( [resourcesDict count] != 0 ) {
                 NSString *resourcePath = resourcesDict[version];
                 if ( [resourcePath length] != 0 ) {
                     cachedVersionURL = [NSURL fileURLWithPath:resourcePath];
@@ -176,7 +202,7 @@ DDLogLevel ddLogLevel;
             resourceDict = [[NSMutableDictionary alloc] init];
             resourceDict[version] = [targetFileURL path];
         }
-
+        
         if ( [resourceDict writeToURL:resourcesDictURL atomically:YES] ) {
             if ( ! [[fileURL path] hasPrefix:@"/Volumes"] ) {
                 if ( ! [fileManager removeItemAtURL:fileURL error:&error] ) {
@@ -456,8 +482,7 @@ DDLogLevel ddLogLevel;
     [_delegate copySourceRegexComplete:workflowItem packagePath:packagePath resourceFolderPackageURL:resourceFolderPackage];
 }
 
-- (NSURL *)unzipAndCopyFileToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict {
-    
+- (NSURL *)unzipAndCopyGitBranchToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict {
     NSError *error;
     NSURL *destinationURL;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -466,25 +491,117 @@ DDLogLevel ddLogLevel;
     
     NSURL *resouresFolderURL = [self urlForResourceFolder:resourcesFolder];
     NSURL *targetFolderURL = [resouresFolderURL URLByAppendingPathComponent:branchName];
+    NSURL *xcodeProjectFolderTargetURL = [targetFolderURL URLByAppendingPathComponent:@"Imagr"];
     if ( [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
         if ( ! [fm removeItemAtURL:targetFolderURL error:&error] ) {
             DDLogError(@"[ERROR] Could not remove folder");
             DDLogError(@"[ERROR] %@", error);
+            return nil;
         }
     }
     
     if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-        DDLogError(@"[ERROR] Could not create target folder!");
+        DDLogError(@"[ERROR] Could not create folder");
         DDLogError(@"[ERROR] %@", error);
+        return nil;
     }
     
     // Unzip Archive
-    NSLog(@"Unzipping %@", zipURL);
-    
-    NSString *branchSHA = branchDict[NBCSettingsImagrGitBranchSHA];
-    NSLog(@"branchSHA=%@", branchSHA);
+    NSString *tmpFolderPath = [NSString stringWithFormat:@"/tmp/zip.%@", [NSString nbc_randomString]];
+    NSURL *unzippedImagrProjectRootURL;
+    NSURL *xcodeProjectFolderSourceURL;
+    if ( [Main unzipFileAtPath:[zipURL path] toDestination:tmpFolderPath] ) {
+        NSArray *unzippedRootItems = [fm contentsOfDirectoryAtPath:tmpFolderPath error:NULL];
+        for ( NSString *itemName in unzippedRootItems ) {
+            NSString *path = [tmpFolderPath stringByAppendingPathComponent:itemName];
+            BOOL isDir = NO;
+            [fm fileExistsAtPath:path isDirectory:( &isDir )];
+            if ( [itemName containsString:@"imagr"] && isDir ) {
+                unzippedImagrProjectRootURL = [NSURL fileURLWithPath:path];
+                xcodeProjectFolderSourceURL = [unzippedImagrProjectRootURL URLByAppendingPathComponent:@"Imagr"];
+                if ( ! [xcodeProjectFolderSourceURL checkResourceIsReachableAndReturnError:nil] ) {
+                    xcodeProjectFolderSourceURL = nil;
+                }
+            }
+        }
+        
+        if ( unzippedImagrProjectRootURL == nil || xcodeProjectFolderSourceURL == nil ) {
+            DDLogError(@"[ERROR] Could not get path to Imgr Project Root after unzipping!");
+            return nil;
+        }
+        
+        if ( ! [fm moveItemAtURL:xcodeProjectFolderSourceURL toURL:xcodeProjectFolderTargetURL  error:&error] ) {
+            DDLogError(@"[ERROR] Could not move unzipped Imagr Project to destinaion folder!");
+            DDLogError(@"[ERROR] %@", error);
+            return nil;
+        }
+        
+        NSURL *xcodeProjectSourceURL = [unzippedImagrProjectRootURL URLByAppendingPathComponent:@"Imagr.xcodeproj"];
+        NSURL *xcodeProjectTargetURL = [targetFolderURL URLByAppendingPathComponent:@"Imagr.xcodeproj"];
+        
+        if ( ! [fm moveItemAtURL:xcodeProjectSourceURL toURL:xcodeProjectTargetURL error:&error] ) {
+            DDLogError(@"[ERROR] Could not move project file!");
+            DDLogError(@"[ERROR] %@", error);
+            return nil;
+        }
+        
+        if ( [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+            destinationURL = targetFolderURL;
+            
+            NSString *branchSHA = branchDict[NBCSettingsImagrGitBranchSHA];
+            NSURL *resourcesDictURL = [resouresFolderURL URLByAppendingPathComponent:NBCFileNameResourcesDict];
+            NSMutableDictionary *resourceDict = [[[NSDictionary alloc] initWithContentsOfURL:resourcesDictURL] mutableCopy];
+            NSDictionary *resourcesBranchDict = @{
+                                                  @"url" : [targetFolderURL path],
+                                                  @"sha" : branchSHA
+                                                  };
+            if ( resourceDict ) {
+                resourceDict[branchName] = resourcesBranchDict;
+            } else {
+                resourceDict = [[NSMutableDictionary alloc] init];
+                resourceDict[branchName] = resourcesBranchDict;
+            }
+            
+            if ( ! [resourceDict writeToURL:resourcesDictURL atomically:YES] ) {
+                DDLogError(@"[ERROR] Could Not Write Resource Dict at: %@", resourcesDictURL);
+            }
+        } else {
+            DDLogError(@"[ERROR] Imagr Root Path doesn't exist somehow.");
+        }
+    }
     
     return destinationURL;
+}
+
+- (void)buildProjectAtURL:(NSURL *)projectURL buildTarget:(NSString *)buildTarget {
+    NSURL *productURL;
+    
+    NSTask *newTask =  [[NSTask alloc] init];
+    [newTask setLaunchPath:@"/usr/bin/xcodebuild"];
+    [newTask setArguments:@[ @"-configuration", buildTarget ]];
+    [newTask setCurrentDirectoryPath:[projectURL path]];
+    [newTask setStandardOutput:[NSPipe pipe]];
+    [newTask setStandardError:[NSPipe pipe]];
+    [newTask launch];
+    [newTask waitUntilExit];
+    
+//  NSData *newTaskStandardOutputData = [[[newTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+//  NSString *stdOut = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
+    NSData *newTaskStandardErrorData = [[[newTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:newTaskStandardErrorData encoding:NSUTF8StringEncoding];
+    
+    if ( [newTask terminationStatus] == 0 ) {
+        productURL = [projectURL URLByAppendingPathComponent:[NSString stringWithFormat:@"build/%@/Imagr.app", buildTarget]];
+        if ( [productURL checkResourceIsReachableAndReturnError:nil] ) {
+            [_delegate xcodeBuildComplete:productURL];
+        } else {
+            [_delegate xcodeBuildFailed:@"Could not find product after build!"];
+        }
+    } else {
+        [_delegate xcodeBuildFailed:stdErr];
+        DDLogError(@"[ERROR] %@", stdErr);
+    }
+    
 }
 
 - (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {

@@ -409,26 +409,59 @@ DDLogLevel ddLogLevel;
             return NO;
         }
     } else if ( [selectedImagrVersion isEqualToString:NBCMenuItemGitBranch] ) {
-        NSString *imagrDownloadURL = _resourcesSettings[NBCSettingsImagrDownloadURL];
         NSString *branch = _resourcesSettings[NBCSettingsImagrGitBranch];
         NSString *sha = _resourcesSettings[NBCSettingsImagrGitBranchSHA];
-        if ( [imagrDownloadURL length] != 0 ) {
-            DDLogInfo(@"Downloading Imagr Git Branch %@...", branch);
-            [_delegate updateProgressStatus:@"Downloading Imagr..." workflow:self];
-            NSDictionary *branchDict = @{
-                                         NBCSettingsImagrGitBranch : branch,
-                                         NBCSettingsImagrGitBranchSHA : sha
-                                         };
-            
-            NSDictionary *downloadInfo = @{
-                                           NBCDownloaderTag : NBCDownloaderTagImagrBranch,
-                                           NBCSettingsImagrGitBranchDict : branchDict
-                                           };
-            NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
-            [downloader downloadFileFromURL:[NSURL URLWithString:imagrDownloadURL] destinationPath:@"/tmp" downloadInfo:downloadInfo];
+        NSString *buildTarget = _resourcesSettings[NBCSettingsImagrBuildTarget];
+        
+        NSURL *imagrBranchCachedVersionURL = [_resourcesController cachedBranchURL:branch sha:sha resourcesFolder:NBCFolderResourcesImagr];
+        if ( [imagrBranchCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
+            NSString *target = _resourcesSettings[NBCSettingsImagrBuildTarget];
+            NSURL *targetImagrAppURL = [imagrBranchCachedVersionURL URLByAppendingPathComponent:[NSString stringWithFormat:@"build/%@/Imagr.app", target]];
+            if ( [targetImagrAppURL checkResourceIsReachableAndReturnError:nil] ) {
+                
+                NSDictionary *imagrCachedVersionAttributes  = @{
+                                                                NSFileOwnerAccountName : @"root",
+                                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                                NSFilePosixPermissions : @0755
+                                                                };
+                
+                NSDictionary *imagrCachedVersionCopySetting = @{
+                                                                NBCWorkflowCopyType : NBCWorkflowCopy,
+                                                                NBCWorkflowCopySourceURL : [targetImagrAppURL path],
+                                                                NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
+                                                                NBCWorkflowCopyAttributes : imagrCachedVersionAttributes
+                                                                };
+                if ( [_target nbiNetInstallURL] ) {
+                    [_resourcesNetInstallCopy addObject:imagrCachedVersionCopySetting];
+                } else if ( [_target baseSystemURL] ) {
+                    [_resourcesBaseSystemCopy addObject:imagrCachedVersionCopySetting];
+                }
+                
+                [self checkCompletedResources];
+            } else {
+                [_resourcesController buildProjectAtURL:imagrBranchCachedVersionURL buildTarget:buildTarget];
+            }
         } else {
-            DDLogError(@"[ERROR] Could not get Imagr download url from resources settings!");
-            retval = NO;
+            NSString *imagrDownloadURL = _resourcesSettings[NBCSettingsImagrDownloadURL];
+            if ( [imagrDownloadURL length] != 0 ) {
+                DDLogInfo(@"Downloading Imagr Git Branch %@...", branch);
+                [_delegate updateProgressStatus:@"Downloading Imagr Source..." workflow:self];
+                NSDictionary *branchDict = @{
+                                             NBCSettingsImagrGitBranch : branch,
+                                             NBCSettingsImagrGitBranchSHA : sha,
+                                             NBCSettingsImagrBuildTarget : buildTarget
+                                             };
+                
+                NSDictionary *downloadInfo = @{
+                                               NBCDownloaderTag : NBCDownloaderTagImagrBranch,
+                                               NBCSettingsImagrGitBranchDict : branchDict
+                                               };
+                NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
+                [downloader downloadFileFromURL:[NSURL URLWithString:imagrDownloadURL] destinationPath:@"/tmp" downloadInfo:downloadInfo];
+            } else {
+                DDLogError(@"[ERROR] Could not get Imagr download url from resources settings!");
+                retval = NO;
+            }
         }
     } else {
         
@@ -486,6 +519,47 @@ DDLogLevel ddLogLevel;
     return retval;
 } // getImagrApplication
 
+- (void)xcodeBuildComplete:(NSURL *)productURL {
+    NSString *imagrApplicationTargetPath;
+    if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
+        imagrApplicationTargetPath = NBCImagrApplicationNBICreatorTargetURL;
+    } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+        imagrApplicationTargetPath = NBCImagrApplicationTargetURL;
+    } else {
+        imagrApplicationTargetPath = [[_target imagrApplicationURL] path];
+        if ( [imagrApplicationTargetPath length] == 0 ) {
+            DDLogError(@"Could not get path to Imagr.app from target!");
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+    }
+    
+    NSDictionary *imagrAttributes  = @{
+                                                        NSFileOwnerAccountName : @"root",
+                                                        NSFileGroupOwnerAccountName : @"wheel",
+                                                        NSFilePosixPermissions : @0755
+                                                        };
+    
+    NSDictionary *imagrCopySettings = @{
+                                                         NBCWorkflowCopyType : NBCWorkflowCopy,
+                                                         NBCWorkflowCopySourceURL : [productURL path],
+                                                         NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
+                                                         NBCWorkflowCopyAttributes : imagrAttributes
+                                                         };
+    if ( [_target nbiNetInstallURL] ) {
+        [self updateNetInstallCopyDict:imagrCopySettings];
+    } else if ( [_target baseSystemURL] ) {
+        [self updateBaseSystemCopyDict:imagrCopySettings];
+    }
+    [self checkCompletedResources];
+}
+
+- (void)xcodeBuildFailed:(NSString *)errorOutput {
+    NSLog(@"Build Failed!");
+    NSLog(@"errorOutput=%@", errorOutput);
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+}
+
 - (void)addImagrBranchToResources:(NSURL *)downloadedFileURL branchDict:(NSDictionary *)branchDict {
     NSString *imagrApplicationTargetPath;
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
@@ -501,15 +575,21 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    // ---------------------------------------------------------------
-    //  Extract Imagr from zip and copy to resourecs for future use
-    // ---------------------------------------------------------------
-    NSURL *imagrProjectURL = [_resourcesController unzipAndCopyFileToResourceFolder:downloadedFileURL resourcesFolder:NBCFolderResourcesImagr branchDict:branchDict];
-    if ( imagrProjectURL ) {
-        NSLog(@"imagrProjectURL=%@", imagrProjectURL);
-        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+    NSString *buildTarget = branchDict[NBCSettingsImagrBuildTarget];
+    if ( [buildTarget length] != 0 ) {
+        
+        // ---------------------------------------------------------------
+        //  Extract Imagr from zip and copy to resourecs for future use
+        // ---------------------------------------------------------------
+        NSURL *imagrProjectURL = [_resourcesController unzipAndCopyGitBranchToResourceFolder:downloadedFileURL resourcesFolder:NBCFolderResourcesImagr branchDict:branchDict];
+        if ( imagrProjectURL ) {
+            [_resourcesController buildProjectAtURL:imagrProjectURL buildTarget:buildTarget];
+        } else {
+            DDLogError(@"Got no URL to copied Imagr item, something went wrong!");
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        }
     } else {
-        DDLogError(@"Got no URL to copied Imagr item, something went wrong!");
+        DDLogError(@"[ERROR] Build Target was empty!");
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
 }
