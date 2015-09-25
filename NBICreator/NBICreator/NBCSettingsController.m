@@ -25,6 +25,7 @@
 
 #import "NBCImagrSettingsViewController.h"
 #import "NBCLogging.h"
+#import "NBCXcodeSource.h"
 
 DDLogLevel ddLogLevel;
 
@@ -703,15 +704,8 @@ DDLogLevel ddLogLevel;
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/xcode-select"];
-    [newTask setArguments:@[ @"-p" ]];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
-    [newTask launch];
-    [newTask waitUntilExit];
-    if ( [newTask terminationStatus] != 0 ) {
-        [settingsErrors addObject:@"The Command Line Developer Tools is not installed, cannot compile Imagr from Git Branch until the required tools are installed."];
+    if ( ! [NBCXcodeSource isInstalled] ) {
+        [settingsErrors addObject:@"Xcode is not installed. You cannot compile Imagr from Git Branch until the required tools are installed."];
     }
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }

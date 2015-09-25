@@ -38,16 +38,12 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSArray *)deployStudioApplicationURLs {
-    
     NSMutableArray *deployStudioApplicationURLs = [[NSMutableArray alloc] init];
-    
     [deployStudioApplicationURLs addObjectsFromArray:(__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.deploystudio.admin"), NULL))];
-    
     return [deployStudioApplicationURLs copy];
 }
 
 - (void)getDeployStudioURL {
-    
     NSError *error;
     NSArray *deployStudioApplicationURLs = [self deployStudioApplicationURLs];
     
@@ -134,7 +130,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (NSArray *)deployStudioAdminVersions {
-    
     NSArray *versions;
     return versions;
 }

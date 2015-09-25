@@ -14,7 +14,7 @@
                 <outlet property="buttonAddTrustedServer" destination="jy3-wi-uv1" id="SG3-xL-kAb"/>
                 <outlet property="buttonChooseDestinationFolder" destination="IQ4-bf-UuU" id="aAV-IT-hAD"/>
                 <outlet property="buttonChooseImagrLocalPath" destination="Hu4-ry-ucH" id="Cjb-py-odt"/>
-                <outlet property="buttonInstallXcodeTools" destination="S1s-dr-9He" id="rKL-VB-qWK"/>
+                <outlet property="buttonInstallXcode" destination="S1s-dr-9He" id="oI6-Sh-EXR"/>
                 <outlet property="buttonRemoveCertificate" destination="QuY-Kq-kYJ" id="f6g-3f-lMc"/>
                 <outlet property="buttonRemovePackage" destination="51l-fu-EQU" id="ffa-4w-pp1"/>
                 <outlet property="buttonRemoveRAMDisk" destination="Uxb-Iz-v49" id="zqp-z7-MDW"/>
@@ -1604,7 +1604,7 @@ asdasd</string>
                                     </textField>
                                     <popUpButton hidden="YES" horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cuf-xf-B21">
                                         <rect key="frame" x="144" y="252" width="34" height="26"/>
-                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="hIv-nW-xOl">
+                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" refusesFirstResponder="YES" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="hIv-nW-xOl">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
                                             <menu key="menu" id="snu-vB-eje"/>
@@ -1632,7 +1632,7 @@ asdasd</string>
                                     </textField>
                                     <popUpButton hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="NHA-TJ-q8Q">
                                         <rect key="frame" x="231" y="252" width="34" height="26"/>
-                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="Eix-SG-fsy">
+                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" refusesFirstResponder="YES" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="Eix-SG-fsy">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
                                             <menu key="menu" id="sBm-vi-Uem"/>
@@ -1642,14 +1642,14 @@ asdasd</string>
                                             <binding destination="-2" name="selectedValue" keyPath="self.imagrBuildTarget" id="AxJ-6O-1nF"/>
                                         </connections>
                                     </popUpButton>
-                                    <button hidden="YES" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="S1s-dr-9He">
-                                        <rect key="frame" x="397" y="245" width="141" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Install Dev Tools" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZuD-KD-CGv">
+                                    <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="S1s-dr-9He">
+                                        <rect key="frame" x="400" y="248" width="120" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Install Xcode" bezelStyle="rounded" alignment="center" refusesFirstResponder="YES" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ZuD-KD-CGv">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="buttonInstallXcodeTools:" target="-2" id="33l-ar-nlh"/>
+                                            <action selector="buttonInstallXcode:" target="-2" id="2Lt-ZZ-zko"/>
                                         </connections>
                                     </button>
                                 </subviews>

@@ -33,6 +33,7 @@
 #import "NBCImagrRAMDiskPathCellView.h"
 #import "NBCImagrRAMDiskSizeCellView.h"
 #import "NBCOverlayViewController.h"
+#import "NBCXcodeSource.h"
 
 DDLogLevel ddLogLevel;
 
@@ -107,7 +108,7 @@ DDLogLevel ddLogLevel;
     _templatesDict = [[NSMutableDictionary alloc] init];
     [self setShowARDPassword:NO];
     
-    [self checkIfDeveloperToolsAreInstalled];
+    [self checkIfXcodeIsInstalled];
     
     // --------------------------------------------------------------
     //  Test Internet Connectivity
@@ -2315,21 +2316,9 @@ DDLogLevel ddLogLevel;
     }
 } // popUpButtonImagrVersion
 
-- (BOOL)checkIfDeveloperToolsAreInstalled {
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/xcode-select"];
-    [newTask setArguments:@[ @"-p" ]];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
-    [newTask launch];
-    [newTask waitUntilExit];
-    if ( [newTask terminationStatus] == 0 ) {
-        _devCommandLineToolsInstalled = YES;
-    } else {
-        _devCommandLineToolsInstalled = NO;
-    }
-    return _devCommandLineToolsInstalled;
-} // developerToolsInstalled
+- (void)checkIfXcodeIsInstalled {
+    _xcodeInstalled = [NBCXcodeSource isInstalled];
+} // checkIfXcodeIsInstalled
 
 - (void)showImagrBranchSelection {
     [self setImagrUseLocalVersion:NO];
@@ -2342,9 +2331,9 @@ DDLogLevel ddLogLevel;
     [_popUpButtonImagrGitBranch setHidden:NO];
     [_textFieldImagrGitBranchBuildTargetLabel setHidden:NO];
     [_popUpButtonImagrGitBranchBuildTarget setHidden:NO];
-    if ( ! _devCommandLineToolsInstalled ) {
-        [_buttonInstallXcodeTools setHidden:NO];
-        [[_buttonInstallXcodeTools window] makeFirstResponder:_buttonInstallXcodeTools];
+    if ( ! _xcodeInstalled ) {
+        [_buttonInstallXcode setHidden:NO];
+        [[_buttonInstallXcode window] makeFirstResponder:_buttonInstallXcode];
         [_textFieldImagrGitBranchLabel setEnabled:NO];
         [_popUpButtonImagrGitBranch setEnabled:NO];
         [_textFieldImagrGitBranchBuildTargetLabel setEnabled:NO];
@@ -2368,7 +2357,7 @@ DDLogLevel ddLogLevel;
     [_popUpButtonImagrGitBranch setHidden:YES];
     [_textFieldImagrGitBranchBuildTargetLabel setHidden:YES];
     [_popUpButtonImagrGitBranchBuildTarget setHidden:YES];
-    [_buttonInstallXcodeTools setHidden:YES];
+    [_buttonInstallXcode setHidden:YES];
 } // hideImagrBranchSelection
 
 - (void)showImagrLocalVersionInput {
@@ -2382,7 +2371,7 @@ DDLogLevel ddLogLevel;
     [_popUpButtonImagrGitBranch setHidden:YES];
     [_textFieldImagrGitBranchBuildTargetLabel setHidden:YES];
     [_popUpButtonImagrGitBranchBuildTarget setHidden:YES];
-    [_buttonInstallXcodeTools setHidden:YES];
+    [_buttonInstallXcode setHidden:YES];
 } // showImagrLocalVersionInput
 
 - (void)hideImagrLocalVersionInput {
@@ -2396,7 +2385,7 @@ DDLogLevel ddLogLevel;
     [_popUpButtonImagrGitBranch setHidden:YES];
     [_textFieldImagrGitBranchBuildTargetLabel setHidden:YES];
     [_popUpButtonImagrGitBranchBuildTarget setHidden:YES];
-    [_buttonInstallXcodeTools setHidden:YES];
+    [_buttonInstallXcode setHidden:YES];
 } // hideImagrLocalVersionInput
 
 - (IBAction)buttonChooseImagrLocalPath:(id)sender {
@@ -3458,20 +3447,10 @@ DDLogLevel ddLogLevel;
 - (IBAction)popUpButtonImagrGitBranchBuildTarget:(id)sender {
 #pragma unused(sender)
 }
-- (IBAction)buttonInstallXcodeTools:(id)sender {
+
+- (IBAction)buttonInstallXcode:(id)sender {
 #pragma unused(sender)
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/xcode-select"];
-    [newTask setArguments:@[ @"--install" ]];
-    [newTask setStandardError:[NSPipe pipe]];
-    [newTask launch];
-    [newTask waitUntilExit];
-    
-    NSData *newTaskStandardErrorData = [[[newTask standardError] fileHandleForReading] readDataToEndOfFile];
-    
-    if ( [newTask terminationStatus] != 0 ) {
-        NSString *stdErr = [[NSString alloc] initWithData:newTaskStandardErrorData encoding:NSUTF8StringEncoding];
-        DDLogError(@"[ERROR][xcode-select] %@", stdErr);
-    }
+    NSString *xcodeLink = @"macappstore://itunes.apple.com/app/id497799835";
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:xcodeLink]];
 }
 @end

@@ -117,6 +117,7 @@
 		53CBB1C61ACF253200B83089 /* NBCWorkflowPanelController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53CBB1C41ACF253200B83089 /* NBCWorkflowPanelController.xib */; };
 		53CBB1C91ACF27B400B83089 /* NBCWorkflowManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 53CBB1C81ACF27B400B83089 /* NBCWorkflowManager.m */; };
 		53CBB1CC1ACF288000B83089 /* NBCWorkflowItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 53CBB1CB1ACF288000B83089 /* NBCWorkflowItem.m */; };
+		53CD5C1C1BB5C5BA0047E879 /* NBCXcodeSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 53CD5C1B1BB5C5BA0047E879 /* NBCXcodeSource.m */; settings = {ASSET_TAGS = (); }; };
 		53D2B9BB1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D2B9BA1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m */; };
 		53D34D951B73F7E900F11CFF /* installCertificates.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53D34D941B73F7E900F11CFF /* installCertificates.bash */; };
 		53D34DA01B740DA600F11CFF /* NBCPackageTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D34D9F1B740DA600F11CFF /* NBCPackageTableCellView.m */; };
@@ -435,6 +436,8 @@
 		53CBB1C81ACF27B400B83089 /* NBCWorkflowManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCWorkflowManager.m; path = NBICreatorWorkflow/NBCWorkflowManager.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53CBB1CA1ACF288000B83089 /* NBCWorkflowItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCWorkflowItem.h; path = NBICreatorWorkflow/NBCWorkflowItem.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53CBB1CB1ACF288000B83089 /* NBCWorkflowItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCWorkflowItem.m; path = NBICreatorWorkflow/NBCWorkflowItem.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		53CD5C1A1BB5C5BA0047E879 /* NBCXcodeSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCXcodeSource.h; path = NBICreatorSource/NBCXcodeSource.h; sourceTree = "<group>"; };
+		53CD5C1B1BB5C5BA0047E879 /* NBCXcodeSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCXcodeSource.m; path = NBICreatorSource/NBCXcodeSource.m; sourceTree = "<group>"; };
 		53D2B9B11BA0B870000ACD23 /* NBCCasperTrustedNetBootServerCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCasperTrustedNetBootServerCellView.h; path = "NBICreator Casper/NBCCasperTrustedNetBootServerCellView.h"; sourceTree = "<group>"; };
 		53D2B9BA1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCasperTrustedNetBootServerCellView.m; path = "NBICreator Casper/NBCCasperTrustedNetBootServerCellView.m"; sourceTree = "<group>"; };
 		53D34D941B73F7E900F11CFF /* installCertificates.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = installCertificates.bash; path = "Supporting Files/Scripts/installCertificates.bash"; sourceTree = "<group>"; };
@@ -932,6 +935,8 @@
 				534FA9EC1AF4B39D005B40F6 /* NBCSourceController.m */,
 				53546DC11AA9EE7C00564A3D /* NBCDeployStudioSource.h */,
 				53546DC21AA9EE7C00564A3D /* NBCDeployStudioSource.m */,
+				53CD5C1A1BB5C5BA0047E879 /* NBCXcodeSource.h */,
+				53CD5C1B1BB5C5BA0047E879 /* NBCXcodeSource.m */,
 				53E5CE861ADE8C7C0014A379 /* NBCSystemImageUtilitySource.h */,
 				53E5CE871ADE8C7C0014A379 /* NBCSystemImageUtilitySource.m */,
 			);
@@ -1274,6 +1279,7 @@
 				53606AAB1AFE68E5001B3580 /* NBCTargetController.m in Sources */,
 				53CBA96D1ADE556600385C89 /* XPathQuery.m in Sources */,
 				53FB3EA31B975DAD00CCE413 /* NBCCasperDropViewController.m in Sources */,
+				53CD5C1C1BB5C5BA0047E879 /* NBCXcodeSource.m in Sources */,
 				539BE69F1B009A0000825C78 /* NBCInstallerPackageController.m in Sources */,
 				53950AD81A93DC0800E9EF39 /* NBCHelperAuthorization.m in Sources */,
 				533BED6D1B9A385D00524AE4 /* NBCCLIManager.m in Sources */,

@@ -153,12 +153,12 @@
 @property (weak) IBOutlet NSPopUpButton *popUpButtonImagrGitBranchBuildTarget;
 - (IBAction)popUpButtonImagrGitBranchBuildTarget:(id)sender;
 
-@property (weak) IBOutlet NSButton *buttonInstallXcodeTools;
-- (IBAction)buttonInstallXcodeTools:(id)sender;
+@property (weak) IBOutlet NSButton *buttonInstallXcode;
+- (IBAction)buttonInstallXcode:(id)sender;
 
 @property (strong) IBOutlet NSPopover *popOverRAMDisks;
 
-@property BOOL devCommandLineToolsInstalled;
+@property BOOL xcodeInstalled;
 
 // ------------------------------------------------------
 //  TabView Options
