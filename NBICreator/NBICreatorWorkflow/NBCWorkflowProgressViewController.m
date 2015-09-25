@@ -106,6 +106,10 @@ DDLogLevel ddLogLevel;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self->_textFieldStatusInfo setStringValue:statusMessage];
         });
+    } else {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:statusMessage];
+        });
     }
 }
 
@@ -218,7 +222,7 @@ DDLogLevel ddLogLevel;
         [_textFieldTimer setHidden:YES];
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"NBI created successfully in %@!", workflowTime]];
+        [self updateProgressStatus:[NSString stringWithFormat:@"NBI created successfully in %@!", workflowTime] workflow:self];
     });
 }
 

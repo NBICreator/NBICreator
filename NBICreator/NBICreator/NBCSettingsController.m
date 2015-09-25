@@ -706,6 +706,18 @@ DDLogLevel ddLogLevel;
     
     if ( ! [NBCXcodeSource isInstalled] ) {
         [settingsErrors addObject:@"Xcode is not installed. You cannot compile Imagr from Git Branch until the required tools are installed."];
+    } else {
+        NSTask *newTask =  [[NSTask alloc] init];
+        [newTask setLaunchPath:@"/usr/bin/xcodebuild"];
+        [newTask setArguments:@[ @"-showsdks" ]];
+        [newTask setStandardOutput:[NSPipe pipe]];
+        [newTask setStandardError:[NSPipe pipe]];
+        [newTask launch];
+        [newTask waitUntilExit];
+        
+        if ( [newTask terminationStatus] == 69 ) {
+            [settingsErrors addObject:@"Xcode licese have not been accepted. You need to open Xcode and accept the license agreement."];
+        }
     }
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }

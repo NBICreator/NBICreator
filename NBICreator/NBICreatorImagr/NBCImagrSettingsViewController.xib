@@ -51,6 +51,7 @@
                 <outlet property="tableViewPackages" destination="lOh-J8-LJP" id="JzP-nX-GtC"/>
                 <outlet property="tableViewRAMDisks" destination="a9Y-kZ-x3z" id="shM-QD-ukw"/>
                 <outlet property="tableViewTrustedServers" destination="Ppi-kq-H3r" id="0S0-gv-F4j"/>
+                <outlet property="testView" destination="Wk2-ZM-AtK" id="Vxx-Xn-C8l"/>
                 <outlet property="textFieldARDLogin" destination="FMB-Sz-PUq" id="Jve-X8-lIX"/>
                 <outlet property="textFieldARDPassword" destination="ulR-LX-e1A" id="4GK-6h-7eY"/>
                 <outlet property="textFieldConfigurationURL" destination="4Vf-Sb-oV1" id="oeY-BW-fD3"/>

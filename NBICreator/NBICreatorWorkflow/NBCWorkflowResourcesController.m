@@ -574,34 +574,43 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)buildProjectAtURL:(NSURL *)projectURL buildTarget:(NSString *)buildTarget {
-    NSURL *productURL;
     
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/xcodebuild"];
-    [newTask setArguments:@[ @"-configuration", buildTarget ]];
-    [newTask setCurrentDirectoryPath:[projectURL path]];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
-    [newTask launch];
-    [newTask waitUntilExit];
     
-//  NSData *newTaskStandardOutputData = [[[newTask standardOutput] fileHandleForReading] readDataToEndOfFile];
-//  NSString *stdOut = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
-    NSData *newTaskStandardErrorData = [[[newTask standardError] fileHandleForReading] readDataToEndOfFile];
-    NSString *stdErr = [[NSString alloc] initWithData:newTaskStandardErrorData encoding:NSUTF8StringEncoding];
-    
-    if ( [newTask terminationStatus] == 0 ) {
-        productURL = [projectURL URLByAppendingPathComponent:[NSString stringWithFormat:@"build/%@/Imagr.app", buildTarget]];
-        if ( [productURL checkResourceIsReachableAndReturnError:nil] ) {
-            [_delegate xcodeBuildComplete:productURL];
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+    dispatch_async(taskQueue, ^{
+        NSURL *productURL;
+        NSTask *newTask =  [[NSTask alloc] init];
+        [newTask setLaunchPath:@"/usr/bin/xcodebuild"];
+        [newTask setArguments:@[ @"-configuration", buildTarget ]];
+        [newTask setCurrentDirectoryPath:[projectURL path]];
+        [newTask setStandardOutput:[NSPipe pipe]];
+        [newTask setStandardError:[NSPipe pipe]];
+        [newTask launch];
+        [newTask waitUntilExit];
+        
+        //  NSData *newTaskStandardOutputData = [[[newTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+        //  NSString *stdOut = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
+        NSData *newTaskStandardErrorData = [[[newTask standardError] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdErr = [[NSString alloc] initWithData:newTaskStandardErrorData encoding:NSUTF8StringEncoding];
+        
+        if ( [newTask terminationStatus] == 0 ) {
+            productURL = [projectURL URLByAppendingPathComponent:[NSString stringWithFormat:@"build/%@/Imagr.app", buildTarget]];
+            if ( [productURL checkResourceIsReachableAndReturnError:nil] ) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self->_delegate xcodeBuildComplete:productURL];
+                });
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self->_delegate xcodeBuildFailed:@"Could not find product after build!"];
+                });
+            }
         } else {
-            [_delegate xcodeBuildFailed:@"Could not find product after build!"];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self->_delegate xcodeBuildFailed:stdErr];
+            });
+            DDLogError(@"[ERROR] %@", stdErr);
         }
-    } else {
-        [_delegate xcodeBuildFailed:stdErr];
-        DDLogError(@"[ERROR] %@", stdErr);
-    }
-    
+    });
 }
 
 - (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {

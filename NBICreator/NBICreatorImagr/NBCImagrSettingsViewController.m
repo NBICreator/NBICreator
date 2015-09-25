@@ -167,7 +167,7 @@ DDLogLevel ddLogLevel;
         }
         NSInteger count = (NSInteger)[_certificateTableViewContents count];
         if ( count == 0 && [[[_superViewCertificates subviews] firstObject] isNotEqualTo:_viewOverlayCertificates] ) {
-            [_superViewCertificates addSubview:_viewOverlayCertificates positioned:NSWindowAbove relativeTo:_scrollViewCertificates];
+            [_superViewCertificates addSubview:_viewOverlayCertificates positioned:NSWindowAbove relativeTo:nil];
             [_viewOverlayCertificates setTranslatesAutoresizingMaskIntoConstraints:NO];
             NSArray *constraintsArray;
             constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayCertificates]-1-|"
@@ -191,7 +191,7 @@ DDLogLevel ddLogLevel;
         }
         NSInteger count = (NSInteger)[_packagesTableViewContents count];
         if ( count == 0 && [[[_superViewPackages subviews] firstObject] isNotEqualTo:_viewOverlayPackages] ) {
-            [_superViewPackages addSubview:_viewOverlayPackages positioned:NSWindowAbove relativeTo:_scrollViewPackages];
+            [_superViewPackages addSubview:_viewOverlayPackages positioned:NSWindowAbove relativeTo:nil];
             [_viewOverlayPackages setTranslatesAutoresizingMaskIntoConstraints:NO];
             NSArray *constraintsArray;
             constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayPackages]-1-|"
@@ -204,6 +204,7 @@ DDLogLevel ddLogLevel;
                                                                        metrics:nil
                                                                          views:NSDictionaryOfVariableBindings(_viewOverlayPackages)];
             [_superViewPackages addConstraints:constraintsArray];
+            //[self performSelectorOnMainThread:@selector(updateView:) withObject:_superViewPackages waitUntilDone:NO];
         } else if ( count > 0 && [[_superViewPackages subviews] containsObject:_viewOverlayPackages] ) {
             [_viewOverlayPackages removeFromSuperview];
         }
@@ -215,6 +216,15 @@ DDLogLevel ddLogLevel;
     } else {
         return 0;
     }
+}
+
+- (void)updateView:(NSView *)view {
+    [view setNeedsUpdateConstraints:YES];
+    [view updateConstraintsForSubtreeIfNeeded];
+    [view setNeedsLayout:YES];
+    [view layoutSubtreeIfNeeded];
+    [view setNeedsDisplay:YES];
+    [view display];
 }
 
 - (NSDragOperation)tableView:(NSTableView *)tableView validateDrop:(id<NSDraggingInfo>)info proposedRow:(NSInteger)row proposedDropOperation:(NSTableViewDropOperation)dropOperation {
@@ -3453,4 +3463,5 @@ DDLogLevel ddLogLevel;
     NSString *xcodeLink = @"macappstore://itunes.apple.com/app/id497799835";
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:xcodeLink]];
 }
+
 @end

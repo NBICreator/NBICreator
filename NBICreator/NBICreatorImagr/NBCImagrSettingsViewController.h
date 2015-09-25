@@ -159,6 +159,7 @@
 @property (strong) IBOutlet NSPopover *popOverRAMDisks;
 
 @property BOOL xcodeInstalled;
+@property (weak) IBOutlet NSView *testView;
 
 // ------------------------------------------------------
 //  TabView Options
