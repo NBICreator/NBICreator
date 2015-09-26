@@ -895,7 +895,6 @@ DDLogLevel ddLogLevel;
 #pragma mark Delegate Methods NBCDownloaderGitHub
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
-
 - (void)githubReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagImagr] ) {
@@ -2010,6 +2009,121 @@ DDLogLevel ddLogLevel;
     [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 } // buttonPopOver
 
+- (IBAction)buttonInstallXcode:(id)sender {
+#pragma unused(sender)
+    NSString *xcodeLink = @"macappstore://itunes.apple.com/app/id497799835";
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:xcodeLink]];
+}
+
+- (IBAction)buttonAddCertificate:(id)sender {
+#pragma unused(sender)
+    NSOpenPanel* addCertificates = [NSOpenPanel openPanel];
+    
+    // --------------------------------------------------------------
+    //  Setup open dialog to only allow one folder to be chosen.
+    // --------------------------------------------------------------
+    [addCertificates setTitle:@"Add Certificates"];
+    [addCertificates setPrompt:@"Add"];
+    [addCertificates setCanChooseFiles:YES];
+    [addCertificates setAllowedFileTypes:@[ @"public.x509-certificate" ]];
+    [addCertificates setCanChooseDirectories:NO];
+    [addCertificates setCanCreateDirectories:YES];
+    [addCertificates setAllowsMultipleSelection:YES];
+    
+    if ( [addCertificates runModal] == NSModalResponseOK ) {
+        NSArray* selectedURLs = [addCertificates URLs];
+        for ( NSURL *certificateURL in selectedURLs ) {
+            NSData *certificateData = [[NSData alloc] initWithContentsOfURL:certificateURL];
+            NSDictionary *certificateDict = [self examineCertificate:certificateData];
+            if ( [certificateDict count] != 0 ) {
+                [self insertCertificateInTableView:certificateDict];
+            }
+        }
+    }
+}
+
+- (IBAction)buttonRemoveCertificate:(id)sender {
+#pragma unused(sender)
+    NSIndexSet *indexes = [_tableViewCertificates selectedRowIndexes];
+    [_certificateTableViewContents removeObjectsAtIndexes:indexes];
+    [_tableViewCertificates removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewCertificates reloadData];
+}
+
+- (IBAction)buttonAddPackage:(id)sender {
+#pragma unused(sender)
+    NSOpenPanel* addPackages = [NSOpenPanel openPanel];
+    
+    // --------------------------------------------------------------
+    //  Setup open dialog to only allow one folder to be chosen.
+    // --------------------------------------------------------------
+    [addPackages setTitle:@"Add Packages"];
+    [addPackages setPrompt:@"Add"];
+    [addPackages setCanChooseFiles:YES];
+    [addPackages setAllowedFileTypes:@[ @"com.apple.installer-package-archive" ]];
+    [addPackages setCanChooseDirectories:NO];
+    [addPackages setCanCreateDirectories:YES];
+    [addPackages setAllowsMultipleSelection:YES];
+    
+    if ( [addPackages runModal] == NSModalResponseOK ) {
+        NSArray* selectedURLs = [addPackages URLs];
+        for ( NSURL *packageURL in selectedURLs ) {
+            NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
+            if ( [packageDict count] != 0 ) {
+                [self insertPackageInTableView:packageDict];
+            }
+        }
+    }
+}
+
+- (IBAction)buttonRemovePackage:(id)sender {
+#pragma unused(sender)
+    NSIndexSet *indexes = [_tableViewPackages selectedRowIndexes];
+    [_packagesTableViewContents removeObjectsAtIndexes:indexes];
+    [_tableViewPackages removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewPackages reloadData];
+}
+
+- (IBAction)buttonChooseImagrLocalPath:(id)sender {
+#pragma unused(sender)
+    NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
+    
+    // --------------------------------------------------------------
+    //  Setup open dialog to only allow one folder to be chosen.
+    // --------------------------------------------------------------
+    [chooseDestionation setTitle:@"Select Imagr Application"];
+    [chooseDestionation setPrompt:@"Choose"];
+    [chooseDestionation setCanChooseFiles:YES];
+    [chooseDestionation setAllowedFileTypes:@[ @"com.apple.application-bundle" ]];
+    [chooseDestionation setCanChooseDirectories:NO];
+    [chooseDestionation setCanCreateDirectories:NO];
+    [chooseDestionation setAllowsMultipleSelection:NO];
+    
+    if ( [chooseDestionation runModal] == NSModalResponseOK ) {
+        // -------------------------------------------------------------------------
+        //  Get first item in URL array returned (should only be one) and update UI
+        // -------------------------------------------------------------------------
+        NSArray* selectedURLs = [chooseDestionation URLs];
+        NSURL* selectedURL = [selectedURLs firstObject];
+        NSBundle *bundle = [NSBundle bundleWithURL:selectedURL];
+        if ( bundle != nil ) {
+            NSString *bundleIdentifier = [bundle objectForInfoDictionaryKey:@"CFBundleIdentifier"];
+            if ( [bundleIdentifier isEqualToString:NBCImagrBundleIdentifier] ) {
+                [self setImagrLocalVersionPath:[selectedURL path]];
+                return;
+            }
+        }
+        [NBCAlerts showAlertUnrecognizedImagrApplication];
+    }
+    
+} // buttonChooseImagrLocalPath
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Other
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 - (void)updatePopOver {
     NSString *separator = @";";
     NSString *variableString = [NSString stringWithFormat:@"%%OSVERSION%%%@"
@@ -2087,250 +2201,32 @@ DDLogLevel ddLogLevel;
     [self setSiuVersion:[_siuSource systemImageUtilityVersion]];
 } // updatePopOver
 
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark IBAction PopUpButtons
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
 - (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
-    
     NSLog(@"Importing %@", url);
     NSLog(@"templateInfo=%@", templateInfo);
 } // importTemplateAtURL
 
-- (void)updatePopUpButtonTemplates {
-    
-    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
-} // updatePopUpButtonTemplates
-
-- (IBAction)popUpButtonTemplates:(id)sender {
-    
-    NSString *selectedTemplate = [[sender selectedItem] title];
-    BOOL settingsChanged = [self haveSettingsChanged];
-    
-    if ( [_selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
-        [_templates showSheetSaveUntitled:selectedTemplate buildNBI:NO];
-        return;
-    } else if ( settingsChanged ) {
-        NSDictionary *alertInfo = @{ NBCAlertTagKey : NBCAlertTagSettingsUnsaved,
-                                     NBCAlertUserInfoSelectedTemplate : selectedTemplate };
-        
-        NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
-        [alert showAlertSettingsUnsaved:@"You have unsaved settings, do you want to discard changes and continue?"
-                              alertInfo:alertInfo];
-    } else {
-        [self setSelectedTemplate:[[sender selectedItem] title]];
-        [self updateUISettingsFromURL:_templatesDict[_selectedTemplate]];
-    }
-} // popUpButtonTemplates
+- (void)checkIfXcodeIsInstalled {
+    _xcodeInstalled = [NBCXcodeSource isInstalled];
+} // checkIfXcodeIsInstalled
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark PopUpButton NBI Creation Tool
+#pragma mark UI Updates
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
-
-- (void)uppdatePopUpButtonTool {
-    
-    NSString *systemUtilityVersion = [_siuSource systemImageUtilityVersion];
-    if ( [systemUtilityVersion length] != 0 ) {
-        [_textFieldSIUVersionString setStringValue:systemUtilityVersion];
-    } else {
-        [_textFieldSIUVersionString setStringValue:@"Not Installed"];
-    }
-    
-    if ( _popUpButtonTool ) {
-        [_popUpButtonTool removeAllItems];
-        [_popUpButtonTool addItemWithTitle:NBCMenuItemNBICreator];
-        [_popUpButtonTool addItemWithTitle:NBCMenuItemSystemImageUtility];
-        [_popUpButtonTool selectItemWithTitle:_nbiCreationTool];
-        [self setNbiCreationTool:[_popUpButtonTool titleOfSelectedItem]];
-    }
-} // uppdatePopUpButtonTool
-
-- (IBAction)popUpButtonTool:(id)sender {
-    
-    NSString *selectedVersion = [[sender selectedItem] title];
-    if ( [selectedVersion isEqualToString:NBCMenuItemSystemImageUtility] ) {
-        [self showSystemImageUtilityVersion];
-        if ( [_nbiDescription isEqualToString:NBCNBIDescriptionNBC] ) {
-            [self setNbiDescription:NBCNBIDescriptionSIU];
-        }
-        
-        [self expandVariablesForCurrentSettings];
-    } else {
-        [self hideSystemImageUtilityVersion];
-        if ( [_nbiDescription isEqualToString:NBCNBIDescriptionSIU] ) {
-            [self setNbiDescription:NBCNBIDescriptionNBC];
-        }
-        
-        [self expandVariablesForCurrentSettings];
-    }
-} // popUpButtonTool
 
 - (void)showSystemImageUtilityVersion {
-    
     [self setUseSystemImageUtility:YES];
     [_constraintTemplatesBoxHeight setConstant:93];
     [_constraintSavedTemplatesToTool setConstant:32];
 } // showImagrLocalVersionInput
 
 - (void)hideSystemImageUtilityVersion {
-    
     [self setUseSystemImageUtility:NO];
     [_constraintTemplatesBoxHeight setConstant:70];
     [_constraintSavedTemplatesToTool setConstant:8];
 } // hideImagrLocalVersionInput
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark PopUpButton Imagr Version
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-- (void)getImagrVersions {
-    NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
-    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagImagr };
-    [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCImagrGitHubRepository downloadInfo:downloadInfo];
-} // getImagrVersions
-
-- (void)getImagrBranches {
-    NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
-    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagImagr };
-    [downloader getBranchesAndURLsFromGithubRepository:NBCImagrGitHubRepository downloadInfo:downloadInfo];
-} // getImagrBranches
-
-- (void)updatePopUpButtonImagrVersionsLocal {
-    if ( ! _resourcesController ) {
-        [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
-    }
-    
-    [_popUpButtonImagrVersion removeAllItems];
-    [_popUpButtonImagrVersion addItemWithTitle:NBCMenuItemImagrVersionLatest];
-    NSMenuItem *menuItemVersionLocal = [[NSMenuItem alloc] init];
-    [menuItemVersionLocal setTitle:NBCMenuItemImagrVersionLocal];
-    [menuItemVersionLocal setTarget:self];
-    [[_popUpButtonImagrVersion menu] addItem:menuItemVersionLocal];
-    [[_popUpButtonImagrVersion menu] addItem:[NSMenuItem separatorItem]];
-    [[_popUpButtonImagrVersion menu] setAutoenablesItems:NO];
-    
-    NSArray *localImagrVersions = [_resourcesController cachedVersionsFromResourceFolder:NBCFolderResourcesImagr];
-    NSDictionary *cachedDownloadsDict = [_resourcesController cachedDownloadsDictFromResourceFolder:NBCFolderResourcesImagr];
-    if ( cachedDownloadsDict != nil ) {
-        [self setImagrVersionsDownloadLinks:cachedDownloadsDict];
-        NSArray *cachedDownloadVersions = [cachedDownloadsDict allKeys];
-        BOOL cachedVersionAvailable = NO;
-        for ( NSString *version in cachedDownloadVersions ) {
-            NSMenuItem *versionItem = [[NSMenuItem alloc] init];
-            [versionItem setTitle:version];
-            if ( [localImagrVersions containsObject:version] ) {
-                cachedVersionAvailable = YES;
-                [versionItem setEnabled:YES];
-            } else {
-                [versionItem setEnabled:NO];
-            }
-            [[_popUpButtonImagrVersion menu] addItem:versionItem];
-        }
-        if ( ! cachedVersionAvailable ) {
-            NSMenuItem *latestVersionMenuItem = [[_popUpButtonImagrVersion menu] itemWithTitle:NBCMenuItemImagrVersionLatest];
-            [latestVersionMenuItem setEnabled:NO];
-            // Add check what segmented control is selected, only show when Imagr is selected. Queue notifications, how?
-            [NBCAlerts showAlertOKWithTitle:@"No Cached Versions Available" informativeText:@"Until you connect to the internet, only local version of Imagr.app can be used to create an Imagr NBI."];
-        }
-    }
-    
-    [_imageViewNetworkWarning setHidden:NO];
-    [_textFieldNetworkWarning setHidden:NO];
-}
-
-- (void)updatePopUpButtonImagrVersions {
-    if ( _popUpButtonImagrVersion ) {
-        [_popUpButtonImagrVersion removeAllItems];
-        [_popUpButtonImagrVersion addItemWithTitle:NBCMenuItemImagrVersionLatest];
-        NSMenuItem *menuItemVersionLocal = [[NSMenuItem alloc] init];
-        [menuItemVersionLocal setTitle:NBCMenuItemImagrVersionLocal];
-        [menuItemVersionLocal setTarget:self];
-        [[_popUpButtonImagrVersion menu] addItem:menuItemVersionLocal];
-        NSMenuItem *menuItemBranches = [[NSMenuItem alloc] init];
-        [menuItemBranches setTitle:NBCMenuItemGitBranch];
-        [menuItemBranches setTarget:self];
-        [[_popUpButtonImagrVersion menu] addItem:menuItemBranches];
-        [[_popUpButtonImagrVersion menu] addItem:[NSMenuItem separatorItem]];
-        [_popUpButtonImagrVersion addItemsWithTitles:_imagrVersions];
-        
-        if ( [_imagrVersion length] != 0 ) {
-            [_popUpButtonImagrVersion selectItemWithTitle:_imagrVersion];
-            [self setImagrVersion:[_popUpButtonImagrVersion titleOfSelectedItem]];
-        }
-    }
-    
-    [_imageViewNetworkWarning setHidden:YES];
-    [_textFieldNetworkWarning setHidden:YES];
-} // updatePopUpButtonImagrVersions
-
-- (void)updatePopUpButtonImagrBranches {
-    if ( _popUpButtonImagrGitBranch ) {
-        [_popUpButtonImagrGitBranch removeAllItems];
-        [_popUpButtonImagrGitBranch addItemsWithTitles:_imagrBranches];
-    }
-    if ( [_imagrBranches containsObject:_imagrGitBranch] ) {
-        [_popUpButtonImagrGitBranch selectItemWithTitle:_imagrGitBranch];
-    } else {
-        DDLogError(@"[ERROR] Git branch %@ is not available!", _imagrGitBranch);
-    }
-}
-
-- (void)updatePopUpButtonImagrBranchesBuildTarget {
-    NSArray *buildTargets = @[ @"Release", @"Debug" ];
-    if ( _popUpButtonImagrGitBranchBuildTarget ) {
-        [_popUpButtonImagrGitBranchBuildTarget removeAllItems];
-        [_popUpButtonImagrGitBranchBuildTarget addItemsWithTitles:buildTargets];
-    }
-    if ( [buildTargets containsObject:_imagrBuildTarget] ) {
-        [_popUpButtonImagrGitBranchBuildTarget selectItemWithTitle:_imagrBuildTarget];
-    }
-}
-
-- (void)updateCachedImagrVersions:(NSDictionary *)imagrVersionsDict {
-    if ( ! _resourcesController ) {
-        [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
-    }
-    
-    NSURL *imagrDownloadsDictURL = [_resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesImagr];
-    if ( imagrDownloadsDictURL != nil ) {
-        NSURL *imagrResourceFolder = [_resourcesController urlForResourceFolder:NBCFolderResourcesImagr];
-        if ( ! [imagrResourceFolder checkResourceIsReachableAndReturnError:nil] ) {
-            NSError *error;
-            NSFileManager *fm = [NSFileManager defaultManager];
-            if ( ! [fm createDirectoryAtURL:imagrResourceFolder withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                DDLogError(@"[ERROR] Could not create Imagr resource folder!");
-                DDLogError(@"[ERROR] %@", [error localizedDescription]);
-                return;
-            }
-        }
-        
-        if ( ! [imagrVersionsDict writeToURL:imagrDownloadsDictURL atomically:YES] ) {
-            DDLogError(@"[ERROR] Could not write to Imagr downloads cache dict");
-        }
-    }
-} // updateCachedImagrVersions
-
-- (IBAction)popUpButtonImagrVersion:(id)sender {
-    NSString *selectedVersion = [[sender selectedItem] title];
-    if ( [selectedVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
-        [self showImagrLocalVersionInput];
-    } else if ( [selectedVersion isEqualToString:NBCMenuItemGitBranch] ) {
-        [self showImagrBranchSelection];
-    } else {
-        [self hideImagrLocalVersionInput];
-        [self hideImagrBranchSelection];
-    }
-} // popUpButtonImagrVersion
-
-- (void)checkIfXcodeIsInstalled {
-    _xcodeInstalled = [NBCXcodeSource isInstalled];
-} // checkIfXcodeIsInstalled
 
 - (void)showImagrBranchSelection {
     [self setImagrUseLocalVersion:NO];
@@ -2400,39 +2296,476 @@ DDLogLevel ddLogLevel;
     [_buttonInstallXcode setHidden:YES];
 } // hideImagrLocalVersionInput
 
-- (IBAction)buttonChooseImagrLocalPath:(id)sender {
-#pragma unused(sender)
-    NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton Templates
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updatePopUpButtonTemplates {
+    [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
+} // updatePopUpButtonTemplates
+
+- (IBAction)popUpButtonTemplates:(id)sender {
+    NSString *selectedTemplate = [[sender selectedItem] title];
+    BOOL settingsChanged = [self haveSettingsChanged];
     
-    // --------------------------------------------------------------
-    //  Setup open dialog to only allow one folder to be chosen.
-    // --------------------------------------------------------------
-    [chooseDestionation setTitle:@"Select Imagr Application"];
-    [chooseDestionation setPrompt:@"Choose"];
-    [chooseDestionation setCanChooseFiles:YES];
-    [chooseDestionation setAllowedFileTypes:@[ @"com.apple.application-bundle" ]];
-    [chooseDestionation setCanChooseDirectories:NO];
-    [chooseDestionation setCanCreateDirectories:NO];
-    [chooseDestionation setAllowsMultipleSelection:NO];
+    if ( [_selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
+        [_templates showSheetSaveUntitled:selectedTemplate buildNBI:NO];
+        return;
+    } else if ( settingsChanged ) {
+        NSDictionary *alertInfo = @{ NBCAlertTagKey : NBCAlertTagSettingsUnsaved,
+                                     NBCAlertUserInfoSelectedTemplate : selectedTemplate };
+        
+        NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
+        [alert showAlertSettingsUnsaved:@"You have unsaved settings, do you want to discard changes and continue?"
+                              alertInfo:alertInfo];
+    } else {
+        [self setSelectedTemplate:[[sender selectedItem] title]];
+        [self updateUISettingsFromURL:_templatesDict[_selectedTemplate]];
+    }
+} // popUpButtonTemplates
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton NBI Creation Tool
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)uppdatePopUpButtonTool {
+    NSString *systemUtilityVersion = [_siuSource systemImageUtilityVersion];
+    if ( [systemUtilityVersion length] != 0 ) {
+        [_textFieldSIUVersionString setStringValue:systemUtilityVersion];
+    } else {
+        [_textFieldSIUVersionString setStringValue:@"Not Installed"];
+    }
     
-    if ( [chooseDestionation runModal] == NSModalResponseOK ) {
-        // -------------------------------------------------------------------------
-        //  Get first item in URL array returned (should only be one) and update UI
-        // -------------------------------------------------------------------------
-        NSArray* selectedURLs = [chooseDestionation URLs];
-        NSURL* selectedURL = [selectedURLs firstObject];
-        NSBundle *bundle = [NSBundle bundleWithURL:selectedURL];
-        if ( bundle != nil ) {
-            NSString *bundleIdentifier = [bundle objectForInfoDictionaryKey:@"CFBundleIdentifier"];
-            if ( [bundleIdentifier isEqualToString:NBCImagrBundleIdentifier] ) {
-                [self setImagrLocalVersionPath:[selectedURL path]];
+    if ( _popUpButtonTool ) {
+        [_popUpButtonTool removeAllItems];
+        [_popUpButtonTool addItemWithTitle:NBCMenuItemNBICreator];
+        [_popUpButtonTool addItemWithTitle:NBCMenuItemSystemImageUtility];
+        [_popUpButtonTool selectItemWithTitle:_nbiCreationTool];
+        [self setNbiCreationTool:[_popUpButtonTool titleOfSelectedItem]];
+    }
+} // uppdatePopUpButtonTool
+
+- (IBAction)popUpButtonTool:(id)sender {
+    NSString *selectedVersion = [[sender selectedItem] title];
+    if ( [selectedVersion isEqualToString:NBCMenuItemSystemImageUtility] ) {
+        [self showSystemImageUtilityVersion];
+        if ( [_nbiDescription isEqualToString:NBCNBIDescriptionNBC] ) {
+            [self setNbiDescription:NBCNBIDescriptionSIU];
+        }
+        
+        [self expandVariablesForCurrentSettings];
+    } else {
+        [self hideSystemImageUtilityVersion];
+        if ( [_nbiDescription isEqualToString:NBCNBIDescriptionSIU] ) {
+            [self setNbiDescription:NBCNBIDescriptionNBC];
+        }
+        
+        [self expandVariablesForCurrentSettings];
+    }
+} // popUpButtonTool
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton TimeZone
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)populatePopUpButtonTimeZone {
+    [self setTimeZoneArray:[NSTimeZone knownTimeZoneNames]];
+    if ( [_timeZoneArray count] != 0 ) {
+        NSMenu *menuAfrica = [[NSMenu alloc] initWithTitle:@"Africa"];
+        [menuAfrica setAutoenablesItems:NO];
+        NSMenu *menuAmerica = [[NSMenu alloc] initWithTitle:@"America"];
+        [menuAmerica setAutoenablesItems:NO];
+        NSMenu *menuAntarctica = [[NSMenu alloc] initWithTitle:@"Antarctica"];
+        [menuAntarctica setAutoenablesItems:NO];
+        NSMenu *menuArctic = [[NSMenu alloc] initWithTitle:@"Arctic"];
+        [menuArctic setAutoenablesItems:NO];
+        NSMenu *menuAsia = [[NSMenu alloc] initWithTitle:@"Asia"];
+        [menuAsia setAutoenablesItems:NO];
+        NSMenu *menuAtlantic = [[NSMenu alloc] initWithTitle:@"Atlantic"];
+        [menuAtlantic setAutoenablesItems:NO];
+        NSMenu *menuAustralia = [[NSMenu alloc] initWithTitle:@"Australia"];
+        [menuAustralia setAutoenablesItems:NO];
+        NSMenu *menuEurope = [[NSMenu alloc] initWithTitle:@"Europe"];
+        [menuEurope setAutoenablesItems:NO];
+        NSMenu *menuIndian = [[NSMenu alloc] initWithTitle:@"Indian"];
+        [menuIndian setAutoenablesItems:NO];
+        NSMenu *menuPacific = [[NSMenu alloc] initWithTitle:@"Pacific"];
+        [menuPacific setAutoenablesItems:NO];
+        for ( NSString *timeZoneName in _timeZoneArray ) {
+            if ( [timeZoneName isEqualToString:@"GMT"] ) {
+                continue;
+            }
+            
+            NSArray *timeZone = [timeZoneName componentsSeparatedByString:@"/"];
+            NSString *timeZoneRegion = timeZone[0];
+            __block NSString *timeZoneCity = @"";
+            if ( 2 < [timeZone count] ) {
+                NSRange range;
+                range.location = 1;
+                range.length = ( [timeZone count] -1 );
+                [timeZone enumerateObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:range] options:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+#pragma unused(idx,stop)
+                    if ( [timeZoneCity length] == 0 ) {
+                        timeZoneCity = obj;
+                    } else {
+                        timeZoneCity = [NSString stringWithFormat:@"%@/%@", timeZoneCity, obj];
+                    }
+                }];
+            } else {
+                timeZoneCity = timeZone[1];
+            }
+            
+            NSMenuItem *cityMenuItem = [[NSMenuItem alloc] initWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
+            [cityMenuItem setEnabled:YES];
+            [cityMenuItem setTarget:self];
+            
+            if ( [timeZoneRegion isEqualToString:@"Africa"] ) {
+                [menuAfrica addItem:cityMenuItem];
+            } else if ( [timeZoneRegion isEqualToString:@"America"] ) {
+                [menuAmerica addItem:cityMenuItem];
+            } else if ( [timeZoneRegion isEqualToString:@"Antarctica"] ) {
+                [menuAntarctica addItem:cityMenuItem];
+            } else if ( [timeZoneRegion isEqualToString:@"Arctic"] ) {
+                [menuArctic addItem:cityMenuItem];
+            } else if ( [timeZoneRegion isEqualToString:@"Asia"] ) {
+                [menuAsia addItem:cityMenuItem];
+            } else if ( [timeZoneRegion isEqualToString:@"Atlantic"] ) {
+                [menuAtlantic addItem:cityMenuItem];
+            } else if ( [timeZoneRegion isEqualToString:@"Australia"] ) {
+                [menuAustralia addItem:cityMenuItem];
+            } else if ( [timeZoneRegion isEqualToString:@"Europe"] ) {
+                [menuEurope addItem:cityMenuItem];
+            } else if ( [timeZoneRegion isEqualToString:@"Indian"] ) {
+                [menuIndian addItem:cityMenuItem];
+            } else if ( [timeZoneRegion isEqualToString:@"Pacific"] ) {
+                [menuPacific addItem:cityMenuItem];
+            }
+        }
+        
+        [_popUpButtonTimeZone removeAllItems];
+        [_popUpButtonTimeZone setAutoenablesItems:NO];
+        [_popUpButtonTimeZone addItemWithTitle:NBCMenuItemCurrent];
+        [[_popUpButtonTimeZone menu] addItem:[NSMenuItem separatorItem]];
+        
+        NSMenuItem *menuItemAfrica = [[NSMenuItem alloc] initWithTitle:@"Africa" action:nil keyEquivalent:@""];
+        [menuItemAfrica setSubmenu:menuAfrica];
+        [menuItemAfrica setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAfrica];
+        
+        NSMenuItem *menuItemAmerica = [[NSMenuItem alloc] initWithTitle:@"America" action:nil keyEquivalent:@""];
+        [menuItemAmerica setSubmenu:menuAmerica];
+        [menuItemAmerica setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAmerica];
+        
+        NSMenuItem *menuItemAntarctica = [[NSMenuItem alloc] initWithTitle:@"Antarctica" action:nil keyEquivalent:@""];
+        [menuItemAntarctica setSubmenu:menuAntarctica];
+        [menuItemAntarctica setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAntarctica];
+        
+        NSMenuItem *menuItemArctic = [[NSMenuItem alloc] initWithTitle:@"Arctic" action:nil keyEquivalent:@""];
+        [menuItemArctic setSubmenu:menuArctic];
+        [menuItemArctic setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemArctic];
+        
+        NSMenuItem *menuItemAsia = [[NSMenuItem alloc] initWithTitle:@"Asia" action:nil keyEquivalent:@""];
+        [menuItemAsia setSubmenu:menuAsia];
+        [menuItemAsia setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAsia];
+        
+        NSMenuItem *menuItemAtlantic = [[NSMenuItem alloc] initWithTitle:@"Atlantic" action:nil keyEquivalent:@""];
+        [menuItemAtlantic setSubmenu:menuAtlantic];
+        [menuItemAtlantic setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAtlantic];
+        
+        NSMenuItem *menuItemAustralia = [[NSMenuItem alloc] initWithTitle:@"Australia" action:nil keyEquivalent:@""];
+        [menuItemAustralia setSubmenu:menuAustralia];
+        [menuItemAustralia setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemAustralia];
+        
+        NSMenuItem *menuItemEurope = [[NSMenuItem alloc] initWithTitle:@"Europe" action:nil keyEquivalent:@""];
+        [menuItemEurope setSubmenu:menuEurope];
+        [menuItemEurope setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemEurope];
+        
+        NSMenuItem *menuItemIndian = [[NSMenuItem alloc] initWithTitle:@"Indian" action:nil keyEquivalent:@""];
+        [menuItemIndian setSubmenu:menuIndian];
+        [menuItemIndian setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemIndian];
+        
+        NSMenuItem *menuItemPacific = [[NSMenuItem alloc] initWithTitle:@"Pacific" action:nil keyEquivalent:@""];
+        [menuItemPacific setSubmenu:menuPacific];
+        [menuItemPacific setTarget:self];
+        [[_popUpButtonTimeZone menu] addItem:menuItemPacific];
+        
+        [self setSelectedMenuItem:[_popUpButtonTimeZone selectedItem]];
+    } else {
+        DDLogError(@"[ERROR] Could not find language strings file!");
+    }
+}
+
+- (void)selectTimeZone:(id)sender {
+    if ( ! [sender isKindOfClass:[NSMenuItem class]] ) {
+        return;
+    }
+    
+    [_selectedMenuItem setState:NSOffState];
+    
+    _selectedMenuItem = (NSMenuItem *)sender;
+    [_selectedMenuItem setState:NSOnState];
+    
+    NSMenuItem *newMenuItem = [_selectedMenuItem copy];
+    
+    NSInteger selectedMenuItemIndex = [_popUpButtonTimeZone indexOfSelectedItem];
+    
+    if ( selectedMenuItemIndex == 0 ) {
+        if ( ! [[_popUpButtonTimeZone itemAtIndex:1] isSeparatorItem] ) {
+            [_popUpButtonTimeZone removeItemAtIndex:1];
+        }
+    } else {
+        [_popUpButtonTimeZone removeItemAtIndex:selectedMenuItemIndex];
+    }
+    
+    for ( NSMenuItem *menuItem in [[_popUpButtonTimeZone menu] itemArray] ) {
+        if ( [[menuItem title] isEqualToString:NBCMenuItemCurrent] ) {
+            [_popUpButtonTimeZone removeItemWithTitle:NBCMenuItemCurrent];
+            break;
+        }
+    }
+    [[_popUpButtonTimeZone menu] insertItem:newMenuItem atIndex:0];
+    
+    if ( ! [[_selectedMenuItem title] isEqualToString:NBCMenuItemCurrent] ) {
+        [[_popUpButtonTimeZone menu] insertItemWithTitle:NBCMenuItemCurrent action:@selector(selectTimeZone:) keyEquivalent:@"" atIndex:0];
+    }
+    [_popUpButtonTimeZone selectItem:newMenuItem];
+}
+
+- (NSString *)timeZoneFromMenuItem:(NSMenuItem *)menuItem {
+    NSString *timeZone;
+    
+    NSString *selectedTimeZoneCity = [menuItem title];
+    if ( [selectedTimeZoneCity isEqualToString:NBCMenuItemCurrent] ) {
+        timeZone = selectedTimeZoneCity;
+    } else {
+        NSString *selectedTimeZoneRegion = [[menuItem menu] title];
+        timeZone = [NSString stringWithFormat:@"%@/%@", selectedTimeZoneRegion, selectedTimeZoneCity];
+    }
+    
+    return timeZone;
+} // timeZoneFromMenuItem
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton Language
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)populatePopUpButtonLanguage {
+    NSError *error;
+    NSURL *languageStringsFile = [NSURL fileURLWithPath:@"/System/Library/PrivateFrameworks/IntlPreferences.framework/Versions/A/Resources/Language.strings"];
+    if ( [languageStringsFile checkResourceIsReachableAndReturnError:&error] ) {
+        _languageDict = [[NSDictionary dictionaryWithContentsOfURL:languageStringsFile] mutableCopy];
+        NSArray *languageArray = [[_languageDict allValues] sortedArrayUsingSelector:@selector(compare:)];
+        [_popUpButtonLanguage removeAllItems];
+        [_popUpButtonLanguage addItemWithTitle:NBCMenuItemCurrent];
+        [[_popUpButtonLanguage menu] addItem:[NSMenuItem separatorItem]];
+        [_popUpButtonLanguage addItemsWithTitles:languageArray];
+    } else {
+        DDLogError(@"[ERROR] Could not find language strings file!");
+        DDLogError(@"%@", error);
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton KeyboardLayout
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)populatePopUpButtonKeyboardLayout {
+    NSDictionary *ref = @{
+                          (NSString *)kTISPropertyInputSourceType : (NSString *)kTISTypeKeyboardLayout
+                          };
+    
+    CFArrayRef sourceList = TISCreateInputSourceList ((__bridge CFDictionaryRef)(ref),true);
+    for (int i = 0; i < CFArrayGetCount(sourceList); ++i) {
+        TISInputSourceRef source = (TISInputSourceRef)(CFArrayGetValueAtIndex(sourceList, i));
+        if ( ! source) continue;
+        
+        NSString* sourceID = (__bridge NSString *)(TISGetInputSourceProperty(source, kTISPropertyInputSourceID));
+        NSString* localizedName = (__bridge NSString *)(TISGetInputSourceProperty(source, kTISPropertyLocalizedName));
+        
+        _keyboardLayoutDict[localizedName] = sourceID;
+    }
+    
+    NSArray *keyboardLayoutArray = [[_keyboardLayoutDict allKeys] sortedArrayUsingSelector:@selector(compare:)];
+    [_popUpButtonKeyboardLayout removeAllItems];
+    [_popUpButtonKeyboardLayout addItemWithTitle:NBCMenuItemCurrent];
+    [[_popUpButtonKeyboardLayout menu] addItem:[NSMenuItem separatorItem]];
+    [_popUpButtonKeyboardLayout addItemsWithTitles:keyboardLayoutArray];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton Imagr Versions
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updatePopUpButtonImagrVersions {
+    if ( _popUpButtonImagrVersion ) {
+        [_popUpButtonImagrVersion removeAllItems];
+        [_popUpButtonImagrVersion addItemWithTitle:NBCMenuItemImagrVersionLatest];
+        NSMenuItem *menuItemVersionLocal = [[NSMenuItem alloc] init];
+        [menuItemVersionLocal setTitle:NBCMenuItemImagrVersionLocal];
+        [menuItemVersionLocal setTarget:self];
+        [[_popUpButtonImagrVersion menu] addItem:menuItemVersionLocal];
+        NSMenuItem *menuItemBranches = [[NSMenuItem alloc] init];
+        [menuItemBranches setTitle:NBCMenuItemGitBranch];
+        [menuItemBranches setTarget:self];
+        [[_popUpButtonImagrVersion menu] addItem:menuItemBranches];
+        [[_popUpButtonImagrVersion menu] addItem:[NSMenuItem separatorItem]];
+        [_popUpButtonImagrVersion addItemsWithTitles:_imagrVersions];
+        
+        if ( [_imagrVersion length] != 0 ) {
+            [_popUpButtonImagrVersion selectItemWithTitle:_imagrVersion];
+            [self setImagrVersion:[_popUpButtonImagrVersion titleOfSelectedItem]];
+        }
+    }
+    
+    [_imageViewNetworkWarning setHidden:YES];
+    [_textFieldNetworkWarning setHidden:YES];
+} // updatePopUpButtonImagrVersions
+
+- (void)updatePopUpButtonImagrVersionsLocal {
+    if ( ! _resourcesController ) {
+        [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
+    }
+    
+    [_popUpButtonImagrVersion removeAllItems];
+    [_popUpButtonImagrVersion addItemWithTitle:NBCMenuItemImagrVersionLatest];
+    NSMenuItem *menuItemVersionLocal = [[NSMenuItem alloc] init];
+    [menuItemVersionLocal setTitle:NBCMenuItemImagrVersionLocal];
+    [menuItemVersionLocal setTarget:self];
+    [[_popUpButtonImagrVersion menu] addItem:menuItemVersionLocal];
+    [[_popUpButtonImagrVersion menu] addItem:[NSMenuItem separatorItem]];
+    [[_popUpButtonImagrVersion menu] setAutoenablesItems:NO];
+    
+    NSArray *localImagrVersions = [_resourcesController cachedVersionsFromResourceFolder:NBCFolderResourcesImagr];
+    NSDictionary *cachedDownloadsDict = [_resourcesController cachedDownloadsDictFromResourceFolder:NBCFolderResourcesImagr];
+    if ( cachedDownloadsDict != nil ) {
+        [self setImagrVersionsDownloadLinks:cachedDownloadsDict];
+        NSArray *cachedDownloadVersions = [cachedDownloadsDict allKeys];
+        BOOL cachedVersionAvailable = NO;
+        for ( NSString *version in cachedDownloadVersions ) {
+            NSMenuItem *versionItem = [[NSMenuItem alloc] init];
+            [versionItem setTitle:version];
+            if ( [localImagrVersions containsObject:version] ) {
+                cachedVersionAvailable = YES;
+                [versionItem setEnabled:YES];
+            } else {
+                [versionItem setEnabled:NO];
+            }
+            [[_popUpButtonImagrVersion menu] addItem:versionItem];
+        }
+        if ( ! cachedVersionAvailable ) {
+            NSMenuItem *latestVersionMenuItem = [[_popUpButtonImagrVersion menu] itemWithTitle:NBCMenuItemImagrVersionLatest];
+            [latestVersionMenuItem setEnabled:NO];
+            // Add check what segmented control is selected, only show when Imagr is selected. Queue notifications, how?
+            [NBCAlerts showAlertOKWithTitle:@"No Cached Versions Available" informativeText:@"Until you connect to the internet, only local version of Imagr.app can be used to create an Imagr NBI."];
+        }
+    }
+    
+    [_imageViewNetworkWarning setHidden:NO];
+    [_textFieldNetworkWarning setHidden:NO];
+}
+
+- (void)updateCachedImagrVersions:(NSDictionary *)imagrVersionsDict {
+    if ( ! _resourcesController ) {
+        [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
+    }
+    
+    NSURL *imagrDownloadsDictURL = [_resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesImagr];
+    if ( imagrDownloadsDictURL != nil ) {
+        NSURL *imagrResourceFolder = [_resourcesController urlForResourceFolder:NBCFolderResourcesImagr];
+        if ( ! [imagrResourceFolder checkResourceIsReachableAndReturnError:nil] ) {
+            NSError *error;
+            NSFileManager *fm = [NSFileManager defaultManager];
+            if ( ! [fm createDirectoryAtURL:imagrResourceFolder withIntermediateDirectories:YES attributes:nil error:&error] ) {
+                DDLogError(@"[ERROR] Could not create Imagr resource folder!");
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
                 return;
             }
         }
-        [NBCAlerts showAlertUnrecognizedImagrApplication];
+        
+        if ( ! [imagrVersionsDict writeToURL:imagrDownloadsDictURL atomically:YES] ) {
+            DDLogError(@"[ERROR] Could not write to Imagr downloads cache dict");
+        }
     }
-    
-} // buttonChooseImagrLocalPath
+} // updateCachedImagrVersions
+
+- (void)getImagrVersions {
+    NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
+    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagImagr };
+    [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCImagrGitHubRepository downloadInfo:downloadInfo];
+} // getImagrVersions
+
+- (IBAction)popUpButtonImagrVersion:(id)sender {
+    NSString *selectedVersion = [[sender selectedItem] title];
+    if ( [selectedVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
+        [self showImagrLocalVersionInput];
+    } else if ( [selectedVersion isEqualToString:NBCMenuItemGitBranch] ) {
+        [self showImagrBranchSelection];
+    } else {
+        [self hideImagrLocalVersionInput];
+        [self hideImagrBranchSelection];
+    }
+} // popUpButtonImagrVersion
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton Imagr Branches
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updatePopUpButtonImagrBranches {
+    if ( _popUpButtonImagrGitBranch ) {
+        [_popUpButtonImagrGitBranch removeAllItems];
+        [_popUpButtonImagrGitBranch addItemsWithTitles:_imagrBranches];
+    }
+    if ( [_imagrBranches containsObject:_imagrGitBranch] ) {
+        [_popUpButtonImagrGitBranch selectItemWithTitle:_imagrGitBranch];
+    } else {
+        DDLogError(@"[ERROR] Git branch %@ is not available!", _imagrGitBranch);
+    }
+}
+
+- (void)getImagrBranches {
+    NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
+    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagImagr };
+    [downloader getBranchesAndURLsFromGithubRepository:NBCImagrGitHubRepository downloadInfo:downloadInfo];
+} // getImagrBranches
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton Imagr Branch Build Target
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updatePopUpButtonImagrBranchesBuildTarget {
+    NSArray *buildTargets = @[ @"Release", @"Debug" ];
+    if ( _popUpButtonImagrGitBranchBuildTarget ) {
+        [_popUpButtonImagrGitBranchBuildTarget removeAllItems];
+        [_popUpButtonImagrGitBranchBuildTarget addItemsWithTitles:buildTargets];
+    }
+    if ( [buildTargets containsObject:_imagrBuildTarget] ) {
+        [_popUpButtonImagrGitBranchBuildTarget selectItemWithTitle:_imagrBuildTarget];
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -2915,317 +3248,6 @@ DDLogLevel ddLogLevel;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark PopUpButton TimeZone
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-- (void)populatePopUpButtonTimeZone {
-    [self setTimeZoneArray:[NSTimeZone knownTimeZoneNames]];
-    if ( [_timeZoneArray count] != 0 ) {
-        NSMenu *menuAfrica = [[NSMenu alloc] initWithTitle:@"Africa"];
-        [menuAfrica setAutoenablesItems:NO];
-        NSMenu *menuAmerica = [[NSMenu alloc] initWithTitle:@"America"];
-        [menuAmerica setAutoenablesItems:NO];
-        NSMenu *menuAntarctica = [[NSMenu alloc] initWithTitle:@"Antarctica"];
-        [menuAntarctica setAutoenablesItems:NO];
-        NSMenu *menuArctic = [[NSMenu alloc] initWithTitle:@"Arctic"];
-        [menuArctic setAutoenablesItems:NO];
-        NSMenu *menuAsia = [[NSMenu alloc] initWithTitle:@"Asia"];
-        [menuAsia setAutoenablesItems:NO];
-        NSMenu *menuAtlantic = [[NSMenu alloc] initWithTitle:@"Atlantic"];
-        [menuAtlantic setAutoenablesItems:NO];
-        NSMenu *menuAustralia = [[NSMenu alloc] initWithTitle:@"Australia"];
-        [menuAustralia setAutoenablesItems:NO];
-        NSMenu *menuEurope = [[NSMenu alloc] initWithTitle:@"Europe"];
-        [menuEurope setAutoenablesItems:NO];
-        NSMenu *menuIndian = [[NSMenu alloc] initWithTitle:@"Indian"];
-        [menuIndian setAutoenablesItems:NO];
-        NSMenu *menuPacific = [[NSMenu alloc] initWithTitle:@"Pacific"];
-        [menuPacific setAutoenablesItems:NO];
-        for ( NSString *timeZoneName in _timeZoneArray ) {
-            if ( [timeZoneName isEqualToString:@"GMT"] ) {
-                continue;
-            }
-            
-            NSArray *timeZone = [timeZoneName componentsSeparatedByString:@"/"];
-            NSString *timeZoneRegion = timeZone[0];
-            __block NSString *timeZoneCity = @"";
-            if ( 2 < [timeZone count] ) {
-                NSRange range;
-                range.location = 1;
-                range.length = ( [timeZone count] -1 );
-                [timeZone enumerateObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:range] options:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-#pragma unused(idx,stop)
-                    if ( [timeZoneCity length] == 0 ) {
-                        timeZoneCity = obj;
-                    } else {
-                        timeZoneCity = [NSString stringWithFormat:@"%@/%@", timeZoneCity, obj];
-                    }
-                }];
-            } else {
-                timeZoneCity = timeZone[1];
-            }
-            
-            NSMenuItem *cityMenuItem = [[NSMenuItem alloc] initWithTitle:timeZoneCity action:@selector(selectTimeZone:) keyEquivalent:@""];
-            [cityMenuItem setEnabled:YES];
-            [cityMenuItem setTarget:self];
-            
-            if ( [timeZoneRegion isEqualToString:@"Africa"] ) {
-                [menuAfrica addItem:cityMenuItem];
-            } else if ( [timeZoneRegion isEqualToString:@"America"] ) {
-                [menuAmerica addItem:cityMenuItem];
-            } else if ( [timeZoneRegion isEqualToString:@"Antarctica"] ) {
-                [menuAntarctica addItem:cityMenuItem];
-            } else if ( [timeZoneRegion isEqualToString:@"Arctic"] ) {
-                [menuArctic addItem:cityMenuItem];
-            } else if ( [timeZoneRegion isEqualToString:@"Asia"] ) {
-                [menuAsia addItem:cityMenuItem];
-            } else if ( [timeZoneRegion isEqualToString:@"Atlantic"] ) {
-                [menuAtlantic addItem:cityMenuItem];
-            } else if ( [timeZoneRegion isEqualToString:@"Australia"] ) {
-                [menuAustralia addItem:cityMenuItem];
-            } else if ( [timeZoneRegion isEqualToString:@"Europe"] ) {
-                [menuEurope addItem:cityMenuItem];
-            } else if ( [timeZoneRegion isEqualToString:@"Indian"] ) {
-                [menuIndian addItem:cityMenuItem];
-            } else if ( [timeZoneRegion isEqualToString:@"Pacific"] ) {
-                [menuPacific addItem:cityMenuItem];
-            }
-        }
-        
-        [_popUpButtonTimeZone removeAllItems];
-        [_popUpButtonTimeZone setAutoenablesItems:NO];
-        [_popUpButtonTimeZone addItemWithTitle:NBCMenuItemCurrent];
-        [[_popUpButtonTimeZone menu] addItem:[NSMenuItem separatorItem]];
-        
-        NSMenuItem *menuItemAfrica = [[NSMenuItem alloc] initWithTitle:@"Africa" action:nil keyEquivalent:@""];
-        [menuItemAfrica setSubmenu:menuAfrica];
-        [menuItemAfrica setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemAfrica];
-        
-        NSMenuItem *menuItemAmerica = [[NSMenuItem alloc] initWithTitle:@"America" action:nil keyEquivalent:@""];
-        [menuItemAmerica setSubmenu:menuAmerica];
-        [menuItemAmerica setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemAmerica];
-        
-        NSMenuItem *menuItemAntarctica = [[NSMenuItem alloc] initWithTitle:@"Antarctica" action:nil keyEquivalent:@""];
-        [menuItemAntarctica setSubmenu:menuAntarctica];
-        [menuItemAntarctica setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemAntarctica];
-        
-        NSMenuItem *menuItemArctic = [[NSMenuItem alloc] initWithTitle:@"Arctic" action:nil keyEquivalent:@""];
-        [menuItemArctic setSubmenu:menuArctic];
-        [menuItemArctic setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemArctic];
-        
-        NSMenuItem *menuItemAsia = [[NSMenuItem alloc] initWithTitle:@"Asia" action:nil keyEquivalent:@""];
-        [menuItemAsia setSubmenu:menuAsia];
-        [menuItemAsia setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemAsia];
-        
-        NSMenuItem *menuItemAtlantic = [[NSMenuItem alloc] initWithTitle:@"Atlantic" action:nil keyEquivalent:@""];
-        [menuItemAtlantic setSubmenu:menuAtlantic];
-        [menuItemAtlantic setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemAtlantic];
-        
-        NSMenuItem *menuItemAustralia = [[NSMenuItem alloc] initWithTitle:@"Australia" action:nil keyEquivalent:@""];
-        [menuItemAustralia setSubmenu:menuAustralia];
-        [menuItemAustralia setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemAustralia];
-        
-        NSMenuItem *menuItemEurope = [[NSMenuItem alloc] initWithTitle:@"Europe" action:nil keyEquivalent:@""];
-        [menuItemEurope setSubmenu:menuEurope];
-        [menuItemEurope setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemEurope];
-        
-        NSMenuItem *menuItemIndian = [[NSMenuItem alloc] initWithTitle:@"Indian" action:nil keyEquivalent:@""];
-        [menuItemIndian setSubmenu:menuIndian];
-        [menuItemIndian setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemIndian];
-        
-        NSMenuItem *menuItemPacific = [[NSMenuItem alloc] initWithTitle:@"Pacific" action:nil keyEquivalent:@""];
-        [menuItemPacific setSubmenu:menuPacific];
-        [menuItemPacific setTarget:self];
-        [[_popUpButtonTimeZone menu] addItem:menuItemPacific];
-        
-        [self setSelectedMenuItem:[_popUpButtonTimeZone selectedItem]];
-    } else {
-        DDLogError(@"[ERROR] Could not find language strings file!");
-    }
-}
-
-- (void)selectTimeZone:(id)sender {
-    if ( ! [sender isKindOfClass:[NSMenuItem class]] ) {
-        return;
-    }
-    
-    [_selectedMenuItem setState:NSOffState];
-    
-    _selectedMenuItem = (NSMenuItem *)sender;
-    [_selectedMenuItem setState:NSOnState];
-    
-    NSMenuItem *newMenuItem = [_selectedMenuItem copy];
-    
-    NSInteger selectedMenuItemIndex = [_popUpButtonTimeZone indexOfSelectedItem];
-    
-    if ( selectedMenuItemIndex == 0 ) {
-        if ( ! [[_popUpButtonTimeZone itemAtIndex:1] isSeparatorItem] ) {
-            [_popUpButtonTimeZone removeItemAtIndex:1];
-        }
-    } else {
-        [_popUpButtonTimeZone removeItemAtIndex:selectedMenuItemIndex];
-    }
-    
-    for ( NSMenuItem *menuItem in [[_popUpButtonTimeZone menu] itemArray] ) {
-        if ( [[menuItem title] isEqualToString:NBCMenuItemCurrent] ) {
-            [_popUpButtonTimeZone removeItemWithTitle:NBCMenuItemCurrent];
-            break;
-        }
-    }
-    [[_popUpButtonTimeZone menu] insertItem:newMenuItem atIndex:0];
-    
-    if ( ! [[_selectedMenuItem title] isEqualToString:NBCMenuItemCurrent] ) {
-        [[_popUpButtonTimeZone menu] insertItemWithTitle:NBCMenuItemCurrent action:@selector(selectTimeZone:) keyEquivalent:@"" atIndex:0];
-    }
-    [_popUpButtonTimeZone selectItem:newMenuItem];
-}
-
-- (NSString *)timeZoneFromMenuItem:(NSMenuItem *)menuItem {
-    NSString *timeZone;
-    
-    NSString *selectedTimeZoneCity = [menuItem title];
-    if ( [selectedTimeZoneCity isEqualToString:NBCMenuItemCurrent] ) {
-        timeZone = selectedTimeZoneCity;
-    } else {
-        NSString *selectedTimeZoneRegion = [[menuItem menu] title];
-        timeZone = [NSString stringWithFormat:@"%@/%@", selectedTimeZoneRegion, selectedTimeZoneCity];
-    }
-    
-    return timeZone;
-} // timeZoneFromMenuItem
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark PopUpButton Language
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-- (void)populatePopUpButtonLanguage {
-    NSError *error;
-    NSURL *languageStringsFile = [NSURL fileURLWithPath:@"/System/Library/PrivateFrameworks/IntlPreferences.framework/Versions/A/Resources/Language.strings"];
-    if ( [languageStringsFile checkResourceIsReachableAndReturnError:&error] ) {
-        _languageDict = [[NSDictionary dictionaryWithContentsOfURL:languageStringsFile] mutableCopy];
-        NSArray *languageArray = [[_languageDict allValues] sortedArrayUsingSelector:@selector(compare:)];
-        [_popUpButtonLanguage removeAllItems];
-        [_popUpButtonLanguage addItemWithTitle:NBCMenuItemCurrent];
-        [[_popUpButtonLanguage menu] addItem:[NSMenuItem separatorItem]];
-        [_popUpButtonLanguage addItemsWithTitles:languageArray];
-    } else {
-        DDLogError(@"[ERROR] Could not find language strings file!");
-        DDLogError(@"%@", error);
-    }
-}
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark PopUpButton KeyboardLayout
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-- (void)populatePopUpButtonKeyboardLayout {
-    NSDictionary *ref = @{
-                          (NSString *)kTISPropertyInputSourceType : (NSString *)kTISTypeKeyboardLayout
-                          };
-    
-    CFArrayRef sourceList = TISCreateInputSourceList ((__bridge CFDictionaryRef)(ref),true);
-    for (int i = 0; i < CFArrayGetCount(sourceList); ++i) {
-        TISInputSourceRef source = (TISInputSourceRef)(CFArrayGetValueAtIndex(sourceList, i));
-        if ( ! source) continue;
-        
-        NSString* sourceID = (__bridge NSString *)(TISGetInputSourceProperty(source, kTISPropertyInputSourceID));
-        NSString* localizedName = (__bridge NSString *)(TISGetInputSourceProperty(source, kTISPropertyLocalizedName));
-        
-        _keyboardLayoutDict[localizedName] = sourceID;
-    }
-    
-    NSArray *keyboardLayoutArray = [[_keyboardLayoutDict allKeys] sortedArrayUsingSelector:@selector(compare:)];
-    [_popUpButtonKeyboardLayout removeAllItems];
-    [_popUpButtonKeyboardLayout addItemWithTitle:NBCMenuItemCurrent];
-    [[_popUpButtonKeyboardLayout menu] addItem:[NSMenuItem separatorItem]];
-    [_popUpButtonKeyboardLayout addItemsWithTitles:keyboardLayoutArray];
-}
-
-- (IBAction)buttonAddCertificate:(id)sender {
-#pragma unused(sender)
-    NSOpenPanel* addCertificates = [NSOpenPanel openPanel];
-    
-    // --------------------------------------------------------------
-    //  Setup open dialog to only allow one folder to be chosen.
-    // --------------------------------------------------------------
-    [addCertificates setTitle:@"Add Certificates"];
-    [addCertificates setPrompt:@"Add"];
-    [addCertificates setCanChooseFiles:YES];
-    [addCertificates setAllowedFileTypes:@[ @"public.x509-certificate" ]];
-    [addCertificates setCanChooseDirectories:NO];
-    [addCertificates setCanCreateDirectories:YES];
-    [addCertificates setAllowsMultipleSelection:YES];
-    
-    if ( [addCertificates runModal] == NSModalResponseOK ) {
-        NSArray* selectedURLs = [addCertificates URLs];
-        for ( NSURL *certificateURL in selectedURLs ) {
-            NSData *certificateData = [[NSData alloc] initWithContentsOfURL:certificateURL];
-            NSDictionary *certificateDict = [self examineCertificate:certificateData];
-            if ( [certificateDict count] != 0 ) {
-                [self insertCertificateInTableView:certificateDict];
-            }
-        }
-    }
-}
-
-- (IBAction)buttonRemoveCertificate:(id)sender {
-#pragma unused(sender)
-    NSIndexSet *indexes = [_tableViewCertificates selectedRowIndexes];
-    [_certificateTableViewContents removeObjectsAtIndexes:indexes];
-    [_tableViewCertificates removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
-    [_tableViewCertificates reloadData];
-}
-
-- (IBAction)buttonAddPackage:(id)sender {
-#pragma unused(sender)
-    NSOpenPanel* addPackages = [NSOpenPanel openPanel];
-    
-    // --------------------------------------------------------------
-    //  Setup open dialog to only allow one folder to be chosen.
-    // --------------------------------------------------------------
-    [addPackages setTitle:@"Add Packages"];
-    [addPackages setPrompt:@"Add"];
-    [addPackages setCanChooseFiles:YES];
-    [addPackages setAllowedFileTypes:@[ @"com.apple.installer-package-archive" ]];
-    [addPackages setCanChooseDirectories:NO];
-    [addPackages setCanCreateDirectories:YES];
-    [addPackages setAllowsMultipleSelection:YES];
-    
-    if ( [addPackages runModal] == NSModalResponseOK ) {
-        NSArray* selectedURLs = [addPackages URLs];
-        for ( NSURL *packageURL in selectedURLs ) {
-            NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
-            if ( [packageDict count] != 0 ) {
-                [self insertPackageInTableView:packageDict];
-            }
-        }
-    }
-}
-
-- (IBAction)buttonRemovePackage:(id)sender {
-#pragma unused(sender)
-    NSIndexSet *indexes = [_tableViewPackages selectedRowIndexes];
-    [_packagesTableViewContents removeObjectsAtIndexes:indexes];
-    [_tableViewPackages removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
-    [_tableViewPackages reloadData];
-}
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
 #pragma mark Trusted NetBoot Servers
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
@@ -3443,12 +3465,6 @@ DDLogLevel ddLogLevel;
     }
     
     return retval;
-}
-
-- (IBAction)buttonInstallXcode:(id)sender {
-#pragma unused(sender)
-    NSString *xcodeLink = @"macappstore://itunes.apple.com/app/id497799835";
-    [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:xcodeLink]];
 }
 
 @end
