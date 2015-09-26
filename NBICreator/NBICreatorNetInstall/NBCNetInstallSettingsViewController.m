@@ -832,6 +832,23 @@ DDLogLevel ddLogLevel;
 } // buildNBI
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
+    NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
+    
+    NSMutableArray *packages = [[NSMutableArray alloc] init];
+    for ( NSDictionary *packageDict in _packagesTableViewContents ) {
+        NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
+        [packages addObject:packagePath];
+    }
+    resourcesSettings[NBCSettingsPackagesNetInstallKey] = [packages copy];
+    
+    NSMutableArray *configurationProfiles = [[NSMutableArray alloc] init];
+    for ( NSDictionary *configurationProfileDict in _configurationProfilesTableViewContents ) {
+        NSString *configurationProfilePath = configurationProfileDict[NBCDictionaryKeyConfigurationProfilePath];
+        [configurationProfiles addObject:configurationProfilePath];
+    }
+    resourcesSettings[NBCSettingsConfigurationProfilesNetInstallKey] = [configurationProfiles copy];
+    
+    [workflowItem setResourcesSettings:[resourcesSettings copy]];
     
     // ------------------------------------------------------------------
     //  Instantiate all workflows to be used to create a NetInstall NBI

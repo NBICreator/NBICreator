@@ -30,9 +30,8 @@ DDLogLevel ddLogLevel;
     
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
-    _nbiVolumeName = [[workflowItem nbiName] stringByDeletingPathExtension];
-    //_progressView = [workflowItem progressView];
-    _temporaryNBIPath = [[workflowItem temporaryNBIURL] path];
+    [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
+    [self setTemporaryNBIPath:[[workflowItem temporaryNBIURL] path]];
     NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
         
     // -------------------------------------------------------------
@@ -44,7 +43,7 @@ DDLogLevel ddLogLevel;
         if ( [volumeAttributes count] != 0 ) {
             double maxSize = [volumeAttributes[NSFileSystemSize] doubleValue];
             double freeSize = [volumeAttributes[NSFileSystemFreeSize] doubleValue];
-            _netInstallVolumeSize = ( maxSize - freeSize );
+            [self setNetInstallVolumeSize:( maxSize - freeSize )];
         } else {
             NSLog(@"Error getting volumeAttributes from InstallESD Volume");
             NSLog(@"Error: %@", err);

@@ -10,6 +10,7 @@
 
 @class NBCTargetController;
 @class NBCWorkflowItem;
+@class NBCTarget;
 
 @protocol NBCNetInstallWorkflowModifyNBIDelegate
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow;
@@ -25,6 +26,7 @@
 // ------------------------------------------------------
 @property NBCTargetController *targetController;
 @property NBCWorkflowItem *workflowItem;
+@property NBCTarget *target;
 
 // ------------------------------------------------------
 //  Instance Methods

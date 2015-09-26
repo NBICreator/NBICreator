@@ -560,8 +560,14 @@ extern NSString *const NBCDeployStudioLatestVersionURL;
 
 extern NSString *const NBCResourcesDeployStudioLatestVersionKey;
 
+extern NSString *const NBCSettingsPackagesNetInstallKey;
 
+extern NSString *const NBCFilePathNetInstallOSInstallCollection;
+extern NSString *const NBCFolderPathNetInstallPackages;
+extern NSString *const NBCFolderPathNetInstallPostinstall;
+extern NSString *const NBCFolderPathNetInstallConfigurationProfiles;
 
+extern NSString *const NBCSettingsConfigurationProfilesNetInstallKey;
 extern NSString *const NBCHelpURL;
 
 extern NSString *const NBCVariableIndexCounter;

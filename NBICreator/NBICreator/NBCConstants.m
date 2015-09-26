@@ -372,6 +372,7 @@ NSString *const NBCNotificationUpdateNBIBackgroundUserInfoIconURL = @"Background
 NSString *const NBCNotificationStartSearchingForUpdates = @"StartSearchingForUpdates";
 NSString *const NBCNotificationStopSearchingForUpdates = @"StopSearchingForUpdates";
 
+NSString *const NBCSettingsPackagesNetInstallKey = @"PackagesNetInstall";
 
 // --------------------------------------------------------------
 //  Certificate TableView Keys
@@ -480,6 +481,15 @@ NSString *const NBCJSSPreferencePlistNBICreatorTargetURL = @"var/root/Library/Pr
 NSString *const NBCCasperImagingBundleIdentifier = @"com.jamfsoftware.CasperImaging";
 NSString *const NBCCasperImagingApplicationTargetURL = @"Packages/Casper Imaging.app";
 NSString *const NBCCasperImagingApplicationNBICreatorTargetURL = @"Applications/Casper Imaging.app";
+
+
+NSString *const NBCSettingsConfigurationProfilesNetInstallKey = @"ConfigurationProfilesNetInstall";
+
+NSString *const NBCFilePathNetInstallOSInstallCollection = @"Packages/OSInstall.collection";
+NSString *const NBCFolderPathNetInstallPackages = @"Packages";
+NSString *const NBCFolderPathNetInstallPostinstall = @"Packages/Extras/postinstall";
+NSString *const NBCFolderPathNetInstallConfigurationProfiles = @"Packages/Extras/ConfigurationProfiles";
+
 
 
 NSString *const NBCRCImagingTargetURL = @"Packages/Extras/rc.imaging";

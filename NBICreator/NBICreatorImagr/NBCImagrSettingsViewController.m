@@ -2941,30 +2941,6 @@ DDLogLevel ddLogLevel;
         if ( [currentCountry length] != 0 ) {
             resourcesSettings[NBCSettingsCountry] = currentCountry;
         }
-        
-        /* Should not access property lists directly, keeping it around for now
-         NSDictionary *globalPreferencesDict = [NSDictionary dictionaryWithContentsOfFile:NBCFilePathPreferencesGlobal];
-         NSString *currentLanguageID = globalPreferencesDict[@"AppleLanguages"][0];
-         DDLogInfo(@"Current Language ID: %@", currentLanguageID);
-         if ( [currentLanguageID length] != 0 ) {
-         resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
-         } else {
-         DDLogError(@"[ERROR] Could not get current language ID!");
-         return;
-         }
-         
-         NSString *currentLocaleIdentifier = globalPreferencesDict[@"AppleLocale"];
-         DDLogInfo(@"currentLocaleIdentifier=%@", currentLocaleIdentifier);
-         if ( [currentLocaleIdentifier length] != 0 ) {
-         resourcesSettings[NBCSettingsLocale] = currentLocaleIdentifier;
-         }
-         
-         NSString *currentCountry = globalPreferencesDict[@"Country"];
-         DDLogInfo(@"currentCountry=%@", currentCountry);
-         if ( [currentCountry length] != 0 ) {
-         resourcesSettings[NBCSettingsCountry] = currentCountry;
-         }
-         */
     } else {
         NSString *languageID = [_languageDict allKeysForObject:selectedLanguage][0];
         if ( [languageID length] != 0 ) {
@@ -3036,6 +3012,7 @@ DDLogLevel ddLogLevel;
             [validatedTrustedNetBootServers addObject:netBootServerIP];
         }
     }
+    
     if ( [validatedTrustedNetBootServers count] != 0 ) {
         resourcesSettings[NBCSettingsTrustedNetBootServersKey] = [validatedTrustedNetBootServers copy];
     }

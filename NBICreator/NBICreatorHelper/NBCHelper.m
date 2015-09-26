@@ -330,11 +330,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSURL *blockVolumeURL = volumeURL;
     NSArray *copyArray = resourcesDict[NBCWorkflowCopy];
-    NSLog(@"copyArray=%@", copyArray);
     NSMutableDictionary *regexDict = [[NSMutableDictionary alloc] init];
     for ( NSDictionary *copyDict in copyArray ) {
         NSString *copyType = copyDict[NBCWorkflowCopyType];
-        NSLog(@"copyType=%@", copyType);
         if ( [copyType isEqualToString:NBCWorkflowCopy] ) {
             NSURL *targetURL;
             NSString *targetURLString = copyDict[NBCWorkflowCopyTargetURL];
@@ -382,9 +380,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             
         } else if ( [copyType isEqualToString:NBCWorkflowCopyRegex] ) {
             NSString *sourceFolderPath = copyDict[NBCWorkflowCopyRegexSourceFolderURL];
-            NSLog(@"sourceFolderPath=%@", sourceFolderPath);
             NSString *regexString = copyDict[NBCWorkflowCopyRegex];
-            NSLog(@"regexString=%@", regexString);
             NSMutableArray *sourceFolderRegexes = [regexDict[sourceFolderPath] mutableCopy];
             if ( [sourceFolderRegexes count] != 0 ) {
                 [sourceFolderRegexes addObject:regexString];
@@ -398,9 +394,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( [regexDict count] != 0 ) {
         NSArray *keys = [regexDict allKeys];
-        NSLog(@"keys=%@", keys);
         for ( NSString *sourceFolderPath in keys ) {
-            NSLog(@"sourceFolderPath=%@", sourceFolderPath);
             NSArray *regexArray = regexDict[sourceFolderPath];
             __block NSString *regexString = @"";
             [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -469,7 +463,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSMutableArray *scriptArguments = [NSMutableArray arrayWithObjects:@"-c",
                                                [NSString stringWithFormat:@"/usr/bin/find -E . -depth%@ | /usr/bin/cpio -admpu --quiet '%@'", regexString, [volumeURL path]],
                                                nil];
-            NSLog(@"scriptArguments=%@", scriptArguments);
+
             NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
             //NSPipe *stdOut = [[NSPipe alloc] init];
             //NSPipe *stdErr = [[NSPipe alloc] init];
@@ -496,8 +490,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
         }
-    } else {
-        NSLog(@"REGEXDICT IS EMPTY!?");
     }
     
     reply(nil, 0);

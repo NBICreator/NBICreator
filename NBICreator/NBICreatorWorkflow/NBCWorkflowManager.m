@@ -219,7 +219,6 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteModifyNBI:(NSNotification *)notification {
 #pragma unused(notification)
-    
     DDLogInfo(@"NBI modifications complete!");
     [self moveNBIToDestination:[_currentWorkflowItem temporaryNBIURL] destinationURL:[_currentWorkflowItem nbiURL]];
 } // workflowCompleteModifyNBI
