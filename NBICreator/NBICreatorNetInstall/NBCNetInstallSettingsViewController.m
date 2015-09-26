@@ -138,7 +138,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    
     BOOL retval = YES;
     
     if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalIcon] ) {

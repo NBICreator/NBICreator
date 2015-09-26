@@ -225,11 +225,21 @@ DDLogLevel ddLogLevel;
 } // workflowCompleteModifyNBI
 
 - (void)endWorkflow {
-    
     if ( [[NSUserDefaults standardUserDefaults] boolForKey:NBCUserDefaultsUserNotificationsEnabled] ) {
         NSString *name = [_currentWorkflowItem nbiName];
         NSString *workflowTime = [_currentWorkflowItem workflowTime];
         [self postNotificationWithTitle:name informativeText:[NSString stringWithFormat:@"Completed in %@", workflowTime]];
+    }
+    if ( ! [[NSApplication sharedApplication] isActive] ) {
+        NSDockTile *dockTile = [NSApp dockTile];
+        NSString *newBadgeLabel = @"1";
+        NSString *currentBadgeLabel = [dockTile badgeLabel];
+        if ( [currentBadgeLabel length] != 0 ) {
+            int newBadgeInt = ( [currentBadgeLabel intValue] + 1);
+            newBadgeLabel = [@(newBadgeInt) stringValue];
+        }
+        [dockTile setBadgeLabel:newBadgeLabel];
+        [dockTile display];
     }
     [self setCurrentWorkflowModifyNBIComplete:YES];
     [self setWorkflowRunning:NO];

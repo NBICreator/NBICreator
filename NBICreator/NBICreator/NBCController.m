@@ -273,6 +273,13 @@ enum {
     }
 } // applicationWillTerminate
 
+- (void)applicationDidBecomeActive:(NSNotification *)notification {
+#pragma unused(notification)
+    NSDockTile *dockTile = [NSApp dockTile];
+    [dockTile setBadgeLabel:@""];
+    [dockTile display];
+}
+
 /*//////////////////////////////////////////////////////////////////////////////
  /// FUTURE FUNCTIONALITY - OPEN/IMPORT TEMPLATES                             ///
  //////////////////////////////////////////////////////////////////////////////*/
