@@ -86,7 +86,7 @@ DDLogLevel ddLogLevel;
     }
     _siuSource = [[NBCSystemImageUtilitySource alloc] init];
     _templatesDict = [[NSMutableDictionary alloc] init];
-    
+    [self initializeTableViewOverlays];
     // --------------------------------------------------------------
     //  Load saved templates and create the template menu
     // --------------------------------------------------------------
@@ -116,6 +116,20 @@ DDLogLevel ddLogLevel;
     [self verifyBuildButton];
     
 } // viewDidLoad
+
+- (void)initializeTableViewOverlays {
+    if ( ! _viewOverlayPackages ) {
+        NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypePackages];
+        _viewOverlayPackages = [vc view];
+    }
+    [self addOverlayViewToView:_superViewPackages overlayView:_viewOverlayPackages];
+    
+    if ( ! _viewOverlayConfigurationProfiles ) {
+        NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypeConfigurationProfiles];
+        _viewOverlayConfigurationProfiles = [vc view];
+    }
+    [self addOverlayViewToView:_superViewConfigurationProfiles overlayView:_viewOverlayConfigurationProfiles];
+} // initializeTableViewOverlays
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -729,6 +743,23 @@ DDLogLevel ddLogLevel;
     
 } // verifyBuildButton
 
+- (void)addOverlayViewToView:(NSView *)view overlayView:(NSView *)overlayView {
+    [view addSubview:overlayView positioned:NSWindowAbove relativeTo:nil];
+    [overlayView setTranslatesAutoresizingMaskIntoConstraints:NO];
+    NSArray *constraintsArray;
+    constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[overlayView]-1-|"
+                                                               options:0
+                                                               metrics:nil
+                                                                 views:NSDictionaryOfVariableBindings(overlayView)];
+    [view addConstraints:constraintsArray];
+    constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[overlayView]-1-|"
+                                                               options:0
+                                                               metrics:nil
+                                                                 views:NSDictionaryOfVariableBindings(overlayView)];
+    [view addConstraints:constraintsArray];
+    [view setHidden:NO];
+} // addOverlayViewToView:overlayView
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Build NBI
@@ -856,7 +887,9 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewConfigurationProfiles selectedRowIndexes];
     [_configurationProfilesTableViewContents removeObjectsAtIndexes:indexes];
     [_tableViewConfigurationProfiles removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
-    [_tableViewConfigurationProfiles reloadData];
+    if ( [_configurationProfilesTableViewContents count] == 0 ) {
+        [_viewOverlayConfigurationProfiles setHidden:NO];
+    }
 }
 
 - (void)insertPackageInTableView:(NSDictionary *)packageDict {
@@ -874,7 +907,7 @@ DDLogLevel ddLogLevel;
     [_tableViewPackages insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
     [_tableViewPackages scrollRowToVisible:index];
     [_packagesTableViewContents insertObject:packageDict atIndex:(NSUInteger)index];
-    [_tableViewPackages reloadData];
+    [_viewOverlayPackages setHidden:YES];
     [_tableViewPackages endUpdates];
 }
 
@@ -893,7 +926,7 @@ DDLogLevel ddLogLevel;
     [_tableViewConfigurationProfiles insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
     [_tableViewConfigurationProfiles scrollRowToVisible:index];
     [_configurationProfilesTableViewContents insertObject:configurationProfileDict atIndex:(NSUInteger)index];
-    [_tableViewConfigurationProfiles reloadData];
+    [_viewOverlayConfigurationProfiles setHidden:YES];
     [_tableViewConfigurationProfiles endUpdates];
 }
 
@@ -1171,7 +1204,7 @@ DDLogLevel ddLogLevel;
                                              [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
                                              [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
                                              insertionIndex++;
-                                             [tableView reloadData];
+                                             [self->_viewOverlayConfigurationProfiles setHidden:YES];
                                          }
                                      }
                                  }];
@@ -1200,7 +1233,7 @@ DDLogLevel ddLogLevel;
                                              [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
                                              [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
                                              insertionIndex++;
-                                             [tableView reloadData];
+                                             [self->_viewOverlayPackages setHidden:YES];
                                          }
                                      }
                                  }];
@@ -1262,7 +1295,9 @@ DDLogLevel ddLogLevel;
     NSIndexSet *indexes = [_tableViewPackages selectedRowIndexes];
     [_packagesTableViewContents removeObjectsAtIndexes:indexes];
     [_tableViewPackages removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
-    [_tableViewPackages reloadData];
+    if ( [_packagesTableViewContents count] == 0 ) {
+        [_viewOverlayPackages setHidden:NO];
+    }
 }
 
 @end
