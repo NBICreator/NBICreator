@@ -25,7 +25,8 @@
 
 // Main
 #import "NBCController.h"
-#import "NBCLogging.h"
+#import "NBCLog.h"
+//#import "NBCLogging.h"
 #import "NBCConstants.h"
 
 // Apple
@@ -109,7 +110,6 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)dealloc {
-    
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
@@ -120,7 +120,6 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)createEmptyAuthorizationRef {
-    
     DDLogDebug(@"Creating empty authorization reference...");
     NSError                     *error;
     OSStatus                    status;
@@ -156,66 +155,6 @@ enum {
         DDLogError(@"[ERROR] %@", error);
     }
 } // createEmptyAuthorizationRef
-
-- (void)configureCocoaLumberjack {
-    
-    // --------------------------------------------------------------
-    //  Log to Console (Xcode/Commandline)
-    // --------------------------------------------------------------
-    [DDLog addLogger:[DDTTYLogger sharedInstance]];
-    
-    // --------------------------------------------------------------
-    //  Log to File
-    // --------------------------------------------------------------
-    DDFileLogger *fileLogger = [[DDFileLogger alloc] init];
-    [fileLogger setMaximumFileSize:10000000]; // 10000000 = 10 MB
-    [fileLogger setRollingFrequency:0];
-    [[fileLogger logFileManager] setMaximumNumberOfLogFiles:7];
-    [DDLog addLogger:fileLogger];
-    
-    // --------------------------------------------------------------
-    //  Set log level from setting in application preferences
-    // --------------------------------------------------------------
-    NSNumber *logLevel = [[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsLogLevel];
-    if ( logLevel ) {
-        
-        // --------------------------------------------------------------
-        //  If log level was set to Debug, lower to Info
-        // --------------------------------------------------------------
-        if ( [logLevel intValue] == (int)DDLogLevelDebug ) {
-            ddLogLevel = DDLogLevelInfo;
-            [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:(int)ddLogLevel] forKey:NBCUserDefaultsLogLevel];
-        } else {
-            ddLogLevel = (DDLogLevel)[logLevel intValue];
-        }
-    } else {
-        ddLogLevel = DDLogLevelWarning;
-        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:(int)ddLogLevel] forKey:NBCUserDefaultsLogLevel];
-    }
-    
-    DDLogError(@"");
-    DDLogError(@"Starting NBICreator version %@ (build %@)...", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
-    NSString *logLevelName;
-    switch (ddLogLevel) {
-        case 1:
-            logLevelName = @"Error";
-            break;
-        case 3:
-            logLevelName = @"Warn";
-            break;
-        case 7:
-            logLevelName = @"Info";
-            break;
-        case 15:
-            logLevelName = @"Debug";
-            break;
-        default:
-            logLevelName = [[NSNumber numberWithInt:(int)ddLogLevel] stringValue];
-            break;
-    }
-    DDLogInfo(@"Log level: %@", logLevelName);
-    
-} // configureCocoaLumberjack
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -255,7 +194,7 @@ enum {
     // --------------------------------------------------------------
     //  Setup logging
     // --------------------------------------------------------------
-    [self configureCocoaLumberjack];
+    [NBCLog configureLogging];
     
     // --------------------------------------------------------------
     //  Setup preference window so it can recieve notifications
@@ -270,9 +209,9 @@ enum {
     [self testInternetConnection];
     
     // --------------------------------------------------------------
-    //  Initalize properties
+    //  Register disk notifications
     // --------------------------------------------------------------
-    _arbitrator = [NBCDiskArbitrator sharedArbitrator];
+    [NBCDiskArbitrator sharedArbitrator];
     
     // --------------------------------------------------------------
     // Create an empty AuthorizationRef and make it interprocess compatible
@@ -305,15 +244,12 @@ enum {
 } // applicationDidFinishLaunching
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-    
 #pragma unused(sender)
     return YES;
 } // applicationShouldTerminateAfterLastWindowClosed
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
 #pragma unused(sender)
-    
-    
     // --------------------------------------------------------------
     //  Run some checks before terminating application
     // --------------------------------------------------------------
@@ -323,12 +259,10 @@ enum {
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
 #pragma unused(notification)
-    
-    
     // --------------------------------------------------------------
     //  Unmount all disks and disk images mounted by NBICreator
     // --------------------------------------------------------------
-    NSSet *mountedDisks = [[_arbitrator disks] copy];
+    NSSet *mountedDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
     for ( NBCDisk *disk in mountedDisks ) {
         if ( [disk isMountedByNBICreator] && [disk isMounted] ) {
             [disk unmountWithOptions:kDADiskUnmountOptionDefault];
@@ -343,8 +277,6 @@ enum {
  /// FUTURE FUNCTIONALITY - OPEN/IMPORT TEMPLATES                             ///
  //////////////////////////////////////////////////////////////////////////////*/
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {
-    
-    DDLogDebug(@"filename=%@", filename);
     DDLogInfo(@"Recieved file to open: %@", filename);
 #pragma unused(theApplication)
     NSError *error;
@@ -441,7 +373,6 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkUnsavedSettingsQuit {
-    
     
     // --------------------------------------------------------------
     //  Alert user if there are unsaved settings before quitting

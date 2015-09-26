@@ -23,24 +23,11 @@ DDLogLevel ddLogLevel;
     return self;
 }
 
-- (NSArray *)systemImageUtilityURLs {
-    
-    NSMutableArray *systemImageUtilityURLs = [[NSMutableArray alloc] init];
-    
-    [systemImageUtilityURLs addObjectsFromArray:(__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.apple.SystemImageUtility"), NULL))];
-    
-    return [systemImageUtilityURLs copy];
-}
-
 - (void)setSystemImageUtilityURL {
-    
     NSError *error;
-    
-    NSArray *systemImageUtilityURLs = [self systemImageUtilityURLs];
+    NSArray *systemImageUtilityURLs = (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.apple.SystemImageUtility"), NULL));
     NSURL *systemImageUtilityURL = [systemImageUtilityURLs firstObject];
-    
     _systemImageUtilityURL = systemImageUtilityURL;
-    
     if ( [_systemImageUtilityURL checkResourceIsReachableAndReturnError:&error] ) {
         [self systemImageUtilityResourcesFromURL:_systemImageUtilityURL];
     } else {
@@ -49,8 +36,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)systemImageUtilityResourcesFromURL:(NSURL *)systemImageUtilityURL {
-    
-    
     [self setSystemImageUtilityVersion:[[NSBundle bundleWithURL:systemImageUtilityURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
     [self setSelectedVersion:_systemImageUtilityVersion];
     
@@ -68,7 +53,6 @@ DDLogLevel ddLogLevel;
 
 - (void)siuFoundationResourcesFromURL:(NSURL *)siuFoundationFrameworkURL {
     NSError *error;
-    
     if ( [siuFoundationFrameworkURL checkResourceIsReachableAndReturnError:&error] ) {
         [self setSiuFoundationFrameworkURL:siuFoundationFrameworkURL];
         [self setSiuFoundationVersion:[[NSBundle bundleWithURL:_siuFoundationFrameworkURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
@@ -89,12 +73,8 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSString *)expandVariables:(NSString *)string {
-    
-    NSString *newString = string;
-    NSString *variableSIUVersion = @"%SIUVERSION%";
-    
     // --------------------------------------------------------------
-    //  Expand %DSVERSION%
+    //  Expand %SIUVERSION%
     // --------------------------------------------------------------
     NSString *siuVersion;
     siuVersion = _systemImageUtilityVersion;
@@ -102,10 +82,8 @@ DDLogLevel ddLogLevel;
         siuVersion = @"Unknown";
     }
     
-    newString = [newString stringByReplacingOccurrencesOfString:variableSIUVersion
-                                                     withString:siuVersion];
-    
-    return newString;
+    return [string stringByReplacingOccurrencesOfString:NBCVariableSystemImageUtilityVersion
+                                                withString:siuVersion];
 }
 
 + (NSArray *)systemImageUtilityVersions {

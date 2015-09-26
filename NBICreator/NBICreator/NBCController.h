@@ -24,7 +24,6 @@
 @class NBCDisk;
 @class NBCSource;
 @class NBCPreferences;
-@class NBCDiskArbitrator;
 
 @interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate, NSWindowDelegate>
 
@@ -77,7 +76,6 @@
 @property id currentSettingsController;
 @property NBCSource *currentSource;
 @property NBCPreferences *preferencesWindow;
-@property NBCDiskArbitrator *arbitrator;
 
 // Buttons
 @property (weak) IBOutlet NSButton *buttonBuild;

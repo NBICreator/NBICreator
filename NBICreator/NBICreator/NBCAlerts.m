@@ -37,7 +37,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertError:(NSError *)error {
-    
     NSAlert *alert = [NSAlert alertWithError:error];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         #pragma unused(returnCode)
@@ -46,7 +45,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertOKWithTitle:(NSString *)title informativeText:(NSString *)informativeText {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:title];
@@ -59,7 +57,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertSettingsUnchangedNBI {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Nothing to update"];
@@ -72,7 +69,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertRecoveryVersionMismatch {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Recovery Version Mismatch"];
@@ -100,7 +96,6 @@ DDLogLevel ddLogLevel;
 
 
 + (void)showAlertUnrecognizedImagrApplication {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Imagr Application"];
@@ -112,7 +107,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertUnrecognizedCasperImagingApplication {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Casper Imaging Application"];
@@ -124,8 +118,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertUnrecognizedSourceForWorkflow:(int)workflowType errorMessage:(NSString *)errorMessage {
-    
-    
     NSString *informativeText;
     switch ( workflowType ) {
         case kWorkflowTypeNetInstall:

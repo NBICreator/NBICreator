@@ -10,7 +10,6 @@
 #import "NBCCasperSettingsViewController.h"
 #import "NBCConstants.h"
 #import "NBCVariables.h"
-#import "NSMutableString+hyperlinkFromString.h"
 
 #import "NBCWorkflowItem.h"
 #import "NBCSettingsController.h"

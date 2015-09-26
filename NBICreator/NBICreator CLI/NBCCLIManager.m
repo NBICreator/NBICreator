@@ -8,6 +8,7 @@
 
 #import "NBCCLIManager.h"
 #import "NBCCLIArguments.h"
+#import "NBCLog.h"
 
 @implementation NBCCLIManager
 
@@ -29,10 +30,30 @@
 - (id)init {
     self = [super init];
     if (self != nil) {
-        
+        [self registerDefaults];
+        [NBCLog configureLogging];
     }
     return self;
 } // init
+
+- (void)registerDefaults {
+    // --------------------------------------------------------------
+    //  Register user defaults
+    // --------------------------------------------------------------
+    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
+    NSURL *defaultSettingsPath = [[NSBundle mainBundle] URLForResource:@"Defaults" withExtension:@"plist"];
+    NSError *error;
+    if ( [defaultSettingsPath checkResourceIsReachableAndReturnError:&error] ) {
+        NSDictionary *defaultSettingsDict=[NSDictionary dictionaryWithContentsOfURL:defaultSettingsPath];
+        if ( defaultSettingsDict ) {
+            [ud registerDefaults:defaultSettingsDict];
+        }
+    } else {
+        DDLogError(@"[ERROR] Could not find default settings plist \"Defaults.plist\" in main bundle!");
+        DDLogError(@"[ERROR] %@", error);
+    }
+
+}
 
 - (void)verifyCLIArguments {
     NBCCLIArguments *cliArguments = [[NBCCLIArguments alloc] init];

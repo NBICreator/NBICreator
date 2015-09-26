@@ -586,6 +586,7 @@ NSString *const NBCVariableDate = @"%DATE%";
 NSString *const NBCVariableNBICreatorVersion = @"%NBCVERSION%";
 NSString *const NBCVariableCasperImagingVersion = @"%CIMVERSION%";
 NSString *const NBCVariableApplicationResourcesURL = @"%APPLICATIONRESOURCESURL%";
+NSString *const NBCVariableSystemImageUtilityVersion = @"%SIUVERSION%";
 
 NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
 NSString *const NBCTableViewIdentifierPackages = @"tableViewPackages";

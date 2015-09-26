@@ -32,7 +32,7 @@
 - (void)updateViewContent {
     NSImage *image;
     NBCOverlayView *view = (NBCOverlayView *)[self view];
-    [[view textField] setStringValue:@"Test"];
+    [[view textField] setStringValue:@""];
     switch ( _contentType ) {
         case kContentTypePackages:
             image = [[NSImage alloc] initWithContentsOfFile:IconMetaPackagePath];

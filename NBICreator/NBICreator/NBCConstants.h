@@ -569,6 +569,7 @@ extern NSString *const NBCVariableDate;
 extern NSString *const NBCVariableNBICreatorVersion;
 extern NSString *const NBCVariableCasperImagingVersion;
 extern NSString *const NBCVariableApplicationResourcesURL;
+extern NSString *const NBCVariableSystemImageUtilityVersion;
 
 extern NSString *const NBCTableViewIdentifierCertificates;
 extern NSString *const NBCTableViewIdentifierPackages;

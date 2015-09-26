@@ -37,19 +37,11 @@ DDLogLevel ddLogLevel;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (NSArray *)deployStudioApplicationURLs {
-    NSMutableArray *deployStudioApplicationURLs = [[NSMutableArray alloc] init];
-    [deployStudioApplicationURLs addObjectsFromArray:(__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.deploystudio.admin"), NULL))];
-    return [deployStudioApplicationURLs copy];
-}
-
 - (void)getDeployStudioURL {
     NSError *error;
-    NSArray *deployStudioApplicationURLs = [self deployStudioApplicationURLs];
-    
+    NSArray *deployStudioApplicationURLs = (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.deploystudio.admin"), NULL));
     NSURL *dsAdminURL = [deployStudioApplicationURLs firstObject];
-    
-    if ( dsAdminURL ) {
+    if ( [dsAdminURL checkResourceIsReachableAndReturnError:nil] ) {
         [self setDeployStudioAdminURL:dsAdminURL];
         if ( [_deployStudioAdminURL checkResourceIsReachableAndReturnError:&error] ) {
             [self setIsInstalled:YES];
@@ -62,7 +54,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)deployStudioResourcesFromAdminURL {
-    
     [self setDeployStudioAdminVersion:[[NSBundle bundleWithURL:_deployStudioAdminURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
     if ( ! [_deployStudioVersionsSupported containsObject:_deployStudioAdminVersion] ) {
         [self setIsSupported:NO];
@@ -88,7 +79,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateSource:(NSNotification *)notification {
-    
     NBCSource *source = [notification userInfo][@"currentSource"];
     NSString *variableString = @"%OSMAJOR%.%OSMINOR%";
     if ( source != nil ) {
@@ -97,7 +87,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSString *)expandVariables:(NSString *)string {
-    
     NSString *newString = string;
     NSString *variableDSVersion = @"%DSVERSION%";
     NSString *variableDSAdmin = @"%DSADMINURL%";

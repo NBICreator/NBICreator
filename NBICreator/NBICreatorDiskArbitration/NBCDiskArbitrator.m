@@ -50,11 +50,9 @@
 
 - (BOOL)registerSession {
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    
     [nc addObserver:self selector:@selector(diskDidAppear:) name:DADiskDidAppearNotification object:nil];
     [nc addObserver:self selector:@selector(diskDidDisappear:) name:DADiskDidDisappearNotification object:nil];
     [nc addObserver:self selector:@selector(diskDidChange:) name:DADiskDidChangeNotification object:nil];
-    
     return YES;
 }
 

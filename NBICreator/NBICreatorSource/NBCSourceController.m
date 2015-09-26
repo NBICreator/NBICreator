@@ -1228,8 +1228,6 @@ DDLogLevel ddLogLevel;
     
     //NSString *regexSpeechRecognitionCore = @".*/PrivateFrameworks/SpeechRecognitionCore.framework.*";
     //[packageEssentialsRegexes addObject:regexSpeechRecognitionCore];
-    
-    
 }
 
 + (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {

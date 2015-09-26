@@ -13,12 +13,25 @@
 @implementation NBCCLIArguments
 
 - (void)verifyArguments {
+    NSError *error;
     
     // Verify all required ones are here
     NSUserDefaults *args = [NSUserDefaults standardUserDefaults];
     NSString *templatePath = [args objectForKey:NBCCLIArgumentTemplate];
-    if ( [templatePath length] == 0 ) {
+    NSURL *templateURL;
+    if ( [templatePath length] != 0 ) {
+        templateURL = [NSURL fileURLWithPath:templatePath];
+    } else {
         NSLog(@"No template path specified!");
+        return;
+    }
+    
+    NSDictionary *templateDict;
+    if ( [templateURL checkResourceIsReachableAndReturnError:&error] ) {
+        templateDict = [NSDictionary dictionaryWithContentsOfURL:templateURL];
+    } else {
+        NSLog(@"No such file or directory");
+        NSLog(@"%@", error);
         return;
     }
     
@@ -28,17 +41,12 @@
         return;
     }
     
-    // Get any extra
-    
-    
-    
     // Start checking with template
     NBCWorkflowItem *workflowItem;
-    NSURL *templateURL = [NSURL fileURLWithPath:templatePath];
-    if ( templateURL ) {
-        workflowItem = [self workflowItemFromTemplateURL:templateURL];
+    if ( [templateDict count] != 0 ) {
+        workflowItem = [self workflowItemFromTemplate:templateDict];
     } else {
-        NSLog(@"Template path was invalid");
+        NSLog(@"Invalid Template File");
         return;
     }
     
@@ -47,33 +55,27 @@
     
 }
 
-- (NBCWorkflowItem *)workflowItemFromTemplateURL:(NSURL *)templateURL {
-    NSError *error = nil;
-    if ( [templateURL checkResourceIsReachableAndReturnError:&error] ) {
-        NSDictionary *templateDict = [NSDictionary dictionaryWithContentsOfURL:templateURL];
-        if ( [templateDict count] != 0 ) {
-            NSString *templateType = templateDict[NBCSettingsTypeKey];
-            int workflowType = 0;
-            if ( [templateType isEqualToString:NBCSettingsTypeNetInstall] ) {
-                workflowType = kWorkflowTypeNetInstall;
-            } else if ( [templateType isEqualToString:NBCSettingsTypeDeployStudio] ) {
-                workflowType = kWorkflowTypeDeployStudio;
-            } else if ( [templateType isEqualToString:NBCSettingsTypeImagr] ) {
-                workflowType = kWorkflowTypeImagr;
-            } else if ( [templateType isEqualToString:NBCSettingsTypeCasper] ) {
-                workflowType = kWorkflowTypeCasper;
-            } else {
-                NSLog(@"Unknown Template Type");
-                return nil;
-            }
-            
-            return [[NBCWorkflowItem alloc] initWithWorkflowType:workflowType
-                                             workflowSessionType:kWorkflowSessionTypeCLI];
+- (NBCWorkflowItem *)workflowItemFromTemplate:(NSDictionary *)templateDict {
+    if ( [templateDict count] != 0 ) {
+        NSString *templateType = templateDict[NBCSettingsTypeKey];
+        int workflowType = 0;
+        if ( [templateType isEqualToString:NBCSettingsTypeNetInstall] ) {
+            workflowType = kWorkflowTypeNetInstall;
+        } else if ( [templateType isEqualToString:NBCSettingsTypeDeployStudio] ) {
+            workflowType = kWorkflowTypeDeployStudio;
+        } else if ( [templateType isEqualToString:NBCSettingsTypeImagr] ) {
+            workflowType = kWorkflowTypeImagr;
+        } else if ( [templateType isEqualToString:NBCSettingsTypeCasper] ) {
+            workflowType = kWorkflowTypeCasper;
         } else {
-            NSLog(@"Invalid Template...");
+            NSLog(@"Unknown Template Type");
+            return nil;
         }
+        
+        return [[NBCWorkflowItem alloc] initWithWorkflowType:workflowType
+                                         workflowSessionType:kWorkflowSessionTypeCLI];
     } else {
-        NSLog(@"No such file...");
+        NSLog(@"Invalid Template...");
     }
     return nil;
 }
