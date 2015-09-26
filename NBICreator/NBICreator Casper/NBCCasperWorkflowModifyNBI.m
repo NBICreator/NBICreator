@@ -134,8 +134,6 @@ DDLogLevel ddLogLevel;
         return;
     }
     
-    
-    
     if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         
         // ------------------------------------------------------
@@ -942,8 +940,8 @@ DDLogLevel ddLogLevel;
 } // generateUserVariablesForCreateUsers
 
 - (void)generateKernelCacheForNBI:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Generating kernel cache files...");
-    [_delegate updateProgressStatus:@"Generating kernel cache files..." workflow:self];
+    DDLogInfo(@"Generating kernel and dyld caches...");
+    [_delegate updateProgressStatus:@"Generating kernel and dyld caches..." workflow:self];
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     NSMutableArray *generateKernelCacheVariables = [[NSMutableArray alloc] init];
     
