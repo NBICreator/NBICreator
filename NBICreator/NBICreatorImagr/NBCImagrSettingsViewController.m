@@ -2570,7 +2570,7 @@ DDLogLevel ddLogLevel;
             selectedBuildTarget = [_popUpButtonImagrGitBranchBuildTarget titleOfSelectedItem];
         }
         resourcesSettings[NBCSettingsImagrBuildTarget] = selectedBuildTarget;
-
+        
         NSDictionary *imagrGitBranchesDownloadLinks = _imagrBranchesDownloadLinks[selectedGitBranch];
         NSString *imagrGitDownloadURL = imagrGitBranchesDownloadLinks[@"url"];
         if ( [imagrGitDownloadURL length] != 0 ) {
@@ -2596,15 +2596,15 @@ DDLogLevel ddLogLevel;
                 return;
             }
             selectedImagrVersion = [_imagrVersions firstObject];
-            
-            NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
-            if ( [imagrDownloadURL length] == 0 ) {
-                DDLogError(@"[ERROR] Imagr download link is empty!");
-                return;
-            }
-            resourcesSettings[NBCSettingsImagrVersion] = selectedImagrVersion;
-            resourcesSettings[NBCSettingsImagrDownloadURL] = imagrDownloadURL;
         }
+        
+        NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
+        if ( [imagrDownloadURL length] == 0 ) {
+            DDLogError(@"[ERROR] Imagr download link is empty!");
+            return;
+        }
+        resourcesSettings[NBCSettingsImagrVersion] = selectedImagrVersion;
+        resourcesSettings[NBCSettingsImagrDownloadURL] = imagrDownloadURL;
     }
     
     NSString *selectedLanguage = userSettings[NBCSettingsLanguageKey];
