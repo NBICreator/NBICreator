@@ -141,8 +141,6 @@ DDLogLevel ddLogLevel;
         return;
     }
     
-    
-    
     if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         
         // ------------------------------------------------------

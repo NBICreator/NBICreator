@@ -914,7 +914,6 @@ DDLogLevel ddLogLevel;
         [self updatePopUpButtonImagrVersions];
         [self updatePopUpButtonImagrBranches];
         [self updatePopUpButtonImagrBranchesBuildTarget];
-        //[self updateCachedImagrBranches:downloadDict];
     }
 }
 
@@ -2259,8 +2258,11 @@ DDLogLevel ddLogLevel;
         [[_popUpButtonImagrVersion menu] addItem:menuItemBranches];
         [[_popUpButtonImagrVersion menu] addItem:[NSMenuItem separatorItem]];
         [_popUpButtonImagrVersion addItemsWithTitles:_imagrVersions];
-        [_popUpButtonImagrVersion selectItemWithTitle:_imagrVersion];
-        [self setImagrVersion:[_popUpButtonImagrVersion titleOfSelectedItem]];
+        
+        if ( [_imagrVersion length] != 0 ) {
+            [_popUpButtonImagrVersion selectItemWithTitle:_imagrVersion];
+            [self setImagrVersion:[_popUpButtonImagrVersion titleOfSelectedItem]];
+        }
     }
     
     [_imageViewNetworkWarning setHidden:YES];
@@ -2911,19 +2913,11 @@ DDLogLevel ddLogLevel;
     
 } // prepareWorkflowItem
 
-- (NSString *)timeZoneFromMenuItem:(NSMenuItem *)menuItem {
-    NSString *timeZone;
-    
-    NSString *selectedTimeZoneCity = [menuItem title];
-    if ( [selectedTimeZoneCity isEqualToString:NBCMenuItemCurrent] ) {
-        timeZone = selectedTimeZoneCity;
-    } else {
-        NSString *selectedTimeZoneRegion = [[menuItem menu] title];
-        timeZone = [NSString stringWithFormat:@"%@/%@", selectedTimeZoneRegion, selectedTimeZoneCity];
-    }
-    
-    return timeZone;
-}
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton TimeZone
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)populatePopUpButtonTimeZone {
     [self setTimeZoneArray:[NSTimeZone knownTimeZoneNames]];
@@ -3096,31 +3090,27 @@ DDLogLevel ddLogLevel;
     [_popUpButtonTimeZone selectItem:newMenuItem];
 }
 
+- (NSString *)timeZoneFromMenuItem:(NSMenuItem *)menuItem {
+    NSString *timeZone;
+    
+    NSString *selectedTimeZoneCity = [menuItem title];
+    if ( [selectedTimeZoneCity isEqualToString:NBCMenuItemCurrent] ) {
+        timeZone = selectedTimeZoneCity;
+    } else {
+        NSString *selectedTimeZoneRegion = [[menuItem menu] title];
+        timeZone = [NSString stringWithFormat:@"%@/%@", selectedTimeZoneRegion, selectedTimeZoneCity];
+    }
+    
+    return timeZone;
+} // timeZoneFromMenuItem
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton Language
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 - (void)populatePopUpButtonLanguage {
-    
-    /* Localized Names
-     NSArray *localeIdentifiers = [NSLocale availableLocaleIdentifiers];
-     for ( NSString *identifier in localeIdentifiers ) {
-     
-     NSLocale *tmpLocale = [[NSLocale alloc] initWithLocaleIdentifier:identifier];
-     NSString *localeIdentifier = [tmpLocale objectForKey: NSLocaleIdentifier];
-     NSString *localeIdentifierDisplayName = [tmpLocale displayNameForKey:NSLocaleIdentifier value:localeIdentifier];
-     
-     NSLog(@"localeIdentifierDisplayName = %@", localeIdentifierDisplayName);
-     NSLog(@"localeIdentifier = %@", localeIdentifier);
-     }
-     */
-    
-    /* English Names
-     NSMutableDictionary *mutableLanguageDict = [[NSMutableDictionary alloc] init];
-     NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
-     NSArray *localeIdentifiers = [NSLocale availableLocaleIdentifiers];
-     for ( NSString *identifier in localeIdentifiers ) {
-     mutableLanguageDict[identifier] = [locale displayNameForKey:NSLocaleIdentifier value:identifier];
-     }
-     _languageDict = [mutableLanguageDict mutableCopy];
-     */
-    
     NSError *error;
     NSURL *languageStringsFile = [NSURL fileURLWithPath:@"/System/Library/PrivateFrameworks/IntlPreferences.framework/Versions/A/Resources/Language.strings"];
     if ( [languageStringsFile checkResourceIsReachableAndReturnError:&error] ) {
@@ -3136,8 +3126,13 @@ DDLogLevel ddLogLevel;
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton KeyboardLayout
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 - (void)populatePopUpButtonKeyboardLayout {
-    
     NSDictionary *ref = @{
                           (NSString *)kTISPropertyInputSourceType : (NSString *)kTISTypeKeyboardLayout
                           };
@@ -3448,14 +3443,6 @@ DDLogLevel ddLogLevel;
     }
     
     return retval;
-}
-
-- (IBAction)popUpButtonImagrGitBranch:(id)sender {
-#pragma unused(sender)
-}
-
-- (IBAction)popUpButtonImagrGitBranchBuildTarget:(id)sender {
-#pragma unused(sender)
 }
 
 - (IBAction)buttonInstallXcode:(id)sender {

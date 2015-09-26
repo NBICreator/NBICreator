@@ -148,10 +148,8 @@
 
 @property (weak) IBOutlet NSTextField *textFieldImagrGitBranchLabel;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonImagrGitBranch;
-- (IBAction)popUpButtonImagrGitBranch:(id)sender;
 @property (weak) IBOutlet NSTextField *textFieldImagrGitBranchBuildTargetLabel;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonImagrGitBranchBuildTarget;
-- (IBAction)popUpButtonImagrGitBranchBuildTarget:(id)sender;
 
 @property (weak) IBOutlet NSButton *buttonInstallXcode;
 - (IBAction)buttonInstallXcode:(id)sender;

@@ -1611,7 +1611,6 @@ asdasd</string>
                                             <menu key="menu" id="snu-vB-eje"/>
                                         </popUpButtonCell>
                                         <connections>
-                                            <action selector="popUpButtonImagrGitBranch:" target="-2" id="EP2-iI-5M7"/>
                                             <binding destination="-2" name="selectedValue" keyPath="self.imagrGitBranch" id="9sX-sy-8k5"/>
                                         </connections>
                                     </popUpButton>
@@ -1639,7 +1638,6 @@ asdasd</string>
                                             <menu key="menu" id="sBm-vi-Uem"/>
                                         </popUpButtonCell>
                                         <connections>
-                                            <action selector="popUpButtonImagrGitBranchBuildTarget:" target="-2" id="jZD-Xa-QNk"/>
                                             <binding destination="-2" name="selectedValue" keyPath="self.imagrBuildTarget" id="AxJ-6O-1nF"/>
                                         </connections>
                                     </popUpButton>
