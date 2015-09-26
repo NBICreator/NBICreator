@@ -115,19 +115,19 @@ DDLogLevel ddLogLevel;
                 [self setResourcesCount:( _resourcesCount + (int)[packageRegexArray count] )];
             }
         }
-        NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
-        if ( [certificatesArray count] != 0 ) {
-            [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )];
-        }
-        NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
-        if ( [packagessArray count] != 0 ) {
-            [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
-        }
-        if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+    }
+    NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
+    if ( [certificatesArray count] != 0 ) {
+        [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )];
+    }
+    NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
+    if ( [packagessArray count] != 0 ) {
+        [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
+    }
+    if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+        [self setResourcesCount:( _resourcesCount + 1 )];
+        if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
             [self setResourcesCount:( _resourcesCount + 1 )];
-            if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
-                [self setResourcesCount:( _resourcesCount + 1 )];
-            }
         }
     }
     
@@ -294,17 +294,17 @@ DDLogLevel ddLogLevel;
             casperImagingTargetPath = NBCCasperImagingApplicationNBICreatorTargetURL;
         }
         NSDictionary *casperImagingAttributes  = @{
-                                                       NSFileOwnerAccountName : @"root",
-                                                       NSFileGroupOwnerAccountName : @"wheel",
-                                                       NSFilePosixPermissions : @0755
-                                                       };
+                                                   NSFileOwnerAccountName : @"root",
+                                                   NSFileGroupOwnerAccountName : @"wheel",
+                                                   NSFilePosixPermissions : @0755
+                                                   };
         
         NSDictionary *casperImagingSetting = @{
-                                                       NBCWorkflowCopyType : NBCWorkflowCopy,
-                                                       NBCWorkflowCopySourceURL : casperImagingPath,
-                                                       NBCWorkflowCopyTargetURL : casperImagingTargetPath,
-                                                       NBCWorkflowCopyAttributes : casperImagingAttributes
-                                                       };
+                                               NBCWorkflowCopyType : NBCWorkflowCopy,
+                                               NBCWorkflowCopySourceURL : casperImagingPath,
+                                               NBCWorkflowCopyTargetURL : casperImagingTargetPath,
+                                               NBCWorkflowCopyAttributes : casperImagingAttributes
+                                               };
         
         if ( [_target nbiNetInstallURL] ) {
             [self updateNetInstallCopyDict:casperImagingSetting];
@@ -340,7 +340,7 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] %@", standardError);
         retval = NO;
     }
-
+    
     return retval;
 }
 
@@ -477,103 +477,103 @@ DDLogLevel ddLogLevel;
 } // downloadResource:resourceTag:version
 
 /*
-- (BOOL)getCasperApplication:(NBCWorkflowItem *)workflowItem {
-#pragma unused(workflowItem)
-    BOOL retval = YES;
-    NSString *selectedCasperVersion = _userSettings[NBCSettingsCasperVersion];
-    NSString *CasperApplicationTargetPath;
-    if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-        CasperApplicationTargetPath = NBCCasperApplicationNBICreatorTargetURL;
-    } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-        CasperApplicationTargetPath = NBCCasperApplicationTargetURL;
-    } else {
-        CasperApplicationTargetPath = [[_target CasperApplicationURL] path];
-        if ( [CasperApplicationTargetPath length] == 0 ) {
-            DDLogError(@"Could not get path to Casper.app from target!");
-            return NO;
-        }
-    }
-    if ( [selectedCasperVersion length] == 0 ) {
-        DDLogError(@"Could not get selected Casper version from user settings!");
-        return NO;
-    } else if ( [selectedCasperVersion isEqualToString:NBCMenuItemCasperVersionLocal] ) {
-        NSString *CasperLocalVersionPath = _userSettings[NBCSettingsCasperLocalVersionPath];
-        if ( [CasperLocalVersionPath length] != 0 ) {
-            NSDictionary *CasperLocalVersionAttributes  = @{
-                                                           NSFileOwnerAccountName : @"root",
-                                                           NSFileGroupOwnerAccountName : @"wheel",
-                                                           NSFilePosixPermissions : @0755
-                                                           };
-            
-            NSDictionary *CasperLocalVersionCopySetting = @{
-                                                           NBCWorkflowCopyType : NBCWorkflowCopy,
-                                                           NBCWorkflowCopySourceURL : CasperLocalVersionPath,
-                                                           NBCWorkflowCopyTargetURL : CasperApplicationTargetPath,
-                                                           NBCWorkflowCopyAttributes : CasperLocalVersionAttributes
-                                                           };
-            if ( [_target nbiNetInstallURL] ) {
-                [_resourcesNetInstallCopy addObject:CasperLocalVersionCopySetting];
-            } else if ( [_target baseSystemURL] ) {
-                [_resourcesBaseSystemCopy addObject:CasperLocalVersionCopySetting];
-            }
-            
-            [self checkCompletedResources];
-        } else {
-            DDLogError(@"[ERROR] Could not get CasperLocalVersionPath from user settings!");
-            return NO;
-        }
-    } else {
-        
-        // ---------------------------------------------------------------
-        //  Check if Casper is already downloaded, then return local url.
-        //  If not, download Casper and copy to resources for future use.
-        // ---------------------------------------------------------------
-        if ( [selectedCasperVersion isEqualToString:NBCMenuItemCasperVersionLatest] ) {
-            if ( [_resourcesSettings[NBCSettingsCasperVersion] length] == 0 ) {
-                DDLogError(@"[ERROR] Casper versions array is empty!");
-                return NO;
-            }
-            selectedCasperVersion = _resourcesSettings[NBCSettingsCasperVersion];
-            DDLogDebug(@"selectedCasperVersion=%@", selectedCasperVersion);
-        }
-        
-        [self setCasperVersion:selectedCasperVersion];
-        NSURL *CasperCachedVersionURL = [_resourcesController cachedVersionURL:selectedCasperVersion resourcesFolder:NBCFolderResourcesCasper];
-        if ( [CasperCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSDictionary *CasperCachedVersionAttributes  = @{
-                                                            NSFileOwnerAccountName : @"root",
-                                                            NSFileGroupOwnerAccountName : @"wheel",
-                                                            NSFilePosixPermissions : @0755
-                                                            };
-            
-            NSDictionary *CasperCachedVersionCopySetting = @{
-                                                            NBCWorkflowCopyType : NBCWorkflowCopy,
-                                                            NBCWorkflowCopySourceURL : [CasperCachedVersionURL path],
-                                                            NBCWorkflowCopyTargetURL : CasperApplicationTargetPath,
-                                                            NBCWorkflowCopyAttributes : CasperCachedVersionAttributes
-                                                            };
-            if ( [_target nbiNetInstallURL] ) {
-                [_resourcesNetInstallCopy addObject:CasperCachedVersionCopySetting];
-            } else if ( [_target baseSystemURL] ) {
-                [_resourcesBaseSystemCopy addObject:CasperCachedVersionCopySetting];
-            }
-            
-            [self checkCompletedResources];
-        } else {
-            NSString *CasperDownloadURL = _resourcesSettings[NBCSettingsCasperDownloadURL];
-            if ( [CasperDownloadURL length] != 0 ) {
-                DDLogInfo(@"Downloading Casper version %@", selectedCasperVersion);
-                [_delegate updateProgressStatus:@"Downloading Casper..." workflow:self];
-                [self downloadResource:[NSURL URLWithString:CasperDownloadURL] resourceTag:NBCDownloaderTagCasper version:selectedCasperVersion];
-            } else {
-                DDLogError(@"[ERROR] Could not get Casper download url from resources settings!");
-                retval = NO;
-            }
-        }
-    }
-    return retval;
-} // getCasperApplication
-*/
+ - (BOOL)getCasperApplication:(NBCWorkflowItem *)workflowItem {
+ #pragma unused(workflowItem)
+ BOOL retval = YES;
+ NSString *selectedCasperVersion = _userSettings[NBCSettingsCasperVersion];
+ NSString *CasperApplicationTargetPath;
+ if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
+ CasperApplicationTargetPath = NBCCasperApplicationNBICreatorTargetURL;
+ } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+ CasperApplicationTargetPath = NBCCasperApplicationTargetURL;
+ } else {
+ CasperApplicationTargetPath = [[_target CasperApplicationURL] path];
+ if ( [CasperApplicationTargetPath length] == 0 ) {
+ DDLogError(@"Could not get path to Casper.app from target!");
+ return NO;
+ }
+ }
+ if ( [selectedCasperVersion length] == 0 ) {
+ DDLogError(@"Could not get selected Casper version from user settings!");
+ return NO;
+ } else if ( [selectedCasperVersion isEqualToString:NBCMenuItemCasperVersionLocal] ) {
+ NSString *CasperLocalVersionPath = _userSettings[NBCSettingsCasperLocalVersionPath];
+ if ( [CasperLocalVersionPath length] != 0 ) {
+ NSDictionary *CasperLocalVersionAttributes  = @{
+ NSFileOwnerAccountName : @"root",
+ NSFileGroupOwnerAccountName : @"wheel",
+ NSFilePosixPermissions : @0755
+ };
+ 
+ NSDictionary *CasperLocalVersionCopySetting = @{
+ NBCWorkflowCopyType : NBCWorkflowCopy,
+ NBCWorkflowCopySourceURL : CasperLocalVersionPath,
+ NBCWorkflowCopyTargetURL : CasperApplicationTargetPath,
+ NBCWorkflowCopyAttributes : CasperLocalVersionAttributes
+ };
+ if ( [_target nbiNetInstallURL] ) {
+ [_resourcesNetInstallCopy addObject:CasperLocalVersionCopySetting];
+ } else if ( [_target baseSystemURL] ) {
+ [_resourcesBaseSystemCopy addObject:CasperLocalVersionCopySetting];
+ }
+ 
+ [self checkCompletedResources];
+ } else {
+ DDLogError(@"[ERROR] Could not get CasperLocalVersionPath from user settings!");
+ return NO;
+ }
+ } else {
+ 
+ // ---------------------------------------------------------------
+ //  Check if Casper is already downloaded, then return local url.
+ //  If not, download Casper and copy to resources for future use.
+ // ---------------------------------------------------------------
+ if ( [selectedCasperVersion isEqualToString:NBCMenuItemCasperVersionLatest] ) {
+ if ( [_resourcesSettings[NBCSettingsCasperVersion] length] == 0 ) {
+ DDLogError(@"[ERROR] Casper versions array is empty!");
+ return NO;
+ }
+ selectedCasperVersion = _resourcesSettings[NBCSettingsCasperVersion];
+ DDLogDebug(@"selectedCasperVersion=%@", selectedCasperVersion);
+ }
+ 
+ [self setCasperVersion:selectedCasperVersion];
+ NSURL *CasperCachedVersionURL = [_resourcesController cachedVersionURL:selectedCasperVersion resourcesFolder:NBCFolderResourcesCasper];
+ if ( [CasperCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
+ NSDictionary *CasperCachedVersionAttributes  = @{
+ NSFileOwnerAccountName : @"root",
+ NSFileGroupOwnerAccountName : @"wheel",
+ NSFilePosixPermissions : @0755
+ };
+ 
+ NSDictionary *CasperCachedVersionCopySetting = @{
+ NBCWorkflowCopyType : NBCWorkflowCopy,
+ NBCWorkflowCopySourceURL : [CasperCachedVersionURL path],
+ NBCWorkflowCopyTargetURL : CasperApplicationTargetPath,
+ NBCWorkflowCopyAttributes : CasperCachedVersionAttributes
+ };
+ if ( [_target nbiNetInstallURL] ) {
+ [_resourcesNetInstallCopy addObject:CasperCachedVersionCopySetting];
+ } else if ( [_target baseSystemURL] ) {
+ [_resourcesBaseSystemCopy addObject:CasperCachedVersionCopySetting];
+ }
+ 
+ [self checkCompletedResources];
+ } else {
+ NSString *CasperDownloadURL = _resourcesSettings[NBCSettingsCasperDownloadURL];
+ if ( [CasperDownloadURL length] != 0 ) {
+ DDLogInfo(@"Downloading Casper version %@", selectedCasperVersion);
+ [_delegate updateProgressStatus:@"Downloading Casper..." workflow:self];
+ [self downloadResource:[NSURL URLWithString:CasperDownloadURL] resourceTag:NBCDownloaderTagCasper version:selectedCasperVersion];
+ } else {
+ DDLogError(@"[ERROR] Could not get Casper download url from resources settings!");
+ retval = NO;
+ }
+ }
+ }
+ return retval;
+ } // getCasperApplication
+ */
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -814,7 +814,7 @@ DDLogLevel ddLogLevel;
 #pragma unused(error)
                 [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                     if ( terminationStatus == 0 && ! openFailure ) {
-
+                        
                         // ------------------------------------------------------------------
                         //  If task exited successfully, post workflow complete notification
                         // ------------------------------------------------------------------
@@ -1034,7 +1034,7 @@ DDLogLevel ddLogLevel;
             settingsDict[@"secure"] = [[jssURL scheme] isEqualToString:@"https"] ? @YES : @NO;
             settingsDict[@"path"] = [jssURL path] ?: @"";
             settingsDict[@"allowInvalidCertificate"] = [_userSettings[NBCSettingsCasperAllowInvalidCertificateKey] boolValue] ? @YES : @NO;
-
+            
             if ( [settingsDict writeToURL:jssPreferencePlistTargetURL atomically:YES] ) {
                 NSDictionary *copyAttributes  = @{
                                                   NSFileOwnerAccountName : @"root",

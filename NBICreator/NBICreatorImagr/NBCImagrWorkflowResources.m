@@ -64,19 +64,19 @@ DDLogLevel ddLogLevel;
                 [self setResourcesCount:( _resourcesCount + (int)[packageRegexArray count] )];
             }
         }
-        NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
-        if ( [certificatesArray count] != 0 ) {
-            [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )];
-        }
-        NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
-        if ( [packagessArray count] != 0 ) {
-            [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
-        }
-        if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+    }
+    NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
+    if ( [certificatesArray count] != 0 ) {
+        [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )];
+    }
+    NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
+    if ( [packagessArray count] != 0 ) {
+        [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
+    }
+    if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+        [self setResourcesCount:( _resourcesCount + 1 )];
+        if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
             [self setResourcesCount:( _resourcesCount + 1 )];
-            if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
-                [self setResourcesCount:( _resourcesCount + 1 )];
-            }
         }
     }
     
@@ -535,17 +535,17 @@ DDLogLevel ddLogLevel;
     }
     
     NSDictionary *imagrAttributes  = @{
-                                                        NSFileOwnerAccountName : @"root",
-                                                        NSFileGroupOwnerAccountName : @"wheel",
-                                                        NSFilePosixPermissions : @0755
-                                                        };
+                                       NSFileOwnerAccountName : @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions : @0755
+                                       };
     
     NSDictionary *imagrCopySettings = @{
-                                                         NBCWorkflowCopyType : NBCWorkflowCopy,
-                                                         NBCWorkflowCopySourceURL : [productURL path],
-                                                         NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
-                                                         NBCWorkflowCopyAttributes : imagrAttributes
-                                                         };
+                                        NBCWorkflowCopyType : NBCWorkflowCopy,
+                                        NBCWorkflowCopySourceURL : [productURL path],
+                                        NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
+                                        NBCWorkflowCopyAttributes : imagrAttributes
+                                        };
     if ( [_target nbiNetInstallURL] ) {
         [self updateNetInstallCopyDict:imagrCopySettings];
     } else if ( [_target baseSystemURL] ) {
