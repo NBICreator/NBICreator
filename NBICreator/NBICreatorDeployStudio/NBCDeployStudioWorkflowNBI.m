@@ -188,8 +188,6 @@ DDLogLevel ddLogLevel;
 } // prepareDestinationFolder:createCommonURL:workflowItem:error
 
 - (void)removeTemporaryItems:(NBCWorkflowItem *)workflowItem {
-    
-    
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
     // -------------------------------------------------------------

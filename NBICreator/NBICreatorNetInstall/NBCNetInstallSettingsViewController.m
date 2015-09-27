@@ -771,9 +771,7 @@ DDLogLevel ddLogLevel;
     [workflowItem setSource:_source];
     [workflowItem setApplicationSource:_siuSource];
     [workflowItem setSettingsViewController:self];
-    
-    NSLog(@"%@", [workflowItem source]);
-    
+        
     // ----------------------------------------------------------------
     //  Collect current UI settings and pass them through verification
     // ----------------------------------------------------------------

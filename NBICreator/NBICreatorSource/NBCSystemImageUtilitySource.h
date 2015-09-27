@@ -23,6 +23,8 @@
 @property NSURL *createCommonURL;
 @property NSURL *createNetBootURL;
 @property NSURL *createNetInstallURL;
+@property NSURL *installConfigurationProfiles;
+@property NSURL *netInstallConfigurationProfiles;
 
 - (NSString *)expandVariables:(NSString *)string;
 + (NSArray *)systemImageUtilityVersions;

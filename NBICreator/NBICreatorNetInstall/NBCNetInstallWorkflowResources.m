@@ -35,6 +35,9 @@ DDLogLevel ddLogLevel;
     [self setResourcesSettings:[workflowItem resourcesSettings]];
     [self setResourcesCount:0];
     
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteResources object:self userInfo:nil];
+    
+    /*
     // -------------------------------------------------------
     //  Update _resourcesCount with all sourceItems
     // -------------------------------------------------------
@@ -67,7 +70,7 @@ DDLogLevel ddLogLevel;
     }
     NSArray *configurationProfilesArray = _resourcesSettings[NBCSettingsConfigurationProfilesNetInstallKey];
     if ( [configurationProfilesArray count] != 0 ) {
-        [self setResourcesCount:( _resourcesCount + ( (int)[configurationProfilesArray count] ) )];
+        [self setResourcesCount:( _resourcesCount + ( (int)[configurationProfilesArray count] + 1 ) )];
     }
     
     if ( _userSettings ) {
@@ -88,6 +91,7 @@ DDLogLevel ddLogLevel;
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
+     */
 } // runWorkflow
 
 - (BOOL)prepareConfigurationProfilesForNetInstall:(NBCWorkflowItem *)workflowItem {
@@ -105,7 +109,7 @@ DDLogLevel ddLogLevel;
             NSDictionary *newCopyAttributes  = @{
                                                  NSFileOwnerAccountName : @"root",
                                                  NSFileGroupOwnerAccountName : @"wheel",
-                                                 NSFilePosixPermissions : @0755
+                                                 NSFilePosixPermissions : @0644
                                                  };
             
             NSDictionary *newCopySetting = @{
@@ -117,6 +121,23 @@ DDLogLevel ddLogLevel;
             [self updateNetInstallCopyDict:newCopySetting];
         }
 
+        NSString *installConfigurationProfilesScriptPath = [[[workflowItem applicationSource] installConfigurationProfiles] path];
+        NSString *installConfigurationProfilesScriptTargetPath = NBCFilePathNetInstallInstallConfigurationProfiles;
+        
+        NSDictionary *copyAttributes  = @{
+                                             NSFileOwnerAccountName : @"root",
+                                             NSFileGroupOwnerAccountName : @"wheel",
+                                             NSFilePosixPermissions : @0755
+                                             };
+        
+        NSDictionary *copySetting = @{
+                                         NBCWorkflowCopyType : NBCWorkflowCopy,
+                                         NBCWorkflowCopySourceURL : installConfigurationProfilesScriptPath,
+                                         NBCWorkflowCopyTargetURL : installConfigurationProfilesScriptTargetPath,
+                                         NBCWorkflowCopyAttributes : copyAttributes
+                                         };
+        [self updateNetInstallCopyDict:copySetting];
+        
         [self checkCompletedResources];
     }
     return retval;
@@ -133,9 +154,6 @@ DDLogLevel ddLogLevel;
         
         for ( NSString *packagePath in packagesArray ) {
             NSString *targetPackagePath = [targetFolderPath stringByAppendingPathComponent:[packagePath lastPathComponent]];
-            
-            
-            
             NSDictionary *newCopyAttributes  = @{
                                                  NSFileOwnerAccountName : @"root",
                                                  NSFileGroupOwnerAccountName : @"wheel",
@@ -167,7 +185,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkCompletedResources {
-    NSLog(@"checkCompletedResources");
     // ----------------------------------------------------------------------------------------------
     //  Check if all resources have been prepared. If they have, post notification workflow complete
     // ----------------------------------------------------------------------------------------------

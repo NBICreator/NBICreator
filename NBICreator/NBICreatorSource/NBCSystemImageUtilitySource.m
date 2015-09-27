@@ -67,6 +67,8 @@ DDLogLevel ddLogLevel;
         [self setCreateNetInstallURL:[siuAgentBundle URLForResource:@"createNetInstall" withExtension:@"sh"]];
         [self setCreateNetBootURL:[siuAgentBundle URLForResource:@"createNetBoot" withExtension:@"sh"]];
         [self setCreateCommonURL:[siuAgentBundle URLForResource:@"createCommon" withExtension:@"sh"]];
+        [self setInstallConfigurationProfiles:[siuAgentBundle URLForResource:@"installConfigurationProfiles" withExtension:@"sh"]];
+        [self setNetInstallConfigurationProfiles:[siuAgentBundle URLForResource:@"netInstallConfigurationProfiles" withExtension:@"sh"]];
     } else {
         NSLog(@"SIUFoundation.framework Doesn't exist!_ %@", error);
     }

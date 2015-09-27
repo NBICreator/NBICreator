@@ -70,7 +70,6 @@ DDLogLevel ddLogLevel;
     NSError *error;
     
     NSURL *nbiNetInstallURL = [_target nbiNetInstallURL];
-    NSLog(@"nbiNetInstallURL=%@", nbiNetInstallURL);
     if ( nbiNetInstallURL ) {
         
         // ------------------------------------------------------------------

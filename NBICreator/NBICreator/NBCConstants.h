@@ -558,6 +558,8 @@ extern NSString *const NBCDiskDeviceModelDiskImage;
 extern NSString *const NBCBonjourServiceDeployStudio;
 extern NSString *const NBCDeployStudioLatestVersionURL;
 
+extern NSString *const NBCFilePathNetInstallInstallConfigurationProfiles;
+
 extern NSString *const NBCResourcesDeployStudioLatestVersionKey;
 
 extern NSString *const NBCSettingsPackagesNetInstallKey;

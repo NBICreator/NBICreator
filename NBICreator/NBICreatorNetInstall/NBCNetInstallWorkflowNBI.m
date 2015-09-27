@@ -33,7 +33,9 @@ DDLogLevel ddLogLevel;
     [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
     [self setTemporaryNBIPath:[[workflowItem temporaryNBIURL] path]];
     NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
-        
+    
+    NSDictionary *resourcesSettings = [workflowItem resourcesSettings];
+    
     // -------------------------------------------------------------
     //  Get used space on InstallESD source volume for progress bar
     // -------------------------------------------------------------
@@ -91,6 +93,87 @@ DDLogLevel ddLogLevel;
         NSLog(@"Error getting create Common URL from workflow item");
         return;
     }
+    
+    NSMutableArray *temporaryItemsNBI = [[workflowItem temporaryItemsNBI] mutableCopy];
+    if ( ! temporaryItemsNBI ) {
+        temporaryItemsNBI = [[NSMutableArray alloc] init];
+    }
+    
+    BOOL writeOSInstall = NO;
+    NSMutableArray *osInstallArray = [NSMutableArray arrayWithArray:@[ @"/System/Installation/Packages/OSInstall.mpkg" ]];
+    
+    NSArray *configurationProfilesNetInstall = resourcesSettings[NBCSettingsConfigurationProfilesNetInstallKey];
+    if ( [configurationProfilesNetInstall count] != 0 ) {
+        NSURL *configProfilesURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"configProfiles.txt"];
+        [temporaryItemsNBI addObject:configProfilesURL];
+        NSMutableString *configProfilesContent = [[NSMutableString alloc] init];
+        for ( NSString *configProfilePath in configurationProfilesNetInstall ) {
+            [configProfilesContent appendString:[NSString stringWithFormat:@"%@\n", configProfilePath]];
+        }
+        
+        if ( [configProfilesContent writeToURL:configProfilesURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
+            writeOSInstall = YES;
+        } else {
+            NSLog(@"ERROR %@", err);
+            return;
+        }
+        
+        NSURL *installConfigurationProfilesScriptURL = [[workflowItem applicationSource] installConfigurationProfiles];
+        NSURL *installConfigurationProfilesScriptTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"installConfigurationProfiles.sh"];
+        [temporaryItemsNBI addObject:installConfigurationProfilesScriptTargetURL];
+        if ( [[NSFileManager defaultManager] copyItemAtURL:installConfigurationProfilesScriptURL toURL:installConfigurationProfilesScriptTargetURL error:&err] ) {
+            [osInstallArray addObject:@"/System/Installation/Packages/netInstallConfigurationProfiles.sh.pkg"];
+        } else {
+            NSLog(@"ERROR %@", err);
+            return;
+        }
+    }
+    
+    NSArray *packagesNetInstall = resourcesSettings[NBCSettingsPackagesNetInstallKey];
+    if ( [packagesNetInstall count] != 0 ) {
+        NSURL *additionalPackagesURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalPackages.txt"];
+        [temporaryItemsNBI addObject:additionalPackagesURL];
+        NSMutableString *additionalPackagesContent = [[NSMutableString alloc] init];
+        for ( NSString *packagePath in packagesNetInstall ) {
+            [additionalPackagesContent appendString:[NSString stringWithFormat:@"%@\n", packagePath]];
+            [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@", [packagePath lastPathComponent]]];
+        }
+        
+        NSURL *additionalScriptsURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalScripts.txt"];
+        [temporaryItemsNBI addObject:additionalScriptsURL];
+        NSMutableString *additionalScriptsContent = [[NSMutableString alloc] init];
+        if ( [configurationProfilesNetInstall count] != 0 ) {
+            NSURL *inetInstallConfigurationProfilesScriptURL = [[workflowItem applicationSource] netInstallConfigurationProfiles];
+            [additionalScriptsContent appendString:[NSString stringWithFormat:@"%@\n", [inetInstallConfigurationProfilesScriptURL path]]];
+        }
+        
+        if ( [additionalPackagesContent writeToURL:additionalPackagesURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
+            writeOSInstall = YES;
+        } else {
+            NSLog(@"ERROR %@", err);
+            return;
+        }
+        
+        if ( [additionalScriptsContent writeToURL:additionalScriptsURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
+            writeOSInstall = YES;
+        } else {
+            NSLog(@"ERROR %@", err);
+            return;
+        }
+    }
+    
+    if ( writeOSInstall ) {
+        NSData *plistData = (__bridge NSData *)(CFPropertyListCreateData(kCFAllocatorDefault,
+                                                                         (__bridge CFPropertyListRef)(osInstallArray),
+                                                                         kCFPropertyListXMLFormat_v1_0,
+                                                                         0,
+                                                                         NULL));
+        NSURL *osInstallURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"OSInstall.collection"];
+        [temporaryItemsNBI addObject:osInstallURL];
+        [plistData writeToURL:osInstallURL atomically:YES];
+    }
+    
+    [workflowItem setTemporaryItemsNBI:temporaryItemsNBI];
     
     // ------------------------------------------
     //  Setup command to run createNetInstall.sh
@@ -259,6 +342,7 @@ DDLogLevel ddLogLevel;
 } // prepareDestinationFolder:createCommonURL:workflowItem:error
 
 - (void)removeTemporaryItems:(NBCWorkflowItem *)workflowItem {
+    DDLogInfo(@"Removing temporary items...");
     
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
@@ -272,6 +356,24 @@ DDLogLevel ddLogLevel;
             NSLog(@"Error: %@", error);
         }
     }
+    
+    // Delete all items in root of NBI except 'allowedItems'.
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *nbiFolder = [workflowItem temporaryNBIURL];
+    NSArray *allowedItems = @[ @"i386", @"NetInstall.dmg", @"NBImageInfo.plist" ];
+    NSArray *nbiFolderContents = [fm contentsOfDirectoryAtURL:nbiFolder includingPropertiesForKeys:@[] options:0 error:&error];
+    
+    [nbiFolderContents enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+#pragma unused(idx, stop)
+        NSError *err;
+        NSString *filename = [obj lastPathComponent];
+        if ( ! [allowedItems containsObject:filename] ) {
+            if ( ! [fm removeItemAtURL:obj error:&err] ) {
+                NSLog(@"Could not remove temporary item: %@", filename);
+                NSLog(@"%@", err);
+            }
+        }
+    }];
 } // removeTemporaryItems
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -486,6 +486,9 @@ NSString *const NBCCasperImagingApplicationNBICreatorTargetURL = @"Applications/
 NSString *const NBCSettingsConfigurationProfilesNetInstallKey = @"ConfigurationProfilesNetInstall";
 
 NSString *const NBCFilePathNetInstallOSInstallCollection = @"Packages/OSInstall.collection";
+NSString *const NBCFilePathNetInstallInstallConfigurationProfiles = @"Packages/Extras/postinstall/installConfigurationProfiles.sh";
+
+
 NSString *const NBCFolderPathNetInstallPackages = @"Packages";
 NSString *const NBCFolderPathNetInstallPostinstall = @"Packages/Extras/postinstall";
 NSString *const NBCFolderPathNetInstallConfigurationProfiles = @"Packages/Extras/ConfigurationProfiles";
