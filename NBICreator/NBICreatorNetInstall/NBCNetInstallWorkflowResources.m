@@ -189,8 +189,6 @@ DDLogLevel ddLogLevel;
     //  Check if all resources have been prepared. If they have, post notification workflow complete
     // ----------------------------------------------------------------------------------------------
     unsigned long requiredCopyResources = ( [_resourcesNetInstallCopy count] + [_resourcesBaseSystemCopy count] );
-    NSLog(@"requiredCopyResources=%lu", requiredCopyResources);
-    NSLog(@"_resourcesCount=%d", _resourcesCount);
     unsigned long requiredInstallResources = ( [_resourcesNetInstallInstall count] + [_resourcesBaseSystemInstall count] );
     if ( ( (int) requiredCopyResources + (int) requiredInstallResources ) == _resourcesCount ) {
         if ( [_resourcesNetInstallCopy count] != 0 ) {
@@ -211,8 +209,6 @@ DDLogLevel ddLogLevel;
         
         [_target setResourcesNetInstallDict:_resourcesNetInstallDict];
         [_target setResourcesBaseSystemDict:_resourcesBaseSystemDict];
-        
-        NSLog(@"_resourcesNetInstallDict=%@", _resourcesNetInstallDict);
         
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteResources object:self userInfo:nil];
     }

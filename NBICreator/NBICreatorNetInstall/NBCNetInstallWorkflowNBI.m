@@ -131,17 +131,25 @@ DDLogLevel ddLogLevel;
     
     NSArray *packagesNetInstall = resourcesSettings[NBCSettingsPackagesNetInstallKey];
     if ( [packagesNetInstall count] != 0 ) {
+        NSError *error;
         NSURL *additionalPackagesURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalPackages.txt"];
         [temporaryItemsNBI addObject:additionalPackagesURL];
         NSMutableString *additionalPackagesContent = [[NSMutableString alloc] init];
+        NSMutableString *additionalScriptsContent = [[NSMutableString alloc] init];
+        NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
         for ( NSString *packagePath in packagesNetInstall ) {
-            [additionalPackagesContent appendString:[NSString stringWithFormat:@"%@\n", packagePath]];
-            [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@", [packagePath lastPathComponent]]];
+            NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:packagePath error:&error];
+            if ( [workspace type:fileType conformsToType:@"com.apple.installer-package-archive"] ) {
+                [additionalPackagesContent appendString:[NSString stringWithFormat:@"%@\n", packagePath]];
+                [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@", [packagePath lastPathComponent]]];
+            } else if ( [workspace type:fileType conformsToType:@"public.shell-script"] ) {
+                [additionalScriptsContent appendString:[NSString stringWithFormat:@"%@\n", packagePath]];
+                [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@.pkg", [packagePath lastPathComponent]]];
+            }
         }
         
         NSURL *additionalScriptsURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalScripts.txt"];
         [temporaryItemsNBI addObject:additionalScriptsURL];
-        NSMutableString *additionalScriptsContent = [[NSMutableString alloc] init];
         if ( [configurationProfilesNetInstall count] != 0 ) {
             NSURL *inetInstallConfigurationProfilesScriptURL = [[workflowItem applicationSource] netInstallConfigurationProfiles];
             [additionalScriptsContent appendString:[NSString stringWithFormat:@"%@\n", [inetInstallConfigurationProfilesScriptURL path]]];
@@ -189,24 +197,24 @@ DDLogLevel ddLogLevel;
     
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                    object:[stdOut fileHandleForReading]
-                     queue:nil
-                usingBlock:^(NSNotification *notification){
+                                        object:[stdOut fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
 #pragma unused(notification)
-                    
-                    // ------------------------
-                    //  Convert data to string
-                    // ------------------------
-                    NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
-                    NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                    
-                    // -----------------------------------------------------------------------
-                    //  When output data becomes available, pass it to workflow status parser
-                    // -----------------------------------------------------------------------
-                    [weakSelf updateNetInstallWorkflowStatus:outStr stdErr:nil];
-                    
-                    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-                }];
+                                        
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
+                                        NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When output data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        [weakSelf updateNetInstallWorkflowStatus:outStr stdErr:nil];
+                                        
+                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
     
     // -----------------------------------------------------------------------------------
     //  Create standard error file handle and register for data available notifications.
@@ -216,24 +224,24 @@ DDLogLevel ddLogLevel;
     [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
     
     id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                    object:[stdErr fileHandleForReading]
-                     queue:nil
-                usingBlock:^(NSNotification *notification){
-                    #pragma unused(notification)
-                    
-                    // ------------------------
-                    //  Convert data to string
-                    // ------------------------
-                    NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                    NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
-                    
-                    // -----------------------------------------------------------------------
-                    //  When error data becomes available, pass it to workflow status parser
-                    // -----------------------------------------------------------------------
-                    [weakSelf updateNetInstallWorkflowStatus:nil stdErr:errStr];
-                    
-                    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-                }];
+                                        object:[stdErr fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        
+                                        // ------------------------
+                                        //  Convert data to string
+                                        // ------------------------
+                                        NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
+                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        
+                                        // -----------------------------------------------------------------------
+                                        //  When error data becomes available, pass it to workflow status parser
+                                        // -----------------------------------------------------------------------
+                                        [weakSelf updateNetInstallWorkflowStatus:nil stdErr:errStr];
+                                        
+                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
     
     // -----------------------------------------------
     //  Connect to helper and run createNetInstall.sh
@@ -245,7 +253,7 @@ DDLogLevel ddLogLevel;
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             
             // ------------------------------------------------------------------
-            //  If task failed, post workflow failed notification  
+            //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
             NSLog(@"ProxyError? %@", proxyError);
             [nc removeObserver:stdOutObserver];
@@ -255,7 +263,7 @@ DDLogLevel ddLogLevel;
         }];
         
     }] runTaskWithCommandAtPath:commandURL arguments:createNetInstallArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
-        #pragma unused(error)
+#pragma unused(error)
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             
             if ( terminationStatus == 0 )
@@ -521,7 +529,7 @@ DDLogLevel ddLogLevel;
 
 - (void)updateProgressBar:(double)value {
     
-
+    
     if ( value <= 0 ) {
         return;
     }
@@ -529,7 +537,7 @@ DDLogLevel ddLogLevel;
     double precentage = (40 * value)/[@100 doubleValue];
     [self->_delegate updateProgressStatus:[NSString stringWithFormat:@"Creating disk image... %d%%", (int)value] workflow:self];
     [self->_delegate updateProgressBar:precentage];
-
+    
 } // updateProgressBar
 
 @end

@@ -101,7 +101,6 @@ DDLogLevel ddLogLevel;
     //  Copy all files in resourcesBaseSystemDict to BaseSystem
     // ---------------------------------------------------------
     NSDictionary *resourcesNetInstallDict = [_target resourcesNetInstallDict];
-    NSLog(@"resourcesNetInstallDict=%@", resourcesNetInstallDict);
     NSURL *volumeURL = [_target nbiNetInstallVolumeURL];
     
     NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];

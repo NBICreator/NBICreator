@@ -77,6 +77,9 @@
 - (IBAction)buttonAddPackageNetInstall:(id)sender;
 - (IBAction)buttonRemovePackageNetInstall:(id)sender;
 
+@property NSRange objectRange;
+@property NSArray *currentlyDraggedObjects;
+
 // ------------------------------------------------------
 //  PopOver
 // ------------------------------------------------------

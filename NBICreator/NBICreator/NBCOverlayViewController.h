@@ -11,7 +11,8 @@
 enum {
     kContentTypePackages = 0,
     kContentTypeCertificates,
-    kContentTypeConfigurationProfiles
+    kContentTypeConfigurationProfiles,
+    kContentTypeNetInstallPackages
 };
 
 @class NBCOverlayView;
@@ -20,6 +21,7 @@ enum {
 @property (strong) NBCOverlayView *viewOverlayView;
 @property int contentType;
 
+@property (strong) IBOutlet NSLayoutConstraint *constraintImageLeft;
 
 - (id)initWithContentType:(int)contentType;
 
@@ -29,5 +31,6 @@ enum {
 
 @property (weak) IBOutlet NSImageView *imageView;
 @property (weak) IBOutlet NSTextField *textField;
+@property (strong) IBOutlet NSImageView *imageViewRight;
 
 @end

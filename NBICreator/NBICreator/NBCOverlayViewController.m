@@ -31,11 +31,12 @@
 
 - (void)updateViewContent {
     NSImage *image;
+    NSImage *imageRight;
     NBCOverlayView *view = (NBCOverlayView *)[self view];
     [[view textField] setStringValue:@""];
     switch ( _contentType ) {
         case kContentTypePackages:
-            image = [[NSImage alloc] initWithContentsOfFile:IconMetaPackagePath];
+            image = [[NSWorkspace sharedWorkspace] iconForFileType:@"com.apple.installer-package-archive"];
             [[view imageView] setImage:image];
             [[view textField] setStringValue:@"Drop Packages Here"];
             break;
@@ -48,6 +49,15 @@
             image = [[NSImage alloc] initWithContentsOfFile:IconConfigurationProfilePath];
             [[view imageView] setImage:image];
             [[view textField] setStringValue:@"Drop Configuration Profiles Here"];
+            break;
+        case kContentTypeNetInstallPackages:
+            image = [[NSWorkspace sharedWorkspace] iconForFileType:@"com.apple.installer-package-archive"];
+            [[view imageView] setImage:image];
+            imageRight = [[NSWorkspace sharedWorkspace] iconForFileType:@"public.shell-script"];
+            [[view imageViewRight] setImage:imageRight];
+            [[view imageViewRight] setHidden:NO];
+            [[view textField] setStringValue:@"Drop Packages and Scripts Here"];
+            [_constraintImageLeft setConstant:195.0];
             break;
         default:
             break;

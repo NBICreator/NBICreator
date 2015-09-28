@@ -511,7 +511,6 @@ extern NSString *const NBCJSSPreferencePlistTargetURL;
 extern NSString *const NBCJSSPreferencePlistNBICreatorTargetURL;
 
 extern NSString *const IconSuccessPath;
-extern NSString *const IconMetaPackagePath;
 extern NSString *const IconConfigurationProfilePath;
 
 // --------------------------------------------------------------

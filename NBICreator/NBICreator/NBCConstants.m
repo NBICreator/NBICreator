@@ -501,7 +501,6 @@ NSString *const NBCRCImagingTargetURL = @"Packages/Extras/rc.imaging";
 NSString *const NBCRCImagingNBICreatorTargetURL = @"etc/rc.imaging";
 
 NSString *const IconSuccessPath = @"/System/Library/CoreServices/Installer.app/Contents/PlugIns/Summary.bundle/Contents/Resources/Success.pdf";
-NSString *const IconMetaPackagePath = @"/System/Library/CoreServices/Installer.app/Contents/Resources/metapackage.icns";
 NSString *const IconConfigurationProfilePath = @"/Applications/System Preferences.app/Contents/Resources/Document-Config.icns";
 
 // --------------------------------------------------------------

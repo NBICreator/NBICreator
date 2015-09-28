@@ -6,6 +6,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NBCOverlayViewController">
             <connections>
+                <outlet property="constraintImageLeft" destination="jA1-sT-qUW" id="ASY-du-h0c"/>
                 <outlet property="view" destination="BW2-Vl-St0" id="to0-j9-ofO"/>
             </connections>
         </customObject>
@@ -29,17 +30,30 @@
                         <constraint firstAttribute="width" constant="48" id="Ae6-ar-qdz"/>
                         <constraint firstAttribute="height" constant="48" id="CWQ-Ej-oCr"/>
                     </constraints>
-                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="IconCertPersonal" id="yRu-Ri-Qb7"/>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconCertPersonal" id="yRu-Ri-Qb7"/>
+                </imageView>
+                <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hB5-fg-Y7c">
+                    <rect key="frame" x="290" y="30" width="48" height="48"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="48" id="HMW-LT-WII"/>
+                        <constraint firstAttribute="width" constant="48" id="l5U-pj-g0g"/>
+                    </constraints>
+                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconCertPersonal" id="ExS-vo-dCg"/>
                 </imageView>
             </subviews>
             <constraints>
                 <constraint firstItem="y4y-XD-wll" firstAttribute="top" secondItem="LuT-Eb-glV" secondAttribute="bottom" constant="5" id="1c0-N2-6kX"/>
                 <constraint firstItem="LuT-Eb-glV" firstAttribute="centerY" secondItem="BW2-Vl-St0" secondAttribute="centerY" constant="-10" id="4SX-hG-opx"/>
-                <constraint firstItem="LuT-Eb-glV" firstAttribute="centerX" secondItem="BW2-Vl-St0" secondAttribute="centerX" id="bz6-RE-iqf"/>
+                <constraint firstItem="hB5-fg-Y7c" firstAttribute="width" secondItem="LuT-Eb-glV" secondAttribute="width" id="DBg-gn-aH5"/>
+                <constraint firstItem="hB5-fg-Y7c" firstAttribute="centerY" secondItem="LuT-Eb-glV" secondAttribute="centerY" id="Mm7-Nu-vjy"/>
+                <constraint firstItem="hB5-fg-Y7c" firstAttribute="height" secondItem="LuT-Eb-glV" secondAttribute="height" id="h01-PZ-4Mi"/>
+                <constraint firstItem="LuT-Eb-glV" firstAttribute="leading" secondItem="BW2-Vl-St0" secondAttribute="leading" constant="226" id="jA1-sT-qUW"/>
+                <constraint firstItem="hB5-fg-Y7c" firstAttribute="leading" secondItem="LuT-Eb-glV" secondAttribute="trailing" constant="16" id="tO7-f7-dYQ"/>
                 <constraint firstItem="y4y-XD-wll" firstAttribute="centerX" secondItem="BW2-Vl-St0" secondAttribute="centerX" id="vnf-Z8-5cA"/>
             </constraints>
             <connections>
                 <outlet property="imageView" destination="LuT-Eb-glV" id="6ao-68-atL"/>
+                <outlet property="imageViewRight" destination="hB5-fg-Y7c" id="jlL-la-CZI"/>
                 <outlet property="textField" destination="y4y-XD-wll" id="7LY-Me-lcV"/>
             </connections>
             <point key="canvasLocation" x="-3123" y="355.5"/>
