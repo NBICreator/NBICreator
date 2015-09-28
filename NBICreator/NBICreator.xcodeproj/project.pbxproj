@@ -58,6 +58,8 @@
 		53609D751B80F4D0007F874F /* NBCUpdater.m in Sources */ = {isa = PBXBuildFile; fileRef = 53609D731B80F4D0007F874F /* NBCUpdater.m */; };
 		53609D761B80F4D0007F874F /* NBCUpdater.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53609D741B80F4D0007F874F /* NBCUpdater.xib */; };
 		53695BB41B80A6510038F3DD /* generateKernelCache.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53695BB31B80A6510038F3DD /* generateKernelCache.bash */; };
+		536AA0151BB8649B00A2FF0D /* NBCOptionBuildPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 536AA0131BB8649B00A2FF0D /* NBCOptionBuildPanel.m */; settings = {ASSET_TAGS = (); }; };
+		536AA0161BB8649B00A2FF0D /* NBCOptionBuildPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 536AA0141BB8649B00A2FF0D /* NBCOptionBuildPanel.xib */; settings = {ASSET_TAGS = (); }; };
 		536D1B6D1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m in Sources */ = {isa = PBXBuildFile; fileRef = 536D1B6C1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m */; };
 		536E68121BB5242100B7E1A1 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 536E68111BB5242100B7E1A1 /* libz.tbd */; };
 		536E68291BB533C700B7E1A1 /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = 536E68281BB533C700B7E1A1 /* Main.m */; settings = {ASSET_TAGS = (); COMPILER_FLAGS = "-w"; }; };
@@ -338,6 +340,9 @@
 		53609D731B80F4D0007F874F /* NBCUpdater.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCUpdater.m; path = NBICreatorNetworking/NBCUpdater.m; sourceTree = "<group>"; };
 		53609D741B80F4D0007F874F /* NBCUpdater.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCUpdater.xib; path = NBICreatorNetworking/NBCUpdater.xib; sourceTree = "<group>"; };
 		53695BB31B80A6510038F3DD /* generateKernelCache.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = generateKernelCache.bash; path = "Supporting Files/Scripts/generateKernelCache.bash"; sourceTree = "<group>"; };
+		536AA0121BB8649B00A2FF0D /* NBCOptionBuildPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCOptionBuildPanel.h; sourceTree = "<group>"; };
+		536AA0131BB8649B00A2FF0D /* NBCOptionBuildPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCOptionBuildPanel.m; sourceTree = "<group>"; };
+		536AA0141BB8649B00A2FF0D /* NBCOptionBuildPanel.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NBCOptionBuildPanel.xib; sourceTree = "<group>"; };
 		536D1B6B1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCBackgroundViewWhite.h; sourceTree = "<group>"; };
 		536D1B6C1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCBackgroundViewWhite.m; sourceTree = "<group>"; };
 		536E68111BB5242100B7E1A1 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -690,6 +695,9 @@
 				53383D131AFA9D3000C041F9 /* NBCConstants.h */,
 				53383D141AFA9D3000C041F9 /* NBCConstants.m */,
 				53931B9B1AED511B0076C1CC /* NBCVariables.h */,
+				536AA0121BB8649B00A2FF0D /* NBCOptionBuildPanel.h */,
+				536AA0131BB8649B00A2FF0D /* NBCOptionBuildPanel.m */,
+				536AA0141BB8649B00A2FF0D /* NBCOptionBuildPanel.xib */,
 				53931B9C1AED511B0076C1CC /* NBCVariables.m */,
 				5332628E1B794A9E00BA7EC9 /* NBCDesktopEntity.h */,
 				5332628F1B794A9E00BA7EC9 /* NBCDesktopEntity.m */,
@@ -1165,6 +1173,7 @@
 				53968C121A8E7A3E0079AA95 /* NBICreatorImages.xcassets in Resources */,
 				53F3B2871B7D1A54005BEAD3 /* IconCertPersonal.png in Resources */,
 				534C17D31BA4C88500D94F07 /* Resources.plist in Resources */,
+				536AA0161BB8649B00A2FF0D /* NBCOptionBuildPanel.xib in Resources */,
 				53E5B8651B06FE1500A771F7 /* NBCTemplatesController.xib in Resources */,
 				538AC3CF1BB1B281006BC343 /* NBCOverlayViewController.xib in Resources */,
 				53FB3EB21B97763600CCE413 /* CasperDefaults.plist in Resources */,
@@ -1202,6 +1211,7 @@
 				53FB3EB01B975E0A00CCE413 /* NBCCasperWorkflowModifyNBI.m in Sources */,
 				53E51C241AF564B6009364E7 /* NBCImagrWorkflowResources.m in Sources */,
 				53FB3EAD1B975DF700CCE413 /* NBCCasperWorkflowResources.m in Sources */,
+				536AA0151BB8649B00A2FF0D /* NBCOptionBuildPanel.m in Sources */,
 				53A9B9941AAB2804000E06BA /* NBCNetInstallDropViewImage.m in Sources */,
 				53346BD61AD657DF00C3831B /* NBCNetInstallDropViewController.m in Sources */,
 				535753E51BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m in Sources */,

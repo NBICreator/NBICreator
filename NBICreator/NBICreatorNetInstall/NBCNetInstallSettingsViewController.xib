@@ -15,12 +15,10 @@
                 <outlet property="popUpButtonLanguage" destination="WKm-RM-YlF" id="hLu-av-gzV"/>
                 <outlet property="popUpButtonProtocol" destination="Z7G-0b-h1g" id="ve7-C4-akr"/>
                 <outlet property="popUpButtonTemplates" destination="lDO-IA-htW" id="OnX-Sm-apa"/>
-                <outlet property="scrollViewConfigurationProfiles" destination="xyV-5s-gSf" id="wWP-lg-U6j"/>
-                <outlet property="scrollViewPackages" destination="KLA-3v-ghO" id="8G2-r6-DjN"/>
                 <outlet property="superViewConfigurationProfiles" destination="UbA-ej-B0x" id="v47-U8-sfi"/>
-                <outlet property="superViewPackages" destination="UBT-O8-zRE" id="xMg-MW-U3i"/>
+                <outlet property="superViewPackagesNetInstall" destination="UBT-O8-zRE" id="hSL-wc-tsf"/>
                 <outlet property="tableViewConfigurationProfiles" destination="Htj-dq-PR8" id="Ds1-f9-FVi"/>
-                <outlet property="tableViewPackages" destination="D6T-6s-HS1" id="afA-72-6iz"/>
+                <outlet property="tableViewPackagesNetInstall" destination="D6T-6s-HS1" id="RQo-PV-nre"/>
                 <outlet property="textFieldDestinationFolder" destination="yoo-Qy-5sD" id="8Tb-Wv-tyT"/>
                 <outlet property="textFieldIndex" destination="SpJ-mO-wOM" id="7Ot-XV-ghb"/>
                 <outlet property="textFieldIndexPreview" destination="O3B-3u-DWT" id="F1I-Xw-26l"/>
@@ -234,7 +232,7 @@
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="yoo-Qy-5sD">
-                                        <rect key="frame" x="103" y="18" width="327" height="22"/>
+                                        <rect key="frame" x="103" y="18" width="315" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1dn-p2-aMs">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -250,8 +248,8 @@
                                         </connections>
                                     </textField>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="p9d-ty-XuO">
-                                        <rect key="frame" x="432" y="12" width="88" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Choose" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Fsa-gT-X6V">
+                                        <rect key="frame" x="420" y="12" width="100" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Choose..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Fsa-gT-X6V">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -332,7 +330,7 @@
                                                     </connections>
                                                 </imageView>
                                                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="O3B-3u-DWT">
-                                                    <rect key="frame" x="81" y="38" width="31" height="13"/>
+                                                    <rect key="frame" x="81" y="37" width="31" height="14"/>
                                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="2015" id="wl2-9O-3Bm">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -367,7 +365,6 @@ asdasd</string>
                                             <constraint firstItem="QIk-2e-5gf" firstAttribute="leading" secondItem="vQG-6H-lL2" secondAttribute="leading" id="8Y1-ZT-IH0"/>
                                             <constraint firstAttribute="trailing" secondItem="QIk-2e-5gf" secondAttribute="trailing" constant="16" id="FSU-5B-Ma0"/>
                                             <constraint firstAttribute="trailing" secondItem="vQG-6H-lL2" secondAttribute="trailing" constant="16" id="FiE-FH-vAa"/>
-                                            <constraint firstItem="vQG-6H-lL2" firstAttribute="top" secondItem="O3B-3u-DWT" secondAttribute="bottom" constant="2" id="JNT-sL-uXk"/>
                                             <constraint firstItem="O3B-3u-DWT" firstAttribute="leading" secondItem="QIk-2e-5gf" secondAttribute="leading" id="PHG-Ph-QOB"/>
                                             <constraint firstItem="QIk-2e-5gf" firstAttribute="leading" secondItem="oCz-Qg-YeU" secondAttribute="trailing" constant="8" symbolic="YES" id="XDB-XT-TIg"/>
                                             <constraint firstItem="O3B-3u-DWT" firstAttribute="top" secondItem="QIk-2e-5gf" secondAttribute="bottom" constant="1" id="ZJz-7z-1FR"/>
@@ -508,7 +505,7 @@ asdasd</string>
                                             <font key="font" metaFont="miniSystem"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="buttonAddPackage:" target="-2" id="ReM-c6-Yyn"/>
+                                            <action selector="buttonAddPackageNetInstall:" target="-2" id="Vlh-3K-mJj"/>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="7Fs-QJ-hol">
@@ -518,7 +515,7 @@ asdasd</string>
                                             <font key="font" metaFont="miniSystem"/>
                                         </buttonCell>
                                         <connections>
-                                            <action selector="buttonRemovePackage:" target="-2" id="sFd-U7-7xY"/>
+                                            <action selector="buttonRemovePackageNetInstall:" target="-2" id="rdb-bf-AGi"/>
                                         </connections>
                                     </button>
                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="UBT-O8-zRE" userLabel="Super View Packages">
@@ -744,7 +741,7 @@ asdasd</string>
                 <constraint firstItem="Jkr-W2-481" firstAttribute="leading" secondItem="wMx-9w-VcQ" secondAttribute="leading" id="ht3-MF-Uhi"/>
                 <constraint firstItem="Jkr-W2-481" firstAttribute="top" secondItem="bTS-LS-Vgg" secondAttribute="bottom" constant="12" id="p1T-6v-n85"/>
             </constraints>
-            <point key="canvasLocation" x="-932" y="94.5"/>
+            <point key="canvasLocation" x="-932" y="94"/>
         </customView>
         <viewController id="RDh-6Q-Ga8" userLabel="Popover View Controller">
             <connections>

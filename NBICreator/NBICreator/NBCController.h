@@ -20,6 +20,7 @@
 #import <Cocoa/Cocoa.h>
 #import <Foundation/Foundation.h>
 #import "NBCAlerts.h"
+#import "NBCOptionBuildPanel.h"
 
 @class NBCDisk;
 @class NBCSource;
@@ -53,6 +54,8 @@
 
 @property (strong) NSViewController *customDropViewController;
 @property (strong) NSViewController *customSettingsViewController;
+
+@property (strong) NBCOptionBuildPanel *optionBuildPanel;
 
 @property (readonly) NSInteger selectedSegment;
 

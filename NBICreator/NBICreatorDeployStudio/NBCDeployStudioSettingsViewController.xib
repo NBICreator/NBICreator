@@ -282,7 +282,7 @@
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8BA-pa-vIO">
-                                        <rect key="frame" x="103" y="18" width="327" height="22"/>
+                                        <rect key="frame" x="103" y="18" width="315" height="22"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="kpz-8q-UjG">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -297,16 +297,6 @@
                                             <outlet property="delegate" destination="-2" id="fnB-8P-uAb"/>
                                         </connections>
                                     </textField>
-                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kU2-SX-c3O">
-                                        <rect key="frame" x="432" y="12" width="88" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Choose" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Hb9-3m-O6F">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="buttonChooseDestinationFolder:" target="-2" id="mQF-0R-U7a"/>
-                                        </connections>
-                                    </button>
                                     <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BAx-YC-6HB">
                                         <rect key="frame" x="101" y="121" width="148" height="26"/>
                                         <constraints>
@@ -380,7 +370,7 @@
                                                     </connections>
                                                 </imageView>
                                                 <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="AdK-yk-icV">
-                                                    <rect key="frame" x="81" y="38" width="31" height="13"/>
+                                                    <rect key="frame" x="81" y="37" width="31" height="14"/>
                                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="2015" id="CxW-lp-k7T">
                                                         <font key="font" metaFont="smallSystem"/>
                                                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -419,7 +409,6 @@ asdasd</string>
                                             <constraint firstItem="Aac-lw-QBh" firstAttribute="leading" secondItem="Qu4-ik-fDd" secondAttribute="trailing" constant="8" symbolic="YES" id="LZO-XG-Eeq"/>
                                             <constraint firstItem="Qu4-ik-fDd" firstAttribute="top" secondItem="0Uv-rz-jPD" secondAttribute="top" constant="5" id="hh4-1e-zxY"/>
                                             <constraint firstItem="Aac-lw-QBh" firstAttribute="top" secondItem="0Uv-rz-jPD" secondAttribute="top" constant="11" id="jDr-00-epq"/>
-                                            <constraint firstItem="pre-sm-d8v" firstAttribute="top" secondItem="AdK-yk-icV" secondAttribute="bottom" constant="2" id="q3T-X2-j6b"/>
                                             <constraint firstAttribute="bottom" secondItem="pre-sm-d8v" secondAttribute="bottom" constant="5" id="xs2-Mt-AYB"/>
                                             <constraint firstItem="Aac-lw-QBh" firstAttribute="leading" secondItem="pre-sm-d8v" secondAttribute="leading" id="xxM-XO-v2i"/>
                                             <constraint firstAttribute="bottom" secondItem="Qu4-ik-fDd" secondAttribute="bottom" constant="5" id="y5E-hO-f0j"/>
@@ -459,6 +448,16 @@ asdasd</string>
                                         </buttonCell>
                                         <connections>
                                             <action selector="buttonPopOver:" target="-2" id="whu-5K-LaF"/>
+                                        </connections>
+                                    </button>
+                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kU2-SX-c3O">
+                                        <rect key="frame" x="420" y="12" width="100" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Choose..." bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Hb9-3m-O6F">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="buttonChooseDestinationFolder:" target="-2" id="mQF-0R-U7a"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -1198,7 +1197,7 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="283" y="305" width="540" height="101"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="z7O-sr-p7n">
                 <rect key="frame" x="0.0" y="0.0" width="540" height="101"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -1270,7 +1269,7 @@ Gw
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="283" y="305" width="540" height="110"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="28H-Xd-MRP">
                 <rect key="frame" x="0.0" y="0.0" width="540" height="110"/>
                 <autoresizingMask key="autoresizingMask"/>

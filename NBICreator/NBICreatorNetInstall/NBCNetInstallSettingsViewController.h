@@ -60,22 +60,22 @@
 // ------------------------------------------------------
 //  TabView NetInstall1
 // ------------------------------------------------------
+
+// Configuration Profiles
 @property NSMutableArray *configurationProfilesTableViewContents;
+@property (weak) IBOutlet NSView *superViewConfigurationProfiles;
+@property (strong) NSView *viewOverlayConfigurationProfiles;
 @property (weak) IBOutlet NSTableView *tableViewConfigurationProfiles;
 - (IBAction)buttonAddConfigurationProfile:(id)sender;
 - (IBAction)buttonRemoveConfigurationProfile:(id)sender;
 
-@property NSMutableArray *packagesTableViewContents;
-@property (weak) IBOutlet NSTableView *tableViewPackages;
-- (IBAction)buttonAddPackage:(id)sender;
-- (IBAction)buttonRemovePackage:(id)sender;
-@property (weak) IBOutlet NSScrollView *scrollViewPackages;
-@property (weak) IBOutlet NSView *superViewPackages;
-@property (weak) IBOutlet NSView *superViewConfigurationProfiles;
-@property (weak) IBOutlet NSScrollView *scrollViewConfigurationProfiles;
-
-@property (strong) NSView *viewOverlayPackages;
-@property (strong) NSView *viewOverlayConfigurationProfiles;
+// Packages and scripts
+@property NSMutableArray *packagesNetInstallTableViewContents;
+@property (weak) IBOutlet NSView *superViewPackagesNetInstall;
+@property (strong) NSView *viewOverlayPackagesNetInstall;
+@property (weak) IBOutlet NSTableView *tableViewPackagesNetInstall;
+- (IBAction)buttonAddPackageNetInstall:(id)sender;
+- (IBAction)buttonRemovePackageNetInstall:(id)sender;
 
 // ------------------------------------------------------
 //  PopOver

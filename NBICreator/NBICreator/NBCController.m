@@ -999,8 +999,14 @@ enum {
 
 - (IBAction)buttonBuild:(id)sender {
 #pragma unused(sender)
-    
-    [_currentSettingsController buildNBI];
+    if ( [NSEvent modifierFlags] & NSAlternateKeyMask ) {
+        _optionBuildPanel = [[NBCOptionBuildPanel alloc] init];
+        [[NSApp mainWindow] beginSheet:[_optionBuildPanel window] completionHandler:^(NSModalResponse returnCode) {
+            NSLog(@"returnCode=%ld", (long)returnCode);
+        }];
+    } else {
+        [_currentSettingsController buildNBI];
+    }
 } // buttonBuild
 
 - (IBAction)segmentedControlNBI:(id)sender {

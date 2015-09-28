@@ -188,7 +188,7 @@ extern NSString *const NBCSettingsEnableLaunchdLoggingKey;
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - NetInstall
 ////////////////////////////////////////////////////////////////////////////////
-
+extern NSString *const NBCSettingsPackagesNetInstallKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - DeployStudio
@@ -530,7 +530,8 @@ extern NSString *const NBCDictionaryKeyCertificateNotValidAfterDate;
 extern NSString *const NBCDictionaryKeyCertificateExpirationString;
 extern NSString *const NBCDictionaryKeyCertificateExpired;
 
-
+extern NSString *const NBCDictionaryKeyPath;
+extern NSString *const NBCDictionaryKeyName;
 extern NSString *const NBCDictionaryKeyPackagePath;
 extern NSString *const NBCDictionaryKeyPackageName;
 

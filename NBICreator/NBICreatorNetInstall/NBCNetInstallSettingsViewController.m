@@ -45,7 +45,7 @@ DDLogLevel ddLogLevel;
 
 - (void)awakeFromNib {
     [_tableViewConfigurationProfiles registerForDraggedTypes:@[ NSURLPboardType ]];
-    [_tableViewPackages registerForDraggedTypes:@[ NSURLPboardType ]];
+    [_tableViewPackagesNetInstall registerForDraggedTypes:@[ NSURLPboardType ]];
 } // awakeFromNib
 
 - (void)dealloc {
@@ -55,7 +55,7 @@ DDLogLevel ddLogLevel;
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    _packagesTableViewContents = [[NSMutableArray alloc] init];
+    _packagesNetInstallTableViewContents = [[NSMutableArray alloc] init];
     _configurationProfilesTableViewContents = [[NSMutableArray alloc] init];
     
     // --------------------------------------------------------------
@@ -118,11 +118,11 @@ DDLogLevel ddLogLevel;
 } // viewDidLoad
 
 - (void)initializeTableViewOverlays {
-    if ( ! _viewOverlayPackages ) {
+    if ( ! _viewOverlayPackagesNetInstall ) {
         NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypePackages];
-        _viewOverlayPackages = [vc view];
+        _viewOverlayPackagesNetInstall = [vc view];
     }
-    [self addOverlayViewToView:_superViewPackages overlayView:_viewOverlayPackages];
+    [self addOverlayViewToView:_superViewPackagesNetInstall overlayView:_viewOverlayPackagesNetInstall];
     
     if ( ! _viewOverlayConfigurationProfiles ) {
         NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypeConfigurationProfiles];
@@ -321,19 +321,19 @@ DDLogLevel ddLogLevel;
     [self setDestinationFolder:settingsDict[NBCSettingsDestinationFolderKey]];
     [self setNbiIconPath:settingsDict[NBCSettingsIconKey]];
     
-    [_packagesTableViewContents removeAllObjects];
-    [_tableViewPackages reloadData];
-    if ( [settingsDict[NBCSettingsPackagesKey] count] != 0 ) {
-        NSArray *packagesArray = settingsDict[NBCSettingsPackagesKey];
+    [_packagesNetInstallTableViewContents removeAllObjects];
+    [_tableViewPackagesNetInstall reloadData];
+    if ( [settingsDict[NBCSettingsPackagesNetInstallKey] count] != 0 ) {
+        NSArray *packagesArray = settingsDict[NBCSettingsPackagesNetInstallKey];
         for ( NSString *packagePath in packagesArray ) {
             NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
             NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
             if ( [packageDict count] != 0 ) {
-                [self insertPackageInTableView:packageDict];
+                [self insertItemInPackagesNetInstallTableView:packageDict];
             }
         }
     }
-
+    
     [_configurationProfilesTableViewContents removeAllObjects];
     [_tableViewConfigurationProfiles reloadData];
     if ( [settingsDict[NBCSettingsConfigurationProfilesKey] count] != 0 ) {
@@ -346,7 +346,7 @@ DDLogLevel ddLogLevel;
             }
         }
     }
-
+    
     
     [self expandVariablesForCurrentSettings];
 } // updateUISettingsFromDict
@@ -388,13 +388,13 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"";
     
     NSMutableArray *packageArray = [[NSMutableArray alloc] init];
-    for ( NSDictionary *packageDict in _packagesTableViewContents ) {
-        NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
+    for ( NSDictionary *packageDict in _packagesNetInstallTableViewContents ) {
+        NSString *packagePath = packageDict[NBCDictionaryKeyPath];
         if ( [packagePath length] != 0 ) {
             [packageArray insertObject:packagePath atIndex:0];
         }
     }
-    settingsDict[NBCSettingsPackagesKey] = packageArray ?: @[];
+    settingsDict[NBCSettingsPackagesNetInstallKey] = packageArray ?: @[];
     
     NSMutableArray *configurationProfilesArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *configurationProfileDict in _configurationProfilesTableViewContents ) {
@@ -771,7 +771,7 @@ DDLogLevel ddLogLevel;
     [workflowItem setSource:_source];
     [workflowItem setApplicationSource:_siuSource];
     [workflowItem setSettingsViewController:self];
-        
+    
     // ----------------------------------------------------------------
     //  Collect current UI settings and pass them through verification
     // ----------------------------------------------------------------
@@ -833,8 +833,8 @@ DDLogLevel ddLogLevel;
     NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
     
     NSMutableArray *packages = [[NSMutableArray alloc] init];
-    for ( NSDictionary *packageDict in _packagesTableViewContents ) {
-        NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
+    for ( NSDictionary *packageDict in _packagesNetInstallTableViewContents ) {
+        NSString *packagePath = packageDict[NBCDictionaryKeyPath];
         [packages addObject:packagePath];
     }
     resourcesSettings[NBCSettingsPackagesNetInstallKey] = [packages copy];
@@ -906,23 +906,24 @@ DDLogLevel ddLogLevel;
     }
 }
 
-- (void)insertPackageInTableView:(NSDictionary *)packageDict {
-    NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
-    for ( NSDictionary *pkgDict in _packagesTableViewContents ) {
-        if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPackagePath]] ) {
+- (void)insertItemInPackagesNetInstallTableView:(NSDictionary *)itemDict {
+    NSString *packagePath = itemDict[NBCDictionaryKeyPath];
+    NSLog(@"packagePath=%@", packagePath);
+    for ( NSDictionary *pkgDict in _packagesNetInstallTableViewContents ) {
+        if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
             DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
             return;
         }
     }
     
-    NSInteger index = [_tableViewPackages selectedRow];
+    NSInteger index = [_tableViewPackagesNetInstall selectedRow];
     index++;
-    [_tableViewPackages beginUpdates];
-    [_tableViewPackages insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
-    [_tableViewPackages scrollRowToVisible:index];
-    [_packagesTableViewContents insertObject:packageDict atIndex:(NSUInteger)index];
-    [_viewOverlayPackages setHidden:YES];
-    [_tableViewPackages endUpdates];
+    [_tableViewPackagesNetInstall beginUpdates];
+    [_tableViewPackagesNetInstall insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewPackagesNetInstall scrollRowToVisible:index];
+    [_packagesNetInstallTableViewContents insertObject:itemDict atIndex:(NSUInteger)index];
+    [_tableViewPackagesNetInstall endUpdates];
+    [_viewOverlayPackagesNetInstall setHidden:YES];
 }
 
 - (void)insertConfigurationProfileInTableView:(NSDictionary *)configurationProfileDict {
@@ -940,19 +941,14 @@ DDLogLevel ddLogLevel;
     [_tableViewConfigurationProfiles insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
     [_tableViewConfigurationProfiles scrollRowToVisible:index];
     [_configurationProfilesTableViewContents insertObject:configurationProfileDict atIndex:(NSUInteger)index];
-    [_viewOverlayConfigurationProfiles setHidden:YES];
     [_tableViewConfigurationProfiles endUpdates];
+    [_viewOverlayConfigurationProfiles setHidden:YES];
 }
 
-
-
-- (NSDictionary *)examinePackageAtURL:(NSURL *)packageURL {
-    
+- (NSDictionary *)examinePackageAtURL:(NSURL *)url {
     NSMutableDictionary *newPackageDict = [[NSMutableDictionary alloc] init];
-    
-    newPackageDict[NBCDictionaryKeyPackagePath] = [packageURL path];
-    newPackageDict[NBCDictionaryKeyPackageName] = [packageURL lastPathComponent];
-    
+    newPackageDict[NBCDictionaryKeyPath] = [url path];
+    newPackageDict[NBCDictionaryKeyName] = [url lastPathComponent];
     return newPackageDict;
 }
 
@@ -967,15 +963,16 @@ DDLogLevel ddLogLevel;
             ) {
             newScriptDict[NBCDictionaryKeyScriptType] = @"Shell Script";
             *stop = YES;
-        } else if (
-                   [line hasPrefix:@""] ) {
-            newScriptDict[NBCDictionaryKeyScriptType] = @"Python";
         }
     }];
     
-    newScriptDict[NBCDictionaryKeyScriptPath] = [url path];
-    
-    return newScriptDict;
+    if ( [newScriptDict[NBCDictionaryKeyScriptType] length] != 0 ) {
+        newScriptDict[NBCDictionaryKeyPath] = [url path];
+        newScriptDict[NBCDictionaryKeyName] = [url lastPathComponent];
+        return newScriptDict;
+    } else {
+        return nil;
+    }
 }
 
 - (NSDictionary *)examineConfigurationProfileAtURL:(NSURL *)url {
@@ -995,7 +992,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)containsAcceptablePackageURLsFromPasteboard:(NSPasteboard *)pasteboard {
     return [pasteboard canReadObjectForClasses:@[[NSURL class]]
-                                       options:[self pasteboardReadingOptionsPackages]];
+                                       options:[self pasteboardReadingOptionsPackagesNetInstall]];
 }
 
 - (BOOL)containsAcceptableConfigurationProfileURLsFromPasteboard:(NSPasteboard *)pasteboard {
@@ -1003,9 +1000,9 @@ DDLogLevel ddLogLevel;
                                        options:[self pasteboardReadingOptionsConfigurationProfiles]];
 }
 
-- (NSDictionary *)pasteboardReadingOptionsPackages {
+- (NSDictionary *)pasteboardReadingOptionsPackagesNetInstall {
     return @{ NSPasteboardURLReadingFileURLsOnlyKey : @YES,
-              NSPasteboardURLReadingContentsConformToTypesKey : @[ @"com.apple.installer-package-archive", @"public.data" ] };
+              NSPasteboardURLReadingContentsConformToTypesKey : @[ @"com.apple.installer-package-archive", @"public.shell-script" ] };
 }
 
 - (NSDictionary *)pasteboardReadingOptionsConfigurationProfiles {
@@ -1015,7 +1012,7 @@ DDLogLevel ddLogLevel;
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
-        NSDictionary *packageDict = _packagesTableViewContents[(NSUInteger)row];
+        NSDictionary *packageDict = _packagesNetInstallTableViewContents[(NSUInteger)row];
         if ( [[tableColumn identifier] isEqualToString:@"PackageTableColumn"] ) {
             NBCPackageTableCellView *cellView = [tableView makeViewWithIdentifier:@"PackageCellView" owner:self];
             return [self populatePackageCellView:cellView packageDict:packageDict];
@@ -1051,13 +1048,13 @@ DDLogLevel ddLogLevel;
 - (NBCPackageTableCellView *)populatePackageCellView:(NBCPackageTableCellView *)cellView packageDict:(NSDictionary *)packageDict {
     NSMutableAttributedString *packageName;
     NSImage *packageIcon;
-    NSURL *packageURL = [NSURL fileURLWithPath:packageDict[NBCDictionaryKeyPackagePath]];
+    NSURL *packageURL = [NSURL fileURLWithPath:packageDict[NBCDictionaryKeyPath]];
     if ( [packageURL checkResourceIsReachableAndReturnError:nil] ) {
-        [[cellView textFieldPackageName] setStringValue:packageDict[NBCDictionaryKeyPackageName]];
+        [[cellView textFieldPackageName] setStringValue:packageDict[NBCDictionaryKeyName]];
         packageIcon = [[NSWorkspace sharedWorkspace] iconForFile:[packageURL path]];
         [[cellView imageViewPackageIcon] setImage:packageIcon];
     } else {
-        packageName = [[NSMutableAttributedString alloc] initWithString:packageDict[NBCDictionaryKeyPackageName]];
+        packageName = [[NSMutableAttributedString alloc] initWithString:packageDict[NBCDictionaryKeyName]];
         [packageName addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[packageName length])];
         [[cellView textFieldPackageName] setAttributedStringValue:packageName];
     }
@@ -1067,53 +1064,9 @@ DDLogLevel ddLogLevel;
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
-        if ( ! _viewOverlayPackages ) {
-            NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypePackages];
-            _viewOverlayPackages = [vc view];
-        }
-        NSInteger count = (NSInteger)[_packagesTableViewContents count];
-        if ( count == 0 && [[[_superViewPackages subviews] firstObject] isNotEqualTo:_viewOverlayPackages] ) {
-            [_superViewPackages addSubview:_viewOverlayPackages positioned:NSWindowAbove relativeTo:_scrollViewPackages];
-            [_viewOverlayPackages setTranslatesAutoresizingMaskIntoConstraints:NO];
-            NSArray *constraintsArray;
-            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayPackages]-1-|"
-                                                                       options:0
-                                                                       metrics:nil
-                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayPackages)];
-            [_superViewPackages addConstraints:constraintsArray];
-            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[_viewOverlayPackages]-1-|"
-                                                                       options:0
-                                                                       metrics:nil
-                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayPackages)];
-            [_superViewPackages addConstraints:constraintsArray];
-        } else if ( count > 0 && [[_superViewPackages subviews] containsObject:_viewOverlayPackages] ) {
-            [_viewOverlayPackages removeFromSuperview];
-        }
-        return count;
+        return (NSInteger)[_packagesNetInstallTableViewContents count];
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierConfigurationProfiles] ) {
-        if ( ! _viewOverlayConfigurationProfiles ) {
-            NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypeConfigurationProfiles];
-            _viewOverlayConfigurationProfiles = [vc view];
-        }
-        NSInteger count = (NSInteger)[_configurationProfilesTableViewContents count];
-        if ( count == 0 && [[[_superViewConfigurationProfiles subviews] firstObject] isNotEqualTo:_viewOverlayConfigurationProfiles] ) {
-            [_superViewConfigurationProfiles addSubview:_viewOverlayConfigurationProfiles positioned:NSWindowAbove relativeTo:_scrollViewConfigurationProfiles];
-            [_viewOverlayConfigurationProfiles setTranslatesAutoresizingMaskIntoConstraints:NO];
-            NSArray *constraintsArray;
-            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[_viewOverlayConfigurationProfiles]-1-|"
-                                                                       options:0
-                                                                       metrics:nil
-                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayConfigurationProfiles)];
-            [_superViewConfigurationProfiles addConstraints:constraintsArray];
-            constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[_viewOverlayConfigurationProfiles]-1-|"
-                                                                       options:0
-                                                                       metrics:nil
-                                                                         views:NSDictionaryOfVariableBindings(_viewOverlayConfigurationProfiles)];
-            [_superViewConfigurationProfiles addConstraints:constraintsArray];
-        } else if ( count > 0 && [[_superViewPackages subviews] containsObject:_viewOverlayPackages] ) {
-            [_viewOverlayPackages removeFromSuperview];
-        }
-        return count;
+        return (NSInteger)[_configurationProfilesTableViewContents count];
     } else {
         return 0;
     }
@@ -1139,55 +1092,28 @@ DDLogLevel ddLogLevel;
 
 - (void)tableView:(NSTableView *)tableView updateDraggingItemsForDrag:(id<NSDraggingInfo>)draggingInfo {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
-        NSArray *classes = @[ [NBCDesktopPackageEntity class], [NSPasteboardItem class] ];
-        __block NBCPackageTableCellView *packageCellView = [tableView makeViewWithIdentifier:@"PackageCellView" owner:self];
+        NSArray *classes = @[ [NBCDesktopPackageEntity class], [NBCDesktopScriptEntity class], [NSPasteboardItem class] ];
         __block NSInteger validCount = 0;
         [draggingInfo enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                              usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
-                                                 if ( [[draggingItem item] isKindOfClass:[NBCDesktopPackageEntity class]] ) {
-                                                     NBCDesktopPackageEntity *entity = (NBCDesktopPackageEntity *)[draggingItem item];
-                                                     [draggingItem setDraggingFrame:[packageCellView frame]];
-                                                     [draggingItem setImageComponentsProvider:^NSArray * {
-                                                         if ( [entity isKindOfClass:[NBCDesktopPackageEntity class]] ) {
-                                                             NSDictionary *packageDict = [self examinePackageAtURL:[entity fileURL]];
-                                                             if ( [packageDict count] != 0 ) {
-                                                                 packageCellView = [self populatePackageCellView:packageCellView packageDict:packageDict];
-                                                             }
-                                                         }
-                                                         [[packageCellView textFieldPackageName] setStringValue:[entity name]];
-                                                         return [packageCellView draggingImageComponents];
-                                                     }];
+                                                 if (
+                                                     [[draggingItem item] isKindOfClass:[NBCDesktopPackageEntity class]] ||
+                                                     [[draggingItem item] isKindOfClass:[NBCDesktopScriptEntity class]]
+                                                     ) {
                                                      validCount++;
-                                                 } else {
-                                                     [draggingItem setImageComponentsProvider:nil];
                                                  }
                                              }];
         [draggingInfo setNumberOfValidItemsForDrop:validCount];
         [draggingInfo setDraggingFormation:NSDraggingFormationList];
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierConfigurationProfiles] ) {
         NSArray *classes = @[ [NBCDesktopConfigurationProfileEntity class], [NSPasteboardItem class] ];
-        __block NBCConfigurationProfileTableCellView *configurationProfileCellView = [tableView makeViewWithIdentifier:@"ConfigurationProfileCellView" owner:self];
         __block NSInteger validCount = 0;
         [draggingInfo enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                              usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
                                                  if ( [[draggingItem item] isKindOfClass:[NBCDesktopConfigurationProfileEntity class]] ) {
-                                                     NBCDesktopConfigurationProfileEntity *entity = (NBCDesktopConfigurationProfileEntity *)[draggingItem item];
-                                                     [draggingItem setDraggingFrame:[configurationProfileCellView frame]];
-                                                     [draggingItem setImageComponentsProvider:^NSArray * {
-                                                         if ( [entity isKindOfClass:[NBCDesktopConfigurationProfileEntity class]] ) {
-                                                             NSDictionary *configurationProfileDict = [self examineConfigurationProfileAtURL:[entity fileURL]];
-                                                             if ( [configurationProfileDict count] != 0 ) {
-                                                                 configurationProfileCellView = [self populateConfigurationProfileCellView:configurationProfileCellView configurationProfileDict:configurationProfileDict];
-                                                             }
-                                                         }
-                                                         [[configurationProfileCellView textFieldConfigurationProfileName] setStringValue:[entity name]];
-                                                         return [configurationProfileCellView draggingImageComponents];
-                                                     }];
                                                      validCount++;
-                                                 } else {
-                                                     [draggingItem setImageComponentsProvider:nil];
                                                  }
                                              }];
         [draggingInfo setNumberOfValidItemsForDrop:validCount];
@@ -1196,7 +1122,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)insertConfigurationProfilesInTableView:(NSTableView *)tableView draggingInfo:(id<NSDraggingInfo>)info row:(NSInteger)row {
-    NSArray *classes = @[ [NBCDesktopPackageEntity class] ];
+    NSArray *classes = @[ [NBCDesktopConfigurationProfileEntity class] ];
     __block NSInteger insertionIndex = row;
     [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                  usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
@@ -1224,30 +1150,53 @@ DDLogLevel ddLogLevel;
                                  }];
 }
 
-- (void)insertPackagesInTableView:(NSTableView *)tableView draggingInfo:(id<NSDraggingInfo>)info row:(NSInteger)row {
-    NSArray *classes = @[ [NBCDesktopPackageEntity class] ];
+- (void)insertItemInPackagesNetInstallTableView:(NSTableView *)tableView draggingInfo:(id<NSDraggingInfo>)info row:(NSInteger)row {
+    NSArray *classes = @[ [NBCDesktopPackageEntity class], [NBCDesktopScriptEntity class] ];
     __block NSInteger insertionIndex = row;
     [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                  usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
-                                     NBCDesktopPackageEntity *entity = (NBCDesktopPackageEntity *)[draggingItem item];
-                                     if ( [entity isKindOfClass:[NBCDesktopPackageEntity class]] ) {
-                                         NSDictionary *packageDict = [self examinePackageAtURL:[entity fileURL]];
-                                         if ( [packageDict count] != 0 ) {
-                                             
-                                             NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
-                                             for ( NSDictionary *pkgDict in self->_packagesTableViewContents ) {
-                                                 if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPackagePath]] ) {
-                                                     DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
-                                                     return;
+                                     if ( [[draggingItem item] isKindOfClass:[NBCDesktopPackageEntity class]] ) {
+                                         NBCDesktopPackageEntity *entity = (NBCDesktopPackageEntity *)[draggingItem item];
+                                         if ( [entity isKindOfClass:[NBCDesktopPackageEntity class]] ) {
+                                             NSDictionary *packageDict = [self examinePackageAtURL:[entity fileURL]];
+                                             if ( [packageDict count] != 0 ) {
+                                                 
+                                                 NSString *packagePath = packageDict[NBCDictionaryKeyPath];
+                                                 for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
+                                                     if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
+                                                         DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
+                                                         return;
+                                                     }
                                                  }
+                                                 
+                                                 [self->_packagesNetInstallTableViewContents insertObject:packageDict atIndex:(NSUInteger)insertionIndex];
+                                                 [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
+                                                 [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
+                                                 insertionIndex++;
+                                                 [self->_viewOverlayPackagesNetInstall setHidden:YES];
                                              }
-                                             
-                                             [self->_packagesTableViewContents insertObject:packageDict atIndex:(NSUInteger)insertionIndex];
-                                             [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
-                                             [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
-                                             insertionIndex++;
-                                             [self->_viewOverlayPackages setHidden:YES];
+                                         }
+                                     } else if ( [[draggingItem item] isKindOfClass:[NBCDesktopScriptEntity class]] ) {
+                                         NBCDesktopScriptEntity *entity = (NBCDesktopScriptEntity *)[draggingItem item];
+                                         if ( [entity isKindOfClass:[NBCDesktopScriptEntity class]] ) {
+                                             NSDictionary *scriptDict = [self examineScriptAtURL:[entity fileURL]];
+                                             if ( [scriptDict count] != 0 ) {
+                                                 
+                                                 NSString *scriptPath = scriptDict[NBCDictionaryKeyPath];
+                                                 for ( NSDictionary *dict in self->_packagesNetInstallTableViewContents ) {
+                                                     if ( [scriptPath isEqualToString:dict[NBCDictionaryKeyPath]] ) {
+                                                         DDLogWarn(@"Script %@ is already added!", [scriptPath lastPathComponent]);
+                                                         return;
+                                                     }
+                                                 }
+                                                 
+                                                 [self->_packagesNetInstallTableViewContents insertObject:scriptDict atIndex:(NSUInteger)insertionIndex];
+                                                 [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
+                                                 [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
+                                                 insertionIndex++;
+                                                 [self->_viewOverlayPackagesNetInstall setHidden:YES];
+                                             }
                                          }
                                      }
                                  }];
@@ -1256,7 +1205,7 @@ DDLogLevel ddLogLevel;
 - (BOOL)tableView:(NSTableView *)tableView acceptDrop:(id<NSDraggingInfo>)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)dropOperation {
 #pragma unused(dropOperation)
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPackages] ) {
-        [self insertPackagesInTableView:_tableViewPackages draggingInfo:info row:row];
+        [self insertItemInPackagesNetInstallTableView:_tableViewPackagesNetInstall draggingInfo:info row:row];
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierConfigurationProfiles] ) {
         [self insertConfigurationProfilesInTableView:_tableViewConfigurationProfiles draggingInfo:info row:row];
     }
@@ -1264,53 +1213,51 @@ DDLogLevel ddLogLevel;
 }
 
 
-- (IBAction)buttonAddPackage:(id)sender {
+- (IBAction)buttonAddPackageNetInstall:(id)sender {
 #pragma unused(sender)
     NSOpenPanel* addPackages = [NSOpenPanel openPanel];
     
     // --------------------------------------------------------------
     //  Setup open dialog to only allow one folder to be chosen.
     // --------------------------------------------------------------
-    [addPackages setTitle:@"Add Packages"];
+    [addPackages setTitle:@"Add Packages and/or Scripts"];
     [addPackages setPrompt:@"Add"];
     [addPackages setCanChooseFiles:YES];
-    [addPackages setAllowedFileTypes:@[ @"com.apple.installer-package-archive", @"public.data" ]];
+    [addPackages setAllowedFileTypes:@[ @"com.apple.installer-package-archive", @"public.shell-script" ]];
     [addPackages setCanChooseDirectories:NO];
     [addPackages setCanCreateDirectories:YES];
     [addPackages setAllowsMultipleSelection:YES];
     
     if ( [addPackages runModal] == NSModalResponseOK ) {
+        NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
         NSArray* selectedURLs = [addPackages URLs];
         for ( NSURL *url in selectedURLs ) {
-            NSLog(@"Examining!");
-            [self examineScriptAtURL:url];
-            
-            
-            NSDictionary *packageDict = [self examinePackageAtURL:url];
-            if ( [packageDict count] != 0 ) {
-                [self insertPackageInTableView:packageDict];
-                return;
+            NSError *error;
+            NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:[url path] error:&error];
+            if ( [workspace type:fileType conformsToType:@"com.apple.installer-package-archive"] ) {
+                NSDictionary *packageDict = [self examinePackageAtURL:url];
+                if ( [packageDict count] != 0 ) {
+                    [self insertItemInPackagesNetInstallTableView:packageDict];
+                    return;
+                }
+            } else if ( [workspace type:fileType conformsToType:@"public.shell-script"] ) {
+                NSDictionary *scriptDict = [self examineScriptAtURL:url];
+                if ( [scriptDict count] != 0 ) {
+                    [self insertItemInPackagesNetInstallTableView:scriptDict];
+                    return;
+                }
             }
-            
-            //NSDictionary *scriptDict = [self examineScriptAtURL:url];
-            
-            /*
-            if ( [scriptDict count] != 0 ) {
-                [self insertScriptInTableView:scriptDict];
-                return;
-            }
-             */
         }
     }
 }
 
-- (IBAction)buttonRemovePackage:(id)sender {
+- (IBAction)buttonRemovePackageNetInstall:(id)sender {
 #pragma unused(sender)
-    NSIndexSet *indexes = [_tableViewPackages selectedRowIndexes];
-    [_packagesTableViewContents removeObjectsAtIndexes:indexes];
-    [_tableViewPackages removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
-    if ( [_packagesTableViewContents count] == 0 ) {
-        [_viewOverlayPackages setHidden:NO];
+    NSIndexSet *indexes = [_tableViewPackagesNetInstall selectedRowIndexes];
+    [_packagesNetInstallTableViewContents removeObjectsAtIndexes:indexes];
+    [_tableViewPackagesNetInstall removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    if ( [_packagesNetInstallTableViewContents count] == 0 ) {
+        [_viewOverlayPackagesNetInstall setHidden:NO];
     }
 }
 

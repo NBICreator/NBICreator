@@ -188,6 +188,8 @@ NSString *const NBCSettingsEnableLaunchdLoggingKey = @"EnableLaunchdLogging";
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - NetInstall
 ////////////////////////////////////////////////////////////////////////////////
+NSString *const NBCSettingsPackagesNetInstallKey = @"PackagesNetInstall";
+
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - DeployStudio
@@ -372,8 +374,6 @@ NSString *const NBCNotificationUpdateNBIBackgroundUserInfoIconURL = @"Background
 NSString *const NBCNotificationStartSearchingForUpdates = @"StartSearchingForUpdates";
 NSString *const NBCNotificationStopSearchingForUpdates = @"StopSearchingForUpdates";
 
-NSString *const NBCSettingsPackagesNetInstallKey = @"PackagesNetInstall";
-
 // --------------------------------------------------------------
 //  Certificate TableView Keys
 // --------------------------------------------------------------
@@ -390,6 +390,8 @@ NSString *const NBCDictionaryKeyCertificateNotValidAfterDate = @"CertificateNotV
 NSString *const NBCDictionaryKeyCertificateExpirationString = @"CertificateExpirationString";
 NSString *const NBCDictionaryKeyCertificateExpired = @"CertificateExpired";
 
+NSString *const NBCDictionaryKeyPath = @"Path";
+NSString *const NBCDictionaryKeyName = @"Name";
 NSString *const NBCDictionaryKeyPackagePath = @"PackagePath";
 NSString *const NBCDictionaryKeyPackageName = @"PackageName";
 

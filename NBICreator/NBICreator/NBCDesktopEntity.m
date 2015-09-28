@@ -76,8 +76,8 @@
 
 + (NBCDesktopEntity *)entityForURL:(NSURL *)url {
     NSString *typeIdentifier;
+    NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
     if ( [url getResourceValue:&typeIdentifier forKey:NSURLTypeIdentifierKey error:nil] ) {
-        
         // --------------------------------------------------------------
         //  If url points to a certificate, allocate a NBCDesktopCertificateEntity
         // --------------------------------------------------------------
@@ -95,6 +95,12 @@
             // --------------------------------------------------------------
         } else if ( [@[ @"com.apple.mobileconfig" ] containsObject:typeIdentifier] ) {
             return [[NBCDesktopConfigurationProfileEntity alloc] initWithFileURL:url];
+            
+            // --------------------------------------------------------------
+            //  If url points to a script, allocate a NBCDesktopScriptEntity
+            // --------------------------------------------------------------
+        } else if ( [workspace type:typeIdentifier conformsToType:@"public.shell-script"] ) {
+            return [[NBCDesktopScriptEntity alloc] initWithFileURL:url];
             
             // --------------------------------------------------------------
             //  If url points to a folder, allocate a NBCDesktopFolderEntity
@@ -165,6 +171,15 @@
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 @implementation NBCDesktopPackageEntity
+
+@end
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark NBCDesktopScriptEntity Implementation
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+@implementation NBCDesktopScriptEntity
 
 @end
 
