@@ -41,12 +41,13 @@ NSString *const NBCFolderTemplatesImagr = @"NBICreator/Templates/Imagr";
 NSString *const NBCFolderTemplatesCasper = @"NBICreator/Templates/Casper";
 NSString *const NBCFolderTemplatesCustom = @"NBICreator/Templates/Custom";
 NSString *const NBCFolderTemplatesDisabled = @"NBICreator/Templates/Disabled";
-NSString *const NBCFolderResources = @"com.github.NBICreator/Resources";
-NSString *const NBCFolderResourcesDeployStudio = @"com.github.NBICreator/Resources/DeployStudio";;
-NSString *const NBCFolderResourcesPython = @"com.github.NBICreator/Resources/Python";
-NSString *const NBCFolderResourcesImagr = @"com.github.NBICreator/Resources/Imagr";
-NSString *const NBCFolderResourcesCasper = @"com.github.NBICreator/Resources/Casper";
-NSString *const NBCFolderResourcesSource = @"com.github.NBICreator/Resources/Source";
+NSString *const NBCFolderResources = @"NBICreator/Resources";
+NSString *const NBCFolderResourcesDependencies = @"NBICreator/Resources/Dependencies";
+NSString *const NBCFolderResourcesCache = @"com.github.NBICreator/Resources";
+NSString *const NBCFolderResourcesCacheDeployStudio = @"com.github.NBICreator/Resources/DeployStudio";;
+NSString *const NBCFolderResourcesCacheImagr = @"com.github.NBICreator/Resources/Imagr";
+NSString *const NBCFolderResourcesCacheCasper = @"com.github.NBICreator/Resources/Casper";
+NSString *const NBCFolderResourcesCacheSource = @"com.github.NBICreator/Resources/Source";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark File Names
@@ -626,4 +627,5 @@ NSString *const NBCCLIArgumentTemplate = @"-template";
 NSString *const NBCCLIArgumentTarget = @"-target";
 NSString *const NBCCLIArgumentNoPrompt = @"-noprompt";
 NSString *const NBCCLIArgumentQuiet = @"-quiet";
+NSString *const NBCCLIArgumentVersion = @"-version";
 

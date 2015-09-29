@@ -31,7 +31,7 @@
     self = [super init];
     if (self != nil) {
         [self registerDefaults];
-        [NBCLog configureLogging];
+        [NBCLog configureLoggingFor:kWorkflowSessionTypeCLI];
     }
     return self;
 } // init

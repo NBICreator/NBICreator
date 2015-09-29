@@ -610,7 +610,7 @@ DDLogLevel ddLogLevel;
  }
  
  [self setCasperVersion:selectedCasperVersion];
- NSURL *CasperCachedVersionURL = [_resourcesController cachedVersionURL:selectedCasperVersion resourcesFolder:NBCFolderResourcesCasper];
+ NSURL *CasperCachedVersionURL = [_resourcesController cachedVersionURL:selectedCasperVersion resourcesFolder:NBCFolderResourcesCacheCasper];
  if ( [CasperCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
  NSDictionary *CasperCachedVersionAttributes  = @{
  NSFileOwnerAccountName : @"root",
@@ -661,7 +661,7 @@ DDLogLevel ddLogLevel;
         //  Check if source items are already downloaded, then return local urls.
         //  If not, extract and copy to resources for future use.
         // ---------------------------------------------------------------
-        NSDictionary *sourceItemsResourcesDict = [_resourcesController getCachedSourceItemsDict:sourceBuildVersion resourcesFolder:NBCFolderResourcesSource];
+        NSDictionary *sourceItemsResourcesDict = [_resourcesController getCachedSourceItemsDict:sourceBuildVersion resourcesFolder:NBCFolderResourcesCacheSource];
         if ( [sourceItemsResourcesDict count] != 0 ) {
             NSMutableDictionary *newSourceItemsDict = [[NSMutableDictionary alloc] init];
             NSDictionary *sourceItemsDict = _resourcesSettings[NBCSettingsSourceItemsKey];
@@ -951,7 +951,7 @@ DDLogLevel ddLogLevel;
                 if ( itemSourceURL ) {
                     destinationURL = [_resourcesController copySourceItemToResources:itemSourceURL
                                                                       sourceItemPath:itemPath
-                                                                     resourcesFolder:NBCFolderResourcesSource
+                                                                     resourcesFolder:NBCFolderResourcesCacheSource
                                                                          sourceBuild:[[workflowItem source] sourceBuild]];
                 } else {
                     DDLogError(@"[ERROR] Could not get itemSourceURL for itemPath=%@", itemPath);
@@ -981,7 +981,7 @@ DDLogLevel ddLogLevel;
                                                   regexArray:regexArray
                                                  packagePath:packagePath
                                                 sourceFolder:[packageTemporaryFolderURL path]
-                                             resourcesFolder:NBCFolderResourcesSource
+                                             resourcesFolder:NBCFolderResourcesCacheSource
                                                  sourceBuild:[[workflowItem source] sourceBuild]];
         }
         

@@ -21,6 +21,7 @@
 @property NSString *downloadURL;
 @property NSURL *targetURL;
 @property NBCDownloader *downloader;
+@property NBCDownloader *downloaderResources;
 @property BOOL isDownloading;
 @property NSString *updateMessage;
 

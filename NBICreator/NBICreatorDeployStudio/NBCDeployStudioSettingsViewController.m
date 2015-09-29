@@ -886,14 +886,12 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)getDeployStudioVersions {
-    
     NBCDownloaderDeployStudio *downloader =  [[NBCDownloaderDeployStudio alloc] initWithDelegate:self];
     NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagDeployStudio };
     [downloader getReleaseVersionsAndURLsFromDeployStudioRepository:NBCDeployStudioRepository downloadInfo:downloadInfo];
 } // getDeployStudioVersions
 
 - (void)getDeployStudioVersionLatest {
-    
     NBCDownloader *downloader =  [[NBCDownloader alloc] initWithDelegate:self];
     NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagDeployStudio };
     [downloader downloadPageAsData:[NSURL URLWithString:NBCDeployStudioLatestVersionURL] downloadInfo:downloadInfo];
@@ -1016,7 +1014,7 @@ DDLogLevel ddLogLevel;
 - (void)cachedDeployStudioVersionLocal {
     
     NBCWorkflowResourcesController *resourcesController = [[NBCWorkflowResourcesController alloc] init];
-    NSDictionary *cachedDownloadsDict = [resourcesController cachedDownloadsDictFromResourceFolder:NBCFolderResourcesDeployStudio];
+    NSDictionary *cachedDownloadsDict = [resourcesController cachedDownloadsDictFromResourceFolder:NBCFolderResourcesCacheDeployStudio];
     if ( [cachedDownloadsDict count] != 0 ) {
         NSString *latestVersion = cachedDownloadsDict[NBCResourcesDeployStudioLatestVersionKey];
         if ( [latestVersion length] != 0 ) {
@@ -1032,7 +1030,7 @@ DDLogLevel ddLogLevel;
 - (void)updateCachedDeployStudioLatestVersion:(NSString *)deployStudioLatestVersion {
     
     NBCWorkflowResourcesController *resourcesController = [[NBCWorkflowResourcesController alloc] init];
-    NSURL *deployStudioDownloadsDictURL = [resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesDeployStudio];
+    NSURL *deployStudioDownloadsDictURL = [resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesCacheDeployStudio];
     if ( deployStudioDownloadsDictURL != nil ) {
         if ( [deployStudioDownloadsDictURL checkResourceIsReachableAndReturnError:nil] ) {
             NSMutableDictionary *deployStudioDownloadsDict = [[NSDictionary dictionaryWithContentsOfURL:deployStudioDownloadsDictURL] mutableCopy];

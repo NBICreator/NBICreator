@@ -2634,8 +2634,8 @@ DDLogLevel ddLogLevel;
     [[_popUpButtonImagrVersion menu] addItem:[NSMenuItem separatorItem]];
     [[_popUpButtonImagrVersion menu] setAutoenablesItems:NO];
     
-    NSArray *localImagrVersions = [_resourcesController cachedVersionsFromResourceFolder:NBCFolderResourcesImagr];
-    NSDictionary *cachedDownloadsDict = [_resourcesController cachedDownloadsDictFromResourceFolder:NBCFolderResourcesImagr];
+    NSArray *localImagrVersions = [_resourcesController cachedVersionsFromResourceFolder:NBCFolderResourcesCacheImagr];
+    NSDictionary *cachedDownloadsDict = [_resourcesController cachedDownloadsDictFromResourceFolder:NBCFolderResourcesCacheImagr];
     if ( cachedDownloadsDict != nil ) {
         [self setImagrVersionsDownloadLinks:cachedDownloadsDict];
         NSArray *cachedDownloadVersions = [cachedDownloadsDict allKeys];
@@ -2668,9 +2668,9 @@ DDLogLevel ddLogLevel;
         [self setResourcesController:[[NBCWorkflowResourcesController alloc] init]];
     }
     
-    NSURL *imagrDownloadsDictURL = [_resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesImagr];
+    NSURL *imagrDownloadsDictURL = [_resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesCacheImagr];
     if ( imagrDownloadsDictURL != nil ) {
-        NSURL *imagrResourceFolder = [_resourcesController urlForResourceFolder:NBCFolderResourcesImagr];
+        NSURL *imagrResourceFolder = [_resourcesController urlForResourceFolder:NBCFolderResourcesCacheImagr];
         if ( ! [imagrResourceFolder checkResourceIsReachableAndReturnError:nil] ) {
             NSError *error;
             NSFileManager *fm = [NSFileManager defaultManager];

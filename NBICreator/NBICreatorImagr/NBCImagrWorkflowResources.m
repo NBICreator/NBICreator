@@ -413,7 +413,7 @@ DDLogLevel ddLogLevel;
         NSString *sha = _resourcesSettings[NBCSettingsImagrGitBranchSHA];
         NSString *buildTarget = _resourcesSettings[NBCSettingsImagrBuildTarget];
         
-        NSURL *imagrBranchCachedVersionURL = [_resourcesController cachedBranchURL:branch sha:sha resourcesFolder:NBCFolderResourcesImagr];
+        NSURL *imagrBranchCachedVersionURL = [_resourcesController cachedBranchURL:branch sha:sha resourcesFolder:NBCFolderResourcesCacheImagr];
         if ( [imagrBranchCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
             NSString *target = _resourcesSettings[NBCSettingsImagrBuildTarget];
             NSURL *targetImagrAppURL = [imagrBranchCachedVersionURL URLByAppendingPathComponent:[NSString stringWithFormat:@"build/%@/Imagr.app", target]];
@@ -478,7 +478,7 @@ DDLogLevel ddLogLevel;
         }
         
         [self setImagrVersion:selectedImagrVersion];
-        NSURL *imagrCachedVersionURL = [_resourcesController cachedVersionURL:selectedImagrVersion resourcesFolder:NBCFolderResourcesImagr];
+        NSURL *imagrCachedVersionURL = [_resourcesController cachedVersionURL:selectedImagrVersion resourcesFolder:NBCFolderResourcesCacheImagr];
         if ( [imagrCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *imagrCachedVersionAttributes  = @{
                                                             NSFileOwnerAccountName : @"root",
@@ -581,7 +581,7 @@ DDLogLevel ddLogLevel;
         // ---------------------------------------------------------------
         //  Extract Imagr from zip and copy to resourecs for future use
         // ---------------------------------------------------------------
-        NSURL *imagrProjectURL = [_resourcesController unzipAndCopyGitBranchToResourceFolder:downloadedFileURL resourcesFolder:NBCFolderResourcesImagr branchDict:branchDict];
+        NSURL *imagrProjectURL = [_resourcesController unzipAndCopyGitBranchToResourceFolder:downloadedFileURL resourcesFolder:NBCFolderResourcesCacheImagr branchDict:branchDict];
         if ( imagrProjectURL ) {
             [_resourcesController buildProjectAtURL:imagrProjectURL buildTarget:buildTarget];
         } else {
@@ -614,7 +614,7 @@ DDLogLevel ddLogLevel;
     // ---------------------------------------------------------------
     NSURL *imagrDownloadedVersionURL = [_resourcesController attachDiskImageAndCopyFileToResourceFolder:downloadedFileURL
                                                                                                filePath:@"Imagr.app"
-                                                                                        resourcesFolder:NBCFolderResourcesImagr
+                                                                                        resourcesFolder:NBCFolderResourcesCacheImagr
                                                                                                 version:version];
     if ( imagrDownloadedVersionURL ) {
         NSDictionary *imagrDownloadedVersionAttributes  = @{
@@ -655,7 +655,7 @@ DDLogLevel ddLogLevel;
         //  Check if source items are already downloaded, then return local urls.
         //  If not, extract and copy to resources for future use.
         // ---------------------------------------------------------------
-        NSDictionary *sourceItemsResourcesDict = [_resourcesController getCachedSourceItemsDict:sourceBuildVersion resourcesFolder:NBCFolderResourcesSource];
+        NSDictionary *sourceItemsResourcesDict = [_resourcesController getCachedSourceItemsDict:sourceBuildVersion resourcesFolder:NBCFolderResourcesCacheSource];
         if ( [sourceItemsResourcesDict count] != 0 ) {
             NSMutableDictionary *newSourceItemsDict = [[NSMutableDictionary alloc] init];
             NSDictionary *sourceItemsDict = _resourcesSettings[NBCSettingsSourceItemsKey];
@@ -945,7 +945,7 @@ DDLogLevel ddLogLevel;
                 if ( itemSourceURL ) {
                     destinationURL = [_resourcesController copySourceItemToResources:itemSourceURL
                                                                       sourceItemPath:itemPath
-                                                                     resourcesFolder:NBCFolderResourcesSource
+                                                                     resourcesFolder:NBCFolderResourcesCacheSource
                                                                          sourceBuild:[[workflowItem source] sourceBuild]];
                 } else {
                     DDLogError(@"[ERROR] Could not get itemSourceURL for itemPath=%@", itemPath);
@@ -975,7 +975,7 @@ DDLogLevel ddLogLevel;
                                                   regexArray:regexArray
                                                  packagePath:packagePath
                                                 sourceFolder:[packageTemporaryFolderURL path]
-                                             resourcesFolder:NBCFolderResourcesSource
+                                             resourcesFolder:NBCFolderResourcesCacheSource
                                                  sourceBuild:[[workflowItem source] sourceBuild]];
         }
         

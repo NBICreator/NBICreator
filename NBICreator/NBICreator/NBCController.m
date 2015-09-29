@@ -194,7 +194,7 @@ enum {
     // --------------------------------------------------------------
     //  Setup logging
     // --------------------------------------------------------------
-    [NBCLog configureLogging];
+    [NBCLog configureLoggingFor:kWorkflowSessionTypeGUI];
     
     // --------------------------------------------------------------
     //  Setup preference window so it can recieve notifications

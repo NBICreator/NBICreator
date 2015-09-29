@@ -9,6 +9,9 @@
 #import "NBCCLIArguments.h"
 #import "NBCConstants.h"
 #import "NBCWorkflowItem.h"
+#import "NBCLogging.h"
+
+DDLogLevel ddLogLevel;
 
 @implementation NBCCLIArguments
 
@@ -17,6 +20,13 @@
     
     // Verify all required ones are here
     NSUserDefaults *args = [NSUserDefaults standardUserDefaults];
+    NSArray *arguments = [[NSProcessInfo processInfo] arguments];
+    if ( [arguments containsObject:[NSString stringWithFormat:@"-%@", NBCCLIArgumentVersion]] ) {
+        NSString *versionString = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        DDLogInfo(@"NBICreator %@", versionString);
+        [[NSApplication sharedApplication] terminate:nil];
+    }
+    
     NSString *templatePath = [args objectForKey:NBCCLIArgumentTemplate];
     NSURL *templateURL;
     if ( [templatePath length] != 0 ) {

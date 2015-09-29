@@ -17,6 +17,6 @@ extern DDLogLevel ddLogLevel;
 
 @interface NBCLog : NSObject
 
-+ (void)configureLogging;
++ (void)configureLoggingFor:(int)sessionType;
 
 @end

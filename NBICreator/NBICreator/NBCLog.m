@@ -8,12 +8,14 @@
 
 #import "NBCLog.h"
 #import "NBCConstants.h"
+#import "NBCWorkflowItem.h"
 
 DDLogLevel ddLogLevel;
 
 @implementation NBCLog
 
-+ (void)configureLogging {
++ (void)configureLoggingFor:(int)sessionType {
+    
     // --------------------------------------------------------------
     //  Log to Console (Xcode/Commandline)
     // --------------------------------------------------------------
@@ -48,27 +50,39 @@ DDLogLevel ddLogLevel;
         [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithInt:(int)ddLogLevel] forKey:NBCUserDefaultsLogLevel];
     }
     
-    DDLogError(@"");
-    DDLogError(@"Starting NBICreator version %@ (build %@)...", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
     NSString *logLevelName;
-    switch (ddLogLevel) {
-        case 1:
-            logLevelName = @"Error";
+    
+    switch (sessionType) {
+        case kWorkflowSessionTypeCLI:
+
             break;
-        case 3:
-            logLevelName = @"Warn";
-            break;
-        case 7:
-            logLevelName = @"Info";
-            break;
-        case 15:
-            logLevelName = @"Debug";
+        case kWorkflowSessionTypeGUI:
+            DDLogError(@"");
+            DDLogError(@"Starting NBICreator version %@ (build %@)...", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
+            switch (ddLogLevel) {
+                case 1:
+                    logLevelName = @"Error";
+                    break;
+                case 3:
+                    logLevelName = @"Warn";
+                    break;
+                case 7:
+                    logLevelName = @"Info";
+                    break;
+                case 15:
+                    logLevelName = @"Debug";
+                    break;
+                default:
+                    logLevelName = [[NSNumber numberWithInt:(int)ddLogLevel] stringValue];
+                    break;
+            }
+            DDLogInfo(@"Log level: %@", logLevelName);
             break;
         default:
-            logLevelName = [[NSNumber numberWithInt:(int)ddLogLevel] stringValue];
             break;
     }
-    DDLogInfo(@"Log level: %@", logLevelName);
+    
+    
 }
 
 @end

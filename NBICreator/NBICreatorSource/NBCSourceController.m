@@ -949,7 +949,22 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
-    NSURL *casperImagingDependenciesURL = [[NSBundle mainBundle] URLForResource:@"casperImagingDependencies" withExtension:@"plist"];
+    NSURL *casperImagingDependenciesURL;
+    
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
+    if ( ! userApplicationSupport ) {
+        DDLogError(@"Could not get Application Support folder for current User");
+        DDLogError(@"Error: %@", error);
+    }
+    
+    NSString *casperImagingDependenciesPathComponent = [NSString stringWithFormat:@"%@/CasperImaging.plist", NBCFolderResourcesDependencies];
+    casperImagingDependenciesURL = [userApplicationSupport URLByAppendingPathComponent:casperImagingDependenciesPathComponent isDirectory:YES];
+    if ( ! [casperImagingDependenciesURL checkResourceIsReachableAndReturnError:nil] ) {
+        DDLogError(@"[ERROR] Could not find a downloaded resource file!");
+        casperImagingDependenciesURL = [[NSBundle mainBundle] URLForResource:@"CasperImaging" withExtension:@"plist"];
+    }
+    
     NSString *sourceVersionOS = [source expandVariables:@"%OSVERSION%"];
     NSString *sourceBuild = [source expandVariables:@"%OSBUILD%"];
     NSDictionary *buildDict;

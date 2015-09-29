@@ -361,7 +361,6 @@ DDLogLevel ddLogLevel;
         // -------------------------------------------------------------
         BOOL temporaryFolderCreated = NO;
         NSURL *temporaryFolderURL = [self temporaryFolderURL];
-        DDLogDebug(@"temporaryFolderURL=%@", temporaryFolderURL);
         if ( temporaryFolderURL ) {
             [_currentWorkflowItem setTemporaryFolderURL:temporaryFolderURL];
             NSString *nbiName = [_currentWorkflowItem nbiName];
@@ -371,7 +370,6 @@ DDLogLevel ddLogLevel;
                     nbiName = [nbiName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
                 }
                 NSURL *temporaryNBIURL = [temporaryFolderURL URLByAppendingPathComponent:nbiName];
-                DDLogDebug(@"temporaryNBIURL=%@", temporaryNBIURL);
                 if ( temporaryNBIURL ) {
                     [_currentWorkflowItem setTemporaryNBIURL:temporaryNBIURL];
                     
@@ -420,7 +418,6 @@ DDLogLevel ddLogLevel;
         //  Run workflows. Don't create NBI if source is a NBI itself.
         // -------------------------------------------------------------
         NSString *sourceType = [[_currentWorkflowItem source] sourceType];
-        DDLogDebug(@"sourceType=%@", sourceType);
         if ( ! [sourceType isEqualToString:NBCSourceTypeNBI] ) {
             [self setCurrentWorkflowNBI:[_currentWorkflowItem workflowNBI]];
             if ( _currentWorkflowNBI ) {
@@ -457,7 +454,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)mountSource {
-    
     BOOL retval = YES;
     NBCSourceController *sc = [[NBCSourceController alloc] init];
     switch ( [_currentWorkflowItem workflowType] ) {

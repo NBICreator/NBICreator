@@ -39,7 +39,7 @@ DDLogLevel ddLogLevel;
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setWorkflowComplete:NO];
-    [_textFieldStatusInfo setStringValue:@"Waiting..."];
+    [self updateProgressStatus:@"Waiting..." workflow:self];
 }
 
 - (void)dealloc {
@@ -53,11 +53,11 @@ DDLogLevel ddLogLevel;
         if ( ! _workflowNBIResourcesComplete ) {
             if ( [_workflowNBIResourcesLastStatus length] == 0 ) {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self->_textFieldStatusInfo setStringValue:@"Preparing Resources to be added to NBI..."];
+                    [self updateProgressStatus:@"Preparing Resources to be added to NBI..." workflow:self];
                 });
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self->_textFieldStatusInfo setStringValue:self->_workflowNBIResourcesLastStatus];
+                    [self updateProgressStatus:self->_workflowNBIResourcesLastStatus workflow:self];
                 });
             }
         }
@@ -125,7 +125,7 @@ DDLogLevel ddLogLevel;
         NSString *destinationFileName = [_nbiURL lastPathComponent];
         if ( [destinationFileName containsString:@" "] ) {
             destinationFileName = [destinationFileName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
-            _nbiURL = [[_nbiURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:destinationFileName];
+            [self setNbiURL:[[_nbiURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:destinationFileName]];
             if ( ! _nbiURL ) {
                 DDLogError(@"[ERROR] NBI URL is nil, cannot open in Finder!");
                 return;

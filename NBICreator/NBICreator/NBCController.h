@@ -30,9 +30,6 @@
 
 // Windows
 @property (weak) IBOutlet NSWindow *window;
-
-
-
 - (IBAction)menuItemPreferences:(id)sender;
 - (IBAction)menuItemHelp:(id)sender;
 - (IBAction)menuItemMainWindow:(id)sender;

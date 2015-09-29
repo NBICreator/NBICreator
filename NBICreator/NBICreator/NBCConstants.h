@@ -42,11 +42,12 @@ extern NSString *const NBCFolderTemplatesCasper;
 extern NSString *const NBCFolderTemplatesCustom;
 extern NSString *const NBCFolderTemplatesDisabled;
 extern NSString *const NBCFolderResources;
-extern NSString *const NBCFolderResourcesDeployStudio;
-extern NSString *const NBCFolderResourcesPython;
-extern NSString *const NBCFolderResourcesImagr;
-extern NSString *const NBCFolderResourcesCasper;
-extern NSString *const NBCFolderResourcesSource;
+extern NSString *const NBCFolderResourcesDependencies;
+extern NSString *const NBCFolderResourcesCache;
+extern NSString *const NBCFolderResourcesCacheDeployStudio;
+extern NSString *const NBCFolderResourcesCacheImagr;
+extern NSString *const NBCFolderResourcesCacheCasper;
+extern NSString *const NBCFolderResourcesCacheSource;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark File Names
@@ -603,4 +604,5 @@ extern NSString *const NBCCLIArgumentTemplate;
 extern NSString *const NBCCLIArgumentTarget;
 extern NSString *const NBCCLIArgumentNoPrompt;
 extern NSString *const NBCCLIArgumentQuiet;
+extern NSString *const NBCCLIArgumentVersion;
 

@@ -9,6 +9,8 @@
 #import "NBCUpdater.h"
 #import "NBCConstants.h"
 #import "NBCLogging.h"
+#import "NSString+randomString.h"
+#import "Main.h"
 
 @interface NBCUpdater ()
 
@@ -56,6 +58,8 @@
             [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ _targetURL ]];
         }
         [self setDownloader:nil];
+    } else if ( [downloadTag isEqualToString:NBCDownloaderTagNBICreatorResources] ) {
+        [self unzipAndCopyToSupportFolder:url version:downloadInfo[@"Version"]];
     }
 } // fileDownloadCompleted
 
@@ -84,18 +88,20 @@
 } // updateProgressBytesRecieved
 
 - (void)checkForUpdates {
-    DDLogInfo(@"Checking for application updates!");
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationStartSearchingForUpdates object:self userInfo:nil];
     [self getNBICreatorVersions];
+    [self getNBICreatorResourcesVersions];
 } // checkForUpdates
 
 - (void)getNBICreatorVersions {
+    DDLogInfo(@"Checking for application updates!");
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCNBICreatorGitHubRepository
                                                  downloadInfo:@{ NBCDownloaderTag : NBCDownloaderTagNBICreator }];
 } // getNBICreatorVersions
 
 - (void)getNBICreatorResourcesVersions {
+    DDLogInfo(@"Checking for resources updates!");
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCNBICreatorResourcesGitHubRepository
                                                  downloadInfo:@{ NBCDownloaderTag : NBCDownloaderTagNBICreatorResources }];
@@ -106,9 +112,56 @@
     if ( [downloadTag isEqualToString:NBCDownloaderTagNBICreator] ) {
         [self compareCurrentVersionToLatest:[versionsArray firstObject] downloadDict:downloadDict];
     } else if ( [downloadTag isEqualToString:NBCDownloaderTagNBICreatorResources] ) {
-        
+        [self compareResourcesVersionToLocal:[versionsArray firstObject] downloadDict:downloadDict];
     }
 } // githubReleaseVersionsArray:downloadDict:downloadInfo
+
+- (void)compareResourcesVersionToLocal:(NSString *)latestVersion downloadDict:(NSDictionary *)downloadDict {
+    NSURL *resourcesFolderURL = [self resourcesFolder:NBCFolderResources];
+    NSURL *resourcesVersionDictURL = [resourcesFolderURL URLByAppendingPathComponent:@"ResourcesVersion.plist"];
+    NSDictionary *resourcesVersionDict = [NSDictionary dictionaryWithContentsOfURL:resourcesVersionDictURL];
+    if ( [resourcesVersionDict count] != 0 ) {
+        NSString *localVersion = resourcesVersionDict[@"Version"];
+        if ( ! [latestVersion isEqualToString:localVersion] ) {
+            NSString *downloadURLString = downloadDict[latestVersion];
+            if ( [downloadURLString length] != 0 ) {
+                NSError *error;
+                NSURL *downloadFolderURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/tmp/download.%@", [NSString nbc_randomString]]];
+                if ( [[NSFileManager defaultManager] createDirectoryAtURL:downloadFolderURL withIntermediateDirectories:YES attributes:@{} error:&error] ) {
+                    [self downloadResourcesToFolder:downloadURLString targetFolderPath:[downloadFolderURL path] version:latestVersion];
+                } else {
+                    DDLogError(@"[ERROR] Could not create download folder!");
+                    DDLogError(@"[ERROR] %@", error);
+                }
+            } else {
+                DDLogError(@"[ERROR] Got no download URL!");
+            }
+        } else {
+            NSMutableDictionary *resourcesVersionDictMutable = [[NSMutableDictionary alloc] initWithContentsOfURL:resourcesVersionDictURL];
+            if ( [resourcesVersionDictMutable count] == 0 ) {
+                resourcesVersionDictMutable = [[NSMutableDictionary alloc] init];
+            }
+            
+            resourcesVersionDictMutable[@"LastCheck"] = [NSDate date] ?: @"";
+            
+            [resourcesVersionDictMutable writeToURL:resourcesVersionDictURL atomically:YES];
+        }
+    } else {
+        NSString *downloadURLString = downloadDict[latestVersion];
+        if ( [downloadURLString length] != 0 ) {
+            NSError *error;
+            NSURL *downloadFolderURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/tmp/download.%@", [NSString nbc_randomString]]];
+            if ( [[NSFileManager defaultManager] createDirectoryAtURL:downloadFolderURL withIntermediateDirectories:YES attributes:@{} error:&error] ) {
+                [self downloadResourcesToFolder:downloadURLString targetFolderPath:[downloadFolderURL path] version:latestVersion];
+            } else {
+                DDLogError(@"[ERROR] Could not create download folder!");
+                DDLogError(@"[ERROR] %@", error);
+            }
+        } else {
+            DDLogError(@"[ERROR] Got no download URL!");
+        }
+    }
+}
 
 - (void)compareCurrentVersionToLatest:(NSString *)latestVersion downloadDict:(NSDictionary *)downloadDict {
     if ( [latestVersion length] != 0 ) {
@@ -146,9 +199,36 @@
         } else {
             userInfo[@"UpdateAvailable"] = @NO;
         }
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationStopSearchingForUpdates object:self userInfo:userInfo];
     } else {
+        int currentVersionInt = [[currentVersion stringByReplacingOccurrencesOfString:@"." withString:@""] intValue];
+        int latestVersionInt = [[latestVersion stringByReplacingOccurrencesOfString:@"." withString:@""] intValue];
+        NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
+        if ( currentVersionInt < latestVersionInt ) {
+            _updateMessage = [NSString stringWithFormat:@"Version %@ is available on GitHub!", latestVersion];
+            [_textFieldMessage setStringValue:_updateMessage];
+            [_textFieldTitle setStringValue:@"An update to NBICreator is available!"];
+            
+            DDLogInfo(@"Version %@ is available for download!", latestVersion);
+            
+            userInfo[@"UpdateAvailable"] = @YES;
+            userInfo[@"LatestVersion"] = latestVersion;
+            [self setDownloadURL:downloadDict[latestVersion]];
+            if ( _downloadURL ) {
+                [_buttonDownload setEnabled:YES];
+            } else {
+                DDLogError(@"[ERROR] DownloadURL was empty!");
+                [_buttonDownload setEnabled:NO];
+            }
+            [self setIsDownloading:NO];
+            [_buttonDownload setTitle:@"Download"];
+            [_windowUpdates makeKeyAndOrderFront:self];
+        } else {
+            userInfo[@"UpdateAvailable"] = @NO;
+        }
         
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationStopSearchingForUpdates object:self userInfo:userInfo];
     }
 } // compareCurrentVersionToLatest
 
@@ -221,6 +301,21 @@
                               downloadInfo:downloadInfo];
 }
 
+- (void)downloadResourcesToFolder:(NSString *)url targetFolderPath:(NSString *)targetFolderPath version:(NSString *)version {
+    NSDictionary *downloadInfo = @{
+                                   NBCDownloaderTag : NBCDownloaderTagNBICreatorResources,
+                                   @"Version" : version
+                                   };
+    
+    if ( self->_downloaderResources ) {
+        [self setDownloaderResources:nil];
+    }
+    [self setDownloaderResources:[[NBCDownloader alloc] initWithDelegate:self]];
+    [self->_downloaderResources downloadFileFromURL:[NSURL URLWithString:url]
+                                    destinationPath:targetFolderPath
+                                       downloadInfo:downloadInfo];
+}
+
 - (IBAction)buttonCancel:(id)sender {
 #pragma unused(sender)
     if ( _isDownloading ) {
@@ -229,6 +324,81 @@
         }
     } else {
         [_windowUpdates close];
+    }
+}
+
+- (NSURL *)resourcesFolder:(NSString *)resourcesFolder {
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
+    if ( ! userApplicationSupport ) {
+        DDLogError(@"Could not get Application Support folder for current User");
+        DDLogError(@"Error: %@", error);
+    }
+    
+    return [userApplicationSupport URLByAppendingPathComponent:resourcesFolder isDirectory:YES];
+}
+
+- (void)unzipAndCopyToSupportFolder:(NSURL *)zipURL version:(NSString *)version {
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    NSURL *resourcesFolderURL = [self resourcesFolder:NBCFolderResources];
+    if ( ! [resourcesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+        if ( ! [fm createDirectoryAtURL:resourcesFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
+            DDLogError(@"[ERROR] Could not create folder");
+            DDLogError(@"[ERROR] %@", error);
+            return;
+        }
+    }
+    
+    // Unzip Archive
+    NSString *tmpFolderPath = [NSString stringWithFormat:@"/tmp/zip.%@", [NSString nbc_randomString]];
+    if ( [Main unzipFileAtPath:[zipURL path] toDestination:tmpFolderPath] ) {
+        NSArray *unzippedRootItems = [fm contentsOfDirectoryAtPath:tmpFolderPath error:NULL];
+        for ( NSString *itemName in unzippedRootItems ) {
+            if ( [itemName isEqualToString:@"__MACOSX"] ) {
+                continue;
+            }
+            
+            NSURL *sourceURL = [NSURL fileURLWithPath:[tmpFolderPath stringByAppendingPathComponent:itemName]];
+            NSURL *targetURL = [resourcesFolderURL URLByAppendingPathComponent:itemName];
+            if ( [targetURL checkResourceIsReachableAndReturnError:&error] ) {
+                if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
+                    DDLogError(@"[ERROR] Could not resource folder: %@", [targetURL path]);
+                    DDLogError(@"[ERROR] %@", error);
+                    return;
+                }
+            }
+            
+            if ( ! [fm moveItemAtURL:sourceURL toURL:targetURL error:&error] ) {
+                DDLogError(@"[ERROR] Could not create resource folder: %@", [targetURL path]);
+                DDLogError(@"[ERROR] %@", error);
+                return;
+            }
+        }
+        
+        NSURL *resourcesVersionDictURL = [resourcesFolderURL URLByAppendingPathComponent:@"ResourcesVersion.plist"];
+        NSMutableDictionary *resourcesVersionDict = [[NSMutableDictionary alloc] initWithContentsOfURL:resourcesVersionDictURL];
+        if ( [resourcesVersionDict count] == 0 ) {
+            resourcesVersionDict = [[NSMutableDictionary alloc] init];
+        }
+        
+        resourcesVersionDict[@"Version"] = version ?: @0;
+        resourcesVersionDict[@"DownloadDate"] = [NSDate date] ?: @"";
+        resourcesVersionDict[@"LastCheck"] = [NSDate date] ?: @"";
+        
+        [resourcesVersionDict writeToURL:resourcesVersionDictURL atomically:YES];
+    }
+    
+    if ( ! [fm removeItemAtPath:tmpFolderPath error:&error] ) {
+        DDLogError(@"[ERROR] Could not remove temporary zip folder");
+        DDLogError(@"[ERROR] %@", error);
+    }
+    
+    if ( ! [fm removeItemAtURL:[zipURL URLByDeletingLastPathComponent] error:&error] ) {
+        DDLogError(@"[ERROR] Could not remove temporary download folder");
+        DDLogError(@"[ERROR] %@", error);
     }
 }
 
