@@ -912,7 +912,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)addSpctl:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
     NSMutableArray *packageBSDRegexes;
@@ -934,6 +933,8 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)addCasperImaging:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    NSError *error;
+    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -948,17 +949,43 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
-    NSString *regexSystemClr = @".*/Colors/System.clr.*";
-    [packageEssentialsRegexes addObject:regexSystemClr];
+    NSURL *casperImagingDependenciesURL = [[NSBundle mainBundle] URLForResource:@"casperImagingDependencies" withExtension:@"plist"];
+    NSString *sourceVersionOS = [source expandVariables:@"%OSVERSION%"];
+    NSString *sourceBuild = [source expandVariables:@"%OSBUILD%"];
+    NSDictionary *buildDict;
+    if ( [casperImagingDependenciesURL checkResourceIsReachableAndReturnError:&error] ) {
+        NSDictionary *casperImagingDependenciesDict = [NSDictionary dictionaryWithContentsOfURL:casperImagingDependenciesURL];
+        if ( [casperImagingDependenciesDict count] != 0 ) {
+            NSDictionary *sourceDict = casperImagingDependenciesDict[sourceVersionOS];
+            NSArray *sourceBuilds = [sourceDict allKeys];
+            if ( [sourceDict count] != 0 && [sourceBuilds containsObject:sourceBuild] ) {
+                buildDict = sourceDict[sourceBuild];
+            } else {
+                NSLog(@"Fix!");
+            }
+            
+            if ( [buildDict count] == 0 ) {
+                DDLogError(@"ERROR");
+            }
+        }
+    }
     
-    NSString *regexHelveticaNeue = @".*/System/Library/Fonts/HelveticaNeue.dfont.*";
-    [packageEssentialsRegexes addObject:regexHelveticaNeue];
+    NSArray *casperImagingDepencenciesEssentials = buildDict[@"Essentials"];
+    if ( [casperImagingDepencenciesEssentials count] != 0 ) {
+        [packageEssentialsRegexes addObjectsFromArray:casperImagingDepencenciesEssentials];
+    }
     
-    NSString *regexLucidaGrande = @".*/System/Library/Fonts/LucidaGrande.ttc.*";
-    [packageEssentialsRegexes addObject:regexLucidaGrande];
+    //NSString *regexSystemClr = @".*/Colors/System.clr.*";
+    //[packageEssentialsRegexes addObject:regexSystemClr];
     
-    NSString *regexQuickTime = @".*System/Library/QuickTime.*";
-    [packageEssentialsRegexes addObject:regexQuickTime];
+    //NSString *regexHelveticaNeue = @".*/System/Library/Fonts/HelveticaNeue.dfont.*";
+    //[packageEssentialsRegexes addObject:regexHelveticaNeue];
+    
+    //NSString *regexLucidaGrande = @".*/System/Library/Fonts/LucidaGrande.ttc.*";
+    //[packageEssentialsRegexes addObject:regexLucidaGrande];
+    
+    //NSString *regexQuickTime = @".*System/Library/QuickTime.*";
+    //[packageEssentialsRegexes addObject:regexQuickTime];
     
     int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
     if ( 11 <= sourceVersionMinor ) {
@@ -1121,7 +1148,7 @@ DDLogLevel ddLogLevel;
         // update_dyld_shared_cache failed: could not bind symbol _FZAVErrorDomain in /System/Library/PrivateFrameworks/IMAVCore.framework/Versions/A/IMAVCore expected in /System/Library/PrivateFrameworks/IMCore.framework/Versions/A/IMCore in /System/Library/PrivateFrameworks/IMAVCore.framework/Versions/A/IMAVCore
         NSString *regexIMAVCore = @".*/PrivateFrameworks/IMAVCore.framework.*";
         [packageEssentialsRegexes addObject:regexIMAVCore];
-
+        
         //NSString *regexOpenGLAll = @".*[Oo]pen[Gg][Ll].*";
         //[packageEssentialsRegexes addObject:regexOpenGLAll];
         
@@ -1155,8 +1182,13 @@ DDLogLevel ddLogLevel;
         baseSystemBinariesRegexes = [[NSMutableArray alloc] init];
     }
     
-    NSString *regexDyld = @".*dyld.*";
-    [baseSystemBinariesRegexes addObject:regexDyld];
+    NSArray *casperImagingDepencenciesBaseSystemBinaries = buildDict[@"BaseSystemBinaries"];
+    if ( [casperImagingDepencenciesBaseSystemBinaries count] != 0 ) {
+        [baseSystemBinariesRegexes addObjectsFromArray:casperImagingDepencenciesBaseSystemBinaries];
+    }
+    
+    //NSString *regexDyld = @".*dyld.*";
+    //[baseSystemBinariesRegexes addObject:regexDyld];
     
     baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey] = baseSystemBinariesRegexes;
     sourceItemsDict[baseSystemBinariesPath] = baseSystemBinariesDict;
@@ -1467,6 +1499,9 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
+    NSString *regexOpen = @".*/bin/open.*";
+    [packageEssentialsRegexes addObject:regexOpen];
+    
     NSString *regexShareKit = @".*ShareKit.framework.*";
     [packageEssentialsRegexes addObject:regexShareKit];
     
@@ -1741,7 +1776,7 @@ DDLogLevel ddLogLevel;
                       @"-a",
                       @"-x"
                       ];
-
+    
     [newTask setArguments:args];
     
     

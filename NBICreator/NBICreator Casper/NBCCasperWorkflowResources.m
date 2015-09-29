@@ -42,6 +42,81 @@ DDLogLevel ddLogLevel;
     [self setTarget:[workflowItem target]];
     [self setUserSettings:[workflowItem userSettings]];
     [self setNbiCreationTool:_userSettings[NBCSettingsNBICreationToolKey]];
+    [self setResourcesSettings:[workflowItem resourcesSettings]];
+    
+    [self setResourcesCount:3];
+    
+    // -------------------------------------------------------
+    //  Update _resourcesCount with all sourceItems
+    // -------------------------------------------------------
+    NSDictionary *sourceItemsDict = _resourcesSettings[NBCSettingsSourceItemsKey];
+    if ( [sourceItemsDict count] != 0 ) {
+        NSArray *sourcePackages = [sourceItemsDict allKeys];
+        for ( NSString *packagePath in sourcePackages ) {
+            NSDictionary *packageDict = sourceItemsDict[packagePath];
+            NSDictionary *packageDictPath = packageDict[NBCSettingsSourceItemsPathKey];
+            int packageCount = (int)[packageDictPath count];
+            [self setResourcesCount:( _resourcesCount + packageCount )];
+            NSArray *packageRegexArray = packageDict[NBCSettingsSourceItemsRegexKey];
+            if ( [packageDict count] != 0 ) {
+                [self setResourcesCount:( _resourcesCount + (int)[packageRegexArray count] )];
+            }
+        }
+    }
+    NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
+    if ( [certificatesArray count] != 0 ) {
+        [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )];
+    }
+    NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
+    if ( [packagessArray count] != 0 ) {
+        [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
+    }
+    if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+        [self setResourcesCount:( _resourcesCount + 1 )];
+        if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
+            [self setResourcesCount:( _resourcesCount + 1 )];
+        }
+    }
+    
+    if ( _userSettings ) {
+        if ( ! [self preparePackages:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self prepareCertificates:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self prepareCasperImagingApplication:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self createJSSPreferencePlist:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self prepareDesktopViewer:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self createCasperRCImaging:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        [self getItemsFromSource:workflowItem];
+    } else {
+        DDLogError(@"[ERROR] Settings are empty!");
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+    }
+} // runWorkflow
+
+/*
     [self addDependenciesToExtract:workflowItem];
 }
 
@@ -75,8 +150,6 @@ DDLogLevel ddLogLevel;
                     packageEssentialsRegexes = [[NSMutableArray alloc] init];
                 }
                 
-                
-                
                 [packageEssentialsRegexes addObjectsFromArray:packageBaseSystemBinariesRegexes];
                 packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];
                 sourceItemsDictMutable[packageEssentialsPath] = packageEssentialsDict;
@@ -86,7 +159,6 @@ DDLogLevel ddLogLevel;
         NSMutableDictionary *resourcesSettings = [[workflowItem resourcesSettings] mutableCopy];
         resourcesSettings[NBCSettingsSourceItemsKey] = [sourceItemsDictMutable copy];
         [workflowItem setResourcesSettings:resourcesSettings];
-        NSLog(@"workflowItem=%@", [workflowItem resourcesSettings]);
         [self setResourcesSettings:[workflowItem resourcesSettings]];
         [self updateResourceCount:workflowItem];
     } else {
@@ -168,7 +240,7 @@ DDLogLevel ddLogLevel;
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
 } // runWorkflow
-
+*/
 - (BOOL)prepareDesktopViewer:(NBCWorkflowItem *)workflowItem {
     DDLogInfo(@"Preparing Desktop Viewer...");
     [_delegate updateProgressStatus:@"Preparing Desktop Viewer..." workflow:self];
