@@ -100,7 +100,8 @@ DDLogLevel ddLogLevel;
     }
     
     BOOL writeOSInstall = NO;
-    NSMutableArray *osInstallArray = [NSMutableArray arrayWithArray:@[ @"/System/Installation/Packages/OSInstall.mpkg" ]];
+    NSMutableArray *osInstallArray = [NSMutableArray arrayWithArray:@[ @"/System/Installation/Packages/OSInstall.mpkg",
+                                                                       @"/System/Installation/Packages/OSInstall.mpkg" ]];
     
     NSArray *configurationProfilesNetInstall = resourcesSettings[NBCSettingsConfigurationProfilesNetInstallKey];
     if ( [configurationProfilesNetInstall count] != 0 ) {
@@ -171,14 +172,10 @@ DDLogLevel ddLogLevel;
     }
     
     if ( writeOSInstall ) {
-        NSData *plistData = (__bridge NSData *)(CFPropertyListCreateData(kCFAllocatorDefault,
-                                                                         (__bridge CFPropertyListRef)(osInstallArray),
-                                                                         kCFPropertyListXMLFormat_v1_0,
-                                                                         0,
-                                                                         NULL));
         NSURL *osInstallURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"OSInstall.collection"];
         [temporaryItemsNBI addObject:osInstallURL];
-        [plistData writeToURL:osInstallURL atomically:YES];
+        NSDictionary *osInstallDict = (NSDictionary*)osInstallArray;
+        [osInstallDict writeToURL:osInstallURL atomically:YES];
     }
     
     [workflowItem setTemporaryItemsNBI:temporaryItemsNBI];
