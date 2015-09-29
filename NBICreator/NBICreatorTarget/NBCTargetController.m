@@ -1626,6 +1626,37 @@ DDLogLevel ddLogLevel;
     
     [modifyDictArray addObject:modifyUtilitiesPlist];
     
+    // --------------------------------------------------------------
+    //  /Library/Preferences/com.apple.Console.plist
+    // --------------------------------------------------------------
+    NSURL *consolePlistURL = [volumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.Console.plist"];
+    NSMutableDictionary *consolePlistDict;
+    NSDictionary *consolePlistAttributes;
+    if ( [consolePlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        consolePlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:consolePlistURL];
+        consolePlistAttributes = [fm attributesOfItemAtPath:[consolePlistURL path] error:&error];
+    }
+    
+    if ( [consolePlistDict count] == 0 ) {
+        consolePlistDict = [[NSMutableDictionary alloc] init];
+        consolePlistAttributes = @{
+                                   NSFileOwnerAccountName : @"root",
+                                   NSFileGroupOwnerAccountName : @"wheel",
+                                   NSFilePosixPermissions : @0644
+                                   };
+    }
+    
+    consolePlistDict[@"LogOutlineViewVisible"] = @NO;
+    
+    NSDictionary *modifyConsolePlist = @{
+                                         NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                         NBCWorkflowModifyContent : consolePlistDict,
+                                         NBCWorkflowModifyAttributes : consolePlistAttributes,
+                                         NBCWorkflowModifyTargetURL : [consolePlistURL path]
+                                         };
+    
+    [modifyDictArray addObject:modifyConsolePlist];
+    
     return retval;
 }
 
@@ -2421,16 +2452,16 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     NSURL *folderUsrLocal = [volumeURL URLByAppendingPathComponent:@"usr/local" isDirectory:YES];
     NSDictionary *folderUsrLocalAttributes = @{
-                                                   NSFileOwnerAccountName : @"root",
-                                                   NSFileGroupOwnerAccountName : @"wheel",
-                                                   NSFilePosixPermissions : @0755
-                                                   };
+                                               NSFileOwnerAccountName : @"root",
+                                               NSFileGroupOwnerAccountName : @"wheel",
+                                               NSFilePosixPermissions : @0755
+                                               };
     
     NSDictionary *modifyFolderUsrLocal = @{
-                                               NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
-                                               NBCWorkflowModifyTargetURL : [folderUsrLocal path],
-                                               NBCWorkflowModifyAttributes : folderUsrLocalAttributes
-                                               };
+                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                           NBCWorkflowModifyTargetURL : [folderUsrLocal path],
+                                           NBCWorkflowModifyAttributes : folderUsrLocalAttributes
+                                           };
     [modifyDictArray insertObject:modifyFolderUsrLocal atIndex:0];
     
     // --------------------------------------------------------------

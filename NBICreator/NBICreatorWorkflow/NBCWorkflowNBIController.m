@@ -189,7 +189,7 @@ DDLogLevel ddLogLevel;
         NSLog(@"Could not get nbiName form workflowItem!");
         return nil;
     }
-
+    
     // -------------------------------------------------------------------
     //  Add -dest
     // -------------------------------------------------------------------
@@ -259,7 +259,7 @@ DDLogLevel ddLogLevel;
             return nil;
         }
     }
-
+    
     // -------------------------------------------------------------------
     //  Add -customtitle
     // -------------------------------------------------------------------
@@ -567,10 +567,14 @@ DDLogLevel ddLogLevel;
     
     if ( [settingsDict[NBCSettingsIncludeConsoleAppKey] boolValue] && [settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue] ) {
         NSString *startConsole = [NSString stringWithFormat:@"\n"
-                                        "###\n"
-                                        "### Start Console\n"
-                                        "###\n"
-                                        "/Applications/Utilities/Console.app/Contents/MacOS/Console &\n"];
+                                  "###\n"
+                                  "### Start Console\n"
+                                  "###\n"
+                                  "if [ -e /usr/bin/open ]; then\n"
+                                  "\t/usr/bin/open -F -g -a /Applications/Utilities/Console.app/Contents/MacOS/Console /var/log/system.log\n"
+                                  "else\n"
+                                  "\t/Applications/Utilities/Console.app/Contents/MacOS/Console &\n"
+                                  "fi\n"];
         rcImaging = [rcImaging stringByAppendingString:startConsole];
     }
     
@@ -652,12 +656,12 @@ DDLogLevel ddLogLevel;
     rcImaging = [rcImaging stringByAppendingString:disableGatekeeper];
     
     NSString *loadSystemUIServer = [NSString stringWithFormat:@"\n"
-                                   "###\n"
-                                   "### Load SystemUIServerAgent\n"
-                                   "###\n"
-                                   "if [ -e /System/Library/LaunchAgents/com.apple.coreservices.uiagent.plist ]; then\n"
-                                   "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.coreservices.uiagent.plist\n"
-                                   "fi\n"];
+                                    "###\n"
+                                    "### Load SystemUIServerAgent\n"
+                                    "###\n"
+                                    "if [ -e /System/Library/LaunchAgents/com.apple.coreservices.uiagent.plist ]; then\n"
+                                    "\t/bin/launchctl load /System/Library/LaunchAgents/com.apple.coreservices.uiagent.plist\n"
+                                    "fi\n"];
     rcImaging = [rcImaging stringByAppendingString:loadSystemUIServer];
     
     if ( settingsDict[NBCSettingsARDPasswordKey] ) {
@@ -753,23 +757,27 @@ DDLogLevel ddLogLevel;
                                   "###\n"
                                   "### Start Console\n"
                                   "###\n"
-                                  "/Applications/Utilities/Console.app/Contents/MacOS/Console &\n"];
+                                  "if [ -e /usr/bin/open ]; then\n"
+                                  "\t/usr/bin/open -F -g -a /Applications/Utilities/Console.app/Contents/MacOS/Console /var/log/system.log\n"
+                                  "else\n"
+                                  "\t/Applications/Utilities/Console.app/Contents/MacOS/Console &\n"
+                                  "fi\n"];
         rcImaging = [rcImaging stringByAppendingString:startConsole];
     }
     
     NSString *startCasperImaging;
     if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemNBICreator] ) {
         startCasperImaging = [NSString stringWithFormat:@"\n"
-                      "###\n"
-                      "### Start Casper Imaging\n"
-                      "###\n"
-                      "/Applications/Casper\\ Imaging.app/Contents/MacOS/Casper\\ Imaging\n"];
+                              "###\n"
+                              "### Start Casper Imaging\n"
+                              "###\n"
+                              "/Applications/Casper\\ Imaging.app/Contents/MacOS/Casper\\ Imaging\n"];
     } else if ( [settingsDict[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
         startCasperImaging = [NSString stringWithFormat:@"\n"
-                      "###\n"
-                      "### Start Casper Imaging\n"
-                      "###\n"
-                      "/Volumes/Image\\ Volume/Packages/Casper\\ Imaging.app/Contents/MacOS/Casper\\ Imaging\n"];
+                              "###\n"
+                              "### Start Casper Imaging\n"
+                              "###\n"
+                              "/Volumes/Image\\ Volume/Packages/Casper\\ Imaging.app/Contents/MacOS/Casper\\ Imaging\n"];
     }
     rcImaging = [rcImaging stringByAppendingString:startCasperImaging];
     
