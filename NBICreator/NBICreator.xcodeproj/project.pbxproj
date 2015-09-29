@@ -70,6 +70,7 @@
 		5381B76E1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 5381B76C1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.m */; };
 		5381B76F1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5381B76D1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib */; };
 		5386EA8E1AFFB0EA0091D57A /* NBCDownloaderPython.m in Sources */ = {isa = PBXBuildFile; fileRef = 5386EA8D1AFFB0EA0091D57A /* NBCDownloaderPython.m */; };
+		538805201BB9CF1C004A4BD8 /* casperImagingDependencies.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5388051F1BB9CF1C004A4BD8 /* casperImagingDependencies.plist */; settings = {ASSET_TAGS = (); }; };
 		538AC3CE1BB1B281006BC343 /* NBCOverlayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 538AC3CC1BB1B281006BC343 /* NBCOverlayViewController.m */; settings = {ASSET_TAGS = (); }; };
 		538AC3CF1BB1B281006BC343 /* NBCOverlayViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 538AC3CD1BB1B281006BC343 /* NBCOverlayViewController.xib */; settings = {ASSET_TAGS = (); }; };
 		538DAF341AD7179600F2A3DD /* DeployStudioDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 538DAF331AD7179600F2A3DD /* DeployStudioDefaults.plist */; };
@@ -359,6 +360,7 @@
 		5381B76D1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCNetInstallSettingsViewController.xib; path = NBICreatorNetInstall/NBCNetInstallSettingsViewController.xib; sourceTree = "<group>"; };
 		5386EA8C1AFFB0EA0091D57A /* NBCDownloaderPython.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCDownloaderPython.h; path = NBICreatorNetworking/NBCDownloaderPython.h; sourceTree = "<group>"; };
 		5386EA8D1AFFB0EA0091D57A /* NBCDownloaderPython.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCDownloaderPython.m; path = NBICreatorNetworking/NBCDownloaderPython.m; sourceTree = "<group>"; };
+		5388051F1BB9CF1C004A4BD8 /* casperImagingDependencies.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = casperImagingDependencies.plist; sourceTree = "<group>"; };
 		538AC3CB1BB1B281006BC343 /* NBCOverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCOverlayViewController.h; sourceTree = "<group>"; };
 		538AC3CC1BB1B281006BC343 /* NBCOverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCOverlayViewController.m; sourceTree = "<group>"; };
 		538AC3CD1BB1B281006BC343 /* NBCOverlayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NBCOverlayViewController.xib; sourceTree = "<group>"; };
@@ -831,6 +833,7 @@
 			isa = PBXGroup;
 			children = (
 				53968C0B1A8E7A3E0079AA95 /* Info.plist */,
+				5388051F1BB9CF1C004A4BD8 /* casperImagingDependencies.plist */,
 				53DF9CF11AA36DC8004B68D8 /* Defaults.plist */,
 				539DAEFA1AF162A10037F06B /* NetInstallDefaults.plist */,
 				538DAF331AD7179600F2A3DD /* DeployStudioDefaults.plist */,
@@ -1167,6 +1170,7 @@
 				53DF9CF21AA36DC8004B68D8 /* Defaults.plist in Resources */,
 				535A898D1AD3247A00DC08F4 /* IconYosemite.icns in Resources */,
 				53BD1F881B80A72C004391D6 /* IconDeployStudioNBI.icns in Resources */,
+				538805201BB9CF1C004A4BD8 /* casperImagingDependencies.plist in Resources */,
 				53B9CEB91A95D68700C8015E /* NBCDeployStudioSettingsViewController.xib in Resources */,
 				539DAEF81AF15ACB0037F06B /* NBCImagrDropViewController.xib in Resources */,
 				538DAF341AD7179600F2A3DD /* DeployStudioDefaults.plist in Resources */,
