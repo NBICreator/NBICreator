@@ -19,7 +19,7 @@
 - (void)updateProgressBar:(double)value;
 @end
 
-@interface NBCCasperWorkflowResources : NSObject <NBCDownloaderDelegate, NBCResourcesControllerDelegate, NBCSourceControllerDelegate>
+@interface NBCCasperWorkflowResources : NSObject <NBCDownloaderDelegate, NBCResourcesControllerDelegate>
 
 @property (nonatomic, weak) id delegate;
 

@@ -451,7 +451,7 @@ asdasd</string>
                                 </constraints>
                             </view>
                         </tabViewItem>
-                        <tabViewItem label="NetInstall" identifier="" id="AVE-tK-e8f">
+                        <tabViewItem label="Post-Install" identifier="" id="AVE-tK-e8f">
                             <view key="view" id="1XJ-St-0Be">
                                 <rect key="frame" x="10" y="33" width="534" height="324"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>

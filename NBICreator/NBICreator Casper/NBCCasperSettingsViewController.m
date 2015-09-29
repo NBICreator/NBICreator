@@ -130,19 +130,7 @@ DDLogLevel ddLogLevel;
     //  Load saved templates and create the template menu
     // --------------------------------------------------------------
     [self updatePopUpButtonTemplates];
-    
-    // --------------------------------------------------------------
-    //  Set Hyperlink to "More Info" text after Allow Invalid Certificate
-    // --------------------------------------------------------------
-    /*
-     [_textFieldMoreInfo setAllowsEditingTextAttributes: YES];
-     [_textFieldMoreInfo setSelectable: YES];
-     NSURL* url = [NSURL URLWithString:@"https://macmule.com/projects/autocaspernbi/#Enable_Invalid_JSS_Cert_if_a_JSS_URL_is_given"];
-     NSMutableAttributedString* string = [[NSMutableAttributedString alloc] init];
-     [string appendAttributedString:[NSAttributedString hyperlinkFromString:@"More Info" withURL:url]];
-     [_textFieldMoreInfo setAttributedStringValue:string];
-     */
-    
+        
     // ------------------------------------------------------------------------------------------
     //  Add contextual menu to NBI background image view to allow to restore original background.
     // ------------------------------------------------------------------------------------------
@@ -2391,30 +2379,6 @@ DDLogLevel ddLogLevel;
         if ( [currentCountry length] != 0 ) {
             resourcesSettings[NBCSettingsCountry] = currentCountry;
         }
-        
-        /* Should not access property lists directly, keeping it around for now
-         NSDictionary *globalPreferencesDict = [NSDictionary dictionaryWithContentsOfFile:NBCFilePathPreferencesGlobal];
-         NSString *currentLanguageID = globalPreferencesDict[@"AppleLanguages"][0];
-         DDLogInfo(@"Current Language ID: %@", currentLanguageID);
-         if ( [currentLanguageID length] != 0 ) {
-         resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
-         } else {
-         DDLogError(@"[ERROR] Could not get current language ID!");
-         return;
-         }
-         
-         NSString *currentLocaleIdentifier = globalPreferencesDict[@"AppleLocale"];
-         DDLogInfo(@"currentLocaleIdentifier=%@", currentLocaleIdentifier);
-         if ( [currentLocaleIdentifier length] != 0 ) {
-         resourcesSettings[NBCSettingsLocale] = currentLocaleIdentifier;
-         }
-         
-         NSString *currentCountry = globalPreferencesDict[@"Country"];
-         DDLogInfo(@"currentCountry=%@", currentCountry);
-         if ( [currentCountry length] != 0 ) {
-         resourcesSettings[NBCSettingsCountry] = currentCountry;
-         }
-         */
     } else {
         NSString *languageID = [_languageDict allKeysForObject:selectedLanguage][0];
         if ( [languageID length] != 0 ) {
@@ -2862,30 +2826,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)populatePopUpButtonLanguage {
-    
-    /* Localized Names
-     NSArray *localeIdentifiers = [NSLocale availableLocaleIdentifiers];
-     for ( NSString *identifier in localeIdentifiers ) {
-     
-     NSLocale *tmpLocale = [[NSLocale alloc] initWithLocaleIdentifier:identifier];
-     NSString *localeIdentifier = [tmpLocale objectForKey: NSLocaleIdentifier];
-     NSString *localeIdentifierDisplayName = [tmpLocale displayNameForKey:NSLocaleIdentifier value:localeIdentifier];
-     
-     NSLog(@"localeIdentifierDisplayName = %@", localeIdentifierDisplayName);
-     NSLog(@"localeIdentifier = %@", localeIdentifier);
-     }
-     */
-    
-    /* English Names
-     NSMutableDictionary *mutableLanguageDict = [[NSMutableDictionary alloc] init];
-     NSLocale *locale = [[NSLocale alloc] initWithLocaleIdentifier:@"en_US"];
-     NSArray *localeIdentifiers = [NSLocale availableLocaleIdentifiers];
-     for ( NSString *identifier in localeIdentifiers ) {
-     mutableLanguageDict[identifier] = [locale displayNameForKey:NSLocaleIdentifier value:identifier];
-     }
-     _languageDict = [mutableLanguageDict mutableCopy];
-     */
-    
     NSError *error;
     NSURL *languageStringsFile = [NSURL fileURLWithPath:@"/System/Library/PrivateFrameworks/IntlPreferences.framework/Versions/A/Resources/Language.strings"];
     if ( [languageStringsFile checkResourceIsReachableAndReturnError:&error] ) {
@@ -2902,7 +2842,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)populatePopUpButtonKeyboardLayout {
-    
     NSDictionary *ref = @{
                           (NSString *)kTISPropertyInputSourceType : (NSString *)kTISTypeKeyboardLayout
                           };
@@ -3084,7 +3023,7 @@ DDLogLevel ddLogLevel;
         NSDictionary *certificateDict = [self examineCertificate:data];
         if ( [certificateDict count] != 0 ) {
             if ( [_casperJSSURL length] != 0 ) {
-                _jssCACertificate = @{ _casperJSSURL : certificateDict[@"CertificateSignature"] };
+                [self setJssCACertificate:@{ _casperJSSURL : certificateDict[@"CertificateSignature"] }];
             }
             
             NSString *status;
