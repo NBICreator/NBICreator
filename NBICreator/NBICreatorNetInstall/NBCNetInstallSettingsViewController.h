@@ -31,6 +31,10 @@
 @property NBCSystemImageUtilitySource *siuSource;
 @property NBCTemplatesController *templates;
 
+// Table Views
+@property NSRange objectRange;
+@property NSArray *currentlyDraggedObjects;
+
 // ------------------------------------------------------
 //  Templates
 // ------------------------------------------------------
@@ -58,7 +62,7 @@
 - (IBAction)buttonChooseDestinationFolder:(id)sender;
 
 // ------------------------------------------------------
-//  TabView NetInstall1
+//  TabView Post-Install
 // ------------------------------------------------------
 
 // Configuration Profiles
@@ -76,9 +80,6 @@
 @property (weak) IBOutlet NSTableView *tableViewPackagesNetInstall;
 - (IBAction)buttonAddPackageNetInstall:(id)sender;
 - (IBAction)buttonRemovePackageNetInstall:(id)sender;
-
-@property NSRange objectRange;
-@property NSArray *currentlyDraggedObjects;
 
 // ------------------------------------------------------
 //  PopOver
