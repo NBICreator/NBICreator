@@ -56,6 +56,12 @@ DDLogLevel ddLogLevel;
     switch ( [workflowItem workflowType] ) {
         case kWorkflowTypeNetInstall:
         {
+            // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Post-Install"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsTabPostInstall = [self verifySettingsTabPostInstall:workflowItem];
+            [settings addObject:settingsTabPostInstall];
+            
             break;
         }
         case kWorkflowTypeDeployStudio:
@@ -311,6 +317,31 @@ DDLogLevel ddLogLevel;
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 } // verifySettingsTabAdvanced
 
+- (NSDictionary *)verifySettingsTabPostInstall:(NBCWorkflowItem *)workflowItem {
+    
+    NSMutableArray *settings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *settingsPackagesNetInstall = [self verifySettingsPackagesNetInstall:workflowItem];
+    [settings addObject:settingsPackagesNetInstall];
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    for ( NSDictionary *dict in settings ) {
+        NSArray *errorArr = dict[NBCSettingsError];
+        if ( [errorArr count] != 0 ) {
+            [settingsErrors addObjectsFromArray:errorArr];
+        }
+        
+        NSArray *warningArr = dict[NBCSettingsWarning];
+        if ( [warningArr count] != 0 ) {
+            [settingsWarnings addObjectsFromArray:warningArr];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+} // verifySettingsTabExtra
+
 /*
  - (NSDictionary *)verifySettingsTabDebug:(NBCWorkflowItem *)workflowItem {
  
@@ -553,6 +584,29 @@ DDLogLevel ddLogLevel;
 #pragma mark Settings Tab Debug
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Settings Tab Post-Install
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSDictionary *)verifySettingsPackagesNetInstall:(NBCWorkflowItem *)workflowItem {
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSArray *packages = [workflowItem userSettings][NBCSettingsPackagesNetInstallKey];
+    
+    for ( NSString *packagePath in packages ) {
+        NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
+        if ( ! [packageURL checkResourceIsReachableAndReturnError:nil] ) {
+            [settingsErrors addObject:[NSString stringWithFormat:@"Installer Package \"%@\" could not be found!", [packageURL lastPathComponent]]];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
