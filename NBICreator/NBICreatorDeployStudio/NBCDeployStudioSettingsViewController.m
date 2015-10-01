@@ -285,7 +285,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
-    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
         NSString *latestVersion = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
@@ -898,7 +897,6 @@ DDLogLevel ddLogLevel;
 } // getDeployStudioVersions
 
 - (void)updateDeployStudioVersion {
-    
     [self setDeployStudioVersion:[_dsSource deployStudioAdminVersion]];
     if ( [_deployStudioVersion length] != 0 ) {
         [_textFieldDeployStudioVersion setStringValue:_deployStudioVersion];
@@ -912,7 +910,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showUpdateAvailable:(NSString *)latestVersion {
-    
     [_buttonDownloadDeployStudio setHidden:NO];
     if ( [_dsSource isInstalled] ) {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Update available: %@)", latestVersion]];
@@ -923,7 +920,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showUpdateAvailableCached:(NSString *)latestVersion {
-    
     [_buttonDownloadDeployStudio setHidden:YES];
     if ( [_dsSource isInstalled] ) {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Update available: %@)", latestVersion]];
@@ -934,14 +930,12 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)hideUpdateAvailable {
-    
     [_buttonDownloadDeployStudio setHidden:YES];
     [_textFieldUpdateAvailable setHidden:YES];
 }
 
 - (void)showDeployStudioNotInstalled:(NSString *)latestVersion {
 #pragma unused(latestVersion)
-    
     [_buttonDownloadDeployStudio setHidden:NO];
     [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Latest version: %@)", latestVersion]];
     [_textFieldUpdateAvailable setHidden:NO];

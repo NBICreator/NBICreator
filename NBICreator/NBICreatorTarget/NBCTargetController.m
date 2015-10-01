@@ -2425,6 +2425,26 @@ DDLogLevel ddLogLevel;
         return NO;
     }
     
+    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 11 <= sourceVersionMinor ) {
+        // --------------------------------------------------------------
+        //  /Library/ColorSync/Profiles/Displays
+        // --------------------------------------------------------------
+        NSURL *folderLibraryColorSync = [volumeURL URLByAppendingPathComponent:@"Library/ColorSync/Profiles/Displays" isDirectory:YES];
+        NSDictionary *folderLibraryColorSyncAttributes = @{
+                                                           NSFileOwnerAccountName : @"root",
+                                                           NSFileGroupOwnerAccountName : @"wheel",
+                                                           NSFilePosixPermissions : @0755
+                                                           };
+        
+        NSDictionary *modifyFolderLibraryColorSync = @{
+                                                       NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                       NBCWorkflowModifyTargetURL : [folderLibraryColorSync path],
+                                                       NBCWorkflowModifyAttributes : folderLibraryColorSyncAttributes
+                                                       };
+        [modifyDictArray insertObject:modifyFolderLibraryColorSync atIndex:0];
+    }
+    
     // --------------------------------------------------------------
     //  /Library/Caches
     // --------------------------------------------------------------
