@@ -170,6 +170,9 @@
         DDLogError(@"[ERROR] No version tag was passed, can't continue without.");
         return;
     }
+    
+    int latestVersionInt = [[latestVersion stringByReplacingOccurrencesOfString:@"." withString:@""] intValue];
+    
     NSString *currentVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
     NSString *currentBuild = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"];
     if ( [latestVersion containsString:@"beta"] ) {
@@ -203,7 +206,6 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationStopSearchingForUpdates object:self userInfo:userInfo];
     } else {
         int currentVersionInt = [[currentVersion stringByReplacingOccurrencesOfString:@"." withString:@""] intValue];
-        int latestVersionInt = [[latestVersion stringByReplacingOccurrencesOfString:@"." withString:@""] intValue];
         NSMutableDictionary *userInfo = [[NSMutableDictionary alloc] init];
         if ( currentVersionInt < latestVersionInt ) {
             _updateMessage = [NSString stringWithFormat:@"Version %@ is available on GitHub!", latestVersion];

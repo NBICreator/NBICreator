@@ -60,6 +60,7 @@ DDLogLevel ddLogLevel;
     _sourceDictLinks = [[NSMutableDictionary alloc] init];
     _sourceDictSources = [[NSMutableDictionary alloc] init];
     [self setInstallerApplicationIdentifiers:@[
+                                               @"com.apple.InstallAssistant.ElCapitan",
                                                @"com.apple.InstallAssistant.OSX11Seed1",
                                                @"com.apple.InstallAssistant.Yosemite",
                                                @"com.apple.InstallAssistant.Mavericks",

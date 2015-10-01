@@ -477,7 +477,7 @@ NSString *const NBCNBICreatorResourcesGitHubRepository = @"NBICreator/NBICreator
 
 
 NSString *const NBCJSSPreferencePlistTargetURL = @"Packages/com.jamfsoftware.jss.plist";
-NSString *const NBCJSSPreferencePlistNBICreatorTargetURL = @"var/root/Library/Preferences/com.jamfsoftware.jss.plist";
+NSString *const NBCJSSPreferencePlistNBICreatorTargetURL = @"usr/local/preferences/com.jamfsoftware.jss.plist";
 
 
 

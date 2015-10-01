@@ -664,6 +664,14 @@ DDLogLevel ddLogLevel;
                                     "fi\n"];
     rcImaging = [rcImaging stringByAppendingString:loadSystemUIServer];
     
+    // Tests!!
+    NSString *loadCvmsCompAgents = [NSString stringWithFormat:@"\n"
+                                    "###\n"
+                                    "### Load cvmsCompAgents\n"
+                                    "###\n"
+                                    "/bin/launchctl load /System/Library/LaunchAgents/com.apple.cvmsCompAgent*\n"];
+    rcImaging = [rcImaging stringByAppendingString:loadCvmsCompAgents];
+    
     if ( settingsDict[NBCSettingsARDPasswordKey] ) {
         NSString *startScreensharing;
         if ( osMinorVersion <= 7 ) {

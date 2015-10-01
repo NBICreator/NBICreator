@@ -1208,6 +1208,29 @@ DDLogLevel ddLogLevel;
     baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey] = baseSystemBinariesRegexes;
     sourceItemsDict[baseSystemBinariesPath] = baseSystemBinariesDict;
     
+    
+    NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
+    NSMutableArray *packageBSDRegexes;
+    if ( [packageBSDDict count] != 0 ) {
+        packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageBSDRegexes == nil ) {
+            packageBSDRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageBSDDict = [[NSMutableDictionary alloc] init];
+        packageBSDRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSString *regexCvmsCompAgent = @".*/sandbox/cvmsCompAgent.sb.*";
+    [packageBSDRegexes addObject:regexCvmsCompAgent];
+    
+    NSString *regexCvmsServer = @".*/sandbox/cvmsServer.sb.*";
+    [packageBSDRegexes addObject:regexCvmsServer];
+    
+    packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
+    sourceItemsDict[packageBSDPath] = packageBSDDict;
+    
     // Testing without these as they get added by script
     
     // For 'Casper Imaging'

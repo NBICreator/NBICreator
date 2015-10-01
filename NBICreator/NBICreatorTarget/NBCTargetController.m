@@ -2114,15 +2114,15 @@ DDLogLevel ddLogLevel;
                 case kWorkflowTypeCasper:
                 {
                     // The following RAMDisk is created so that Casper Imaging knows that the client is net$
+                    [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches/com.apple.kext.caches/Startup 32768\n"];
+                    [rcCdmCdrom appendString:@"RAMDisk /.vol 1024\n"];
                     [rcCdmCdrom appendString:@"RAMDisk /var/netboot 2048\n"];
+                    [rcCdmCdrom appendString:@"RAMDisk /var/root/Library/Preferences 2048\n"];
                     [rcCdmCdrom appendString:@"RAMDisk '/Library/Application Support' 16384\n"];
+                    [rcCdmCdrom appendString:@"/bin/cp /usr/local/preferences/com.jamfsoftware.jss.plist /var/root/Library/Preferences/com.jamfsoftware.jss.plist\n"];
                     [rcCdmCdrom appendString:@"/bin/chmod 777 /tmp\n"];
-                    [rcCdmCdrom appendString:@"RAMDisk /var/log/ 8192\n"];
+                    [rcCdmCdrom appendString:@"RAMDisk /var/log 8192\n"];
                     [rcCdmCdrom appendString:@"RAMDisk /etc 1024\n"];
-                    [rcCdmCdrom appendString:@"/bin/mkdir -p /var/root/Library/Caches/jamf/fsCachedData\n"];
-                    [rcCdmCdrom appendString:@"/bin/chmod 777 /var/root/Library/Caches/jamf/fsCachedData\n"];
-                    [rcCdmCdrom appendString:@"/bin/mkdir -p /var/root/Library/Caches/com.jamfsoftware.CasperImaging/fsCachedData\n"];
-                    [rcCdmCdrom appendString:@"/bin/chmod 777 /var/root/Library/Caches/com.jamfsoftware.CasperImaging/fsCachedData\n"];
                     break;
                 }
                 default:
@@ -2541,6 +2541,23 @@ DDLogLevel ddLogLevel;
                                                        NBCWorkflowModifyAttributes : folderLibraryLaunchDaemonsAttributes
                                                        };
     [modifyDictArray insertObject:modifyFolderLibraryLaunchDaemons atIndex:0];
+    
+    // --------------------------------------------------------------
+    //  /Library/Application Support
+    // --------------------------------------------------------------
+    NSURL *folderLibraryApplicationSupport = [volumeURL URLByAppendingPathComponent:@"Library/Application Support" isDirectory:YES];
+    NSDictionary *folderLibraryApplicationSupportAttributes = @{
+                                                               NSFileOwnerAccountName : @"root",
+                                                               NSFileGroupOwnerAccountName : @"wheel",
+                                                               NSFilePosixPermissions : @0755
+                                                               };
+    
+    NSDictionary *modifyFolderLibraryApplicationSupport = @{
+                                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                           NBCWorkflowModifyTargetURL : [folderLibraryApplicationSupport path],
+                                                           NBCWorkflowModifyAttributes : folderLibraryApplicationSupportAttributes
+                                                           };
+    [modifyDictArray insertObject:modifyFolderLibraryApplicationSupport atIndex:0];
     
     // --------------------------------------------------------------
     //  /System/Library/Caches
