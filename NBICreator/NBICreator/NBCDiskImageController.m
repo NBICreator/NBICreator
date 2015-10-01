@@ -413,8 +413,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)convertDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath format:(NSString *)format destinationPath:(NSString *)destinationPath {
-    
-    DDLogInfo(@"Converting disk image and shadow file to sparsimage...");
     BOOL retval = NO;
     //NSData *newTaskOutputData;
     NSData *newTaskErrorData;

@@ -111,7 +111,7 @@ DDLogLevel ddLogLevel;
                     if ( [cachedBranchSHA isEqualToString:sha] && [cachedBranchPath length] != 0 ) {
                         cachedBranchURL = [NSURL fileURLWithPath:cachedBranchPath];
                     } else {
-                        DDLogError(@"[ERROR] Resource path is empty!");
+                        DDLogDebug(@"[DEBUG] Resource path is empty!");
                     }
                 }
             }
@@ -133,7 +133,7 @@ DDLogLevel ddLogLevel;
                 if ( [resourcePath length] != 0 ) {
                     cachedVersionURL = [NSURL fileURLWithPath:resourcePath];
                 } else {
-                    DDLogError(@"[ERROR] Resource path is empty!");
+                    DDLogDebug(@"[DEBUG] Resource path is empty!");
                 }
             }
         }

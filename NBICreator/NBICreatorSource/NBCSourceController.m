@@ -1537,8 +1537,9 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
-    NSString *regexOpen = @".*/bin/open.*";
-    [packageEssentialsRegexes addObject:regexOpen];
+    // Testing
+    //NSString *regexOpen = @".*/bin/open.*";
+    //[packageEssentialsRegexes addObject:regexOpen];
     
     NSString *regexShareKit = @".*ShareKit.framework.*";
     [packageEssentialsRegexes addObject:regexShareKit];

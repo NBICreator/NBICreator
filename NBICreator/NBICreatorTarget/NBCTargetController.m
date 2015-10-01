@@ -25,7 +25,6 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)applyNBISettings:(NSURL *)nbiURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
 #pragma unused(error)
-    DDLogInfo(@"Configuring NBImageInfo.plist...");
     BOOL verified = YES;
     NSURL *nbImageInfoURL = [nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
     NSMutableDictionary *nbImageInfoDict = [self getNBImageInfoDict:nbImageInfoURL nbiURL:nbiURL];
@@ -59,7 +58,6 @@ DDLogLevel ddLogLevel;
 } // applyNBISettings
 
 - (NSMutableDictionary *)getNBImageInfoDict:(NSURL *)nbiImageInfoURL nbiURL:(NSURL *)nbiURL {
-    DDLogInfo(@"Getting NBImageInfo.plist...");
     NSMutableDictionary *nbImageInfoDict;
     
     if ( [nbiImageInfoURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -72,7 +70,6 @@ DDLogLevel ddLogLevel;
 } // getNBImageInfoDict:nbiURL
 
 - (NSMutableDictionary *)createDefaultNBImageInfoPlist:(NSURL *)nbiURL {
-    DDLogInfo(@"Creating Default NBImageInfo.plist...");
     NSMutableDictionary *nbImageInfoDict = [[NSMutableDictionary alloc] init];
     NSArray *disabledSystemIdentifiers;
     NSDictionary *platformSupportDict;
@@ -115,9 +112,7 @@ DDLogLevel ddLogLevel;
 } // createDefaultNBImageInfoPlist
 
 - (NSMutableDictionary *)updateNBImageInfoDict:(NSMutableDictionary *)nbImageInfoDict nbImageInfoURL:(NSURL *)nbImageInfoURL workflowItem:(NBCWorkflowItem *)workflowItem {
-#pragma unused(nbImageInfoURL)
-    DDLogInfo(@"Updating NBImageInfo.plist...");
-    
+#pragma unused(nbImageInfoURL)    
     NBCSource *source = [workflowItem source];
     id applicationSource = [workflowItem applicationSource];
     
@@ -2114,7 +2109,7 @@ DDLogLevel ddLogLevel;
                 case kWorkflowTypeCasper:
                 {
                     // The following RAMDisk is created so that Casper Imaging knows that the client is net$
-                    [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches/com.apple.kext.caches/Startup 32768\n"];
+                    [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches/com.apple.kext.caches/Startup 49152\n"];
                     [rcCdmCdrom appendString:@"RAMDisk /.vol 1024\n"];
                     [rcCdmCdrom appendString:@"RAMDisk /var/netboot 2048\n"];
                     [rcCdmCdrom appendString:@"RAMDisk /var/root/Library/Preferences 2048\n"];

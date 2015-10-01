@@ -1017,7 +1017,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        DDLogError(@"[generateKernelCache.bash][ERROR] %@", errStr);
+                                        DDLogInfo(@"[generateKernelCache.bash][INFO] %@", errStr);
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
