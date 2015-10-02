@@ -614,6 +614,28 @@ DDLogLevel ddLogLevel;
     return rcImaging;
 }
 
+
++ (NSString *)generateCasperRCCdromPreWSForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion {
+#pragma unused(settingsDict)
+    NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
+    
+    if ( 11 <= osMinorVersion ) {
+        
+    }
+    
+    NSString *setMountDisks = [NSString stringWithFormat:@"\n"
+                               "###\n"
+                               "### Mount Local Disks\n"
+                               "###\n"
+                               "for disk in $( ls /dev/disk* | grep -v disk[0-9]s[0-9]+ ); do\n"
+                               "\t/usr/sbin/diskutil mount $disk &\n"
+                               "done\n"];
+    
+    rcImaging = [rcImaging stringByAppendingString:setMountDisks];
+    
+    return rcImaging;
+}
+
 + (NSString *)generateCasperRCImagingForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion {
     
     NSString *rcImaging = [NSString stringWithFormat:@"#!/bin/bash\n"];
@@ -672,6 +694,7 @@ DDLogLevel ddLogLevel;
                                     "fi\n"];
     rcImaging = [rcImaging stringByAppendingString:loadSystemUIServer];
     
+    /*
     // Tests!!
     NSString *loadCvmsCompAgents = [NSString stringWithFormat:@"\n"
                                     "###\n"
@@ -679,7 +702,7 @@ DDLogLevel ddLogLevel;
                                     "###\n"
                                     "/bin/launchctl load /System/Library/LaunchAgents/com.apple.cvmsCompAgent*\n"];
     rcImaging = [rcImaging stringByAppendingString:loadCvmsCompAgents];
-    
+    */
     if ( settingsDict[NBCSettingsARDPasswordKey] ) {
         NSString *startScreensharing;
         if ( osMinorVersion <= 7 ) {
