@@ -990,18 +990,6 @@ DDLogLevel ddLogLevel;
         [packageEssentialsRegexes addObjectsFromArray:casperImagingDepencenciesEssentials];
     }
     
-    //NSString *regexSystemClr = @".*/Colors/System.clr.*";
-    //[packageEssentialsRegexes addObject:regexSystemClr];
-    
-    //NSString *regexHelveticaNeue = @".*/System/Library/Fonts/HelveticaNeue.dfont.*";
-    //[packageEssentialsRegexes addObject:regexHelveticaNeue];
-    
-    //NSString *regexLucidaGrande = @".*/System/Library/Fonts/LucidaGrande.ttc.*";
-    //[packageEssentialsRegexes addObject:regexLucidaGrande];
-    
-    //NSString *regexQuickTime = @".*System/Library/QuickTime.*";
-    //[packageEssentialsRegexes addObject:regexQuickTime];
-    
     int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
     if ( 11 <= sourceVersionMinor ) {
         
@@ -1208,7 +1196,7 @@ DDLogLevel ddLogLevel;
     baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey] = baseSystemBinariesRegexes;
     sourceItemsDict[baseSystemBinariesPath] = baseSystemBinariesDict;
     
-    
+    /*
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
     NSMutableArray *packageBSDRegexes;
@@ -1221,15 +1209,15 @@ DDLogLevel ddLogLevel;
         packageBSDDict = [[NSMutableDictionary alloc] init];
         packageBSDRegexes = [[NSMutableArray alloc] init];
     }
+    */
+    //NSString *regexCvmsCompAgent = @".*/sandbox/cvmsCompAgent.sb.*";
+    //[packageBSDRegexes addObject:regexCvmsCompAgent];
     
-    NSString *regexCvmsCompAgent = @".*/sandbox/cvmsCompAgent.sb.*";
-    [packageBSDRegexes addObject:regexCvmsCompAgent];
+    //NSString *regexCvmsServer = @".*/sandbox/cvmsServer.sb.*";
+    //[packageBSDRegexes addObject:regexCvmsServer];
     
-    NSString *regexCvmsServer = @".*/sandbox/cvmsServer.sb.*";
-    [packageBSDRegexes addObject:regexCvmsServer];
-    
-    packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
-    sourceItemsDict[packageBSDPath] = packageBSDDict;
+    //packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
+    //sourceItemsDict[packageBSDPath] = packageBSDDict;
     
     // Testing without these as they get added by script
     
