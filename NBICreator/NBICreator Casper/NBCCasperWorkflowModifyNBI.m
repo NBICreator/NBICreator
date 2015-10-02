@@ -648,11 +648,11 @@ DDLogLevel ddLogLevel;
     if ( verified ) {
         verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
     }
-    
+
     if ( verified ) {
         verified = [_targetController settingsToRemove:modifyDictArray workflowItem:_workflowItem];
     }
-    
+
     if ( verified ) {
         verified = [_targetController modifySettingsForRCCdrom:modifyDictArray workflowItem:_workflowItem];
     }

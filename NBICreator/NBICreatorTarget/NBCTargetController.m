@@ -112,7 +112,7 @@ DDLogLevel ddLogLevel;
 } // createDefaultNBImageInfoPlist
 
 - (NSMutableDictionary *)updateNBImageInfoDict:(NSMutableDictionary *)nbImageInfoDict nbImageInfoURL:(NSURL *)nbImageInfoURL workflowItem:(NBCWorkflowItem *)workflowItem {
-#pragma unused(nbImageInfoURL)    
+#pragma unused(nbImageInfoURL)
     NBCSource *source = [workflowItem source];
     id applicationSource = [workflowItem applicationSource];
     
@@ -720,6 +720,8 @@ DDLogLevel ddLogLevel;
                                          NBCWorkflowModifyTargetURL : [tccdSettingsURL path]
                                          };
     [modifyDictArray addObject:modifyTccdSettings];
+    
+    
     
     return retval;
 }
@@ -2288,7 +2290,7 @@ DDLogLevel ddLogLevel;
 } // modifyNBIRemoveWiFi
 
 - (BOOL)modifySettingsForCasper:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Adding settings for Casoper JSS for Casper Imaging...");
+    DDLogInfo(@"Adding settings for Casper JSS for Casper Imaging...");
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -2562,16 +2564,16 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     NSURL *folderLibraryApplicationSupport = [volumeURL URLByAppendingPathComponent:@"Library/Application Support" isDirectory:YES];
     NSDictionary *folderLibraryApplicationSupportAttributes = @{
-                                                               NSFileOwnerAccountName : @"root",
-                                                               NSFileGroupOwnerAccountName : @"wheel",
-                                                               NSFilePosixPermissions : @0755
-                                                               };
+                                                                NSFileOwnerAccountName : @"root",
+                                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                                NSFilePosixPermissions : @0755
+                                                                };
     
     NSDictionary *modifyFolderLibraryApplicationSupport = @{
-                                                           NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
-                                                           NBCWorkflowModifyTargetURL : [folderLibraryApplicationSupport path],
-                                                           NBCWorkflowModifyAttributes : folderLibraryApplicationSupportAttributes
-                                                           };
+                                                            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeFolder,
+                                                            NBCWorkflowModifyTargetURL : [folderLibraryApplicationSupport path],
+                                                            NBCWorkflowModifyAttributes : folderLibraryApplicationSupportAttributes
+                                                            };
     [modifyDictArray insertObject:modifyFolderLibraryApplicationSupport atIndex:0];
     
     // --------------------------------------------------------------
