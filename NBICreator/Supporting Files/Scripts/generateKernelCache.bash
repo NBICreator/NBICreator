@@ -66,7 +66,13 @@ case ${osVersionMinor} in
 							"${targetVolumePath}/System/Library/Extensions"
 	;;
 	8|9)
-		/usr/sbin/kextcache -update-volume "${targetVolumePath}"
+        if [[ -d ${targetVolumePath} ]]; then
+            /bin/rm -f "${targetVolumePath}/var/db/dyld/dyld_"*
+            /bin/rm -f "${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"
+#/bin/rm -f "${targetVolumePath}/usr/standalone/bootcaches.plist"
+        fi
+
+#/usr/sbin/kextcache -update-volume "${targetVolumePath}"
 		/usr/sbin/kextcache -a x86_64 \
 							-N \
 							-L \
@@ -79,9 +85,22 @@ case ${osVersionMinor} in
 		if [[ ${dyldArchi386} == yes ]]; then
 			/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch i386 -force
 		fi
+
+        if [[ -f ${nbiVolumePath}/i386/x86_64/kernelcache ]]; then
+            if [[ ! -d ${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup ]]; then
+                /bin/mkdir -p "${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup"
+            fi
+            /bin/cp "${nbiVolumePath}/i386/x86_64/kernelcache" "${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"
+        fi
 	;;
 	10|11)
-		/usr/sbin/kextcache -update-volume "${targetVolumePath}" -verbose 2
+        if [[ -d ${targetVolumePath} ]]; then
+            /bin/rm -f "${targetVolumePath}/var/db/dyld/dyld_"*
+            /bin/rm -f "${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"
+#/bin/rm -f "${targetVolumePath}/usr/standalone/bootcaches.plist"
+        fi
+
+#/usr/sbin/kextcache -update-volume "${targetVolumePath}" -verbose 2
 		/usr/sbin/kextcache -a x86_64 \
                             -verbose 2 \
 							-N \
@@ -95,6 +114,13 @@ case ${osVersionMinor} in
 		if [[ ${dyldArchi386} == yes ]]; then
 			/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch i386 -force
 		fi
+
+        if [[ -f ${nbiVolumePath}/i386/x86_64/kernelcache ]]; then
+            if [[ ! -d ${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup ]]; then
+                /bin/mkdir -p "${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup"
+            fi
+            /bin/cp "${nbiVolumePath}/i386/x86_64/kernelcache" "${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"
+        fi
 	;;
 	*)
         printf "%s\n" "Unsupported OS Version: 10.${osVersionMinor}"
