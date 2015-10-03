@@ -36,9 +36,7 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 
 - (NSDictionary *)verifySettings:(NBCWorkflowItem *)workflowItem {
-    
     NSMutableArray *settings = [[NSMutableArray alloc] init];
-    
     NSDictionary *userSettings = [workflowItem userSettings];
     
     // ------------------------------------------------------------------------
@@ -71,6 +69,12 @@ DDLogLevel ddLogLevel;
             // ----------------------------------------------------------------------------
             NSDictionary *mountedVolumes = [self verifyMountedVolumeName:workflowItem];
             [settings addObject:mountedVolumes];
+            
+            // ----------------------------------------------------------------------------
+            //  Check that OS Version is working with current DeployStudio version
+            // ----------------------------------------------------------------------------
+            NSDictionary *osVersionForDeployStudio = [self verifySettingsOsVersionForDeployStudio:workflowItem];
+            [settings addObject:osVersionForDeployStudio];
             
             break;
         }
@@ -289,7 +293,6 @@ DDLogLevel ddLogLevel;
 } // verifySettingsTabExtra
 
 - (NSDictionary *)verifySettingsTabAdvanced:(NBCWorkflowItem *)workflowItem {
-    
     NSMutableArray *settings = [[NSMutableArray alloc] init];
     
     NSDictionary *userSettings = [workflowItem userSettings];
@@ -773,6 +776,26 @@ DDLogLevel ddLogLevel;
             [settingsErrors addObject:@"Xcode licese have not been accepted. You need to open Xcode and accept the license agreement."];
         }
     }
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsOsVersionForDeployStudio:(NBCWorkflowItem *)workflowItem {
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSString *deployStudioVersion = [[workflowItem applicationSource] deployStudioAssistantVersion];
+    int deployStudioVersionInt = [[deployStudioVersion stringByReplacingOccurrencesOfString:@"." withString:@""] intValue];
+    
+    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+    //int sourceVersionPatch = (int)[[[workflowItem source] expandVariables:@"%OSPATCH%"] integerValue];
+    
+    if ( 11 <= sourceVersionMinor ) {
+        if ( 1616 <= deployStudioVersionInt ) {
+            NSString *errorMessage = [NSString stringWithFormat:@"OS X %@ is not supported by DeployStudio version %@. Please upgrade DeployStudio to create a working NetInstall set.", [[workflowItem source] baseSystemOSVersion], deployStudioVersion];
+            [settingsErrors addObject:errorMessage];
+        }
+    }
+    
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
