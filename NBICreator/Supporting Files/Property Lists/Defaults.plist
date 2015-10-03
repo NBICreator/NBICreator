@@ -5,7 +5,7 @@
 	<key>UserNotificationsSoundEnabled</key>
 	<false/>
 	<key>WorkflowTimerEnabled</key>
-	<false/>
+	<true/>
 	<key>UserNotificationsEnabled</key>
 	<true/>
 	<key>CheckForUpdates</key>
