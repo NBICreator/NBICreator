@@ -61,7 +61,7 @@
                     </textFieldCell>
                 </textField>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="60L-Th-Xvx">
-                    <rect key="frame" x="67" y="9" width="317" height="14"/>
+                    <rect key="frame" x="67" y="9" width="296" height="14"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="14" id="LKh-i0-4sg"/>
                     </constraints>
@@ -127,9 +127,12 @@
                     </connections>
                 </button>
                 <textField hidden="YES" horizontalHuggingPriority="252" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Svh-zL-y2Z">
-                    <rect key="frame" x="388" y="10" width="4" height="12"/>
+                    <rect key="frame" x="367" y="10" width="25" height="11"/>
+                    <constraints>
+                        <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="21" id="49b-oJ-Kf0"/>
+                    </constraints>
                     <animations/>
-                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" id="j72-TA-JPr">
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="0:99" id="j72-TA-JPr">
                         <font key="font" metaFont="miniSystem"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>

@@ -636,6 +636,7 @@
 		53958D0C1AD948E10042CB8F /* NBICreator Workflow */ = {
 			isa = PBXGroup;
 			children = (
+				53BC04031AD273380037DCBA /* NBICreator DiskArbitration */,
 				53CBB1CA1ACF288000B83089 /* NBCWorkflowItem.h */,
 				53CBB1CB1ACF288000B83089 /* NBCWorkflowItem.m */,
 				53CBB1C71ACF27B400B83089 /* NBCWorkflowManager.h */,
@@ -662,7 +663,6 @@
 				53B91EE41AD9BDDC0056CFC0 /* NBICreator Categories */,
 				53CBA9631ADE553700385C89 /* NBICreator Networking */,
 				53958D0C1AD948E10042CB8F /* NBICreator Workflow */,
-				53BC04031AD273380037DCBA /* NBICreator DiskArbitration */,
 				53958D0A1AD9489B0042CB8F /* NBICreator NetInstall */,
 				53EFC5151A9DF31A005A68E6 /* NBICreator DeployStudio */,
 				539DAEEE1AF157B80037F06B /* NBICreator Imagr */,
