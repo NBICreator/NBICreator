@@ -2037,10 +2037,12 @@ DDLogLevel ddLogLevel;
                     NSMutableArray *lineArray = [NSMutableArray arrayWithArray:[line componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
                     NSString *path = lineArray[1];
                     
-                    // These are a copy of what DeployStudio sets
                     if ( [path isEqualToString:@"/Volumes"] ) {
                         lineArray[2] = @"2048";
                     } else if ( [path isEqualToString:@"/var/tmp"] ) {
+                        if ( [workflowItem workflowType] == kWorkflowTypeCasper ) {
+                            lineArray[1] = @"/tmp";
+                        }
                         lineArray[2] = @"32768";
                     } else if ( [path isEqualToString:@"/var/run"] ) {
                         lineArray[2] = @"4096";
@@ -2250,6 +2252,30 @@ DDLogLevel ddLogLevel;
                                                     NBCWorkflowModifyTargetURL : [bluetoothMultitouchKextTargetURL path]
                                                     };
     [modifyDictArray addObject:modifyBluetoothMultitouchKext];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.bluetoothReporter.plist
+    // --------------------------------------------------------------
+    NSURL *bluetoothReporterPlistSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.bluetoothReporter.plist"];
+    NSURL *bluetoothReporterPlistTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.bluetoothReporter.plist"];
+    NSDictionary *modifyBluetoothReporterPlist = @{
+                                                    NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                                    NBCWorkflowModifySourceURL : [bluetoothReporterPlistSourceURL path],
+                                                    NBCWorkflowModifyTargetURL : [bluetoothReporterPlistTargetURL path]
+                                                    };
+    [modifyDictArray addObject:modifyBluetoothReporterPlist];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.blued.plist
+    // --------------------------------------------------------------
+    NSURL *bluetoothBluedPlistSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.blued.plist"];
+    NSURL *bluetoothBluedPlistTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.blued.plist"];
+    NSDictionary *modifyBluetoothBluedPlist = @{
+                                                   NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                                   NBCWorkflowModifySourceURL : [bluetoothBluedPlistSourceURL path],
+                                                   NBCWorkflowModifyTargetURL : [bluetoothBluedPlistTargetURL path]
+                                                   };
+    [modifyDictArray addObject:modifyBluetoothBluedPlist];
     
     return retval;
 }
