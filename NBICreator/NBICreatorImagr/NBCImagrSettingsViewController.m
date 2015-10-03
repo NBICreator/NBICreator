@@ -3064,7 +3064,7 @@ DDLogLevel ddLogLevel;
     if ( [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
         [NBCSourceController addSystemUIServer:sourceItemsDict source:_source];
     }
-    
+
     // - systemkeychain
     if ( [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
         [NBCSourceController addSystemkeychain:sourceItemsDict source:_source];

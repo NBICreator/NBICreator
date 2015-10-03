@@ -664,11 +664,11 @@ DDLogLevel ddLogLevel;
     if ( verified && [userSettings[NBCSettingsUseVerboseBootKey] boolValue] ) {
         verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
     }
-    
+
     if ( verified && [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
         verified = [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
     }
-    
+
     if ( verified && [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] && [userSettings[NBCSettingsNetworkTimeServerKey] length] != 0 ) {
         verified = [_targetController modifyNBINTP:modifyDictArray workflowItem:_workflowItem];
     }
