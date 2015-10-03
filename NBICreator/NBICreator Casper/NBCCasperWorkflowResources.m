@@ -44,7 +44,7 @@ DDLogLevel ddLogLevel;
     [self setNbiCreationTool:_userSettings[NBCSettingsNBICreationToolKey]];
     [self setResourcesSettings:[workflowItem resourcesSettings]];
     
-    [self setResourcesCount:3];
+    [self setResourcesCount:4];
     
     // -------------------------------------------------------
     //  Update _resourcesCount with all sourceItems
@@ -103,8 +103,13 @@ DDLogLevel ddLogLevel;
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
         }
-        
+
         if ( ! [self createCasperRCImaging:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+
+        if ( ! [self createCasperRCCdromPreWS:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
         }
@@ -1143,6 +1148,75 @@ DDLogLevel ddLogLevel;
 } // createCasperSettingsPlist
 
 - (BOOL)createCasperRCImaging:(NBCWorkflowItem *)workflowItem {
+    BOOL retval = YES;
+    NSError *error;
+    NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
+    NSString *CasperRCImagingTargetPath;
+    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+    NSString *CasperRCImagingContent = [NBCWorkflowNBIController generateCasperRCImagingForNBICreator:[workflowItem userSettings] osMinorVersion:sourceVersionMinor];
+    if ( [CasperRCImagingContent length] != 0 ) {
+        if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
+            CasperRCImagingTargetPath = NBCRCImagingNBICreatorTargetURL;
+        } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+            CasperRCImagingTargetPath = NBCRCImagingTargetURL;
+        } else {
+            if ( [_target rcImagingURL] != nil ) {
+                CasperRCImagingTargetPath = [[_target rcImagingURL] path];
+            } else {
+                DDLogError(@"Found no rc.imaging URL from target settings!");
+                return NO;
+            }
+            
+            if ( [[_target rcImagingContent] length] != 0 ) {
+                CasperRCImagingContent = [_target rcImagingContent];
+            } else {
+                DDLogError(@"Found no rc.imaging content form target settings!");
+                return NO;
+            }
+        }
+        
+        if ( temporaryFolderURL ) {
+            // ---------------------------------------------------
+            //  Create Casper rc.imaging and add to copy resources
+            // ---------------------------------------------------
+            NSURL *rcImagingURL = [temporaryFolderURL URLByAppendingPathComponent:@"rc.cdrom.postWS"]; // TEST!!!
+            if ( [CasperRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:&error] ) {
+                NSDictionary *copyAttributes  = @{
+                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileGroupOwnerAccountName : @"wheel",
+                                                  NSFilePosixPermissions : @0755
+                                                  };
+                
+                NSDictionary *copySettings = @{
+                                               NBCWorkflowCopyType : NBCWorkflowCopy,
+                                               NBCWorkflowCopySourceURL : [rcImagingURL path],
+                                               NBCWorkflowCopyTargetURL : CasperRCImagingTargetPath,
+                                               NBCWorkflowCopyAttributes : copyAttributes
+                                               };
+                if ( [_target nbiNetInstallURL] != nil ) {
+                    [_resourcesNetInstallCopy addObject:copySettings];
+                } else if ( [_target baseSystemURL] ) {
+                    [_resourcesBaseSystemCopy addObject:copySettings];
+                }
+                
+                [self checkCompletedResources];
+            } else {
+                DDLogError(@"[ERROR] Could not write rc.imaging to url: %@", rcImagingURL);
+                DDLogError(@"%@", error);
+                retval = NO;
+            }
+        } else {
+            DDLogError(@"[ERROR] Could not get temporaryFolderURL from workflow item!");
+            retval = NO;
+        }
+    } else {
+        DDLogError(@"[ERROR] rcImagingContent is empty!");
+        retval = NO;
+    }
+    return retval;
+} // createCasperRCImaging
+
+- (BOOL)createCasperRCCdromPreWS:(NBCWorkflowItem *)workflowItem {
     BOOL retval = YES;
     NSError *error;
     NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
