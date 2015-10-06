@@ -60,6 +60,12 @@ DDLogLevel ddLogLevel;
             NSDictionary *settingsTabPostInstall = [self verifySettingsTabPostInstall:workflowItem];
             [settings addObject:settingsTabPostInstall];
             
+            // ------------------------------------------------------------------------
+            //  Check all settings in the tab "Advanced"
+            // ------------------------------------------------------------------------
+            NSDictionary *settingsTabAdvanced = [self verifySettingsTabAdvanced:workflowItem];
+            [settings addObject:settingsTabAdvanced];
+            
             break;
         }
         case kWorkflowTypeDeployStudio:
@@ -599,7 +605,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
-    NSArray *packages = [workflowItem userSettings][NBCSettingsPackagesNetInstallKey];
+    NSArray *packages = [workflowItem userSettings][NBCSettingsNetInstallPackagesKey];
     
     for ( NSString *packagePath in packages ) {
         NSURL *packageURL = [NSURL fileURLWithPath:packagePath];

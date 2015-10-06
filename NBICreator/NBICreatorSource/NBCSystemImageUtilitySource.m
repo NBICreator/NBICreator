@@ -67,6 +67,9 @@ DDLogLevel ddLogLevel;
         [self setCreateNetInstallURL:[siuAgentBundle URLForResource:@"createNetInstall" withExtension:@"sh"]];
         [self setCreateNetBootURL:[siuAgentBundle URLForResource:@"createNetBoot" withExtension:@"sh"]];
         [self setCreateCommonURL:[siuAgentBundle URLForResource:@"createCommon" withExtension:@"sh"]];
+        [self setCreateRestoreFromSourcesURL:[siuAgentBundle URLForResource:@"createRestoreFromSources" withExtension:@"sh"]];
+        [self setAddBSDPSourcesURL:[siuAgentBundle URLForResource:@"addBSDPSources" withExtension:@"sh"]];
+        [self setAsrInstallPkgURL:[siuAgentBundle URLForResource:@"ASRInstall" withExtension:@"pkg"]];
         [self setInstallConfigurationProfiles:[siuAgentBundle URLForResource:@"installConfigurationProfiles" withExtension:@"sh"]];
         [self setNetInstallConfigurationProfiles:[siuAgentBundle URLForResource:@"netInstallConfigurationProfiles" withExtension:@"sh"]];
     } else {

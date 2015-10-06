@@ -943,7 +943,6 @@ DDLogLevel ddLogLevel;
 - (void)updateSettingVisibility {
     if ( _source != nil ) {
         int sourceVersionMinor = (int)[[_source expandVariables:@"%OSMINOR%"] integerValue];
-        DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
         if ( _source != nil && 11 <= sourceVersionMinor ) {
             [self setSettingDisableATSVisible:YES];
             [self setSettingTrustedNetBootServersVisible:YES];
@@ -3022,7 +3021,6 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
-    DDLogDebug(@"sourceVersionMinor=%d", sourceVersionMinor);
     
     // - Python is required for Imagr
     [NBCSourceController addPython:sourceItemsDict source:_source];

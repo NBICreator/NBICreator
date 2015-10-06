@@ -189,7 +189,8 @@ extern NSString *const NBCSettingsEnableLaunchdLoggingKey;
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - NetInstall
 ////////////////////////////////////////////////////////////////////////////////
-extern NSString *const NBCSettingsPackagesNetInstallKey;
+extern NSString *const NBCSettingsNetInstallPackagesKey;
+extern NSString *const NBCSettingsNetInstallPackageOnlyKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - DeployStudio
@@ -563,8 +564,6 @@ extern NSString *const NBCFilePathNetInstallInstallConfigurationProfiles;
 
 extern NSString *const NBCResourcesDeployStudioLatestVersionKey;
 
-extern NSString *const NBCSettingsPackagesNetInstallKey;
-
 extern NSString *const NBCFilePathNetInstallOSInstallCollection;
 extern NSString *const NBCFolderPathNetInstallPackages;
 extern NSString *const NBCFolderPathNetInstallPostinstall;
@@ -582,6 +581,7 @@ extern NSString *const NBCVariableSystemImageUtilityVersion;
 
 extern NSString *const NBCTableViewIdentifierCertificates;
 extern NSString *const NBCTableViewIdentifierPackages;
+extern NSString *const NBCTableViewIdentifierNetInstallTrustedServers;
 extern NSString *const NBCTableViewIdentifierImagrTrustedServers;
 extern NSString *const NBCTableViewIdentifierCasperTrustedServers;
 extern NSString *const NBCTableViewIdentifierImagrRAMDisks;

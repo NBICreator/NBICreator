@@ -23,6 +23,9 @@
 @property NSURL *createCommonURL;
 @property NSURL *createNetBootURL;
 @property NSURL *createNetInstallURL;
+@property NSURL *createRestoreFromSourcesURL;
+@property NSURL *addBSDPSourcesURL;
+@property NSURL *asrInstallPkgURL;
 @property NSURL *installConfigurationProfiles;
 @property NSURL *netInstallConfigurationProfiles;
 

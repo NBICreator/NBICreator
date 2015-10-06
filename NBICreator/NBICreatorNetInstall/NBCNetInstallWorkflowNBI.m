@@ -36,6 +36,8 @@ DDLogLevel ddLogLevel;
     
     NSDictionary *resourcesSettings = [workflowItem resourcesSettings];
     
+    BOOL packageOnly = [[workflowItem userSettings][NBCSettingsNetInstallPackageOnlyKey] boolValue];
+    
     // -------------------------------------------------------------
     //  Get used space on InstallESD source volume for progress bar
     // -------------------------------------------------------------
@@ -55,28 +57,53 @@ DDLogLevel ddLogLevel;
         return;
     }
     
-    // -------------------------------------------------------------
-    //  Create arguments array for createNetInstall.sh
-    // -------------------------------------------------------------
-    NSArray *createNetInstallArguments = [nbiController generateScriptArgumentsForCreateNetInstall:workflowItem];
-    if ( [createNetInstallArguments count] != 0 ) {
-        [workflowItem setScriptArguments:createNetInstallArguments];
-    } else {
-        NSLog(@"Error, no argumets for createNetInstall");
-        return;
-    }
+    NSArray *scriptArguments = @[];
+    NSDictionary *environmentVariables = @{};
     
-    // -------------------------------------------------------------
-    //  Create environment variables for createNetInstall.sh
-    // -------------------------------------------------------------
-    NSDictionary *environmentVariables = [nbiController generateEnvironmentVariablesForCreateNetInstall:workflowItem];
-    if ( [environmentVariables count] != 0 ) {
-        [workflowItem setScriptEnvironmentVariables:environmentVariables];
+    if ( packageOnly ) {
+        
+        // -------------------------------------------------------------
+        //  Create arguments array for createRestoreFromSources.sh
+        // -------------------------------------------------------------
+        NSArray *createRestoreFromSourcesArguments = [nbiController generateScriptArgumentsForCreateRestoreFromSources:workflowItem];
+        if ( [createRestoreFromSourcesArguments count] != 0 ) {
+            [workflowItem setScriptArguments:createRestoreFromSourcesArguments];
+            scriptArguments = createRestoreFromSourcesArguments;
+        } else {
+            NSLog(@"Error, no argumets for createRestoreFromSources");
+            return;
+        }
+        
+        // -------------------------------------------------------------
+        //  Create environment variables for createRestoreFromSources.sh
+        // -------------------------------------------------------------
+        NSDictionary *createRestoreFromSourcesEnvironmentVariables = [nbiController generateEnvironmentVariablesForCreateRestoreFromSources:workflowItem];
+        if ( [createRestoreFromSourcesEnvironmentVariables count] != 0 ) {
+            [workflowItem setScriptEnvironmentVariables:createRestoreFromSourcesEnvironmentVariables];
+            environmentVariables = createRestoreFromSourcesEnvironmentVariables;
+        }
     } else {
-        // ------------------------------------------------------------------
-        //  Using environment variables file instead of passing them to task
-        // ------------------------------------------------------------------
-        //NSLog(@"Warning, no environment variables dict for createNetInstall");
+        
+        // -------------------------------------------------------------
+        //  Create arguments array for createNetInstall.sh
+        // -------------------------------------------------------------
+        NSArray *createNetInstallArguments = [nbiController generateScriptArgumentsForCreateNetInstall:workflowItem];
+        if ( [createNetInstallArguments count] != 0 ) {
+            [workflowItem setScriptArguments:createNetInstallArguments];
+            scriptArguments = createNetInstallArguments;
+        } else {
+            NSLog(@"Error, no argumets for createNetInstall");
+            return;
+        }
+        
+        // -------------------------------------------------------------
+        //  Create environment variables for createNetInstall.sh
+        // -------------------------------------------------------------
+        NSDictionary *createNetInstallEnvironmentVariables = [nbiController generateEnvironmentVariablesForCreateNetInstall:workflowItem];
+        if ( [createNetInstallEnvironmentVariables count] != 0 ) {
+            [workflowItem setScriptEnvironmentVariables:createNetInstallEnvironmentVariables];
+            environmentVariables = createNetInstallEnvironmentVariables;
+        }
     }
     
     // -------------------------------------------------------------
@@ -97,6 +124,21 @@ DDLogLevel ddLogLevel;
     NSMutableArray *temporaryItemsNBI = [[workflowItem temporaryItemsNBI] mutableCopy];
     if ( ! temporaryItemsNBI ) {
         temporaryItemsNBI = [[NSMutableArray alloc] init];
+    }
+    
+    if ( packageOnly ) {
+        NSURL *installPreferencesPlist = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"InstallPreferences.plist"];
+        if ( ! [@{ @"packageOnlyMode" : @YES } writeToURL:installPreferencesPlist atomically:NO] ) {
+            DDLogError(@"[ERROR] Could not write InstallPreferences.plist to temporary folder!");
+            return;
+        }
+        
+        NSURL *asrInstallPkgSourceURL = [[workflowItem applicationSource] asrInstallPkgURL];
+        NSURL *asrInstallPkgTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:[asrInstallPkgSourceURL lastPathComponent]];
+        if ( ! [[NSFileManager defaultManager] copyItemAtURL:asrInstallPkgSourceURL toURL:asrInstallPkgTargetURL error:&err] ) {
+            DDLogError(@"[ERROR] %@", err);
+            return;
+        }
     }
     
     BOOL writeOSInstall = NO;
@@ -130,7 +172,7 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    NSArray *packagesNetInstall = resourcesSettings[NBCSettingsPackagesNetInstallKey];
+    NSArray *packagesNetInstall = resourcesSettings[NBCSettingsNetInstallPackagesKey];
     if ( [packagesNetInstall count] != 0 ) {
         NSError *error;
         NSURL *additionalPackagesURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalPackages.txt"];
@@ -148,6 +190,7 @@ DDLogLevel ddLogLevel;
                 [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@.pkg", [packagePath lastPathComponent]]];
             }
         }
+        [additionalPackagesContent appendString:@"\\n"];
         
         NSURL *additionalScriptsURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalScripts.txt"];
         [temporaryItemsNBI addObject:additionalScriptsURL];
@@ -252,19 +295,18 @@ DDLogLevel ddLogLevel;
             // ------------------------------------------------------------------
             //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
-            NSLog(@"ProxyError? %@", proxyError);
+            DDLogError(@"[ERROR] %@", proxyError);
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
             NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
             [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
         }];
         
-    }] runTaskWithCommandAtPath:commandURL arguments:createNetInstallArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
+    }] runTaskWithCommandAtPath:commandURL arguments:scriptArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             
-            if ( terminationStatus == 0 )
-            {
+            if ( terminationStatus == 0 ) {
                 // ------------------------------------------------------------------
                 //  If task exited successfully, post workflow complete notification
                 // ------------------------------------------------------------------

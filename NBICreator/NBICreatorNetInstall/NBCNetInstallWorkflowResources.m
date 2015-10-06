@@ -147,7 +147,7 @@ DDLogLevel ddLogLevel;
 #pragma unused(workflowItem)
     DDLogInfo(@"Preparing packages for NetInstall...");
     BOOL retval = YES;
-    NSArray *packagesArray = _resourcesSettings[NBCSettingsPackagesNetInstallKey];
+    NSArray *packagesArray = _resourcesSettings[NBCSettingsNetInstallPackagesKey];
     
     if ( [packagesArray count] != 0 ) {
         NSString *targetFolderPath = NBCFolderPathNetInstallPackages;

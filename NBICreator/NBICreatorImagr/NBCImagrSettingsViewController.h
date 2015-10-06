@@ -99,12 +99,11 @@
 @property (strong) NSView *viewOverlayPackages;
 @property (strong) NSView *viewOverlayCertificates;
 
-@property BOOL addTrustedNetBootServers;
-@property NSMutableArray *trustedServers;
-
 @property NSMutableArray *ramDisks;
 @property (weak) IBOutlet NSTableView *tableViewRAMDisks;
 
+@property BOOL addTrustedNetBootServers;
+@property NSMutableArray *trustedServers;
 @property (weak) IBOutlet NSButton *buttonAddTrustedServer;
 - (IBAction)buttonAddTrustedServer:(id)sender;
 @property (weak) IBOutlet NSButton *buttonRemoveTrustedServer;

@@ -20,9 +20,13 @@
 	<string>%COUNTER%</string>
 	<key>Name</key>
 	<string>%OSVERSION%_%OSBUILD%_NetInstall</string>
+	<key>AddTrustedNetBootServers</key>
+	<false/>
+	<key>NetInstallPackageOnly</key>
+	<false/>
 	<key>TrustedNetBootServers</key>
 	<array/>
-	<key>PackagesNetInstall</key>
+	<key>NetInstallPackages</key>
 	<array/>
 	<key>ConfigurationProfiles</key>
 	<array/>

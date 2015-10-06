@@ -189,7 +189,8 @@ NSString *const NBCSettingsEnableLaunchdLoggingKey = @"EnableLaunchdLogging";
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - NetInstall
 ////////////////////////////////////////////////////////////////////////////////
-NSString *const NBCSettingsPackagesNetInstallKey = @"PackagesNetInstall";
+NSString *const NBCSettingsNetInstallPackagesKey = @"NetInstallPackages";
+NSString *const NBCSettingsNetInstallPackageOnlyKey = @"NetInstallPackageOnly";
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -605,6 +606,7 @@ NSString *const NBCVariableSystemImageUtilityVersion = @"%SIUVERSION%";
 
 NSString *const NBCTableViewIdentifierCertificates = @"tableViewCertificates";
 NSString *const NBCTableViewIdentifierPackages = @"tableViewPackages";
+NSString *const NBCTableViewIdentifierNetInstallTrustedServers = @"NetInstallTableViewTrustedServers";
 NSString *const NBCTableViewIdentifierImagrTrustedServers = @"ImagrTableViewTrustedServers";
 NSString *const NBCTableViewIdentifierCasperTrustedServers = @"CasperTableViewTrustedServers";
 NSString *const NBCTableViewIdentifierImagrRAMDisks = @"ImagrTableViewRAMDisk";

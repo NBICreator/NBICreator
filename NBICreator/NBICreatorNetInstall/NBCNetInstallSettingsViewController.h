@@ -62,6 +62,22 @@
 - (IBAction)buttonChooseDestinationFolder:(id)sender;
 
 // ------------------------------------------------------
+//  TabView Advanced
+// ------------------------------------------------------
+@property BOOL settingTrustedNetBootServersVisible;
+@property BOOL addTrustedNetBootServers;
+@property NSMutableArray *trustedServers;
+@property (weak) IBOutlet NSTextField *textFieldTrustedServersCount;
+@property (strong) IBOutlet NSPopover *popOverManageTrustedServers;
+- (IBAction)buttonManageTrustedServers:(id)sender;
+@property (weak) IBOutlet NSTableView *tableViewTrustedServers;
+@property (weak) IBOutlet NSButton *buttonAddTrustedServer;
+- (IBAction)buttonAddTrustedServer:(id)sender;
+@property (weak) IBOutlet NSButton *buttonRemoveTrustedServer;
+- (IBAction)buttonRemoveTrustedServer:(id)sender;
+
+
+// ------------------------------------------------------
 //  TabView Post-Install
 // ------------------------------------------------------
 
@@ -100,6 +116,8 @@
 @property NSString *nbiLanguage;
 @property NSString *nbiDescription;
 @property NSString *destinationFolder;
+
+@property BOOL netInstallPackageOnly;
 
 @property NSString *popOverOSVersion;
 @property NSString *popOverOSMajor;

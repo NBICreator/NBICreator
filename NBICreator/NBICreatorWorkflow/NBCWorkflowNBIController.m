@@ -16,8 +16,37 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCWorkflowNBIController
 
-- (NSArray *)generateScriptArgumentsForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
+
+
+- (NSArray *)generateScriptArgumentsForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
+    NSMutableArray *createRestoreFromSourcesArguments = [[NSMutableArray alloc] init];
     
+    // -------------------------------------------------------------------
+    //  Add non-optional values to createRestoreFromSourcesArguments
+    // -------------------------------------------------------------------
+    NSString *createRestoreFromSourcesPath = [[[workflowItem applicationSource] createRestoreFromSourcesURL] path];
+    if ( [createRestoreFromSourcesPath length] != 0 ) {
+        [createRestoreFromSourcesArguments addObject:createRestoreFromSourcesPath];
+    } else {
+        NSLog(@"Could not get createRestoreFromSourcesPath from workflow Item!");
+        return nil;
+    }
+    
+    NSString *temporaryNBIPath = [[workflowItem temporaryNBIURL] path];
+    if ( [temporaryNBIPath length] != 0 ) {
+        [createRestoreFromSourcesArguments addObject:temporaryNBIPath];
+    } else {
+        NSLog(@"Could not get temporaryNBIURL from workflow Item!");
+        return nil;
+    }
+    
+    [createRestoreFromSourcesArguments addObject:NBCSystemImageUtilityNetBootImageSize];
+    
+    return [createRestoreFromSourcesArguments copy];
+    
+} // generateSysBuilderArgumentsFromSettingsDict
+
+- (NSArray *)generateScriptArgumentsForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
     NSMutableArray *createNetInstallArguments = [[NSMutableArray alloc] init];
     
     // -------------------------------------------------------------------
@@ -44,6 +73,75 @@ DDLogLevel ddLogLevel;
     return [createNetInstallArguments copy];
     
 } // generateSysBuilderArgumentsFromSettingsDict
+
+- (NSDictionary *)generateEnvironmentVariablesForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
+    
+    NSMutableDictionary *environmentVariables = [[NSMutableDictionary alloc] init];
+    NSMutableString *environmentVariablesContent = [[NSMutableString alloc] init];
+    
+    // --------------------------------------------------------------
+    //  Get current user UID and GUI.
+    // --------------------------------------------------------------
+    uid_t uid;
+    uid_t gid;
+    SCDynamicStoreCopyConsoleUser(NULL, &uid, &gid);
+    NSString *uidString = [NSString stringWithFormat:@"%u", uid];
+    NSString *gidString = [NSString stringWithFormat:@"%u", gid];
+    
+    NSURL *createVariablesURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"createVariables.sh"];
+    
+    [environmentVariablesContent appendString:@"#!/bin/sh -p\n\nset +xv\n"];
+    [environmentVariablesContent appendString:[NSString stringWithFormat:@"progressPrefix=\"%@\"\n", NBCWorkflowNetInstallLogPrefix]];
+    [environmentVariablesContent appendString:@"scriptsDebugKey=\"DEBUG\"\n"];
+    [environmentVariablesContent appendString:@"imageIsUDIFKey=\"1\"\n"];
+    [environmentVariablesContent appendString:@"imageFormatKey=\"UDZO\"\n"];
+    [environmentVariablesContent appendString:@"mountPoint=\"\"\n"];
+    [environmentVariablesContent appendString:[NSString stringWithFormat:@"ownershipInfoKey=\"%@:%@\"\n", uidString, gidString]];
+    [environmentVariablesContent appendString:@"sourceVol=\"/\"\n"];
+    [environmentVariablesContent appendString:@"asrSource=\"ASRInstall.pkg\"\n"];
+    [environmentVariablesContent appendString:@"dmgTarget=\"NetInstall\"\n"];
+    
+    // -------------------------------------------------------------------
+    //  Add destPath
+    // -------------------------------------------------------------------
+    NSString *destinationPath = [[workflowItem temporaryNBIURL] path];
+    if ( [destinationPath length] != 0 ) {
+        [environmentVariablesContent appendString:[NSString stringWithFormat:@"destPath=\"%@\"\n", destinationPath]];
+    } else {
+        NSLog(@"Could not get destinationPath from workflowItem");
+        return nil;
+    }
+    
+    // -------------------------------------------------------------------
+    //  Add potentialRecoveryDevice
+    // -------------------------------------------------------------------
+    NSString *potentialRecoveryDevice = [[workflowItem nbiName] stringByDeletingPathExtension];
+    if ( [potentialRecoveryDevice length] != 0 ) {
+        [environmentVariablesContent appendString:[NSString stringWithFormat:@"potentialRecoveryDevice=\"%@\"\n", potentialRecoveryDevice]];
+    } else {
+        NSLog(@"Could not get potentialRecoveryDevice from source");
+        return nil;
+    }
+    
+    // -------------------------------------------------------------------
+    //  Write createVariables.sh to temporary nbi folder
+    // -------------------------------------------------------------------
+    if ( [environmentVariablesContent writeToURL:createVariablesURL atomically:NO encoding:NSUTF8StringEncoding error:nil] ) {
+        NSMutableArray *temporaryItemsNBI = [[workflowItem temporaryItemsNBI] mutableCopy];
+        if ( ! temporaryItemsNBI ) {
+            temporaryItemsNBI = [NSMutableArray arrayWithObject:createVariablesURL];
+        } else {
+            [temporaryItemsNBI addObject:createVariablesURL];
+        }
+        
+        [workflowItem setTemporaryItemsNBI:temporaryItemsNBI];
+    } else {
+        NSLog(@"Could not create createVariables.sh at: %@", [createVariablesURL path]);
+        return nil;
+    }
+    
+    return environmentVariables;
+} // generateEnvironmentVariablesForCreateNetInstall
 
 - (NSDictionary *)generateEnvironmentVariablesForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
     
