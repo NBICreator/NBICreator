@@ -248,7 +248,7 @@ DDLogLevel ddLogLevel;
     NSString *systemVolumePath = [[[workflowItem source] systemVolumeURL] path];
     if ( [systemVolumePath length] != 0 ) {
         [sysBuilderArguments addObject:@"-basesystem"];
-        [sysBuilderArguments addObject:systemVolumePath];
+        [sysBuilderArguments addObject:[systemVolumePath lastPathComponent]];
     } else {
         NSLog(@"Could not get systemVolumePath from source!");
     }
