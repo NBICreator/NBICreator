@@ -165,7 +165,38 @@ DDLogLevel ddLogLevel;
         NSURL *installConfigurationProfilesScriptTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"installConfigurationProfiles.sh"];
         [temporaryItemsNBI addObject:installConfigurationProfilesScriptTargetURL];
         if ( [[NSFileManager defaultManager] copyItemAtURL:installConfigurationProfilesScriptURL toURL:installConfigurationProfilesScriptTargetURL error:&err] ) {
-            [osInstallArray addObject:@"/System/Installation/Packages/netInstallConfigurationProfiles.sh.pkg"];
+            [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@.pkg", [installConfigurationProfilesScriptURL lastPathComponent]]];
+        } else {
+            NSLog(@"ERROR %@", err);
+            return;
+        }
+    }
+    
+    NSArray *trustedNetBootServers = resourcesSettings[NBCSettingsTrustedNetBootServersKey];
+    if ( [trustedNetBootServers count] != 0 ) {
+        NSURL *bsdpSourcesURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"bsdpSources.txt"];
+        [temporaryItemsNBI addObject:bsdpSourcesURL];
+        NSMutableString *bsdpSourcesContent = [[NSMutableString alloc] init];
+        for ( NSString *netBootServerIP in trustedNetBootServers ) {
+            [bsdpSourcesContent appendString:[NSString stringWithFormat:@"%@\n", netBootServerIP]];
+        }
+        
+        if ( [bsdpSourcesContent writeToURL:bsdpSourcesURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
+            writeOSInstall = YES;
+        } else {
+            NSLog(@"ERROR %@", err);
+            return;
+        }
+        
+        NSURL *additionalScriptsURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalScripts.txt"];
+        NSMutableString *additionalScriptsContent = [[NSMutableString alloc] initWithContentsOfURL:additionalScriptsURL encoding:NSUTF8StringEncoding error:&err] ?: [[NSMutableString alloc] init];
+        
+        NSURL *addBSDPSourcesScriptURL = [[workflowItem applicationSource] addBSDPSourcesURL];
+        [additionalScriptsContent appendString:[NSString stringWithFormat:@"%@\n", [addBSDPSourcesScriptURL path]]];
+        [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@.pkg", [addBSDPSourcesScriptURL lastPathComponent]]];
+        
+        if ( [additionalScriptsContent writeToURL:additionalScriptsURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
+            writeOSInstall = YES;
         } else {
             NSLog(@"ERROR %@", err);
             return;
@@ -178,7 +209,10 @@ DDLogLevel ddLogLevel;
         NSURL *additionalPackagesURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalPackages.txt"];
         [temporaryItemsNBI addObject:additionalPackagesURL];
         NSMutableString *additionalPackagesContent = [[NSMutableString alloc] init];
-        NSMutableString *additionalScriptsContent = [[NSMutableString alloc] init];
+        
+        NSURL *additionalScriptsURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalScripts.txt"];
+        NSMutableString *additionalScriptsContent = [[NSMutableString alloc] initWithContentsOfURL:additionalScriptsURL encoding:NSUTF8StringEncoding error:&err] ?: [[NSMutableString alloc] init];
+        
         NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
         for ( NSString *packagePath in packagesNetInstall ) {
             NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:packagePath error:&error];
@@ -192,7 +226,7 @@ DDLogLevel ddLogLevel;
         }
         [additionalPackagesContent appendString:@"\\n"];
         
-        NSURL *additionalScriptsURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalScripts.txt"];
+        
         [temporaryItemsNBI addObject:additionalScriptsURL];
         if ( [configurationProfilesNetInstall count] != 0 ) {
             NSURL *inetInstallConfigurationProfilesScriptURL = [[workflowItem applicationSource] netInstallConfigurationProfiles];

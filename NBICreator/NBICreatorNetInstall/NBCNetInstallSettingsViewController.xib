@@ -501,8 +501,8 @@ asdasd</string>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="txZ-cm-2ks"/>
                                             <binding destination="-2" name="value" keyPath="self.netInstallPackageOnly" id="W8n-u9-CgZ"/>
+                                            <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="txZ-cm-2ks"/>
                                         </connections>
                                     </button>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="BtE-jk-6y2">
@@ -533,8 +533,8 @@ asdasd</string>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                         <connections>
-                                            <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="2Jv-WU-gfI"/>
                                             <binding destination="-2" name="value" keyPath="self.addTrustedNetBootServers" id="YmZ-cI-Pxz"/>
+                                            <binding destination="-2" name="enabled" keyPath="self.settingTrustedNetBootServersVisible" id="2Jv-WU-gfI"/>
                                         </connections>
                                     </button>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9fu-hC-Xkg">
