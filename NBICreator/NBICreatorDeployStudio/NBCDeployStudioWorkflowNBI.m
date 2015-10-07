@@ -29,9 +29,7 @@ DDLogLevel ddLogLevel;
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
     [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
-    DDLogDebug(@"_nbiVolumeName=%@", _nbiVolumeName);
     [self setTemporaryNBIPath:[[workflowItem temporaryNBIURL] path]];
-    DDLogDebug(@"_temporaryNBIPath=%@", _temporaryNBIPath);
     NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     
@@ -39,7 +37,6 @@ DDLogLevel ddLogLevel;
     //  Create arguments array for sys_builder.sh
     // -------------------------------------------------------------
     NSArray *sysBuilderArguments = [nbiController generateScriptArgumentsForSysBuilder:workflowItem];
-    DDLogDebug(@"sysBuilderArguments=%@", sysBuilderArguments);
     if ( [sysBuilderArguments count] != 0 ) {
         [workflowItem setScriptArguments:sysBuilderArguments];
     } else {
@@ -57,7 +54,7 @@ DDLogLevel ddLogLevel;
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
         return;
     }
-    
+
     // ------------------------------------------
     //  Setup command to run sys_builder.sh
     // ------------------------------------------
@@ -82,7 +79,7 @@ DDLogLevel ddLogLevel;
                                         NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
                                         NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
-                                        DDLogDebug(@"[sys_builder.sh] %@", outStr);
+                                        DDLogInfo(@"[sys_builder.sh] %@", outStr);
                                         
                                         // -----------------------------------------------------------------------
                                         //  When output data becomes available, pass it to workflow status parser

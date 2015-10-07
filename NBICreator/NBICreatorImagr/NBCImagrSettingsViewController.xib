@@ -2426,7 +2426,7 @@ asdasd</string>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView identifier="ImagrTableViewTrustedServers" focusRingType="none" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" id="Ppi-kq-H3r">
-                                <rect key="frame" x="0.0" y="0.0" width="124" height="106"/>
+                                <rect key="frame" x="0.0" y="0.0" width="123" height="0.0"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <animations/>
                                 <size key="intercellSpacing" width="2" height="3"/>
@@ -2490,7 +2490,7 @@ asdasd</string>
                         <constraint firstAttribute="height" constant="121" id="qy9-Ec-6ZA"/>
                     </constraints>
                     <animations/>
-                    <scroller key="horizontalScroller" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="3rk-Yo-6qa">
+                    <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="3rk-Yo-6qa">
                         <rect key="frame" x="0.0" y="106" width="123" height="15"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <animations/>
