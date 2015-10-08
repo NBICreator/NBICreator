@@ -215,7 +215,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
     } else if ([osVersion containsString:@"10.10"]) {
         productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconYosemite" withExtension:@"icns"]];
     } else if ([osVersion containsString:@"10.11"] ) {
-        productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconElCapitanBeta" withExtension:@"icns"]];
+        productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconElCapitan" withExtension:@"icns"]];
     }
     return productImage;
 }
