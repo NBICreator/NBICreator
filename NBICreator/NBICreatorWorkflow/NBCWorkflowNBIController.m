@@ -661,26 +661,13 @@ DDLogLevel ddLogLevel;
                                         "/Applications/NBICreatorDesktopViewer.app/Contents/MacOS/NBICreatorDesktopViewer &\n"];
         rcImaging = [rcImaging stringByAppendingString:startDesktopViewer];
     }
-    /*
+
     if ( [settingsDict[NBCSettingsIncludeConsoleAppKey] boolValue] && [settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue] ) {
         NSString *startConsole = [NSString stringWithFormat:@"\n"
                                   "###\n"
                                   "### Start Console\n"
                                   "###\n"
-                                  "if [ -e /usr/bin/open ]; then\n"
-                                  "\t/usr/bin/open -F -g -a /Applications/Utilities/Console.app/Contents/MacOS/Console /var/log/system.log\n"
-                                  "else\n"
-                                  "\t/Applications/Utilities/Console.app/Contents/MacOS/Console &\n"
-                                  "fi\n"];
-        rcImaging = [rcImaging stringByAppendingString:startConsole];
-    }
-    */
-    if ( [settingsDict[NBCSettingsIncludeConsoleAppKey] boolValue] && [settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue] ) {
-        NSString *startConsole = [NSString stringWithFormat:@"\n"
-                                  "###\n"
-                                  "### Start Console\n"
-                                  "###\n"
-                                  "/Applications/Utilities/Console.app/Contents/MacOS/Console &\n"];
+                                  "/Applications/Utilities/Console.app/Contents/MacOS/Console /var/log/system.log&\n"];
         rcImaging = [rcImaging stringByAppendingString:startConsole];
     }
     
@@ -889,26 +876,12 @@ DDLogLevel ddLogLevel;
         rcImaging = [rcImaging stringByAppendingString:startDesktopViewer];
     }
     
-    /*
-     if ( [settingsDict[NBCSettingsIncludeConsoleAppKey] boolValue] && [settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue] ) {
-     NSString *startConsole = [NSString stringWithFormat:@"\n"
-     "###\n"
-     "### Start Console\n"
-     "###\n"
-     "if [ -e /usr/bin/open ]; then\n"
-     "\t/usr/bin/open -F -g -a /Applications/Utilities/Console.app/Contents/MacOS/Console /var/log/system.log\n"
-     "else\n"
-     "\t/Applications/Utilities/Console.app/Contents/MacOS/Console &\n"
-     "fi\n"];
-     rcImaging = [rcImaging stringByAppendingString:startConsole];
-     }
-     */
     if ( [settingsDict[NBCSettingsIncludeConsoleAppKey] boolValue] && [settingsDict[NBCSettingsLaunchConsoleAppKey] boolValue] ) {
         NSString *startConsole = [NSString stringWithFormat:@"\n"
                                   "###\n"
                                   "### Start Console\n"
                                   "###\n"
-                                  "/Applications/Utilities/Console.app/Contents/MacOS/Console &\n"];
+                                  "/Applications/Utilities/Console.app/Contents/MacOS/Console /var/log/system.log&\n"];
         rcImaging = [rcImaging stringByAppendingString:startConsole];
     }
     
