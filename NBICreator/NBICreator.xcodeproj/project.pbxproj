@@ -50,7 +50,6 @@
 		53546DC31AA9EE7C00564A3D /* NBCDeployStudioSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 53546DC21AA9EE7C00564A3D /* NBCDeployStudioSource.m */; };
 		535753E51BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 535753E41BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m */; settings = {ASSET_TAGS = (); }; };
 		535753E81BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 535753E71BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m */; settings = {ASSET_TAGS = (); }; };
-		5359BB9B1B2AE87F00839417 /* IconElCapitanBeta.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5359BB9A1B2AE87F00839417 /* IconElCapitanBeta.icns */; };
 		535A898B1AD3247A00DC08F4 /* IconMavericks.icns in Resources */ = {isa = PBXBuildFile; fileRef = 535A89881AD3247A00DC08F4 /* IconMavericks.icns */; };
 		535A898C1AD3247A00DC08F4 /* IconMountainLion.icns in Resources */ = {isa = PBXBuildFile; fileRef = 535A89891AD3247A00DC08F4 /* IconMountainLion.icns */; };
 		535A898D1AD3247A00DC08F4 /* IconYosemite.icns in Resources */ = {isa = PBXBuildFile; fileRef = 535A898A1AD3247A00DC08F4 /* IconYosemite.icns */; };
@@ -58,6 +57,8 @@
 		53606AAB1AFE68E5001B3580 /* NBCTargetController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53606AAA1AFE68E5001B3580 /* NBCTargetController.m */; };
 		53609D751B80F4D0007F874F /* NBCUpdater.m in Sources */ = {isa = PBXBuildFile; fileRef = 53609D731B80F4D0007F874F /* NBCUpdater.m */; };
 		53609D761B80F4D0007F874F /* NBCUpdater.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53609D741B80F4D0007F874F /* NBCUpdater.xib */; };
+		5360B9E21BC61F750076811E /* IconInternal.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5360B9E11BC61F750076811E /* IconInternal.icns */; settings = {ASSET_TAGS = (); }; };
+		5360B9EC1BC6203E0076811E /* IconElCapitan.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5360B9EB1BC6203E0076811E /* IconElCapitan.icns */; settings = {ASSET_TAGS = (); }; };
 		53695BB41B80A6510038F3DD /* generateKernelCache.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53695BB31B80A6510038F3DD /* generateKernelCache.bash */; };
 		536AA0151BB8649B00A2FF0D /* NBCOptionBuildPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 536AA0131BB8649B00A2FF0D /* NBCOptionBuildPanel.m */; settings = {ASSET_TAGS = (); }; };
 		536AA0161BB8649B00A2FF0D /* NBCOptionBuildPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 536AA0141BB8649B00A2FF0D /* NBCOptionBuildPanel.xib */; settings = {ASSET_TAGS = (); }; };
@@ -332,7 +333,6 @@
 		535753E41BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCasperRAMDiskPathCellView.m; path = "NBICreator Casper/NBCCasperRAMDiskPathCellView.m"; sourceTree = "<group>"; };
 		535753E61BAF40F7000C9935 /* NBCCasperRAMDiskSizeCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCasperRAMDiskSizeCellView.h; path = "NBICreator Casper/NBCCasperRAMDiskSizeCellView.h"; sourceTree = "<group>"; };
 		535753E71BAF411C000C9935 /* NBCCasperRAMDiskSizeCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCasperRAMDiskSizeCellView.m; path = "NBICreator Casper/NBCCasperRAMDiskSizeCellView.m"; sourceTree = "<group>"; };
-		5359BB9A1B2AE87F00839417 /* IconElCapitanBeta.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconElCapitanBeta.icns; sourceTree = "<group>"; };
 		535A89881AD3247A00DC08F4 /* IconMavericks.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconMavericks.icns; sourceTree = "<group>"; };
 		535A89891AD3247A00DC08F4 /* IconMountainLion.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconMountainLion.icns; sourceTree = "<group>"; };
 		535A898A1AD3247A00DC08F4 /* IconYosemite.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconYosemite.icns; sourceTree = "<group>"; };
@@ -343,6 +343,8 @@
 		53609D721B80F4D0007F874F /* NBCUpdater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCUpdater.h; path = NBICreatorNetworking/NBCUpdater.h; sourceTree = "<group>"; };
 		53609D731B80F4D0007F874F /* NBCUpdater.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCUpdater.m; path = NBICreatorNetworking/NBCUpdater.m; sourceTree = "<group>"; };
 		53609D741B80F4D0007F874F /* NBCUpdater.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCUpdater.xib; path = NBICreatorNetworking/NBCUpdater.xib; sourceTree = "<group>"; };
+		5360B9E11BC61F750076811E /* IconInternal.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconInternal.icns; sourceTree = "<group>"; };
+		5360B9EB1BC6203E0076811E /* IconElCapitan.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconElCapitan.icns; sourceTree = "<group>"; };
 		53695BB31B80A6510038F3DD /* generateKernelCache.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = generateKernelCache.bash; path = "Supporting Files/Scripts/generateKernelCache.bash"; sourceTree = "<group>"; };
 		536AA0121BB8649B00A2FF0D /* NBCOptionBuildPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCOptionBuildPanel.h; sourceTree = "<group>"; };
 		536AA0131BB8649B00A2FF0D /* NBCOptionBuildPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCOptionBuildPanel.m; sourceTree = "<group>"; };
@@ -548,8 +550,9 @@
 				53F3B2841B7D1A54005BEAD3 /* IconCertPersonal.png */,
 				53F3B2851B7D1A54005BEAD3 /* IconCertRoot.png */,
 				53F3B2861B7D1A54005BEAD3 /* IconCertStandard.png */,
-				5359BB9A1B2AE87F00839417 /* IconElCapitanBeta.icns */,
+				5360B9EB1BC6203E0076811E /* IconElCapitan.icns */,
 				53AF66601AF95E860093DD26 /* IconImagr.icns */,
+				5360B9E11BC61F750076811E /* IconInternal.icns */,
 				53121E971AD5BB2D004515D6 /* IconDMG.icns */,
 				53A195A71AD4F29500489CCF /* IconLion.icns */,
 				535A89881AD3247A00DC08F4 /* IconMavericks.icns */,
@@ -1194,6 +1197,7 @@
 				53E5B8651B06FE1500A771F7 /* NBCTemplatesController.xib in Resources */,
 				538AC3CF1BB1B281006BC343 /* NBCOverlayViewController.xib in Resources */,
 				53FB3EB21B97763600CCE413 /* CasperDefaults.plist in Resources */,
+				5360B9E21BC61F750076811E /* IconInternal.icns in Resources */,
 				53DED1531B91723E00A95B6C /* NBICreatorTemplate.iconset in Resources */,
 				53346BD71AD657DF00C3831B /* NBCNetInstallDropViewController.xib in Resources */,
 				53AF66611AF95E860093DD26 /* IconImagr.icns in Resources */,
@@ -1206,6 +1210,7 @@
 				53CA4EC81B9236C1000DB6A1 /* NBICreatorBundle.iconset in Resources */,
 				53121E981AD5BB2D004515D6 /* IconDMG.icns in Resources */,
 				53968C151A8E7A3E0079AA95 /* MainMenu.xib in Resources */,
+				5360B9EC1BC6203E0076811E /* IconElCapitan.icns in Resources */,
 				539DAEF31AF158150037F06B /* NBCImagrSettingsViewController.xib in Resources */,
 				53609D761B80F4D0007F874F /* NBCUpdater.xib in Resources */,
 				53FB3E971B975D3B00CCE413 /* NBCCasperSettingsViewController.xib in Resources */,
@@ -1213,7 +1218,6 @@
 				5374C2991BB2E1BD008C8679 /* NBICreatorDesktopViewer.app in Resources */,
 				53121EA21AD5C24A004515D6 /* NBCPreferences.xib in Resources */,
 				535A898B1AD3247A00DC08F4 /* IconMavericks.icns in Resources */,
-				5359BB9B1B2AE87F00839417 /* IconElCapitanBeta.icns in Resources */,
 				53CBB1C61ACF253200B83089 /* NBCWorkflowPanelController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
