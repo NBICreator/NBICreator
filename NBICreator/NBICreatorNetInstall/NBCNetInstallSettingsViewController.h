@@ -36,6 +36,13 @@
 @property NSArray *currentlyDraggedObjects;
 
 // ------------------------------------------------------
+//  Image Type
+// ------------------------------------------------------
+@property (weak) IBOutlet NSPopUpButton *popUpButtonNBIType;
+- (IBAction)popUpButtonNBIType:(id)sender;
+@property NSString *nbiType;
+
+// ------------------------------------------------------
 //  Templates
 // ------------------------------------------------------
 @property NSURL *templatesFolderURL;

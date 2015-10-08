@@ -459,7 +459,7 @@ DDLogLevel ddLogLevel;
         [self setImageBackground:[deployStudioBackgroundURL path]];
         [self setImageBackgroundURL:NBCDeployStudioBackgroundDefaultPath];
     }
-    
+    [self expandVariablesForCurrentSettings];
     [self verifyBuildButton];
     [self updatePopOver];
 } // removedSource

@@ -359,9 +359,7 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc postNotificationName:NBCNotificationImagrRemovedSource object:self userInfo:nil];
-    
     [self setSource:nil];
-    
 } // restoreDropView
 
 ////////////////////////////////////////////////////////////////////////////////

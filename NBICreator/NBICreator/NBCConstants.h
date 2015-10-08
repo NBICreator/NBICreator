@@ -104,6 +104,8 @@ extern NSString *const NBCMenuItemSystemImageUtility;
 extern NSString *const NBCMenuItemCurrent;
 extern NSString *const NBCMenuItemWorkflows;
 extern NSString *const NBCMenuItemMainWindow;
+extern NSString *const NBCMenuItemNBITypeNetInstall;
+extern NSString *const NBCMenuItemNBITypePackageOnly;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Buttons
@@ -341,6 +343,7 @@ extern NSString *const NBCNotificationNetInstallUpdateSource;
 extern NSString *const NBCNotificationNetInstallRemovedSource;
 extern NSString *const NBCNotificationNetInstallUpdateNBIIcon;
 extern NSString *const NBCNotificationNetInstallVerifyDroppedSource;
+extern NSString *const NBCNotificationNetInstallUpdateNBIType;
 
 // Casper
 extern NSString *const NBCNotificationCasperUpdateSource;

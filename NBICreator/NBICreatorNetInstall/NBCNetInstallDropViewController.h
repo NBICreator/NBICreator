@@ -15,11 +15,13 @@
 //  Views
 // ------------------------------------------------------
 @property (strong) IBOutlet NSView *viewDropView;
+@property (strong) IBOutlet NSView *viewDropViewNoSource;
 
 // ------------------------------------------------------
 //  Class Instance Properties
 // ------------------------------------------------------
 @property NBCSource *source;
+@property NBCSource *sourcePackageOnly;
 
 // ------------------------------------------------------
 //  Properties
@@ -65,6 +67,26 @@
 @property (weak) IBOutlet NSTextField *textFieldSourceField1;
 @property (weak) IBOutlet NSTextField *textFieldSourceField2Label;
 @property (weak) IBOutlet NSTextField *textFieldSourceField2;
+
+
+// ------------------------------------------------------
+//  Layout Progress Package Only
+// ------------------------------------------------------
+@property (weak) IBOutlet NSProgressIndicator *progressIndicatorStatusPackageOnly;
+@property (weak) IBOutlet NSTextField *textFieldStatusPackageOnly;
+
+// ------------------------------------------------------
+//  Layout No Source
+// ------------------------------------------------------
+@property (weak) IBOutlet NSImageView *imageViewNoSource;
+@property (weak) IBOutlet NSImageView *imageViewNoSourceMini;
+@property (weak) IBOutlet NSTextField *textFieldNoSourceTitle;
+@property (weak) IBOutlet NSTextField *textFieldSourceField1LabelPackageOnly;
+@property (weak) IBOutlet NSTextField *textFieldSourceField1PackageOnly;
+@property (weak) IBOutlet NSTextField *textFieldSourceField2LabelPackageOnly;
+@property (weak) IBOutlet NSTextField *textFieldSourceField2PackageOnly;
+
+
 
 @end
 

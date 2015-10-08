@@ -811,13 +811,10 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSInteger)selectedSegment {
-    
     return [_segmentedControlNBI selectedSegment];
 } // selectedSegment
 
 - (void)selectSegmentedControl:(NSInteger)selectedSegment {
-    
-    
     // --------------------------------------------------------------
     //  Add selected workflows views to main window placeholders
     // --------------------------------------------------------------
@@ -925,7 +922,6 @@ enum {
 } // selectSegmentedControl
 
 - (void)addViewToSettingsView:(NSView *)settingsView {
-
     // --------------------------------------------------------------
     //  Remove current view(s) from settings view placeholder
     // --------------------------------------------------------------
@@ -953,12 +949,10 @@ enum {
 } // addViewToSettingsView
 
 - (void)addViewToDropView:(NSView *)dropView {
-    
-    
     // --------------------------------------------------------------
     //  Remove current view(s) from drop view placeholder
     // --------------------------------------------------------------
-    NSArray *currentSubviews = [_viewDropView subviews];
+    NSArray *currentSubviews = [[_viewDropView subviews] copy];
     for ( NSView *view in currentSubviews ) {
         [view removeFromSuperview];
     }
@@ -979,6 +973,23 @@ enum {
                                                                metrics:nil
                                                                  views:NSDictionaryOfVariableBindings(dropView)];
     [_viewDropView addConstraints:constraintsArray];
+    
+    if ( [dropView isEqualTo:[_niDropViewController view]] ) {
+        NSView *noSourceView = [_niDropViewController viewDropViewNoSource];
+        [_viewDropView addSubview:noSourceView];
+        [noSourceView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|[noSourceView]|"
+                                                                   options:0
+                                                                   metrics:nil
+                                                                     views:NSDictionaryOfVariableBindings(noSourceView)];
+        [_viewDropView addConstraints:constraintsArray];
+        constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[noSourceView]|"
+                                                                   options:0
+                                                                   metrics:nil
+                                                                     views:NSDictionaryOfVariableBindings(noSourceView)];
+        [_viewDropView addConstraints:constraintsArray];
+    }
+    
 } // addViewToDropView
 
 ////////////////////////////////////////////////////////////////////////////////

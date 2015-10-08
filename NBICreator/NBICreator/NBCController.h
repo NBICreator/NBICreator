@@ -24,6 +24,7 @@
 
 @class NBCDisk;
 @class NBCSource;
+@class NBCNetInstallDropViewController;
 @class NBCPreferences;
 
 @interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate, NSWindowDelegate>
@@ -40,7 +41,7 @@
 @property (strong) NSViewController *dsDropViewController;
 @property (strong) NSViewController *dsSettingsViewController;
 
-@property (strong) NSViewController *niDropViewController;
+@property (strong) NBCNetInstallDropViewController *niDropViewController;
 @property (strong) NSViewController *niSettingsViewController;
 
 @property (strong) NSViewController *imagrDropViewController;

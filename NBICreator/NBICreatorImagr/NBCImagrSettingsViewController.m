@@ -1013,6 +1013,7 @@ DDLogLevel ddLogLevel;
     [_textFieldDestinationFolder setEnabled:YES];
     [_buttonChooseDestinationFolder setEnabled:YES];
     [_popUpButtonTool setEnabled:YES];
+    [self expandVariablesForCurrentSettings];
     [self verifyBuildButton];
     [self updatePopOver];
 } // removedSource
@@ -1962,7 +1963,6 @@ DDLogLevel ddLogLevel;
 } // buttonChooseDestinationFolder
 
 - (IBAction)buttonPopOver:(id)sender {
-    
     [self updatePopOver];
     [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 } // buttonPopOver

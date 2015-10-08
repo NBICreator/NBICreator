@@ -293,7 +293,6 @@ DDLogLevel ddLogLevel;
     }
     
     [self updateSettingVisibility];
-    
     [self expandVariablesForCurrentSettings];
     [self verifyBuildButton];
     [self updatePopOver];
@@ -301,13 +300,13 @@ DDLogLevel ddLogLevel;
 
 - (void)removedSource:(NSNotification *)notification {
 #pragma unused(notification)
-    
+
     if ( _source ) {
         _source = nil;
     }
     
     [self updateSettingVisibility];
-    
+    [self expandVariablesForCurrentSettings];
     [self verifyBuildButton];
     [self updatePopOver];
 } // removedSource
@@ -412,6 +411,8 @@ DDLogLevel ddLogLevel;
             [self updateTrustedNetBootServersCount];
         }
     }
+    
+    [self updatePopUpButtonNBIType];
     
     [self expandVariablesForCurrentSettings];
 } // updateUISettingsFromDict
@@ -817,6 +818,49 @@ DDLogLevel ddLogLevel;
     // %SIUVERSION%
     [self setSiuVersion:[_siuSource systemImageUtilityVersion]];
 } // updatePopOver
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton NBI Type
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updatePopUpButtonNBIType {
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    if ( _netInstallPackageOnly ) {
+        [self setNbiType:NBCMenuItemNBITypePackageOnly];
+        NSDictionary * userInfo = @{ NBCSettingsNetInstallPackageOnlyKey : @YES };
+        [nc postNotificationName:NBCNotificationNetInstallUpdateNBIType object:self userInfo:userInfo];
+    } else {
+        [self setNbiType:NBCMenuItemNBITypeNetInstall];
+        NSDictionary * userInfo = @{ NBCSettingsNetInstallPackageOnlyKey : @NO };
+        [nc postNotificationName:NBCNotificationNetInstallUpdateNBIType object:self userInfo:userInfo];
+    }
+    
+    if ( _popUpButtonNBIType ) {
+        [_popUpButtonNBIType removeAllItems];
+        [_popUpButtonNBIType addItemWithTitle:NBCMenuItemNBITypeNetInstall];
+        [_popUpButtonNBIType addItemWithTitle:NBCMenuItemNBITypePackageOnly];
+        [_popUpButtonNBIType selectItemWithTitle:_nbiType];
+        [self setNbiType:[_popUpButtonNBIType titleOfSelectedItem]];
+    }
+} // uppdatePopUpButtonTool
+
+- (IBAction)popUpButtonNBIType:(id)sender {
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    NSString *selectedType = [[sender selectedItem] title];
+    if ( [selectedType isEqualToString:NBCMenuItemNBITypePackageOnly] ) {
+        [self setNbiType:NBCMenuItemNBITypePackageOnly];
+        [self setNetInstallPackageOnly:YES];
+        NSDictionary * userInfo = @{ NBCSettingsNetInstallPackageOnlyKey : @YES };
+        [nc postNotificationName:NBCNotificationNetInstallUpdateNBIType object:self userInfo:userInfo];
+    } else if ( [selectedType isEqualToString:NBCMenuItemNBITypeNetInstall] ) {
+        [self setNbiType:NBCMenuItemNBITypeNetInstall];
+        [self setNetInstallPackageOnly:NO];
+        NSDictionary * userInfo = @{ NBCSettingsNetInstallPackageOnlyKey : @NO };
+        [nc postNotificationName:NBCNotificationNetInstallUpdateNBIType object:self userInfo:userInfo];
+    }
+} // popUpButtonTool
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -

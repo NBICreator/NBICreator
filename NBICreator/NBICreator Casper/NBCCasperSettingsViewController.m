@@ -1023,6 +1023,7 @@ DDLogLevel ddLogLevel;
     [_textFieldDestinationFolder setEnabled:YES];
     [_buttonChooseDestinationFolder setEnabled:YES];
     [_popUpButtonTool setEnabled:YES];
+    [self expandVariablesForCurrentSettings];
     [self verifyBuildButton];
     [self updatePopOver];
 } // removedSource

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15A284" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <development version="6300" identifier="xcode"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
@@ -420,8 +420,9 @@
                 <rect key="frame" x="0.0" y="0.0" width="600" height="434"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6Ox-EY-Fwk">
+                    <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6Ox-EY-Fwk">
                         <rect key="frame" x="264" y="13" width="72" height="32"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Build" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WVV-Pw-0TK">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -432,12 +433,15 @@
                     </button>
                     <customView horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" placeholderIntrinsicWidth="560" placeholderIntrinsicHeight="137" translatesAutoresizingMaskIntoConstraints="NO" id="ajs-UB-tQp">
                         <rect key="frame" x="20" y="277" width="560" height="137"/>
+                        <animations/>
                     </customView>
                     <customView horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" placeholderIntrinsicWidth="560" placeholderIntrinsicHeight="157" translatesAutoresizingMaskIntoConstraints="NO" id="ngY-aB-lRp">
                         <rect key="frame" x="20" y="53" width="560" height="179"/>
+                        <animations/>
                     </customView>
-                    <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uL8-j3-eig">
+                    <segmentedControl verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uL8-j3-eig">
                         <rect key="frame" x="145" y="242" width="310" height="24"/>
+                        <animations/>
                         <segmentedCell key="cell" refusesFirstResponder="YES" borderStyle="border" alignment="left" identifier="netinstall" style="rounded" trackingMode="selectOne" id="cuq-FX-eII">
                             <font key="font" metaFont="system"/>
                             <segments>
@@ -467,6 +471,7 @@
                     <constraint firstAttribute="centerX" secondItem="ajs-UB-tQp" secondAttribute="centerX" id="rJF-IM-QBY"/>
                     <constraint firstItem="ajs-UB-tQp" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" symbolic="YES" id="wBd-wM-JOq"/>
                 </constraints>
+                <animations/>
             </view>
             <connections>
                 <outlet property="delegate" destination="2ua-cd-ebo" id="Pgw-0h-tCi"/>
@@ -480,8 +485,9 @@
                 <rect key="frame" x="1" y="1" width="544" height="46"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Zzw-YM-boj">
+                    <button horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zzw-YM-boj">
                         <rect key="frame" x="411" y="6" width="121" height="32"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Install Helper" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9o7-6N-NEG">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -490,8 +496,9 @@
                             <action selector="buttonInstallHelper:" target="2ua-cd-ebo" id="625-iB-biH"/>
                         </connections>
                     </button>
-                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="NTd-K4-Z9c">
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NTd-K4-Z9c">
                         <rect key="frame" x="16" y="15" width="395" height="17"/>
+                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="To create a NetInstall Image you need to install the helper tool." id="3yK-Ve-mvi">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -499,6 +506,7 @@
                         </textFieldCell>
                     </textField>
                 </subviews>
+                <animations/>
             </view>
             <constraints>
                 <constraint firstItem="Zzw-YM-boj" firstAttribute="top" secondItem="pCh-R5-Ehc" secondAttribute="top" constant="11" id="3rv-qc-m3V"/>
@@ -508,6 +516,7 @@
                 <constraint firstAttribute="trailing" secondItem="Zzw-YM-boj" secondAttribute="trailing" constant="16" id="fJU-4Q-6Gl"/>
                 <constraint firstItem="Zzw-YM-boj" firstAttribute="centerY" secondItem="NTd-K4-Z9c" secondAttribute="centerY" id="nAr-mo-0MI"/>
             </constraints>
+            <animations/>
             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
             <point key="canvasLocation" x="-260" y="402"/>
@@ -522,6 +531,7 @@
                     <constraints>
                         <constraint firstAttribute="height" constant="17" id="2Mt-qw-Obm"/>
                     </constraints>
+                    <animations/>
                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="You are not connected to the Internet." id="zgo-mZ-gJv">
                         <font key="font" metaFont="smallSystem"/>
                         <color key="textColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -534,6 +544,7 @@
                 <constraint firstAttribute="centerY" secondItem="Gqx-qr-SCI" secondAttribute="centerY" id="beh-TH-yIt"/>
                 <constraint firstAttribute="trailing" secondItem="Gqx-qr-SCI" secondAttribute="trailing" constant="20" symbolic="YES" id="hNN-oR-GzQ"/>
             </constraints>
+            <animations/>
             <point key="canvasLocation" x="-260" y="553.5"/>
         </customView>
     </objects>

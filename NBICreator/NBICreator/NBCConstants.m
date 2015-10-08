@@ -104,6 +104,8 @@ NSString *const NBCMenuItemSystemImageUtility = @"System Image Utility";
 NSString *const NBCMenuItemCurrent = @"Current";
 NSString *const NBCMenuItemWorkflows = @"Workflows";
 NSString *const NBCMenuItemMainWindow = @"MainWindow";
+NSString *const NBCMenuItemNBITypeNetInstall = @"NetInstall";
+NSString *const NBCMenuItemNBITypePackageOnly = @"Package Only";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Buttons
@@ -345,6 +347,7 @@ NSString *const NBCNotificationNetInstallUpdateSource = @"netInstallUpdateSource
 NSString *const NBCNotificationNetInstallRemovedSource = @"netInstallRemovedSource";
 NSString *const NBCNotificationNetInstallUpdateNBIIcon = @"netInstallUpdateNBIIcon";
 NSString *const NBCNotificationNetInstallVerifyDroppedSource = @"netInstallVerifyDroppedSource";
+NSString *const NBCNotificationNetInstallUpdateNBIType = @"netInstallUpdateNBIType";
 
 // Casper
 NSString *const NBCNotificationCasperUpdateSource = @"CasperUpdateSource";

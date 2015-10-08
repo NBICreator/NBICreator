@@ -40,7 +40,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)viewDidLoad {
-    
     [super viewDidLoad];
     
     // --------------------------------------------------------------
@@ -48,6 +47,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc addObserver:self selector:@selector(verifyDroppedSource:) name:NBCNotificationNetInstallVerifyDroppedSource object:nil];
+    [nc addObserver:self selector:@selector(updateNBIType:) name:NBCNotificationNetInstallUpdateNBIType object:nil];
     [nc addObserver:self selector:@selector(updateSourceList:) name:DADiskDidAppearNotification object:nil];
     [nc addObserver:self selector:@selector(updateSourceList:) name:DADiskDidDisappearNotification object:nil];
     [nc addObserver:self selector:@selector(updateSourceList:) name:DADiskDidChangeNotification object:nil];
@@ -80,10 +80,18 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     [self updatePopUpButtonSource];
     
+    [self showProgressPackageOnly];
+    // --------------------------------------------------------------------------
+    //  Loop to check boot disk
+    // --------------------------------------------------------------------------
+    [NSTimer scheduledTimerWithTimeInterval:0.5
+                                     target:self
+                                   selector:@selector(getSystemDisk:)
+                                   userInfo:nil
+                                    repeats:YES];
 } // viewDidLoad
 
 - (void)showSourceInFinder {
-    
     if ( _source ) {
         NSURL *sourceURL = _sourceDictLinks[_selectedSource];
         if ( [sourceURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -118,6 +126,14 @@ DDLogLevel ddLogLevel;
 #pragma mark Notification Methods
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+- (void)updateNBIType:(NSNotification *)notification {
+    if ( [[notification userInfo][NBCSettingsNetInstallPackageOnlyKey] boolValue] ) {
+        [self hideSourceView];
+    } else {
+        [self showSourceView];
+    }
+}
 
 - (void)updateSourceList:(NSNotification *)notification {
 #pragma unused(notification)
@@ -241,6 +257,49 @@ DDLogLevel ddLogLevel;
     [_textFieldStatus setHidden:NO];
 } // showProgress
 
+- (void)showProgressPackageOnly {
+    [_textFieldStatusPackageOnly setStringValue:@"Checking System Version..."];
+    
+    // ------------------------------------------------------
+    //  Hide Source Layout
+    // ------------------------------------------------------
+    [_imageViewNoSource setHidden:YES];
+    [_imageViewNoSourceMini setHidden:YES];
+    [_textFieldNoSourceTitle setHidden:YES];
+    [_textFieldSourceField1LabelPackageOnly setHidden:YES];
+    [_textFieldSourceField1PackageOnly setHidden:YES];
+    [_textFieldSourceField2LabelPackageOnly setHidden:YES];
+    [_textFieldSourceField2PackageOnly setHidden:YES];
+    
+    // ------------------------------------------------------
+    //  Start and Show Progress
+    // ------------------------------------------------------
+    [_progressIndicatorStatusPackageOnly startAnimation:self];
+    [_progressIndicatorStatusPackageOnly setHidden:NO];
+    [_textFieldStatusPackageOnly setHidden:NO];
+} // showProgressPackageOnly
+
+- (void)showSourcePackageOnly {
+    
+    // ------------------------------------------------------
+    //  Start and Show Progress
+    // ------------------------------------------------------
+    [_progressIndicatorStatusPackageOnly stopAnimation:self];
+    [_progressIndicatorStatusPackageOnly setHidden:YES];
+    [_textFieldStatusPackageOnly setHidden:YES];
+    
+    // ------------------------------------------------------
+    //  Hide Source Layout
+    // ------------------------------------------------------
+    [_imageViewNoSource setHidden:NO];
+    [_imageViewNoSourceMini setHidden:NO];
+    [_textFieldNoSourceTitle setHidden:NO];
+    [_textFieldSourceField1LabelPackageOnly setHidden:NO];
+    [_textFieldSourceField1PackageOnly setHidden:NO];
+    [_textFieldSourceField2LabelPackageOnly setHidden:NO];
+    [_textFieldSourceField2PackageOnly setHidden:NO];
+} // showSourcePackageOnly
+
 - (void)showSource {
     
     // ------------------------------------------------------
@@ -280,6 +339,30 @@ DDLogLevel ddLogLevel;
     [_textFieldSourceField2Label setHidden:NO];
     [_textFieldSourceField2 setHidden:NO];
 } // showSource
+
+- (void)hideSourceView {
+    if ( _sourcePackageOnly ) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationNetInstallUpdateSource
+                                                            object:self
+                                                          userInfo:@{ NBCNotificationUpdateSourceUserInfoSource : _sourcePackageOnly }];
+    }
+    [_viewDropViewNoSource setHidden:NO];
+    [_viewDropView setHidden:YES];
+} // hideSourceView
+
+- (void)showSourceView {
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    if ( _source ) {
+        [nc postNotificationName:NBCNotificationNetInstallUpdateSource
+                          object:self
+                        userInfo:@{ NBCNotificationUpdateSourceUserInfoSource : _source }];
+    } else {
+        [nc postNotificationName:NBCNotificationNetInstallRemovedSource object:self userInfo:nil];
+    }
+    [_viewDropView setHidden:NO];
+    [_viewDropViewNoSource setHidden:YES];
+    
+} // showSourceView
 
 - (void)restoreDropView {
     
@@ -327,7 +410,7 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc postNotificationName:NBCNotificationNetInstallRemovedSource object:self userInfo:nil];
-    
+    [self setSource:nil];
 } // restoreDropView
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,7 +420,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction)popUpButtonSource:(id)sender {
-    
     [self setSelectedSource:[[sender selectedItem] title]];
     
     // --------------------------------------------------------------------------------------------
@@ -500,6 +582,57 @@ DDLogLevel ddLogLevel;
 #pragma mark Verify URL
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+- (void)getSystemDisk:(NSTimer *)timer {
+    NBCDisk *systemDisk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:@"/"]];
+    if ( systemDisk ) {
+        [timer invalidate];
+        timer = nil;
+        [self verifyDisk:systemDisk];
+    }
+}
+
+- (void)verifyDisk:(NBCDisk *)disk {
+    NBCSource *newSource = [[NBCSource alloc] init];
+    NBCSourceController *sourceController = [[NBCSourceController alloc] init];
+    
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+    dispatch_async(taskQueue, ^{
+        
+        NSError *error;
+        
+        // ------------------------------------------------------
+        //  Verify the source is a valid OS X System
+        // ------------------------------------------------------
+        if ( disk != nil ) {
+            if ( [sourceController verifySystemFromDisk:disk source:newSource error:&error] ) {
+                [self setSourcePackageOnly:newSource];
+                NSString *systemOSVersion = [newSource systemOSVersion];
+                NSString *baseSystemOSVersion = [newSource systemOSVersion];
+                NSString *baseSystemOSBuild = [newSource systemOSBuild];
+                
+                // ------------------------------------------------------
+                //  Set Source Info to No Source View
+                // ------------------------------------------------------
+                NSString *systemVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", baseSystemOSVersion, baseSystemOSBuild];
+                NSImage *productImage = [newSource productImageForOSVersion:systemOSVersion];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self->_textFieldNoSourceTitle setStringValue:systemVersionString];
+                    [self->_textFieldSourceField2PackageOnly setStringValue:[[newSource systemVolumeURL] path]];
+                    if ( productImage ) {
+                        [self->_imageViewNoSource setImage:productImage];
+                    }
+                    [self showSourcePackageOnly];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationNetInstallUpdateSource
+                                                                        object:self
+                                                                      userInfo:@{ NBCNotificationUpdateSourceUserInfoSource : newSource }];
+                });
+            } else {
+                DDLogError(@"Could not verify system disk!");
+            }
+        }
+    });
+}
 
 - (void)verifySource:(NSURL *)sourceURL {
     
