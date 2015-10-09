@@ -15,6 +15,7 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCLogging.h"
+#import "NBCDiskArbitrator.h"
 
 DDLogLevel ddLogLevel;
 
@@ -38,25 +39,6 @@ DDLogLevel ddLogLevel;
     
     BOOL packageOnly = [[workflowItem userSettings][NBCSettingsNetInstallPackageOnlyKey] boolValue];
     
-    // -------------------------------------------------------------
-    //  Get used space on InstallESD source volume for progress bar
-    // -------------------------------------------------------------
-    NSString *installESDVolumePath = [[[workflowItem source] installESDVolumeURL] path];
-    if ( [installESDVolumePath length] != 0 ) {
-        NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfFileSystemForPath:installESDVolumePath error:&err];
-        if ( [volumeAttributes count] != 0 ) {
-            double maxSize = [volumeAttributes[NSFileSystemSize] doubleValue];
-            double freeSize = [volumeAttributes[NSFileSystemFreeSize] doubleValue];
-            [self setNetInstallVolumeSize:( maxSize - freeSize )];
-        } else {
-            NSLog(@"Error getting volumeAttributes from InstallESD Volume");
-            NSLog(@"Error: %@", err);
-        }
-    } else {
-        NSLog(@"Error getting installESDVolumePath from source");
-        return;
-    }
-    
     NSArray *scriptArguments = @[];
     NSDictionary *environmentVariables = @{};
     
@@ -70,19 +52,38 @@ DDLogLevel ddLogLevel;
             [workflowItem setScriptArguments:createRestoreFromSourcesArguments];
             scriptArguments = createRestoreFromSourcesArguments;
         } else {
-            NSLog(@"Error, no argumets for createRestoreFromSources");
+            NSLog(@"[ERROR] No argumets for createRestoreFromSources");
             return;
         }
         
         // -------------------------------------------------------------
         //  Create environment variables for createRestoreFromSources.sh
         // -------------------------------------------------------------
-        NSDictionary *createRestoreFromSourcesEnvironmentVariables = [nbiController generateEnvironmentVariablesForCreateRestoreFromSources:workflowItem];
-        if ( [createRestoreFromSourcesEnvironmentVariables count] != 0 ) {
-            [workflowItem setScriptEnvironmentVariables:createRestoreFromSourcesEnvironmentVariables];
-            environmentVariables = createRestoreFromSourcesEnvironmentVariables;
+        if ( [nbiController generateEnvironmentVariablesForCreateRestoreFromSources:workflowItem] ) {
+            environmentVariables = @{}; // Here because not changing Helper Yet
+        } else {
+            DDLogError(@"[ERROR] No variables for createRestoreFromSources!");
+            return;
         }
     } else {
+        // -------------------------------------------------------------
+        //  Get used space on InstallESD source volume for progress bar
+        // -------------------------------------------------------------
+        NSString *installESDVolumePath = [[[workflowItem source] installESDVolumeURL] path];
+        if ( [installESDVolumePath length] != 0 ) {
+            NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfFileSystemForPath:installESDVolumePath error:&err];
+            if ( [volumeAttributes count] != 0 ) {
+                double maxSize = [volumeAttributes[NSFileSystemSize] doubleValue];
+                double freeSize = [volumeAttributes[NSFileSystemFreeSize] doubleValue];
+                [self setNetInstallVolumeSize:( maxSize - freeSize )];
+            } else {
+                NSLog(@"Error getting volumeAttributes from InstallESD Volume");
+                NSLog(@"Error: %@", err);
+            }
+        } else {
+            NSLog(@"Error getting installESDVolumePath from source");
+            return;
+        }
         
         // -------------------------------------------------------------
         //  Create arguments array for createNetInstall.sh
@@ -92,7 +93,7 @@ DDLogLevel ddLogLevel;
             [workflowItem setScriptArguments:createNetInstallArguments];
             scriptArguments = createNetInstallArguments;
         } else {
-            NSLog(@"Error, no argumets for createNetInstall");
+            NSLog(@"[ERROR] No arguments for createNetInstall");
             return;
         }
         
@@ -103,6 +104,8 @@ DDLogLevel ddLogLevel;
         if ( [createNetInstallEnvironmentVariables count] != 0 ) {
             [workflowItem setScriptEnvironmentVariables:createNetInstallEnvironmentVariables];
             environmentVariables = createNetInstallEnvironmentVariables;
+        } else {
+            DDLogError(@"[ERROR] No variables for createNetInstall");
         }
     }
     
@@ -134,9 +137,57 @@ DDLogLevel ddLogLevel;
         }
         
         NSURL *asrInstallPkgSourceURL = [[workflowItem applicationSource] asrInstallPkgURL];
-        NSURL *asrInstallPkgTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:[asrInstallPkgSourceURL lastPathComponent]];
-        if ( ! [[NSFileManager defaultManager] copyItemAtURL:asrInstallPkgSourceURL toURL:asrInstallPkgTargetURL error:&err] ) {
-            DDLogError(@"[ERROR] %@", err);
+        if ( asrInstallPkgSourceURL ) {
+            NSURL *asrInstallPkgTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:[asrInstallPkgSourceURL lastPathComponent]];
+            if ( ! [[NSFileManager defaultManager] copyItemAtURL:asrInstallPkgSourceURL toURL:asrInstallPkgTargetURL error:&err] ) {
+                DDLogError(@"[ERROR] %@", err);
+                return;
+            }
+        } else {
+            DDLogError(@"[ERROR] No path to asrInstallPkg");
+            return;
+        }
+        
+        NSURL *asrPostInstallPackagesURL = [[workflowItem applicationSource] postInstallPackages];
+        if ( asrPostInstallPackagesURL ) {
+            NSURL *asrPostInstallPackagesTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:[asrPostInstallPackagesURL lastPathComponent]];
+            if ( ! [[NSFileManager defaultManager] copyItemAtURL:asrPostInstallPackagesURL toURL:asrPostInstallPackagesTargetURL error:&err] ) {
+                DDLogError(@"[ERROR] %@", err);
+                return;
+            }
+        } else {
+            DDLogError(@"[ERROR] No path to postInstallPackages");
+            return;
+        }
+        
+        NSURL *preserveInstallLogURL = [[workflowItem applicationSource] preserveInstallLog];
+        if ( preserveInstallLogURL ) {
+            NSURL *preserveInstallLogTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:[preserveInstallLogURL lastPathComponent]];
+            if ( ! [[NSFileManager defaultManager] copyItemAtURL:preserveInstallLogURL toURL:preserveInstallLogTargetURL error:&err] ) {
+                DDLogError(@"[ERROR] %@", err);
+                return;
+            }
+        } else {
+            DDLogError(@"[ERROR] No path to preserveInstallLog");
+            return;
+        }
+        
+        NSURL *netBootClientHelperURL = [[workflowItem applicationSource] netBootClientHelper];
+        if ( netBootClientHelperURL ) {
+            NSURL *netBootClientHelperTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:[netBootClientHelperURL lastPathComponent]];
+            if ( ! [[NSFileManager defaultManager] copyItemAtURL:netBootClientHelperURL toURL:netBootClientHelperTargetURL error:&err] ) {
+                DDLogError(@"[ERROR] %@", err);
+                return;
+            }
+        } else {
+            DDLogError(@"[ERROR] No path to netBootClientHelper");
+            return;
+        }
+        
+        NSURL *buildCommandsTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"buildCommands.sh"];
+        NSString *buildCommandsContent = [NSString stringWithFormat:@"'%@' \"%@\" \"/\" \"System\" || exit 1\n", [[[workflowItem applicationSource] asrFromVolumeURL] path], [[workflowItem temporaryNBIURL] path]];
+        if ( ! [buildCommandsContent writeToURL:buildCommandsTargetURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
+            NSLog(@"[ERROR] %@", err);
             return;
         }
     }
@@ -157,7 +208,7 @@ DDLogLevel ddLogLevel;
         if ( [configProfilesContent writeToURL:configProfilesURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
             writeOSInstall = YES;
         } else {
-            NSLog(@"ERROR %@", err);
+            NSLog(@"[ERROR] %@", err);
             return;
         }
         
@@ -167,7 +218,7 @@ DDLogLevel ddLogLevel;
         if ( [[NSFileManager defaultManager] copyItemAtURL:installConfigurationProfilesScriptURL toURL:installConfigurationProfilesScriptTargetURL error:&err] ) {
             [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@.pkg", [installConfigurationProfilesScriptURL lastPathComponent]]];
         } else {
-            NSLog(@"ERROR %@", err);
+            NSLog(@"[ERROR] %@", err);
             return;
         }
     }
@@ -188,18 +239,26 @@ DDLogLevel ddLogLevel;
             return;
         }
         
-        NSURL *additionalScriptsURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalScripts.txt"];
-        NSMutableString *additionalScriptsContent = [[NSMutableString alloc] initWithContentsOfURL:additionalScriptsURL encoding:NSUTF8StringEncoding error:&err] ?: [[NSMutableString alloc] init];
-        
         NSURL *addBSDPSourcesScriptURL = [[workflowItem applicationSource] addBSDPSourcesURL];
-        [additionalScriptsContent appendString:[NSString stringWithFormat:@"%@\n", [addBSDPSourcesScriptURL path]]];
-        [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@.pkg", [addBSDPSourcesScriptURL lastPathComponent]]];
-        
-        if ( [additionalScriptsContent writeToURL:additionalScriptsURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
-            writeOSInstall = YES;
+        if ( packageOnly ) {
+            NSURL *addBSDPSourcesScriptTargetURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:[addBSDPSourcesScriptURL lastPathComponent]];
+            if ( ! [[NSFileManager defaultManager] copyItemAtURL:addBSDPSourcesScriptURL toURL:addBSDPSourcesScriptTargetURL error:&err] ) {
+                DDLogError(@"[ERROR] %@", [err localizedDescription]);
+                return;
+            }
         } else {
-            NSLog(@"ERROR %@", err);
-            return;
+            NSURL *additionalScriptsURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"additionalScripts.txt"];
+            NSMutableString *additionalScriptsContent = [[NSMutableString alloc] initWithContentsOfURL:additionalScriptsURL encoding:NSUTF8StringEncoding error:&err] ?: [[NSMutableString alloc] init];
+            
+            [additionalScriptsContent appendString:[NSString stringWithFormat:@"%@\n", [addBSDPSourcesScriptURL path]]];
+            [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@.pkg", [addBSDPSourcesScriptURL lastPathComponent]]];
+            
+            if ( [additionalScriptsContent writeToURL:additionalScriptsURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
+                writeOSInstall = YES;
+            } else {
+                NSLog(@"ERROR %@", err);
+                return;
+            }
         }
     }
     
@@ -236,15 +295,19 @@ DDLogLevel ddLogLevel;
         if ( [additionalPackagesContent writeToURL:additionalPackagesURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
             writeOSInstall = YES;
         } else {
-            NSLog(@"ERROR %@", err);
+            NSLog(@"[ERROR] %@", err);
             return;
         }
         
         if ( [additionalScriptsContent writeToURL:additionalScriptsURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
             writeOSInstall = YES;
         } else {
-            NSLog(@"ERROR %@", err);
+            NSLog(@"[ERROR] %@", err);
             return;
+        }
+        
+        if ( packageOnly ) {
+            [@{} writeToURL:[[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"ASRInstall.mpkg"] atomically:YES];
         }
     }
     
@@ -254,8 +317,15 @@ DDLogLevel ddLogLevel;
         NSDictionary *osInstallDict = (NSDictionary*)osInstallArray;
         [osInstallDict writeToURL:osInstallURL atomically:YES];
     }
-    
+    NSLog(@"path=%@", [[workflowItem temporaryNBIURL] path]);
     [workflowItem setTemporaryItemsNBI:temporaryItemsNBI];
+    
+    // Mount recovery if not already mounted
+    if ( packageOnly ) {
+        NSLog(@"Mounting!");
+        NSLog(@"[workflowItem=%@", [workflowItem temporaryNBIURL]);
+        //[[[workflowItem source] recoveryDisk] unmountWithOptions:kDADiskUnmountOptionDefault];
+    }
     
     // ------------------------------------------
     //  Setup command to run createNetInstall.sh
@@ -285,6 +355,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When output data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
+                                        NSLog(@"outStr=%@", outStr);
                                         [weakSelf updateNetInstallWorkflowStatus:outStr stdErr:nil];
                                         
                                         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
@@ -312,6 +383,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
+                                        NSLog(@"errStr=%@", errStr);
                                         [weakSelf updateNetInstallWorkflowStatus:nil stdErr:errStr];
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
@@ -359,7 +431,7 @@ DDLogLevel ddLogLevel;
                 if ( error ) {
                     userInfo = @{ NBCUserInfoNSErrorKey : error };
                 }
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                //[nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
             }
         }];
     }];

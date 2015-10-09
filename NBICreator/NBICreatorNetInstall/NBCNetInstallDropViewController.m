@@ -599,18 +599,30 @@ DDLogLevel ddLogLevel;
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(taskQueue, ^{
         
+        BOOL verified = YES;
         NSError *error;
         
         // ------------------------------------------------------
         //  Verify the source is a valid OS X System
         // ------------------------------------------------------
         if ( disk != nil ) {
-            if ( [sourceController verifySystemFromDisk:disk source:newSource error:&error] ) {
+            verified = [sourceController verifySystemFromDisk:disk source:newSource error:&error];
+            if ( verified ) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self->_textFieldStatusPackageOnly setStringValue:@"Checking Recovery Version..."];
+                });
+                verified = [sourceController verifyRecoveryPartitionFromSystemDisk:disk source:newSource error:&error];
+                if ( ! verified ) {
+                    DDLogError(@"Could not verify Recovery Partition!");
+                    DDLogError(@"Error: %@", error);
+                }
+            }
+            
+            if ( verified ) {
                 [self setSourcePackageOnly:newSource];
                 NSString *systemOSVersion = [newSource systemOSVersion];
                 NSString *baseSystemOSVersion = [newSource systemOSVersion];
                 NSString *baseSystemOSBuild = [newSource systemOSBuild];
-                
                 // ------------------------------------------------------
                 //  Set Source Info to No Source View
                 // ------------------------------------------------------

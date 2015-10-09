@@ -459,7 +459,9 @@ DDLogLevel ddLogLevel;
     switch ( [_currentWorkflowItem workflowType] ) {
         case kWorkflowTypeNetInstall:
         {
-            retval = [sc verifySourceIsMountedInstallESD:[_currentWorkflowItem source]];
+            if ( ! [[_currentWorkflowItem userSettings][NBCSettingsNetInstallPackageOnlyKey] boolValue] ) {
+                retval = [sc verifySourceIsMountedInstallESD:[_currentWorkflowItem source]];
+            }
             break;
         }
         case kWorkflowTypeDeployStudio:

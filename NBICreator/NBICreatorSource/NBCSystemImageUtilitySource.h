@@ -26,8 +26,13 @@
 @property NSURL *createRestoreFromSourcesURL;
 @property NSURL *addBSDPSourcesURL;
 @property NSURL *asrInstallPkgURL;
+@property NSURL *asrFromVolumeURL;
 @property NSURL *installConfigurationProfiles;
 @property NSURL *netInstallConfigurationProfiles;
+@property NSURL *postInstallPackages;
+@property NSURL *preserveInstallLog;
+@property NSURL *netBootClientHelper;
+@property NSURL *netBootClientHelperPlist;
 
 - (NSString *)expandVariables:(NSString *)string;
 + (NSArray *)systemImageUtilityVersions;

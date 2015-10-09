@@ -57,7 +57,7 @@ DDLogLevel ddLogLevel;
         [self setSiuFoundationFrameworkURL:siuFoundationFrameworkURL];
         [self setSiuFoundationVersion:[[NSBundle bundleWithURL:_siuFoundationFrameworkURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
     } else {
-        NSLog(@"SIUFoundation.framework Doesn't exist!_ %@", error);
+        NSLog(@"[ERROR] %@", [error localizedDescription]);
     }
     
     [self setSiuAgentXPCURL:[_siuFoundationFrameworkURL URLByAppendingPathComponent:@"Versions/A/XPCServices/com.apple.SIUAgent.xpc"]];
@@ -70,10 +70,14 @@ DDLogLevel ddLogLevel;
         [self setCreateRestoreFromSourcesURL:[siuAgentBundle URLForResource:@"createRestoreFromSources" withExtension:@"sh"]];
         [self setAddBSDPSourcesURL:[siuAgentBundle URLForResource:@"addBSDPSources" withExtension:@"sh"]];
         [self setAsrInstallPkgURL:[siuAgentBundle URLForResource:@"ASRInstall" withExtension:@"pkg"]];
+        [self setAsrFromVolumeURL:[siuAgentBundle URLForResource:@"asrFromVolume" withExtension:@"sh"]];
         [self setInstallConfigurationProfiles:[siuAgentBundle URLForResource:@"installConfigurationProfiles" withExtension:@"sh"]];
         [self setNetInstallConfigurationProfiles:[siuAgentBundle URLForResource:@"netInstallConfigurationProfiles" withExtension:@"sh"]];
+        [self setPostInstallPackages:[siuAgentBundle URLForResource:@"postInstallPackages" withExtension:@"sh"]];
+        [self setPreserveInstallLog:[siuAgentBundle URLForResource:@"preserveInstallLog" withExtension:@"sh"]];
+        [self setNetBootClientHelper:[siuAgentBundle URLForResource:@"NetBootClientHelper" withExtension:@""]];
     } else {
-        NSLog(@"SIUFoundation.framework Doesn't exist!_ %@", error);
+        NSLog(@"[ERROR] %@", [error localizedDescription]);
     }
 }
 

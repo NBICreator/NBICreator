@@ -654,8 +654,7 @@ DDLogLevel ddLogLevel;
                     [newSource detachBaseSystem];
                     [newSource unmountRecoveryHD];
                 });
-            }
-            else {
+            } else {
                 [newSource detachAll];
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self restoreDropView];

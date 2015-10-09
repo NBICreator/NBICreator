@@ -74,9 +74,8 @@ DDLogLevel ddLogLevel;
     
 } // generateSysBuilderArgumentsFromSettingsDict
 
-- (NSDictionary *)generateEnvironmentVariablesForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
-    
-    NSMutableDictionary *environmentVariables = [[NSMutableDictionary alloc] init];
+- (BOOL)generateEnvironmentVariablesForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
+    BOOL retval = YES;
     NSMutableString *environmentVariablesContent = [[NSMutableString alloc] init];
     
     // --------------------------------------------------------------
@@ -109,23 +108,25 @@ DDLogLevel ddLogLevel;
         [environmentVariablesContent appendString:[NSString stringWithFormat:@"destPath=\"%@\"\n", destinationPath]];
     } else {
         NSLog(@"Could not get destinationPath from workflowItem");
-        return nil;
+        return NO;
     }
     
     // -------------------------------------------------------------------
     //  Add potentialRecoveryDevice
     // -------------------------------------------------------------------
-    NSString *potentialRecoveryDevice = [[workflowItem nbiName] stringByDeletingPathExtension];
+    NSString *potentialRecoveryDeviceDev = [[workflowItem source] recoveryVolumeBSDIdentifier];
+    NSString *potentialRecoveryDevice = [potentialRecoveryDeviceDev stringByReplacingOccurrencesOfString:@"/dev/" withString:@""];
     if ( [potentialRecoveryDevice length] != 0 ) {
         [environmentVariablesContent appendString:[NSString stringWithFormat:@"potentialRecoveryDevice=\"%@\"\n", potentialRecoveryDevice]];
     } else {
         NSLog(@"Could not get potentialRecoveryDevice from source");
-        return nil;
+        return NO;
     }
     
     // -------------------------------------------------------------------
     //  Write createVariables.sh to temporary nbi folder
     // -------------------------------------------------------------------
+    NSLog(@"createVariablesURL=%@", createVariablesURL);
     if ( [environmentVariablesContent writeToURL:createVariablesURL atomically:NO encoding:NSUTF8StringEncoding error:nil] ) {
         NSMutableArray *temporaryItemsNBI = [[workflowItem temporaryItemsNBI] mutableCopy];
         if ( ! temporaryItemsNBI ) {
@@ -137,10 +138,10 @@ DDLogLevel ddLogLevel;
         [workflowItem setTemporaryItemsNBI:temporaryItemsNBI];
     } else {
         NSLog(@"Could not create createVariables.sh at: %@", [createVariablesURL path]);
-        return nil;
+        retval = NO;
     }
     
-    return environmentVariables;
+    return retval;
 } // generateEnvironmentVariablesForCreateNetInstall
 
 - (NSDictionary *)generateEnvironmentVariablesForCreateNetInstall:(NBCWorkflowItem *)workflowItem {

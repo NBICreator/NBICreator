@@ -14,7 +14,7 @@
 
 - (NSArray *)generateScriptArgumentsForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem;
 - (NSArray *)generateScriptArgumentsForCreateNetInstall:(NBCWorkflowItem *)workflowItem;
-- (NSDictionary *)generateEnvironmentVariablesForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem;
+- (BOOL)generateEnvironmentVariablesForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem;
 - (NSDictionary *)generateEnvironmentVariablesForCreateNetInstall:(NBCWorkflowItem *)workflowItem;
 - (NSArray *)generateScriptArgumentsForSysBuilder:(NBCWorkflowItem *)workflowItem;
 + (NSString *)generateImagrRCImagingForNBICreator:(NSDictionary *)settingsDict osMinorVersion:(int)osMinorVersion;

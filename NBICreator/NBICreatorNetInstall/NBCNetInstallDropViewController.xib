@@ -256,7 +256,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="YwV-ay-mSs">
-                                <rect key="frame" x="249" y="39" width="75" height="16"/>
+                                <rect key="frame" x="252" y="38" width="75" height="16"/>
                                 <animations/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Internal Disk" id="kdV-Od-C4f">
                                     <font key="font" metaFont="cellTitle"/>
@@ -265,7 +265,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" horizontalCompressionResistancePriority="250" verticalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="oWs-Ct-MUc">
-                                <rect key="frame" x="249" y="19" width="96" height="16"/>
+                                <rect key="frame" x="252" y="18" width="96" height="16"/>
                                 <animations/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="&quot;Source Field 2&quot;" id="hOa-cA-hn0">
                                     <font key="font" metaFont="cellTitle"/>
@@ -274,17 +274,16 @@
                                 </textFieldCell>
                             </textField>
                             <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="r4H-wU-JdY" customClass="NBCNetInstallDropViewImageView">
-                                <rect key="frame" x="59" y="14" width="79" height="79"/>
+                                <rect key="frame" x="61" y="12" width="80" height="80"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="79" id="VLJ-B2-zgZ"/>
-                                    <constraint firstAttribute="width" constant="79" id="crO-K5-7fj"/>
+                                    <constraint firstAttribute="height" constant="80" id="VLJ-B2-zgZ"/>
                                     <constraint firstAttribute="width" secondItem="r4H-wU-JdY" secondAttribute="height" multiplier="1:1" id="crp-VK-07f"/>
                                 </constraints>
                                 <animations/>
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="IconElCapitan" id="BRe-ja-492"/>
                             </imageView>
                             <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="bx3-lN-Sse">
-                                <rect key="frame" x="163" y="19" width="82" height="16"/>
+                                <rect key="frame" x="166" y="18" width="82" height="16"/>
                                 <animations/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Mount Point:" id="6po-qN-NK0">
                                     <font key="font" metaFont="systemBold" size="12"/>
@@ -293,7 +292,7 @@
                                 </textFieldCell>
                             </textField>
                             <textField hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="h4S-hg-PGs">
-                                <rect key="frame" x="163" y="39" width="82" height="16"/>
+                                <rect key="frame" x="166" y="38" width="82" height="16"/>
                                 <animations/>
                                 <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Source:" id="R0K-SX-Ns9">
                                     <font key="font" metaFont="systemBold" size="12"/>
@@ -302,7 +301,7 @@
                                 </textFieldCell>
                             </textField>
                             <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="2JR-YO-3fg" customClass="NBCImagrDropViewImageView">
-                                <rect key="frame" x="106" y="14" width="32" height="32"/>
+                                <rect key="frame" x="109" y="12" width="32" height="32"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="32" id="ZJw-qx-eTY"/>
                                     <constraint firstAttribute="width" constant="32" id="gwk-uA-mlZ"/>
@@ -311,7 +310,7 @@
                                 <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="IconInternal" id="7xz-xT-Rvy"/>
                             </imageView>
                             <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="lVR-38-4ub">
-                                <rect key="frame" x="161" y="59" width="141" height="29"/>
+                                <rect key="frame" x="164" y="58" width="141" height="29"/>
                                 <animations/>
                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Source Title" id="BqP-HB-Qh9">
                                     <font key="font" metaFont="systemBold" size="24"/>
@@ -341,7 +340,7 @@
                             <constraint firstItem="YwV-ay-mSs" firstAttribute="leading" secondItem="h4S-hg-PGs" secondAttribute="trailing" constant="8" symbolic="YES" id="DmE-jF-wbw"/>
                             <constraint firstItem="lVR-38-4ub" firstAttribute="leading" secondItem="r4H-wU-JdY" secondAttribute="trailing" constant="25" id="ERh-Nt-FFH"/>
                             <constraint firstItem="oWs-Ct-MUc" firstAttribute="leading" secondItem="bx3-lN-Sse" secondAttribute="trailing" constant="8" symbolic="YES" id="GYA-Ts-jEw"/>
-                            <constraint firstItem="r4H-wU-JdY" firstAttribute="leading" secondItem="Cgm-hE-s6L" secondAttribute="leading" constant="59" id="NIJ-ry-GsM"/>
+                            <constraint firstItem="r4H-wU-JdY" firstAttribute="leading" secondItem="Cgm-hE-s6L" secondAttribute="leading" constant="61" id="NIJ-ry-GsM"/>
                             <constraint firstItem="h4S-hg-PGs" firstAttribute="width" secondItem="bx3-lN-Sse" secondAttribute="width" id="NIK-2Q-U7y"/>
                             <constraint firstItem="r4H-wU-JdY" firstAttribute="width" secondItem="r4H-wU-JdY" secondAttribute="height" multiplier="1:1" id="Ojp-cz-0JD"/>
                             <constraint firstItem="h4S-hg-PGs" firstAttribute="top" secondItem="lVR-38-4ub" secondAttribute="bottom" constant="4" id="PYz-He-Ec0"/>
@@ -350,7 +349,7 @@
                             <constraint firstItem="YwV-ay-mSs" firstAttribute="baseline" secondItem="h4S-hg-PGs" secondAttribute="baseline" id="aRb-c3-U9Q"/>
                             <constraint firstItem="4MJ-U1-pgW" firstAttribute="centerX" secondItem="Cgm-hE-s6L" secondAttribute="centerX" id="jcY-9u-GMp"/>
                             <constraint firstItem="r4H-wU-JdY" firstAttribute="trailing" secondItem="2JR-YO-3fg" secondAttribute="trailing" id="ohr-uG-Yxm"/>
-                            <constraint firstItem="r4H-wU-JdY" firstAttribute="top" secondItem="Cgm-hE-s6L" secondAttribute="top" constant="9" id="rQQ-Lb-C1S"/>
+                            <constraint firstItem="r4H-wU-JdY" firstAttribute="top" secondItem="Cgm-hE-s6L" secondAttribute="top" constant="10" id="rQQ-Lb-C1S"/>
                             <constraint firstItem="H46-Dv-hOW" firstAttribute="top" secondItem="4MJ-U1-pgW" secondAttribute="bottom" constant="10" id="rx5-SE-IPZ"/>
                             <constraint firstItem="r4H-wU-JdY" firstAttribute="bottom" secondItem="2JR-YO-3fg" secondAttribute="bottom" id="vNL-3O-TSe"/>
                             <constraint firstItem="H46-Dv-hOW" firstAttribute="centerX" secondItem="Cgm-hE-s6L" secondAttribute="centerX" id="w5V-yQ-uAz"/>
