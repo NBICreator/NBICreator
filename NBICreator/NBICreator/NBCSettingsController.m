@@ -79,8 +79,8 @@ DDLogLevel ddLogLevel;
             // ----------------------------------------------------------------------------
             //  Check that OS Version is working with current DeployStudio version
             // ----------------------------------------------------------------------------
-            //NSDictionary *osVersionForDeployStudio = [self verifySettingsOsVersionForDeployStudio:workflowItem];
-            //[settings addObject:osVersionForDeployStudio];
+            NSDictionary *osVersionForDeployStudio = [self verifySettingsOsVersionForDeployStudio:workflowItem];
+            [settings addObject:osVersionForDeployStudio];
             
             break;
         }

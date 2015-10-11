@@ -1120,7 +1120,6 @@ DDLogLevel ddLogLevel;
     [self setJssCACertificateExpirationString:@""];
     [self setJssVersion:@""];
     
-    
     [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
     [self setNbiName:settingsDict[NBCSettingsNameKey]];
     [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
@@ -1220,6 +1219,21 @@ DDLogLevel ddLogLevel;
                 [self insertPackageInTableView:packageDict];
             }
         }
+    }
+    
+    [_trustedServers removeAllObjects];
+    [_tableViewTrustedServers reloadData];
+    if ( [settingsDict[NBCSettingsTrustedNetBootServersKey] count] != 0 ) {
+        NSArray *trustedServersArray = settingsDict[NBCSettingsTrustedNetBootServersKey];
+        if ( [trustedServersArray count] != 0 ) {
+            for ( NSString *trustedServer in trustedServersArray ) {
+                [self insertNetBootServerIPInTableView:trustedServer];
+            }
+        } else {
+            [self updateTrustedNetBootServersCount];
+        }
+    } else {
+        [self updateTrustedNetBootServersCount];
     }
     
     [_ramDisks removeAllObjects];

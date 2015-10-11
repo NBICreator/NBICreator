@@ -109,20 +109,23 @@ void DiskDescriptionChangedCallback(DADiskRef diskRef, CFArrayRef keys, void *co
 void DiskMountCallback(DADiskRef diskRef, DADissenterRef dissenter, void *context) {
 #pragma unused(diskRef)
     //	Disk *disk = (Disk *)context;
+    NSLog(@"DiskMountCallback");
     NSMutableDictionary *info = nil;
     
-    if (dissenter) {
+    if ( dissenter ) {
         DAReturn status = DADissenterGetStatus(dissenter);
         
         NSString *statusString = (__bridge NSString *) DADissenterGetStatusString(dissenter);
-        if (!statusString)
+        NSLog(@"statusString=%@", statusString);
+        if ( ! statusString ) {
             statusString = [NSString stringWithFormat:@"%@: %#x", NSLocalizedString(@"Dissenter status code", nil), status];
+        }
         
         info = [NSMutableDictionary dictionary];
         info[NSLocalizedFailureReasonErrorKey] = statusString;
-        info[DAStatusErrorKey] = @(status);
-    }
-    else {
+        info[DAStatusErrorKey] = @( status );
+    } else {
+        NSLog(@"No Dissenter");
     }
     
     [[NSNotificationCenter defaultCenter] postNotificationName:DADiskDidAttemptMountNotification object:(__bridge id)(context) userInfo:info];

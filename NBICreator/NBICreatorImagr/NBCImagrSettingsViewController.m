@@ -1231,6 +1231,8 @@ DDLogLevel ddLogLevel;
         } else {
             [self updateTrustedNetBootServersCount];
         }
+    } else {
+        [self updateTrustedNetBootServersCount];
     }
     
     [_ramDisks removeAllObjects];

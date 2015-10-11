@@ -410,6 +410,8 @@ DDLogLevel ddLogLevel;
         } else {
             [self updateTrustedNetBootServersCount];
         }
+    } else {
+        [self updateTrustedNetBootServersCount];
     }
     
     [self updatePopUpButtonNBIType];
