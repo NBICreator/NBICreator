@@ -1190,13 +1190,10 @@ DDLogLevel ddLogLevel;
         [baseSystemBinariesRegexes addObjectsFromArray:casperImagingDepencenciesBaseSystemBinaries];
     }
     
-    //NSString *regexDyld = @".*dyld.*";
-    //[baseSystemBinariesRegexes addObject:regexDyld];
-    
     baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey] = baseSystemBinariesRegexes;
     sourceItemsDict[baseSystemBinariesPath] = baseSystemBinariesDict;
     
-    /*
+    
     NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
     NSMutableArray *packageBSDRegexes;
@@ -1209,83 +1206,14 @@ DDLogLevel ddLogLevel;
         packageBSDDict = [[NSMutableDictionary alloc] init];
         packageBSDRegexes = [[NSMutableArray alloc] init];
     }
-    */
-    //NSString *regexCvmsCompAgent = @".*/sandbox/cvmsCompAgent.sb.*";
-    //[packageBSDRegexes addObject:regexCvmsCompAgent];
     
-    //NSString *regexCvmsServer = @".*/sandbox/cvmsServer.sb.*";
-    //[packageBSDRegexes addObject:regexCvmsServer];
+    NSString *regexExpect = @".*/bin/expect.*";
+    [packageBSDRegexes addObject:regexExpect];
     
-    //packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
-    //sourceItemsDict[packageBSDPath] = packageBSDDict;
+    packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
+    sourceItemsDict[packageBSDPath] = packageBSDDict;
     
-    // Testing without these as they get added by script
-    
-    // For 'Casper Imaging'
-    //NSString *regexGLUT = @".*GLUT.framework.*"; <- Not added by script, but apparently not needed either.
-    //[packageEssentialsRegexes addObject:regexGLUT];
-    
-    //NSString *regexQuickTime = @".*QuickTime.framework.*";
-    //[packageEssentialsRegexes addObject:regexQuickTime];
-    
-    // (in Carbon) For QuickTime.framework
-    //NSString *regexNavigationServices = @".*NavigationServices.framework.*";
-    //[packageEssentialsRegexes addObject:regexNavigationServices];
-    
-    // (in Carbon) For QuickTime.framework
-    //NSString *regexCarbonSound = @".*CarbonSound.framework.*";
-    //[packageEssentialsRegexes addObject:regexCarbonSound];
-    
-    // for 'jamf'
-    //NSString *regexCollaboration = @".*Collaboration.framework.*";
-    //[packageEssentialsRegexes addObject:regexCollaboration];
-    
-    // for Collaboration.framework <-
-    //NSString *regexAddressBook = @".*AddressBook.framework.*";
-    //[packageEssentialsRegexes addObject:regexAddressBook];
-    
-    // for AddressBook.framework <-
-    //NSString *regexIntlPreferences = @".*IntlPreferences.framework.*";
-    //[packageEssentialsRegexes addObject:regexIntlPreferences];
-    
-    // for AddressBook.framework <-
-    //NSString *regexToneLibrary = @".*ToneLibrary.framework.*";
-    //[packageEssentialsRegexes addObject:regexToneLibrary];
-    
-    // for AddressBook.framework <-
-    //NSString *regexToneKit = @".*ToneKit.framework.*";
-    //[packageEssentialsRegexes addObject:regexToneKit];
-    
-    // for AddressBook.framework <-
-    //NSString *regexvCard = @".*vCard.framework.*";
-    //[packageEssentialsRegexes addObject:regexvCard];
-    
-    // for AddressBook.framework <-
-    //NSString *regexContactsData = @".*ContactsData.framework.*";
-    //[packageEssentialsRegexes addObject:regexContactsData];
-    
-    // for AddressBook.framework <-
-    //NSString *regexContactsFoundation = @".*ContactsFoundation.framework.*";
-    //[packageEssentialsRegexes addObject:regexContactsFoundation];
-    
-    // for AddressBook.framework <-
-    //NSString *regexPhoneNumbers = @".*PhoneNumbers.framework.*";
-    //[packageEssentialsRegexes addObject:regexPhoneNumbers];
-    
-    //NSString *regexAVFoundation = @".*/Frameworks/AVFoundation.framework.*";
-    //[packageEssentialsRegexes addObject:regexAVFoundation];
-    
-    //NSString *regexCoreAVCHD = @".*/PrivateFrameworks/CoreAVCHD.framework.*";
-    //[packageEssentialsRegexes addObject:regexCoreAVCHD];
-    
-    //NSString *regexFaceCore = @".*/PrivateFrameworks/FaceCore.framework.*";
-    //[packageEssentialsRegexes addObject:regexFaceCore];
-    
-    //NSString *regexSafariServices = @".*/PrivateFrameworks/SafariServices.framework.*";
-    //[packageEssentialsRegexes addObject:regexSafariServices];
-    
-    //NSString *regexSpeechRecognitionCore = @".*/PrivateFrameworks/SpeechRecognitionCore.framework.*";
-    //[packageEssentialsRegexes addObject:regexSpeechRecognitionCore];
+ 
 }
 
 + (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
