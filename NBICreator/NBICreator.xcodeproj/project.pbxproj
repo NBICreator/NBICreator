@@ -124,6 +124,7 @@
 		53D2B9BB1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D2B9BA1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m */; };
 		53D34D951B73F7E900F11CFF /* installCertificates.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53D34D941B73F7E900F11CFF /* installCertificates.bash */; };
 		53D34DA01B740DA600F11CFF /* NBCPackageTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D34D9F1B740DA600F11CFF /* NBCPackageTableCellView.m */; };
+		53DD632F1BCD9A1F005C460C /* NSString+SymlinksAndAliases.m in Sources */ = {isa = PBXBuildFile; fileRef = 53DD632E1BCD9A1F005C460C /* NSString+SymlinksAndAliases.m */; settings = {ASSET_TAGS = (); }; };
 		53DED1531B91723E00A95B6C /* NBICreatorTemplate.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 53DED1521B91723E00A95B6C /* NBICreatorTemplate.iconset */; };
 		53DF9CF21AA36DC8004B68D8 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 53DF9CF11AA36DC8004B68D8 /* Defaults.plist */; };
 		53DFA2521BA153620009EFEC /* NBCImagrTrustedNetBootServerCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53DFA2511BA153620009EFEC /* NBCImagrTrustedNetBootServerCellView.m */; };
@@ -451,6 +452,8 @@
 		53D34D941B73F7E900F11CFF /* installCertificates.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = installCertificates.bash; path = "Supporting Files/Scripts/installCertificates.bash"; sourceTree = "<group>"; };
 		53D34D9E1B740D7F00F11CFF /* NBCPackageTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCPackageTableCellView.h; sourceTree = "<group>"; };
 		53D34D9F1B740DA600F11CFF /* NBCPackageTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCPackageTableCellView.m; sourceTree = "<group>"; };
+		53DD632D1BCD9A1F005C460C /* NSString+SymlinksAndAliases.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+SymlinksAndAliases.h"; sourceTree = "<group>"; };
+		53DD632E1BCD9A1F005C460C /* NSString+SymlinksAndAliases.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+SymlinksAndAliases.m"; sourceTree = "<group>"; };
 		53DED1521B91723E00A95B6C /* NBICreatorTemplate.iconset */ = {isa = PBXFileReference; lastKnownFileType = folder.iconset; path = NBICreatorTemplate.iconset; sourceTree = "<group>"; };
 		53DF9CF11AA36DC8004B68D8 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = Defaults.plist; path = "Supporting Files/Property Lists/Defaults.plist"; sourceTree = "<group>"; };
 		53DFA2501BA1534E0009EFEC /* NBCImagrTrustedNetBootServerCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCImagrTrustedNetBootServerCellView.h; path = NBICreatorImagr/NBCImagrTrustedNetBootServerCellView.h; sourceTree = "<group>"; };
@@ -816,6 +819,8 @@
 		53B91EE41AD9BDDC0056CFC0 /* NBICreator Categories */ = {
 			isa = PBXGroup;
 			children = (
+				53DD632D1BCD9A1F005C460C /* NSString+SymlinksAndAliases.h */,
+				53DD632E1BCD9A1F005C460C /* NSString+SymlinksAndAliases.m */,
 				5337D0C01AD9BAE200DF7579 /* NSString+randomString.h */,
 				5337D0C11AD9BAE200DF7579 /* NSString+randomString.m */,
 				537FF2261B9B0CE200924E04 /* NSString+validIP.h */,
@@ -1305,6 +1310,7 @@
 				53FB3EA31B975DAD00CCE413 /* NBCCasperDropViewController.m in Sources */,
 				53CD5C1C1BB5C5BA0047E879 /* NBCXcodeSource.m in Sources */,
 				539BE69F1B009A0000825C78 /* NBCInstallerPackageController.m in Sources */,
+				53DD632F1BCD9A1F005C460C /* NSString+SymlinksAndAliases.m in Sources */,
 				53950AD81A93DC0800E9EF39 /* NBCHelperAuthorization.m in Sources */,
 				533BED6D1B9A385D00524AE4 /* NBCCLIManager.m in Sources */,
 				53E51C1B1AF55DD0009364E7 /* NBCNetInstallWorkflowModifyNBI.m in Sources */,

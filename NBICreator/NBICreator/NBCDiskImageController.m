@@ -24,6 +24,7 @@
 
 #import <DiskArbitration/DiskArbitration.h>
 #import "NSString+randomString.h"
+#import "NSString+SymlinksAndAliases.h"
 #import "NBCController.h"
 #import "NBCLogging.h"
 
@@ -40,12 +41,11 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)attachDiskImageAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options error:(NSError **)error {
-    
     BOOL retval = YES;
     NSData *newTaskOutputData;
     NSMutableDictionary *errorInfo;
     NSString *failureReason;
-    
+
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/usr/bin/hdiutil"];
     
@@ -656,20 +656,57 @@ DDLogLevel ddLogLevel;
     return diskImageURL;
 }
 
-
-
 + (NBCDisk *)getBaseSystemDiskFromDiskImageURL:(NSURL *)diskImageURL {
-    
+    NSString *diskImagePathResolved = [[diskImageURL path] stringByResolvingSymlinksAndAliases];
+    NSError *error;
     NBCDisk *disk;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
     for ( NSDictionary *image in hdiutilDict[@"images"] ) {
         NSString *imagePath = image[@"image-path"];
-        if ( [[diskImageURL path] isEqualToString:imagePath] ) {
+        if ( [diskImagePathResolved isEqualToString:imagePath] || [[diskImageURL path] isEqualToString:imagePath] ) {
             NSDictionary *systemEntities = image[@"system-entities"];
             for ( NSDictionary *entity in systemEntities ) {
                 NSString *mountPoint = entity[@"mount-point"];
                 if ( mountPoint ) {
-                    disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
+                    NSArray *rootItems = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[NSURL fileURLWithPath:mountPoint]
+                                                                       includingPropertiesForKeys:@[]
+                                                                                          options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                                            error:&error];
+                    __block BOOL isBaseSystem;
+                    [rootItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+#pragma unused(idx)
+                        NSString *itemName = [obj lastPathComponent];
+                        if ( [itemName hasPrefix:@"Install OS X"] && [itemName hasSuffix:@".app"] ) {
+                            isBaseSystem = YES;
+                            *stop = YES;;
+                        }
+                    }];
+                    if ( isBaseSystem ) {
+                        disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
+                    }
+                }
+            }
+        }
+    }
+    
+    return disk;
+}
+
++ (NBCDisk *)getInstallESDDiskFromDiskImageURL:(NSURL *)diskImageURL {
+    NSString *diskImagePathResolved = [[diskImageURL path] stringByResolvingSymlinksAndAliases];
+    NBCDisk *disk;
+    NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
+    for ( NSDictionary *image in hdiutilDict[@"images"] ) {
+        NSString *imagePath = image[@"image-path"];
+        if ( [diskImagePathResolved isEqualToString:imagePath] || [[diskImageURL path] isEqualToString:imagePath] ) {
+            NSDictionary *systemEntities = image[@"system-entities"];
+            for ( NSDictionary *entity in systemEntities ) {
+                NSString *mountPoint = entity[@"mount-point"];
+                if ( mountPoint ) {
+                    NSURL *baseSystemURL = [[NSURL fileURLWithPath:mountPoint] URLByAppendingPathComponent:@"BaseSystem.dmg"];
+                    if ( [baseSystemURL checkResourceIsReachableAndReturnError:nil] ) {
+                        disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
+                    }
                 }
             }
         }
@@ -685,22 +722,16 @@ DDLogLevel ddLogLevel;
     NBCDisk *disk;
     NSString *partitionHint;
     
-    if (
-        [imageType isEqualToString:@"System"]
-        ) {
+    if ( [imageType isEqualToString:@"System"] ) {
         partitionHint = @"Apple_HFS";    // "Apple_HFS" - Mac OS Extended (HFS+)
-    } else if (
-               [imageType isEqualToString:@"BaseSystem"] ||
-               [imageType isEqualToString:@"InstallESD"] ||
-               [imageType isEqualToString:@"NetInstall"]
-               ) {
-        disk = [self getBaseSystemDiskFromDiskImageURL:diskImageURL];
-        return disk;
-    } else if (
-               [imageType isEqualToString:@"Recovery"]
-               ) {
-        partitionHint = @"426F6F74-0000-11AA-AA11-00306543ECAC";    // "" - OS X Recovery Partition
+    } else if ( [imageType isEqualToString:@"BaseSystem"] ) {
+        return [self getBaseSystemDiskFromDiskImageURL:diskImageURL];
+    } else if ( [imageType isEqualToString:@"InstallESD"] || [imageType isEqualToString:@"NetInstall"] ) {
+        return [self getInstallESDDiskFromDiskImageURL:diskImageURL];;
+    } else if ( [imageType isEqualToString:@"Recovery"] ) {
+        partitionHint = @"426F6F74-0000-11AA-AA11-00306543ECAC"; // "" - OS X Recovery Partition
     }
+    
     NSMutableArray *diskImageUUIDs = [[NSMutableArray alloc] init];
     NSTask *newTask =  [[NSTask alloc] init];
     [newTask setLaunchPath:@"/usr/bin/hdiutil"];
