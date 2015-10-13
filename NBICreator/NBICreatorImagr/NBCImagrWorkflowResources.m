@@ -65,14 +65,17 @@ DDLogLevel ddLogLevel;
             }
         }
     }
+    
     NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
     if ( [certificatesArray count] != 0 ) {
         [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )];
     }
+    
     NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
     if ( [packagessArray count] != 0 ) {
         [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
     }
+    
     if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
         [self setResourcesCount:( _resourcesCount + 1 )];
         if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
@@ -101,17 +104,21 @@ DDLogLevel ddLogLevel;
             return;
         }
         
-        if ( ! [self prepareDesktopViewer:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            return;
-        }
-        
         if ( ! [self createImagrRCImaging:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
         }
         
-        [self getItemsFromSource:workflowItem];
+        if ( ! [[[workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+            if ( ! [self prepareDesktopViewer:workflowItem] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                return;
+            }
+            
+            [self getItemsFromSource:workflowItem];
+        } else {
+            [self checkCompletedResources];
+        }
     } else {
         DDLogError(@"[ERROR] Settings are empty!");
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
@@ -227,6 +234,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)prepareCertificates:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
+    DDLogInfo(@"Preparing certificates...");
     BOOL retval = YES;
     NSError *error;
     NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
@@ -301,7 +309,10 @@ DDLogLevel ddLogLevel;
             }
             index++;
         }
+    } else {
+        DDLogInfo(@"No certificates found!");
     }
+    
     return retval;
 } // prepareCertificates
 
@@ -363,6 +374,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)getImagrApplication:(NBCWorkflowItem *)workflowItem {
 #pragma unused(workflowItem)
+    DDLogInfo(@"Preparing Imagr.app...");
     BOOL retval = YES;
     NSString *selectedImagrVersion = _userSettings[NBCSettingsImagrVersion];
     NSString *imagrApplicationTargetPath;
@@ -1065,6 +1077,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)createImagrSettingsPlist:(NBCWorkflowItem *)workflowItem {
+    DDLogInfo(@"Preparing com.grahamgilbert.Imagr.plist...");
     BOOL retval = YES;
     NSString *configurationURL = _userSettings[NBCSettingsImagrConfigurationURL];
     NSString *imagrConfigurationPlistTargetPath;
@@ -1113,10 +1126,13 @@ DDLogLevel ddLogLevel;
                                                NBCWorkflowCopyTargetURL : imagrConfigurationPlistTargetPath,
                                                NBCWorkflowCopyAttributes : copyAttributes
                                                };
-                if ( [_target nbiNetInstallURL] != nil ) {
+                if ( [_target nbiNetInstallURL] ) {
                     [_resourcesNetInstallCopy addObject:copySettings];
                 } else if ( [_target baseSystemURL] ) {
                     [_resourcesBaseSystemCopy addObject:copySettings];
+                } else {
+                    DDLogError(@"[ERROR] No target defined!");
+                    return NO;
                 }
                 
                 [self checkCompletedResources];
@@ -1136,6 +1152,7 @@ DDLogLevel ddLogLevel;
 } // createImagrSettingsPlist
 
 - (BOOL)createImagrRCImaging:(NBCWorkflowItem *)workflowItem {
+    DDLogInfo(@"Preparing rc.imaging...");
     BOOL retval = YES;
     NSError *error;
     NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
@@ -1201,6 +1218,7 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] rcImagingContent is empty!");
         retval = NO;
     }
+    
     return retval;
 } // createImagrRCImaging
 

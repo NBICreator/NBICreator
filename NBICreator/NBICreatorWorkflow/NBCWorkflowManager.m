@@ -406,19 +406,19 @@ DDLogLevel ddLogLevel;
         }
         
         // -------------------------------------------------------------
-        //  Mount source if not mounted
-        // -------------------------------------------------------------
-        if ( ! [self mountSource] ) {
-            DDLogError(@"[ERROR] Could not mount source!");
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            return;
-        }
-        
-        // -------------------------------------------------------------
         //  Run workflows. Don't create NBI if source is a NBI itself.
         // -------------------------------------------------------------
         NSString *sourceType = [[_currentWorkflowItem source] sourceType];
         if ( ! [sourceType isEqualToString:NBCSourceTypeNBI] ) {
+            // -------------------------------------------------------------
+            //  Mount source if not mounted
+            // -------------------------------------------------------------
+            if ( ! [self mountSource] ) {
+                DDLogError(@"[ERROR] Could not mount source!");
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                return;
+            }
+            
             [self setCurrentWorkflowNBI:[_currentWorkflowItem workflowNBI]];
             if ( _currentWorkflowNBI ) {
                 [_currentWorkflowNBI setDelegate:_currentWorkflowProgressView];
