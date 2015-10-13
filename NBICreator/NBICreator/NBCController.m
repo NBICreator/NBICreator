@@ -763,7 +763,6 @@ enum {
 
 + (NBCDisk *)diskFromVolumeURL:(NSURL *)volumeURL {
     
-    
     // --------------------------------------------------------------
     //  Return NBCDisk object for passed VolumeURL (if found)
     // --------------------------------------------------------------

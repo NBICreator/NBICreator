@@ -140,7 +140,6 @@ enum {
 }
 
 - (void)deleteTemplateAtURL:(NSURL *)templateURL {
-    
     DDLogDebug(@"templateURL=%@", templateURL);
     DDLogInfo(@"Deleting template: %@", [templateURL lastPathComponent]);
     NSError *error;

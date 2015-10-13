@@ -248,7 +248,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 }
 
 - (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL settingsDict:(NSDictionary *)settingsDict withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply {
-    
     BOOL retval = YES;
     NSError *err;
     NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
