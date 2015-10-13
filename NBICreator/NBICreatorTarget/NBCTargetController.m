@@ -128,15 +128,15 @@ DDLogLevel ddLogLevel;
     NSArray *supportedModelProperties;
     NSMutableArray *disabledSystemIdentifiers = [[NSMutableArray alloc] init];
     
-    NSMutableDictionary *newNBImageInfoDict = nbImageInfoDict;
+    NSMutableDictionary *newNBImageInfoDict = [nbImageInfoDict copy];
     if ( [newNBImageInfoDict count] == 0 ) {
         DDLogError(@"[ERROR] NBImageInfo.plist is empty!");
         return nil;
     }
     
-    NSDictionary *workflowSettings = [workflowItem userSettings];
+    NSDictionary *userSettings = [workflowItem userSettings];
     if ( [newNBImageInfoDict count] == 0 ) {
-        DDLogError(@"[ERROR] workflowSettings are empty!");
+        DDLogError(@"[ERROR] userSettings are empty!");
         return nil;
     }
     
@@ -167,22 +167,22 @@ DDLogLevel ddLogLevel;
     
     NSArray *newDisabledSystemIdentifiers = [[disabledSystemIdentifiers copy] valueForKeyPath:@"@distinctUnionOfObjects.self"];
     
-    availabilityEnabled = [workflowSettings[NBCSettingsEnabledKey] boolValue];
-    availabilityDefault = [workflowSettings[NBCSettingsDefaultKey] boolValue];
+    availabilityEnabled = [userSettings[NBCSettingsEnabledKey] boolValue];
+    availabilityDefault = [userSettings[NBCSettingsDefaultKey] boolValue];
     
-    nbiLanguage = workflowSettings[NBCSettingsLanguageKey];
+    nbiLanguage = userSettings[NBCSettingsLanguageKey];
     if ( [nbiLanguage length] == 0 ) {
         DDLogError(@"[ERROR] Language setting is empty!");
         return nil;
     }
     
-    nbiType = workflowSettings[NBCSettingsProtocolKey];
+    nbiType = userSettings[NBCSettingsProtocolKey];
     if ( [nbiType length] == 0 ) {
         DDLogError(@"[ERROR] Protocol setting is empty!");
         return nil;
     }
     
-    nbiName = [NBCVariables expandVariables:workflowSettings[NBCSettingsNameKey]
+    nbiName = [NBCVariables expandVariables:userSettings[NBCSettingsNameKey]
                                      source:source
                           applicationSource:applicationSource];
     
@@ -190,11 +190,11 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] NBI name setting is empty!");
         return nil;
     }
-    nbiDescription = [NBCVariables expandVariables:workflowSettings[NBCSettingsDescriptionKey]
+    nbiDescription = [NBCVariables expandVariables:userSettings[NBCSettingsDescriptionKey]
                                             source:source
                                  applicationSource:applicationSource];
     
-    nbiIndexString = [NBCVariables expandVariables:workflowSettings[NBCSettingsIndexKey]
+    nbiIndexString = [NBCVariables expandVariables:userSettings[NBCSettingsIndexKey]
                                             source:source
                                  applicationSource:applicationSource];
     
@@ -228,7 +228,7 @@ DDLogLevel ddLogLevel;
     } else {
         DDLogError(@"[ERROR] newNBImageInfoDict is nil!");
     }
-    
+
     return newNBImageInfoDict;
 } // updateNBImageInfoDict:
 
@@ -2780,8 +2780,26 @@ DDLogLevel ddLogLevel;
         if ( [baseSystemURL checkResourceIsReachableAndReturnError:error] ) {
             [target setBaseSystemURL:baseSystemURL];
         } else {
-            DDLogError(@"[ERROR] Found no BaseSystem.dmg!");
-            verified = NO;
+            NSArray *rootItems = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:netInstallVolumeURL includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:error];
+            __block BOOL isBaseSystem;
+            [rootItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+#pragma unused(idx)
+                NSString *itemName = [obj lastPathComponent];
+                if ( [itemName hasPrefix:@"Install OS X"] && [itemName hasSuffix:@".app"] ) {
+                    isBaseSystem = YES;
+                    *stop = YES;;
+                }
+            }];
+            if ( isBaseSystem ) {
+                [target setBaseSystemDisk:netInstallDisk];
+                [target setBaseSystemVolumeBSDIdentifier:[netInstallDisk BSDName]];
+                [target setBaseSystemVolumeURL:netInstallVolumeURL];
+                [target setBaseSystemDiskImageDict:[target nbiNetInstallDiskImageDict]];
+                [target setBaseSystemURL:netInstallDiskImageURL];
+            } else {
+                DDLogError(@"[ERROR] Found no BaseSystem.dmg!");
+                verified = NO;
+            }
         }
     }
     
@@ -2797,6 +2815,7 @@ DDLogLevel ddLogLevel;
     
     NBCDisk *baseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:baseSystemDiskImageURL
                                                                          imageType:@"BaseSystem"];
+
     if ( baseSystemDisk != nil ) {
         [target setBaseSystemDisk:baseSystemDisk];
         baseSystemVolumeURL = [baseSystemDisk volumeURL];
