@@ -19,9 +19,16 @@
                 <outlet property="buttonRemovePackage" destination="51l-fu-EQU" id="ffa-4w-pp1"/>
                 <outlet property="buttonRemoveRAMDisk" destination="Uxb-Iz-v49" id="zqp-z7-MDW"/>
                 <outlet property="buttonRemoveTrustedServer" destination="JDs-8K-9Xl" id="eTC-ZO-1Mj"/>
+                <outlet property="checkboxARDPasswordShow" destination="czc-3w-Cgp" id="tOO-5k-Bva"/>
+                <outlet property="checkboxAddBackground" destination="LDr-J1-Sdx" id="PNp-nH-fip"/>
                 <outlet property="checkboxAvailabilityDefault" destination="hXV-gE-Z5m" id="Se0-Cv-T8c"/>
                 <outlet property="checkboxAvailabilityEnabled" destination="Afi-kT-98c" id="rZX-of-kKW"/>
+                <outlet property="checkboxConsoleLaunchBehindApp" destination="8F4-3w-TVQ" id="KT7-3Q-kgB"/>
+                <outlet property="checkboxDisableBluetooth" destination="AKh-5N-jNQ" id="dVS-ls-Ve8"/>
                 <outlet property="checkboxDisableWiFi" destination="IKx-1c-tDW" id="njz-HZ-7Qx"/>
+                <outlet property="checkboxIncludeConsole" destination="nh2-4x-jFj" id="CUG-eM-znx"/>
+                <outlet property="checkboxIncludeRuby" destination="ZMc-cR-Jf3" id="5JS-xH-1AX"/>
+                <outlet property="checkboxIncludeSystemUIServer" destination="LuM-gP-Ek6" id="VXy-v3-So6"/>
                 <outlet property="constraintConfigurationURLToImagrVersion" destination="3PO-ug-TH2" id="Nqu-tB-Qwc"/>
                 <outlet property="constraintLocalPathToImagrVersion" destination="yUx-We-0gf" id="s5l-W1-mgZ"/>
                 <outlet property="constraintSavedTemplatesToTool" destination="uqh-jf-Ivz" id="D5r-Fx-Kzr"/>

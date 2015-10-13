@@ -139,9 +139,6 @@
 @property (weak) IBOutlet NSTextField *textFieldConfigurationURL;
 
 @property (weak) IBOutlet NSTextField *textFieldReportingURL;
-
-@property (weak) IBOutlet NSButton *checkboxDisableWiFi;
-
 @property (weak) IBOutlet NSImageView *imageViewNetworkWarning;
 @property (weak) IBOutlet NSTextField *textFieldNetworkWarning;
 
@@ -161,9 +158,14 @@
 // ------------------------------------------------------
 //  TabView Options
 // ------------------------------------------------------
+@property (weak) IBOutlet NSButton *checkboxDisableWiFi;
+@property (weak) IBOutlet NSButton *checkboxDisableBluetooth;
+@property (weak) IBOutlet NSButton *checkboxIncludeRuby;
+@property (weak) IBOutlet NSButton *checkboxIncludeSystemUIServer;
 @property (weak) IBOutlet NSTextField *textFieldARDLogin;
 @property (weak) IBOutlet NSTextField *textFieldARDPassword;
 @property (weak) IBOutlet NSSecureTextField *secureTextFieldARDPassword;
+@property (weak) IBOutlet NSButton *checkboxARDPasswordShow;
 @property (weak) IBOutlet NSTextField *textFieldNetworkTimeServer;
 
 // ------------------------------------------------------
@@ -175,18 +177,20 @@
 - (IBAction)buttonAddCertificate:(id)sender;
 @property (weak) IBOutlet NSButton *buttonRemoveCertificate;
 - (IBAction)buttonRemoveCertificate:(id)sender;
-
 @property (weak) IBOutlet NSButton *buttonAddPackage;
 - (IBAction)buttonAddPackage:(id)sender;
 @property (weak) IBOutlet NSButton *buttonRemovePackage;
 - (IBAction)buttonRemovePackage:(id)sender;
-
-// Pop Over
-
 @property BOOL settingTrustedNetBootServersVisible;
 @property BOOL settingDisableATSVisible;
-
+@property (weak) IBOutlet NSButton *checkboxAddBackground;
 @property (weak) IBOutlet NBCImagrDropViewImageBackground *imageViewBackgroundImage;
+
+// ------------------------------------------------------
+//  TabView Debug
+// ------------------------------------------------------
+@property (weak) IBOutlet NSButton *checkboxIncludeConsole;
+@property (weak) IBOutlet NSButton *checkboxConsoleLaunchBehindApp;
 
 // ------------------------------------------------------
 //  UI Binding Properties
