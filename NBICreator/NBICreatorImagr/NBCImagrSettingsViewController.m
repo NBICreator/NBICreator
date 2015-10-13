@@ -1403,7 +1403,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromUI
 
 - (void)createSettingsFromNBI:(NSURL *)nbiURL {
-    
+    NSLog(@"createSettingsFromNBI");
     NSError *err;
     if ( ! [nbiURL checkResourceIsReachableAndReturnError:&err] ) {
         NSLog(@"Could not find NBI!");
@@ -2902,7 +2902,6 @@ DDLogLevel ddLogLevel;
             DDLogError(@"[ERROR] Could not get Imagr Git Branch SHA");
             return;
         }
-        
     } else if ( ! [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
         NSString *selectedImagrVersion = userSettings[NBCSettingsImagrVersion];
         if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
@@ -2943,29 +2942,36 @@ DDLogLevel ddLogLevel;
             resourcesSettings[NBCSettingsCountry] = currentCountry;
         }
     } else {
-        NSString *languageID = [_languageDict allKeysForObject:selectedLanguage][0];
-        if ( [languageID length] != 0 ) {
-            resourcesSettings[NBCSettingsLanguageKey] = languageID;
-        } else {
-            DDLogError(@"[ERROR] Could not get language ID!");
-            return;
-        }
-        
-        if ( [languageID containsString:@"-"] ) {
-            NSString *localeFromLanguage = [languageID stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
-            if ( [localeFromLanguage length] != 0 ) {
-                resourcesSettings[NBCSettingsLocale] = localeFromLanguage;
-                
-                NSLocale *locale = [NSLocale localeWithLocaleIdentifier:localeFromLanguage];
-                NSString *country = [locale objectForKey:NSLocaleCountryCode];
-                if ( [country length] != 0 ) {
-                    resourcesSettings[NBCSettingsCountry] = country;
+        NSArray *allKeys = [_languageDict allKeysForObject:selectedLanguage];
+        if ( [allKeys count] != 0 ) {
+            NSString *languageID = [allKeys firstObject];
+            if ( [languageID length] != 0 ) {
+                resourcesSettings[NBCSettingsLanguageKey] = languageID;
+            } else {
+                DDLogError(@"[ERROR] Could not get language ID!");
+                return;
+            }
+            
+            if ( [languageID containsString:@"-"] ) {
+                NSString *localeFromLanguage = [languageID stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
+                if ( [localeFromLanguage length] != 0 ) {
+                    resourcesSettings[NBCSettingsLocale] = localeFromLanguage;
+                    
+                    NSLocale *locale = [NSLocale localeWithLocaleIdentifier:localeFromLanguage];
+                    NSString *country = [locale objectForKey:NSLocaleCountryCode];
+                    if ( [country length] != 0 ) {
+                        resourcesSettings[NBCSettingsCountry] = country;
+                    }
                 }
             }
+        } else {
+            DDLogError(@"[ERROR] No objects in language dict for %@", selectedLanguage);
+            return; // Show error
         }
     }
     
     NSDictionary *hiToolboxDict = [NSDictionary dictionaryWithContentsOfFile:NBCFilePathPreferencesHIToolbox];
+    NSLog(@"hiToolboxDict=%@", hiToolboxDict);
     NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsKeyboardLayoutKey];
     if ( [selectedKeyboardLayoutName isEqualToString:NBCMenuItemCurrent] ) {
         NSDictionary *appleDefaultAsciiInputSourceDict = hiToolboxDict[@"AppleDefaultAsciiInputSource"];
@@ -3064,7 +3070,7 @@ DDLogLevel ddLogLevel;
     if ( [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
         [NBCSourceController addSystemUIServer:sourceItemsDict source:_source];
     }
-
+    
     // - systemkeychain
     if ( [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
         [NBCSourceController addSystemkeychain:sourceItemsDict source:_source];

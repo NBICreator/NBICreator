@@ -2395,26 +2395,31 @@ DDLogLevel ddLogLevel;
             resourcesSettings[NBCSettingsCountry] = currentCountry;
         }
     } else {
-        NSString *languageID = [_languageDict allKeysForObject:selectedLanguage][0];
-        if ( [languageID length] != 0 ) {
-            resourcesSettings[NBCSettingsLanguageKey] = languageID;
-        } else {
-            DDLogError(@"[ERROR] Could not get language ID!");
-            return;
-        }
-        
-        if ( [languageID containsString:@"-"] ) {
-            NSString *localeFromLanguage = [languageID stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
-            if ( [localeFromLanguage length] != 0 ) {
-                resourcesSettings[NBCSettingsLocale] = localeFromLanguage;
-                
-                NSLocale *locale = [NSLocale localeWithLocaleIdentifier:localeFromLanguage];
-                NSString *country = [locale objectForKey:NSLocaleCountryCode];
-                
-                if ( [country length] != 0 ) {
-                    resourcesSettings[NBCSettingsCountry] = country;
+        NSArray *allKeys = [_languageDict allKeysForObject:selectedLanguage];
+        if ( [allKeys count] != 0 ) {
+            NSString *languageID = [allKeys firstObject];
+            if ( [languageID length] != 0 ) {
+                resourcesSettings[NBCSettingsLanguageKey] = languageID;
+            } else {
+                DDLogError(@"[ERROR] Could not get language ID!");
+                return;
+            }
+            
+            if ( [languageID containsString:@"-"] ) {
+                NSString *localeFromLanguage = [languageID stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
+                if ( [localeFromLanguage length] != 0 ) {
+                    resourcesSettings[NBCSettingsLocale] = localeFromLanguage;
+                    
+                    NSLocale *locale = [NSLocale localeWithLocaleIdentifier:localeFromLanguage];
+                    NSString *country = [locale objectForKey:NSLocaleCountryCode];
+                    if ( [country length] != 0 ) {
+                        resourcesSettings[NBCSettingsCountry] = country;
+                    }
                 }
             }
+        } else {
+            DDLogError(@"[ERROR] No objects in language dict for %@", selectedLanguage);
+            return; // Show error
         }
     }
     
