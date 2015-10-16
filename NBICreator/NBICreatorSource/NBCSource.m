@@ -84,7 +84,6 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 } // detachBaseSystem
 
 - (BOOL)unmountBaseSystem {
-    
     BOOL retval = YES;
     if ( [[_baseSystemVolumeURL path] length] != 0 ) {
         retval = [NBCDiskImageController unmountVolumeAtPath:[_baseSystemVolumeURL path]];

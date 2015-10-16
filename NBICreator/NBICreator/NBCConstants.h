@@ -518,6 +518,11 @@ extern NSString *const NBCJSSPreferencePlistNBICreatorTargetURL;
 extern NSString *const IconSuccessPath;
 extern NSString *const IconConfigurationProfilePath;
 
+extern NSString *const NBCSettingsChanged;
+
+extern NSString *const NBCSettingsImagrSyslogServerURIKey;
+extern NSString *const NBCSettingsImagrReportingURLKey;
+
 // --------------------------------------------------------------
 //  Certificate TableView Keys
 // --------------------------------------------------------------

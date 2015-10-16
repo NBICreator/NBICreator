@@ -21,6 +21,8 @@
 #import "NBCHelperProtocol.h"
 #import "NBCLogging.h"
 #import "NBCSourceController.h"
+#import "NBCTargetController.h"
+#import "NBCDiskImageController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -310,13 +312,11 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateWorkflowStatusComplete {
-    
     [_currentWorkflowProgressView workflowCompleted];
     [self endWorkflow];
 } // updateWorkflowStatusComplete
 
 - (void)updateWorkflowStatusErrorWithMessage:(NSString *)errorMessage {
-    
     NSString *errorString = errorMessage;
     if ( errorString == nil ) {
         errorString = @"Unknown Error (-1)";
@@ -332,7 +332,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)workflowQueueRunWorkflow {
-    
     if ( ! _workflowRunning && [_workflowQueue count] != 0 ) {
         
         // -------------------------------------------------------------
@@ -394,13 +393,14 @@ DDLogLevel ddLogLevel;
         if ( ! temporaryFolderCreated ) {
             DDLogError(@"[ERROR] Could not create temporary NBI folder!");
             [self updateWorkflowStatusErrorWithMessage:@"Could not create temporary NBI folder!"];
+            return;
         }
         
         // -------------------------------------------------------------
         //  Instantiate workflow target if it doesn't exist.
         // -------------------------------------------------------------
         NBCTarget *target = [_currentWorkflowItem target];
-        if ( target == nil ) {
+        if ( ! target ) {
             target = [[NBCTarget alloc] init];
             [_currentWorkflowItem setTarget:target];
         }
@@ -414,8 +414,8 @@ DDLogLevel ddLogLevel;
             //  Mount source if not mounted
             // -------------------------------------------------------------
             if ( ! [self mountSource] ) {
-                DDLogError(@"[ERROR] Could not mount source!");
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                DDLogError(@"[ERROR] Could not mount source disk!");
+                [self updateWorkflowStatusErrorWithMessage:@"Could not mount source disk"];
                 return;
             }
             
@@ -424,26 +424,48 @@ DDLogLevel ddLogLevel;
                 [_currentWorkflowNBI setDelegate:_currentWorkflowProgressView];
                 [_currentWorkflowNBI runWorkflow:_currentWorkflowItem];
             }
+            
+            [self setCurrentWorkflowResources:[_currentWorkflowItem workflowResources]];
+            if ( _currentWorkflowResources ) {
+                [_currentWorkflowResources setDelegate:_currentWorkflowProgressView];
+                [_currentWorkflowResources runWorkflow:_currentWorkflowItem];
+            }
         } else {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
-        }
-        
-        [self setCurrentWorkflowResources:[_currentWorkflowItem workflowResources]];
-        if ( _currentWorkflowResources ) {
-            [_currentWorkflowResources setDelegate:_currentWorkflowProgressView];
-            [_currentWorkflowResources runWorkflow:_currentWorkflowItem];
+            NSError *error;
+            NBCTargetController *targetController = [[NBCTargetController alloc] init];
+            if ( [[target baseSystemDisk] isMounted] ) {
+                if ( ! [NBCDiskImageController detachDiskImageAtPath:[[target baseSystemVolumeURL] path]] ) {
+                    DDLogError(@"[ERROR] Detaching base system disk failed!");
+                    [self updateWorkflowStatusErrorWithMessage:@"Detaching base system disk failed"];
+                    return;
+                }
+            }
+            
+            if ( [targetController attachBaseSystemDiskImageWithShadowFile:[target baseSystemURL] target:target error:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
+                
+                [self setCurrentWorkflowResources:[_currentWorkflowItem workflowResources]];
+                if ( _currentWorkflowResources ) {
+                    [_currentWorkflowResources setDelegate:_currentWorkflowProgressView];
+                    [_currentWorkflowResources runWorkflow:_currentWorkflowItem];
+                }
+            } else {
+                DDLogError(@"[ERROR] Could not mount source disk!");
+                DDLogError(@"[ERROR] %@", error);
+                [self updateWorkflowStatusErrorWithMessage:@"Could not mount source disk"];
+            }
         }
     }
 } // workflowQueueRunWorkflow
 
 - (void)workflowQueueRunWorkflowPostprocessing {
-    
     [self setCurrentWorkflowModifyNBI:[_currentWorkflowItem workflowModifyNBI]];
     if ( _currentWorkflowModifyNBI ) {
         [_currentWorkflowModifyNBI setDelegate:_currentWorkflowProgressView];
         [_currentWorkflowModifyNBI runWorkflow:_currentWorkflowItem];
     } else {
         DDLogError(@"[ERROR] workflowModifyNBI is nil");
+        [self updateWorkflowStatusErrorWithMessage:@"Workflow ModifyNBI is nil"];
     }
 } // workflowQueueRunWorkflowPostprocessing
 
@@ -485,7 +507,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)incrementIndexCounter {
-    
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     NSNumber *currentIndex = [ud objectForKey:NBCUserDefaultsIndexCounter];
     if ( [currentIndex integerValue] == 65535 ) {
@@ -497,7 +518,6 @@ DDLogLevel ddLogLevel;
 } // incrementIndexCounter
 
 - (void)moveNBIToDestination:(NSURL *)sourceURL destinationURL:(NSURL *)destinationURL {
-    
     NSError *err;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -506,7 +526,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     NSString *destinationExtension = [destinationURL pathExtension];
     if ( ! [destinationExtension isEqualToString:@"nbi"] ) {
-        [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
+        [self updateWorkflowStatusErrorWithMessage:@"Destination path doesn't contain .nbi"];
         return;
     }
     
@@ -518,7 +538,7 @@ DDLogLevel ddLogLevel;
         destinationFileName = [destinationFileName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
         destinationURL = [[destinationURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:destinationFileName];
         if ( ! destinationURL ) {
-            [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
+            [self updateWorkflowStatusErrorWithMessage:@"Destination path is empty"];
             return;
         }
     }
@@ -533,8 +553,8 @@ DDLogLevel ddLogLevel;
                 // ----------------------------------------------------
                 //  If task failed, post workflow failed notification
                 // ----------------------------------------------------
-                DDLogError(@"%@", proxyError);
-                [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
+                DDLogError(@"[ERROR] %@", proxyError);
+                [self updateWorkflowStatusErrorWithMessage:@"Moving NBI to destination failed"];
             }];
             
         }] removeItemAtURL:destinationURL withReply:^(NSError *error, int terminationStatus) {
@@ -545,13 +565,13 @@ DDLogLevel ddLogLevel;
                         [self updateWorkflowStatusComplete];
                     } else {
                         DDLogError(@"[ERROR] Moving NBI to destination failed!");
-                        DDLogError(@"%@", blockError);
-                        [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
+                        DDLogError(@"[ERROR] %@", blockError);
+                        [self updateWorkflowStatusErrorWithMessage:@"Moving NBI to destination failed"];
                     }
                 } else {
-                    DDLogError(@"[ERROR] Deleteing existing NBI at destination failed");
-                    DDLogError(@"%@", error);
-                    [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
+                    DDLogError(@"[ERROR] Deleting existing NBI at destination failed");
+                    DDLogError(@"[ERROR] %@", error);
+                    [self updateWorkflowStatusErrorWithMessage:@"Removing existing NBI at destination failed"];
                 }
             }];
         }];
@@ -561,19 +581,18 @@ DDLogLevel ddLogLevel;
             [self updateWorkflowStatusComplete];
         } else {
             DDLogError(@"[ERROR] Moving NBI to destination failed!");
-            DDLogError(@"%@", err);
-            [self updateWorkflowStatusErrorWithMessage:@"Move Failed"];
+            DDLogError(@"[ERROR] %@", err);
+            [self updateWorkflowStatusErrorWithMessage:@"Moving NBI to destination failed"];
         }
     }
 } // moveNBIToDestination:destinationURL
 
 - (NSURL *)temporaryFolderURL {
-    
     NSURL *temporaryFolderURL;
     NSString *tmpFolderName = [NSString stringWithFormat:@"%@/workflow.%@", NBCBundleIdentifier, [NSString nbc_randomString]];
     NSString *tmpFolderPath = [NSTemporaryDirectory() stringByAppendingPathComponent:tmpFolderName];
     
-    if ( tmpFolderPath ) {
+    if ( [tmpFolderPath length] != 0 ) {
         temporaryFolderURL = [NSURL fileURLWithPath:tmpFolderPath];
     }
     

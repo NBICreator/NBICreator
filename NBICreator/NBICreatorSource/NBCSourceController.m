@@ -1315,7 +1315,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)addSystemUIServer:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
-    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;

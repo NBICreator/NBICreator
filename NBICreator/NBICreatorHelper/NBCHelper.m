@@ -251,19 +251,15 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     BOOL retval = YES;
     NSError *err;
     NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
-    
+    NSLog(@"HERE! IS IT ON RETURN!?");
     NSURL *dsLocalUsersURL = [nbiVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
-    NSLog(@"dsLocalUsersURL=%@", dsLocalUsersURL);
     if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
-        NSLog(@"URL ok");
         NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
         NSMutableArray *userFilesFiltered = [[userFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (self BEGINSWITH '_')"]] mutableCopy];
         [userFilesFiltered removeObjectsInArray:@[ @"daemon.plist", @"nobody.plist", @"root.plist" ]];
-        NSLog(@"userFilesFiltered=%@", userFilesFiltered);
         if ( [userFilesFiltered count] != 0 ) {
             NSString *firstUser = userFilesFiltered[0];
             NSURL *firstUserPlistURL = [dsLocalUsersURL URLByAppendingPathComponent:firstUser];
-            NSLog(@"firstUserPlistURL=%@", firstUserPlistURL);
             NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
             if ( firstUserDict ) {
                 NSArray *userNameArray = firstUserDict[@"name"];
@@ -277,8 +273,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         NSLog(@"Could not get path to local user database");
         NSLog(@"Error: %@", err);
     }
-    
-    NSLog(@"mutableSettingsDict=%@", mutableSettingsDict);
     
     NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
     NSURL *vncPasswordFile = [nbiVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];

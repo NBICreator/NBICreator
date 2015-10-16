@@ -219,11 +219,16 @@ DDLogLevel ddLogLevel;
     NSDictionary *settingsNBIIndex = [self verifySettingsNBIIndex:workflowItem];
     [settings addObject:settingsNBIIndex];
     
-    NSDictionary *settingsNBIDestinationFolder = [self verifySettingsDestinationFolder:workflowItem];
-    [settings addObject:settingsNBIDestinationFolder];
-    
-    NSDictionary *settingsNBIURL = [self verifySettingsNBIURL:workflowItem];
-    [settings addObject:settingsNBIURL];
+    if ( [[[workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+        NSDictionary *settingsNBISource = [self verifySettingsNBISource:workflowItem];
+        [settings addObject:settingsNBISource];
+    } else {
+        NSDictionary *settingsNBIDestinationFolder = [self verifySettingsDestinationFolder:workflowItem];
+        [settings addObject:settingsNBIDestinationFolder];
+        
+        NSDictionary *settingsNBIURL = [self verifySettingsNBIURL:workflowItem];
+        [settings addObject:settingsNBIURL];
+    }
     
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
@@ -437,7 +442,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)verifySettingsDestinationFolder:(NBCWorkflowItem *)workflowItem {
-    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -471,8 +475,31 @@ DDLogLevel ddLogLevel;
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
-- (NSDictionary *)verifySettingsNBIURL:(NBCWorkflowItem *)workflowItem {
+- (NSDictionary *)verifySettingsNBISource:(NBCWorkflowItem *)workflowItem {
+    NSError *error;
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
+    NSDictionary *userSettings = [workflowItem userSettings];
+    NSString *destinationFolderPath = [userSettings[NBCSettingsDestinationFolderKey] stringByExpandingTildeInPath];
+    NSURL *destinationFolderURL = [NSURL fileURLWithPath:destinationFolderPath];
+    if ( destinationFolderPath ) {
+        if ( [destinationFolderURL checkResourceIsReachableAndReturnError:&error] ) {
+            [workflowItem setDestinationFolder:destinationFolderPath];
+            [workflowItem setNbiURL:destinationFolderURL];
+        } else {
+            [settingsErrors addObject:@"\"Destination Folder\" doesn't exist."];
+            [settingsErrors addObject:[NSString stringWithFormat:@"[ERROR] %@", [error localizedDescription]]];
+        }
+    } else {
+        [settingsErrors addObject:@"\"Destination Folder\" cannot be empty"];
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+
+- (NSDictionary *)verifySettingsNBIURL:(NBCWorkflowItem *)workflowItem {
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     

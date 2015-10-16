@@ -657,13 +657,12 @@ DDLogLevel ddLogLevel;
 }
 
 + (NBCDisk *)getBaseSystemDiskFromDiskImageURL:(NSURL *)diskImageURL {
-    NSString *diskImagePathResolved = [[diskImageURL path] stringByResolvingSymlinksAndAliases];
     NSError *error;
     NBCDisk *disk;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
     for ( NSDictionary *image in hdiutilDict[@"images"] ) {
         NSString *imagePath = image[@"image-path"];
-        if ( [diskImagePathResolved isEqualToString:imagePath] || [[diskImageURL path] isEqualToString:imagePath] ) {
+        if ( [[diskImageURL path] isEqualToString:imagePath] ) {
             NSDictionary *systemEntities = image[@"system-entities"];
             for ( NSDictionary *entity in systemEntities ) {
                 NSString *mountPoint = entity[@"mount-point"];
@@ -693,16 +692,15 @@ DDLogLevel ddLogLevel;
 }
 
 + (NBCDisk *)getInstallESDDiskFromDiskImageURL:(NSURL *)diskImageURL {
-    NSString *diskImagePathResolved = [[diskImageURL path] stringByResolvingSymlinksAndAliases];
     NBCDisk *disk;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
     for ( NSDictionary *image in hdiutilDict[@"images"] ) {
         NSString *imagePath = image[@"image-path"];
-        if ( [diskImagePathResolved isEqualToString:imagePath] || [[diskImageURL path] isEqualToString:imagePath] ) {
+        if ( [[diskImageURL path] isEqualToString:imagePath] ) {
             NSDictionary *systemEntities = image[@"system-entities"];
             for ( NSDictionary *entity in systemEntities ) {
                 NSString *mountPoint = entity[@"mount-point"];
-                if ( mountPoint ) {
+                if ( [mountPoint length] != 0 ) {
                     NSURL *baseSystemURL = [[NSURL fileURLWithPath:mountPoint] URLByAppendingPathComponent:@"BaseSystem.dmg"];
                     if ( [baseSystemURL checkResourceIsReachableAndReturnError:nil] ) {
                         disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];

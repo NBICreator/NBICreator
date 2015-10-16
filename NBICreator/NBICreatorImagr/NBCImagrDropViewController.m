@@ -175,7 +175,6 @@ DDLogLevel ddLogLevel;
         
         [_imageViewSourceMini setImage:nil];
     } else if ( [sourceType isEqualToString:NBCSourceTypeNBI] ) {
-        
         [_textFieldSourceField1Label setStringValue:@"Source:"];
         [_textFieldSourceField1 setStringValue:@"NetInstall Image"];
         
@@ -534,8 +533,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifySource:(NSURL *)sourceURL {
-    
-    
     // ------------------------------------------------------
     //  Disable build button while checking new source
     // ------------------------------------------------------
@@ -585,8 +582,8 @@ DDLogLevel ddLogLevel;
                 }
             } else {
                 errorMessage = @"Could not find NBImageInfo.plist from dropped NBI";
-                NSLog(@"Could not find NBImageInfo.plist from dropped NBI");
-                NSLog(@"Error: %@", error);
+                DDLogError(@"[ERROR] Could not find NBImageInfo.plist from dropped NBI");
+                DDLogError(@"[ERROR] %@", error);
                 verified = NO;
             }
             
@@ -604,13 +601,13 @@ DDLogLevel ddLogLevel;
                             [newSource setSourceType:NBCSourceTypeNBI];
                         } else {
                             errorMessage = @"BaseSystem Verify Failed!";
-                            NSLog(@"BaseSystem Verify Failed!");
-                            NSLog(@"BaseSystem Error: %@", error);
+                            DDLogError(@"[ERROR] BaseSystem Verify Failed!");
+                            DDLogError(@"[ERROR] %@", error);
                         }
                     } else {
                         errorMessage = @"NetInstall Verify Failed!";
-                        NSLog(@"NetInstall Verify Failed!");
-                        NSLog(@"NetInstall Error: %@", error);
+                        DDLogError(@"[ERROR] NetInstall Verify Failed!");
+                        DDLogError(@"[ERROR] %@", error);
                         newTarget = nil;
                         newTarget = [[NBCTarget alloc] init];
                         [newTarget setNbiURL:sourceURL];
@@ -621,13 +618,13 @@ DDLogLevel ddLogLevel;
                             [newSource setSourceType:NBCSourceTypeNBI];
                         } else {
                             errorMessage = @"BaseSystem Verify Failed!";
-                            NSLog(@"BaseSystem Verify Failed!");
-                            NSLog(@"BaseSystem Error: %@", error);
+                            DDLogError(@"[ERROR] BaseSystem Verify Failed!");
+                            DDLogError(@"[ERROR] %@", error);
                         }
                     }
                 } else {
                     errorMessage = @"Could not find nbiNetInstallURL in NBI!";
-                    NSLog(@"Could not find nbiNetInstallURL in NBI!");
+                    DDLogError(@"[ERROR] Could not find nbiNetInstallURL in NBI!");
                     verified = NO;
                 }
             }
@@ -651,44 +648,39 @@ DDLogLevel ddLogLevel;
                     }
                 } else {
                     errorMessage = @"No path returned for InstallESD.dmg!";
-                    DDLogError(@"No path returned for InstallESD.dmg!");
+                    DDLogError(@"[ERROR] No path returned for InstallESD.dmg!");
                 }
             } else {
-                DDLogError(@"Invalid source!");
+                DDLogError(@"[ERROR] Invalid source!");
             }
             
             if ( verified ) {
                 verified = [sourceController verifyBaseSystemFromSource:newSource error:&error];
                 if ( ! verified ) {
                     errorMessage = @"BaseSystem Verify Failed!";
-                    NSLog(@"BaseSystem Verify Failed!");
-                    NSLog(@"BaseSystem Error: %@", error);
+                    DDLogError(@"[ERROR] BaseSystem Verify Failed!");
+                    DDLogError(@"[ERROR] %@", error);
                 }
             } else {
-                DDLogError(@"Verification failed!");
+                DDLogError(@"[ERROR] Verification failed!");
             }
         }
         
         if ( verified ) {
-            
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self setSource:newSource];
-                if ( newTarget != nil ) {
+                if ( newTarget ) {
                     [self setTarget:newTarget];
                 }
                 [self updateSourceInfo:newSource];
-                if ( [[newSource sourceType] isEqualToString:NBCSourceTypeNBI] ) {
-                    
-                } else {
+                if ( ! [[newSource sourceType] isEqualToString:NBCSourceTypeNBI] ) {
                     self->_sourceDictSources[self->_selectedSource] = newSource;
                     [newSource detachBaseSystem];
                     [newSource unmountRecoveryHD];
                 }
             });
         } else {
-            if ( [[newSource sourceType] isEqualToString:NBCSourceTypeNBI] ) {
-                
-            } else {
+            if ( ! [[newSource sourceType] isEqualToString:NBCSourceTypeNBI] ) {
                 [newSource detachAll];
             }
             dispatch_async(dispatch_get_main_queue(), ^{

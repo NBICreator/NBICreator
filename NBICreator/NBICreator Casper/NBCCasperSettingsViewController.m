@@ -1206,6 +1206,8 @@ DDLogLevel ddLogLevel;
                 [self insertCertificateInTableView:certificateDict];
             }
         }
+    } else {
+        [_viewOverlayCertificates setHidden:NO];
     }
     
     [_packagesTableViewContents removeAllObjects];
@@ -1219,6 +1221,8 @@ DDLogLevel ddLogLevel;
                 [self insertPackageInTableView:packageDict];
             }
         }
+    } else {
+        [_viewOverlayPackages setHidden:NO];
     }
     
     [_trustedServers removeAllObjects];

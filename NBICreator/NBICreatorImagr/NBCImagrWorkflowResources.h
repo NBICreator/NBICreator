@@ -33,6 +33,9 @@
 // ------------------------------------------------------
 @property int resourcesCount;
 @property NSString *nbiCreationTool;
+@property BOOL isNBI;
+@property BOOL workflowCompleted;
+@property NSDictionary *settingsChanged;
 
 @property NSMutableDictionary *resourcesNetInstallDict;
 @property NSMutableDictionary *resourcesBaseSystemDict;

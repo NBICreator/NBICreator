@@ -32,6 +32,8 @@
 @property NSMenuItem *selectedMenuItem;
 @property NSMenuItem *selectedImagrMenuItem;
 
+@property NSDictionary *nbiSourceSettings;
+
 // ------------------------------------------------------
 //  Constraints
 // ------------------------------------------------------

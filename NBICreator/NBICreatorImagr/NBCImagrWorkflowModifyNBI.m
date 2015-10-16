@@ -43,7 +43,7 @@ DDLogLevel ddLogLevel;
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     DDLogInfo(@"Modifying NBI...");
     NSError *error;
-    _targetController = [[NBCTargetController alloc] init];
+    [self setTargetController:[[NBCTargetController alloc] init]];
     
     [self setWorkflowItem:workflowItem];
     [self setSource:[workflowItem source]];
@@ -51,7 +51,11 @@ DDLogLevel ddLogLevel;
     [self setModifyBaseSystemComplete:NO];
     [self setModifyNetInstallComplete:NO];
     
+    [self setIsNBI:( [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
+    [self setSettingsChanged:[workflowItem userSettingsChanged]];
+    
     NSURL *temporaryNBIURL = [workflowItem temporaryNBIURL];
+    
     if ( temporaryNBIURL ) {
         DDLogInfo(@"Updating NBImageInfo.plist...");
         [_delegate updateProgressStatus:@"Updating NBImageInfo.plist..." workflow:self];
@@ -60,7 +64,6 @@ DDLogLevel ddLogLevel;
         //  Apply all settings to NBImageInfo.plist in NBI
         // ---------------------------------------------------------------
         if ( [_targetController applyNBISettings:temporaryNBIURL workflowItem:workflowItem error:&error] ) {
-            
             NSDictionary *userSettings = [workflowItem userSettings];
             NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
             if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
@@ -82,7 +85,6 @@ DDLogLevel ddLogLevel;
 
 - (void)modifyNBISystemImageUtility {
     if ( [self resizeAndMountBaseSystemWithShadow:[_target baseSystemURL] target:_target] ) {
-        
         // ---------------------------------------------------------------
         //  Modify BaseSystem using resources settings for BaseSystem
         // ---------------------------------------------------------------
@@ -210,6 +212,11 @@ DDLogLevel ddLogLevel;
             //  If system image IS r/w, create symbolic link from sparseimage -> dmg
             // ----------------------------------------------------------------------
             NSURL *baseSystemDiskImageTargetURL = [[baseSystemDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"NetInstall.sparseimage"];
+            
+            //if ( ! [[NSFileManager defaultManager] removeItemAtURL:baseSystemDiskImageTargetURL error:&error] ) {
+            //    NSLog(@"Remove Error: %@", error);
+            //}
+            
             if ( [[NSFileManager defaultManager] moveItemAtURL:baseSystemDiskImageURL toURL:baseSystemDiskImageTargetURL error:&error] ) {
                 if ( [self createSymlinkToSparseimageAtURL:baseSystemDiskImageTargetURL] ) {
                     [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
@@ -309,7 +316,7 @@ DDLogLevel ddLogLevel;
     NSError *error;
     
     NSURL *nbiNetInstallURL = [_target nbiNetInstallURL];
-    if ( nbiNetInstallURL ) {
+    if ( [nbiNetInstallURL checkResourceIsReachableAndReturnError:&error] ) {
         
         // ------------------------------------------------------------------
         //  Attach NetInstall disk image using a shadow image to make it r/w
@@ -329,6 +336,7 @@ DDLogLevel ddLogLevel;
         }
     } else {
         DDLogError(@"[ERROR] Could not get netInstallURL from target!");
+        DDLogError(@"[ERROR] %@", error);
         verified = NO;
     }
     
@@ -336,6 +344,7 @@ DDLogLevel ddLogLevel;
 } // modifyNetInstall
 
 - (void)removePackagesFolderInNetInstall {
+    NSLog(@"removePackagesFolderInNetInstall");
     NSURL *nbiNetInstallVolumeURL = [_target nbiNetInstallVolumeURL];
     if ( nbiNetInstallVolumeURL ) {
         
@@ -387,6 +396,7 @@ DDLogLevel ddLogLevel;
 } // removePackagesFolderInNetInstall
 
 - (void)createFoldersInNetInstall {
+    NSLog(@"createFoldersInNetInstall");
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *nbiNetInstallVolumeURL = [_target nbiNetInstallVolumeURL];
@@ -640,10 +650,32 @@ DDLogLevel ddLogLevel;
         if ( verified && [userSettings[NBCSettingsImagrDisableATS] boolValue] ) {
             verified = [_targetController modifySettingsForImagr:modifyDictArray workflowItem:_workflowItem];
         }
+        
+        if ( verified && [userSettings[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
+            verified = [_targetController modifySettingsForTrustedNetBootServers:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
     if ( verified && [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
         verified = [_targetController modifySettingsForDesktopViewer:modifyDictArray workflowItem:_workflowItem];
+    }
+    
+    if ( ! _isNBI ) {
+        if ( verified && [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
+            verified = [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
+        }
+        
+        if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
+            if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
+                if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
+                    shouldAddUsers = YES;
+                } else {
+                    verified = NO;
+                }
+            } else {
+                verified = NO;
+            }
+        }
     }
     
     if ( verified ) {
@@ -666,10 +698,6 @@ DDLogLevel ddLogLevel;
         verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
     }
     
-    if ( verified && [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
-        verified = [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
-    }
-    
     if ( verified && [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] && [userSettings[NBCSettingsNetworkTimeServerKey] length] != 0 ) {
         verified = [_targetController modifyNBINTP:modifyDictArray workflowItem:_workflowItem];
     }
@@ -684,24 +712,6 @@ DDLogLevel ddLogLevel;
     
     if ( verified && [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
         verified = [_targetController modifyNBIRemoveBluetooth:modifyDictArray workflowItem:_workflowItem];
-    }
-    
-    if ( verified && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
-        if ( [_targetController modifySettingsForVNC:modifyDictArray workflowItem:_workflowItem] ) {
-            if ( [self createVNCPasswordHash:modifyDictArray workflowItem:_workflowItem volumeURL:volumeURL] ) {
-                shouldAddUsers = YES;
-            } else {
-                verified = NO;
-            }
-        } else {
-            verified = NO;
-        }
-    }
-    
-    if ( 11 <= sourceVersionMinor ) {
-        if ( verified && [userSettings[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
-            verified = [_targetController modifySettingsForTrustedNetBootServers:modifyDictArray workflowItem:_workflowItem];
-        }
     }
     
     if ( verified && [userSettings[NBCSettingsEnableLaunchdLoggingKey] boolValue] ) {

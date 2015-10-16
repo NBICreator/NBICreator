@@ -18,6 +18,7 @@
 #import "NBCImagrSettingsViewController.h"
 #import "NBCLogging.h"
 #import "ServerInformationComputerModelInfo.h"
+#import "NSString+SymlinksAndAliases.h"
 
 DDLogLevel ddLogLevel;
 
@@ -59,7 +60,6 @@ DDLogLevel ddLogLevel;
 
 - (NSMutableDictionary *)getNBImageInfoDict:(NSURL *)nbiImageInfoURL nbiURL:(NSURL *)nbiURL {
     NSMutableDictionary *nbImageInfoDict;
-    
     if ( [nbiImageInfoURL checkResourceIsReachableAndReturnError:nil] ) {
         nbImageInfoDict = [[NSMutableDictionary alloc] initWithContentsOfURL:nbiImageInfoURL];
     } else {
@@ -128,7 +128,7 @@ DDLogLevel ddLogLevel;
     NSArray *supportedModelProperties;
     NSMutableArray *disabledSystemIdentifiers = [[NSMutableArray alloc] init];
     
-    NSMutableDictionary *newNBImageInfoDict = [nbImageInfoDict copy];
+    NSMutableDictionary *newNBImageInfoDict = [nbImageInfoDict mutableCopy];
     if ( [newNBImageInfoDict count] == 0 ) {
         DDLogError(@"[ERROR] NBImageInfo.plist is empty!");
         return nil;
@@ -228,7 +228,7 @@ DDLogLevel ddLogLevel;
     } else {
         DDLogError(@"[ERROR] newNBImageInfoDict is nil!");
     }
-
+    
     return newNBImageInfoDict;
 } // updateNBImageInfoDict:
 
@@ -359,10 +359,21 @@ DDLogLevel ddLogLevel;
         if ( [NBCDiskImageController convertDiskImageAtPath:[netInstallURL path] shadowImagePath:netInstallShadowPath format:diskImageFormat destinationPath:[nbiNetInstallConvertedURL path]] ) {
             if ( [fm removeItemAtURL:netInstallURL error:error] ) {
                 netInstallURL = [[netInstallURL URLByDeletingPathExtension] URLByAppendingPathExtension:diskImageExtension];
-                if ( ! [fm moveItemAtURL:nbiNetInstallConvertedURL toURL:netInstallURL error:error] ) {
-                    DDLogError(@"[ERROR] Could not move image to NBI");
-                    DDLogError(@"%@", *error);
-                    verified = NO;
+                
+                if ( [netInstallURL checkResourceIsReachableAndReturnError:nil] ) {
+                    if ( ! [fm removeItemAtURL:netInstallURL error:error] ) {
+                        DDLogError(@"[ERROR] Could not remove existing image in NBI");
+                        DDLogError(@"%@", *error);
+                        verified = NO;
+                    }
+                }
+                
+                if ( verified ) {
+                    if ( ! [fm moveItemAtURL:nbiNetInstallConvertedURL toURL:netInstallURL error:error] ) {
+                        DDLogError(@"[ERROR] Could not move image to NBI");
+                        DDLogError(@"%@", *error);
+                        verified = NO;
+                    }
                 }
             } else {
                 DDLogError(@"[ERROR] Delete temporary NetInstall Failed!");
@@ -422,7 +433,6 @@ DDLogLevel ddLogLevel;
             nbiBaseSystemVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:nbiBaseSystemDiskImageDict];
             if ( nbiBaseSystemVolumeURL ) {
                 NBCDisk *nbiBaseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:baseSystemDiskImageURL imageType:@"BaseSystem"];
-                
                 if ( nbiBaseSystemDisk ) {
                     [target setNbiNetInstallDisk:nbiBaseSystemDisk];
                     [target setNbiNetInstallVolumeBSDIdentifier:[nbiBaseSystemDisk BSDName]];
@@ -472,12 +482,23 @@ DDLogLevel ddLogLevel;
         if ( [NBCDiskImageController convertDiskImageAtPath:[baseSystemURL path] shadowImagePath:baseSystemShadowPath format:diskImageFormat destinationPath:[nbiBaseSystemConvertedURL path]] ) {
             if ( [fm removeItemAtURL:baseSystemURL error:error] ) {
                 baseSystemURL = [[baseSystemURL URLByDeletingPathExtension] URLByAppendingPathExtension:diskImageExtension];
-                if ( [fm moveItemAtURL:nbiBaseSystemConvertedURL toURL:baseSystemURL error:error] ) {
-                    [[workflowItem target] setBaseSystemURL:baseSystemURL];
-                } else {
-                    DDLogError(@"[ERROR] Could not move image to NBI");
-                    DDLogError(@"%@", *error);
-                    verified = NO;
+                
+                if ( [baseSystemURL checkResourceIsReachableAndReturnError:nil] ) {
+                    if ( ! [fm removeItemAtURL:baseSystemURL error:error] ) {
+                        DDLogError(@"[ERROR] Could not remove existing image in NBI");
+                        DDLogError(@"%@", *error);
+                        verified = NO;
+                    }
+                }
+                
+                if ( verified ) {
+                    if ( [fm moveItemAtURL:nbiBaseSystemConvertedURL toURL:baseSystemURL error:error] ) {
+                        [[workflowItem target] setBaseSystemURL:baseSystemURL];
+                    } else {
+                        DDLogError(@"[ERROR] Could not move image to NBI");
+                        DDLogError(@"%@", *error);
+                        verified = NO;
+                    }
                 }
             } else {
                 DDLogError(@"[ERROR] Delete temporary BaseSystem Failed!");
@@ -2129,6 +2150,7 @@ DDLogLevel ddLogLevel;
             }
             
             if ( [userSettings[NBCSettingsAddCustomRAMDisksKey] boolValue] && [resourcesSettings[NBCSettingsRAMDisksKey] count] != 0 ) {
+                [rcCdmCdrom appendString:@"\n### CUSTOM RAM DISKS ###\n"];
                 for ( NSDictionary *ramDiskDict in resourcesSettings[NBCSettingsRAMDisksKey] ) {
                     NSString *ramDiskSizeMB = ramDiskDict[@"size"];
                     if ( [ramDiskSizeMB length] != 0 ) {
@@ -2259,10 +2281,10 @@ DDLogLevel ddLogLevel;
     NSURL *bluetoothReporterPlistSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.bluetoothReporter.plist"];
     NSURL *bluetoothReporterPlistTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.bluetoothReporter.plist"];
     NSDictionary *modifyBluetoothReporterPlist = @{
-                                                    NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                                    NBCWorkflowModifySourceURL : [bluetoothReporterPlistSourceURL path],
-                                                    NBCWorkflowModifyTargetURL : [bluetoothReporterPlistTargetURL path]
-                                                    };
+                                                   NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                                   NBCWorkflowModifySourceURL : [bluetoothReporterPlistSourceURL path],
+                                                   NBCWorkflowModifyTargetURL : [bluetoothReporterPlistTargetURL path]
+                                                   };
     [modifyDictArray addObject:modifyBluetoothReporterPlist];
     
     // --------------------------------------------------------------
@@ -2271,10 +2293,10 @@ DDLogLevel ddLogLevel;
     NSURL *bluetoothBluedPlistSourceURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.blued.plist"];
     NSURL *bluetoothBluedPlistTargetURL = [volumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.blued.plist"];
     NSDictionary *modifyBluetoothBluedPlist = @{
-                                                   NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                                   NBCWorkflowModifySourceURL : [bluetoothBluedPlistSourceURL path],
-                                                   NBCWorkflowModifyTargetURL : [bluetoothBluedPlistTargetURL path]
-                                                   };
+                                                NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                                NBCWorkflowModifySourceURL : [bluetoothBluedPlistSourceURL path],
+                                                NBCWorkflowModifyTargetURL : [bluetoothBluedPlistTargetURL path]
+                                                };
     [modifyDictArray addObject:modifyBluetoothBluedPlist];
     
     return retval;
@@ -2753,7 +2775,7 @@ DDLogLevel ddLogLevel;
                 [target setNbiNetInstallDiskImageDict:netInstallDiskImageDict];
                 netInstallVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:netInstallDiskImageDict];
                 if ( netInstallVolumeURL ) {
-                    netInstallDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:netInstallVolumeURL
+                    netInstallDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:netInstallDiskImageURL
                                                                                 imageType:@"NetInstall"];
                     if ( netInstallDisk ) {
                         [target setNbiNetInstallDisk:netInstallDisk];
@@ -2815,7 +2837,7 @@ DDLogLevel ddLogLevel;
     
     NBCDisk *baseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:baseSystemDiskImageURL
                                                                          imageType:@"BaseSystem"];
-
+    
     if ( baseSystemDisk != nil ) {
         [target setBaseSystemDisk:baseSystemDisk];
         baseSystemVolumeURL = [baseSystemDisk volumeURL];

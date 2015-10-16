@@ -44,9 +44,28 @@ DDLogLevel ddLogLevel;
     [self setUserSettings:[workflowItem userSettings]];
     [self setNbiCreationTool:_userSettings[NBCSettingsNBICreationToolKey]];
     [self setResourcesSettings:[workflowItem resourcesSettings]];
-    
+    [self setWorkflowCompleted:NO];
+    [self setIsNBI:( [[[workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
+    [self setSettingsChanged:[workflowItem userSettingsChanged]];
+
     // Imagr.app, Imagr settings, ?
-    [self setResourcesCount:3];
+    if ( ! _isNBI ) {
+
+        [self setResourcesCount:3];
+    } else {
+        int resourcesCount = 0;
+        if ( // Check if ImagrApp need to be updated
+            [_settingsChanged[NBCSettingsImagrVersion] boolValue] ) {
+            resourcesCount++;
+        }
+        if ( // Check if ImagrSettings need to be updated
+            [_settingsChanged[NBCSettingsImagrServerURLKey] boolValue] ||
+            [_settingsChanged[NBCSettingsImagrReportingURL] boolValue] ||
+            [_settingsChanged[NBCSettingsImagrSyslogServerURI] boolValue]
+            ) {
+            resourcesCount++;
+        }
+    }
     
     // -------------------------------------------------------
     //  Update _resourcesCount with all sourceItems
@@ -83,7 +102,42 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    if ( _userSettings ) {
+    if ( _isNBI && _userSettings) {
+        if ( ! [self preparePackages:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( ! [self prepareCertificates:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        if ( [_settingsChanged[NBCSettingsImagrVersion] boolValue] ) {
+            if ( ! [self getImagrApplication:workflowItem] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                return;
+            }
+        }
+        
+        if (
+            [_settingsChanged[NBCSettingsImagrServerURLKey] boolValue] ||
+            [_settingsChanged[NBCSettingsImagrReportingURL] boolValue] ||
+            [_settingsChanged[NBCSettingsImagrSyslogServerURI] boolValue]
+            ) {
+            if ( ! [self createImagrSettingsPlist:workflowItem] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                return;
+            }
+        }
+        
+        if ( ! [self createImagrRCImaging:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
+        }
+        
+        [self checkCompletedResources];
+    } else if ( _userSettings ) {
         if ( ! [self preparePackages:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
@@ -109,16 +163,12 @@ DDLogLevel ddLogLevel;
             return;
         }
         
-        if ( ! [[[workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) {
-            if ( ! [self prepareDesktopViewer:workflowItem] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-                return;
-            }
-            
-            [self getItemsFromSource:workflowItem];
-        } else {
-            [self checkCompletedResources];
+        if ( ! [self prepareDesktopViewer:workflowItem] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            return;
         }
+        
+        [self getItemsFromSource:workflowItem];
     } else {
         DDLogError(@"[ERROR] Settings are empty!");
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
@@ -1027,10 +1077,15 @@ DDLogLevel ddLogLevel;
             _resourcesBaseSystemDict[NBCWorkflowInstall] = _resourcesBaseSystemInstall;
         }
         
-        [_target setResourcesNetInstallDict:_resourcesNetInstallDict];
-        [_target setResourcesBaseSystemDict:_resourcesBaseSystemDict];
+        if ( ! _workflowCompleted ) {
+            [self setWorkflowCompleted:YES];
+            [_target setResourcesNetInstallDict:_resourcesNetInstallDict];
+            [_target setResourcesBaseSystemDict:_resourcesBaseSystemDict];
         
-        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteResources object:self userInfo:nil];
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteResources object:self userInfo:nil];
+        } else {
+            NSLog(@"Workflow already completed!");
+        }
     }
 } // checkCompletedResources
 
@@ -1105,12 +1160,12 @@ DDLogLevel ddLogLevel;
             
             NSString *reportingURL = _userSettings[NBCSettingsImagrReportingURL];
             if ( [reportingURL length] != 0 ) {
-                settingsDict[@"reporturl"] = reportingURL;
+                settingsDict[NBCSettingsImagrReportingURLKey] = reportingURL;
             }
             
             NSString *syslogServerURI = _userSettings[NBCSettingsImagrSyslogServerURI];
             if ( [syslogServerURI length] != 0 ) {
-                settingsDict[@"syslog"] = syslogServerURI;
+                settingsDict[NBCSettingsImagrSyslogServerURIKey] = syslogServerURI;
             }
             
             if ( [settingsDict writeToURL:settingsFileURL atomically:YES] ) {

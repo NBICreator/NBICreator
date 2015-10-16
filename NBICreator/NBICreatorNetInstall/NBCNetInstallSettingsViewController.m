@@ -384,6 +384,8 @@ DDLogLevel ddLogLevel;
                 [self insertItemInPackagesNetInstallTableView:packageDict];
             }
         }
+    } else {
+        [_viewOverlayPackagesNetInstall setHidden:NO];
     }
     
     [_configurationProfilesTableViewContents removeAllObjects];
@@ -397,6 +399,8 @@ DDLogLevel ddLogLevel;
                 [self insertConfigurationProfileInTableView:configurationProfileDict];
             }
         }
+    } else {
+        [_viewOverlayConfigurationProfiles setHidden:NO];
     }
     
     [_trustedServers removeAllObjects];

@@ -250,7 +250,9 @@ NSString *const NBCSettingsImagrVersion = @"ImagrVersion";
 NSString *const NBCSettingsImagrIncludePreReleaseVersions = @"ImagrIncludePreReleaseVersions";
 NSString *const NBCSettingsImagrConfigurationURL = @"ImagrConfigurationURL";
 NSString *const NBCSettingsImagrReportingURL = @"ImagrReportingURL";
+NSString *const NBCSettingsImagrReportingURLKey = @"reporturl";
 NSString *const NBCSettingsImagrSyslogServerURI = @"ImagrSyslogServerURI";
+NSString *const NBCSettingsImagrSyslogServerURIKey = @"syslog";
 NSString *const NBCSettingsImagrServerURLKey = @"serverurl";
 NSString *const NBCSettingsImagrDownloadURL = @"ImagrDownloadURL";
 NSString *const NBCSettingsImagrDownloadPython = @"ImagrDownloadPython";
@@ -599,6 +601,8 @@ NSString *const NBCDeployStudioLatestVersionURL = @"http://www.deploystudio.com/
 NSString *const NBCResourcesDeployStudioLatestVersionKey = @"LatestVersion";
 
 NSString *const NBCHelpURL = @"https://github.com/NBICreator/NBICreator/wiki";
+
+NSString *const NBCSettingsChanged = @"SettingsChanged";
 
 NSString *const NBCVariableIndexCounter = @"%COUNTER%";
 NSString *const NBCVariableDate = @"%DATE%";

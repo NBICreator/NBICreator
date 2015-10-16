@@ -74,6 +74,7 @@ enum {
 //  Convenience porperties for user settings
 // -------------------------------------------------------------
 @property NSDictionary *userSettings;
+@property NSDictionary *userSettingsChanged;
 @property NSDictionary *resourcesSettings;
 
 // -------------------------------------------------------------
