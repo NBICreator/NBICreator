@@ -1489,7 +1489,7 @@ DDLogLevel ddLogLevel;
         NSLog(@"Error: %@", err);
         return;
     }
-
+    
     NSURL *nbImageInfoURL = [nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
     if ( ! [nbImageInfoURL checkResourceIsReachableAndReturnError:&err] ) {
         NSLog(@"Could not find nbImageInfoURL");
@@ -1749,17 +1749,17 @@ DDLogLevel ddLogLevel;
         }
         
         NSString *rcImaging;
-        NSURL *rcImagingURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCRCImagingNBICreatorTargetURL];
+        NSURL *rcImagingURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCRCImagingTargetURL];
         if ( [rcImagingURL checkResourceIsReachableAndReturnError:nil] ) {
             rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
             
         } else {
-            rcImagingURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCRCImagingTargetURL];
+            rcImagingURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCRCImagingNBICreatorTargetURL];
             if ( [rcImagingURL checkResourceIsReachableAndReturnError:nil] ) {
                 rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
             }
         }
-        
+
         if ( [rcImaging containsString:@"/Applications/Utilities/Console.app/Contents/MacOS/Console"] ) {
             settingsDict[NBCSettingsLaunchConsoleAppKey] = @YES;
         } else {
@@ -1882,6 +1882,10 @@ DDLogLevel ddLogLevel;
         }
         
         NSURL *certificatesFolderURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"usr/local/certificates"];
+        if ( ! [certificatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+            certificatesFolderURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:@"Packages/certificates"];
+        }
+        
         if ( [certificatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
             NSMutableArray *certificatesArray = [[NSMutableArray alloc] init];
             NSArray *certificates = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:certificatesFolderURL includingPropertiesForKeys:@[] options:0 error:&err];

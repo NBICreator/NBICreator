@@ -113,12 +113,7 @@ DDLogLevel ddLogLevel;
     
     if ( [_targetController convertBaseSystemFromShadow:_workflowItem error:&error] ) {
         if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-            if ( ! [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
-                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
-                                  object:self
-                                userInfo:nil];
-                return;
-            } else {
+            if ( [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
                 if ( ! [self createSymlinkToSparseimageAtURL:baseSystemDiskImageURL] ) {
                     DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
                     [nc postNotificationName:NBCNotificationWorkflowFailed
@@ -324,10 +319,15 @@ DDLogLevel ddLogLevel;
         if ( [_targetController attachNetInstallDiskImageWithShadowFile:nbiNetInstallURL target:_target error:&error] ) {
             [self->_delegate updateProgressBar:92];
             
+            
             // ------------------------------------------------------------------
             //  Remove Packages folder in NetInstall and create an empty folder
             // ------------------------------------------------------------------
-            [self removePackagesFolderInNetInstall];
+            if ( ! _isNBI ) {
+                [self removePackagesFolderInNetInstall];
+            } else {
+                [self copyFilesToNetInstall];
+            }
             
         } else {
             DDLogError(@"[ERROR] Attaching NetInstall Failed!");
@@ -344,7 +344,6 @@ DDLogLevel ddLogLevel;
 } // modifyNetInstall
 
 - (void)removePackagesFolderInNetInstall {
-    NSLog(@"removePackagesFolderInNetInstall");
     NSURL *nbiNetInstallVolumeURL = [_target nbiNetInstallVolumeURL];
     if ( nbiNetInstallVolumeURL ) {
         
@@ -352,7 +351,6 @@ DDLogLevel ddLogLevel;
         //  Remove Packages folder in NetInstall
         // --------------------------------------
         NSURL *packagesFolderURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:@"Packages"];
-        
         if ( [packagesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
             NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
             [helperConnector connectToHelper];
@@ -396,7 +394,6 @@ DDLogLevel ddLogLevel;
 } // removePackagesFolderInNetInstall
 
 - (void)createFoldersInNetInstall {
-    NSLog(@"createFoldersInNetInstall");
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *nbiNetInstallVolumeURL = [_target nbiNetInstallVolumeURL];
@@ -1298,7 +1295,6 @@ DDLogLevel ddLogLevel;
     }
     
     NSURL *commandURL = [NSURL fileURLWithPath:@"/usr/sbin/BootCacheControl"];
-    NSLog(@"%@ %@", commandURL, commandAgruments);
     // -----------------------------------------------------------------------------------
     //  Create standard output file handle and register for data available notifications.
     // -----------------------------------------------------------------------------------

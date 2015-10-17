@@ -447,8 +447,8 @@ DDLogLevel ddLogLevel;
     
     NSDictionary *userSettings = [workflowItem userSettings];
     NSString *destinationFolderPath = [userSettings[NBCSettingsDestinationFolderKey] stringByExpandingTildeInPath];
-    NSURL *destinationFolderURL = [NSURL fileURLWithPath:destinationFolderPath];
-    if ( destinationFolderPath != nil ) {
+    if ( [destinationFolderPath length] != 0 ) {
+        NSURL *destinationFolderURL = [NSURL fileURLWithPath:destinationFolderPath];
         if ( [destinationFolderURL checkResourceIsReachableAndReturnError:nil] ) {
             int freeDiskSpace = [self getFreeDiskSpaceInGBFromPath:destinationFolderPath];
             
@@ -482,11 +482,17 @@ DDLogLevel ddLogLevel;
     
     NSDictionary *userSettings = [workflowItem userSettings];
     NSString *destinationFolderPath = [userSettings[NBCSettingsDestinationFolderKey] stringByExpandingTildeInPath];
-    NSURL *destinationFolderURL = [NSURL fileURLWithPath:destinationFolderPath];
-    if ( destinationFolderPath ) {
+    if ( [destinationFolderPath length] != 0 ) {
+        NSURL *destinationFolderURL = [NSURL fileURLWithPath:destinationFolderPath];
         if ( [destinationFolderURL checkResourceIsReachableAndReturnError:&error] ) {
-            [workflowItem setDestinationFolder:destinationFolderPath];
-            [workflowItem setNbiURL:destinationFolderURL];
+            NSString *nbiName = [workflowItem nbiName];
+            if ( [nbiName length] != 0 ) {
+                NSURL *nbiURL = [destinationFolderURL URLByAppendingPathComponent:nbiName];
+                [workflowItem setDestinationFolder:destinationFolderPath];
+                [workflowItem setNbiURL:nbiURL];
+            } else {
+                [settingsErrors addObject:@"\"NBI Name\" is empty."];
+            }
         } else {
             [settingsErrors addObject:@"\"Destination Folder\" doesn't exist."];
             [settingsErrors addObject:[NSString stringWithFormat:@"[ERROR] %@", [error localizedDescription]]];

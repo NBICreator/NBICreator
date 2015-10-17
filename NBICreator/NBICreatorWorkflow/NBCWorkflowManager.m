@@ -222,7 +222,11 @@ DDLogLevel ddLogLevel;
 - (void)workflowCompleteModifyNBI:(NSNotification *)notification {
 #pragma unused(notification)
     DDLogInfo(@"NBI modifications complete!");
-    [self moveNBIToDestination:[_currentWorkflowItem temporaryNBIURL] destinationURL:[_currentWorkflowItem nbiURL]];
+    if ( ! [[[_currentWorkflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+        [self moveNBIToDestination:[_currentWorkflowItem temporaryNBIURL] destinationURL:[_currentWorkflowItem nbiURL]];
+    } else {
+        [self updateWorkflowStatusComplete];
+    }
 } // workflowCompleteModifyNBI
 
 - (void)endWorkflow {
@@ -433,6 +437,53 @@ DDLogLevel ddLogLevel;
         } else {
             NSError *error;
             NBCTargetController *targetController = [[NBCTargetController alloc] init];
+            if ( [[_currentWorkflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
+                if ( [[target nbiNetInstallDisk] isWritable] ) {
+                    if ( ! [[target nbiNetInstallDisk] isMounted] ) {
+                        NSDictionary *installESDDiskImageDict;
+                        NSArray *hdiutilOptions = @[
+                                                    @"-mountRandom", @"/Volumes",
+                                                    @"-nobrowse",
+                                                    @"-noverify",
+                                                    @"-plist",
+                                                    ];
+                        if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&installESDDiskImageDict
+                                                                                  dmgPath:[target nbiNetInstallURL]
+                                                                                  options:hdiutilOptions
+                                                                                    error:&error] ) {
+                            if ( installESDDiskImageDict ) {
+                                [target setNbiNetInstallDiskImageDict:installESDDiskImageDict];
+                                NSURL *installESDVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:installESDDiskImageDict];
+                                if ( installESDVolumeURL ) {
+                                    NBCDisk *installESDDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:[target nbiNetInstallURL]
+                                                                                                imageType:@"InstallESD"];
+                                    if ( installESDDisk ) {
+                                        [target setNbiNetInstallDisk:installESDDisk];
+                                        [target setNbiNetInstallVolumeBSDIdentifier:[installESDDisk BSDName]];
+                                        [target setNbiNetInstallVolumeURL:installESDVolumeURL];
+                                        [installESDDisk setIsMountedByNBICreator:YES];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    if ( [[target nbiNetInstallDisk] isMounted] ) {
+                        if ( ! [NBCDiskImageController detachDiskImageAtPath:[[target nbiNetInstallVolumeURL] path]] ) {
+                            DDLogError(@"[ERROR] Detaching net install disk failed!");
+                            [self updateWorkflowStatusErrorWithMessage:@"Detaching net install disk failed"];
+                            return;
+                        }
+                    }
+                    
+                    if ( ! [targetController attachNetInstallDiskImageWithShadowFile:[target nbiNetInstallURL] target:target error:&error] ) {
+                        DDLogError(@"[ERROR] Attaching net install disk failed!");
+                        [self updateWorkflowStatusErrorWithMessage:@"Attaching net install disk failed"];
+                        return;
+                    }
+                }
+            }
+            
             if ( [[target baseSystemDisk] isMounted] ) {
                 if ( ! [NBCDiskImageController detachDiskImageAtPath:[[target baseSystemVolumeURL] path]] ) {
                     DDLogError(@"[ERROR] Detaching base system disk failed!");

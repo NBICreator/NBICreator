@@ -148,7 +148,6 @@ DDLogLevel ddLogLevel;
 } // verifySystemFromDisk:source:error
 
 - (BOOL)verifySystemFromDiskImageURL:(NSURL *)systemDiskImageURL source:(NBCSource *)source error:(NSError **)error {
-    
     DDLogInfo(@"Verifying that disk image contains a valid OS X System...");
     DDLogDebug(@"systemDiskImageURL=%@", systemDiskImageURL);
     BOOL verified = NO;
@@ -586,7 +585,6 @@ DDLogLevel ddLogLevel;
             if ( installESDDiskImageDict ) {
                 [source setInstallESDDiskImageDict:installESDDiskImageDict];
                 installESDVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:installESDDiskImageDict];
-                DDLogDebug(@"installESDVolumeURL=%@", installESDVolumeURL);
                 if ( installESDVolumeURL ) {
                     installESDDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:installESDDiskImageURL
                                                                                 imageType:@"InstallESD"];

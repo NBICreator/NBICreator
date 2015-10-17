@@ -47,10 +47,9 @@ DDLogLevel ddLogLevel;
     [self setWorkflowCompleted:NO];
     [self setIsNBI:( [[[workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
     [self setSettingsChanged:[workflowItem userSettingsChanged]];
-
+    
     // Imagr.app, Imagr settings, ?
     if ( ! _isNBI ) {
-
         [self setResourcesCount:3];
     } else {
         int resourcesCount = 0;
@@ -65,6 +64,13 @@ DDLogLevel ddLogLevel;
             ) {
             resourcesCount++;
         }
+        if ( // Check if rc.imaging need to be updated
+            [_settingsChanged[NBCSettingsLaunchConsoleAppKey] boolValue]
+            ) {
+            resourcesCount++;
+        }
+        
+        [self setResourcesCount:resourcesCount];
     }
     
     // -------------------------------------------------------
@@ -93,13 +99,6 @@ DDLogLevel ddLogLevel;
     NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
     if ( [packagessArray count] != 0 ) {
         [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
-    }
-    
-    if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
-        [self setResourcesCount:( _resourcesCount + 1 )];
-        if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
-            [self setResourcesCount:( _resourcesCount + 1 )];
-        }
     }
     
     if ( _isNBI && _userSettings) {
@@ -131,13 +130,24 @@ DDLogLevel ddLogLevel;
             }
         }
         
-        if ( ! [self createImagrRCImaging:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            return;
+        if (
+            [_settingsChanged[NBCSettingsLaunchConsoleAppKey] boolValue]
+            ) {
+            if ( ! [self createImagrRCImaging:workflowItem] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                return;
+            }
         }
         
         [self checkCompletedResources];
     } else if ( _userSettings ) {
+        if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+            [self setResourcesCount:( _resourcesCount + 1 )];
+            if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
+                [self setResourcesCount:( _resourcesCount + 1 )];
+            }
+        }
+        
         if ( ! [self preparePackages:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
@@ -170,7 +180,7 @@ DDLogLevel ddLogLevel;
         
         [self getItemsFromSource:workflowItem];
     } else {
-        DDLogError(@"[ERROR] Settings are empty!");
+        DDLogError(@"[ERROR] UI settings are empty!");
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
 } // runWorkflow
@@ -1054,12 +1064,16 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)checkCompletedResources {
-    
+    DDLogDebug(@"[DEBUG] Checking if all resources have been prepared...");
     // ----------------------------------------------------------------------------------------------
     //  Check if all resources have been prepared. If they have, post notification workflow complete
     // ----------------------------------------------------------------------------------------------
     unsigned long requiredCopyResources = ( [_resourcesNetInstallCopy count] + [_resourcesBaseSystemCopy count] );
+    DDLogDebug(@"[DEBUG] Prepared resources for copy: %lu", requiredCopyResources);
     unsigned long requiredInstallResources = ( [_resourcesNetInstallInstall count] + [_resourcesBaseSystemInstall count] );
+    DDLogDebug(@"[DEBUG] Prepared resources for installation: %lu", requiredInstallResources);
+    DDLogDebug(@"[DEBUG] Count of resources prepared: %d", ( (int) requiredCopyResources + (int) requiredInstallResources ) );
+    DDLogDebug(@"[DEBUG] Count of resources required: %d", _resourcesCount);
     if ( ( (int) requiredCopyResources + (int) requiredInstallResources ) == _resourcesCount ) {
         if ( [_resourcesNetInstallCopy count] != 0 ) {
             _resourcesNetInstallDict[NBCWorkflowCopy] = _resourcesNetInstallCopy;
@@ -1081,7 +1095,7 @@ DDLogLevel ddLogLevel;
             [self setWorkflowCompleted:YES];
             [_target setResourcesNetInstallDict:_resourcesNetInstallDict];
             [_target setResourcesBaseSystemDict:_resourcesBaseSystemDict];
-        
+            
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteResources object:self userInfo:nil];
         } else {
             NSLog(@"Workflow already completed!");
