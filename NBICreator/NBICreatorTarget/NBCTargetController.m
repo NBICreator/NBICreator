@@ -2737,7 +2737,7 @@ DDLogLevel ddLogLevel;
         NSArray *customRAMDisks = resourcesSettings[NBCSettingsRAMDisksKey];
         for ( NSDictionary *ramDiskDict in customRAMDisks ) {
             NSString *ramDiskPath = ramDiskDict[@"path"];
-            if ([ramDiskPath hasPrefix:@"/"] && [ramDiskPath length] > 1) {
+            if ([ramDiskPath hasPrefix:@"/"] && 1 < [ramDiskPath length] ) {
                 NSURL *ramDiskURL = [volumeURL URLByAppendingPathComponent:[ramDiskPath substringFromIndex:1]];
                 if ( ramDiskURL ) {
                     if ( ! [ramDiskURL checkResourceIsReachableAndReturnError:nil] ) {

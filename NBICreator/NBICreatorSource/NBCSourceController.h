@@ -18,7 +18,7 @@
 
 @interface NBCSourceController : NSObject
 
-@property id delegate;
+@property (nonatomic, weak) id delegate;
 
 - (id)initWithDelegate:(id<NBCSourceControllerDelegate>)delegate;
 
