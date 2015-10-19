@@ -15,7 +15,6 @@ DDLogLevel ddLogLevel;
 @implementation NBCBonjourBrowser
 
 - (void)startBonjourDiscovery {
-    
     if ( _services ) {
         [_services removeAllObjects];
     } else {
@@ -31,16 +30,16 @@ DDLogLevel ddLogLevel;
 } // startBonjourDiscovery
 
 - (void)startSearch {
-    
     if ( ! _browser ) {
         _browser = [[NSNetServiceBrowser alloc] init];
     }
     [_browser setDelegate:self];
+    DDLogDebug(@"[DEBUG] Starting bonjour browser...");
     [_browser searchForServicesOfType:NBCBonjourServiceDeployStudio inDomain:@"local."];
+    DDLogDebug(@"[DEBUG] Searching for service type: %@ in domain: %@", NBCBonjourServiceDeployStudio, @"local.");
 } // startSearch
 
 - (void)dealloc {
-    
     [_browser setDelegate:nil];
 } // dealloc
 
@@ -58,12 +57,10 @@ DDLogLevel ddLogLevel;
 
 - (void)netServiceBrowserWillSearch:(NSNetServiceBrowser *)aNetServiceBrowser {
     #pragma unused(aNetServiceBrowser)
-    
 } // netServiceBrowserWillSearch
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)serviceBrowser didFindService:(NSNetService *)aNetService moreComing:(BOOL)moreComing {
     #pragma unused(serviceBrowser, moreComing)
-    
     [_services addObject:aNetService];
     [aNetService setDelegate:self];
     [aNetService resolveWithTimeout:10];
@@ -71,11 +68,9 @@ DDLogLevel ddLogLevel;
 
 - (void)netServiceDidStop:(NSNetService *)sender {
 #pragma unused(sender)
-    
 } // netServiceDidStop
 
 - (void)netServiceDidResolveAddress:(NSNetService *)aNetService {
-    
     NSDictionary *txtRecordDict = [NSNetService dictionaryFromTXTRecordData:[aNetService TXTRecordData]];
     if ( [txtRecordDict count] == 0) {
         [self restartBonjourDiscovery];
@@ -95,7 +90,6 @@ DDLogLevel ddLogLevel;
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationDeployStudioAddBonjourService
                                                         object:self
                                                       userInfo:userInfo];
-    
 } // netServiceDidResolveAddress
 
 - (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary *)errorDict {

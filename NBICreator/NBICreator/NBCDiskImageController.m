@@ -204,6 +204,7 @@ DDLogLevel ddLogLevel;
 } // attachDiskImageAndReturnPropertyList
 
 + (BOOL)mountAtPath:(NSString *)path withArguments:(NSArray *)args forDisk:(NSString *)diskID {
+    DDLogDebug(@"[DEBUG] Mounting disk at path: %@...", path);
     
     DASessionRef session = NULL;
     session = DASessionCreate(kCFAllocatorDefault);
@@ -240,7 +241,6 @@ DDLogLevel ddLogLevel;
 
 + (BOOL)detachDiskImageAtPath:(NSString *)mountPath {
     DDLogDebug(@"[DEBUG] Detaching disk image mounted at path: %@", mountPath);
-    BOOL retval = YES;
     
     NSTask *hdiutilTask =  [[NSTask alloc] init];
     [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
@@ -277,16 +277,16 @@ DDLogLevel ddLogLevel;
             
             if ( [forceTask terminationStatus] == 0 ) {
                 DDLogInfo(@"Detach successful on try %d!", maxTries);
-                return retval;;
+                return YES;
             }
         }
         
-        retval = NO;
+        DDLogError(@"[DEBUG] Detach failed!");
+        return NO;
     } else {
         DDLogDebug(@"[DEBUG] Detach successful!");
+        return YES;
     }
-    
-    return retval;
 } // detachDiskImageAtPath
 
 + (BOOL)detachDiskImageDevice:(NSString *)devName {
@@ -387,10 +387,11 @@ DDLogLevel ddLogLevel;
 
 + (BOOL)compactDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath {
     DDLogInfo(@"Compacting disk image...");
-    BOOL retval = NO;
+    DDLogDebug(@"[DEBUG] Disk image path: %@", diskImagePath);
+    DDLogDebug(@"[DEBUG] Disk image shadow path: %@", shadowImagePath);
     
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     
     NSArray *args = @[
                       @"compact", diskImagePath,
@@ -400,40 +401,37 @@ DDLogLevel ddLogLevel;
                       @"-plist"
                       ];
     
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    // Launch Task
-    [newTask launch];
-    [newTask waitUntilExit];
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
     
-    NSData *newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-    NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
     
-    NSLog(@"standardOutput=%@", standardOutput);
-    
-    NSData *newTaskErrorData = [[newTask.standardError fileHandleForReading] readDataToEndOfFile];
-    NSString *standardError = [[NSString alloc] initWithData:newTaskErrorData encoding:NSUTF8StringEncoding];
-    
-    if ( [newTask terminationStatus] == 0 ) {
-        retval = YES;
+    if ( [hdiutilTask terminationStatus] == 0 ) {
+        DDLogDebug(@"[DEBUG] hdiutil command successful!");
+        return YES;
     } else {
-        DDLogError(@"[ERROR] Disk image conversion failed!");
-        DDLogError(@"[ERROR] %@", standardError);
-        retval = NO;
+        DDLogError(@"[hdiutil] %@", stdOut);
+        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
+        return NO;
     }
-    
-    return retval;
 }
 
 + (BOOL)convertDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath format:(NSString *)format destinationPath:(NSString *)destinationPath {
-    BOOL retval = NO;
-    //NSData *newTaskOutputData;
-    NSData *newTaskErrorData;
+    DDLogInfo(@"Converting disk image...");
+    DDLogDebug(@"[DEBUG] Disk image path: %@", diskImagePath);
+    DDLogDebug(@"[DEBUG] Disk image selected format: %@", format);
+    DDLogDebug(@"[DEBUG] Disk image destination path: %@", destinationPath);
     
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     
     /*
      UDRW - UDIF read/write image
@@ -449,46 +447,41 @@ DDLogLevel ddLogLevel;
                       ]];
     
     if ( [shadowImagePath length] != 0 ) {
+        DDLogDebug(@"[DEBUG] Disk image shadow path: %@", shadowImagePath);
         [args addObject:@"-shadow"];
         [args addObject:shadowImagePath];
     }
     
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    // Launch Task
-    [newTask launch];
-    [newTask waitUntilExit];
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
     
-    //newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-    //NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
     
-    newTaskErrorData = [[newTask.standardError fileHandleForReading] readDataToEndOfFile];
-    NSString *standardError = [[NSString alloc] initWithData:newTaskErrorData encoding:NSUTF8StringEncoding];
-    
-    if ( [newTask terminationStatus] == 0 ) {
-        retval = YES;
+    if ( [hdiutilTask terminationStatus] == 0 ) {
+        DDLogDebug(@"[DEBUG] hdiutil command successful!");
+        return YES;
     } else {
-        DDLogError(@"[ERROR] Disk image conversion failed!");
-        DDLogError(@"[ERROR] %@", standardError);
-        retval = NO;
+        DDLogError(@"[hdiutil] %@", stdOut);
+        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
+        return NO;
     }
-    
-    return retval;
 } // convertDiskImageAtPath:shadowImagePath
 
 + (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath {
-    
     DDLogInfo(@"Resizing disk image using shadow file...");
-    BOOL retval = NO;
+    DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
+    DDLogDebug(@"[DEBUG] Disk image shadow path: %@", shadowImagePath);
     
-    //NSData *newTaskOutputData;
-    NSData *newTaskErrorData;
-    
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
-    
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSArray *args = @[
                       @"resize",
                       @"-size", @"10G",
@@ -496,54 +489,52 @@ DDLogLevel ddLogLevel;
                       [diskImageURL path],
                       ];
     
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    // Launch Task
-    [newTask launch];
-    [newTask waitUntilExit];
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
     
-    //newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-    //NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
     
-    newTaskErrorData = [[newTask.standardError fileHandleForReading] readDataToEndOfFile];
-    NSString *standardError = [[NSString alloc] initWithData:newTaskErrorData encoding:NSUTF8StringEncoding];
-    
-    if ( [newTask terminationStatus] == 0 ) {
-        retval = YES;
+    if ( [hdiutilTask terminationStatus] == 0 ) {
+        DDLogDebug(@"[DEBUG] hdiutil command successful!");
+        return YES;
     } else {
-        DDLogError(@"[ERROR] Disk image resize failed!");
-        DDLogError(@"[ERROR] %@", standardError);
-        retval = NO;
+        DDLogError(@"[hdiutil] %@", stdOut);
+        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
+        return NO;
     }
-    
-    return retval;
 }
 
 + (BOOL)getOffsetForRecoveryPartitionOnImageDevice:(id *)offset diskIdentifier:(NSString *)diskIdentifier {
+    DDLogDebug(@"[DEBUG] Getting recovery partition byte offset from disk...");
+    DDLogDebug(@"[DEBUG] Disk identifier: %@", diskIdentifier);
+
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
+    NSArray *args = @[ @"pmap", diskIdentifier ];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    BOOL retval = NO;
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
-    NSMutableArray *args = [NSMutableArray arrayWithObjects:@"pmap",
-                            diskIdentifier,
-                            nil];
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
     
-    // Launch Task
-    [newTask launch];
-    [newTask waitUntilExit];
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
     
-    NSData *newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-    
-    if ( [newTask terminationStatus] == 0 ) {
-        NSString *standardOutput = [[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding];
-        NSArray *standardOutputLines = [[NSArray alloc] init];
-        standardOutputLines = [standardOutput componentsSeparatedByString:@"\n"];
-        for (NSString *line in standardOutputLines) {
+    if ( [hdiutilTask terminationStatus] == 0 ) {
+        DDLogDebug(@"[DEBUG] hdiutil command successful!");
+        NSArray *stdOutLines = [stdOut componentsSeparatedByString:@"\n"];
+        for ( NSString *line in stdOutLines ) {
             if ( [line containsString:@"Apple_Boot"] || [line containsString:@"Recovery HD"] ) {
                 NSString *lineRegex = [line stringByReplacingOccurrencesOfString:@"[ ]+"
                                                                       withString:@" "
@@ -551,18 +542,23 @@ DDLogLevel ddLogLevel;
                                                                            range:NSMakeRange(0, [line length])];
                 
                 NSString *lineCleaned = [lineRegex stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-                
                 NSArray *lineArray = [lineCleaned componentsSeparatedByString:@" "];
                 *offset = lineArray[2];
-                retval = YES;
+                return YES;
             }
         }
+    } else {
+        DDLogError(@"[hdiutil] %@", stdOut);
+        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
     }
-    return retval;
+    
+    return NO;
 } // getOffsetForRecoveryPartitionOnImageDevice
 
 + (NSURL *)getMountURLFromHdiutilOutputPropertyList:(NSDictionary *)propertyList {
     DDLogDebug(@"[DEBUG] Getting mount path from hdiutil dictionary output...");
+    
     NSURL *mountURL;
     NSArray *systemEntities = [propertyList[@"system-entities"] copy];
     for ( NSDictionary *dict in systemEntities ) {
@@ -577,49 +573,59 @@ DDLogLevel ddLogLevel;
         mountURL = [NSURL fileURLWithPath:dict[@"mount-point"]];
     }
     
-    DDLogDebug(@"[DEBUG] Disk image mount path is: %@", [mountURL path]);
+    DDLogDebug(@"[DEBUG] Disk image mount path: %@", [mountURL path]);
     return mountURL;
 } // getMountURLFromHdiutilOutputPropertyList
 
 + (NSString *)getRecoveryPartitionIdentifierFromHdiutilOutputPropertyList:(NSDictionary *)propertyList {
+    DDLogDebug(@"[DEBUG] Getting recovery partition BSD identifier from hdiutil dictionary output...");
     
     NSString *recoveryPartitionIdentifier;
     NSArray *systemEntities = [propertyList[@"system-entities"] copy];
-    for (NSDictionary *dict in systemEntities)
-    {
+    for ( NSDictionary *dict in systemEntities ) {
         NSString *contentHint = dict[@"content-hint"];
-        if ( [contentHint isEqualTo:@"Apple_Boot"] )
-        {
+        if ( [contentHint isEqualTo:@"Apple_Boot"] ) {
             recoveryPartitionIdentifier = dict[@"dev-entry"];
         }
     }
+    DDLogDebug(@"[DEBUG] Recovery partition BSD identifier: %@", recoveryPartitionIdentifier);
     return recoveryPartitionIdentifier;
 }
 
 + (NSString *)getRecoveryPartitionIdentifierFromVolumeMountURL:(NSURL *)mountURL {
+    DDLogDebug(@"[DEBUG] Getting recovery partition BSD identifier from volume mount path...");
+    DDLogDebug(@"[DEBUG] Volume mount path: %@", [mountURL path]);
     
     NSString *recoveryPartitionIdentifier;
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/bin/bash"];
-    NSMutableArray *args = [NSMutableArray arrayWithObjects:@"-c",
-                            [NSString stringWithFormat:@"/usr/sbin/diskutil info \"%@\" | /usr/bin/grep \"Recovery Disk:\" | /usr/bin/awk '{ print $NF }'", [mountURL path]],
-                            nil];
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask launch];
-    [newTask waitUntilExit];
+    NSTask *diskutilTask =  [[NSTask alloc] init];
+    [diskutilTask setLaunchPath:@"/bin/bash"];
+    NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/usr/sbin/diskutil info \"%@\" | /usr/bin/grep \"Recovery Disk:\" | /usr/bin/awk '{ print $NF }'", [mountURL path]]];
+    [diskutilTask setArguments:args];
+    [diskutilTask setStandardOutput:[NSPipe pipe]];
+    [diskutilTask setStandardError:[NSPipe pipe]];
+    [diskutilTask launch];
+    [diskutilTask waitUntilExit];
     
-    NSData *newTaskStandardOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+    NSData *stdOutData = [[[diskutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
     
-    if ( [newTask terminationStatus] == 0 ) {
-        NSString *partitionIdentifier = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
+    NSData *stdErrData = [[[diskutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+    
+    if ( [diskutilTask terminationStatus] == 0 ) {
+        DDLogDebug(@"[DEBUG] diskutil command successful!");
+        NSString *partitionIdentifier = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
         partitionIdentifier = [partitionIdentifier stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-        if ( [partitionIdentifier length] != 0 && [partitionIdentifier containsString:@"/dev/"] )
-        {
+        if ( [partitionIdentifier length] != 0 && [partitionIdentifier containsString:@"/dev/"] ) {
             recoveryPartitionIdentifier = partitionIdentifier;
         } else if ( [partitionIdentifier length] != 0 ) {
             recoveryPartitionIdentifier = [NSString stringWithFormat:@"/dev/%@", partitionIdentifier];
         }
+        DDLogDebug(@"[DEBUG] Recovery partition BSD identifier: %@", recoveryPartitionIdentifier);
+    } else {
+        DDLogError(@"[diskutil] %@", stdOut);
+        DDLogError(@"[diskutil] %@", stdErr);
+        DDLogError(@"[ERROR] diskutil command failed with exit status: %d", [diskutilTask terminationStatus]);
     }
     return recoveryPartitionIdentifier;
 }
@@ -665,6 +671,8 @@ DDLogLevel ddLogLevel;
 }
 
 + (NSURL *)getDiskImageURLFromMountURL:(NSURL *)mountURL {
+    DDLogDebug(@"[DEBUG] Getting disk image path from volume mount path...");
+    DDLogDebug(@"[DEBUG] Disk image volume mount path: %@", [mountURL path]);
     
     NSURL *diskImageURL;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
@@ -676,15 +684,19 @@ DDLogLevel ddLogLevel;
                 if ([mountPoint isEqualToString:[mountURL path]]) {
                     NSString *imagePath = image[@"image-path"];
                     diskImageURL = [NSURL fileURLWithPath:imagePath];
-                    return diskImageURL;
                 }
             }
         }
     }
+    
+    DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
     return diskImageURL;
 }
 
 + (NBCDisk *)getBaseSystemDiskFromDiskImageURL:(NSURL *)diskImageURL {
+    DDLogDebug(@"[DEBUG] Getting BaseSystem disk object from disk image path...");
+    DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
+    
     NSError *error;
     NBCDisk *disk;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
@@ -720,6 +732,9 @@ DDLogLevel ddLogLevel;
 }
 
 + (NBCDisk *)getInstallESDDiskFromDiskImageURL:(NSURL *)diskImageURL {
+    DDLogDebug(@"[DEBUG] Getting InstallESD/NetInstall disk object from disk image path...");
+    DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
+    
     NBCDisk *disk;
     NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
     for ( NSDictionary *image in hdiutilDict[@"images"] ) {
@@ -742,8 +757,10 @@ DDLogLevel ddLogLevel;
 }
 
 + (NBCDisk *)checkDiskImageAlreadyMounted:(NSURL *)diskImageURL imageType:(NSString *)imageType {
-    DDLogDebug(@"[DEBUG] Checking if disk image %@ is mounted...", [diskImageURL path]);
-    DDLogDebug(@"[DEBUG] Disk image type is: %@", imageType);
+    DDLogDebug(@"[DEBUG] Checking if disk image is mounted...");
+    DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
+    DDLogDebug(@"[DEBUG] Disk image type: %@", imageType);
+    
     NBCDisk *disk;
     NSString *partitionHint;
     

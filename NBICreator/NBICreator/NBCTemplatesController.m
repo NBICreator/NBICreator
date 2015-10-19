@@ -118,6 +118,7 @@ enum {
         
         return retval;
     } else if ( [menuItem tag] == kTemplateSelectionShowInFinder || [[menuItem title] isEqualToString:NBCMenuItemShowInFinder] ) {
+        
         // --------------------------------------------------------------------
         //  If template have not been saved yet, can't show it in finder either
         // --------------------------------------------------------------------

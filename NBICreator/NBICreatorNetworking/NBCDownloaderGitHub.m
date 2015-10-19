@@ -23,7 +23,9 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)getReleaseVersionsAndURLsFromGithubRepository:(NSString *)repository downloadInfo:(NSDictionary *)downloadInfo {
+    DDLogDebug(@"[DEBUG] GitHub repository name: %@", repository);
     NSString *githubURL = [NSString stringWithFormat:@"https://api.github.com/repos/%@/releases", repository];
+    DDLogDebug(@"[DEBUG] GitHub repository releases URL: %@", githubURL);
     NSMutableDictionary *downloadInfoMutable = [[NSMutableDictionary alloc] initWithDictionary:downloadInfo];
     [downloadInfoMutable setObject:repository forKey:NBCDownloaderTagGitRepoName];
     [downloadInfoMutable setObject:NBCDownloaderTagGitRepoPathReleases forKey:NBCDownloaderTagGitRepoPath];
@@ -32,7 +34,9 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)getBranchesAndURLsFromGithubRepository:(NSString *)repository downloadInfo:(NSDictionary *)downloadInfo {
+    DDLogDebug(@"[DEBUG] GitHub repository name: %@", repository);
     NSString *githubURL = [NSString stringWithFormat:@"https://api.github.com/repos/%@/branches", repository];
+    DDLogDebug(@"[DEBUG] GitHub repository branches URL: %@", githubURL);
     NSMutableDictionary *downloadInfoMutable = [[NSMutableDictionary alloc] initWithDictionary:downloadInfo];
     [downloadInfoMutable setObject:repository forKey:NBCDownloaderTagGitRepoName];
     [downloadInfoMutable setObject:NBCDownloaderTagGitRepoPathBranches forKey:NBCDownloaderTagGitRepoPath];
@@ -41,6 +45,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
+    DDLogDebug(@"[DEBUG] Download completed!");
     if ( [downloadInfo objectForKey:NBCDownloaderTagGitRepoPath] == NBCDownloaderTagGitRepoPathReleases ) {
         NSMutableArray *releaseVersions = [[NSMutableArray alloc] init];
         NSMutableDictionary *releaseVersionsURLsDict = [[NSMutableDictionary alloc] init];
@@ -87,13 +92,12 @@ DDLogLevel ddLogLevel;
 - (NSArray *)convertJSONDataToArray:(NSData *)data {
     if ( data != nil ) {
         NSError *error;
-        
         id jsonDataArray = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
-        
         if ( [jsonDataArray isKindOfClass:[NSArray class]] ) {
             return jsonDataArray;
         } else if ( jsonDataArray == nil ) {
-            NSLog(@"Error when serializing JSONData: %@.", error);
+            DDLogError(@"[ERROR] Serializing JSON Data failed!");
+            DDLogError(@"[ERROR] %@", error);
         }
     }
     return nil;

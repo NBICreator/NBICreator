@@ -478,7 +478,7 @@ DDLogLevel ddLogLevel;
     }] copyResourcesToVolume:volumeURL resourcesDict:resourcesNetInstallDict withReply:^(NSError *error, int terminationStatus) {
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             if ( terminationStatus == 0 ) {
-                if ( [self->_workflowItem userSettingsChangedRequiresBaseSystem] ) {
+                if ( ! self->_isNBI || ( self->_isNBI && [self->_workflowItem userSettingsChangedRequiresBaseSystem] ) ) {
                     [self modifyNBISystemImageUtility];
                 } else {
                     [self modifyComplete];

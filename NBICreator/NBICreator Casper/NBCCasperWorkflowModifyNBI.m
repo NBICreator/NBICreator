@@ -1074,7 +1074,7 @@ DDLogLevel ddLogLevel;
 } // modifyComplete
 
 - (void)modifyFailed {
-    DDLogError(@"Modifications Failed!");
+    DDLogError(@"[ERROR] Modifications Failed!");
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
 } // modifyFailed
 
@@ -1136,7 +1136,6 @@ DDLogLevel ddLogLevel;
 - (void)disableSpotlight {
     DDLogInfo(@"Disabling Spotlight on NBI...");
     [_delegate updateProgressStatus:@"Disabling Spotlight..." workflow:self];
-    //NSDictionary *userSettings = [_workflowItem userSettings];
     NSString *baseSystemPath = [[[_workflowItem target] baseSystemVolumeURL] path];
     NSArray *commandAgruments;
     if ( [baseSystemPath length] != 0 ) {
@@ -1144,6 +1143,7 @@ DDLogLevel ddLogLevel;
     } else {
         DDLogError(@"[ERROR] baseSystemPath is nil!");
         [self modifyFailed];
+        return;
     }
     
     NSURL *commandURL = [NSURL fileURLWithPath:@"/usr/bin/mdutil"];
