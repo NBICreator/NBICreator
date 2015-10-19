@@ -871,7 +871,6 @@ DDLogLevel ddLogLevel;
 } // addUsersToNBI
 
 - (NSArray *)generateUserVariablesForCreateUsers:(NSDictionary *)userSettings {
-    DDLogDebug(@"Generating variables for script createUsers.bash...");
     NSMutableArray *userVariables = [[NSMutableArray alloc] init];
     NSString *createUserScriptPath = [[NSBundle mainBundle] pathForResource:@"createUser" ofType:@"bash"];
     if ( [createUserScriptPath length] != 0 ) {

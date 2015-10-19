@@ -16,12 +16,12 @@
 	<false/>
 	<key>NetworkTimeServer</key>
 	<string>time.apple.com</string>
-	<key>UseNetworkTimeServerKey</key>
+	<key>UseNetworkTimeServer</key>
 	<false/>
 	<key>DisplaySleepMinutes</key>
 	<integer>30</integer>
 	<key>DisplaySleep</key>
-	<false/>
+	<true/>
 	<key>DisableWiFi</key>
 	<false/>
 	<key>ImagrDisableATS</key>
@@ -58,6 +58,8 @@
 	<false/>
 	<key>Default</key>
 	<false/>
+	<key>EnableLaunchdLogging</key>
+	<false/>
 	<key>Enabled</key>
 	<true/>
 	<key>Icon</key>
@@ -70,8 +72,6 @@
 	<string>Current</string>
 	<key>TimeZone</key>
 	<string>Current</string>
-	<key>KeyboardLayoutName</key>
-	<string>Current</string>
 	<key>Protocol</key>
 	<string>NFS</string>
 	<key>Index</key>
@@ -82,12 +82,14 @@
 	<false/>
 	<key>AddTrustedNetBootServers</key>
 	<false/>
+	<key>KeyboardLayout</key>
+	<string>Current</string>
 	<key>ImagrUseGitBranch</key>
 	<false/>
 	<key>ImagrGitBranch</key>
-	<string></string>
+	<string>Master</string>
 	<key>ImagrBuildTarget</key>
-	<string></string>
+	<string>Release</string>
 	<key>RAMDisks</key>
 	<array/>
 	<key>TrustedNetBootServers</key>

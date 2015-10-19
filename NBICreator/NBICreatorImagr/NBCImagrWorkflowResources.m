@@ -10,14 +10,10 @@
 #import "NBCConstants.h"
 #import "NBCVariables.h"
 #import "NBCLogging.h"
-
 #import "NSString+randomString.h"
-
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-
 #import "NBCWorkflowNBIController.h"
-
 
 DDLogLevel ddLogLevel;
 
@@ -46,36 +42,45 @@ DDLogLevel ddLogLevel;
     [self setResourcesSettings:[workflowItem resourcesSettings]];
     [self setWorkflowCompleted:NO];
     [self setIsNBI:( [[[workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
+    DDLogDebug(@"[DEBUG] Source is NBI: %@", ( _isNBI ) ? @"YES" : @"NO" );
     [self setSettingsChanged:[workflowItem userSettingsChanged]];
     
-    // Imagr.app, Imagr settings, ?
+    DDLogDebug(@"[DEBUG] Adding static source items to resource count required...");
     if ( ! _isNBI ) {
+        
+        // -------------------------------------------------------
+        //  Imagr.app, com.grahamgilbert.Imagr.plist, rc.imaging
+        // -------------------------------------------------------
         [self setResourcesCount:3];
     } else {
         int resourcesCount = 0;
-        if ( // Check if ImagrApp need to be updated
-            [_settingsChanged[NBCSettingsImagrVersion] boolValue] ) {
+        
+        // -------------------------------------------------------
+        //  Imagr.app
+        // -------------------------------------------------------
+        if ( [_settingsChanged[NBCSettingsImagrVersion] boolValue] ) {
             resourcesCount++;
         }
-        if ( // Check if ImagrSettings need to be updated
+        
+        // -------------------------------------------------------
+        //  com.grahamgilbert.Imagr.plist
+        // -------------------------------------------------------
+        if (
             [_settingsChanged[NBCSettingsImagrServerURLKey] boolValue] ||
             [_settingsChanged[NBCSettingsImagrReportingURL] boolValue] ||
             [_settingsChanged[NBCSettingsImagrSyslogServerURI] boolValue]
             ) {
             resourcesCount++;
         }
-        if ( // Check if rc.imaging need to be updated
-            [_settingsChanged[NBCSettingsLaunchConsoleAppKey] boolValue]
-            ) {
-            resourcesCount++;
-        }
         
         [self setResourcesCount:resourcesCount];
     }
+    DDLogDebug(@"[DEBUG] Count of resources required: %d", _resourcesCount);
     
-    // -------------------------------------------------------
-    //  Update _resourcesCount with all sourceItems
-    // -------------------------------------------------------
+    // ----------------------------------------------------------------
+    //  Update _resourcesCount with all package extration source items
+    // ----------------------------------------------------------------
+    DDLogDebug(@"[DEBUG] Adding package extraction source items to resource count required...");
     NSDictionary *sourceItemsDict = _resourcesSettings[NBCSettingsSourceItemsKey];
     if ( [sourceItemsDict count] != 0 ) {
         NSArray *sourcePackages = [sourceItemsDict allKeys];
@@ -90,28 +95,56 @@ DDLogLevel ddLogLevel;
             }
         }
     }
+    DDLogDebug(@"[DEBUG] Count of resources required: %d", _resourcesCount);
     
+    // ----------------------------------------------------------
+    //  Update _resourcesCount with all certificate source items
+    // ----------------------------------------------------------
+    DDLogDebug(@"[DEBUG] Adding certificate source items to resource count required...");
     NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
     if ( [certificatesArray count] != 0 ) {
-        [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )];
+        [self setResourcesCount:( _resourcesCount + ( (int)[certificatesArray count] + 1 ) )]; // Add 1 for certificate install script
     }
+    DDLogDebug(@"[DEBUG] Count of resources required: %d", _resourcesCount);
     
-    NSArray *packagessArray = _resourcesSettings[NBCSettingsPackagesKey];
-    if ( [packagessArray count] != 0 ) {
-        [self setResourcesCount:( _resourcesCount + (int)[packagessArray count] )];
+    // --------------------------------------------------------------
+    //  Update _resourcesCount with all package install source items
+    // --------------------------------------------------------------
+    DDLogDebug(@"[DEBUG] Adding package install source items to resource count required...");
+    NSArray *packagesArray = _resourcesSettings[NBCSettingsPackagesKey];
+    if ( [packagesArray count] != 0 ) {
+        [self setResourcesCount:( _resourcesCount + (int)[packagesArray count] )];
     }
+    DDLogDebug(@"[DEBUG] Count of resources required: %d", _resourcesCount);
     
-    if ( _isNBI && _userSettings) {
-        if ( ! [self preparePackages:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            return;
+    // ---------------------------
+    //  Start preparing resources
+    // ---------------------------
+    if ( _isNBI && [_userSettings count] != 0 ) {
+        
+        // ---------------------------
+        //  Packages
+        // ---------------------------
+        if ( [packagesArray count] != 0 ) {
+            if ( ! [self preparePackages:workflowItem] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                return;
+            }
         }
         
-        if ( ! [self prepareCertificates:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            return;
+        // ---------------------------
+        //  Certificates
+        // ---------------------------
+        if ( [certificatesArray count] != 0 ) {
+            if ( ! [self prepareCertificates:workflowItem] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                return;
+            }
         }
         
+        // ---------------------------
+        //  Imagr.app
+        // ---------------------------
         if ( [_settingsChanged[NBCSettingsImagrVersion] boolValue] ) {
             if ( ! [self getImagrApplication:workflowItem] ) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
@@ -119,6 +152,9 @@ DDLogLevel ddLogLevel;
             }
         }
         
+        // ---------------------------
+        //  com.grahamgilbert.Imagr.plist
+        // ---------------------------
         if (
             [_settingsChanged[NBCSettingsImagrServerURLKey] boolValue] ||
             [_settingsChanged[NBCSettingsImagrReportingURL] boolValue] ||
@@ -130,6 +166,9 @@ DDLogLevel ddLogLevel;
             }
         }
         
+        // ---------------------------
+        //  rc.imaging
+        // ---------------------------
         if (
             [_settingsChanged[NBCSettingsLaunchConsoleAppKey] boolValue]
             ) {
@@ -141,38 +180,63 @@ DDLogLevel ddLogLevel;
         
         [self checkCompletedResources];
     } else if ( _userSettings ) {
+        
+        DDLogDebug(@"[DEBUG] Adding background source items to resource count required...");
         if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
             [self setResourcesCount:( _resourcesCount + 1 )];
             if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
                 [self setResourcesCount:( _resourcesCount + 1 )];
             }
         }
+        DDLogDebug(@"[DEBUG] Count of resources required: %d", _resourcesCount);
         
-        if ( ! [self preparePackages:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            return;
+        // ---------------------------
+        //  Packages
+        // ---------------------------
+        if ( [packagesArray count] != 0 ) {
+            if ( ! [self preparePackages:workflowItem] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                return;
+            }
         }
         
-        if ( ! [self prepareCertificates:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-            return;
+        // ---------------------------
+        //  Certificates
+        // ---------------------------
+        if ( [certificatesArray count] != 0 ) {
+            if ( ! [self prepareCertificates:workflowItem] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                return;
+            }
         }
         
+        // ---------------------------
+        //  Imagr.app
+        // ---------------------------
         if ( ! [self getImagrApplication:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
         }
         
+        // ---------------------------
+        //  com.grahamgilbert.Imagr.plist
+        // ---------------------------
         if ( ! [self createImagrSettingsPlist:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
         }
         
+        // ---------------------------
+        //  rc.imaging
+        // ---------------------------
         if ( ! [self createImagrRCImaging:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
         }
         
+        // ---------------------------
+        //  DesktopViewer
+        // ---------------------------
         if ( ! [self prepareDesktopViewer:workflowItem] ) {
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             return;
@@ -1226,34 +1290,54 @@ DDLogLevel ddLogLevel;
     NSError *error;
     NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
     NSString *imagrRCImagingTargetPath;
+    NSURL *rcImagingURL;
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     NSString *imagrRCImagingContent = [NBCWorkflowNBIController generateImagrRCImagingForNBICreator:[workflowItem userSettings] osMinorVersion:sourceVersionMinor];
     if ( [imagrRCImagingContent length] != 0 ) {
-        if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-            imagrRCImagingTargetPath = NBCRCImagingNBICreatorTargetURL;
-        } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-            imagrRCImagingTargetPath = NBCRCImagingTargetURL;
-        } else {
-            if ( [_target rcImagingURL] != nil ) {
-                imagrRCImagingTargetPath = [[_target rcImagingURL] path];
+        if ( _isNBI && [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+            
+            // Write directly to the volume
+            rcImagingURL = [[_target nbiNetInstallVolumeURL] URLByAppendingPathComponent:NBCRCImagingTargetURL];
+            DDLogDebug(@"[DEBUG] Writing rc.imaging to path: %@", [rcImagingURL path]);
+            if ( [imagrRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:&error] ) {
+                [self checkCompletedResources];
             } else {
-                DDLogError(@"Found no rc.imaging URL from target settings!");
+                DDLogError(@"[ERROR] Could not write rc.imaging to url: %@", [rcImagingURL path]);
+                DDLogError(@"[ERROR] %@", error);
                 return NO;
+            }
+        } else {
+            if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
+                imagrRCImagingTargetPath = NBCRCImagingNBICreatorTargetURL;
+            } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+                imagrRCImagingTargetPath = NBCRCImagingTargetURL;
+            } else {
+                if ( [_target rcImagingURL] != nil ) {
+                    imagrRCImagingTargetPath = [[_target rcImagingURL] path];
+                } else {
+                    DDLogError(@"Found no rc.imaging URL from target settings!");
+                    return NO;
+                }
+                
+                if ( [[_target rcImagingContent] length] != 0 ) {
+                    imagrRCImagingContent = [_target rcImagingContent];
+                } else {
+                    DDLogError(@"Found no rc.imaging content form target settings!");
+                    return NO;
+                }
             }
             
-            if ( [[_target rcImagingContent] length] != 0 ) {
-                imagrRCImagingContent = [_target rcImagingContent];
+            if ( temporaryFolderURL ) {
+                
+                // ---------------------------------------------------
+                //  Create Imagr rc.imaging and add to copy resources
+                // ---------------------------------------------------
+                rcImagingURL = [temporaryFolderURL URLByAppendingPathComponent:@"rc.imaging"];
             } else {
-                DDLogError(@"Found no rc.imaging content form target settings!");
-                return NO;
+                DDLogError(@"[ERROR] Could not get temporaryFolderURL from workflow item!");
+                retval = NO;
             }
-        }
-        
-        if ( temporaryFolderURL ) {
-            // ---------------------------------------------------
-            //  Create Imagr rc.imaging and add to copy resources
-            // ---------------------------------------------------
-            NSURL *rcImagingURL = [temporaryFolderURL URLByAppendingPathComponent:@"rc.imaging"];
+            
             if ( [imagrRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:&error] ) {
                 NSDictionary *copyAttributes  = @{
                                                   NSFileOwnerAccountName : @"root",
@@ -1267,6 +1351,8 @@ DDLogLevel ddLogLevel;
                                                NBCWorkflowCopyTargetURL : imagrRCImagingTargetPath,
                                                NBCWorkflowCopyAttributes : copyAttributes
                                                };
+                
+                
                 if ( [_target nbiNetInstallURL] != nil ) {
                     [_resourcesNetInstallCopy addObject:copySettings];
                 } else if ( [_target baseSystemURL] ) {
@@ -1279,9 +1365,6 @@ DDLogLevel ddLogLevel;
                 DDLogError(@"%@", error);
                 retval = NO;
             }
-        } else {
-            DDLogError(@"[ERROR] Could not get temporaryFolderURL from workflow item!");
-            retval = NO;
         }
     } else {
         DDLogError(@"[ERROR] rcImagingContent is empty!");

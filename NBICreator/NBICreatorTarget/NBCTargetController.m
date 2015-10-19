@@ -274,77 +274,89 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)attachNetInstallDiskImageWithShadowFile:(NSURL *)netInstallDiskImageURL target:(NBCTarget *)target error:(NSError **)error {
-    DDLogInfo(@"Attaching NetInstall image with shadow file...");
-    BOOL verified = YES;
+    DDLogInfo(@"Attaching NetInstall disk image with shadow file...");
     NSURL *nbiNetInstallVolumeURL;
     NSDictionary *nbiNetInstallDiskImageDict;
     
     NSString *shadowFilePath = [NSString stringWithFormat:@"/tmp/dmg.%@.shadow", [NSString nbc_randomString]];
+    DDLogDebug(@"[DEBUG] NetInstall disk image shadow path: %@", shadowFilePath);
     NSArray *hdiutilOptions = @[
                                 @"-mountRandom", @"/Volumes",
                                 @"-shadow", shadowFilePath,
-                                @"-owners", @"on", // Possibly comment out?
+                                @"-owners", @"on",
                                 @"-nobrowse",
                                 @"-noverify",
                                 @"-plist",
                                 ];
-    
+
     if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&nbiNetInstallDiskImageDict
                                                               dmgPath:netInstallDiskImageURL
                                                               options:hdiutilOptions
                                                                 error:error] ) {
-        if ( nbiNetInstallDiskImageDict ) {
+        if ( [nbiNetInstallDiskImageDict count] != 0 ) {
             [target setNbiNetInstallDiskImageDict:nbiNetInstallDiskImageDict];
+            
             nbiNetInstallVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:nbiNetInstallDiskImageDict];
-            if ( nbiNetInstallVolumeURL ) {
-                NBCDisk *nbiNetInstallDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:netInstallDiskImageURL imageType:@"NetInstall"];
+            if ( [nbiNetInstallVolumeURL checkResourceIsReachableAndReturnError:error] ) {
                 
+                NBCDisk *nbiNetInstallDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:netInstallDiskImageURL imageType:@"NetInstall"];
                 if ( nbiNetInstallDisk ) {
+                    DDLogDebug(@"[DEBUG] NetInstall disk image volume mounted!");
                     [target setNbiNetInstallDisk:nbiNetInstallDisk];
+                    DDLogDebug(@"[DEBUG] NetInstall disk image volume bsd identifier: %@", [nbiNetInstallDisk BSDName]);
                     [target setNbiNetInstallVolumeBSDIdentifier:[nbiNetInstallDisk BSDName]];
                 } else {
-                    DDLogError(@"[ERROR] Could not get nbiNetInstallDisk!");
-                    verified = NO;
+                    DDLogError(@"[ERROR] Found no disk object matching disk image volume url");
+                    return NO;
                 }
             } else {
-                DDLogError(@"[ERROR] NetInstall volume url is empty!");
-                verified = NO;
+                DDLogError(@"[ERROR] NetInstall disk image volume url doesn't exist");
+                DDLogError(@"[ERROR] %@", [*error localizedDescription] );
+                return NO;
             }
         } else {
-            DDLogError(@"[ERROR] No info dict returned from hdiutil");
-            verified = NO;
+            DDLogError(@"[ERROR] Information dictionary returned from hdiutil was empty");
+            return NO;
         }
     } else {
-        DDLogError(@"[ERROR] Attach NBI NetInstall failed");
-        verified = NO;
+        DDLogError(@"[ERROR] Attaching NetInstall disk image failed");
+        return NO;
     }
     
-    if ( verified && nbiNetInstallVolumeURL != nil ) {
+    if ( [nbiNetInstallVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+        DDLogDebug(@"[DEBUG] NetInstall disk image volume path: %@", [nbiNetInstallVolumeURL path]);
         [target setNbiNetInstallVolumeURL:nbiNetInstallVolumeURL];
         [target setNbiNetInstallShadowPath:shadowFilePath];
         
+        DDLogInfo(@"Verifying that NetInstall disk image volume contains BaseSystem.dmg...");
         NSURL *baseSystemURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:@"BaseSystem.dmg"];
         if ( [baseSystemURL checkResourceIsReachableAndReturnError:error] ) {
+            DDLogDebug(@"[DEBUG] NetInstall BaseSystem disk image path: %@", [baseSystemURL path]);
             [target setBaseSystemURL:baseSystemURL];
+            return YES;
         } else {
-            DDLogError(@"[ERROR] Found No BaseSystem DMG!");
-            verified = NO;
+            DDLogError(@"[ERROR] %@: No such file or directory!", [baseSystemURL path]);
+            return NO;
         }
+    } else {
+        DDLogError(@"[ERROR] %@: No such file or directory!", [nbiNetInstallVolumeURL path]);
+        return NO;
     }
-    
-    return verified;
 } // attachNetInstallDiskImageWithShadowFile:target:error
 
 - (BOOL)convertNetInstallFromShadow:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     DDLogInfo(@"Converting NetInstall.dmg and shadow file...");
     BOOL verified = YES;
     NSFileManager *fm = [NSFileManager defaultManager];
-    
     NBCTarget *target = [workflowItem target];
     
     NSURL *netInstallURL = [target nbiNetInstallURL];
+    DDLogDebug(@"[DEBUG] NetInstall disk image path: %@", [netInstallURL path]);
     NSString *netInstallShadowPath = [target nbiNetInstallShadowPath];
+    DDLogDebug(@"[DEBUG] NetInstall disk image shadow path: %@", netInstallShadowPath);
     NSURL *nbiNetInstallVolumeURL = [target nbiNetInstallVolumeURL];
+    DDLogDebug(@"[DEBUG] NetInstall disk image volume path: %@", [nbiNetInstallVolumeURL path]);
+    DDLogDebug(@"[DEBUG] Detaching NetInstall disk image...");
     if ( [NBCDiskImageController detachDiskImageAtPath:[nbiNetInstallVolumeURL path]] ) {
         NSString *diskImageExtension;
         NSString *diskImageFormat;
@@ -355,11 +367,14 @@ DDLogLevel ddLogLevel;
             diskImageExtension = @"dmg";
             diskImageFormat = NBCDiskImageFormatReadOnly;
         }
+        
         NSURL *nbiNetInstallConvertedURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@.%@", [netInstallURL URLByDeletingPathExtension], diskImageFormat, diskImageExtension]];
+        DDLogDebug(@"[DEBUG] Converting NetInstall disk image to %@...", diskImageFormat);
         if ( [NBCDiskImageController convertDiskImageAtPath:[netInstallURL path] shadowImagePath:netInstallShadowPath format:diskImageFormat destinationPath:[nbiNetInstallConvertedURL path]] ) {
+            
+            DDLogDebug(@"[DEBUG] Removing NetInstall disk image...");
             if ( [fm removeItemAtURL:netInstallURL error:error] ) {
                 netInstallURL = [[netInstallURL URLByDeletingPathExtension] URLByAppendingPathExtension:diskImageExtension];
-                
                 if ( [netInstallURL checkResourceIsReachableAndReturnError:nil] ) {
                     if ( ! [fm removeItemAtURL:netInstallURL error:error] ) {
                         DDLogError(@"[ERROR] Could not remove existing image in NBI");
@@ -369,30 +384,31 @@ DDLogLevel ddLogLevel;
                 }
                 
                 if ( verified ) {
+                    DDLogDebug(@"[DEBUG] Renaming converted NetInstall disk image to %@...", [netInstallURL lastPathComponent]);
                     if ( ! [fm moveItemAtURL:nbiNetInstallConvertedURL toURL:netInstallURL error:error] ) {
-                        DDLogError(@"[ERROR] Could not move image to NBI");
-                        DDLogError(@"%@", *error);
+                        DDLogError(@"[ERROR] Could not rename NetInstall disk image to %@...", [netInstallURL lastPathComponent]);
+                        DDLogError(@"[ERROR] %@", *error);
                         verified = NO;
                     }
                 }
             } else {
-                DDLogError(@"[ERROR] Delete temporary NetInstall Failed!");
-                DDLogError(@"%@", *error);
+                DDLogError(@"[ERROR] Removing NetInstall disk image failed!");
+                DDLogError(@"[ERROR] %@", *error);
                 verified = NO;
             }
         } else {
-            DDLogError(@"[ERROR] Converting NetInstall Failed!");
+            DDLogError(@"[ERROR] Converting NetInstall disk image failed!");
             verified = NO;
         }
     } else {
-        DDLogError(@"[ERROR] Detaching NetInstall Failed!");
+        DDLogError(@"[ERROR] Detaching NetInstall disk image failed!");
         verified = NO;
     }
     
+    DDLogDebug(@"[DEBUG] Removing NetInstall disk image shadow file: %@", netInstallShadowPath);
     if ( ! [fm removeItemAtPath:netInstallShadowPath error:error] ) {
-        DDLogError(@"[ERROR] Deleteing NetInstall shadow file failed!");
-        DDLogError(@"%@", *error);
-        verified = NO;
+        DDLogError(@"[ERROR] Removing NetInstall disk image shadow file failed!");
+        DDLogError(@"[ERROR] %@", *error);
     }
     
     return verified;
@@ -466,8 +482,12 @@ DDLogLevel ddLogLevel;
     BOOL verified = YES;
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *baseSystemURL = [[workflowItem target] baseSystemURL];
+    DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemURL path]);
     NSString *baseSystemShadowPath = [[workflowItem target] baseSystemShadowPath];
+    DDLogDebug(@"[DEBUG] BaseSystem disk image shadow path: %@", baseSystemShadowPath);
     NSURL *nbiBaseSystemVolumeURL = [[workflowItem target] baseSystemVolumeURL];
+    DDLogDebug(@"[DEBUG] BaseSystem disk image volume path: %@", [nbiBaseSystemVolumeURL path]);
+    DDLogDebug(@"[DEBUG] Detaching BaseSystem disk image...");
     if ( [NBCDiskImageController detachDiskImageAtPath:[nbiBaseSystemVolumeURL path]] ) {
         NSString *diskImageExtension;
         NSString *diskImageFormat;
@@ -479,45 +499,48 @@ DDLogLevel ddLogLevel;
             diskImageExtension = @"dmg";
         }
         NSURL *nbiBaseSystemConvertedURL = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@.%@", [baseSystemURL URLByDeletingPathExtension], diskImageFormat, diskImageExtension]];
+        DDLogDebug(@"[DEBUG] Converting BaseSystem disk image to %@...", diskImageFormat);
         if ( [NBCDiskImageController convertDiskImageAtPath:[baseSystemURL path] shadowImagePath:baseSystemShadowPath format:diskImageFormat destinationPath:[nbiBaseSystemConvertedURL path]] ) {
+            
+            DDLogDebug(@"[DEBUG] Removing BaseSystem disk image...");
             if ( [fm removeItemAtURL:baseSystemURL error:error] ) {
                 baseSystemURL = [[baseSystemURL URLByDeletingPathExtension] URLByAppendingPathExtension:diskImageExtension];
-                
                 if ( [baseSystemURL checkResourceIsReachableAndReturnError:nil] ) {
                     if ( ! [fm removeItemAtURL:baseSystemURL error:error] ) {
                         DDLogError(@"[ERROR] Could not remove existing image in NBI");
-                        DDLogError(@"%@", *error);
+                        DDLogError(@"[ERROR] %@", *error);
                         verified = NO;
                     }
                 }
                 
                 if ( verified ) {
+                    DDLogDebug(@"[DEBUG] Renaming converted BaseSystem disk image to %@...", [baseSystemURL lastPathComponent]);
                     if ( [fm moveItemAtURL:nbiBaseSystemConvertedURL toURL:baseSystemURL error:error] ) {
                         [[workflowItem target] setBaseSystemURL:baseSystemURL];
                     } else {
                         DDLogError(@"[ERROR] Could not move image to NBI");
-                        DDLogError(@"%@", *error);
+                        DDLogError(@"[ERROR] %@", *error);
                         verified = NO;
                     }
                 }
             } else {
-                DDLogError(@"[ERROR] Delete temporary BaseSystem Failed!");
-                DDLogError(@"%@", *error);
+                DDLogError(@"[ERROR] Removing BaseSystem disk image failed!");
+                DDLogError(@"[ERROR] %@", *error);
                 verified = NO;
             }
         } else {
-            DDLogError(@"[ERROR] Converting BaseSystem Failed!");
+            DDLogError(@"[ERROR] Converting BaseSystem disk image failed!");
             verified = NO;
         }
     } else {
-        DDLogError(@"[ERROR] Detaching BaseSystem Failed!");
+        DDLogError(@"[ERROR] Detaching BaseSystem disk image failed!");
         verified = NO;
     }
     
+    DDLogDebug(@"[DEBUG] Removing BaseSystem disk image shadow file: %@", baseSystemShadowPath);
     if ( ! [fm removeItemAtPath:baseSystemShadowPath error:error] ) {
-        DDLogError(@"[ERROR] Deleteing BaseSystem shadow file failed!");
-        DDLogError(@"%@", *error);
-        verified = NO;
+        DDLogError(@"[ERROR] Removing BaseSystem disk image shadow file failed!");
+        DDLogError(@"[ERROR] %@", *error);
     }
     
     return verified;

@@ -84,11 +84,8 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder {
-    
-    DDLogDebug(@"resourceFolder=%@", resourceFolder);
     NSURL *cachedDownloadsDictURL;
     NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
-    DDLogDebug(@"currentResourceFolder=%@", currentResourceFolder);
     if ( currentResourceFolder ) {
         return [currentResourceFolder URLByAppendingPathComponent:NBCFileNameDownloadsDict];
     }
@@ -574,8 +571,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)buildProjectAtURL:(NSURL *)projectURL buildTarget:(NSString *)buildTarget {
-    
-    
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(taskQueue, ^{
         NSURL *productURL;

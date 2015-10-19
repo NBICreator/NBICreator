@@ -36,9 +36,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)installPackagesToVolume:(NSURL *)volumeURL packages:(NSArray *)packages {
-    
-    DDLogDebug(@"volumeURL=%@", volumeURL);
-    DDLogDebug(@"packages=%@", packages);
     if ( [packages count] != 0 ) {
         [self setVolumeURL:volumeURL];
         [self setPackagesQueue:[[NSMutableArray alloc] initWithArray:packages]];

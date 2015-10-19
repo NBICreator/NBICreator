@@ -568,7 +568,6 @@ DDLogLevel ddLogLevel;
         //  Certificate Name
         // --------------------------------------------
         certificateName = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate));
-        DDLogDebug(@"certificateName=%@", certificateName);
         if ( [certificateName length] != 0 ) {
             newCertificateDict[NBCDictionaryKeyCertificateName] = certificateName ?: @"";
         } else {

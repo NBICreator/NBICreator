@@ -75,6 +75,7 @@ enum {
 // -------------------------------------------------------------
 @property NSDictionary *userSettings;
 @property NSDictionary *userSettingsChanged;
+@property BOOL userSettingsChangedRequiresBaseSystem;
 @property NSDictionary *resourcesSettings;
 
 // -------------------------------------------------------------

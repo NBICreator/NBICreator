@@ -104,7 +104,6 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     DDLogInfo(@"Creating NBI folder...");
     NSURL *temporaryNBIx86FolderURL = [_temporaryNBIURL URLByAppendingPathComponent:@"i386/x86_64"];
-    DDLogDebug(@"[DEBUG] temporaryNBIx86FolderURL=%@", temporaryNBIx86FolderURL);
     if ( temporaryNBIx86FolderURL ) {
         if ( ! [fm createDirectoryAtURL:temporaryNBIx86FolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
             DDLogError(@"[ERROR] Could not create NBI folder!");

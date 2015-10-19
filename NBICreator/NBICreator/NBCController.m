@@ -604,8 +604,7 @@ enum {
 } // hideHelperToolInstallBox
 
 - (void)checkHelperVersion {
-    
-    DDLogDebug(@"Checking currently installed helper tool version...");
+    DDLogDebug(@"[DEBUG] Checking installed helper tool version...");
     
     // --------------------------------------------------------------
     //  Get version of helper within our bundle
@@ -614,7 +613,6 @@ enum {
     NSURL*          currentHelperToolURL            = [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:currentHelperToolBundlePath];
     NSDictionary*   currentHelperToolInfoPlist      = (NSDictionary*)CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL ));
     NSString*       currentHelperToolBundleVersion  = [currentHelperToolInfoPlist objectForKey:@"CFBundleVersion"];
-    DDLogDebug(@"currentHelperToolBundleVersion=%@", currentHelperToolBundleVersion);
     
     // --------------------------------------------------------------
     //  Connect to helper and get installed helper's version
@@ -635,11 +633,12 @@ enum {
         }];
         
     }] getVersionWithReply:^(NSString *version) {
-        DDLogDebug(@"Connection to the helper tool successful!");
-        DDLogDebug(@"Currently installed helper tool has version: %@", version);
+        DDLogDebug(@"[DEBUG] Connection to the helper tool successful!");
+        DDLogDebug(@"[DEBUG] Currently installed helper tool version: %@", version);
+        
         if ( ! [currentHelperToolBundleVersion isEqualToString:version] ) {
-            
             DDLogInfo(@"A new version of the helper tool is availbale");
+            
             // --------------------------------------------------------------
             //  If versions mismatch, require update of helper tool
             // --------------------------------------------------------------
@@ -649,7 +648,7 @@ enum {
                 [self->_buttonBuild setEnabled:NO];
             }];
         } else {
-            DDLogDebug(@"Currently installed helper tool is up to date.");
+            DDLogDebug(@"[DEBUG] Installed helper tool is up to date.");
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
                 [self setHelperAvailable:YES];
             }];

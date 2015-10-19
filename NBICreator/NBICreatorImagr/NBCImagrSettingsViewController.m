@@ -555,7 +555,6 @@ DDLogLevel ddLogLevel;
                                                                                                                              (__bridge id)kSecOIDX509V1SerialNumber,
                                                                                                                              (__bridge id)kSecOIDTitle
                                                                                                                              ], error));
-    DDLogDebug(@"certificateValues=%@", certificateValues);
     if ( [certificateValues count] != 0 ) {
         // --------------------------------------------
         //  Certificate IsSelfSigned
@@ -572,7 +571,6 @@ DDLogLevel ddLogLevel;
         //  Certificate Name
         // --------------------------------------------
         certificateName = (__bridge NSString *)(SecCertificateCopySubjectSummary(certificate));
-        DDLogDebug(@"certificateName=%@", certificateName);
         if ( [certificateName length] != 0 ) {
             newCertificateDict[NBCDictionaryKeyCertificateName] = certificateName ?: @"";
         } else {
@@ -978,17 +976,27 @@ DDLogLevel ddLogLevel;
         [self setTarget:target];
     }
     
-    // If current source is NBI, remove current template.
-    if ( _isNBI ) {
-        NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
-        [_templates deleteTemplateAtURL:selectedTemplate];
-    }
-    
     if ( [[source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+        
+        // If current source is NBI, remove current template.
+        if ( _isNBI ) {
+            NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
+            if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
+                [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:NO];
+            }
+        }
+        
         [self setIsNBI:YES];
         NSURL *nbiURL = [source sourceURL];
         [self createSettingsFromNBI:nbiURL];
     } else {
+        if ( _isNBI ) {
+            NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
+            if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
+                [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:YES];
+            }
+        }
+        
         [self setNbiSourceSettings:nil];
         [self setIsNBI:NO];
         [self updateUIForSourceType:[source sourceType] settings:nil];
@@ -1016,7 +1024,9 @@ DDLogLevel ddLogLevel;
     
     if ( _isNBI ) {
         NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
-        [_templates deleteTemplateAtURL:selectedTemplate];
+        if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
+            [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:YES];
+        }
     }
     
     [self setIsNBI:NO];
@@ -1483,6 +1493,7 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromUI
 
 - (void)createSettingsFromNBI:(NSURL *)nbiURL {
+    DDLogDebug(@"[DEBUG] Creating template from NBI...");
     NSError *err;
     if ( ! [nbiURL checkResourceIsReachableAndReturnError:&err] ) {
         NSLog(@"Could not find NBI!");
@@ -1759,7 +1770,7 @@ DDLogLevel ddLogLevel;
                 rcImaging = [NSString stringWithContentsOfURL:rcImagingURL encoding:NSUTF8StringEncoding error:&err];
             }
         }
-
+        
         if ( [rcImaging containsString:@"/Applications/Utilities/Console.app/Contents/MacOS/Console"] ) {
             settingsDict[NBCSettingsLaunchConsoleAppKey] = @YES;
         } else {
@@ -1938,21 +1949,21 @@ DDLogLevel ddLogLevel;
             }];
             
         }] readSettingsFromNBI:nbiBaseSystemVolumeURL settingsDict:[settingsDict copy] withReply:^(NSError *error, BOOL success, NSDictionary *newSettingsDict) {
+#pragma unused(newSettingsDict)
             [[NSOperationQueue mainQueue] addOperationWithBlock:^{
-                
                 if ( success ) {
                     [self setNbiSourceSettings:newSettingsDict];
                     [self updateUISettingsFromDict:newSettingsDict];
                     [self saveUISettingsWithName:nbiName atUrl:[NSURL fileURLWithPath:[NSString stringWithFormat:@"%@%@.nbictemplate", NSTemporaryDirectory(), [[NSUUID UUID] UUIDString]]]]; // Temporary, to test
-                    [self->_templates updateTemplateListForPopUpButton:self->_popUpButtonTemplates title:nbiName];
                     [self verifyBuildButton];
+                    [self->_templates updateTemplateListForPopUpButton:self->_popUpButtonTemplates title:nbiName];
+                    [NBCDiskImageController detachDiskImageAtPath:[[self->_target baseSystemVolumeURL] path]];
                 } else {
                     DDLogError(@"[ERROR] %@", error);
+                    [NBCDiskImageController detachDiskImageAtPath:[[self->_target baseSystemVolumeURL] path]];
                 }
             }];
         }];
-        
-        [NBCDiskImageController detachDiskImageAtPath:[[_target baseSystemVolumeURL] path]];
     }
 } // returnSettingsFromUI
 
@@ -2016,16 +2027,26 @@ DDLogLevel ddLogLevel;
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
-    
     BOOL retval = YES;
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameImagrDefaults withExtension:@"plist"];
-    if ( defaultSettingsURL ) {
+    if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
             NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
-            if ( currentSettings && defaultSettings ) {
+            if ( [currentSettings count] != 0 && [defaultSettings count] != 0 ) {
                 if ( [currentSettings isEqualToDictionary:defaultSettings] ) {
                     return NO;
+                } else {
+                    /*
+                    NSArray *keys = [currentSettings allKeys];
+                    for (NSString *key in keys) {
+                        if ( ! [currentSettings[key] isEqualTo:defaultSettings[key]]) {
+                            DDLogDebug(@"[DEBUG] Key \"%@\" has changed", key);
+                            DDLogDebug(@"[DEBUG] Value from current UI settings: %@", currentSettings[key]);
+                            DDLogDebug(@"[DEBUG] Value from default settings: %@", defaultSettings[key]);
+                        }
+                    }
+                     */
                 }
             }
         }
@@ -2036,7 +2057,7 @@ DDLogLevel ddLogLevel;
     }
     
     NSURL *savedSettingsURL = _templatesDict[_selectedTemplate];
-    if ( savedSettingsURL ) {
+    if ( [savedSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         NSDictionary *savedSettings = [self returnSettingsFromURL:savedSettingsURL];
         if ( currentSettings && savedSettings ) {
@@ -2880,6 +2901,7 @@ DDLogLevel ddLogLevel;
         [_popUpButtonImagrGitBranch removeAllItems];
         [_popUpButtonImagrGitBranch addItemsWithTitles:_imagrBranches];
     }
+
     if ( [_imagrBranches containsObject:_imagrGitBranch] ) {
         [_popUpButtonImagrGitBranch selectItemWithTitle:_imagrGitBranch];
     } else {
@@ -2957,6 +2979,10 @@ DDLogLevel ddLogLevel;
         [alert showAlertSettingsUnsavedBuild:@"You have unsaved settings, do you want to save current template and continue?"
                                    alertInfo:alertInfo];
     } else if ( _isNBI && ! [self haveSettingsChanged] ) {
+        
+        // --------------------------------------------------------------------------------
+        //  If source is an NBI and no settings have changed, theres no reason to continue
+        // --------------------------------------------------------------------------------
         [NBCAlerts showAlertSettingsUnchangedNBI];
         return;
     } else {
@@ -2980,12 +3006,12 @@ DDLogLevel ddLogLevel;
     // ----------------------------------------------------------------
     NSDictionary *userSettings = [self returnSettingsFromUI];
     if ( userSettings ) {
-        
-        // Add userSettings dict to workflowItem
         [workflowItem setUserSettings:userSettings];
-        
-        // Instantiate settingsController and run verification
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
+        
+        // ----------------------------------------------------
+        //  Check all settings for possible errors or warnings
+        // ----------------------------------------------------
         NSDictionary *errorInfoDict = [sc verifySettings:workflowItem];
         
         if ( [errorInfoDict count] != 0 ) {
@@ -3030,14 +3056,17 @@ DDLogLevel ddLogLevel;
             [self prepareWorkflowItem:workflowItem];
         }
     } else {
-        DDLogError(@"Could not get settings from UI");
+        DDLogError(@"[ERROR] Settings dict returned empty");
     }
 } // verifySettings
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
-    NSDictionary *userSettings = [workflowItem userSettings];
     NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
+    NSDictionary *userSettings = [workflowItem userSettings];
     
+    // --------------------------------
+    //  Prepare where to get Imagr.app
+    // --------------------------------
     if ( [userSettings[NBCSettingsImagrUseGitBranch] boolValue] ) {
         NSString *selectedGitBranch = _imagrGitBranch;
         if ( ! [selectedGitBranch isEqualToString:[_popUpButtonImagrGitBranch titleOfSelectedItem]] ) {
@@ -3177,82 +3206,92 @@ DDLogLevel ddLogLevel;
         return;
     }
     
-    NSMutableArray *validatedTrustedNetBootServers = [[NSMutableArray alloc] init];
-    for ( NSString *netBootServerIP in _trustedServers ) {
-        if ( [netBootServerIP isValidIPAddress] ) {
-            [validatedTrustedNetBootServers addObject:netBootServerIP];
-        }
-    }
-    
-    if ( [validatedTrustedNetBootServers count] != 0 ) {
-        resourcesSettings[NBCSettingsTrustedNetBootServersKey] = [validatedTrustedNetBootServers copy];
-    }
-    
     // -------------------------------------------------------------
     //  Create list of items to extract from installer
     // -------------------------------------------------------------
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
-    
-    
     if ( ! [[_source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
-        // - Python is required for Imagr
+        
+        // --------------------------------------------------------------------------------
+        //  Python - Required for Imagr
+        // --------------------------------------------------------------------------------
         [NBCSourceController addPython:sourceItemsDict source:_source];
         
-        // - spctl
+        // --------------------------------------------------------------------------------
+        //  spctl -
+        // --------------------------------------------------------------------------------
         [NBCSourceController addSpctl:sourceItemsDict source:_source];
         
-        // - taskgated
+        // --------------------------------------------------------------------------------
+        // taskgated -
+        // --------------------------------------------------------------------------------
         //[NBCSourceController addTaskgated:sourceItemsDict source:_source];
         
-        // - NSURLStoraged + NSURLSessiond
+        // --------------------------------------------------------------------------------
+        // NSURLStoraged, NSURLSessiond -
+        // --------------------------------------------------------------------------------
         [NBCSourceController addNSURLStoraged:sourceItemsDict source:_source];
         
-        if ( 11 <= sourceVersionMinor ) {
-            [NBCSourceController addLibSsl:sourceItemsDict source:_source];
-        }
-        
-        // - Console
+        // -------------------------------------------
+        //  Console.app - Selected in UI (Tab: Debug)
+        // -------------------------------------------
         if ( [userSettings[NBCSettingsIncludeConsoleAppKey] boolValue] ) {
             [NBCSourceController addConsole:sourceItemsDict source:_source];
         }
         
-        // - Kernel
+        // ---------------------------------------------------------------------------
+        //  Kernel - Included if selections in UI requires regenerating kernel caches
+        // ---------------------------------------------------------------------------
         if ( [userSettings[NBCSettingsDisableWiFiKey] boolValue] || [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
             [NBCSourceController addKernel:sourceItemsDict source:_source];
         }
         
-        // - Desktop Picture
+        // ----------------------------------------------------------------
+        //  DesktopViewer, DesktopPicture - Selected in UI (Tab: Advanced)
+        // ----------------------------------------------------------------
         if ( [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
             [NBCSourceController addDesktopPicture:sourceItemsDict source:_source];
         }
         
-        // - NTP
+        // -------------------------------------
+        //  ntp - Selected in UI (Tab: Options)
+        // -------------------------------------
         if ( [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
             [NBCSourceController addNTP:sourceItemsDict source:_source];
         }
         
-        // - SystemUIServer
+        // ------------------------------------------------
+        //  SystemUIServer - Selected in UI (Tab: Options)
+        // ------------------------------------------------
         if ( [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
             [NBCSourceController addSystemUIServer:sourceItemsDict source:_source];
         }
         
-        // - systemkeychain
+        // ------------------------------------------------------------------------
+        //  systemkeychain - Included if selections in UI requires system keychain
+        // ------------------------------------------------------------------------
         if ( [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
             [NBCSourceController addSystemkeychain:sourceItemsDict source:_source];
         }
         
-        // - Ruby
+        // ------------------------------------------------
+        //  SystemUIServer - Selected in UI (Tab: Options)
+        // ------------------------------------------------
         if ( [userSettings[NBCSettingsIncludeRubyKey] boolValue] ) {
             [NBCSourceController addRuby:sourceItemsDict source:_source];
         }
         
-        // - VNC if an ARD/VNC password has been set
+        // -------------------------------------
+        //  VNC - Selected in UI (Tab: Options)
+        // -------------------------------------
         if ( [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
             [NBCSourceController addVNC:sourceItemsDict source:_source];
         }
         
-        // - ARD if both ARD login name and ARD/VNC password has been set
+        // -------------------------------------
+        //  ARD - Selected in UI (Tab: Options)
+        // -------------------------------------
         if ( [userSettings[NBCSettingsARDLoginKey] length] != 0 && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
             [NBCSourceController addARD:sourceItemsDict source:_source];
             //[sourceController addKerberos:sourceItemsDict source:_source];
@@ -3260,76 +3299,76 @@ DDLogLevel ddLogLevel;
         
         // -------------------------------------------------------------
         //  In OS X 10.11 all sources moved to Essentials.pkg
-        //  This moves all BSD-regexes to Essentials
+        //  This moves all regexes to Essentials
         // -------------------------------------------------------------
         if ( 11 <= sourceVersionMinor ) {
+            
+            // -----------------------------------------------------------------
+            //  libssl is not in 10.11 BaseSystem by default, required by Imagr
+            // -----------------------------------------------------------------
+            [NBCSourceController addLibSsl:sourceItemsDict source:_source];
+            
+            // -------------------------------------------------------------
+            //  networkd
+            // -------------------------------------------------------------
             [NBCSourceController addNetworkd:sourceItemsDict source:_source];
             
+            // -------------------------------------------------------------
+            //  Move all regexes from AdditionalEssentials to Essentials
+            // -------------------------------------------------------------
             NSString *packageAdditionalEssentialsPath = [NSString stringWithFormat:@"%@/Packages/AdditionalEssentials.pkg", [[_source installESDVolumeURL] path]];
             NSMutableDictionary *packageAdditionalEssentialsDict = sourceItemsDict[packageAdditionalEssentialsPath];
             NSMutableArray *packageAdditionalEssentialsRegexes;
             if ( [packageAdditionalEssentialsDict count] != 0 ) {
                 packageAdditionalEssentialsRegexes = packageAdditionalEssentialsDict[NBCSettingsSourceItemsRegexKey];
                 NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
-                NSMutableDictionary *packageEssentialsDict = [sourceItemsDict[packageEssentialsPath] mutableCopy];
-                NSMutableArray *packageEssentialsRegexes;
-                if ( [packageEssentialsDict count] == 0 ) {
-                    packageEssentialsDict = [[NSMutableDictionary alloc] init];
-                }
-                packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
-                if ( packageEssentialsRegexes == nil ) {
-                    packageEssentialsRegexes = [[NSMutableArray alloc] init];
-                }
+                NSMutableDictionary *packageEssentialsDict = [sourceItemsDict[packageEssentialsPath] mutableCopy] ?: [[NSMutableDictionary alloc] init];
+                NSMutableArray *packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey] ?: [[NSMutableArray alloc] init];
                 [packageEssentialsRegexes addObjectsFromArray:packageAdditionalEssentialsRegexes];
                 packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
                 sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
                 [sourceItemsDict removeObjectForKey:packageAdditionalEssentialsPath];
             }
             
+            // -----------------------------------------
+            //  Move all regexes from BSD to Essentials
+            // -----------------------------------------
             NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[_source installESDVolumeURL] path]];
             NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
             NSArray *packageBSDRegexes;
             if ( [packageBSDDict count] != 0 ) {
                 packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
                 NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
-                NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
-                NSMutableArray *packageEssentialsRegexes;
-                if ( [packageEssentialsDict count] == 0 ) {
-                    packageEssentialsDict = [[NSMutableDictionary alloc] init];
-                }
-                packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
-                if ( packageEssentialsRegexes == nil ) {
-                    packageEssentialsRegexes = [[NSMutableArray alloc] init];
-                }
+                NSMutableDictionary *packageEssentialsDict = [sourceItemsDict[packageEssentialsPath] mutableCopy] ?: [[NSMutableDictionary alloc] init];
+                NSMutableArray *packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy] ?: [[NSMutableArray alloc] init];
                 [packageEssentialsRegexes addObjectsFromArray:packageBSDRegexes];
                 packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
                 sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
                 [sourceItemsDict removeObjectForKey:packageBSDPath];
             }
             
+            // --------------------------------------------------------
+            //  Move all regexes from BaseSystemBinaries to Essentials
+            // --------------------------------------------------------
             NSString *packageBaseSystemBinariesPath = [NSString stringWithFormat:@"%@/Packages/BaseSystemBinaries.pkg", [[_source installESDVolumeURL] path]];
             NSMutableDictionary *packageBaseSystemBinariesDict = sourceItemsDict[packageBaseSystemBinariesPath];
             NSArray *packageBaseSystemBinariesRegexes;
             if ( [packageBaseSystemBinariesDict count] != 0 ) {
                 packageBaseSystemBinariesRegexes = packageBaseSystemBinariesDict[NBCSettingsSourceItemsRegexKey];
                 NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
-                NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
-                NSMutableArray *packageEssentialsRegexes;
-                if ( [packageEssentialsDict count] == 0 ) {
-                    packageEssentialsDict = [[NSMutableDictionary alloc] init];
-                }
-                packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
-                if ( packageEssentialsRegexes == nil ) {
-                    packageEssentialsRegexes = [[NSMutableArray alloc] init];
-                }
+                NSMutableDictionary *packageEssentialsDict = [sourceItemsDict[packageEssentialsPath] mutableCopy] ?: [[NSMutableDictionary alloc] init];
+                NSMutableArray *packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy] ?: [[NSMutableArray alloc] init];
                 [packageEssentialsRegexes addObjectsFromArray:packageBaseSystemBinariesRegexes];
-                packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
+                packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];
                 sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
                 [sourceItemsDict removeObjectForKey:packageBaseSystemBinariesPath];
             }
         }
         
-        resourcesSettings[NBCSettingsSourceItemsKey] = sourceItemsDict;
+        // ------------------------------------------------------------------
+        //  Replace source items dict with the new merged Essentials version
+        // ------------------------------------------------------------------
+        resourcesSettings[NBCSettingsSourceItemsKey] = [sourceItemsDict copy];
     }
     
     NSMutableArray *certificates = [[NSMutableArray alloc] init];
@@ -3337,14 +3376,14 @@ DDLogLevel ddLogLevel;
         NSData *certificate = certificateDict[NBCDictionaryKeyCertificate];
         [certificates addObject:certificate];
     }
-    resourcesSettings[NBCSettingsCertificatesKey] = certificates;
+    resourcesSettings[NBCSettingsCertificatesKey] = [certificates copy] ?: @[];
     
     NSMutableArray *packages = [[NSMutableArray alloc] init];
     for ( NSDictionary *packageDict in _packagesTableViewContents ) {
         NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
         [packages addObject:packagePath];
     }
-    resourcesSettings[NBCSettingsPackagesKey] = packages;
+    resourcesSettings[NBCSettingsPackagesKey] = [packages copy] ?: @[];
     
     NSMutableArray *ramDisks = [[NSMutableArray alloc] init];
     for ( NSDictionary *ramDiskDict in _ramDisks ) {
@@ -3352,8 +3391,19 @@ DDLogLevel ddLogLevel;
             [ramDisks addObject:ramDiskDict];
         }
     }
-    resourcesSettings[NBCSettingsRAMDisksKey] = ramDisks;
+    resourcesSettings[NBCSettingsRAMDisksKey] = [ramDisks copy] ?: @[];
     
+    NSMutableArray *validatedTrustedNetBootServers = [[NSMutableArray alloc] init];
+    for ( NSString *netBootServerIP in _trustedServers ) {
+        if ( [netBootServerIP isValidIPAddress] ) {
+            [validatedTrustedNetBootServers addObject:netBootServerIP];
+        }
+    }
+    resourcesSettings[NBCSettingsTrustedNetBootServersKey] = [validatedTrustedNetBootServers copy] ?: @[];
+    
+    // ---------------------------------------------------------------------
+    //  If source is NBI, create array of which settings have been modified
+    // ---------------------------------------------------------------------
     if ( [[_source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
         NSMutableDictionary *settingsChanged = [[NSMutableDictionary alloc] init];
         NSArray *userSettingsArray = [userSettings allKeys];
@@ -3367,7 +3417,11 @@ DDLogLevel ddLogLevel;
         [workflowItem setUserSettingsChanged:settingsChanged];
     }
     
+    // --------------------------------------------------------------
+    //  Set dict of resources to be included in NBI to workflow item
+    // --------------------------------------------------------------
     [workflowItem setResourcesSettings:[resourcesSettings copy]];
+    
     // -------------------------------------------------------------
     //  Instantiate all workflows to be used to create a Imagr NBI
     // -------------------------------------------------------------

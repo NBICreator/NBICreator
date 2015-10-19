@@ -61,7 +61,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     [newConnection setRemoteObjectInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCMessageDelegate)]];
     [newConnection setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCHelperProtocol)]];
     [newConnection setExportedObject:self];
-
+    
     
     __weak typeof(newConnection) weakConnection = newConnection;
     [newConnection setInvalidationHandler:^() {
@@ -251,7 +251,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     BOOL retval = YES;
     NSError *err;
     NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
-    NSLog(@"HERE! IS IT ON RETURN!?");
     NSURL *dsLocalUsersURL = [nbiVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
     if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
         NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
@@ -346,22 +345,20 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSString *sourceURLString = copyDict[NBCWorkflowCopySourceURL];
             NSURL *sourceURL = [NSURL fileURLWithPath:sourceURLString];
             
-            if ( ! [fileManager copyItemAtURL:sourceURL toURL:targetURL error:&error] ) {
-                if ( ! [fileManager moveItemAtURL:targetURL toURL:[targetURL URLByAppendingPathExtension:@"bak"] error:&error] ) {
-                    NSLog(@"Copy Resource Failed!");
-                    NSLog(@"Error: %@", error);
-                    
+            if ( [targetURL checkResourceIsReachableAndReturnError:nil] ) {
+                if ( ! [fileManager removeItemAtURL:targetURL error:&error] ) {
+                    NSLog(@"Removing existing item at %@ failed!", [targetURL path]);
+                    NSLog(@"[ERROR] %@", error);
                     verified = NO;
                     continue;
-                } else {
-                    if ( ! [fileManager copyItemAtURL:sourceURL toURL:targetURL error:&error] ) {
-                        NSLog(@"Copy Resource Failed!");
-                        NSLog(@"Error: %@", error);
-                        
-                        verified = NO;
-                        continue;
-                    }
                 }
+            }
+            
+            if ( ! [fileManager copyItemAtURL:sourceURL toURL:targetURL error:&error] ) {
+                NSLog(@"Copy failed!");
+                NSLog(@"[ERROR] %@", error);
+                verified = NO;
+                continue;
             }
             
             NSDictionary *attributes = copyDict[NBCWorkflowCopyAttributes];
@@ -452,11 +449,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                 
                                                 [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                             }];
-
+            
             NSMutableArray *scriptArguments = [NSMutableArray arrayWithObjects:@"-c",
                                                [NSString stringWithFormat:@"/usr/bin/find -E . -depth%@ | /usr/bin/cpio -admpu --quiet '%@'", regexString, [volumeURL path]],
                                                nil];
-
+            
             NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
             //NSPipe *stdOut = [[NSPipe alloc] init];
             //NSPipe *stdErr = [[NSPipe alloc] init];

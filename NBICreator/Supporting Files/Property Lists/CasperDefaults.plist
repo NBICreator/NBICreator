@@ -21,7 +21,7 @@
 	<key>DisplaySleepMinutes</key>
 	<integer>30</integer>
 	<key>DisplaySleep</key>
-	<false/>
+	<true/>
 	<key>DisableWiFi</key>
 	<false/>
 	<key>DisableBluetooth</key>
@@ -57,6 +57,8 @@
 	<key>Default</key>
 	<false/>
 	<key>Enabled</key>
+	<true/>
+	<key>EnableLaunchdLogging</key>
 	<true/>
 	<key>Icon</key>
 	<string>%APPLICATIONRESOURCESURL%/IconCasperImaging.icns</string>

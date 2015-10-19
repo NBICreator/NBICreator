@@ -9,26 +9,18 @@
 #import "NBCImagrWorkflowModifyNBI.h"
 #import "NBCConstants.h"
 #import "NBCLogging.h"
-
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-
 #import "NBCWorkflowItem.h"
-
 #import "NBCTarget.h"
 #import "NBCTargetController.h"
-
-
 #import "NSString+randomString.h"
-
 #import "NBCSource.h"
 #import "NBCTarget.h"
 #import "NBCTargetController.h"
 #import "NBCDisk.h"
 #import "NBCDiskImageController.h"
-
 #import "NBCMessageDelegate.h"
-
 
 DDLogLevel ddLogLevel;
 
@@ -50,12 +42,11 @@ DDLogLevel ddLogLevel;
     [self setTarget:[workflowItem target]];
     [self setModifyBaseSystemComplete:NO];
     [self setModifyNetInstallComplete:NO];
-    
     [self setIsNBI:( [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
+    DDLogDebug(@"[DEBUG] Source is NBI: %@", ( _isNBI ) ? @"YES" : @"NO" );
     [self setSettingsChanged:[workflowItem userSettingsChanged]];
     
     NSURL *temporaryNBIURL = [workflowItem temporaryNBIURL];
-    
     if ( temporaryNBIURL ) {
         DDLogInfo(@"Updating NBImageInfo.plist...");
         [_delegate updateProgressStatus:@"Updating NBImageInfo.plist..." workflow:self];
@@ -98,84 +89,120 @@ DDLogLevel ddLogLevel;
 } // modifyNBISystemImageUtility
 
 - (void)finalizeWorkflow {
-    NSError *error;
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    NSDictionary *userSettings = [_workflowItem userSettings];
-    NSURL *baseSystemDiskImageURL = [_target baseSystemURL];
-    NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
+    if ( ! _isNBI || ( _isNBI && [_workflowItem userSettingsChangedRequiresBaseSystem] ) ) {
+        [self convertBaseSystem];
+    } else {
+        [self convertNetInstall];
+    }
+}
+
+- (void)convertBaseSystem {
+    [self->_delegate updateProgressStatus:@"Converting BaseSystem.dmg and shadow file..." workflow:self];
     
-    // ------------------------------------------------------
-    //  Convert and rename BaseSystem image from shadow file
-    // ------------------------------------------------------
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_delegate updateProgressStatus:@"Converting BaseSystem.dmg and shadow file..." workflow:self];
-    });
-    
-    if ( [_targetController convertBaseSystemFromShadow:_workflowItem error:&error] ) {
-        if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-            if ( [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
-                if ( ! [self createSymlinkToSparseimageAtURL:baseSystemDiskImageURL] ) {
-                    DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
-                    [nc postNotificationName:NBCNotificationWorkflowFailed
-                                      object:self
-                                    userInfo:nil];
-                    return;
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+    dispatch_async(taskQueue, ^{
+        
+        NSError *error = nil;
+        NSURL *baseSystemDiskImageURL = [self->_target baseSystemURL];
+        NSDictionary *userSettings = [self->_workflowItem userSettings];
+        NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
+        
+        if ( [self->_targetController convertBaseSystemFromShadow:self->_workflowItem error:&error] ) {
+            if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+                if ( [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
+                    if ( ! [self createSymlinkToSparseimageAtURL:baseSystemDiskImageURL] ) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
+                            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                                object:self
+                                                                              userInfo:nil];
+                            return;
+                        });
+                    }
                 }
             }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self convertNetInstall];
+            });
         } else {
-            baseSystemDiskImageURL = [_target baseSystemURL];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                DDLogError(@"[ERROR] Converting BaseSystem from shadow failed!");
+                NSDictionary *userInfo = nil;
+                if ( error ) {
+                    DDLogError(@"[ERROR] %@", error);
+                    userInfo = @{ NBCUserInfoNSErrorKey : error };
+                }
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:userInfo];
+                return;
+            });
         }
-    } else {
-        DDLogError(@"[ERROR] Converting BaseSystem from shadow failed!");
-        NSDictionary *userInfo = nil;
-        if ( error ) {
-            DDLogError(@"[ERROR] %@", error);
-            userInfo = @{ NBCUserInfoNSErrorKey : error };
-        }
-        [nc postNotificationName:NBCNotificationWorkflowFailed
-                          object:self
-                        userInfo:userInfo];
-        return;
-    }
+    });
+}
+
+- (void)convertNetInstall {
+    __block NSError *error = nil;
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    NSDictionary *userSettings = [_workflowItem userSettings];
+    NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
+    NSURL *baseSystemDiskImageURL = [_target baseSystemURL];
     
     if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         
         // ------------------------------------------------------
         //  Convert and rename NetInstall image from shadow file
         // ------------------------------------------------------
-        if ( [_targetController convertNetInstallFromShadow:_workflowItem error:&error] ) {
-            if ( ! [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
-                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
-                                  object:self
-                                userInfo:nil];
-                return;
-            } else {
-                if ( [self createSymlinkToSparseimageAtURL:[_target nbiNetInstallURL]] ) {
-                    [baseSystemDiskImageURL setResourceValue:@YES forKey:NSURLIsHiddenKey error:NULL];
-                    [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
-                                      object:self
-                                    userInfo:nil];
-                    return;
+        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+        dispatch_async(taskQueue, ^{
+            
+            if ( [self->_targetController convertNetInstallFromShadow:self->_workflowItem error:&error] ) {
+                if ( ! [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
+                                          object:self
+                                        userInfo:nil];
+                        return;
+                    });
                 } else {
-                    DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if ( [self createSymlinkToSparseimageAtURL:[self->_target nbiNetInstallURL]] ) {
+                            
+                            if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:&error] ) {
+                                [baseSystemDiskImageURL setResourceValue:@YES forKey:NSURLIsHiddenKey error:NULL];
+                            } else {
+                                NSLog(@"err");
+                            }
+                            
+                            [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
+                                              object:self
+                                            userInfo:nil];
+                            return;
+                        } else {
+                            DDLogError(@"[ERROR] Could not create symlink for sparseimage");
+                            [nc postNotificationName:NBCNotificationWorkflowFailed
+                                              object:self
+                                            userInfo:nil];
+                            return;
+                        }
+                    });
+                }
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    DDLogError(@"[ERROR] Converting NetIstall from shadow failed!");
+                    NSDictionary *userInfo = nil;
+                    if ( error ) {
+                        DDLogError(@"[ERROR] %@", error);
+                        userInfo = @{ NBCUserInfoNSErrorKey : error };
+                    }
                     [nc postNotificationName:NBCNotificationWorkflowFailed
                                       object:self
-                                    userInfo:nil];
+                                    userInfo:userInfo];
                     return;
-                }
+                });
             }
-        } else {
-            DDLogError(@"[ERROR] Converting NetIstall from shadow failed!");
-            NSDictionary *userInfo = nil;
-            if ( error ) {
-                DDLogError(@"[ERROR] %@", error);
-                userInfo = @{ NBCUserInfoNSErrorKey : error };
-            }
-            [nc postNotificationName:NBCNotificationWorkflowFailed
-                              object:self
-                            userInfo:userInfo];
-            return;
-        }
+        });
     } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         
         // ------------------------------------------------------
@@ -313,26 +340,27 @@ DDLogLevel ddLogLevel;
     NSURL *nbiNetInstallURL = [_target nbiNetInstallURL];
     if ( [nbiNetInstallURL checkResourceIsReachableAndReturnError:&error] ) {
         
-        // ------------------------------------------------------------------
-        //  Attach NetInstall disk image using a shadow image to make it r/w
-        // ------------------------------------------------------------------
-        if ( [_targetController attachNetInstallDiskImageWithShadowFile:nbiNetInstallURL target:_target error:&error] ) {
-            [self->_delegate updateProgressBar:92];
-            
+        if ( _isNBI ) {
+            [self copyFilesToNetInstall];
+        } else {
             
             // ------------------------------------------------------------------
-            //  Remove Packages folder in NetInstall and create an empty folder
+            //  Attach NetInstall disk image using a shadow image to make it r/w
             // ------------------------------------------------------------------
-            if ( ! _isNBI ) {
+            if ( [_targetController attachNetInstallDiskImageWithShadowFile:nbiNetInstallURL target:_target error:&error] ) {
+                [self->_delegate updateProgressBar:92];
+                
+                
+                // ------------------------------------------------------------------
+                //  Remove Packages folder in NetInstall and create an empty folder
+                // ------------------------------------------------------------------
+                
                 [self removePackagesFolderInNetInstall];
             } else {
-                [self copyFilesToNetInstall];
+                DDLogError(@"[ERROR] Attaching NetInstall Failed!");
+                DDLogError(@"%@", error);
+                verified = NO;
             }
-            
-        } else {
-            DDLogError(@"[ERROR] Attaching NetInstall Failed!");
-            DDLogError(@"%@", error);
-            verified = NO;
         }
     } else {
         DDLogError(@"[ERROR] Could not get netInstallURL from target!");
@@ -449,7 +477,11 @@ DDLogLevel ddLogLevel;
     }] copyResourcesToVolume:volumeURL resourcesDict:resourcesNetInstallDict withReply:^(NSError *error, int terminationStatus) {
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
             if ( terminationStatus == 0 ) {
-                [self modifyNBISystemImageUtility];
+                if ( [self->_workflowItem userSettingsChangedRequiresBaseSystem] ) {
+                    [self modifyNBISystemImageUtility];
+                } else {
+                    [self modifyComplete];
+                }
             } else {
                 DDLogError(@"[ERROR] Error while copying resources to NetInstall volume!");
                 [self copyFailed:error];
@@ -879,7 +911,6 @@ DDLogLevel ddLogLevel;
 } // addUsersToNBI
 
 - (NSArray *)generateUserVariablesForCreateUsers:(NSDictionary *)userSettings {
-    DDLogDebug(@"Generating variables for script createUsers.bash...");
     NSMutableArray *userVariables = [[NSMutableArray alloc] init];
     NSString *createUserScriptPath = [[NSBundle mainBundle] pathForResource:@"createUser" ofType:@"bash"];
     if ( [createUserScriptPath length] != 0 ) {

@@ -512,7 +512,7 @@ DDLogLevel ddLogLevel;
     NSURL *nbiURL = [workflowItem nbiURL];
     if ( nbiURL != nil ) {
         if ( [nbiURL checkResourceIsReachableAndReturnError:nil] ) {
-            [settingsWarnings addObject:@"There already exist an item with the same name at the selected destination. If you continue, it will be overwritten."];
+            [settingsWarnings addObject:@"An item already exists with the same name at the selected destination. If you continue, it will be overwritten."];
         }
     } else {
         [settingsErrors addObject:@"\"NBI URL\" cannot be empty"];

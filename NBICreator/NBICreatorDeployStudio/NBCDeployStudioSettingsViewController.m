@@ -607,8 +607,6 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromDict
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
-    
-    DDLogDebug(@"url=%@", url);
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     if ( [mainDict count] != 0 ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
@@ -681,8 +679,6 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromUI
 
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
-    
-    DDLogDebug(@"url=%@", url);
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     NSDictionary *settingsDict;
     if ( [mainDict count] != 0 ) {
@@ -692,11 +688,7 @@ DDLogLevel ddLogLevel;
     return settingsDict;
 } // returnSettingsFromURL
 
-- (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL {
-    
-    DDLogDebug(@"name=%@", name);
-    DDLogDebug(@"settingsURL=%@", settingsURL);
-    
+- (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL {    
     NSURL *targetURL = settingsURL;
     // -------------------------------------------------------------
     //  Create an empty dict and add template type, name and version

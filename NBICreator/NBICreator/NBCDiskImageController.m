@@ -41,58 +41,49 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)attachDiskImageAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options error:(NSError **)error {
-    BOOL retval = YES;
-    NSData *newTaskOutputData;
-    NSMutableDictionary *errorInfo;
-    NSString *failureReason;
-
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+#pragma unused(error)
+    DDLogDebug(@"[DEBUG] Attaching disk image at path: %@", [dmgPath path]);
     
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSMutableArray *args = [NSMutableArray arrayWithObject:@"attach"];
     [args addObjectsFromArray:options];
     [args addObject:[dmgPath path]];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
     
-    [newTask launch];
-    [newTask waitUntilExit];
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
     
-    newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-    
-    if ( [newTask terminationStatus] == 0 ) {
+    if ( [hdiutilTask terminationStatus] == 0 ) {
+        DDLogDebug(@"[DEBUG] Attach successful!");
         
-        // Set hdiutil output to propertyList
+        // ------------------------------------------------------------------
+        //  Set hdiutil output to passed property list
+        // ------------------------------------------------------------------
         NSError *plistError = nil;
-        *propertyList = [NSPropertyListSerialization propertyListWithData:newTaskOutputData options:NSPropertyListImmutable format:nil error:&plistError];
-        if ( propertyList == nil ) {
-            failureReason = [plistError localizedDescription];
-        }
-        
-        // Add error if hdiutil output could not be serialized as a property list
+        *propertyList = [NSPropertyListSerialization propertyListWithData:stdOutData options:NSPropertyListImmutable format:nil error:&plistError];
         if ( ! *propertyList ) {
-            failureReason = NSLocalizedString(@"hdiutil output is not a property list.", nil);
-            retval = NO;
+            DDLogWarn(@"[hdiutil] %@", stdOut);
+            DDLogWarn(@"[hdiutil] %@", stdErr);
+            DDLogError(@"[ERROR] hdiutil output could not be serialized as property list");
+            *error = plistError;
+            return NO;
         }
     } else {
-        
-        // Add error if hdiutil exited with non-zero exit status
-        failureReason = NSLocalizedString(@"hdiutil exited with non-zero exit status.", nil);
-        retval = NO;
+        DDLogWarn(@"[hdiutil] %@", stdOut);
+        DDLogWarn(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
+        return NO;
     }
     
-    // If any error was encoutered, populate NSError object
-    if ( retval == NO && error ) {
-        errorInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                     NSLocalizedString(@"Error executing hdiutil command", nil), NSLocalizedDescriptionKey,
-                     failureReason, NSLocalizedFailureReasonErrorKey,
-                     failureReason, NSLocalizedRecoverySuggestionErrorKey,
-                     nil];
-        *error = [NSError errorWithDomain:@"com.github.NBICreator" code:-1 userInfo:errorInfo];
-    }
-    
-    return retval;
+    return YES;
 } // attachDiskImageAndReturnPropertyList
 
 + (BOOL)attachDiskImageVolumeByOffsetAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options offset:(NSString *)offset error:(NSError **)error {
@@ -248,64 +239,81 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)detachDiskImageAtPath:(NSString *)mountPath {
-    
+    DDLogDebug(@"[DEBUG] Detaching disk image mounted at path: %@", mountPath);
     BOOL retval = YES;
     
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSMutableArray *args = [NSMutableArray arrayWithObjects:@"detach",
                             mountPath,
                             nil];
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
-    [newTask launch];
-    [newTask waitUntilExit];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    if ( [newTask terminationStatus] != 0 ) {
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+    
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+
+    
+    if ( [hdiutilTask terminationStatus] != 0 ) {
+        DDLogWarn(@"[hdiutil] %@", stdOut);
+        DDLogWarn(@"[hdiutil] %@", stdErr);
+        DDLogWarn(@"[WARN] Detach failed, trying with force...");
         [args addObject:@"-force"];
         
         int maxTries;
-        for( maxTries = 1; maxTries < 5; maxTries = maxTries + 1 ) {
+        for ( maxTries = 1; maxTries < 5; maxTries = maxTries + 1 ) {
+            DDLogWarn(@"[WARN] Detach try %d of 3", maxTries);
             NSTask *forceTask =  [[NSTask alloc] init];
             [forceTask setLaunchPath:@"/usr/bin/hdiutil"];
             [forceTask setArguments:args];
-            
-            // Launch Task
             [forceTask launch];
             [forceTask waitUntilExit];
             
             if ( [forceTask terminationStatus] == 0 ) {
-                return retval;
+                DDLogInfo(@"Detach successful on try %d!", maxTries);
+                return retval;;
             }
         }
+        
         retval = NO;
+    } else {
+        DDLogDebug(@"[DEBUG] Detach successful!");
     }
     
     return retval;
 } // detachDiskImageAtPath
 
 + (BOOL)detachDiskImageDevice:(NSString *)devName {
-    
+    DDLogDebug(@"[DEBUG] Detaching disk image with device name: %@", devName);
     BOOL retval = YES;
     
-    // Setup Task
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSMutableArray *args = [NSMutableArray arrayWithObjects:@"detach",
                             devName,
                             nil];
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    // Launch Task
-    [newTask launch];
-    [newTask waitUntilExit];
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
     
-    [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
     
-    if ( [newTask terminationStatus] != 0 ) {
+    if ( [hdiutilTask terminationStatus] != 0 ) {
+        DDLogWarn(@"[hdiutil] %@", stdOut);
+        DDLogWarn(@"[hdiutil] %@", stdErr);
+        DDLogWarn(@"[WARN] Detach failed, trying with force...");
         [args addObject:@"-force"];
         
         int maxTries;
@@ -313,40 +321,47 @@ DDLogLevel ddLogLevel;
             NSTask *forceTask =  [[NSTask alloc] init];
             [forceTask setLaunchPath:@"/usr/bin/hdiutil"];
             [forceTask setArguments:args];
-            
-            // Launch Task
             [forceTask launch];
             [forceTask waitUntilExit];
             
             if ( [forceTask terminationStatus] == 0 ) {
+                DDLogInfo(@"Detach successful on try %d!", maxTries);
                 return retval;
             }
         }
         retval = NO;
+    } else {
+        DDLogDebug(@"[DEBUG] Detach successful!");
     }
     
     return retval;
 } // detachDiskImageDevice
 
 + (BOOL)unmountVolumeAtPath:(NSString *)mountPath {
-    
+    DDLogDebug(@"[DEBUG] Unmounting volume at path: %@", mountPath);
     BOOL retval = YES;
     
-    // Setup Task
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSMutableArray *args = [NSMutableArray arrayWithObjects:@"unmount",
                             mountPath,
                             nil];
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    // Launch Task
-    [newTask launch];
-    [newTask waitUntilExit];
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
     
-    if ( [newTask terminationStatus] != 0 ) {
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+    
+    if ( [hdiutilTask terminationStatus] != 0 ) {
+        DDLogWarn(@"[hdiutil] %@", stdOut);
+        DDLogWarn(@"[hdiutil] %@", stdErr);
+        DDLogWarn(@"[WARN] Unmount failed, trying with force...");
         [args addObject:@"-force"];
         
         int maxTries;
@@ -354,23 +369,23 @@ DDLogLevel ddLogLevel;
             NSTask *forceTask =  [[NSTask alloc] init];
             [forceTask setLaunchPath:@"/usr/bin/hdiutil"];
             [forceTask setArguments:args];
-            
-            // Launch Task
             [forceTask launch];
             [forceTask waitUntilExit];
             
             if ( [forceTask terminationStatus] == 0 ) {
+                DDLogInfo(@"Unmount successful on try %d!", maxTries);
                 return retval;
             }
         }
         retval = NO;
+    } else {
+        DDLogDebug(@"[DEBUG] Unmount successful!");
     }
     
     return retval;
 } // unmountVolumeAtPath
 
 + (BOOL)compactDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath {
-    
     DDLogInfo(@"Compacting disk image...");
     BOOL retval = NO;
     
@@ -547,7 +562,7 @@ DDLogLevel ddLogLevel;
 } // getOffsetForRecoveryPartitionOnImageDevice
 
 + (NSURL *)getMountURLFromHdiutilOutputPropertyList:(NSDictionary *)propertyList {
-    
+    DDLogDebug(@"[DEBUG] Getting mount path from hdiutil dictionary output...");
     NSURL *mountURL;
     NSArray *systemEntities = [propertyList[@"system-entities"] copy];
     for ( NSDictionary *dict in systemEntities ) {
@@ -562,6 +577,7 @@ DDLogLevel ddLogLevel;
         mountURL = [NSURL fileURLWithPath:dict[@"mount-point"]];
     }
     
+    DDLogDebug(@"[DEBUG] Disk image mount path is: %@", [mountURL path]);
     return mountURL;
 } // getMountURLFromHdiutilOutputPropertyList
 
@@ -609,31 +625,43 @@ DDLogLevel ddLogLevel;
 }
 
 + (NSDictionary *)getHdiutilInfoDict {
+    DDLogDebug(@"[DEBUG] Getting information from hdiutil about all disk images currently attached...");
+
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
+    NSArray *args = @[ @"info", @"-plist" ];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    NSDictionary *hdiutilDict;
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/bin/bash"];
-    NSMutableArray *args = [NSMutableArray arrayWithObjects:
-                            @"-c",
-                            @"/usr/bin/hdiutil info -plist",
-                            nil];
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask launch];
-    [newTask waitUntilExit];
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
     
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
     
-    NSData *newTaskStandardOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-    NSPropertyListFormat format;
-    NSError *error;
-    if ( [newTask terminationStatus] == 0 ) {
-        hdiutilDict = [NSPropertyListSerialization propertyListWithData:newTaskStandardOutputData options:NSPropertyListImmutable format:&format error:&error];
+    if ( [hdiutilTask terminationStatus] == 0 ) {
+        DDLogDebug(@"[DEBUG] hdiutil command successful!");
+        NSError *plistError = nil;
+        NSPropertyListFormat format;
+        NSDictionary *hdiutilDict = [NSPropertyListSerialization propertyListWithData:stdOutData options:NSPropertyListImmutable format:&format error:&plistError];
         if ( hdiutilDict == nil ) {
-            NSLog(@"Could not get hdiutilDict");
-            NSLog(@"Error: %@", error);
+            DDLogError(@"[hdiutil] %@", stdOut);
+            DDLogError(@"[hdiutil] %@", stdErr);
+            DDLogError(@"[ERROR] hdiutil output could not be serialized as property list");
+            DDLogError(@"[ERROR] %@", [plistError localizedDescription]);
+            return nil;
+        } else {
+            return hdiutilDict;
         }
+    } else {
+        DDLogError(@"[hdiutil] %@", stdOut);
+        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
+        return nil;
     }
-    return hdiutilDict;
 }
 
 + (NSURL *)getDiskImageURLFromMountURL:(NSURL *)mountURL {
@@ -666,7 +694,7 @@ DDLogLevel ddLogLevel;
             NSDictionary *systemEntities = image[@"system-entities"];
             for ( NSDictionary *entity in systemEntities ) {
                 NSString *mountPoint = entity[@"mount-point"];
-                if ( mountPoint ) {
+                if ( [mountPoint length] != 0 ) {
                     NSArray *rootItems = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[NSURL fileURLWithPath:mountPoint]
                                                                        includingPropertiesForKeys:@[]
                                                                                           options:NSDirectoryEnumerationSkipsHiddenFiles
@@ -714,9 +742,8 @@ DDLogLevel ddLogLevel;
 }
 
 + (NBCDisk *)checkDiskImageAlreadyMounted:(NSURL *)diskImageURL imageType:(NSString *)imageType {
-    DDLogDebug(@"Checking if %@ is mounted...", [diskImageURL path]);
-    DDLogDebug(@"diskImageURL=%@", diskImageURL);
-    DDLogDebug(@"imageType=%@", imageType);
+    DDLogDebug(@"[DEBUG] Checking if disk image %@ is mounted...", [diskImageURL path]);
+    DDLogDebug(@"[DEBUG] Disk image type is: %@", imageType);
     NBCDisk *disk;
     NSString *partitionHint;
     
@@ -731,23 +758,23 @@ DDLogLevel ddLogLevel;
     }
     
     NSMutableArray *diskImageUUIDs = [[NSMutableArray alloc] init];
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/usr/bin/hdiutil"];
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSArray *args = @[
                       @"imageinfo",
                       @"-plist",
                       [diskImageURL path]
                       ];
-    [newTask setArguments:args];
-    [newTask setStandardOutput:[NSPipe pipe]];
-    [newTask launch];
-    [newTask waitUntilExit];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
     
-    NSData *newTaskStandardOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+    NSData *newTaskStandardOutputData = [[hdiutilTask.standardOutput fileHandleForReading] readDataToEndOfFile];
     NSPropertyListFormat format;
     NSError *error;
     
-    if ( [newTask terminationStatus] == 0 ) {
+    if ( [hdiutilTask terminationStatus] == 0 ) {
         NSDictionary *hdiutilDict = [NSPropertyListSerialization propertyListWithData:newTaskStandardOutputData
                                                                               options:NSPropertyListImmutable
                                                                                format:&format
