@@ -593,6 +593,9 @@ DDLogLevel ddLogLevel;
                     newTarget = [[NBCTarget alloc] init];
                     [newTarget setNbiURL:sourceURL];
                     NBCTargetController *targetController = [[NBCTargetController alloc] init];
+                    
+                    // Unmount
+                    
                     verified = [targetController verifyNetInstallFromDiskImageURL:nbiNetInstallURL target:newTarget error:&error];
                     if ( verified ) {
                         verified = [targetController verifyBaseSystemFromTarget:newTarget source:newSource error:&error];

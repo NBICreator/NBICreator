@@ -47,6 +47,7 @@ DDLogLevel ddLogLevel;
     [self setSettingsChanged:[workflowItem userSettingsChanged]];
     
     NSURL *temporaryNBIURL = [workflowItem temporaryNBIURL];
+    DDLogDebug(@"[DEBUG] Temporary NBI path: %@", [temporaryNBIURL path]);
     if ( temporaryNBIURL ) {
         DDLogInfo(@"Updating NBImageInfo.plist...");
         [_delegate updateProgressStatus:@"Updating NBImageInfo.plist..." workflow:self];

@@ -835,7 +835,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <slider verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="O9T-W9-bOG">
-                                        <rect key="frame" x="156" y="176" width="355" height="27"/>
+                                        <rect key="frame" x="156" y="177" width="355" height="25"/>
                                         <animations/>
                                         <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="1" maxValue="120" doubleValue="20" tickMarkPosition="below" numberOfTickMarks="13" sliderType="linear" id="CsY-Xz-Jab"/>
                                         <connections>
@@ -852,7 +852,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="vwk-Qo-BCu">
-                                        <rect key="frame" x="156" y="163" width="27" height="11"/>
+                                        <rect key="frame" x="156" y="164" width="27" height="11"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1 min" id="pLv-EL-BRC">
                                             <font key="font" metaFont="miniSystem"/>
@@ -861,7 +861,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="QWc-j5-6UL">
-                                        <rect key="frame" x="232" y="163" width="35" height="11"/>
+                                        <rect key="frame" x="232" y="164" width="35" height="11"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="30 min" id="rYo-BZ-H59">
                                             <font key="font" metaFont="miniSystem"/>
@@ -870,7 +870,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="cqG-je-rdy">
-                                        <rect key="frame" x="321" y="163" width="21" height="11"/>
+                                        <rect key="frame" x="321" y="164" width="21" height="11"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1 hr" id="xoA-iO-3rV">
                                             <font key="font" metaFont="miniSystem"/>
@@ -879,7 +879,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Jh4-CQ-eJC">
-                                        <rect key="frame" x="486" y="163" width="30" height="11"/>
+                                        <rect key="frame" x="486" y="164" width="30" height="11"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Never" id="BoF-du-cCB">
                                             <font key="font" metaFont="miniSystem"/>
@@ -888,7 +888,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Yca-L2-PC9">
-                                        <rect key="frame" x="467" y="209" width="49" height="11"/>
+                                        <rect key="frame" x="467" y="208" width="49" height="11"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="% minutes" id="AIS-wQ-QP8">
                                             <font key="font" metaFont="miniSystem"/>
@@ -897,7 +897,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QbF-v4-sZB">
-                                        <rect key="frame" x="401" y="163" width="37" height="11"/>
+                                        <rect key="frame" x="401" y="164" width="37" height="11"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="1,5 hrs" id="iXP-x6-lUA">
                                             <font key="font" metaFont="miniSystem"/>
@@ -1527,17 +1527,6 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.includeConsoleApp" id="b2S-d4-5cP"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="nwE-mt-SJq">
-                                        <rect key="frame" x="18" y="199" width="341" height="18"/>
-                                        <animations/>
-                                        <buttonCell key="cell" type="check" title="Add stdout and stderr logging to all LaunchDaemons" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="chN-ps-9oS">
-                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <binding destination="-2" name="value" keyPath="self.enableLaunchdLogging" id="U23-MW-5Z3"/>
-                                        </connections>
-                                    </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8F4-3w-TVQ">
                                         <rect key="frame" x="34" y="221" width="189" height="18"/>
                                         <animations/>
@@ -1554,10 +1543,8 @@ asdasd</string>
                                     <constraint firstItem="1g8-Qp-E2l" firstAttribute="leading" secondItem="Cch-bk-kgO" secondAttribute="leading" constant="20" symbolic="YES" id="3G9-zR-r3u"/>
                                     <constraint firstItem="nh2-4x-jFj" firstAttribute="top" secondItem="hOf-pF-SVA" secondAttribute="bottom" constant="9" id="6c1-6c-mYv"/>
                                     <constraint firstItem="1g8-Qp-E2l" firstAttribute="top" secondItem="Cch-bk-kgO" secondAttribute="top" constant="20" symbolic="YES" id="7ke-nO-d4p"/>
-                                    <constraint firstItem="nwE-mt-SJq" firstAttribute="top" secondItem="8F4-3w-TVQ" secondAttribute="bottom" constant="9" id="FAT-vM-DkW"/>
                                     <constraint firstItem="nh2-4x-jFj" firstAttribute="leading" secondItem="8F4-3w-TVQ" secondAttribute="leading" constant="-17" id="OkT-FQ-LaO"/>
                                     <constraint firstItem="hOf-pF-SVA" firstAttribute="leading" secondItem="1g8-Qp-E2l" secondAttribute="leading" id="SJI-hn-UJ2"/>
-                                    <constraint firstItem="nh2-4x-jFj" firstAttribute="leading" secondItem="nwE-mt-SJq" secondAttribute="leading" id="iq8-mo-zwg"/>
                                     <constraint firstItem="hOf-pF-SVA" firstAttribute="leading" secondItem="1g8-Qp-E2l" secondAttribute="leading" id="mMh-4b-hTE"/>
                                     <constraint firstItem="8F4-3w-TVQ" firstAttribute="top" secondItem="nh2-4x-jFj" secondAttribute="bottom" constant="8" symbolic="YES" id="mz8-nw-0h7"/>
                                     <constraint firstItem="hOf-pF-SVA" firstAttribute="top" secondItem="1g8-Qp-E2l" secondAttribute="bottom" constant="9" id="t1e-fB-kuF"/>

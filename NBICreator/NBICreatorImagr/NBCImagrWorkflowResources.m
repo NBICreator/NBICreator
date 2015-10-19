@@ -66,7 +66,7 @@ DDLogLevel ddLogLevel;
         //  com.grahamgilbert.Imagr.plist
         // -------------------------------------------------------
         if (
-            [_settingsChanged[NBCSettingsImagrServerURLKey] boolValue] ||
+            [_settingsChanged[NBCSettingsImagrConfigurationURL] boolValue] ||
             [_settingsChanged[NBCSettingsImagrReportingURL] boolValue] ||
             [_settingsChanged[NBCSettingsImagrSyslogServerURI] boolValue]
             ) {
@@ -156,7 +156,7 @@ DDLogLevel ddLogLevel;
         //  com.grahamgilbert.Imagr.plist
         // ---------------------------
         if (
-            [_settingsChanged[NBCSettingsImagrServerURLKey] boolValue] ||
+            [_settingsChanged[NBCSettingsImagrConfigurationURL] boolValue] ||
             [_settingsChanged[NBCSettingsImagrReportingURL] boolValue] ||
             [_settingsChanged[NBCSettingsImagrSyslogServerURI] boolValue]
             ) {
