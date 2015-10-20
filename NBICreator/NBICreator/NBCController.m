@@ -109,6 +109,48 @@ enum {
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
+- (id)init {
+    self = [super init];
+    if ( self ) {
+        NSEvent * (^monitorHandler)(NSEvent *);
+        monitorHandler = ^NSEvent * (NSEvent * theEvent){
+            if ( [theEvent modifierFlags] & NSAlternateKeyMask ) {
+                if ( [self->_buttonBuild isEnabled] ) {
+                    [self->_buttonBuild setTitle:@"Build..."];
+                }
+                
+                if ( [self->_currentSettingsController isKindOfClass:[NBCDeployStudioSettingsViewController class]] ) {
+                    if ( [[self->_currentSettingsController buttonDownloadDeployStudio] isHidden] ) {
+                        [[self->_currentSettingsController buttonDownloadDeployStudio] setHidden:NO];
+                    }
+                    [[self->_currentSettingsController buttonDownloadDeployStudio] setTitle:@"Download..."];
+                }
+            } else {
+                if ( [[self->_buttonBuild title] isEqualToString:@"Build..."] ) {
+                    [self->_buttonBuild setTitle:@"Build"];
+                }
+                
+                if ( [self->_currentSettingsController isKindOfClass:[NBCDeployStudioSettingsViewController class]] ) {
+                    if ( [self->_currentSettingsController deployStudioDownloadButtonHidden] ) {
+                        [[self->_currentSettingsController buttonDownloadDeployStudio] setHidden:YES];
+                    } else {
+                        [[self->_currentSettingsController buttonDownloadDeployStudio] setHidden:NO];
+                    }
+                    
+                    if ( [[[self->_currentSettingsController buttonDownloadDeployStudio] title] isEqualToString:@"Download..."] ) {
+                        [[self->_currentSettingsController buttonDownloadDeployStudio] setTitle:@"Download"];
+                    }
+                }
+            }
+            
+            return theEvent;
+        };
+        
+        _keyEventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:monitorHandler];
+    }
+    return self;
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -471,8 +513,12 @@ enum {
     // --------------------------------------------------------------
     if ( _helperAvailable == YES ) {
         [_buttonBuild setEnabled:buttonState];
+        if ( ! buttonState ) {
+            [_buttonBuild setTitle:@"Build"];
+        }
     } else {
         [_buttonBuild setEnabled:NO];
+        [_buttonBuild setTitle:@"Build"];
     }
 } // updateButtonBuild
 
@@ -1006,12 +1052,22 @@ enum {
     }
 } // buttonInstallHelper
 
+- (void)continueWorkflow {
+    [_currentSettingsController buildNBI];
+} // continueWorkflow
+
 - (IBAction)buttonBuild:(id)sender {
 #pragma unused(sender)
     if ( [NSEvent modifierFlags] & NSAlternateKeyMask ) {
-        _optionBuildPanel = [[NBCOptionBuildPanel alloc] init];
+        if ( _optionBuildPanel ) {
+            [self setOptionBuildPanel:nil];
+        }
+        [self setOptionBuildPanel:[[NBCOptionBuildPanel alloc] initWithDelegate:self]];
+        [_optionBuildPanel setSettingsViewController:_currentSettingsController];
         [[NSApp mainWindow] beginSheet:[_optionBuildPanel window] completionHandler:^(NSModalResponse returnCode) {
-            NSLog(@"returnCode=%ld", (long)returnCode);
+            if ( returnCode == NSModalResponseCancel ) {
+                DDLogInfo(@"[DEBUG] Workflow canceled!");
+            }
         }];
     } else {
         [_currentSettingsController buildNBI];

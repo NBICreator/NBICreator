@@ -1506,9 +1506,9 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hOf-pF-SVA">
-                                        <rect key="frame" x="18" y="265" width="383" height="18"/>
+                                        <rect key="frame" x="18" y="265" width="234" height="18"/>
                                         <animations/>
-                                        <buttonCell key="cell" type="check" title="Make NetInstall images Read/Write ( dmg -&gt; sparse image )" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="yjo-DP-1Fe">
+                                        <buttonCell key="cell" type="check" title="Make NetInstall images Read/Write" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="yjo-DP-1Fe">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -1517,7 +1517,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="nh2-4x-jFj">
-                                        <rect key="frame" x="18" y="242" width="146" height="18"/>
+                                        <rect key="frame" x="18" y="222" width="146" height="18"/>
                                         <animations/>
                                         <buttonCell key="cell" type="check" title="Include Console.app" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="b2x-It-fyq">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1528,7 +1528,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8F4-3w-TVQ">
-                                        <rect key="frame" x="34" y="221" width="189" height="18"/>
+                                        <rect key="frame" x="34" y="201" width="189" height="18"/>
                                         <animations/>
                                         <buttonCell key="cell" type="check" title="Launch behind main application" bezelStyle="regularSquare" imagePosition="left" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="rXK-4s-NIF">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1538,11 +1538,24 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.launchConsoleApp" id="aVb-cJ-Rzs"/>
                                         </connections>
                                     </button>
+                                    <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="E2X-rn-O1J">
+                                        <rect key="frame" x="34" y="244" width="369" height="18"/>
+                                        <animations/>
+                                        <buttonCell key="cell" type="check" title="Rename NetInstall.sparseimage instead of creating a symbolic link" bezelStyle="regularSquare" imagePosition="left" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="iWO-Ax-9Fg">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="smallSystem"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.diskImageReadWriteRename" id="ZQm-F8-MnP"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="1g8-Qp-E2l" firstAttribute="leading" secondItem="Cch-bk-kgO" secondAttribute="leading" constant="20" symbolic="YES" id="3G9-zR-r3u"/>
-                                    <constraint firstItem="nh2-4x-jFj" firstAttribute="top" secondItem="hOf-pF-SVA" secondAttribute="bottom" constant="9" id="6c1-6c-mYv"/>
+                                    <constraint firstItem="E2X-rn-O1J" firstAttribute="leading" secondItem="hOf-pF-SVA" secondAttribute="leading" constant="17" id="6a6-C1-zjH"/>
                                     <constraint firstItem="1g8-Qp-E2l" firstAttribute="top" secondItem="Cch-bk-kgO" secondAttribute="top" constant="20" symbolic="YES" id="7ke-nO-d4p"/>
+                                    <constraint firstItem="nh2-4x-jFj" firstAttribute="top" secondItem="E2X-rn-O1J" secondAttribute="bottom" constant="9" id="AZL-UN-mMo"/>
+                                    <constraint firstItem="E2X-rn-O1J" firstAttribute="top" secondItem="hOf-pF-SVA" secondAttribute="bottom" constant="8" symbolic="YES" id="Lxn-15-wt9"/>
                                     <constraint firstItem="nh2-4x-jFj" firstAttribute="leading" secondItem="8F4-3w-TVQ" secondAttribute="leading" constant="-17" id="OkT-FQ-LaO"/>
                                     <constraint firstItem="hOf-pF-SVA" firstAttribute="leading" secondItem="1g8-Qp-E2l" secondAttribute="leading" id="SJI-hn-UJ2"/>
                                     <constraint firstItem="hOf-pF-SVA" firstAttribute="leading" secondItem="1g8-Qp-E2l" secondAttribute="leading" id="mMh-4b-hTE"/>
@@ -1838,7 +1851,7 @@ asdasd</string>
                 <constraint firstAttribute="trailing" secondItem="mQE-7Z-sVv" secondAttribute="trailing" id="wK3-F5-wox"/>
             </constraints>
             <animations/>
-            <point key="canvasLocation" x="-2813" y="-170"/>
+            <point key="canvasLocation" x="-3242" y="-313"/>
         </customView>
         <viewController id="TOA-gy-ZY8" userLabel="Popover RAM Disks VC">
             <connections>

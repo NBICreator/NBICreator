@@ -27,7 +27,7 @@
 @class NBCNetInstallDropViewController;
 @class NBCPreferences;
 
-@interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate, NSWindowDelegate>
+@interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate, NSWindowDelegate, NBCOptionBuildPanelDelegate>
 
 // Windows
 @property (weak) IBOutlet NSWindow *window;
@@ -36,6 +36,8 @@
 - (IBAction)menuItemMainWindow:(id)sender;
 
 // Views
+@property id keyEventMonitor;
+
 @property (strong) NSViewController *nbiSettingsViewController;
 
 @property (strong) NSViewController *dsDropViewController;

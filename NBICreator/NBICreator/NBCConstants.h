@@ -184,6 +184,7 @@ extern NSString *const NBCSettingsRAMDisksKey;
 ////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCSettingsUseVerboseBootKey;
 extern NSString *const NBCSettingsDiskImageReadWriteKey;
+extern NSString *const NBCSettingsDiskImageReadWriteRenameKey;
 extern NSString *const NBCSettingsIncludeConsoleAppKey;
 extern NSString *const NBCSettingsLaunchConsoleAppKey;
 extern NSString *const NBCSettingsEnableLaunchdLoggingKey;

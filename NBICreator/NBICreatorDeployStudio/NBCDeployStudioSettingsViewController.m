@@ -48,7 +48,6 @@ DDLogLevel ddLogLevel;
 } // init
 
 - (void)viewDidLoad {
-    
     [super viewDidLoad];
     
     // --------------------------------------------------------------
@@ -903,6 +902,7 @@ DDLogLevel ddLogLevel;
 
 - (void)showUpdateAvailable:(NSString *)latestVersion {
     [_buttonDownloadDeployStudio setHidden:NO];
+    [self setDeployStudioDownloadButtonHidden:NO];
     if ( [_dsSource isInstalled] ) {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Update available: %@)", latestVersion]];
     } else {
@@ -913,6 +913,7 @@ DDLogLevel ddLogLevel;
 
 - (void)showUpdateAvailableCached:(NSString *)latestVersion {
     [_buttonDownloadDeployStudio setHidden:YES];
+    [self setDeployStudioDownloadButtonHidden:YES];
     if ( [_dsSource isInstalled] ) {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Update available: %@)", latestVersion]];
     } else {
@@ -923,12 +924,14 @@ DDLogLevel ddLogLevel;
 
 - (void)hideUpdateAvailable {
     [_buttonDownloadDeployStudio setHidden:YES];
+    [self setDeployStudioDownloadButtonHidden:YES];
     [_textFieldUpdateAvailable setHidden:YES];
 }
 
 - (void)showDeployStudioNotInstalled:(NSString *)latestVersion {
 #pragma unused(latestVersion)
     [_buttonDownloadDeployStudio setHidden:NO];
+    [self setDeployStudioDownloadButtonHidden:NO];
     [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Latest version: %@)", latestVersion]];
     [_textFieldUpdateAvailable setHidden:NO];
 }

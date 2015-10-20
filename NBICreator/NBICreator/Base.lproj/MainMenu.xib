@@ -420,8 +420,8 @@
                 <rect key="frame" x="0.0" y="0.0" width="600" height="434"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="6Ox-EY-Fwk">
-                        <rect key="frame" x="264" y="13" width="72" height="32"/>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6Ox-EY-Fwk">
+                        <rect key="frame" x="265" y="13" width="71" height="32"/>
                         <animations/>
                         <buttonCell key="cell" type="push" title="Build" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WVV-Pw-0TK">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -439,8 +439,8 @@
                         <rect key="frame" x="20" y="53" width="560" height="179"/>
                         <animations/>
                     </customView>
-                    <segmentedControl verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uL8-j3-eig">
-                        <rect key="frame" x="145" y="242" width="310" height="24"/>
+                    <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uL8-j3-eig">
+                        <rect key="frame" x="146" y="242" width="308" height="24"/>
                         <animations/>
                         <segmentedCell key="cell" refusesFirstResponder="YES" borderStyle="border" alignment="left" identifier="netinstall" style="rounded" trackingMode="selectOne" id="cuq-FX-eII">
                             <font key="font" metaFont="system"/>
@@ -485,8 +485,8 @@
                 <rect key="frame" x="1" y="1" width="544" height="46"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
-                    <button horizontalHuggingPriority="251" verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Zzw-YM-boj">
-                        <rect key="frame" x="411" y="6" width="121" height="32"/>
+                    <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Zzw-YM-boj">
+                        <rect key="frame" x="412" y="6" width="120" height="32"/>
                         <animations/>
                         <buttonCell key="cell" type="push" title="Install Helper" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9o7-6N-NEG">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -496,8 +496,8 @@
                             <action selector="buttonInstallHelper:" target="2ua-cd-ebo" id="625-iB-biH"/>
                         </connections>
                     </button>
-                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="NTd-K4-Z9c">
-                        <rect key="frame" x="16" y="15" width="395" height="17"/>
+                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="NTd-K4-Z9c">
+                        <rect key="frame" x="16" y="15" width="396" height="17"/>
                         <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="To create a NetInstall Image you need to install the helper tool." id="3yK-Ve-mvi">
                             <font key="font" metaFont="system"/>

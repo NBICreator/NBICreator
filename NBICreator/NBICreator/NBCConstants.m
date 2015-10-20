@@ -184,6 +184,7 @@ NSString *const NBCSettingsRAMDisksKey = @"RAMDisks";
 ////////////////////////////////////////////////////////////////////////////////
 NSString *const NBCSettingsUseVerboseBootKey = @"UseVerboseBoot";
 NSString *const NBCSettingsDiskImageReadWriteKey = @"DiskImageReadWrite";
+NSString *const NBCSettingsDiskImageReadWriteRenameKey = @"DiskImageReadWriteRename";
 NSString *const NBCSettingsIncludeConsoleAppKey = @"IncludeConsole";
 NSString *const NBCSettingsLaunchConsoleAppKey = @"LaunchConsole";
 NSString *const NBCSettingsEnableLaunchdLoggingKey = @"EnableLaunchdLogging";

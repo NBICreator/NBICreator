@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15A284" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
@@ -22,14 +22,15 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="NBICreator Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
-            <rect key="contentRect" x="196" y="240" width="509" height="322"/>
+            <rect key="contentRect" x="196" y="240" width="509" height="321"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" horizontalCompressionResistancePriority="749" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="509" height="322"/>
-                <autoresizingMask key="autoresizingMask"/>
+                <rect key="frame" x="0.0" y="0.0" width="509" height="321"/>
+                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="p6D-pd-DFQ">
-                        <rect key="frame" x="18" y="285" width="151" height="17"/>
+                        <rect key="frame" x="18" y="284" width="147" height="17"/>
+                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="NetBoot Index Counter:" id="wlw-Tf-1VH">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -37,10 +38,11 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="7ZX-y2-fu7">
-                        <rect key="frame" x="175" y="283" width="47" height="22"/>
+                        <rect key="frame" x="171" y="281" width="47" height="22"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="47" id="Fnt-g5-KK4"/>
                         </constraints>
+                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="s0T-YP-xHk">
                             <numberFormatter key="formatter" formatterBehavior="default10_4" localizesFormat="NO" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" id="fcy-FK-pkp">
                                 <real key="minimum" value="1"/>
@@ -59,7 +61,8 @@
                         </connections>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xkJ-eX-gsG">
-                        <rect key="frame" x="18" y="256" width="151" height="17"/>
+                        <rect key="frame" x="18" y="255" width="147" height="17"/>
+                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Date Format:" id="9h4-4w-u3d">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -67,10 +70,11 @@
                         </textFieldCell>
                     </textField>
                     <comboBox verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ejt-D8-GaT">
-                        <rect key="frame" x="175" y="251" width="153" height="26"/>
+                        <rect key="frame" x="171" y="251" width="153" height="26"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="150" id="bob-sL-5s1"/>
                         </constraints>
+                        <animations/>
                         <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" continuous="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="dNU-Oh-AFe">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -87,7 +91,8 @@
                         </connections>
                     </comboBox>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OE9-Gp-3Ou">
-                        <rect key="frame" x="333" y="256" width="53" height="17"/>
+                        <rect key="frame" x="329" y="255" width="52" height="17"/>
+                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Preview" id="Gzt-6h-jiK">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -95,7 +100,8 @@
                         </textFieldCell>
                     </textField>
                     <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="PCt-hx-hcp">
-                        <rect key="frame" x="169" y="13" width="112" height="32"/>
+                        <rect key="frame" x="165" y="13" width="109" height="32"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Check Now" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ilH-uQ-jtf">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -110,21 +116,24 @@
                         </connections>
                     </button>
                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9At-GJ-PxT">
-                        <rect key="frame" x="281" y="23" width="210" height="14"/>
+                        <rect key="frame" x="274" y="23" width="217" height="14"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" id="yBD-ew-2xn">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="1H8-Xg-Eec">
-                        <rect key="frame" x="151" y="22" width="16" height="16"/>
+                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="1H8-Xg-Eec">
+                        <rect key="frame" x="147" y="22" width="16" height="16"/>
+                        <animations/>
                         <connections>
                             <binding destination="-2" name="animate" keyPath="self.checkingForApplicationUpdates" id="bjP-Xl-cJC"/>
                         </connections>
                     </progressIndicator>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="JEY-5C-17f">
-                        <rect key="frame" x="187" y="184" width="231" height="18"/>
+                        <rect key="frame" x="183" y="184" width="229" height="18"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Enable Sound for Desktop Notifications" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="6vX-Xe-ESY">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="smallSystem"/>
@@ -135,7 +144,8 @@
                         </connections>
                     </button>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="QAv-eg-Mgk">
-                        <rect key="frame" x="173" y="205" width="201" height="18"/>
+                        <rect key="frame" x="169" y="205" width="197" height="18"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Enable Desktop Notifications" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="H2c-zy-pIa">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -145,7 +155,8 @@
                         </connections>
                     </button>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="qCq-w5-WUG">
-                        <rect key="frame" x="173" y="229" width="220" height="18"/>
+                        <rect key="frame" x="169" y="229" width="217" height="18"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Enable Workflow Duration Timer" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="wgT-b6-M6r">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -155,7 +166,8 @@
                         </connections>
                     </button>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OBZ-Tg-Zl4">
-                        <rect key="frame" x="105" y="149" width="64" height="17"/>
+                        <rect key="frame" x="103" y="149" width="62" height="17"/>
+                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Log level:" id="pv2-aG-AQh">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -163,16 +175,17 @@
                         </textFieldCell>
                     </textField>
                     <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="esW-ed-2Ix">
-                        <rect key="frame" x="173" y="143" width="109" height="26"/>
-                        <popUpButtonCell key="cell" type="push" title="Warning" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" tag="3" imageScaling="proportionallyDown" inset="2" selectedItem="QB0-Yy-XoP" id="FAm-Z4-SvU">
+                        <rect key="frame" x="169" y="143" width="107" height="26"/>
+                        <animations/>
+                        <popUpButtonCell key="cell" type="push" title="Debug" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" tag="15" imageScaling="proportionallyDown" inset="2" selectedItem="aLw-Oe-1qf" id="FAm-Z4-SvU">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="menu"/>
                             <menu key="menu" id="ocE-3G-q7h">
                                 <items>
                                     <menuItem title="Error" tag="1" id="gpq-rw-aZL"/>
-                                    <menuItem title="Warning" state="on" tag="3" id="QB0-Yy-XoP"/>
+                                    <menuItem title="Warning" tag="3" id="QB0-Yy-XoP"/>
                                     <menuItem title="Info" tag="7" id="QHu-mN-0l2"/>
-                                    <menuItem title="Debug" tag="15" id="aLw-Oe-1qf">
+                                    <menuItem title="Debug" state="on" tag="15" id="aLw-Oe-1qf">
                                         <modifierMask key="keyEquivalentModifierMask"/>
                                     </menuItem>
                                 </items>
@@ -183,7 +196,8 @@
                         </connections>
                     </popUpButton>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="IQi-kR-kr4">
-                        <rect key="frame" x="54" y="124" width="115" height="17"/>
+                        <rect key="frame" x="52" y="124" width="113" height="17"/>
+                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Cache folder size:" id="hrR-VA-LFC">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -191,7 +205,8 @@
                         </textFieldCell>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="w6g-Xt-IGx">
-                        <rect key="frame" x="173" y="124" width="87" height="17"/>
+                        <rect key="frame" x="169" y="124" width="83" height="17"/>
+                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="Calculating…" id="THT-aT-YLF">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -199,7 +214,8 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="KdZ-S8-dxV">
-                        <rect key="frame" x="169" y="88" width="116" height="32"/>
+                        <rect key="frame" x="165" y="88" width="114" height="32"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Clear Cache" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="L3h-fU-HJh">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -209,7 +225,8 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uhO-ZD-3Xu">
-                        <rect key="frame" x="285" y="88" width="118" height="32"/>
+                        <rect key="frame" x="279" y="88" width="116" height="32"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Show Cache" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Mle-RG-4hr">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -219,15 +236,17 @@
                         </connections>
                     </button>
                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5k4-zr-JbQ">
-                        <rect key="frame" x="287" y="146" width="20" height="20"/>
+                        <rect key="frame" x="281" y="146" width="20" height="20"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="20" id="84u-Nd-1r9"/>
                             <constraint firstAttribute="width" constant="20" id="P5S-z9-NxM"/>
                         </constraints>
+                        <animations/>
                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSCaution" id="TQU-69-Fxn"/>
                     </imageView>
                     <textField horizontalHuggingPriority="249" verticalHuggingPriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="eUn-mG-6uF">
-                        <rect key="frame" x="313" y="149" width="178" height="14"/>
+                        <rect key="frame" x="307" y="149" width="184" height="14"/>
+                        <animations/>
                         <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Will be reset on relaunch" id="78A-8L-qAO">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -235,7 +254,8 @@
                         </textFieldCell>
                     </textField>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="Nco-Zu-ksX">
-                        <rect key="frame" x="173" y="59" width="221" height="18"/>
+                        <rect key="frame" x="169" y="59" width="217" height="18"/>
+                        <animations/>
                         <buttonCell key="cell" type="check" title="Automatically check for updates" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="COi-Xf-uaR">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
@@ -292,11 +312,12 @@
                     <constraint firstItem="IQi-kR-kr4" firstAttribute="top" secondItem="OBZ-Tg-Zl4" secondAttribute="bottom" constant="8" symbolic="YES" id="yeB-61-Uau"/>
                     <constraint firstItem="OBZ-Tg-Zl4" firstAttribute="trailing" secondItem="IQi-kR-kr4" secondAttribute="trailing" id="yp0-w0-3hi"/>
                 </constraints>
+                <animations/>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>
-            <point key="canvasLocation" x="28.5" y="285"/>
+            <point key="canvasLocation" x="149.5" y="319"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="GFb-t0-AJf"/>
     </objects>

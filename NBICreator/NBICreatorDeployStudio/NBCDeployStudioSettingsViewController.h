@@ -24,6 +24,7 @@
 //  Properties
 // ------------------------------------------------------
 @property (weak) IBOutlet NSTextField *textFieldDeployStudioVersion;
+@property BOOL deployStudioDownloadButtonHidden;
 
 // ------------------------------------------------------
 //  Bonjour
@@ -105,7 +106,6 @@
 @property (weak) IBOutlet NSTextField *textFieldRebootDelaySeconds;
 @property (weak) IBOutlet NSButton *checkboxUseCustomRuntimeTitle;
 @property (weak) IBOutlet NSTextField *textFieldCustomRuntimeTitle;
-@property (weak) IBOutlet NSTextField *textFieldCustomRuntimeTitlePreview;
 @property (weak) IBOutlet NSButton *checkboxDisableVersionMismatchAlerts;
 @property (weak) IBOutlet NSButton *checkboxDisplayLogWindow;
 @property (weak) IBOutlet NSButton *checboxSleep;
