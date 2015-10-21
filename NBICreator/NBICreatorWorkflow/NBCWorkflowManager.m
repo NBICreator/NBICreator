@@ -90,7 +90,6 @@ DDLogLevel ddLogLevel;
 - (void)menuItemWindowWorkflows:(id)sender {
 #pragma unused(sender)
     
-    
     // -------------------------------------------------------------
     //  If sent from NBCController, just order front, not key
     //  Used to show progress window when activating app from background by clicking main window
@@ -117,8 +116,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)addWorkflowItemToQueue:(NSNotification *)notification {
-    
-    
     // -------------------------------------------------------------
     //  Get workflow item from sender
     // -------------------------------------------------------------
@@ -195,7 +192,6 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
-    
     DDLogInfo(@"Base NBI created successfully!");
     [self setCurrentWorkflowNBIComplete:YES];
     
@@ -208,7 +204,6 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
 #pragma unused(notification)
-    
     DDLogInfo(@"All resources prepared!");
     [self setCurrentWorkflowResourcesComplete:YES];
     
@@ -381,27 +376,42 @@ DDLogLevel ddLogLevel;
             return;
         }
         
-        // -------------------------------------------------------------
-        //  Instantiate workflow target if it doesn't exist.
-        // -------------------------------------------------------------
-        NBCTarget *target = [_currentWorkflowItem target] ?: [[NBCTarget alloc] init];
-        [_currentWorkflowItem setTarget:target];
-        
-        // -------------------------------------------------------------
-        //  Run workflows. Don't create NBI if source is a NBI itself.
-        // -------------------------------------------------------------
-        NSString *sourceType = [[_currentWorkflowItem source] sourceType];
-        DDLogDebug(@"[DEBUG] Workflow source type is: %@", sourceType);
-        if ( ! [sourceType isEqualToString:NBCSourceTypeNBI] ) {
-            [self runWorkflow];
+        NSDictionary *preWorkflowTasks = [_currentWorkflowItem preWorkflowTasks];
+        if ( [preWorkflowTasks count] != 0 ) {
+            NBCWorkflowPreWorkflowTaskController *preWorkflowTaskController = [[NBCWorkflowPreWorkflowTaskController alloc] initWithDelegate:self];
+            [preWorkflowTaskController setProgressDelegate:_currentWorkflowProgressView];
+            [preWorkflowTaskController runPreWorkflowTasks:preWorkflowTasks workflowItem:_currentWorkflowItem];
         } else {
-            [self runWorkflowNBISource:target];
+            [self runWorkflows];
         }
     }
 } // workflowQueueRunWorkflow
 
-- (void)runWorkflow {
+- (void)preWorkflowTasksCompleted {
+    [self runWorkflows];
+}
+
+- (void)runWorkflows {
     
+    // -------------------------------------------------------------
+    //  Instantiate workflow target if it doesn't exist.
+    // -------------------------------------------------------------
+    NBCTarget *target = [_currentWorkflowItem target] ?: [[NBCTarget alloc] init];
+    [_currentWorkflowItem setTarget:target];
+    
+    // -------------------------------------------------------------
+    //  Run workflows. Don't create NBI if source is a NBI itself.
+    // -------------------------------------------------------------
+    NSString *sourceType = [[_currentWorkflowItem source] sourceType];
+    DDLogDebug(@"[DEBUG] Workflow source type is: %@", sourceType);
+    if ( ! [sourceType isEqualToString:NBCSourceTypeNBI] ) {
+        [self runWorkflow];
+    } else {
+        [self runWorkflowNBISource:target];
+    }
+}
+
+- (void)runWorkflow {
     // -------------------------------------------------------------
     //  Mount source if not mounted
     // -------------------------------------------------------------
@@ -743,13 +753,12 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)incrementIndexCounter {
-    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSNumber *currentIndex = [ud objectForKey:NBCUserDefaultsIndexCounter];
+    NSNumber *currentIndex = [[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsIndexCounter];
     if ( [currentIndex integerValue] == 65535 ) {
         currentIndex = @0;
     }
     NSNumber *newIndex = @([currentIndex intValue] + 1);
-    [ud setObject:newIndex forKey:NBCUserDefaultsIndexCounter];
+    [[NSUserDefaults standardUserDefaults] setObject:newIndex forKey:NBCUserDefaultsIndexCounter];
     DDLogDebug(@"[DEBUG] Updated NBI Index counter from %@ to %@", currentIndex, newIndex);
 } // incrementIndexCounter
 

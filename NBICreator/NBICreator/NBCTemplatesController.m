@@ -623,20 +623,20 @@ enum {
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)showSheetSaveUntitled:(NSString *)senderTitle buildNBI:(BOOL)buildNBI {
+- (void)showSheetSaveUntitled:(NSString *)senderTitle buildNBI:(BOOL)buildNBI preWorkflowTasks:(NSDictionary *)preWorkflowTasks {
     [_textFieldSheetSaveUntitledName setStringValue:@""];
     [[NSApp mainWindow] beginSheet:_sheetSaveUntitled completionHandler:^(NSModalResponse returnCode) {
         if ( returnCode == NSModalResponseOK ) {
             [self->_settingsViewController saveUISettingsWithName:[self->_textFieldSheetSaveUntitledName stringValue] atUrl:nil];
             if ( buildNBI ) {
-                [self->_settingsViewController verifySettings];
+                [self->_settingsViewController verifySettings:preWorkflowTasks];
             }
         } else if ( returnCode == NSModalResponseContinue ) {
             [self->_settingsViewController setSelectedTemplate:senderTitle];
             [self->_settingsViewController updateUISettingsFromURL:[self->_settingsViewController templatesDict][[self->_settingsViewController selectedTemplate]]];
             [self->_settingsViewController expandVariablesForCurrentSettings];
             if ( buildNBI ) {
-                [self->_settingsViewController verifySettings];
+                [self->_settingsViewController verifySettings:preWorkflowTasks];
             }
         }
     }];

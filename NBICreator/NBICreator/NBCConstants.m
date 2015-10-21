@@ -450,6 +450,7 @@ NSString *const NBCAlertTagWorkflowRunningQuit = @"WorkflowRunningQuit";
 NSString *const NBCAlertUserInfoSelectedTemplate = @"SelectedTemplate";
 NSString *const NBCAlertUserInfoTemplateURL = @"TemplateURL";
 NSString *const NBCAlertUserInfoBuildNBI = @"BuildNBI";
+NSString *const NBCAlertUserInfoPreWorkflowTasks = @"PreWorkflowTasks";
 
 
 // --------------------------------------------------------------

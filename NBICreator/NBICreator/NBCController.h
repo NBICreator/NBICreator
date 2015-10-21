@@ -25,6 +25,10 @@
 @class NBCDisk;
 @class NBCSource;
 @class NBCNetInstallDropViewController;
+#import "NBCNetInstallSettingsViewController.h"
+#import "NBCDeployStudioSettingsViewController.h"
+#import "NBCImagrSettingsViewController.h"
+#import "NBCCasperSettingsViewController.h"
 @class NBCPreferences;
 
 @interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate, NSWindowDelegate, NBCOptionBuildPanelDelegate>
@@ -41,16 +45,16 @@
 @property (strong) NSViewController *nbiSettingsViewController;
 
 @property (strong) NSViewController *dsDropViewController;
-@property (strong) NSViewController *dsSettingsViewController;
+@property (strong) NBCDeployStudioSettingsViewController *dsSettingsViewController;
 
 @property (strong) NBCNetInstallDropViewController *niDropViewController;
-@property (strong) NSViewController *niSettingsViewController;
+@property (strong) NBCNetInstallSettingsViewController *niSettingsViewController;
 
 @property (strong) NSViewController *imagrDropViewController;
-@property (strong) NSViewController *imagrSettingsViewController;
+@property (strong) NBCImagrSettingsViewController *imagrSettingsViewController;
 
 @property (strong) NSViewController *casperDropViewController;
-@property (strong) NSViewController *casperSettingsViewController;
+@property (strong) NBCCasperSettingsViewController *casperSettingsViewController;
 
 @property (strong) NSViewController *customDropViewController;
 @property (strong) NSViewController *customSettingsViewController;
@@ -77,7 +81,6 @@
 
 @property BOOL helperAvailable;
 @property id currentSettingsController;
-@property NBCSource *currentSource;
 @property NBCPreferences *preferencesWindow;
 
 // Buttons

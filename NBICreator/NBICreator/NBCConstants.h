@@ -410,6 +410,7 @@ extern NSString *const NBCAlertWorkflowItemKey;
 extern NSString *const NBCAlertUserInfoSelectedTemplate;
 extern NSString *const NBCAlertUserInfoTemplateURL;
 extern NSString *const NBCAlertUserInfoBuildNBI;
+extern NSString *const NBCAlertUserInfoPreWorkflowTasks;
 
 extern NSString *const NBCErrorDomain;
 

@@ -203,25 +203,21 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)comboBoxDateFormat:(id)sender {
 #pragma unused(sender)
-    
     [self updateDatePreview];
 }
 
 - (IBAction)buttonClearCache:(id)sender {
 #pragma unused(sender)
-    
     [self cleanCacheFolder];
 }
 
 - (IBAction)buttonShowCache:(id)sender {
 #pragma unused(sender)
-    
     NSURL *cacheFolderURL = [self cacheFolderURL];
     if ( [cacheFolderURL checkResourceIsReachableAndReturnError:nil] ) {
         NSArray *currentTemplateURLArray = @[ cacheFolderURL ];
         [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:currentTemplateURLArray];
     }
-    
 }
 
 - (void)startSearchingForUpdates:(NSNotification *)notification {

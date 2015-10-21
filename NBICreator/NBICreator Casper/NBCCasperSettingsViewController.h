@@ -251,9 +251,9 @@
 // ------------------------------------------------------
 //  Instance Methods
 // ------------------------------------------------------
-- (void)buildNBI;
+- (void)buildNBI:(NSDictionary *)preWorkflowTasks;
 - (void)verifyBuildButton;
-- (void)verifySettings;
+- (void)verifySettings:(NSDictionary *)preWorkflowTasks;
 - (BOOL)haveSettingsChanged;
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict;
 - (void)updateUISettingsFromURL:(NSURL *)url;

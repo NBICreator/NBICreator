@@ -15,8 +15,9 @@
 #import "NBCImagrWorkflowResources.h"
 #import "NBCDeployStudioWorkflowNBI.h"
 #import "NBCNetInstallWorkflowNBI.h"
+#import "NBCWorkflowPreWorkflowTaskController.h"
 
-@interface NBCWorkflowManager : NSObject <NSUserNotificationCenterDelegate>
+@interface NBCWorkflowManager : NSObject <NSUserNotificationCenterDelegate, NBCWorkflowPreWorkflowTaskControllerDelegate>
 
 // -------------------------------------------------------------
 //  Unsorted

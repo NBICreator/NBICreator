@@ -13,6 +13,8 @@
 #import "NBCDeployStudioSettingsViewController.h"
 #import "NBCImagrSettingsViewController.h"
 #import "NBCCasperSettingsViewController.h"
+#import "NBCHelperConnection.h"
+#import "NBCHelperProtocol.h"
 
 DDLogLevel ddLogLevel;
 
@@ -33,7 +35,7 @@ DDLogLevel ddLogLevel;
 - (id)init {
     self = [super initWithWindowNibName:@"NBCOptionBuildPanel"];
     if ( self != nil ) {
-
+        
     }
     return self;
 }
@@ -46,16 +48,14 @@ DDLogLevel ddLogLevel;
     [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:NBCUserDefaultsLogLevel options:NSKeyValueObservingOptionNew context:nil];
     
     if ( [_settingsViewController isKindOfClass:[NBCNetInstallSettingsViewController class]] ) {
-        [_checkboxClearAppCache setEnabled:NO];
-        [_popUpButtonClearAppCache setEnabled:NO];
         [_checkboxClearSourceCache setEnabled:NO];
         [_popUpButtonClearSourceCache setEnabled:NO];
     } else if ( [_settingsViewController isKindOfClass:[NBCDeployStudioSettingsViewController class]] ) {
-        
+
     } else if ( [_settingsViewController isKindOfClass:[NBCImagrSettingsViewController class]] ) {
-        
+
     } else if ( [_settingsViewController isKindOfClass:[NBCCasperSettingsViewController class]] ) {
-        
+
     } else {
         DDLogError(@"[ERROR] Unknown settings view class!");
     }
@@ -79,10 +79,16 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonContinue:(id)sender {
 #pragma unused(sender)
-    [[[self window] sheetParent] endSheet:[self window] returnCode:NSModalResponseOK];
-    if ( [_delegate respondsToSelector:@selector(continueWorkflow)] ) {
-        [_delegate continueWorkflow];
+    NSMutableDictionary *preWorkflowTasks = [[NSMutableDictionary alloc] init];
+    if ( [_checkboxClearSourceCache state] == NSOnState ) {
+        NSString *selectedSource = [_popUpButtonClearSourceCache titleOfSelectedItem];
+        preWorkflowTasks[@"ClearCache"] = @YES;
+        preWorkflowTasks[@"ClearCacheSource"] = selectedSource;
     }
+    if ( [_delegate respondsToSelector:@selector(continueWorkflow:)] ) {
+        [_delegate continueWorkflow:preWorkflowTasks];
+    }
+    [[[self window] sheetParent] endSheet:[self window] returnCode:NSModalResponseOK];
 }
 
 - (IBAction)buttonCancel:(id)sender {

@@ -903,7 +903,7 @@ DDLogLevel ddLogLevel;
     BOOL settingsChanged = [self haveSettingsChanged];
     
     if ( [_selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
-        [_templates showSheetSaveUntitled:selectedTemplate buildNBI:NO];
+        [_templates showSheetSaveUntitled:selectedTemplate buildNBI:NO preWorkflowTasks:@{}];
         return;
     } else if ( settingsChanged ) {
         NSDictionary *alertInfo = @{
@@ -974,12 +974,13 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)buildNBI {
+- (void)buildNBI:(NSDictionary *)preWorkflowTasks {
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeNetInstall
                                                               workflowSessionType:kWorkflowSessionTypeGUI];
     [workflowItem setSource:_source];
     [workflowItem setApplicationSource:_siuSource];
     [workflowItem setSettingsViewController:self];
+    [workflowItem setPreWorkflowTasks:preWorkflowTasks];
     
     // ----------------------------------------------------------------
     //  Collect current UI settings and pass them through verification

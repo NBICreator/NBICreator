@@ -41,6 +41,8 @@ enum {
 
 @property int workflowSessionType;
 
+@property NSDictionary *preWorkflowTasks;
+
 @property NSImage *nbiIcon;
 @property NSURL *nbiIconURL;
 

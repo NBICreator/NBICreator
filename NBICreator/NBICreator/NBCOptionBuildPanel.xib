@@ -7,9 +7,7 @@
         <customObject id="-2" userLabel="File's Owner" customClass="NBCOptionBuildPanel">
             <connections>
                 <outlet property="buttonContinue" destination="eNL-9G-wOI" id="kgY-vx-UiA"/>
-                <outlet property="checkboxClearAppCache" destination="nfI-AD-9Gy" id="iwq-aW-ooo"/>
                 <outlet property="checkboxClearSourceCache" destination="dqE-ms-2e4" id="JLD-al-jDG"/>
-                <outlet property="popUpButtonClearAppCache" destination="U6B-v2-1zh" id="ChK-pI-nxA"/>
                 <outlet property="popUpButtonClearSourceCache" destination="YVP-Dn-GkJ" id="ZlM-qH-6Yh"/>
                 <outlet property="pupUpButtonChangeLogLevel" destination="CV7-Kg-l7Y" id="YZ9-mG-TUh"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
@@ -21,36 +19,22 @@
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="446" y="388" width="376" height="179"/>
+            <rect key="contentRect" x="446" y="388" width="361" height="153"/>
             <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="376" height="179"/>
+                <rect key="frame" x="0.0" y="0.0" width="361" height="153"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="dqE-ms-2e4">
-                        <rect key="frame" x="18" y="113" width="198" height="18"/>
+                        <rect key="frame" x="18" y="87" width="192" height="18"/>
                         <animations/>
                         <buttonCell key="cell" type="check" title="Clear OS source caches for:" bezelStyle="regularSquare" imagePosition="left" inset="2" id="3F2-LT-1Ru">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                     </button>
-                    <popUpButton horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YVP-Dn-GkJ">
-                        <rect key="frame" x="220" y="108" width="139" height="26"/>
-                        <animations/>
-                        <popUpButtonCell key="cell" type="push" title="Current Source" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="aVB-2g-4OU" id="WhV-Zp-UPO">
-                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" id="BXc-ej-cVr">
-                                <items>
-                                    <menuItem title="Current Source" state="on" id="aVB-2g-4OU"/>
-                                    <menuItem title="All Sources" id="uAR-QY-M3X"/>
-                                </items>
-                            </menu>
-                        </popUpButtonCell>
-                    </popUpButton>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="N6l-7Z-pe3">
-                        <rect key="frame" x="18" y="142" width="240" height="17"/>
+                        <rect key="frame" x="18" y="116" width="240" height="17"/>
                         <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Optional steps to perform before build:" id="rKD-xW-o8n">
                             <font key="font" metaFont="system"/>
@@ -58,30 +42,8 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
-                    <button translatesAutoresizingMaskIntoConstraints="NO" id="nfI-AD-9Gy">
-                        <rect key="frame" x="18" y="88" width="198" height="18"/>
-                        <animations/>
-                        <buttonCell key="cell" type="check" title="Clear application caches for:" bezelStyle="regularSquare" imagePosition="left" inset="2" id="wQd-Rf-fUv">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                    </button>
-                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="U6B-v2-1zh">
-                        <rect key="frame" x="220" y="83" width="139" height="26"/>
-                        <animations/>
-                        <popUpButtonCell key="cell" type="push" title="Selected Version" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="GoT-lr-QS9" id="T8J-Zv-myb">
-                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" id="nV0-MP-amf">
-                                <items>
-                                    <menuItem title="Selected Version" state="on" id="GoT-lr-QS9"/>
-                                    <menuItem title="All Versions" id="rDu-FH-wTI"/>
-                                </items>
-                            </menu>
-                        </popUpButtonCell>
-                    </popUpButton>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="eNL-9G-wOI">
-                        <rect key="frame" x="267" y="13" width="95" height="32"/>
+                        <rect key="frame" x="252" y="13" width="95" height="32"/>
                         <animations/>
                         <buttonCell key="cell" type="push" title="Continue" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="A0v-0e-fAn">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -92,7 +54,7 @@
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="2f6-ou-ST8">
-                        <rect key="frame" x="185" y="13" width="82" height="32"/>
+                        <rect key="frame" x="170" y="13" width="82" height="32"/>
                         <animations/>
                         <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0mz-fU-6Yb">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -106,7 +68,7 @@ Gw
                         </connections>
                     </button>
                     <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="CV7-Kg-l7Y">
-                        <rect key="frame" x="220" y="58" width="139" height="26"/>
+                        <rect key="frame" x="214" y="58" width="130" height="26"/>
                         <animations/>
                         <popUpButtonCell key="cell" type="push" title="Warning" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" tag="3" imageScaling="proportionallyDown" inset="2" selectedItem="FPF-YH-wY2" id="9eQ-Cu-G7V">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -127,7 +89,7 @@ Gw
                         </connections>
                     </popUpButton>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qGl-j3-FNW">
-                        <rect key="frame" x="124" y="64" width="92" height="17"/>
+                        <rect key="frame" x="118" y="64" width="92" height="17"/>
                         <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Logging Level:" id="VRP-qV-o8j">
                             <font key="font" metaFont="system"/>
@@ -135,29 +97,38 @@ Gw
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <popUpButton horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YVP-Dn-GkJ">
+                        <rect key="frame" x="214" y="82" width="130" height="26"/>
+                        <animations/>
+                        <popUpButtonCell key="cell" type="push" title="Current Source" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="aVB-2g-4OU" id="WhV-Zp-UPO">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="BXc-ej-cVr">
+                                <items>
+                                    <menuItem title="Current Source" state="on" id="aVB-2g-4OU"/>
+                                    <menuItem title="All Sources" id="uAR-QY-M3X"/>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                    </popUpButton>
                 </subviews>
                 <constraints>
                     <constraint firstItem="eNL-9G-wOI" firstAttribute="leading" secondItem="2f6-ou-ST8" secondAttribute="trailing" constant="12" symbolic="YES" id="0pJ-Eq-Zmh"/>
-                    <constraint firstItem="U6B-v2-1zh" firstAttribute="leading" secondItem="YVP-Dn-GkJ" secondAttribute="leading" id="2Vs-yG-695"/>
-                    <constraint firstItem="U6B-v2-1zh" firstAttribute="baseline" secondItem="nfI-AD-9Gy" secondAttribute="baseline" id="74o-Hp-6XS"/>
                     <constraint firstItem="N6l-7Z-pe3" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="IlD-IJ-XY6"/>
+                    <constraint firstItem="qGl-j3-FNW" firstAttribute="top" secondItem="dqE-ms-2e4" secondAttribute="bottom" constant="8" symbolic="YES" id="KRe-z2-Oci"/>
                     <constraint firstItem="CV7-Kg-l7Y" firstAttribute="leading" secondItem="qGl-j3-FNW" secondAttribute="trailing" constant="8" symbolic="YES" id="LQB-em-Udo"/>
                     <constraint firstItem="dqE-ms-2e4" firstAttribute="top" secondItem="N6l-7Z-pe3" secondAttribute="bottom" constant="13" id="LbV-cU-aBp"/>
                     <constraint firstItem="eNL-9G-wOI" firstAttribute="top" secondItem="CV7-Kg-l7Y" secondAttribute="bottom" constant="20" symbolic="YES" id="OXj-MP-9RU"/>
                     <constraint firstItem="YVP-Dn-GkJ" firstAttribute="leading" secondItem="dqE-ms-2e4" secondAttribute="trailing" constant="8" symbolic="YES" id="Ppk-zE-dAV"/>
                     <constraint firstAttribute="trailing" secondItem="eNL-9G-wOI" secondAttribute="trailing" constant="20" symbolic="YES" id="UA1-gm-3Tj"/>
                     <constraint firstAttribute="bottom" secondItem="eNL-9G-wOI" secondAttribute="bottom" constant="20" symbolic="YES" id="VCl-Xu-R29"/>
-                    <constraint firstItem="nfI-AD-9Gy" firstAttribute="leading" secondItem="dqE-ms-2e4" secondAttribute="leading" id="VEh-ha-c81"/>
-                    <constraint firstItem="nfI-AD-9Gy" firstAttribute="top" secondItem="dqE-ms-2e4" secondAttribute="bottom" constant="11" id="VME-2W-8Xu"/>
                     <constraint firstItem="CV7-Kg-l7Y" firstAttribute="baseline" secondItem="qGl-j3-FNW" secondAttribute="baseline" id="WPf-b8-vFU"/>
-                    <constraint firstItem="CV7-Kg-l7Y" firstAttribute="leading" secondItem="U6B-v2-1zh" secondAttribute="leading" id="XUT-T8-g89"/>
-                    <constraint firstItem="U6B-v2-1zh" firstAttribute="leading" secondItem="nfI-AD-9Gy" secondAttribute="trailing" constant="8" symbolic="YES" id="ZKJ-Uk-PRu"/>
+                    <constraint firstItem="qGl-j3-FNW" firstAttribute="trailing" secondItem="dqE-ms-2e4" secondAttribute="trailing" id="YsS-8y-ppb"/>
                     <constraint firstAttribute="trailing" secondItem="YVP-Dn-GkJ" secondAttribute="trailing" constant="20" symbolic="YES" id="cgZ-nj-hoG"/>
-                    <constraint firstAttribute="trailing" secondItem="U6B-v2-1zh" secondAttribute="trailing" constant="20" symbolic="YES" id="hoL-Kb-DfI"/>
                     <constraint firstItem="N6l-7Z-pe3" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="20" symbolic="YES" id="lj2-bB-Isr"/>
                     <constraint firstItem="dqE-ms-2e4" firstAttribute="leading" secondItem="N6l-7Z-pe3" secondAttribute="leading" id="oaQ-xr-NbR"/>
+                    <constraint firstItem="CV7-Kg-l7Y" firstAttribute="leading" secondItem="YVP-Dn-GkJ" secondAttribute="leading" id="uVH-bA-aNK"/>
                     <constraint firstAttribute="trailing" secondItem="CV7-Kg-l7Y" secondAttribute="trailing" constant="20" symbolic="YES" id="vvL-ap-kaa"/>
-                    <constraint firstItem="qGl-j3-FNW" firstAttribute="trailing" secondItem="nfI-AD-9Gy" secondAttribute="trailing" id="xPD-lG-leX"/>
                     <constraint firstItem="eNL-9G-wOI" firstAttribute="centerY" secondItem="2f6-ou-ST8" secondAttribute="centerY" id="xkT-Nd-eRP"/>
                     <constraint firstItem="YVP-Dn-GkJ" firstAttribute="baseline" secondItem="dqE-ms-2e4" secondAttribute="baseline" id="zZK-uL-2k4"/>
                 </constraints>
@@ -166,7 +137,7 @@ Gw
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>
-            <point key="canvasLocation" x="41" y="191.5"/>
+            <point key="canvasLocation" x="65" y="223.5"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="77Y-lV-Qa6"/>
     </objects>

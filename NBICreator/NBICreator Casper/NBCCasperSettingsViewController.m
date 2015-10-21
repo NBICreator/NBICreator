@@ -924,20 +924,21 @@ DDLogLevel ddLogLevel;
     
     if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsavedBuild] ) {
         NSString *selectedTemplate = alertInfo[NBCAlertUserInfoSelectedTemplate];
+        NSDictionary *preWorkflowTasks = alertInfo[NBCAlertUserInfoPreWorkflowTasks];
         if ( returnCode == NSAlertFirstButtonReturn ) {         // Save and Continue
             if ( [_selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
-                [_templates showSheetSaveUntitled:selectedTemplate buildNBI:YES];
+                [_templates showSheetSaveUntitled:selectedTemplate buildNBI:YES preWorkflowTasks:preWorkflowTasks];
                 return;
             } else {
                 [self saveUISettingsWithName:_selectedTemplate atUrl:_templatesDict[_selectedTemplate]];
                 [self setSelectedTemplate:selectedTemplate];
                 [self updateUISettingsFromURL:_templatesDict[_selectedTemplate]];
                 [self expandVariablesForCurrentSettings];
-                [self verifySettings];
+                [self verifySettings:preWorkflowTasks];
                 return;
             }
         } else if ( returnCode == NSAlertSecondButtonReturn ) { // Continue
-            [self verifySettings];
+            [self verifySettings:preWorkflowTasks];
             return;
         } else {                                                // Cancel
             [_popUpButtonTemplates selectItemWithTitle:_selectedTemplate];
@@ -2138,7 +2139,7 @@ DDLogLevel ddLogLevel;
     BOOL settingsChanged = [self haveSettingsChanged];
     
     if ( [_selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
-        [_templates showSheetSaveUntitled:selectedTemplate buildNBI:NO];
+        [_templates showSheetSaveUntitled:selectedTemplate buildNBI:NO preWorkflowTasks:@{}];
         return;
     } else if ( settingsChanged ) {
         NSDictionary *alertInfo = @{ NBCAlertTagKey : NBCAlertTagSettingsUnsaved,
@@ -2288,11 +2289,14 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)buildNBI {
+- (void)buildNBI:(NSDictionary *)preWorkflowTasks {
     
     if ( [self haveSettingsChanged] ) {
-        NSDictionary *alertInfo = @{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
-                                     NBCAlertUserInfoSelectedTemplate : _selectedTemplate };
+        NSDictionary *alertInfo = @{
+                                    NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
+                                    NBCAlertUserInfoSelectedTemplate : _selectedTemplate,
+                                    NBCAlertUserInfoPreWorkflowTasks : preWorkflowTasks ?: @{}
+                                    };
         
         NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
         [alert showAlertSettingsUnsavedBuild:@"You have unsaved settings, do you want to save current template and continue?"
@@ -2301,11 +2305,11 @@ DDLogLevel ddLogLevel;
         [NBCAlerts showAlertSettingsUnchangedNBI];
         return;
     } else {
-        [self verifySettings];
+        [self verifySettings:preWorkflowTasks];
     }
 } // buildNBI
 
-- (void)verifySettings {
+- (void)verifySettings:(NSDictionary *)preWorkflowTasks {
     
     DDLogInfo(@"Verifying settings...");
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeCasper
@@ -2313,6 +2317,7 @@ DDLogLevel ddLogLevel;
     [workflowItem setSource:_source];
     [workflowItem setApplicationSource:_siuSource];
     [workflowItem setSettingsViewController:self];
+    [workflowItem setPreWorkflowTasks:preWorkflowTasks];
     
     // ----------------------------------------------------------------
     //  Collect current UI settings and pass them through verification
@@ -2488,10 +2493,6 @@ DDLogLevel ddLogLevel;
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     
-    if ( [userSettings[NBCSettingsIncludePythonKey] boolValue] ) {
-        [NBCSourceController addPython:sourceItemsDict source:_source];
-    }
-    
     [NBCSourceController addCasperImaging:sourceItemsDict source:_source];
     
     // - AppleScript is required for Casper
@@ -2501,16 +2502,21 @@ DDLogLevel ddLogLevel;
     //[NBCSourceController addDtrace:sourceItemsDict source:_source];
     
     // - spctl
-    [NBCSourceController addSpctl:sourceItemsDict source:_source];
+    //[NBCSourceController addSpctl:sourceItemsDict source:_source];
     
     // - taskgated
     //[NBCSourceController addTaskgated:sourceItemsDict source:_source];
     
     // - NSURLStoraged + NSURLSessiond
-    [NBCSourceController addNSURLStoraged:sourceItemsDict source:_source];
+    //[NBCSourceController addNSURLStoraged:sourceItemsDict source:_source];
     
     if ( 11 <= sourceVersionMinor ) {
         [NBCSourceController addLibSsl:sourceItemsDict source:_source];
+    }
+    
+    // - Python
+    if ( [userSettings[NBCSettingsIncludePythonKey] boolValue] ) {
+        [NBCSourceController addPython:sourceItemsDict source:_source];
     }
     
     // - Console.app

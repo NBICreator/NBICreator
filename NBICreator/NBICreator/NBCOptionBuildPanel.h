@@ -7,26 +7,23 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "NBCSource.h"
 
 @protocol NBCOptionBuildPanelDelegate
 @optional
-- (void)continueWorkflow;
+- (void)continueWorkflow:(NSDictionary *)preWorkflowTasks;
 @end
 
 @interface NBCOptionBuildPanel : NSWindowController {
     id _delegate;
 }
 
-@property (weak) NSViewController *settingsViewController;
-
+@property (weak) id settingsViewController;
 @property (strong) IBOutlet NSWindow *windowOptionWindow;
+
 
 @property (weak) IBOutlet NSButton *checkboxClearSourceCache;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonClearSourceCache;
-
-@property (weak) IBOutlet NSButton *checkboxClearAppCache;
-@property (weak) IBOutlet NSPopUpButton *popUpButtonClearAppCache;
-
 @property (weak) IBOutlet NSPopUpButton *pupUpButtonChangeLogLevel;
 
 @property (weak) IBOutlet NSButton *buttonContinue;

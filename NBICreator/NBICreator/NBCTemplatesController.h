@@ -78,7 +78,7 @@
 - (void)menuItemShowInFinder:(NSNotification *)notification;
 + (BOOL)templateIsDuplicate:(NSURL *)templateURL;
 - (void)deleteTemplateAtURL:(NSURL *)templateURL updateTemplateList:(BOOL)update;
-- (void)showSheetSaveUntitled:(NSString *)senderTitle buildNBI:(BOOL)buildNBI;
+- (void)showSheetSaveUntitled:(NSString *)senderTitle buildNBI:(BOOL)buildNBI preWorkflowTasks:(NSDictionary *)preWorkflowTasks;
 - (id)initWithSettingsViewController:(id)settingsViewController templateType:(NSString *)templateType delegate:(id<NBCTemplatesDelegate>)delegate;
 - (void)updateTemplateListForPopUpButton:(NSPopUpButton *)popUpButton title:(NSString *)title;
 + (NSDictionary *)templateInfoFromTemplateAtURL:(NSURL *)templateURL error:(NSError **)error;

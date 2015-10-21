@@ -41,13 +41,9 @@
 
 // UI
 #import "NBCDeployStudioDropViewController.h"
-#import "NBCDeployStudioSettingsViewController.h"
 #import "NBCNetInstallDropViewController.h"
-#import "NBCNetInstallSettingsViewController.h"
 #import "NBCImagrDropViewController.h"
-#import "NBCImagrSettingsViewController.h"
 #import "NBCCasperDropViewController.h"
-#import "NBCCasperSettingsViewController.h"
 
 
 #import "NBCPreferences.h"
@@ -505,7 +501,6 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateButtonBuild:(NSNotification *)notification {
-    
     BOOL buttonState = [[notification userInfo][NBCNotificationUpdateButtonBuildUserInfoButtonState] boolValue];
     
     // --------------------------------------------------------------
@@ -709,7 +704,6 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)testInternetConnection {
-    
     NSString *hostToCheck = @"github.com";
     // --------------------------------------------------------------
     //  Check if connection against github.com is succesful
@@ -1044,7 +1038,6 @@ enum {
 
 - (IBAction)buttonInstallHelper:(id)sender {
 #pragma unused(sender)
-    
     if ( [self blessHelperWithLabel:NBCBundleIdentifierHelper] ) {
         [self setHelperAvailable:YES];
         [_currentSettingsController verifyBuildButton];
@@ -1052,8 +1045,8 @@ enum {
     }
 } // buttonInstallHelper
 
-- (void)continueWorkflow {
-    [_currentSettingsController buildNBI];
+- (void)continueWorkflow:(NSDictionary *)preWorkflowTasks {
+    [_currentSettingsController buildNBI:preWorkflowTasks];
 } // continueWorkflow
 
 - (IBAction)buttonBuild:(id)sender {
@@ -1063,26 +1056,29 @@ enum {
             [self setOptionBuildPanel:nil];
         }
         [self setOptionBuildPanel:[[NBCOptionBuildPanel alloc] initWithDelegate:self]];
-        [_optionBuildPanel setSettingsViewController:_currentSettingsController];
+        if ( _currentSettingsController ) {
+            [_optionBuildPanel setSettingsViewController:_currentSettingsController];
+        } else {
+            DDLogError(@"[ERROR] Current settings controller was nil!");
+            return;
+        }
         [[NSApp mainWindow] beginSheet:[_optionBuildPanel window] completionHandler:^(NSModalResponse returnCode) {
             if ( returnCode == NSModalResponseCancel ) {
                 DDLogInfo(@"[DEBUG] Workflow canceled!");
             }
         }];
     } else {
-        [_currentSettingsController buildNBI];
+        [_currentSettingsController buildNBI:@{}];
     }
 } // buttonBuild
 
 - (IBAction)segmentedControlNBI:(id)sender {
-    
     NSSegmentedControl *segmentedControl = (NSSegmentedControl *) sender;
     [self selectSegmentedControl:[segmentedControl selectedSegment]];
 } // segmentedControlNBI
 
 - (IBAction)menuItemPreferences:(id)sender {
 #pragma unused(sender)
-    
     if ( ! _preferencesWindow ) {
         _preferencesWindow = [[NBCPreferences alloc] initWithWindowNibName:@"NBCPreferences"];
     }
