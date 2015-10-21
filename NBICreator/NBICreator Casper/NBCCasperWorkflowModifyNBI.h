@@ -30,6 +30,8 @@
 // ------------------------------------------------------
 @property BOOL modifyNetInstallComplete;
 @property BOOL modifyBaseSystemComplete;
+@property BOOL isNBI;
+@property NSDictionary *settingsChanged;
 
 // ------------------------------------------------------
 //  Class Instance Properties

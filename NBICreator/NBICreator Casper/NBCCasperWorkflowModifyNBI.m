@@ -36,13 +36,15 @@ DDLogLevel ddLogLevel;
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     DDLogInfo(@"Modifying NBI...");
     NSError *error;
-    _targetController = [[NBCTargetController alloc] init];
-    
+    [self setTargetController:[[NBCTargetController alloc] init]];
     [self setWorkflowItem:workflowItem];
     [self setSource:[workflowItem source]];
     [self setTarget:[workflowItem target]];
     [self setModifyBaseSystemComplete:NO];
     [self setModifyNetInstallComplete:NO];
+    [self setIsNBI:( [[[workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
+    DDLogDebug(@"[DEBUG] Source is NBI: %@", ( _isNBI ) ? @"YES" : @"NO" );
+    [self setSettingsChanged:[workflowItem userSettingsChanged]];
     
     NSURL *temporaryNBIURL = [workflowItem temporaryNBIURL];
     if ( temporaryNBIURL ) {
@@ -89,101 +91,140 @@ DDLogLevel ddLogLevel;
 } // modifyNBISystemImageUtility
 
 - (void)finalizeWorkflow {
-    NSError *error;
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    NSDictionary *userSettings = [_workflowItem userSettings];
-    NSURL *baseSystemDiskImageURL = [_target baseSystemURL];
-    NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
+    if ( ! _isNBI || ( _isNBI && [_workflowItem userSettingsChangedRequiresBaseSystem] ) ) {
+        [self convertBaseSystem];
+    } else {
+        [self convertNetInstall];
+    }
+}
+
+- (void)convertBaseSystem {
+    [self->_delegate updateProgressStatus:@"Converting BaseSystem.dmg and shadow file..." workflow:self];
     
-    // ------------------------------------------------------
-    //  Convert and rename BaseSystem image from shadow file
-    // ------------------------------------------------------
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_delegate updateProgressStatus:@"Converting BaseSystem.dmg and shadow file..." workflow:self];
-    });
-    
-    if ( [_targetController convertBaseSystemFromShadow:_workflowItem error:&error] ) {
-        if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-            if ( ! [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
-                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
-                                  object:self
-                                userInfo:nil];
-                return;
-            } else {
-                if ( ! [self createSymlinkToSparseimageAtURL:baseSystemDiskImageURL] ) {
-                    DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
-                    [nc postNotificationName:NBCNotificationWorkflowFailed
-                                      object:self
-                                    userInfo:nil];
-                    return;
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+    dispatch_async(taskQueue, ^{
+        
+        NSError *error = nil;
+        NSURL *baseSystemDiskImageURL = [self->_target baseSystemURL];
+        NSDictionary *userSettings = [self->_workflowItem userSettings];
+        NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
+        
+        if ( [self->_targetController convertBaseSystemFromShadow:self->_workflowItem error:&error] ) {
+            if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+                if ( [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
+                    if ( ! [self createSymlinkToSparseimageAtURL:baseSystemDiskImageURL] ) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
+                            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                                object:self
+                                                                              userInfo:nil];
+                            return;
+                        });
+                    }
                 }
             }
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self convertNetInstall];
+            });
         } else {
-            baseSystemDiskImageURL = [_target baseSystemURL];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                DDLogError(@"[ERROR] Converting BaseSystem from shadow failed!");
+                NSDictionary *userInfo = nil;
+                if ( error ) {
+                    DDLogError(@"[ERROR] %@", error);
+                    userInfo = @{ NBCUserInfoNSErrorKey : error };
+                }
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                return;
+            });
         }
-    } else {
-        DDLogError(@"[ERROR] Converting BaseSystem from shadow failed!");
-        NSDictionary *userInfo = nil;
-        if ( error ) {
-            DDLogError(@"[ERROR] %@", error);
-            userInfo = @{ NBCUserInfoNSErrorKey : error };
-        }
-        [nc postNotificationName:NBCNotificationWorkflowFailed
-                          object:self
-                        userInfo:userInfo];
-        return;
-    }
+    });
+}
+
+- (void)convertNetInstall {
+    __block NSError *error = nil;
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    NSDictionary *userSettings = [_workflowItem userSettings];
+    NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
+    NSURL *baseSystemDiskImageURL = [_target baseSystemURL];
     
     if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         
         // ------------------------------------------------------
         //  Convert and rename NetInstall image from shadow file
         // ------------------------------------------------------
-        if ( [_targetController convertNetInstallFromShadow:_workflowItem error:&error] ) {
-            if ( ! [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
-                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
-                                  object:self
-                                userInfo:nil];
-                return;
-            } else {
-                if ( [self createSymlinkToSparseimageAtURL:[_target nbiNetInstallURL]] ) {
-                    [baseSystemDiskImageURL setResourceValue:@YES forKey:NSURLIsHiddenKey error:NULL];
-                    [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
-                                      object:self
-                                    userInfo:nil];
+        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
+        dispatch_async(taskQueue, ^{
+            
+            if ( [self->_targetController convertNetInstallFromShadow:self->_workflowItem error:&error] ) {
+                if ( ! [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
+                                          object:self
+                                        userInfo:nil];
+                    });
                     return;
                 } else {
-                    DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
-                    [nc postNotificationName:NBCNotificationWorkflowFailed
-                                      object:self
-                                    userInfo:nil];
-                    return;
+                    if ( [userSettings[NBCSettingsDiskImageReadWriteRenameKey] boolValue] ) {
+                        DDLogDebug(@"[DEBUG] Renaming NetInstall.sparseimage to NetInstall.dmg...");
+                        NSURL *netInstallFolderURL = [[self->_target nbiNetInstallURL] URLByDeletingLastPathComponent];
+                        DDLogDebug(@"[DEBUG] NetInstall disk image folder path: %@", [netInstallFolderURL path]);
+                        NSString *sparseImageName = [[[self->_target nbiNetInstallURL] lastPathComponent] stringByDeletingPathExtension];
+                        DDLogDebug(@"[DEBUG] NetInstall disk image name: %@", sparseImageName);
+                        NSURL *sparseImageURL = [netInstallFolderURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.sparseimage", sparseImageName]];
+                        DDLogDebug(@"[DEBUG] NetInstall sparseimage path: %@", [sparseImageURL path]);
+                        if ( [[[NSFileManager alloc] init] moveItemAtURL:sparseImageURL toURL:[self->_target nbiNetInstallURL] error:&error] ) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
+                            });
+                            return;
+                        } else {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                DDLogError(@"[ERROR] Could not rename sparseimage");
+                                //[nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                            });
+                            return;
+                        }
+                    } else {
+                        if ( [self createSymlinkToSparseimageAtURL:[self->_target nbiNetInstallURL]] ) {
+                            if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:&error] ) {
+                                [baseSystemDiskImageURL setResourceValue:@YES forKey:NSURLIsHiddenKey error:NULL];
+                            } else {
+                                NSLog(@"err");
+                            }
+                            
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
+                            });
+                            return;
+                        } else {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                DDLogError(@"[ERROR] Could not create symlink for sparseimage");
+                                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                            });
+                            return;
+                        }
+                    }
                 }
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    DDLogError(@"[ERROR] Converting NetIstall from shadow failed!");
+                    NSDictionary *userInfo = nil;
+                    if ( error ) {
+                        DDLogError(@"[ERROR] %@", error);
+                        userInfo = @{ NBCUserInfoNSErrorKey : error };
+                    }
+                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+                    return;
+                });
             }
-        } else {
-            DDLogError(@"[ERROR] Converting NetIstall from shadow failed!");
-            NSDictionary *userInfo = nil;
-            if ( error ) {
-                DDLogError(@"[ERROR] %@", error);
-                userInfo = @{ NBCUserInfoNSErrorKey : error };
-            }
-            [nc postNotificationName:NBCNotificationWorkflowFailed
-                              object:self
-                            userInfo:userInfo];
-            return;
-        }
+        });
     } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-        
-        // ------------------------------------------------------
-        //  If system image is not r/w rename to dmg
-        // ------------------------------------------------------
         if ( ! [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
             NSURL *baseSystemDiskImageTargetURL = [[baseSystemDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"NetInstall.dmg"];
-            
             if ( [[NSFileManager defaultManager] moveItemAtURL:baseSystemDiskImageURL toURL:baseSystemDiskImageTargetURL error:&error] ) {
-                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
-                                  object:self
-                                userInfo:nil];
+                [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
                 return;
             } else {
                 DDLogError(@"[ERROR] Could not rename BaseSystem to NetInstall");
@@ -192,49 +233,48 @@ DDLogLevel ddLogLevel;
                     DDLogError(@"[ERROR] %@", error);
                     userInfo = @{ NBCUserInfoNSErrorKey : error };
                 }
-                [nc postNotificationName:NBCNotificationWorkflowFailed
-                                  object:self
-                                userInfo:userInfo];
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
                 return;
             }
         } else {
-            
-            // ----------------------------------------------------------------------
-            //  If system image IS r/w, create symbolic link from sparseimage -> dmg
-            // ----------------------------------------------------------------------
-            NSURL *baseSystemDiskImageTargetURL = [[baseSystemDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"NetInstall.sparseimage"];
-            if ( [[NSFileManager defaultManager] moveItemAtURL:baseSystemDiskImageURL toURL:baseSystemDiskImageTargetURL error:&error] ) {
-                if ( [self createSymlinkToSparseimageAtURL:baseSystemDiskImageTargetURL] ) {
-                    [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI
-                                      object:self
-                                    userInfo:nil];
+            if ( [userSettings[NBCSettingsDiskImageReadWriteRenameKey] boolValue] ) {
+                DDLogDebug(@"[DEBUG] Renaming BaseSystem.sparseimage to NetInstall.dmg...");
+                NSURL *baseSystemDiskImageTargetURL = [[baseSystemDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"NetInstall.dmg"];
+                if ( [[[NSFileManager alloc] init] moveItemAtURL:baseSystemDiskImageURL toURL:baseSystemDiskImageTargetURL error:&error] ) {
+                    [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
                     return;
                 } else {
-                    DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
-                    [nc postNotificationName:NBCNotificationWorkflowFailed
-                                      object:self
-                                    userInfo:nil];
+                    DDLogError(@"[ERROR] Could not rename sparseimage");
+                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
                     return;
                 }
             } else {
-                DDLogError(@"[ERROR] Could not rename BaseSystem to NetInstall");
-                NSDictionary *userInfo = nil;
-                if ( error ) {
-                    DDLogError(@"[ERROR] %@", error);
-                    userInfo = @{ NBCUserInfoNSErrorKey : error };
+                NSURL *baseSystemDiskImageTargetURL = [[baseSystemDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"NetInstall.sparseimage"];
+                if ( [[NSFileManager defaultManager] moveItemAtURL:baseSystemDiskImageURL toURL:baseSystemDiskImageTargetURL error:&error] ) {
+                    if ( [self createSymlinkToSparseimageAtURL:baseSystemDiskImageTargetURL] ) {
+                        [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
+                        return;
+                    } else {
+                        DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
+                        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+                        return;
+                    }
+                } else {
+                    DDLogError(@"[ERROR] Could not rename BaseSystem to NetInstall");
+                    NSDictionary *userInfo = nil;
+                    if ( error ) {
+                        DDLogError(@"[ERROR] %@", error);
+                        userInfo = @{ NBCUserInfoNSErrorKey : error };
+                    }
+                    [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
                 }
-                [nc postNotificationName:NBCNotificationWorkflowFailed
-                                  object:self
-                                userInfo:userInfo];
             }
         }
     } else {
         DDLogError(@"[ERROR] Unknown creation tool");
-        [nc postNotificationName:NBCNotificationWorkflowFailed
-                          object:self
-                        userInfo:nil];
+        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
-} // finalizeWorkflow
+} // convertNetInstall
 
 - (BOOL)createSymlinkToSparseimageAtURL:(NSURL *)sparseImageURL {
     BOOL retval = NO;
@@ -302,26 +342,33 @@ DDLogLevel ddLogLevel;
     NSError *error;
     
     NSURL *nbiNetInstallURL = [_target nbiNetInstallURL];
-    if ( nbiNetInstallURL ) {
+    if ( [nbiNetInstallURL checkResourceIsReachableAndReturnError:&error] ) {
         
-        // ------------------------------------------------------------------
-        //  Attach NetInstall disk image using a shadow image to make it r/w
-        // ------------------------------------------------------------------
-        if ( [_targetController attachNetInstallDiskImageWithShadowFile:nbiNetInstallURL target:_target error:&error] ) {
-            [self->_delegate updateProgressBar:92];
-            
-            // ------------------------------------------------------------------
-            //  Remove Packages folder in NetInstall and create an empty folder
-            // ------------------------------------------------------------------
-            [self removePackagesFolderInNetInstall];
-            
+        if ( _isNBI ) {
+            [self copyFilesToNetInstall];
         } else {
-            DDLogError(@"[ERROR] Attaching NetInstall Failed!");
-            DDLogError(@"%@", error);
-            verified = NO;
+            
+            // ------------------------------------------------------------------
+            //  Attach NetInstall disk image using a shadow image to make it r/w
+            // ------------------------------------------------------------------
+            if ( [_targetController attachNetInstallDiskImageWithShadowFile:nbiNetInstallURL target:_target error:&error] ) {
+                [self->_delegate updateProgressBar:92];
+                
+                
+                // ------------------------------------------------------------------
+                //  Remove Packages folder in NetInstall and create an empty folder
+                // ------------------------------------------------------------------
+                
+                [self removePackagesFolderInNetInstall];
+            } else {
+                DDLogError(@"[ERROR] Attaching NetInstall Failed!");
+                DDLogError(@"%@", error);
+                verified = NO;
+            }
         }
     } else {
         DDLogError(@"[ERROR] Could not get netInstallURL from target!");
+        DDLogError(@"[ERROR] %@", error);
         verified = NO;
     }
     
@@ -336,7 +383,6 @@ DDLogLevel ddLogLevel;
         //  Remove Packages folder in NetInstall
         // --------------------------------------
         NSURL *packagesFolderURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:@"Packages"];
-        
         if ( [packagesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
             NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
             [helperConnector connectToHelper];
@@ -635,6 +681,10 @@ DDLogLevel ddLogLevel;
         /*if ( verified && [userSettings[NBCSettingsCasperDisableATS] boolValue] ) {
          verified = [_targetController modifySettingsForCasper:modifyDictArray workflowItem:_workflowItem];
          }*/
+        
+        if ( verified && [userSettings[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
+            verified = [_targetController modifySettingsForTrustedNetBootServers:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
     if ( verified && [userSettings[NBCSettingsCasperImagingDebugModeKey] boolValue] ) {
@@ -694,12 +744,6 @@ DDLogLevel ddLogLevel;
             }
         } else {
             verified = NO;
-        }
-    }
-    
-    if ( 11 <= sourceVersionMinor ) {
-        if ( verified && [userSettings[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
-            verified = [_targetController modifySettingsForTrustedNetBootServers:modifyDictArray workflowItem:_workflowItem];
         }
     }
     

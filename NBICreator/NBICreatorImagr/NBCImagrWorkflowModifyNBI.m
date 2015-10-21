@@ -36,13 +36,12 @@ DDLogLevel ddLogLevel;
     DDLogInfo(@"Modifying NBI...");
     NSError *error;
     [self setTargetController:[[NBCTargetController alloc] init]];
-    
     [self setWorkflowItem:workflowItem];
     [self setSource:[workflowItem source]];
     [self setTarget:[workflowItem target]];
     [self setModifyBaseSystemComplete:NO];
     [self setModifyNetInstallComplete:NO];
-    [self setIsNBI:( [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
+    [self setIsNBI:( [[[workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
     DDLogDebug(@"[DEBUG] Source is NBI: %@", ( _isNBI ) ? @"YES" : @"NO" );
     [self setSettingsChanged:[workflowItem userSettingsChanged]];
     
@@ -273,7 +272,7 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] Unknown creation tool");
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
-} // finalizeWorkflow
+} // convertNetInstall
 
 - (BOOL)createSymlinkToSparseimageAtURL:(NSURL *)sparseImageURL {
     BOOL retval = NO;
@@ -556,6 +555,7 @@ DDLogLevel ddLogLevel;
 
 - (void)installPackagesToBaseSystem {
     DDLogInfo(@"Installing packages to BaseSystem Volume...");
+    [_delegate updateProgressStatus:@"Installing packages to BaseSystem Volume..." workflow:self];
     NSDictionary *resourcesBaseSystemDict = [_target resourcesBaseSystemDict];
     if ( [resourcesBaseSystemDict count] != 0 ) {
         NSArray *packageArray = resourcesBaseSystemDict[NBCWorkflowInstall];

@@ -54,6 +54,8 @@
 	<false/>
 	<key>DiskImageReadWrite</key>
 	<false/>
+	<key>DiskImageReadWriteRename</key>
+	<false/>
 	<key>Default</key>
 	<false/>
 	<key>Enabled</key>

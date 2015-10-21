@@ -216,6 +216,7 @@
 @property NSString *networkTimeServer;
 @property BOOL useVerboseBoot;
 @property BOOL diskImageReadWrite;
+@property BOOL diskImageReadWriteRename;
 @property BOOL includeConsoleApp;
 @property BOOL enableLaunchdLogging;
 @property BOOL launchConsoleApp;

@@ -30,17 +30,12 @@
         if ( [selectedSource isEqualToString:@"Current Source"] ) {
             NSString *sourceBuild = [[workflowItem source] sourceBuild];
             if ( [sourceBuild length] != 0 ) {
-                NSString *sourceOSVersion = [[workflowItem source] sourceVersion];
-                if ( [sourceOSVersion length] != 0 ) {
-                    [self cleanCacheFolderForSourceBuild:sourceBuild osVersion:sourceOSVersion];
-                } else {
-                    DDLogError(@"[ERROR] Source OS Version was empty!");
-                }
+                [self cleanCacheFolderForSourceBuild:sourceBuild];
             } else {
                 DDLogError(@"[ERROR]Source build version was empty!");
             }
         } else if ( [selectedSource isEqualToString:@"All Sources"] ) {
-            [self cleanCacheFolderForSourceBuild:@"All Sources" osVersion:nil];
+            [self cleanCacheFolderForSourceBuild:@"All Sources"];
         }
     } else {
         if (_delegate && [_delegate respondsToSelector:@selector(preWorkflowTasksCompleted)]) {
@@ -49,16 +44,12 @@
     }
 }
 
-/*
- 
- */
-
 - (NSURL *)cacheFolderURL {
     NBCWorkflowResourcesController *resourcesController = [[NBCWorkflowResourcesController alloc] init];
     return [resourcesController urlForResourceFolder:NBCFolderResourcesCache];
 }
 
-- (void)cleanCacheFolderForSourceBuild:(NSString *)sourceBuild osVersion:(NSString *)osVersion {
+- (void)cleanCacheFolderForSourceBuild:(NSString *)sourceBuild {
     DDLogInfo(@"Cleaning cache folder for source: %@", sourceBuild);
     if (_progressDelegate && [_progressDelegate respondsToSelector:@selector(updateProgressStatus:workflow:)]) {
         [_progressDelegate updateProgressStatus:@"Cleaning cache folder..." workflow:self];
@@ -80,6 +71,7 @@
             if (_delegate && [_delegate respondsToSelector:@selector(preWorkflowTasksCompleted)]) {
                 [_delegate preWorkflowTasksCompleted];
             }
+            return;
         }
     } else {
         cacheFolderURL = [self cacheFolderURL];
@@ -115,6 +107,7 @@
             if (_delegate && [_delegate respondsToSelector:@selector(preWorkflowTasksCompleted)]) {
                 [_delegate preWorkflowTasksCompleted];
             }
+            return;
         }
     }
     

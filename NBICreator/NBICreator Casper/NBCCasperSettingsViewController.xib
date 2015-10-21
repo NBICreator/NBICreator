@@ -1492,9 +1492,9 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="n52-4f-pfp">
-                                        <rect key="frame" x="18" y="265" width="383" height="18"/>
+                                        <rect key="frame" x="18" y="265" width="234" height="18"/>
                                         <animations/>
-                                        <buttonCell key="cell" type="check" title="Make NetInstall images Read/Write ( dmg -&gt; sparse image )" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="gEP-5g-eZ0">
+                                        <buttonCell key="cell" type="check" title="Make NetInstall images Read/Write" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="gEP-5g-eZ0">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
@@ -1503,7 +1503,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="jct-vi-yLB">
-                                        <rect key="frame" x="18" y="242" width="146" height="18"/>
+                                        <rect key="frame" x="18" y="222" width="146" height="18"/>
                                         <animations/>
                                         <buttonCell key="cell" type="check" title="Include Console.app" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="lkn-8v-3JZ">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1513,19 +1513,8 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.includeConsoleApp" id="LPj-2k-WD4"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="UiM-58-X3t">
-                                        <rect key="frame" x="18" y="200" width="341" height="18"/>
-                                        <animations/>
-                                        <buttonCell key="cell" type="check" title="Add stdout and stderr logging to all LaunchDaemons" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="cxp-oO-brF">
-                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <binding destination="-2" name="value" keyPath="self.enableLaunchdLogging" id="DTM-oh-9Ri"/>
-                                        </connections>
-                                    </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="weA-wb-Ce2">
-                                        <rect key="frame" x="34" y="221" width="257" height="18"/>
+                                        <rect key="frame" x="34" y="201" width="257" height="18"/>
                                         <animations/>
                                         <buttonCell key="cell" type="check" title="Launch Console.app behind main application" bezelStyle="regularSquare" imagePosition="left" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="uXy-lz-8TD">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1535,18 +1524,29 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.launchConsoleApp" id="lTZ-6Z-uHL"/>
                                         </connections>
                                     </button>
+                                    <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="EB1-Wi-oUS">
+                                        <rect key="frame" x="34" y="244" width="369" height="18"/>
+                                        <animations/>
+                                        <buttonCell key="cell" type="check" title="Rename NetInstall.sparseimage instead of creating a symbolic link" bezelStyle="regularSquare" imagePosition="left" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="pct-5f-EdB">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="smallSystem"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.diskImageReadWriteRename" id="fDB-Rr-3W7"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="KaC-qv-2hF" firstAttribute="top" secondItem="mvC-mU-QIX" secondAttribute="top" constant="20" symbolic="YES" id="67I-cb-Gro"/>
-                                    <constraint firstItem="weA-wb-Ce2" firstAttribute="top" secondItem="jct-vi-yLB" secondAttribute="bottom" constant="6" symbolic="YES" id="Cr0-ag-MUS"/>
-                                    <constraint firstItem="UiM-58-X3t" firstAttribute="leading" secondItem="jct-vi-yLB" secondAttribute="leading" id="JW3-ae-vyc"/>
+                                    <constraint firstItem="weA-wb-Ce2" firstAttribute="top" secondItem="jct-vi-yLB" secondAttribute="bottom" constant="8" symbolic="YES" id="Cr0-ag-MUS"/>
+                                    <constraint firstItem="EB1-Wi-oUS" firstAttribute="leading" secondItem="n52-4f-pfp" secondAttribute="leading" constant="17" id="Dl0-94-t8m"/>
+                                    <constraint firstItem="EB1-Wi-oUS" firstAttribute="top" secondItem="n52-4f-pfp" secondAttribute="bottom" constant="8" symbolic="YES" id="IVh-Y1-pwD"/>
                                     <constraint firstItem="KaC-qv-2hF" firstAttribute="leading" secondItem="mvC-mU-QIX" secondAttribute="leading" constant="20" symbolic="YES" id="Kge-kr-gHy"/>
                                     <constraint firstItem="n52-4f-pfp" firstAttribute="leading" secondItem="KaC-qv-2hF" secondAttribute="leading" id="P7Q-Av-1Jd"/>
-                                    <constraint firstItem="UiM-58-X3t" firstAttribute="top" secondItem="weA-wb-Ce2" secondAttribute="bottom" constant="8" symbolic="YES" id="Wzi-uN-Rf9"/>
                                     <constraint firstItem="weA-wb-Ce2" firstAttribute="leading" secondItem="jct-vi-yLB" secondAttribute="leading" constant="17" id="a6G-hJ-wcN"/>
                                     <constraint firstItem="jct-vi-yLB" firstAttribute="leading" secondItem="n52-4f-pfp" secondAttribute="leading" id="cD2-85-WDd"/>
+                                    <constraint firstItem="jct-vi-yLB" firstAttribute="top" secondItem="EB1-Wi-oUS" secondAttribute="bottom" constant="9" id="hgF-aZ-t0t"/>
                                     <constraint firstItem="n52-4f-pfp" firstAttribute="top" secondItem="KaC-qv-2hF" secondAttribute="bottom" constant="9" id="xe7-Yr-vlj"/>
-                                    <constraint firstItem="jct-vi-yLB" firstAttribute="top" secondItem="n52-4f-pfp" secondAttribute="bottom" constant="9" id="yGL-8c-hgZ"/>
                                 </constraints>
                                 <animations/>
                             </view>
