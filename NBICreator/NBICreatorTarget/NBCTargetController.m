@@ -59,8 +59,10 @@ DDLogLevel ddLogLevel;
 } // applyNBISettings
 
 - (NSMutableDictionary *)getNBImageInfoDict:(NSURL *)nbiImageInfoURL nbiURL:(NSURL *)nbiURL {
+    DDLogDebug(@"[DEBUG] Getting NBImageInfo.plist...");
     NSMutableDictionary *nbImageInfoDict;
     if ( [nbiImageInfoURL checkResourceIsReachableAndReturnError:nil] ) {
+        DDLogDebug(@"[DEBUG] Returning existing NBImageInfo.plist at path: %@", [nbiImageInfoURL path]);
         nbImageInfoDict = [[NSMutableDictionary alloc] initWithContentsOfURL:nbiImageInfoURL];
     } else {
         nbImageInfoDict = [self createDefaultNBImageInfoPlist:nbiURL];
@@ -70,6 +72,7 @@ DDLogLevel ddLogLevel;
 } // getNBImageInfoDict:nbiURL
 
 - (NSMutableDictionary *)createDefaultNBImageInfoPlist:(NSURL *)nbiURL {
+    DDLogDebug(@"[DEBUG] Creating default NBImageInfo.plist...");
     NSMutableDictionary *nbImageInfoDict = [[NSMutableDictionary alloc] init];
     NSArray *disabledSystemIdentifiers;
     NSDictionary *platformSupportDict;
@@ -92,19 +95,19 @@ DDLogLevel ddLogLevel;
     nbImageInfoDict[@"Architectures"] = @[ @"i386" ];
     nbImageInfoDict[@"BackwardCompatible"] = @NO;
     nbImageInfoDict[@"BootFile"] = @"booter";
-    nbImageInfoDict[@"Description"] = @"";
+    nbImageInfoDict[NBCNBImageInfoDictDescriptionKey] = @"";
     nbImageInfoDict[@"DisabledSystemIdentifiers"] = disabledSystemIdentifiers ?: @[];
     nbImageInfoDict[@"EnabledSystemIdentifiers"] = @[];
-    nbImageInfoDict[@"Index"] = @1;
-    nbImageInfoDict[@"IsDefault"] = @NO;
-    nbImageInfoDict[@"IsEnabled"] = @YES;
+    nbImageInfoDict[NBCNBImageInfoDictIndexKey] = @1;
+    nbImageInfoDict[NBCNBImageInfoDictIsDefaultKey] = @NO;
+    nbImageInfoDict[NBCNBImageInfoDictIsEnabledKey] = @YES;
     nbImageInfoDict[@"IsInstall"] = @YES;
     nbImageInfoDict[@"Kind"] = @1;
-    nbImageInfoDict[@"Language"] = @"Default";
+    nbImageInfoDict[NBCNBImageInfoDictLanguageKey] = @"Default";
     nbImageInfoDict[@"Name"] = @"";
     nbImageInfoDict[@"RootPath"] = @"NetInstall.dmg";
     nbImageInfoDict[@"SupportsDiskless"] = @NO;
-    nbImageInfoDict[@"Type"] = @"HTTP";
+    nbImageInfoDict[NBCNBImageInfoDictProtocolKey] = @"HTTP";
     nbImageInfoDict[@"imageType"] = @"netinstall";
     nbImageInfoDict[@"osVersion"] = @"10.x";
     
@@ -113,6 +116,7 @@ DDLogLevel ddLogLevel;
 
 - (NSMutableDictionary *)updateNBImageInfoDict:(NSMutableDictionary *)nbImageInfoDict nbImageInfoURL:(NSURL *)nbImageInfoURL workflowItem:(NBCWorkflowItem *)workflowItem {
 #pragma unused(nbImageInfoURL)
+    DDLogDebug(@"[DEBUG] Updating NBImageInfo.plist...");
     NBCSource *source = [workflowItem source];
     id applicationSource = [workflowItem applicationSource];
     
@@ -190,9 +194,11 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] NBI name setting is empty!");
         return nil;
     }
+    
     nbiDescription = [NBCVariables expandVariables:userSettings[NBCSettingsDescriptionKey]
                                             source:source
                                  applicationSource:applicationSource];
+    
     
     nbiIndexString = [NBCVariables expandVariables:userSettings[NBCSettingsIndexKey]
                                             source:source
@@ -1082,7 +1088,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForDesktopViewer:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Configure settings for Desktop Viewer...");
+    DDLogInfo(@"Modifying settings for Desktop Viewer...");
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];

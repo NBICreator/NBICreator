@@ -958,6 +958,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateSource:(NSNotification *)notification {
+    DDLogDebug(@"[DEBUG] Updating source...");
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
         [self setSource:source];
@@ -974,6 +975,7 @@ DDLogLevel ddLogLevel;
     
     NBCTarget *target = [notification userInfo][NBCNotificationUpdateSourceUserInfoTarget];
     if ( target != nil ) {
+        DDLogDebug(@"[DEBUG] ");
         [self setTarget:target];
     }
     
@@ -1143,7 +1145,6 @@ DDLogLevel ddLogLevel;
     [self setUseNetworkTimeServer:[settingsDict[NBCSettingsUseNetworkTimeServerKey] boolValue]];
     [self setNetworkTimeServer:settingsDict[NBCSettingsNetworkTimeServerKey]];
     [self setImagrVersion:settingsDict[NBCSettingsImagrVersion]];
-    [self setIncludeImagrPreReleaseVersions:[settingsDict[NBCSettingsImagrIncludePreReleaseVersions] boolValue]];
     [self setImagrConfigurationURL:settingsDict[NBCSettingsImagrConfigurationURL]];
     [self setImagrReportingURL:settingsDict[NBCSettingsImagrReportingURL]];
     [self setImagrUseLocalVersion:[settingsDict[NBCSettingsImagrUseLocalVersion] boolValue]];
@@ -1260,10 +1261,13 @@ DDLogLevel ddLogLevel;
         [self selectTimeZone:[_popUpButtonTimeZone itemWithTitle:NBCMenuItemCurrent]];
     } else {
         NSString *selectedTimeZoneRegion = [selectedTimeZone componentsSeparatedByString:@"/"][0];
+        DDLogDebug(@"[DEBUG] TimeZone Region: %@", selectedTimeZoneRegion);
         NSString *selectedTimeZoneCity = [selectedTimeZone componentsSeparatedByString:@"/"][1];
+        DDLogDebug(@"[DEBUG] TimeZone City: %@", selectedTimeZoneCity);
         NSArray *regionArray = [[[_popUpButtonTimeZone itemWithTitle:selectedTimeZoneRegion] submenu] itemArray];
         for ( NSMenuItem *menuItem in regionArray ) {
             if ( [[menuItem title] isEqualToString:selectedTimeZoneCity] ) {
+                DDLogDebug(@"[DEBUG] Selecting menu item: %@", [menuItem title]);
                 [self selectTimeZone:menuItem];
                 break;
             }
@@ -1332,6 +1336,12 @@ DDLogLevel ddLogLevel;
             [_checkboxARDPasswordShow setEnabled:NO];
         }
         
+        if ( [settingsDict[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
+            [_checkboxUseNetworkTimeServer setEnabled:YES];
+        } else {
+            [_checkboxUseNetworkTimeServer setEnabled:NO];
+        }
+        
         // Tab Bar: Advanced
         [_checkboxAddBackground setEnabled:NO];
         
@@ -1358,6 +1368,8 @@ DDLogLevel ddLogLevel;
         [_textFieldARDLogin setEnabled:YES];
         [_textFieldARDPassword setEnabled:YES];
         [_secureTextFieldARDPassword setEnabled:YES];
+        [_checkboxARDPasswordShow setEnabled:YES];
+        [_checkboxUseNetworkTimeServer setEnabled:YES];
         
         // Tab Bar: Advanced
         [_checkboxAddBackground setEnabled:YES];
@@ -1499,169 +1511,223 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"[DEBUG] Creating template from NBI...");
     NSError *err;
     if ( ! [nbiURL checkResourceIsReachableAndReturnError:&err] ) {
-        NSLog(@"Could not find NBI!");
-        NSLog(@"Error: %@", err);
+        DDLogError(@"[ERROR] %@", [err localizedDescription]);
         return;
     }
     
     NSURL *nbImageInfoURL = [nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
     if ( ! [nbImageInfoURL checkResourceIsReachableAndReturnError:&err] ) {
-        NSLog(@"Could not find nbImageInfoURL");
-        NSLog(@"Error: %@", err);
+        DDLogError(@"[ERROR] %@", [err localizedDescription]);
         return;
     }
     
     NSDictionary *nbImageInfoDict = [[NSDictionary alloc] initWithContentsOfURL:nbImageInfoURL];
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
+    // -------------------------------------------------------------------------------
+    //  Static Values
+    // -------------------------------------------------------------------------------
     settingsDict[NBCSettingsImagrSourceIsNBI] = @YES;
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrSourceIsNBI, settingsDict[NBCSettingsImagrSourceIsNBI]);
     
+    settingsDict[NBCSettingsPackagesKey] = @[];
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsPackagesKey, settingsDict[NBCSettingsPackagesKey]);
+    
+    settingsDict[NBCSettingsEnableLaunchdLoggingKey] = @NO;
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsEnableLaunchdLoggingKey, settingsDict[NBCSettingsEnableLaunchdLoggingKey]);
+    
+    settingsDict[NBCSettingsImagrDisableATS] = @NO;
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrDisableATS, settingsDict[NBCSettingsImagrDisableATS]);
+    
+    // -------------------------------------------------------------------------------
+    //  NBI Name
+    // -------------------------------------------------------------------------------
     NSString *nbiName = nbImageInfoDict[NBCNBImageInfoDictNameKey];
     if ( [nbiName length] != 0 ) {
         settingsDict[NBCSettingsNameKey] = nbiName;
     } else {
         settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     }
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsNameKey, settingsDict[NBCSettingsNameKey]);
     
+    // -------------------------------------------------------------------------------
+    //  NBI Index
+    // -------------------------------------------------------------------------------
     NSNumber *nbiIndex = nbImageInfoDict[NBCNBImageInfoDictIndexKey];
-    if ( nbiIndex != nil ) {
-        settingsDict[NBCSettingsIndexKey] = [nbiIndex stringValue];
-    } else if ( _nbiIndex != nil ) {
-        settingsDict[NBCSettingsIndexKey] = _nbiIndex;
-    }
+    settingsDict[NBCSettingsIndexKey] = [nbiIndex stringValue] ?: NBCVariableIndexCounter;
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsIndexKey, settingsDict[NBCSettingsIndexKey]);
     
+    // -------------------------------------------------------------------------------
+    //  NBI Protocol
+    // -------------------------------------------------------------------------------
     NSString *nbiProtocol = nbImageInfoDict[NBCNBImageInfoDictProtocolKey];
-    if ( [nbiProtocol length] != 0 ) {
-        settingsDict[NBCSettingsProtocolKey] = nbiProtocol;
-    } else {
-        settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"NFS";
-    }
+    settingsDict[NBCSettingsProtocolKey] = nbiProtocol ?: @"NFS";
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsProtocolKey, settingsDict[NBCSettingsProtocolKey]);
     
+    // -------------------------------------------------------------------------------
+    //  NBI Language
+    // -------------------------------------------------------------------------------
     NSString *nbiLanguage = nbImageInfoDict[NBCNBImageInfoDictLanguageKey];
-    if ( [nbiLanguage length] != 0 ) {
-        settingsDict[NBCSettingsLanguageKey] = ( [nbiLanguage isEqualToString:@"Default"] ) ? NBCMenuItemCurrent : nbiLanguage;
-    } else {
-        settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: NBCMenuItemCurrent;
-    }
+    settingsDict[NBCSettingsLanguageKey] = ( [nbiLanguage isEqualToString:@"Default"] ) ? NBCMenuItemCurrent : nbiLanguage ?: NBCMenuItemCurrent ;
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsLanguageKey, settingsDict[NBCSettingsLanguageKey]);
     
+    // -------------------------------------------------------------------------------
+    //  NBI Enabled
+    // -------------------------------------------------------------------------------
     BOOL nbiEnabled = [nbImageInfoDict[NBCNBImageInfoDictIsEnabledKey] boolValue];
-    if ( @(nbiEnabled) != nil ) {
-        settingsDict[NBCSettingsEnabledKey] = @(nbiEnabled);
-    } else {
-        settingsDict[NBCSettingsEnabledKey] = @(_nbiEnabled) ?: @NO;
-    }
+    settingsDict[NBCSettingsEnabledKey] = @(nbiEnabled) ?: @NO;
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsEnabledKey, settingsDict[NBCSettingsEnabledKey]);
     
+    // -------------------------------------------------------------------------------
+    //  NBI Default
+    // -------------------------------------------------------------------------------
     BOOL nbiDefault = [nbImageInfoDict[NBCNBImageInfoDictIsDefaultKey] boolValue];
-    if ( @(nbiDefault) != nil ) {
-        settingsDict[NBCSettingsDefaultKey] = @(nbiDefault);
-    } else {
-        settingsDict[NBCSettingsDefaultKey] = @(_nbiDefault) ?: @NO;
-    }
+    settingsDict[NBCSettingsDefaultKey] = @(nbiDefault) ?: @NO;
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsDefaultKey, settingsDict[NBCSettingsDefaultKey]);
     
+    // -------------------------------------------------------------------------------
+    //  NBI Description
+    // -------------------------------------------------------------------------------
     NSString *nbiDescription = nbImageInfoDict[NBCNBImageInfoDictDescriptionKey];
-    if ( [nbiDescription length] != 0 ) {
-        settingsDict[NBCSettingsDescriptionKey] = nbiDescription;
-    } else {
-        settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
-    }
+    settingsDict[NBCSettingsDescriptionKey] = nbiDescription ?: @"";
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsDescriptionKey, settingsDict[NBCSettingsDescriptionKey]);
     
-    NSURL *destinationFolderURL = [_source sourceURL];
+    // -------------------------------------------------------------------------------
+    //  NBI Destination Folder
+    // -------------------------------------------------------------------------------
     NSString *currentUserHome = NSHomeDirectory();
-    if ( destinationFolderURL != nil ) {
-        NSString *destinationFolder = [destinationFolderURL path];
+    if ( [nbiURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSString *destinationFolder = [nbiURL path];
         if ( [destinationFolder hasPrefix:currentUserHome] ) {
-            NSString *destinationFolderPath = [_destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
-            settingsDict[NBCSettingsDestinationFolderKey] = destinationFolderPath;
+            NSString *destinationFolderPath = [destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
+            settingsDict[NBCSettingsDestinationFolderKey] = destinationFolderPath ?: @"~/Desktop";
         } else {
-            settingsDict[NBCSettingsDestinationFolderKey] = destinationFolder;
+            settingsDict[NBCSettingsDestinationFolderKey] = destinationFolder ?: @"~/Desktop";
         }
-    } else if ( _destinationFolder != nil ) {
-        if ( [_destinationFolder hasPrefix:currentUserHome] ) {
-            NSString *destinationFolderPath = [_destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
-            settingsDict[NBCSettingsDestinationFolderKey] = destinationFolderPath;
-        } else {
-            settingsDict[NBCSettingsDestinationFolderKey] = _destinationFolder;
-        }
+    } else {
+        settingsDict[NBCSettingsDestinationFolderKey] = @"~/Desktop";
     }
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsDestinationFolderKey, settingsDict[NBCSettingsDestinationFolderKey]);
     
+    // -------------------------------------------------------------------------------
+    //  NBI Icon
+    // -------------------------------------------------------------------------------
     //NSImage *nbiIcon = [[NSWorkspace sharedWorkspace] iconForFile:[nbiURL path]]; // To be fixed later
-    
     settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"";
+    DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsIconKey, settingsDict[NBCSettingsIconKey]);
     
-    BOOL nbiImagrVersionFound = NO;
-    if ( _target != nil ) {
+    if ( _target ) {
+        
         NSURL *nbiNetInstallVolumeURL = [_target nbiNetInstallVolumeURL];
         NSURL *nbiBaseSystemVolumeURL = [_target baseSystemVolumeURL];
+        
         if ( [nbiNetInstallVolumeURL checkResourceIsReachableAndReturnError:nil] ) {
+            
+            // -------------------------------------------------------------------------------
+            //  NBI Creation Tool
+            // -------------------------------------------------------------------------------
             settingsDict[NBCSettingsNBICreationToolKey] = NBCMenuItemSystemImageUtility;
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsNBICreationToolKey, NBCMenuItemSystemImageUtility);
+            
+            // -------------------------------------------------------------------------------
+            //  Imagr.app Configuration
+            // -------------------------------------------------------------------------------
             NSURL *nbiImagrConfigurationDictURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCImagrConfigurationPlistTargetURL];
+            NSDictionary *nbiImagrConfigurationDict;
             if ( [nbiImagrConfigurationDictURL checkResourceIsReachableAndReturnError:nil] ) {
-                NSDictionary *nbiImagrConfigurationDict = [[NSDictionary alloc] initWithContentsOfURL:nbiImagrConfigurationDictURL];
-                if ( [nbiImagrConfigurationDict count] != 0 ) {
-                    NSString *imagrConfigurationURL = nbiImagrConfigurationDict[NBCSettingsImagrServerURLKey];
-                    settingsDict[NBCSettingsImagrConfigurationURL] = imagrConfigurationURL ?: @"";
-                    settingsDict[NBCSettingsImagrSyslogServerURI] = nbiImagrConfigurationDict[NBCSettingsImagrSyslogServerURIKey] ?: @"";
-                    settingsDict[NBCSettingsImagrReportingURL] = nbiImagrConfigurationDict[NBCSettingsImagrReportingURLKey] ?: @"";
-                    if ( [imagrConfigurationURL length] != 0 ) {
-                        [_target setImagrConfigurationPlistURL:nbiImagrConfigurationDictURL];
-                    }
-                }
+                nbiImagrConfigurationDict = [[NSDictionary alloc] initWithContentsOfURL:nbiImagrConfigurationDictURL];
             }
             
+            NSString *imagrConfigurationURL = nbiImagrConfigurationDict[NBCSettingsImagrServerURLKey];
+            settingsDict[NBCSettingsImagrConfigurationURL] = imagrConfigurationURL ?: @"";
+            settingsDict[NBCSettingsImagrSyslogServerURI] = nbiImagrConfigurationDict[NBCSettingsImagrSyslogServerURIKey] ?: @"";
+            settingsDict[NBCSettingsImagrReportingURL] = nbiImagrConfigurationDict[NBCSettingsImagrReportingURLKey] ?: @"";
+            if ( [imagrConfigurationURL length] != 0 ) {
+                [_target setImagrConfigurationPlistURL:nbiImagrConfigurationDictURL];
+            }
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrConfigurationURL, settingsDict[NBCSettingsImagrConfigurationURL]);
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrReportingURL, settingsDict[NBCSettingsImagrReportingURL]);
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrSyslogServerURI, settingsDict[NBCSettingsImagrSyslogServerURI]);
+            
+            // -------------------------------------------------------------------------------
+            //  Imagr.app
+            // -------------------------------------------------------------------------------
             NSURL *nbiApplicationURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCImagrApplicationTargetURL];
+            NSString *nbiImagrVersion;
             if ( [nbiApplicationURL checkResourceIsReachableAndReturnError:nil] ) {
-                NSString *nbiImagrVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-                if ( [nbiImagrVersion length] != 0 ) {
-                    settingsDict[NBCSettingsImagrVersion] = nbiImagrVersion;
-                    [_target setImagrApplicationExistOnTarget:YES];
-                    [_target setImagrApplicationURL:nbiApplicationURL];
-                    nbiImagrVersionFound = YES;
-                }
-            }
-        } else if ( [nbiBaseSystemVolumeURL checkResourceIsReachableAndReturnError:nil] ) {
-            settingsDict[NBCSettingsNBICreationToolKey] = NBCMenuItemNBICreator;
-            NSURL *nbiImagrConfigurationDictURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCImagrConfigurationPlistNBICreatorTargetURL];
-            if ( [nbiImagrConfigurationDictURL checkResourceIsReachableAndReturnError:nil] ) {
-                NSDictionary *nbiImagrConfigurationDict = [[NSDictionary alloc] initWithContentsOfURL:nbiImagrConfigurationDictURL];
-                if ( [nbiImagrConfigurationDict count] != 0 ) {
-                    NSString *imagrConfigurationURL = nbiImagrConfigurationDict[NBCSettingsImagrServerURLKey];
-                    settingsDict[NBCSettingsImagrConfigurationURL] = imagrConfigurationURL ?: @"";
-                    settingsDict[NBCSettingsImagrSyslogServerURI] = nbiImagrConfigurationDict[NBCSettingsImagrSyslogServerURIKey] ?: @"";
-                    settingsDict[NBCSettingsImagrReportingURL] = nbiImagrConfigurationDict[NBCSettingsImagrReportingURLKey] ?: @"";
-                    if ( [imagrConfigurationURL length] != 0 ) {
-                        [_target setImagrConfigurationPlistURL:nbiImagrConfigurationDictURL];
-                    }
-                }
+                nbiImagrVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
             }
             
-            NSURL *nbiApplicationURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCImagrApplicationNBICreatorTargetURL];
-            if ( [nbiApplicationURL checkResourceIsReachableAndReturnError:nil] ) {
-                NSString *nbiImagrVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
-                if ( [nbiImagrVersion length] != 0 ) {
-                    settingsDict[NBCSettingsImagrVersion] = nbiImagrVersion;
-                    [_target setImagrApplicationExistOnTarget:YES];
-                    [_target setImagrApplicationURL:nbiApplicationURL];
-                    nbiImagrVersionFound = YES;
-                }
+            if ( [nbiImagrVersion length] != 0 ) {
+                [_target setImagrApplicationExistOnTarget:YES];
+                [_target setImagrApplicationURL:nbiApplicationURL];
+                settingsDict[NBCSettingsImagrVersion] = nbiImagrVersion ?: @"";
+            } else {
+                settingsDict[NBCSettingsImagrVersion] = NBCMenuItemImagrVersionLatest;
             }
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrVersion, settingsDict[NBCSettingsImagrVersion]);
+            
+        } else if ( [nbiBaseSystemVolumeURL checkResourceIsReachableAndReturnError:nil] ) {
+            
+            // -------------------------------------------------------------------------------
+            //  NBI Creation Tool
+            // -------------------------------------------------------------------------------
+            settingsDict[NBCSettingsNBICreationToolKey] = NBCMenuItemNBICreator;
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsNBICreationToolKey, NBCMenuItemNBICreator);
+            
+            // -------------------------------------------------------------------------------
+            //  Imagr.app Configuration
+            // -------------------------------------------------------------------------------
+            NSURL *nbiImagrConfigurationDictURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCImagrConfigurationPlistNBICreatorTargetURL];
+            NSDictionary *nbiImagrConfigurationDict;
+            if ( [nbiImagrConfigurationDictURL checkResourceIsReachableAndReturnError:nil] ) {
+                nbiImagrConfigurationDict = [[NSDictionary alloc] initWithContentsOfURL:nbiImagrConfigurationDictURL];
+            }
+            
+            NSString *imagrConfigurationURL = nbiImagrConfigurationDict[NBCSettingsImagrServerURLKey];
+            settingsDict[NBCSettingsImagrConfigurationURL] = imagrConfigurationURL ?: @"";
+            settingsDict[NBCSettingsImagrSyslogServerURI] = nbiImagrConfigurationDict[NBCSettingsImagrSyslogServerURIKey] ?: @"";
+            settingsDict[NBCSettingsImagrReportingURL] = nbiImagrConfigurationDict[NBCSettingsImagrReportingURLKey] ?: @"";
+            if ( [imagrConfigurationURL length] != 0 ) {
+                [_target setImagrConfigurationPlistURL:nbiImagrConfigurationDictURL];
+            }
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrConfigurationURL, settingsDict[NBCSettingsImagrConfigurationURL]);
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrReportingURL, settingsDict[NBCSettingsImagrReportingURL]);
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrSyslogServerURI, settingsDict[NBCSettingsImagrSyslogServerURI]);
+            
+            // -------------------------------------------------------------------------------
+            //  Imagr.app
+            // -------------------------------------------------------------------------------
+            NSURL *nbiApplicationURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCImagrApplicationNBICreatorTargetURL];
+            NSString *nbiImagrVersion;
+            if ( [nbiApplicationURL checkResourceIsReachableAndReturnError:nil] ) {
+                nbiImagrVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+            }
+            
+            if ( [nbiImagrVersion length] != 0 ) {
+                [_target setImagrApplicationExistOnTarget:YES];
+                [_target setImagrApplicationURL:nbiApplicationURL];
+                settingsDict[NBCSettingsImagrVersion] = nbiImagrVersion ?: @"";
+            } else {
+                settingsDict[NBCSettingsImagrVersion] = NBCMenuItemImagrVersionLatest;
+            }
+            DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrVersion, settingsDict[NBCSettingsImagrVersion]);
         }
         
         settingsDict[NBCSettingsImagrUseLocalVersion] = @NO;
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrUseLocalVersion, settingsDict[NBCSettingsImagrUseLocalVersion]);
+        
         settingsDict[NBCSettingsImagrLocalVersionPath] = @"";
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrLocalVersionPath, settingsDict[NBCSettingsImagrLocalVersionPath]);
+        
         settingsDict[NBCSettingsImagrUseGitBranch] = @NO;
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrUseGitBranch, settingsDict[NBCSettingsImagrUseGitBranch]);
+        
         settingsDict[NBCSettingsImagrGitBranch] = @"Master";
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrGitBranch, settingsDict[NBCSettingsImagrGitBranch]);
+        
         settingsDict[NBCSettingsImagrBuildTarget] = @"Release";
-        settingsDict[NBCSettingsPackagesKey] = @[];
-        settingsDict[NBCSettingsEnableLaunchdLoggingKey] = @NO;
-        settingsDict[NBCSettingsImagrDisableATS] = @NO;
-        
-        if ( ! nbiImagrVersionFound ) {
-            settingsDict[NBCSettingsImagrVersion] = NBCMenuItemImagrVersionLatest;
-        }
-        
-        if ( @(_includeImagrPreReleaseVersions) != nil ) {
-            settingsDict[NBCSettingsImagrIncludePreReleaseVersions] = @(_includeImagrPreReleaseVersions);
-        }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsImagrBuildTarget, settingsDict[NBCSettingsImagrBuildTarget]);
         
         NSURL *comAppleBootPlistURL = [nbiURL URLByAppendingPathComponent:@"i386/com.apple.Boot.plist"];
         if ( [comAppleBootPlistURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1679,18 +1745,28 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsUseVerboseBootKey] = @NO;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsUseVerboseBootKey, settingsDict[NBCSettingsUseVerboseBootKey]);
         
-        NSURL *ntpConfURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"ntp.conf"];
-        if ( [ntpConfURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSString *ntpConfContent = [NSString stringWithContentsOfURL:ntpConfURL encoding:NSUTF8StringEncoding error:&err];
-            if ( [ntpConfContent length] != 0 ) {
-                settingsDict[NBCSettingsUseNetworkTimeServerKey] = @YES;
-                // Need to fix!
+        NSString *ntpServer;
+        NSURL *ntpConfigurationURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"private/etc/ntp.conf"];
+        if ( [ntpConfigurationURL checkResourceIsReachableAndReturnError:nil] ) {
+            NSString *ntpConfiguration = [NSString stringWithContentsOfURL:ntpConfigurationURL encoding:NSUTF8StringEncoding error:nil];
+            NSArray *ntpConfigurationArray = [ntpConfiguration componentsSeparatedByString:@"\n"];
+            NSString *ntpConfigurationFirstLine = ntpConfigurationArray[0];
+            if ( [ntpConfigurationFirstLine containsString:@"server"] ) {
+                ntpServer = [ntpConfigurationFirstLine componentsSeparatedByString:@" "][1];
             }
+        }
+        
+        if ( [ntpServer length] != 0 ) {
+            settingsDict[NBCSettingsUseNetworkTimeServerKey] = @YES;
+            settingsDict[NBCSettingsNetworkTimeServerKey] = ntpServer ?: @"time.apple.com";
         } else {
             settingsDict[NBCSettingsUseNetworkTimeServerKey] = @NO;
             settingsDict[NBCSettingsNetworkTimeServerKey] = @"time.apple.com";
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsUseNetworkTimeServerKey, settingsDict[NBCSettingsUseNetworkTimeServerKey]);
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsNetworkTimeServerKey, settingsDict[NBCSettingsNetworkTimeServerKey]);
         
         NSURL *consoleURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"Applications/Utilities/Console.app"];
         if ( [consoleURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1698,6 +1774,7 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsIncludeConsoleAppKey] = @NO;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsIncludeConsoleAppKey, settingsDict[NBCSettingsIncludeConsoleAppKey]);
         
         NSURL *hiToolboxPlistURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.HIToolbox.plist"];
         if ( [hiToolboxPlistURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1714,6 +1791,7 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsKeyboardLayoutKey] = NBCMenuItemCurrent;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsKeyboardLayoutKey, settingsDict[NBCSettingsKeyboardLayoutKey]);
         
         NSString *netInstallPath = [[nbiURL URLByAppendingPathComponent:@"NetInstall.dmg"] path];
         NSString *netInstallPathResolved = [netInstallPath stringByResolvingSymlinksAndAliases];
@@ -1722,6 +1800,10 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsDiskImageReadWriteKey] = @YES;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsDiskImageReadWriteKey, settingsDict[NBCSettingsDiskImageReadWriteKey]);
+        
+        settingsDict[NBCSettingsDiskImageReadWriteRenameKey] = @NO;
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsDiskImageReadWriteRenameKey, settingsDict[NBCSettingsDiskImageReadWriteRenameKey]);
         
         NSURL *localtime = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"private/etc/localtime"];
         if ( [localtime checkResourceIsReachableAndReturnError:nil] ) {
@@ -1729,7 +1811,14 @@ DDLogLevel ddLogLevel;
             if ( [localtimeTarget length] != 0 ) {
                 NSString *timeZone = [localtimeTarget stringByReplacingOccurrencesOfString:@"/usr/share/zoneinfo/" withString:@""];
                 if ( [timeZone length] != 0 ) {
-                    settingsDict[NBCSettingsTimeZoneKey] = timeZone;
+                    NSString *timeZoneSetting;
+                    for ( NSString *availableTimeZones in @[] ) {
+                        if ( [timeZone hasPrefix:availableTimeZones] ) {
+                            timeZoneSetting = timeZone;
+                            break;
+                        }
+                    }
+                    settingsDict[NBCSettingsTimeZoneKey] = timeZoneSetting ?: NBCMenuItemCurrent;
                 } else {
                     settingsDict[NBCSettingsTimeZoneKey] = NBCMenuItemCurrent;
                 }
@@ -1739,6 +1828,7 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsTimeZoneKey] = NBCMenuItemCurrent;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsTimeZoneKey, settingsDict[NBCSettingsTimeZoneKey]);
         
         NSURL *nbiCreatorDesktopViewerURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"Applications/NBICreatorDesktopViewer.app"];
         if ( [nbiCreatorDesktopViewerURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1754,12 +1844,13 @@ DDLogLevel ddLogLevel;
             settingsDict[NBCSettingsUseBackgroundImageKey] = @NO;
             settingsDict[NBCSettingsBackgroundImageKey] = NBCBackgroundImageDefaultPath;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsUseBackgroundImageKey, settingsDict[NBCSettingsUseBackgroundImageKey]);
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsBackgroundImageKey, settingsDict[NBCSettingsBackgroundImageKey]);
         
         NSString *rcInstall;
         NSURL *rcInstallURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCImagrRCInstallTargetURL];
         if ( [rcInstallURL checkResourceIsReachableAndReturnError:nil] ) {
             rcInstall = [NSString stringWithContentsOfURL:rcInstallURL encoding:NSUTF8StringEncoding error:&err];
-            
         }
         
         NSString *rcImaging;
@@ -1779,6 +1870,7 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsLaunchConsoleAppKey] = @NO;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsLaunchConsoleAppKey, settingsDict[NBCSettingsLaunchConsoleAppKey]);
         
         NSURL *systemUIServerLaunchdURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.SystemUIServer.plist"];
         if ( [systemUIServerLaunchdURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1786,12 +1878,14 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsIncludeSystemUIServerKey] = @NO;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsIncludeSystemUIServerKey, settingsDict[NBCSettingsIncludeSystemUIServerKey]);
         
         [_target setRcImagingContent:rcImaging];
         [_target setRcImagingURL:rcImagingURL];
         
         NSString *rcFiles = [NSString stringWithFormat:@"%@\n%@", rcInstall, rcImaging];
         
+        NSString *displaySleepTime;
         if ( [rcFiles length] != 0 ) {
             NSArray *rcFilesArray = [rcFiles componentsSeparatedByString:@"\n"];
             for ( NSString *line in rcFilesArray ) {
@@ -1812,21 +1906,27 @@ DDLogLevel ddLogLevel;
                     for (NSTextCheckingResult *entry in matches) {
                         NSString *text = [line substringWithRange:entry.range];
                         if ( [text length] != 0 ) {
-                            NSString *displaySleepTime = [text componentsSeparatedByString:@" "][1];
-                            if ( [displaySleepTime length] != 0 ) {
-                                if ( [displaySleepTime integerValue] == 0 ) {
-                                    settingsDict[NBCSettingsDisplaySleepKey] = @NO;
-                                    settingsDict[NBCSettingsDisplaySleepMinutesKey] = @120;
-                                } else {
-                                    settingsDict[NBCSettingsDisplaySleepKey] = @YES;
-                                    settingsDict[NBCSettingsDisplaySleepMinutesKey] = @([displaySleepTime intValue]);
-                                }
-                            }
+                            displaySleepTime = [text componentsSeparatedByString:@" "][1];
                         }
                     }
                 }
             }
         }
+        
+        if ( [displaySleepTime length] != 0 ) {
+            if ( [displaySleepTime integerValue] == 0 ) {
+                settingsDict[NBCSettingsDisplaySleepKey] = @NO;
+                settingsDict[NBCSettingsDisplaySleepMinutesKey] = @120;
+            } else {
+                settingsDict[NBCSettingsDisplaySleepKey] = @YES;
+                settingsDict[NBCSettingsDisplaySleepMinutesKey] = @([displaySleepTime intValue]);
+            }
+        } else {
+            settingsDict[NBCSettingsDisplaySleepKey] = @YES;
+            settingsDict[NBCSettingsDisplaySleepMinutesKey] = @30;
+        }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsDisplaySleepKey, settingsDict[NBCSettingsDisplaySleepKey]);
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsDisplaySleepMinutesKey, settingsDict[NBCSettingsDisplaySleepMinutesKey]);
         
         NSURL *ioBluetoothFamilyURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IOBluetoothFamily.kext"];
         if ( [ioBluetoothFamilyURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1834,6 +1934,7 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsDisableBluetoothKey] = @YES;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsDisableBluetoothKey, settingsDict[NBCSettingsDisableBluetoothKey]);
         
         NSURL *rcCdmCdromURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"private/etc/rc.cdm.cdrom"];
         if ( [rcCdmCdromURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1870,6 +1971,8 @@ DDLogLevel ddLogLevel;
             settingsDict[NBCSettingsAddCustomRAMDisksKey] = @NO;
             settingsDict[NBCSettingsRAMDisksKey] = @[];
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsAddCustomRAMDisksKey, settingsDict[NBCSettingsAddCustomRAMDisksKey]);
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsRAMDisksKey, settingsDict[NBCSettingsRAMDisksKey]);
         
         NSURL *bsdpSourcesURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"usr/local/bsdpSources.txt"];
         if ( [bsdpSourcesURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1887,6 +1990,8 @@ DDLogLevel ddLogLevel;
             settingsDict[NBCSettingsTrustedNetBootServersKey] = @[];
             settingsDict[NBCSettingsAddTrustedNetBootServersKey] = @NO;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsAddTrustedNetBootServersKey, settingsDict[NBCSettingsAddTrustedNetBootServersKey]);
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsTrustedNetBootServersKey, settingsDict[NBCSettingsTrustedNetBootServersKey]);
         
         NSURL *rubyURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"usr/bin/ruby"];
         if ( [rubyURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1894,6 +1999,7 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsIncludeRubyKey] = @NO;
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsIncludeRubyKey, settingsDict[NBCSettingsIncludeRubyKey]);
         
         NSURL *certificatesFolderURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"usr/local/certificates"];
         if ( ! [certificatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -1916,6 +2022,7 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsCertificatesKey] = @[];
         }
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsCertificatesKey, settingsDict[NBCSettingsCertificatesKey]);
         
         NSURL *wifiKext = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IO80211Family.kext"];
         if ( [wifiKext checkResourceIsReachableAndReturnError:nil] ) {
@@ -1923,21 +2030,7 @@ DDLogLevel ddLogLevel;
         } else {
             settingsDict[NBCSettingsDisableWiFiKey] = @YES;
         }
-        
-        // Get network Time Server
-        NSURL *ntpConfigurationURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"private/etc/ntp.conf"];
-        if ( [ntpConfigurationURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSString *ntpConfiguration = [NSString stringWithContentsOfURL:ntpConfigurationURL encoding:NSUTF8StringEncoding error:nil];
-            NSArray *ntpConfigurationArray = [ntpConfiguration componentsSeparatedByString:@"\n"];
-            NSString *ntpConfigurationFirstLine = ntpConfigurationArray[0];
-            if ( [ntpConfigurationFirstLine containsString:@"server"] ) {
-                NSString *ntpServer = [ntpConfigurationFirstLine componentsSeparatedByString:@" "][1];
-                if ( [ntpServer length] != 0 ) {
-                    settingsDict[NBCSettingsNetworkTimeServerKey] = ntpServer;
-                }
-            }
-        }
-        
+        DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsDisableWiFiKey, settingsDict[NBCSettingsDisableWiFiKey]);
         
         NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
         [helperConnector connectToHelper];
@@ -2041,14 +2134,14 @@ DDLogLevel ddLogLevel;
                     return NO;
                 } else {
                     /*
-                    NSArray *keys = [currentSettings allKeys];
-                    for (NSString *key in keys) {
-                        if ( ! [currentSettings[key] isEqualTo:defaultSettings[key]]) {
-                            DDLogDebug(@"[DEBUG] Key \"%@\" has changed", key);
-                            DDLogDebug(@"[DEBUG] Value from current UI settings: %@", currentSettings[key]);
-                            DDLogDebug(@"[DEBUG] Value from default settings: %@", defaultSettings[key]);
-                        }
-                    }
+                     NSArray *keys = [currentSettings allKeys];
+                     for (NSString *key in keys) {
+                     if ( ! [currentSettings[key] isEqualTo:defaultSettings[key]]) {
+                     DDLogDebug(@"[DEBUG] Key \"%@\" has changed", key);
+                     DDLogDebug(@"[DEBUG] Value from current UI settings: %@", currentSettings[key]);
+                     DDLogDebug(@"[DEBUG] Value from default settings: %@", defaultSettings[key]);
+                     }
+                     }
                      */
                 }
             }
@@ -2904,7 +2997,7 @@ DDLogLevel ddLogLevel;
         [_popUpButtonImagrGitBranch removeAllItems];
         [_popUpButtonImagrGitBranch addItemsWithTitles:_imagrBranches];
     }
-
+    
     if ( [_imagrBranches containsObject:_imagrGitBranch] ) {
         [_popUpButtonImagrGitBranch selectItemWithTitle:_imagrGitBranch];
     } else {
@@ -2974,7 +3067,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI:(NSDictionary *)preWorkflowTasks {
-    if ( [self haveSettingsChanged] ) {
+    if ( ! _isNBI && [self haveSettingsChanged] ) {
         NSDictionary *alertInfo = @{
                                     NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
                                     NBCAlertUserInfoSelectedTemplate : _selectedTemplate,
@@ -3412,12 +3505,16 @@ DDLogLevel ddLogLevel;
     //  If source is NBI, create array of which settings have been modified
     // ---------------------------------------------------------------------
     if ( [[_source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+        DDLogDebug(@"[DEBUG] Checking what settings has been changed..");
         NSMutableDictionary *settingsChanged = [[NSMutableDictionary alloc] init];
         NSArray *userSettingsArray = [userSettings allKeys];
         for ( NSString *key in userSettingsArray ) {
             if ( [userSettings[key] isEqualTo:_nbiSourceSettings[key]]) {
                 settingsChanged[key] = @NO;
             } else {
+                DDLogDebug(@"[DEBUG] Setting Changed: %@", key);
+                DDLogDebug(@"[DEBUG] Setting value UI: %@", userSettings[key]);
+                DDLogDebug(@"[DEBUG] Setting value original: %@", _nbiSourceSettings[key]);
                 settingsChanged[key] = @YES;
             }
         }

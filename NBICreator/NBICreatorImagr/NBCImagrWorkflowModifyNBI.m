@@ -45,31 +45,47 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"[DEBUG] Source is NBI: %@", ( _isNBI ) ? @"YES" : @"NO" );
     [self setSettingsChanged:[workflowItem userSettingsChanged]];
     
-    NSURL *temporaryNBIURL = [workflowItem temporaryNBIURL];
-    DDLogDebug(@"[DEBUG] Temporary NBI path: %@", [temporaryNBIURL path]);
-    if ( temporaryNBIURL ) {
-        DDLogInfo(@"Updating NBImageInfo.plist...");
-        [_delegate updateProgressStatus:@"Updating NBImageInfo.plist..." workflow:self];
+    
+    NSURL *nbiURL;
+    if ( _isNBI ) {
+        nbiURL = [[workflowItem target] nbiURL];
+    } else {
+        nbiURL = [workflowItem temporaryNBIURL];
+    }
+    DDLogDebug(@"[DEBUG] NBI path: %@", [nbiURL path]);
+    
+    if ( [nbiURL checkResourceIsReachableAndReturnError:&error] ) {
         
         // ---------------------------------------------------------------
         //  Apply all settings to NBImageInfo.plist in NBI
         // ---------------------------------------------------------------
-        if ( [_targetController applyNBISettings:temporaryNBIURL workflowItem:workflowItem error:&error] ) {
-            NSDictionary *userSettings = [workflowItem userSettings];
-            NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
-            if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-                [self modifyNetInstall];
-            } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-                [self modifyBaseSystem];
+        if ( ! _isNBI || ( _isNBI && (
+                                      [_settingsChanged[NBCSettingsNameKey] boolValue] ||
+                                      [_settingsChanged[NBCSettingsIndexKey] boolValue] ||
+                                      [_settingsChanged[NBCSettingsProtocolKey] boolValue] ||
+                                      [_settingsChanged[NBCSettingsEnabledKey] boolValue] ||
+                                      [_settingsChanged[NBCSettingsDefaultKey] boolValue] ||
+                                      [_settingsChanged[NBCSettingsDescriptionKey] boolValue]
+                                      ) ) ) {
+            DDLogInfo(@"Updating NBImageInfo.plist...");
+            [_delegate updateProgressStatus:@"Updating NBImageInfo.plist..." workflow:self];
+            if ( ! [_targetController applyNBISettings:nbiURL workflowItem:workflowItem error:&error] ) {
+                DDLogError(@"[ERROR] Error when applying NBImageInfo settings");
+                DDLogError(@"%@", error);
+                NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
             }
-        } else {
-            DDLogError(@"[ERROR] Error when applying NBImageInfo settings");
-            DDLogError(@"%@", error);
-            NSDictionary *userInfo = @{ NBCUserInfoNSErrorKey : error };
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+        }
+        
+        NSDictionary *userSettings = [workflowItem userSettings];
+        NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
+        if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+            [self modifyNetInstall];
+        } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
+            [self modifyBaseSystem];
         }
     } else {
-        DDLogError(@"[ERROR] Could not get temporary NBI url from workflowItem");
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
     }
 } // runWorkflow
@@ -112,7 +128,7 @@ DDLogLevel ddLogLevel;
                 if ( [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
                     if ( ! [self createSymlinkToSparseimageAtURL:baseSystemDiskImageURL] ) {
                         dispatch_async(dispatch_get_main_queue(), ^{
-                            DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
+                            DDLogError(@"[ERROR] Could not create symlink for sparseimage");
                             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                                 object:self
                                                                               userInfo:nil];
@@ -253,7 +269,7 @@ DDLogLevel ddLogLevel;
                         [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
                         return;
                     } else {
-                        DDLogError(@"[ERROR] Could not create synmlink for sparseimage");
+                        DDLogError(@"[ERROR] Could not create symlink for sparseimage");
                         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
                         return;
                     }
@@ -275,32 +291,53 @@ DDLogLevel ddLogLevel;
 } // convertNetInstall
 
 - (BOOL)createSymlinkToSparseimageAtURL:(NSURL *)sparseImageURL {
-    BOOL retval = NO;
+    DDLogDebug(@"[DEBUG] Creating symlink to sparseimage at path: %@", [sparseImageURL path]);
     
+    NSError *error;
     NSString *sparseImageFolderPath = [[sparseImageURL URLByDeletingLastPathComponent] path];
     NSString *sparseImageName = [[sparseImageURL lastPathComponent] stringByDeletingPathExtension];
     NSString *sparseImagePath = [NSString stringWithFormat:@"%@.sparseimage", sparseImageName];
     NSString *dmgLinkPath = [NSString stringWithFormat:@"%@.dmg", sparseImageName];
+    NSURL *dmgLinkURL = [[sparseImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:dmgLinkPath];
+    DDLogDebug(@"[DEBUG] Symlink path: %@", [dmgLinkURL path]);
     
-    NSTask *newTask =  [[NSTask alloc] init];
-    [newTask setLaunchPath:@"/bin/ln"];
-    NSMutableArray *args = [NSMutableArray arrayWithObjects:@"-s", sparseImagePath, dmgLinkPath, nil];
-    if ( [sparseImageFolderPath length] != 0 ) {
-        [newTask setCurrentDirectoryPath:sparseImageFolderPath];
-        [newTask setArguments:args];
-        [newTask launch];
-        [newTask waitUntilExit];
-        
-        if ( [newTask terminationStatus] == 0 ) {
-            retval = YES;
-        } else {
-            retval = NO;
+    if ( [dmgLinkURL checkResourceIsReachableAndReturnError:nil] ) {
+        if ( ! [[NSFileManager defaultManager] removeItemAtURL:dmgLinkURL error:&error] ) {
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
+            return NO;
         }
-    } else {
-        retval = NO;
     }
     
-    return retval;
+    if ( [sparseImageFolderPath length] != 0 ) {
+        
+        NSTask *lnTask =  [[NSTask alloc] init];
+        [lnTask setLaunchPath:@"/bin/ln"];
+        [lnTask setCurrentDirectoryPath:sparseImageFolderPath];
+        [lnTask setArguments:@[ @"-s", sparseImagePath, dmgLinkPath ]];
+        [lnTask setStandardOutput:[NSPipe pipe]];
+        [lnTask setStandardError:[NSPipe pipe]];
+        [lnTask launch];
+        [lnTask waitUntilExit];
+        
+        NSData *stdOutData = [[[lnTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+        
+        NSData *stdErrData = [[[lnTask standardError] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+        
+        if ( [lnTask terminationStatus] == 0 ) {
+            DDLogDebug(@"[DEBUG] ln command successful!");
+            return YES;
+        } else {
+            DDLogError(@"[ln] %@", stdOut);
+            DDLogError(@"[ln] %@", stdErr);
+            DDLogError(@"[ERROR] ln command failed with exit status: %d", [lnTask terminationStatus]);
+            return NO;
+        }
+    } else {
+        DDLogError(@"[ERROR] ");
+        return NO;
+    }
 } // createSymlinkToSparseimageAtURL
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -554,12 +591,14 @@ DDLogLevel ddLogLevel;
 } // modifyBaseSystem
 
 - (void)installPackagesToBaseSystem {
-    DDLogInfo(@"Installing packages to BaseSystem Volume...");
-    [_delegate updateProgressStatus:@"Installing packages to BaseSystem Volume..." workflow:self];
     NSDictionary *resourcesBaseSystemDict = [_target resourcesBaseSystemDict];
     if ( [resourcesBaseSystemDict count] != 0 ) {
         NSArray *packageArray = resourcesBaseSystemDict[NBCWorkflowInstall];
         if ( [packageArray count] != 0 ) {
+            
+            DDLogInfo(@"Installing packages to BaseSystem Volume...");
+            [_delegate updateProgressStatus:@"Installing packages to BaseSystem Volume..." workflow:self];
+            
             NBCInstallerPackageController *installer = [[NBCInstallerPackageController alloc] initWithDelegate:self];
             NSURL *nbiBaseSystemVolumeURL = [_target baseSystemVolumeURL];
             if ( nbiBaseSystemVolumeURL ) {
@@ -573,42 +612,46 @@ DDLogLevel ddLogLevel;
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
             }
         } else {
-            DDLogInfo(@"No packages to install!");
             [self copyFilesToBaseSystem];
         }
     } else {
-        DDLogInfo(@"No packages to install!");
-        [self copyFilesToBaseSystem];
+        [self copyComplete];
     }
 } // installPackagesToBaseSystem
 
 - (void)copyFilesToBaseSystem {
-    DDLogInfo(@"Copying files to BaseSystem.dmg volume...");
-    [_delegate updateProgressStatus:@"Copying files to BaseSystem.dmg..." workflow:self];
     
     // ---------------------------------------------------------
     //  Copy all files in resourcesBaseSystemDict to BaseSystem
     // ---------------------------------------------------------
     NSDictionary *resourcesBaseSystemDict = [_target resourcesBaseSystemDict];
-    NSURL *volumeURL = [_target baseSystemVolumeURL];
-    
-    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-    [helperConnector connectToHelper];
-    
-    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-            [self copyFailed:proxyError];
-        }];
+    if ( [resourcesBaseSystemDict count] != 0 ) {
         
-    }] copyResourcesToVolume:volumeURL resourcesDict:resourcesBaseSystemDict withReply:^(NSError *error, int terminationStatus) {
-        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-            if ( terminationStatus == 0 ) {
-                [self copyComplete];
-            } else {
-                [self copyFailed:error];
-            }
+        DDLogInfo(@"Copying files to BaseSystem.dmg volume...");
+        [_delegate updateProgressStatus:@"Copying files to BaseSystem.dmg..." workflow:self];
+        
+        NSURL *volumeURL = [_target baseSystemVolumeURL];
+        
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                [self copyFailed:proxyError];
+            }];
+            
+        }] copyResourcesToVolume:volumeURL resourcesDict:resourcesBaseSystemDict withReply:^(NSError *error, int terminationStatus) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                if ( terminationStatus == 0 ) {
+                    [self copyComplete];
+                } else {
+                    [self copyFailed:error];
+                }
+            }];
         }];
-    }];
+    } else {
+        [self copyComplete];
+    }
 } // copyFilesToBaseSystem
 
 - (BOOL)createVNCPasswordHash:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem volumeURL:(NSURL *)volumeURL {
@@ -683,8 +726,13 @@ DDLogLevel ddLogLevel;
             verified = [_targetController modifySettingsForImagr:modifyDictArray workflowItem:_workflowItem];
         }
         
-        if ( verified && [userSettings[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
-            verified = [_targetController modifySettingsForTrustedNetBootServers:modifyDictArray workflowItem:_workflowItem];
+        if ( ! _isNBI || ( _isNBI && (
+                                      [_settingsChanged[NBCSettingsAddTrustedNetBootServersKey] boolValue] ||
+                                      [_settingsChanged[NBCSettingsTrustedNetBootServersKey] boolValue]
+                                      ) ) ) {
+            if ( verified && [userSettings[NBCSettingsAddTrustedNetBootServersKey] boolValue] ) {
+                verified = [_targetController modifySettingsForTrustedNetBootServers:modifyDictArray workflowItem:_workflowItem];
+            }
         }
     }
     
@@ -710,48 +758,94 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    if ( verified ) {
-        verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsLanguageKey] boolValue] ||
+                                  [_settingsChanged[NBCSettingsKeyboardLayoutKey] boolValue] ||
+                                  [_settingsChanged[NBCSettingsTimeZoneKey] boolValue]
+                                  ) ) ) {
+        if ( verified ) {
+            verified = [_targetController modifySettingsForLanguageAndKeyboardLayout:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
     if ( verified ) {
         verified = [_targetController settingsToRemove:modifyDictArray workflowItem:_workflowItem];
     }
     
-    if ( verified ) {
-        verified = [_targetController modifySettingsForRCCdrom:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsCertificatesKey] boolValue] ||
+                                  [_settingsChanged[NBCSettingsAddCustomRAMDisksKey] boolValue] ||
+                                  [_settingsChanged[NBCSettingsRAMDisksKey] boolValue]
+                                  ) ) ) {
+        if ( verified ) {
+            verified = [_targetController modifySettingsForRCCdrom:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
-    if ( verified ) {
-        verified = [_targetController modifySettingsForKextd:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsDisableWiFiKey] boolValue] ||
+                                  [_settingsChanged[NBCSettingsDisableBluetoothKey] boolValue]
+                                  ) ) ) {
+        if ( verified ) {
+            verified = [_targetController modifySettingsForKextd:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
-    if ( verified && [userSettings[NBCSettingsUseVerboseBootKey] boolValue] ) {
-        verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsUseVerboseBootKey] boolValue]
+                                  ) ) ) {
+        if ( verified && [userSettings[NBCSettingsUseVerboseBootKey] boolValue] ) {
+            verified = [_targetController modifySettingsForBootPlist:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
-    if ( verified && [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] && [userSettings[NBCSettingsNetworkTimeServerKey] length] != 0 ) {
-        verified = [_targetController modifyNBINTP:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsUseNetworkTimeServerKey] boolValue] ||
+                                  [_settingsChanged[NBCSettingsNetworkTimeServerKey] boolValue]
+                                  ) ) ) {
+        if ( verified && [userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] && [userSettings[NBCSettingsNetworkTimeServerKey] length] != 0 ) {
+            verified = [_targetController modifyNBINTP:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
-    if ( verified && [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
-        verified = [_targetController modifySettingsForSystemKeychain:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsCertificatesKey] boolValue]
+                                  ) ) ) {
+        if ( verified && [userSettings[NBCSettingsCertificatesKey] count] != 0 ) {
+            verified = [_targetController modifySettingsForSystemKeychain:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
-    if ( verified && [userSettings[NBCSettingsDisableWiFiKey] boolValue] ) {
-        verified = [_targetController modifyNBIRemoveWiFi:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsDisableWiFiKey] boolValue]
+                                  ) ) ) {
+        if ( verified && [userSettings[NBCSettingsDisableWiFiKey] boolValue] ) {
+            verified = [_targetController modifyNBIRemoveWiFi:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
-    if ( verified && [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
-        verified = [_targetController modifyNBIRemoveBluetooth:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsDisableBluetoothKey] boolValue]
+                                  ) ) ) {
+        if ( verified && [userSettings[NBCSettingsDisableBluetoothKey] boolValue] ) {
+            verified = [_targetController modifyNBIRemoveBluetooth:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
-    if ( verified && [userSettings[NBCSettingsEnableLaunchdLoggingKey] boolValue] ) {
-        verified = [_targetController modifySettingsForLaunchdLogging:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsEnableLaunchdLoggingKey] boolValue]
+                                  ) ) ) {
+        if ( verified && [userSettings[NBCSettingsEnableLaunchdLoggingKey] boolValue] ) {
+            verified = [_targetController modifySettingsForLaunchdLogging:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
-    if ( verified && [userSettings[NBCSettingsIncludeConsoleAppKey] boolValue] ) {
-        verified = [_targetController modifySettingsForConsole:modifyDictArray workflowItem:_workflowItem];
+    if ( ! _isNBI || ( _isNBI && (
+                                  [_settingsChanged[NBCSettingsIncludeConsoleAppKey] boolValue]
+                                  ) ) ) {
+        if ( verified && [userSettings[NBCSettingsIncludeConsoleAppKey] boolValue] ) {
+            verified = [_targetController modifySettingsForConsole:modifyDictArray workflowItem:_workflowItem];
+        }
     }
     
     // Need to be last
@@ -797,6 +891,8 @@ DDLogLevel ddLogLevel;
                 }
             }];
         }];
+    } else if ( _isNBI ) {
+        [self modifyComplete];
     } else {
         DDLogError(@"[ERROR] Modify Array is empty!");
         [self modifyFailed];
@@ -1107,8 +1203,17 @@ DDLogLevel ddLogLevel;
 
 - (void)modifyComplete {
     DDLogInfo(@"Modifications Complete!");
-    if ( [[_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] || [[_workflowItem userSettings][NBCSettingsDisableBluetoothKey] boolValue] ) {
+    if ( ( ! _isNBI && (
+                        [[_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] ||
+                        [[_workflowItem userSettings][NBCSettingsDisableBluetoothKey] boolValue] )
+          ) || (_isNBI && (
+                           [_settingsChanged[NBCSettingsDisableWiFiKey] boolValue] ||
+                           [_settingsChanged[NBCSettingsDisableBluetoothKey] boolValue]
+                           )
+                ) ) {
         [self generateKernelCacheForNBI:_workflowItem];
+    } else if ( _isNBI ) {
+        [self finalizeWorkflow];
     } else {
         [self disableSpotlight];
     }

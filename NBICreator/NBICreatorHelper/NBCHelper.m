@@ -250,6 +250,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 - (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL settingsDict:(NSDictionary *)settingsDict withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply {
     BOOL retval = YES;
     NSError *err;
+    NSString *userName;
     NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
     NSURL *dsLocalUsersURL = [nbiVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
     if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
@@ -262,55 +263,46 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
             if ( firstUserDict ) {
                 NSArray *userNameArray = firstUserDict[@"name"];
-                NSString *userName = userNameArray[0];
-                if ( [userName length] != 0 ) {
-                    mutableSettingsDict[NBCSettingsARDLoginKey] = userName;
-                }
+                userName = userNameArray[0];
             }
         }
     } else {
         NSLog(@"Could not get path to local user database");
         NSLog(@"Error: %@", err);
     }
+    mutableSettingsDict[NBCSettingsARDLoginKey] = userName ?: @"";
     
-    NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
+    NSString *vncPassword;
     NSURL *vncPasswordFile = [nbiVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];
-    NSMutableArray *scriptArguments;
     if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
-        scriptArguments = [NSMutableArray arrayWithObjects:@"-c",
-                           [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }; print \"\n\"'", [vncPasswordFile path]],
-                           nil];
-        NSPipe *stdOut = [[NSPipe alloc] init];
-        NSPipe *stdErr = [[NSPipe alloc] init];
-        NSTask *newTask = [[NSTask alloc] init];
+        NSTask *perlTask =  [[NSTask alloc] init];
+        [perlTask setLaunchPath:@"/bin/bash"];
+        NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }; print \"\n\"'", [vncPasswordFile path]]];
+        [perlTask setArguments:args];
+        [perlTask setStandardOutput:[NSPipe pipe]];
+        [perlTask setStandardError:[NSPipe pipe]];
+        [perlTask launch];
+        [perlTask waitUntilExit];
         
-        [newTask setLaunchPath:[commandURL path]];
-        [newTask setArguments:scriptArguments];
+        NSData *stdOutData = [[[perlTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
         
-        if ( stdOut != nil ) {
-            [newTask setStandardOutput:stdOut];
-        }
+        NSData *stdErrData = [[[perlTask standardError] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
         
-        if ( stdErr != nil ) {
-            [newTask setStandardError:stdErr];
-        }
-        
-        [newTask launch];
-        [newTask waitUntilExit];
-        
-        NSData *newTaskOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
-        NSString *outStr = [[[NSString alloc] initWithData:newTaskOutputData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-        
-        if ( [outStr length] != 0 ) {
-            mutableSettingsDict[NBCSettingsARDPasswordKey] = outStr;
-        }
-        
-        if ( [newTask terminationStatus] == 0 ) {
+        if ( [perlTask terminationStatus] == 0 ) {
+            if ( [stdOut length] != 0 ) {
+                vncPassword = stdOut;
+            }
             retval = YES;
         } else {
+            NSLog(@"[bash] %@", stdOut);
+            NSLog(@"[bash] %@", stdErr);
+            NSLog(@"[ERROR] perl command failed with exit status: %d", [perlTask terminationStatus]);
             retval = NO;
         }
     }
+    mutableSettingsDict[NBCSettingsARDPasswordKey] = vncPassword ?: @"";
     
     reply(nil, retval, [mutableSettingsDict copy] );
 }

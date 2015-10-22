@@ -23,6 +23,7 @@
 #import "NBCSourceController.h"
 #import "NBCTargetController.h"
 #import "NBCDiskImageController.h"
+#import "NBCError.h"
 
 DDLogLevel ddLogLevel;
 
@@ -230,6 +231,7 @@ DDLogLevel ddLogLevel;
         NSString *workflowTime = [_currentWorkflowItem workflowTime];
         [self postNotificationWithTitle:name informativeText:[NSString stringWithFormat:@"Completed in %@", workflowTime]];
     }
+    
     if ( ! [[NSApplication sharedApplication] isActive] ) {
         NSDockTile *dockTile = [NSApp dockTile];
         NSString *newBadgeLabel = @"1";
@@ -241,6 +243,7 @@ DDLogLevel ddLogLevel;
         [dockTile setBadgeLabel:newBadgeLabel];
         [dockTile display];
     }
+    
     [self setCurrentWorkflowModifyNBIComplete:YES];
     [self setWorkflowRunning:NO];
     [self removeTemporaryFolder];
@@ -260,14 +263,13 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)workflowFailed:(NSNotification *)notification {
-    
+    DDLogError(@"[ERROR] Workflow Failed!");
     NSError *error = [notification userInfo][NBCUserInfoNSErrorKey];
     NSString *progressViewErrorMessage = nil;
     if ( error ) {
         progressViewErrorMessage = [error localizedDescription];
+        DDLogError(@"[ERROR] %@", progressViewErrorMessage);
     }
-    
-    //[self removeTemporaryFolder];
     
     [self updateWorkflowStatusErrorWithMessage:progressViewErrorMessage];
     [self setWorkflowRunning:NO];
@@ -282,7 +284,6 @@ DDLogLevel ddLogLevel;
 } // workflowFailed
 
 - (void)removeWorkflowItem:(NSNotification *)notification {
-    
     NBCWorkflowProgressViewController *workflowView = [notification object];
     NBCWorkflowItem *workflowItem = [notification userInfo][NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem];
     [[_workflowPanel stackView] removeView:[workflowView view]];
@@ -290,7 +291,6 @@ DDLogLevel ddLogLevel;
 } // removeWorkflowItem
 
 - (void)removeTemporaryFolder {
-    
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     NSURL *temporaryFolderURL = [_currentWorkflowItem temporaryFolderURL];
@@ -316,11 +316,7 @@ DDLogLevel ddLogLevel;
 } // updateWorkflowStatusComplete
 
 - (void)updateWorkflowStatusErrorWithMessage:(NSString *)errorMessage {
-    NSString *errorString = errorMessage;
-    if ( errorString == nil ) {
-        errorString = @"Unknown Error (-1)";
-    }
-    [_currentWorkflowProgressView workflowFailedWithError:errorString];
+    [_currentWorkflowProgressView workflowFailedWithError:errorMessage ?: @"Unknown Error (-1)"];
     [self endWorkflow];
 } // updateWorkflowStatusErrorWithMessage
 
@@ -633,7 +629,107 @@ DDLogLevel ddLogLevel;
     }
 }
 
+- (BOOL)onlyChangeNBImageInfo {
+    
+    NSDictionary *settingsChanged = [_currentWorkflowItem userSettingsChanged];
+    NSMutableArray *keysChanged = [[settingsChanged allKeysForObject:@YES] mutableCopy];
+    NSMutableArray *keysNBImageInfo = [[NSMutableArray alloc] init];
+    NSMutableArray *keysBootPlist = [[NSMutableArray alloc] init];
+    for ( NSString *key in [keysChanged copy] ) {
+        if (
+            [key isEqualToString:NBCSettingsProtocolKey] ||
+            [key isEqualToString:NBCSettingsIndexKey] ||
+            [key isEqualToString:NBCSettingsEnabledKey] ||
+            [key isEqualToString:NBCSettingsDefaultKey] ||
+            [key isEqualToString:NBCSettingsDescriptionKey]
+            ) {
+            [keysNBImageInfo addObject:key];
+            [keysChanged removeObject:key];
+        } else if ( [key isEqualToString:NBCSettingsUseVerboseBootKey] ) {
+            [keysBootPlist addObject:key];
+            [keysChanged removeObject:key];
+        }
+    }
+    
+    if ( [keysChanged count] == 0 ) {
+        NSDictionary *userSettings = [_currentWorkflowItem userSettings];
+        
+        if ( [keysNBImageInfo count] != 0 ) {
+            DDLogDebug(@"[DEBUG] Updating NBImageInfo.plist...");
+            NSURL *nbImageInfoURL = [[_currentWorkflowItem nbiURL] URLByAppendingPathComponent:@"NBImageInfo.plist"];
+            if ( [nbImageInfoURL checkResourceIsReachableAndReturnError:nil] ) {
+                NSMutableDictionary *nbImageInfoDict = [NSMutableDictionary dictionaryWithContentsOfURL:nbImageInfoURL];
+                if ( [nbImageInfoDict count] != 0 ) {
+                    NSString *nbImageInfoKey;
+                    for ( NSString *key in keysNBImageInfo ) {
+                        if ( [key isEqualToString:NBCSettingsProtocolKey] ) {
+                            nbImageInfoKey = NBCNBImageInfoDictProtocolKey;
+                        } else if ( [key isEqualToString:NBCSettingsIndexKey] ) {
+                            nbImageInfoKey = NBCNBImageInfoDictIndexKey;
+                        } else if ( [key isEqualToString:NBCSettingsEnabledKey] ) {
+                            nbImageInfoKey = NBCNBImageInfoDictIsEnabledKey;
+                        } else if ( [key isEqualToString:NBCSettingsDefaultKey] ) {
+                            nbImageInfoKey = NBCNBImageInfoDictIsDefaultKey;
+                        } else if ( [key isEqualToString:NBCSettingsDescriptionKey] ) {
+                            nbImageInfoKey = NBCNBImageInfoDictDescriptionKey;
+                        }
+                        
+                        DDLogDebug(@"[DEBUG] Changing key: %@", nbImageInfoKey);
+                        DDLogDebug(@"[DEBUG] Original value: %@", nbImageInfoDict[nbImageInfoKey]);
+                        DDLogDebug(@"[DEBUG] New value: %@", userSettings[key]);
+                        nbImageInfoDict[nbImageInfoKey] = userSettings[key];
+                    }
+                    
+                    if ( ! [nbImageInfoDict writeToURL:nbImageInfoURL atomically:YES] ) {
+                        DDLogError(@"[ERROR] Writing updated NBImageInfo.plist failed!");
+                    }
+                }
+            }
+        }
+        
+        if ( [keysBootPlist count] != 0 ) {
+            DDLogDebug(@"[DEBUG] Updating \"Kernel Flags\" in com.apple.Boot.plist...");
+            NSURL *bootPlistURL = [[_currentWorkflowItem nbiURL] URLByAppendingPathComponent:@"i386/com.apple.Boot.plist"];
+            if ( [bootPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+                NSMutableDictionary *bootPlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:bootPlistURL];
+                if ( [bootPlistDict count] != 0 ) {
+                    if ( [userSettings[NBCSettingsUseVerboseBootKey] boolValue] ) {
+                        DDLogDebug(@"[DEBUG] Adding \"-v\" to \"Kernel Flags\"");
+                        if ( [bootPlistDict[@"Kernel Flags"] length] != 0 ) {
+                            NSString *currentKernelFlags = bootPlistDict[@"Kernel Flags"];
+                            bootPlistDict[@"Kernel Flags"] = [NSString stringWithFormat:@"%@ -v", currentKernelFlags];
+                        } else {
+                            bootPlistDict[@"Kernel Flags"] = @"-v";
+                        }
+                    } else {
+                        DDLogDebug(@"[DEBUG] Removing \"-v\" from \"Kernel Flags\"");
+                        if ( [bootPlistDict[@"Kernel Flags"] length] != 0 ) {
+                            NSString *currentKernelFlags = bootPlistDict[@"Kernel Flags"];
+                            bootPlistDict[@"Kernel Flags"] = [currentKernelFlags stringByReplacingOccurrencesOfString:@"-v" withString:@""];
+                        } else {
+                            bootPlistDict[@"Kernel Flags"] = @"";
+                        }
+                    }
+                    if ( ! [bootPlistDict writeToURL:bootPlistURL atomically:YES] ) {
+                        DDLogError(@"[ERROR] Writing updated com.apple.Boot.plist failed!");
+                    }
+                }
+            }
+        }
+        
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
 - (void)runWorkflowNBISource:(NBCTarget *)target {
+    
+    // If only changes outside disk images are made, do those directly
+    if ( [self onlyChangeNBImageInfo] ) {
+        [self updateWorkflowStatusComplete];
+        return;
+    }
     
     if ( [[target baseSystemDisk] isMounted] ) {
         DDLogDebug(@"[DEBUG] BaseSystem disk image IS mounted");

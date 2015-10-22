@@ -168,6 +168,7 @@
 @property (weak) IBOutlet NSTextField *textFieldARDPassword;
 @property (weak) IBOutlet NSSecureTextField *secureTextFieldARDPassword;
 @property (weak) IBOutlet NSButton *checkboxARDPasswordShow;
+@property (weak) IBOutlet NSButton *checkboxUseNetworkTimeServer;
 @property (weak) IBOutlet NSTextField *textFieldNetworkTimeServer;
 
 // ------------------------------------------------------
@@ -235,8 +236,6 @@
 @property BOOL includeRuby;
 
 @property BOOL disableATS;
-@property BOOL includeImagrPreReleaseVersionsEnabled;
-@property BOOL includeImagrPreReleaseVersions;
 @property NSString *imagrVersion;
 @property NSString *imagrConfigurationURL;
 @property NSString *imagrReportingURL;

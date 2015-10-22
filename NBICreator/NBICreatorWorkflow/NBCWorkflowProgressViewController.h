@@ -31,6 +31,7 @@
 @property (weak) IBOutlet NSProgressIndicator *progressIndicator;
 @property (weak) IBOutlet NSProgressIndicator *progressIndicatorSpinner;
 @property (weak) IBOutlet NSTextField *textFieldTitle;
+@property (weak) IBOutlet NSTextField *textFieldStatusTitle;
 @property (weak) IBOutlet NSTextField *textFieldStatusInfo;
 
 @property NSTimer *timer;
@@ -38,6 +39,7 @@
 @property BOOL workflowNBIComplete;
 @property BOOL workflowNBIResourcesComplete;
 @property BOOL workflowComplete;
+@property BOOL workflowFailed;
 
 @property NSString *workflowNBIResourcesLastStatus;
 

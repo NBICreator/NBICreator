@@ -544,8 +544,6 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     if ( [outStr hasPrefix:NBCWorkflowNetInstallLogPrefix] ) {
         
-        
-        
         // ----------------------------------------------------------------------------------------------
         //  Check for build steps in output, then try to update UI with a meaningful message or progress
         // ----------------------------------------------------------------------------------------------

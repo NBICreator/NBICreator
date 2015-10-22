@@ -176,6 +176,17 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)workflowFailedWithError:(NSString *)errorMessage {
+    
+    // -------------------------------------------------------------
+    //  Make sure the first error encoutered is the one displayed
+    // -------------------------------------------------------------
+    if ( _workflowFailed ) {
+        DDLogError(@"[ERROR][SILENCED] %@", errorMessage);
+        return;
+    } else {
+        [self setWorkflowFailed:YES];
+    }
+    
     [_layoutContraintStatusInfoLeading setConstant:1.0];
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
@@ -185,7 +196,8 @@ DDLogLevel ddLogLevel;
         [_textFieldTimer setHidden:YES];
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_textFieldStatusInfo setStringValue:[NSString stringWithFormat:@"ERROR: %@", errorMessage]];
+        [self->_textFieldStatusTitle setStringValue:@"Workflow Failed"];
+        [self->_textFieldStatusInfo setStringValue:errorMessage ?: @""];
     });
 }
 

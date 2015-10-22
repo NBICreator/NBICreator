@@ -101,6 +101,7 @@
 		53A643421B1A5872003BFF71 /* createUser.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53A643411B1A5872003BFF71 /* createUser.bash */; };
 		53A9B9941AAB2804000E06BA /* NBCNetInstallDropViewImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A9B9931AAB2804000E06BA /* NBCNetInstallDropViewImage.m */; };
 		53AF66611AF95E860093DD26 /* IconImagr.icns in Resources */ = {isa = PBXBuildFile; fileRef = 53AF66601AF95E860093DD26 /* IconImagr.icns */; };
+		53AFED891BD95EFE00601525 /* NBCError.m in Sources */ = {isa = PBXBuildFile; fileRef = 53AFED881BD95EFE00601525 /* NBCError.m */; settings = {ASSET_TAGS = (); }; };
 		53B05C091B0CBA89000C7D67 /* NBCDownloaderDeployStudio.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B05C081B0CBA89000C7D67 /* NBCDownloaderDeployStudio.m */; };
 		53B85C501BD796FF0024EF14 /* NBCWorkflowPreWorkflowTaskController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B85C4F1BD796FF0024EF14 /* NBCWorkflowPreWorkflowTaskController.m */; settings = {ASSET_TAGS = (); }; };
 		53B9CEB81A95D68700C8015E /* NBCDeployStudioSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B9CEB61A95D68700C8015E /* NBCDeployStudioSettingsViewController.m */; };
@@ -442,6 +443,8 @@
 		53A9B9921AAB2804000E06BA /* NBCNetInstallDropViewImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCNetInstallDropViewImage.h; path = NBICreatorNetInstall/NBCNetInstallDropViewImage.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53A9B9931AAB2804000E06BA /* NBCNetInstallDropViewImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCNetInstallDropViewImage.m; path = NBICreatorNetInstall/NBCNetInstallDropViewImage.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53AF66601AF95E860093DD26 /* IconImagr.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconImagr.icns; sourceTree = "<group>"; };
+		53AFED871BD95EFE00601525 /* NBCError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCError.h; sourceTree = "<group>"; };
+		53AFED881BD95EFE00601525 /* NBCError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCError.m; sourceTree = "<group>"; };
 		53B05C071B0CBA89000C7D67 /* NBCDownloaderDeployStudio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCDownloaderDeployStudio.h; path = NBICreatorNetworking/NBCDownloaderDeployStudio.h; sourceTree = "<group>"; };
 		53B05C081B0CBA89000C7D67 /* NBCDownloaderDeployStudio.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCDownloaderDeployStudio.m; path = NBICreatorNetworking/NBCDownloaderDeployStudio.m; sourceTree = "<group>"; };
 		53B85C4E1BD796FF0024EF14 /* NBCWorkflowPreWorkflowTaskController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowPreWorkflowTaskController.h; path = NBICreatorWorkflow/NBCWorkflowPreWorkflowTaskController.h; sourceTree = "<group>"; };
@@ -756,8 +759,6 @@
 				539EA5001BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m */,
 				530E0C791B190C550025A9C3 /* NBCViewNoInternetConnection.h */,
 				530E0C7A1B190C550025A9C3 /* NBCViewNoInternetConnection.m */,
-				53EFC5121A9DF304005A68E6 /* NBCDiskImageController.h */,
-				53EFC5131A9DF304005A68E6 /* NBCDiskImageController.m */,
 				539BE69D1B009A0000825C78 /* NBCInstallerPackageController.h */,
 				539BE69E1B009A0000825C78 /* NBCInstallerPackageController.m */,
 				53121E9E1AD5C24A004515D6 /* NBCPreferences.h */,
@@ -771,6 +772,8 @@
 				53F33A861B08C3D50022C68F /* NBCAlerts.h */,
 				53F33A871B08C3D50022C68F /* NBCAlerts.m */,
 				53F229EF1B683E8600CC0B09 /* NBCLogging.h */,
+				53AFED871BD95EFE00601525 /* NBCError.h */,
+				53AFED881BD95EFE00601525 /* NBCError.m */,
 				537DB2E31BB66A7B00CBB36B /* NBCLog.h */,
 				537DB2E41BB66A7B00CBB36B /* NBCLog.m */,
 				53968C131A8E7A3E0079AA95 /* MainMenu.xib */,
@@ -871,6 +874,8 @@
 				53BC04051AD278230037DCBA /* NBCDiskArbitrator.m */,
 				53BC04001AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.h */,
 				53BC04011AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.m */,
+				53EFC5121A9DF304005A68E6 /* NBCDiskImageController.h */,
+				53EFC5131A9DF304005A68E6 /* NBCDiskImageController.m */,
 			);
 			name = "NBICreator DiskArbitration";
 			path = NBICreator;
@@ -1388,6 +1393,7 @@
 				53BC04021AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.m in Sources */,
 				53CBA96B1ADE556600385C89 /* TFHpple.m in Sources */,
 				533262901B794A9E00BA7EC9 /* NBCDesktopEntity.m in Sources */,
+				53AFED891BD95EFE00601525 /* NBCError.m in Sources */,
 				53909A9A1BA35E1C00AD7F51 /* NBCImagrRAMDiskSizeCellView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

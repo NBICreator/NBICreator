@@ -238,7 +238,6 @@ extern NSString *const NBCSettingsCountry;
 //  Template Settings Imagr
 // --------------------------------------------------------------
 extern NSString *const NBCSettingsImagrVersion;
-extern NSString *const NBCSettingsImagrIncludePreReleaseVersions;
 extern NSString *const NBCSettingsImagrConfigurationURL;
 extern NSString *const NBCSettingsImagrReportingURL;
 extern NSString *const NBCSettingsImagrServerURLKey;

@@ -458,6 +458,10 @@ DDLogLevel ddLogLevel;
             if ( freeDiskSpace < [minDiskSpaceAllowed integerValue] ) {
                 [settingsErrors addObject:[NSString stringWithFormat:@"Not enough room to create NBI. Minimum space required is %ld GB, currently only %d GB is free", (long)[minDiskSpaceAllowed integerValue], freeDiskSpace]];
             }
+            
+            if ( ! [[NSFileManager defaultManager] isWritableFileAtPath:[destinationFolderURL path]] ) {
+                [settingsErrors addObject:@"\"Destination Folder\" is read only. Please select a folder where you have write permissions"];
+            }
         } else {
             [settingsWarnings addObject:@"\"Destination Folder\" doesn't exist, it will be created"];
         }
@@ -492,6 +496,10 @@ DDLogLevel ddLogLevel;
                 [workflowItem setNbiURL:nbiURL];
             } else {
                 [settingsErrors addObject:@"\"NBI Name\" is empty."];
+            }
+            
+            if ( ! [[NSFileManager defaultManager] isWritableFileAtPath:[destinationFolderURL path]] ) {
+                [settingsErrors addObject:@"\"Destination Folder\" is read only, please move your NBI to a location where NBICreator have write permissions."];
             }
         } else {
             [settingsErrors addObject:@"\"Destination Folder\" doesn't exist."];

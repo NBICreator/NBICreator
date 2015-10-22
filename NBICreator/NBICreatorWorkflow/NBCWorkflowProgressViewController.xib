@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15A284" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
@@ -14,6 +14,7 @@
                 <outlet property="progressIndicator" destination="uBP-ur-nNv" id="Gbi-yA-V2n"/>
                 <outlet property="progressIndicatorSpinner" destination="McW-gO-jJv" id="iLr-U6-g7E"/>
                 <outlet property="textFieldStatusInfo" destination="60L-Th-Xvx" id="C71-cQ-MgO"/>
+                <outlet property="textFieldStatusTitle" destination="nfc-W4-XIp" id="gc1-eH-DnT"/>
                 <outlet property="textFieldTimer" destination="Svh-zL-y2Z" id="NTZ-nH-IzL"/>
                 <outlet property="textFieldTitle" destination="bI5-Ub-8db" id="hBn-Zv-coj"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
@@ -34,7 +35,7 @@
                     <animations/>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="IconNetBootNBI" id="vzl-Dt-ils"/>
                 </imageView>
-                <progressIndicator horizontalHuggingPriority="1000" verticalHuggingPriority="1000" maxValue="100" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="uBP-ur-nNv">
+                <progressIndicator wantsLayer="YES" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" maxValue="100" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="uBP-ur-nNv">
                     <rect key="frame" x="68" y="26" width="300" height="20"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="300" id="55I-jk-Hbv"/>
@@ -132,8 +133,20 @@
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="21" id="49b-oJ-Kf0"/>
                     </constraints>
                     <animations/>
-                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="0:99" id="j72-TA-JPr">
+                    <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="0:00" id="j72-TA-JPr">
                         <font key="font" metaFont="miniSystem"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nfc-W4-XIp">
+                    <rect key="frame" x="66" y="27" width="304" height="14"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="14" id="1bU-P7-JRP"/>
+                    </constraints>
+                    <animations/>
+                    <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="left" id="5l7-Ju-KEU">
+                        <font key="font" metaFont="systemSemibold" size="11"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
@@ -143,12 +156,14 @@
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="12" id="09s-0i-FgE"/>
                 <constraint firstItem="Svh-zL-y2Z" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" id="2sX-HI-8AX"/>
                 <constraint firstItem="x75-uz-1IE" firstAttribute="top" secondItem="bI5-Ub-8db" secondAttribute="bottom" constant="3" id="5hh-dZ-Qoz"/>
+                <constraint firstItem="nfc-W4-XIp" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" id="H3N-Pn-se5"/>
                 <constraint firstItem="McW-gO-jJv" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" constant="-1" id="HLP-Nm-lNb"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="12" id="HiP-nI-gsi"/>
                 <constraint firstItem="60L-Th-Xvx" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" constant="1" id="JKg-Z3-V8G"/>
                 <constraint firstAttribute="bottom" secondItem="dl5-Dn-LjZ" secondAttribute="bottom" constant="12" id="Keg-Jo-GnF"/>
                 <constraint firstItem="McW-gO-jJv" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="leading" id="MHP-vE-cBO"/>
                 <constraint firstItem="OCM-Cq-6q3" firstAttribute="trailing" secondItem="Svh-zL-y2Z" secondAttribute="trailing" id="MuY-3t-0KP"/>
+                <constraint firstItem="nfc-W4-XIp" firstAttribute="centerY" secondItem="uBP-ur-nNv" secondAttribute="centerY" constant="2" id="PaS-Qv-Y48"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="top" secondItem="bI5-Ub-8db" secondAttribute="top" constant="2" id="Qtw-Vu-vD0"/>
                 <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="trailing" constant="8" symbolic="YES" id="RVW-NN-8Ik"/>
                 <constraint firstItem="6s6-PX-ioV" firstAttribute="leading" secondItem="x75-uz-1IE" secondAttribute="trailing" constant="8" symbolic="YES" id="V7G-PJ-e1E"/>
@@ -156,6 +171,7 @@
                 <constraint firstItem="uBP-ur-nNv" firstAttribute="leading" secondItem="dl5-Dn-LjZ" secondAttribute="trailing" constant="8" symbolic="YES" id="WT5-bj-RDA"/>
                 <constraint firstItem="x75-uz-1IE" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" id="ZNr-cX-GqQ"/>
                 <constraint firstAttribute="bottom" secondItem="60L-Th-Xvx" secondAttribute="bottom" constant="9" id="eTe-zv-1J0"/>
+                <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" secondItem="nfc-W4-XIp" secondAttribute="trailing" constant="8" symbolic="YES" id="lZD-4r-k5x"/>
                 <constraint firstAttribute="trailing" secondItem="OCM-Cq-6q3" secondAttribute="trailing" constant="20" symbolic="YES" id="srK-Bu-2aA"/>
                 <constraint firstItem="uBP-ur-nNv" firstAttribute="centerY" secondItem="OCM-Cq-6q3" secondAttribute="centerY" id="stM-Pk-aHt"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="centerY" secondItem="uBP-ur-nNv" secondAttribute="centerY" id="vb8-aR-ww1"/>
