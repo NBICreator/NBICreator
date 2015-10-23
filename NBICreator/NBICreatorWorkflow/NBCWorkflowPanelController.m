@@ -20,10 +20,10 @@
     [_stackView setSpacing:0];
     [_stackView setHuggingPriority:NSLayoutPriorityDefaultHigh forOrientation:NSLayoutConstraintOrientationHorizontal];
     [_stackView setHuggingPriority:NSLayoutPriorityDefaultHigh forOrientation:NSLayoutConstraintOrientationVertical];
-}
+} // awakeFromNib
 
 - (void)windowDidLoad {
     [super windowDidLoad];
-}
+} // windowDidLoad
 
 @end

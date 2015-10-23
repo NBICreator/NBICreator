@@ -1508,14 +1508,19 @@ DDLogLevel ddLogLevel;
 } // returnSettingsFromUI
 
 - (void)createSettingsFromNBI:(NSURL *)nbiURL {
-    DDLogDebug(@"[DEBUG] Creating template from NBI...");
+    
     NSError *err;
+    
+    DDLogDebug(@"[DEBUG] Creating template from NBI...");
+    
+    DDLogDebug(@"[DEBUG] NBI path: %@", [nbiURL path]);
     if ( ! [nbiURL checkResourceIsReachableAndReturnError:&err] ) {
         DDLogError(@"[ERROR] %@", [err localizedDescription]);
         return;
     }
     
-    NSURL *nbImageInfoURL = [nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
+    NSURL *nbImageInfoURL = [_source nbImageInfoURL];
+    DDLogDebug(@"[DEBUG] NBImageInfo.plist path: %@", [nbImageInfoURL path]);
     if ( ! [nbImageInfoURL checkResourceIsReachableAndReturnError:&err] ) {
         DDLogError(@"[ERROR] %@", [err localizedDescription]);
         return;
@@ -1543,17 +1548,23 @@ DDLogLevel ddLogLevel;
     //  NBI Name
     // -------------------------------------------------------------------------------
     NSString *nbiName = nbImageInfoDict[NBCNBImageInfoDictNameKey];
-    if ( [nbiName length] != 0 ) {
-        settingsDict[NBCSettingsNameKey] = nbiName;
-    } else {
-        settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
-    }
+    settingsDict[NBCSettingsNameKey] = nbiName ?: @"";
     DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsNameKey, settingsDict[NBCSettingsNameKey]);
     
     // -------------------------------------------------------------------------------
     //  NBI Index
     // -------------------------------------------------------------------------------
-    NSNumber *nbiIndex = nbImageInfoDict[NBCNBImageInfoDictIndexKey];
+    NSNumber *nbiIndex;
+    if ( [nbImageInfoDict[NBCNBImageInfoDictIndexKey] isKindOfClass:[NSNumber class]] ) {
+        nbiIndex = nbImageInfoDict[NBCNBImageInfoDictIndexKey];
+    } else if ( [nbImageInfoDict[NBCNBImageInfoDictIndexKey] isKindOfClass:[NSString class]] ) {
+        DDLogWarn(@"[WARN] Index: Incorrect value type: %@", [nbImageInfoDict[NBCNBImageInfoDictIndexKey] class]);
+        DDLogWarn(@"[WARN] Should be: %@", [NSNumber class]);
+        nbiIndex = @( [nbImageInfoDict[NBCNBImageInfoDictIndexKey] integerValue] );
+    } else {
+        DDLogError(@"[ERROR] Index: Unknown value type: %@", [nbImageInfoDict[NBCNBImageInfoDictIndexKey] class] );
+        return;
+    }
     settingsDict[NBCSettingsIndexKey] = [nbiIndex stringValue] ?: NBCVariableIndexCounter;
     DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsIndexKey, settingsDict[NBCSettingsIndexKey]);
     
@@ -2042,6 +2053,7 @@ DDLogLevel ddLogLevel;
                 //  If task failed, post workflow failed notification
                 // ------------------------------------------------------------------
                 DDLogError(@"[ERROR] %@", proxyError);
+                [NBCDiskImageController detachDiskImageAtPath:[[self->_target baseSystemVolumeURL] path]];
             }];
             
         }] readSettingsFromNBI:nbiBaseSystemVolumeURL settingsDict:[settingsDict copy] withReply:^(NSError *error, BOOL success, NSDictionary *newSettingsDict) {

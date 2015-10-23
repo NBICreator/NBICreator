@@ -345,7 +345,7 @@ DDLogLevel ddLogLevel;
         [self setCurrentWorkflowItem:[_workflowQueue firstObject]];
         NSString *nbiName = [_currentWorkflowItem nbiName];
         if ( [nbiName length] != 0 ) {
-            DDLogInfo(@"Starting workflow for: %@", nbiName);
+            DDLogInfo(@"Starting workflow: %@", nbiName);
             if ( [nbiName containsString:@" "] ) {
                 DDLogDebug(@"[DEBUG] Replacing spaces in NBI name with dashes (-)...");
                 nbiName = [nbiName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
@@ -629,7 +629,7 @@ DDLogLevel ddLogLevel;
     }
 }
 
-- (BOOL)onlyChangeNBImageInfo {
+- (BOOL)onlyChangeNBImageInfo:(NSError **)error {
     
     NSDictionary *settingsChanged = [_currentWorkflowItem userSettingsChanged];
     NSMutableArray *keysChanged = [[settingsChanged allKeysForObject:@YES] mutableCopy];
@@ -652,14 +652,21 @@ DDLogLevel ddLogLevel;
     }
     
     if ( [keysChanged count] == 0 ) {
+        DDLogDebug(@"[DEBUG] Only settings in the NBI folder changed...");
         NSDictionary *userSettings = [_currentWorkflowItem userSettings];
         
         if ( [keysNBImageInfo count] != 0 ) {
             DDLogDebug(@"[DEBUG] Updating NBImageInfo.plist...");
-            NSURL *nbImageInfoURL = [[_currentWorkflowItem nbiURL] URLByAppendingPathComponent:@"NBImageInfo.plist"];
-            if ( [nbImageInfoURL checkResourceIsReachableAndReturnError:nil] ) {
+            
+            NSURL *nbImageInfoURL = [[_currentWorkflowItem source] nbImageInfoURL];
+            DDLogDebug(@"[DEBUG] NBImageInfo.plist path: %@", [nbImageInfoURL path]);
+            
+            if ( [nbImageInfoURL checkResourceIsReachableAndReturnError:error] ) {
+                DDLogDebug(@"[DEBUG] NBImageInfo.plist exists!");
+                
                 NSMutableDictionary *nbImageInfoDict = [NSMutableDictionary dictionaryWithContentsOfURL:nbImageInfoURL];
                 if ( [nbImageInfoDict count] != 0 ) {
+                    
                     NSString *nbImageInfoKey;
                     for ( NSString *key in keysNBImageInfo ) {
                         if ( [key isEqualToString:NBCSettingsProtocolKey] ) {
@@ -677,46 +684,68 @@ DDLogLevel ddLogLevel;
                         DDLogDebug(@"[DEBUG] Changing key: %@", nbImageInfoKey);
                         DDLogDebug(@"[DEBUG] Original value: %@", nbImageInfoDict[nbImageInfoKey]);
                         DDLogDebug(@"[DEBUG] New value: %@", userSettings[key]);
-                        nbImageInfoDict[nbImageInfoKey] = userSettings[key];
+                        if ( [key isEqualToString:NBCSettingsIndexKey] ) {
+                            nbImageInfoDict[nbImageInfoKey] = @( [userSettings[key] integerValue] );
+                        } else {
+                            nbImageInfoDict[nbImageInfoKey] = userSettings[key];
+                        }
                     }
                     
+                    DDLogDebug(@"[DEBUG] Writing updated NBImageInfo.plist...");
                     if ( ! [nbImageInfoDict writeToURL:nbImageInfoURL atomically:YES] ) {
-                        DDLogError(@"[ERROR] Writing updated NBImageInfo.plist failed!");
+                        *error = [NBCError errorWithDescription:@"Writing updated NBImageInfo.plist failed"];
+                        return YES;
                     }
+                } else {
+                    *error = [NBCError errorWithDescription:@"NBImageInfo.plist was empty"];
+                    return YES;
                 }
+            } else {
+                return YES;
             }
         }
         
         if ( [keysBootPlist count] != 0 ) {
             DDLogDebug(@"[DEBUG] Updating \"Kernel Flags\" in com.apple.Boot.plist...");
+            
             NSURL *bootPlistURL = [[_currentWorkflowItem nbiURL] URLByAppendingPathComponent:@"i386/com.apple.Boot.plist"];
+            DDLogDebug(@"[DEBUG] com.apple.Boot.plist path: %@", [bootPlistURL path]);
+            
+            NSMutableDictionary *bootPlistDict;
             if ( [bootPlistURL checkResourceIsReachableAndReturnError:nil] ) {
-                NSMutableDictionary *bootPlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:bootPlistURL];
-                if ( [bootPlistDict count] != 0 ) {
-                    if ( [userSettings[NBCSettingsUseVerboseBootKey] boolValue] ) {
-                        DDLogDebug(@"[DEBUG] Adding \"-v\" to \"Kernel Flags\"");
-                        if ( [bootPlistDict[@"Kernel Flags"] length] != 0 ) {
-                            NSString *currentKernelFlags = bootPlistDict[@"Kernel Flags"];
-                            bootPlistDict[@"Kernel Flags"] = [NSString stringWithFormat:@"%@ -v", currentKernelFlags];
-                        } else {
-                            bootPlistDict[@"Kernel Flags"] = @"-v";
-                        }
-                    } else {
-                        DDLogDebug(@"[DEBUG] Removing \"-v\" from \"Kernel Flags\"");
-                        if ( [bootPlistDict[@"Kernel Flags"] length] != 0 ) {
-                            NSString *currentKernelFlags = bootPlistDict[@"Kernel Flags"];
-                            bootPlistDict[@"Kernel Flags"] = [currentKernelFlags stringByReplacingOccurrencesOfString:@"-v" withString:@""];
-                        } else {
-                            bootPlistDict[@"Kernel Flags"] = @"";
-                        }
-                    }
-                    if ( ! [bootPlistDict writeToURL:bootPlistURL atomically:YES] ) {
-                        DDLogError(@"[ERROR] Writing updated com.apple.Boot.plist failed!");
-                    }
+                DDLogDebug(@"[DEBUG] com.apple.Boot.plist exists!");
+                
+                bootPlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:bootPlistURL];
+                if ( ! bootPlistDict ) {
+                    bootPlistDict = [[NSMutableDictionary alloc] init];
+                }
+            } else {
+                bootPlistDict = [[NSMutableDictionary alloc] init];
+            }
+            
+            if ( [userSettings[NBCSettingsUseVerboseBootKey] boolValue] ) {
+                DDLogDebug(@"[DEBUG] Adding \"-v\" to \"Kernel Flags\"");
+                if ( [bootPlistDict[@"Kernel Flags"] length] != 0 ) {
+                    NSString *currentKernelFlags = bootPlistDict[@"Kernel Flags"];
+                    bootPlistDict[@"Kernel Flags"] = [NSString stringWithFormat:@"%@ -v", currentKernelFlags];
+                } else {
+                    bootPlistDict[@"Kernel Flags"] = @"-v";
+                }
+            } else {
+                DDLogDebug(@"[DEBUG] Removing \"-v\" from \"Kernel Flags\"");
+                if ( [bootPlistDict[@"Kernel Flags"] length] != 0 ) {
+                    NSString *currentKernelFlags = bootPlistDict[@"Kernel Flags"];
+                    bootPlistDict[@"Kernel Flags"] = [currentKernelFlags stringByReplacingOccurrencesOfString:@"-v" withString:@""];
+                } else {
+                    bootPlistDict[@"Kernel Flags"] = @"";
                 }
             }
+            
+            if ( ! [bootPlistDict writeToURL:bootPlistURL atomically:YES] ) {
+                *error = [NBCError errorWithDescription:@"Writing updated com.apple.Boot.plist failed"];
+                return YES;
+            }
         }
-        
         return YES;
     } else {
         return NO;
@@ -725,9 +754,17 @@ DDLogLevel ddLogLevel;
 
 - (void)runWorkflowNBISource:(NBCTarget *)target {
     
+    NSError *error = nil;
+    
     // If only changes outside disk images are made, do those directly
-    if ( [self onlyChangeNBImageInfo] ) {
-        [self updateWorkflowStatusComplete];
+    if ( [self onlyChangeNBImageInfo:&error] ) {
+        if ( ! error ) {
+            [self updateWorkflowStatusComplete];
+        } else {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                object:self
+                                                              userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Updating files in NBI folder failed"] }];
+        }
         return;
     }
     

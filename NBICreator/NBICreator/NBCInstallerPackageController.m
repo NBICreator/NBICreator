@@ -22,6 +22,7 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCLogging.h"
+#import "NBCError.h"
 
 DDLogLevel ddLogLevel;
 
@@ -70,6 +71,9 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)installPackageOnTargetVolume:(NSURL *)volumeURL packageURL:(NSURL *)packageURL choiceChangesXML:(NSDictionary *)choiceChangesXML {
+    
+    NSError *err = nil;
+    
     DDLogInfo(@"Installing %@ on volume %@...", [packageURL lastPathComponent], [volumeURL path]);
     
     NSURL *commandURL = [NSURL fileURLWithPath:@"/usr/sbin/installer"];
@@ -84,23 +88,23 @@ DDLogLevel ddLogLevel;
         [installerArguments addObject:choiceChangesXML];
     }
     
-    if ( packageURL ) {
+    if ( [packageURL checkResourceIsReachableAndReturnError:&err] ) {
         [installerArguments addObject:@"-package"];
         [installerArguments addObject:[packageURL path]];
     } else {
-        DDLogError(@"[ERROR] No package URL passed!");
         if ( [self->_delegate respondsToSelector:@selector(installFailed:)] ) {
-            [self->_delegate installFailed:nil];
+            [self->_delegate installFailed:err];
         }
         return;
     }
     
-    if ( volumeURL ) {
+    if ( [volumeURL checkResourceIsReachableAndReturnError:&err] ) {
         [installerArguments addObject:@"-target"];
         [installerArguments addObject:[volumeURL path]];
     } else {
-        DDLogError(@"[ERROR] No volume URL passed!");
-        [self->_delegate installFailed:nil];
+        if ( [self->_delegate respondsToSelector:@selector(installFailed:)] ) {
+            [self->_delegate installFailed:err];
+        }
         return;
     }
     
@@ -119,7 +123,7 @@ DDLogLevel ddLogLevel;
                                         NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
                                         NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
-                                        DDLogDebug(@"[installer] %@", outStr);
+                                        DDLogDebug(@"[installer][stdout] %@", outStr);
                                         
                                         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -139,7 +143,7 @@ DDLogLevel ddLogLevel;
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
                                         NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
                                         
-                                        DDLogError(@"[installer][ERROR] %@", errStr);
+                                        DDLogError(@"[installer][stderr] %@", errStr);
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -148,14 +152,9 @@ DDLogLevel ddLogLevel;
     [helperConnector connectToHelper];
     
     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-        NSDictionary *userInfo = nil;
-        if ( proxyError ) {
-            DDLogError(@"[ERROR] %@", proxyError);
-            userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
-        }
         [nc removeObserver:stdOutObserver];
         [nc removeObserver:stdErrObserver];
-        [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+        [self->_delegate installFailed:proxyError];
         
     }] runTaskWithCommandAtPath:commandURL arguments:installerArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)

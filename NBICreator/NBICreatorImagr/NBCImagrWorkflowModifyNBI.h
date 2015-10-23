@@ -44,6 +44,6 @@
 //  Instance Methods
 // ------------------------------------------------------
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem;
-- (BOOL)resizeAndMountBaseSystemWithShadow:(NSURL *)baseSystemURL target:(NBCTarget *)target; // Move to "controller?"
+- (BOOL)resizeAndMountBaseSystemWithShadow:(NSURL *)baseSystemURL target:(NBCTarget *)target error:(NSError **)error; // Move to "controller?"
 
 @end

@@ -21,6 +21,7 @@
 #import "NBCTargetController.h"
 
 #import "NBCDiskImageController.h"
+#import "NBCError.h"
 
 
 DDLogLevel ddLogLevel;
@@ -519,7 +520,7 @@ DDLogLevel ddLogLevel;
         //  Resize BaseSystem to fit extra content
         // ----------------------------------------
         [_delegate updateProgressStatus:@"Resizing disk image using shadow file..." workflow:self];
-        if ( [NBCDiskImageController resizeDiskImageAtURL:baseSystemURL shadowImagePath:shadowFilePath] ) {
+        if ( [NBCDiskImageController resizeDiskImageAtURL:baseSystemURL shadowImagePath:shadowFilePath error:&error] ) {
             
             // -------------------------------------------------------
             //  Attach BaseSystem and add volume url to target object
@@ -530,8 +531,10 @@ DDLogLevel ddLogLevel;
                 verified = NO;
             }
         } else {
-            DDLogError(@"Resizing BaseSystem failed!");
-            verified = NO;
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                object:self
+                                                              userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"Resizing BaseSystem disk image failed"] }];
+            return NO;
         }
     } else {
         DDLogError(@"[ERROR] Could not get nbiBaseSystemURL from target");

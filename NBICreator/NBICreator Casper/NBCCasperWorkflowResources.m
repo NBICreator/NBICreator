@@ -10,13 +10,11 @@
 #import "NBCConstants.h"
 #import "NBCVariables.h"
 #import "NBCLogging.h"
-
 #import "NSString+randomString.h"
-
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-
 #import "NBCWorkflowNBIController.h"
+#import "NBCError.h"
 
 DDLogLevel ddLogLevel;
 
@@ -532,10 +530,12 @@ DDLogLevel ddLogLevel;
     [self extractItemsFromSource:workflowItem];
 } // copySourceRegexComple:packagePath:resourceFolderPackageURL
 
-- (void)copySourceRegexFailed:(NBCWorkflowItem *)workflowItem temporaryFolderURL:(NSURL *)temporaryFolderURL {
+- (void)copySourceRegexFailed:(NBCWorkflowItem *)workflowItem temporaryFolderURL:(NSURL *)temporaryFolderURL error:(NSError *)error {
 #pragma unused(workflowItem, temporaryFolderURL)
-    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-} // copySourceRegexFailed:temporaryFolderURL
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                        object:self
+                                                      userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Copying items from source failed"] }];
+} // copySourceRegexFailed:temporaryFolderURL:error
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -

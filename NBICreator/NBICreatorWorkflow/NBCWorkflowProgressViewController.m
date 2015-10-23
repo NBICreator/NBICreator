@@ -10,6 +10,7 @@
 
 #import "NBCConstants.h"
 #import "NBCLogging.h"
+#import "NBCError.h"
 
 DDLogLevel ddLogLevel;
 
@@ -34,26 +35,26 @@ DDLogLevel ddLogLevel;
         _messageDelegate = self;
     }
     return self;
-}
+} // init
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setWorkflowComplete:NO];
     [self updateProgressStatus:@"Waiting..." workflow:self];
-}
+} // viewDidLoad
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
+} // dealloc
 
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
-    if ( [[_workflowItem workflowNBI] isEqualTo:[notification object]] ) {
         [self setWorkflowNBIComplete:YES];
         if ( ! _workflowNBIResourcesComplete ) {
             if ( [_workflowNBIResourcesLastStatus length] == 0 ) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self updateProgressStatus:@"Preparing Resources to be added to NBI..." workflow:self];
+                    [self updateProgressBar:50.0];
                 });
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -61,35 +62,32 @@ DDLogLevel ddLogLevel;
                 });
             }
         }
-    }
-}
+} // workflowCompleteNBI
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
 #pragma unused(notification)
     [self setWorkflowNBIResourcesComplete:YES];
-}
+} // workflowCompleteResources
 
 - (IBAction)buttonCancel:(id)sender {
 #pragma unused(sender)
-    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
-                                                        object:self
-                                                      userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
+    
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    
+    DDLogWarn(@"[WARN] User canceled workflow...");
+    [nc postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
+                      object:self
+                    userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
     
     if ( _isRunning ) {
-        NSDictionary *errorUserInfo = @{
-                                        NSLocalizedDescriptionKey: NSLocalizedString(@"Workflow Canceled.", nil),
-                                        NSLocalizedFailureReasonErrorKey: NSLocalizedString(@"User canceled workflow.", nil)
-                                        };
-        
-        NSError *error = [NSError errorWithDomain:NBCErrorDomain code:-1 userInfo:errorUserInfo];
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                            object:self
-                                                          userInfo:@{ NBCUserInfoNSErrorKey : error }];
+        [nc postNotificationName:NBCNotificationWorkflowFailed
+                          object:self
+                        userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"User Canceled"] }];
     }
 }
 
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
+    
     if ( [workflow isEqualTo:[_workflowItem workflowNBI]] && ! _workflowNBIComplete ) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self->_textFieldStatusInfo setStringValue:statusMessage];
@@ -106,13 +104,12 @@ DDLogLevel ddLogLevel;
         dispatch_async(dispatch_get_main_queue(), ^{
             [self->_textFieldStatusInfo setStringValue:statusMessage];
         });
-    } else {
+    } else if ( ! [workflow isEqualTo:[_workflowItem workflowNBI]] ) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self->_textFieldStatusInfo setStringValue:statusMessage];
         });
     }
 }
-
 
 - (void)updateProgressBar:(double)value {
     [_progressIndicator setDoubleValue:value];
@@ -122,12 +119,13 @@ DDLogLevel ddLogLevel;
 - (IBAction)buttonShowInFinder:(id)sender {
 #pragma unused(sender)
     if ( _nbiURL ) {
+        NSError *error = nil;
         NSString *destinationFileName = [_nbiURL lastPathComponent];
         if ( [destinationFileName containsString:@" "] ) {
             destinationFileName = [destinationFileName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
             [self setNbiURL:[[_nbiURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:destinationFileName]];
-            if ( ! _nbiURL ) {
-                DDLogError(@"[ERROR] NBI URL is nil, cannot open in Finder!");
+            if ( ! [_nbiURL checkResourceIsReachableAndReturnError:&error] ) {
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
                 return;
             }
         }
@@ -136,7 +134,11 @@ DDLogLevel ddLogLevel;
 }
 - (IBAction)buttonOpenLog:(id)sender {
 #pragma unused(sender)
-    if ( _nbiLogURL ) {
+    NSError *error = nil;
+    if ( ! [_nbiLogURL checkResourceIsReachableAndReturnError:&error] ) {
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        return;
+    } else {
         [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ _nbiLogURL ]];
     }
 }

@@ -2769,13 +2769,16 @@ DDLogLevel ddLogLevel;
 } // modifySettingsAddFolders
 
 - (BOOL)verifyNetInstallFromDiskImageURL:(NSURL *)netInstallDiskImageURL target:(NBCTarget *)target error:(NSError **)error {
+    
     DDLogInfo(@"Verifying NetInstall.dmg...");
+    
     BOOL verified = NO;
     NSURL *netInstallVolumeURL;
     
     [target setNbiNetInstallURL:netInstallDiskImageURL];
     NBCDisk *netInstallDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:netInstallDiskImageURL
                                                                          imageType:@"NetInstall"];
+    
     if ( netInstallDisk != nil ) {
         [target setNbiNetInstallDisk:netInstallDisk];
         [target setNbiNetInstallVolumeBSDIdentifier:[netInstallDisk BSDName]];

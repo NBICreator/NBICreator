@@ -46,7 +46,7 @@
 + (BOOL)unmountVolumeAtPath:(NSString *)mountPath;
 
 // Resizing
-+ (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath;
++ (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath error:(NSError **)error;
 
 // Converting
 + (BOOL)convertDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath format:(NSString *)format destinationPath:(NSString *)destinationPath;

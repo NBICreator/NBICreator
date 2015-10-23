@@ -489,21 +489,14 @@ DDLogLevel ddLogLevel;
     if ( [destinationFolderPath length] != 0 ) {
         NSURL *destinationFolderURL = [NSURL fileURLWithPath:destinationFolderPath];
         if ( [destinationFolderURL checkResourceIsReachableAndReturnError:&error] ) {
-            NSString *nbiName = [workflowItem nbiName];
-            if ( [nbiName length] != 0 ) {
-                NSURL *nbiURL = [destinationFolderURL URLByAppendingPathComponent:nbiName];
-                [workflowItem setDestinationFolder:destinationFolderPath];
-                [workflowItem setNbiURL:nbiURL];
-            } else {
-                [settingsErrors addObject:@"\"NBI Name\" is empty."];
-            }
+            [workflowItem setDestinationFolder:destinationFolderPath];
+            [workflowItem setNbiURL:destinationFolderURL];
             
             if ( ! [[NSFileManager defaultManager] isWritableFileAtPath:[destinationFolderURL path]] ) {
                 [settingsErrors addObject:@"\"Destination Folder\" is read only, please move your NBI to a location where NBICreator have write permissions."];
             }
         } else {
-            [settingsErrors addObject:@"\"Destination Folder\" doesn't exist."];
-            [settingsErrors addObject:[NSString stringWithFormat:@"[ERROR] %@", [error localizedDescription]]];
+            [settingsErrors addObject:[NSString stringWithFormat:@"%@", [error localizedDescription]]];
         }
     } else {
         [settingsErrors addObject:@"\"Destination Folder\" cannot be empty"];

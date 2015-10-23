@@ -143,6 +143,8 @@ DDLogLevel ddLogLevel;
 
 - (void)updateSourceInfo:(NBCSource *)source {
     
+    DDLogDebug(@"[DEBUG] Updating source info...");
+    
     NSString *sourceType = [source sourceType];
     NSString *baseSystemOSVersion = [source baseSystemOSVersion];
     NSString *baseSystemOSBuild = [source baseSystemOSBuild];
@@ -151,6 +153,7 @@ DDLogLevel ddLogLevel;
     //  Set Source Title to system version string
     // ------------------------------------------------------
     NSString *systemVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", baseSystemOSVersion, baseSystemOSBuild];
+    DDLogInfo(@"Source version: %@", systemVersionString);
     [_textFieldSourceTitle setStringValue:systemVersionString];
     
     // ------------------------------------------------------
@@ -184,9 +187,7 @@ DDLogLevel ddLogLevel;
         NSImage *image = [[NSWorkspace sharedWorkspace] iconForFile:[[_target nbiURL] path]];
         [_imageViewSourceMini setImage:image];
     } else {
-        
-        NSLog(@"Unknown source type!");
-        NSLog(@"sourceType: %@", sourceType);
+        DDLogError(@"[ERROR] Unknown source type: %@", sourceType);
         return;
     }
     
@@ -194,6 +195,7 @@ DDLogLevel ddLogLevel;
     //  Set source image to installer application or OS Version
     // ---------------------------------------------------------
     NSURL *sourceIconURL = [source osxInstallerIconURL];
+    DDLogDebug(@"[DEBUG] Source icon path: %@", [sourceIconURL path]);
     if ( [sourceIconURL checkResourceIsReachableAndReturnError:nil] ) {
         NSImage *sourceIcon = [[NSImage alloc] initWithContentsOfURL:sourceIconURL];
         [_imageViewSource setImage:sourceIcon];
@@ -440,7 +442,7 @@ DDLogLevel ddLogLevel;
                 }
                 
                 NSDictionary *systemVersionDict = [[NSDictionary alloc] initWithContentsOfURL:systemVersionPlist];
-                if ( systemVersionDict ) {
+                if ( [systemVersionDict count] != 0 ) {
                     NSString *currentOSVersion = systemVersionDict[@"ProductUserVisibleVersion"];
                     NSString *currentOSBuild = systemVersionDict[@"ProductBuildVersion"];
                     NSString *menuItemTitle = [NSString stringWithFormat:@"%@ - %@ (%@)", volumeName, currentOSVersion, currentOSBuild];
@@ -510,7 +512,7 @@ DDLogLevel ddLogLevel;
 } // installerApplications
 
 - (void)verifyPopUpButtonSelection:(id)selectedItem {
-    
+
     // --------------------------------------------------------------------------------------------
     //  If selected item isn't a NSURL, get the NSURL from the disk object to pass to verifySource
     // --------------------------------------------------------------------------------------------
@@ -521,7 +523,8 @@ DDLogLevel ddLogLevel;
             NSURL *diskImageURL = [NBCDiskImageController getDiskImageURLFromMountURL:[selectedItem volumeURL]];
             [self verifySource:diskImageURL];
         } else {
-            NSLog(@"Selected Item is not Mounted!");
+            DDLogError(@"[ERROR] Selected source is not Mounted!");
+            // Should probably try to mount here...
         }
     }
 } // verifyPopUpButtonSelection
@@ -533,6 +536,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifySource:(NSURL *)sourceURL {
+    
     // ------------------------------------------------------
     //  Disable build button while checking new source
     // ------------------------------------------------------
@@ -543,6 +547,7 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------------------
     //  Update UI to show working progress
     // ------------------------------------------------------
+    DDLogInfo(@"Checking Source Version...");
     [_textFieldStatus setStringValue:@"Checking Source Version..."];
     [self showProgress];
     
@@ -554,47 +559,53 @@ DDLogLevel ddLogLevel;
     dispatch_async(taskQueue, ^{
         
         BOOL verified = YES;
-        NSError *error;
+        NSError *error = nil;
         NSString *errorMessage;
         
         NSString *sourceExtension = [sourceURL pathExtension];
+        DDLogDebug(@"[DEBUG] Source extension: %@", sourceExtension);
+        
         if ( [sourceExtension isEqualToString:@"nbi"] ) {
-            //dispatch_async(dispatch_get_main_queue(), ^{
-            //    [self restoreDropView];
-            //    [NBCAlerts showAlertFeatureNotImplemented:@"Using NBI as source"];
-            //});
-            //return;
+            
             
             // ----------------------------------------------------------------
             //  If source is an nbi, verify it contains a valid NetInstall.dmg
             // ----------------------------------------------------------------
             NSString *rootPath;
             NSURL *nbImageInfoURL = [sourceURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
+            DDLogDebug(@"[DEBUG] NBImageInfo.plist path: %@", [nbImageInfoURL path]);
+            
             if ( [nbImageInfoURL checkPromisedItemIsReachableAndReturnError:&error] ) {
+                [newSource setNbImageInfoURL:nbImageInfoURL];
+                DDLogDebug(@"[DEBUG] NBImageInfo.plist exists!");
+                
                 NSDictionary *nbImageInfoDict = [NSDictionary dictionaryWithContentsOfURL:nbImageInfoURL];
-                if ( nbImageInfoDict ) {
+                if ( [nbImageInfoDict count] != 0 ) {
                     [newSource setNbImageInfo:nbImageInfoDict];
                     rootPath = nbImageInfoDict[@"RootPath"];
+                    DDLogDebug(@"[DEBUG] NBImageInfo \"RootPath\" = %@", rootPath);
+                    
                 } else {
-                    errorMessage = @"Could not read NBImageInfo.plist dict";
-                    NSLog(@"Could not read NBImageInfo.plist dict");
+                    errorMessage = [NSString stringWithFormat:@"Could not read NBImageInfo.plist at path: %@", [nbImageInfoURL path]];
                     verified = NO;
                 }
             } else {
-                errorMessage = @"Could not find NBImageInfo.plist from dropped NBI";
-                DDLogError(@"[ERROR] Could not find NBImageInfo.plist from dropped NBI");
-                DDLogError(@"[ERROR] %@", error);
+                errorMessage = [error localizedDescription];
                 verified = NO;
             }
             
             if ( verified && [rootPath length] != 0 ) {
                 NSURL *nbiNetInstallURL = [sourceURL URLByAppendingPathComponent:rootPath];
+                DDLogDebug(@"[DEBUG] NBI NetInstall disk image path: %@", [nbiNetInstallURL path]);
+                
                 if ( [nbiNetInstallURL checkResourceIsReachableAndReturnError:&error] ) {
+                    DDLogDebug(@"[DEBUG] NBI NetInstall disk image exists!");
+                    
                     newTarget = [[NBCTarget alloc] init];
                     [newTarget setNbiURL:sourceURL];
                     NBCTargetController *targetController = [[NBCTargetController alloc] init];
                     
-                    // Unmount
+                    // Unmount ? Might fix an error
                     
                     verified = [targetController verifyNetInstallFromDiskImageURL:nbiNetInstallURL target:newTarget error:&error];
                     if ( verified ) {
@@ -603,14 +614,10 @@ DDLogLevel ddLogLevel;
                             [newSource setSourceURL:sourceURL];
                             [newSource setSourceType:NBCSourceTypeNBI];
                         } else {
-                            errorMessage = @"BaseSystem Verify Failed!";
-                            DDLogError(@"[ERROR] BaseSystem Verify Failed!");
-                            DDLogError(@"[ERROR] %@", error);
+                            errorMessage = [error localizedDescription];
                         }
                     } else {
-                        errorMessage = @"NetInstall Verify Failed!";
-                        DDLogError(@"[ERROR] NetInstall Verify Failed!");
-                        DDLogError(@"[ERROR] %@", error);
+                        errorMessage = [error localizedDescription];
                         newTarget = nil;
                         newTarget = [[NBCTarget alloc] init];
                         [newTarget setNbiURL:sourceURL];
@@ -620,14 +627,11 @@ DDLogLevel ddLogLevel;
                             [newSource setSourceURL:sourceURL];
                             [newSource setSourceType:NBCSourceTypeNBI];
                         } else {
-                            errorMessage = @"BaseSystem Verify Failed!";
-                            DDLogError(@"[ERROR] BaseSystem Verify Failed!");
-                            DDLogError(@"[ERROR] %@", error);
+                            errorMessage = [error localizedDescription];
                         }
                     }
                 } else {
-                    errorMessage = @"Could not find nbiNetInstallURL in NBI!";
-                    DDLogError(@"[ERROR] Could not find nbiNetInstallURL in NBI!");
+                    errorMessage = [error localizedDescription];
                     verified = NO;
                 }
             }
@@ -647,25 +651,21 @@ DDLogLevel ddLogLevel;
                     verified = [sourceController verifyInstallESDFromDiskImageURL:installESDDiskImageURL source:newSource error:&error];
                     if ( ! verified ) {
                         errorMessage = [error localizedDescription];
-                        DDLogError(@"Error: %@", [error localizedDescription]);
                     }
                 } else {
                     errorMessage = @"No path returned for InstallESD.dmg!";
-                    DDLogError(@"[ERROR] No path returned for InstallESD.dmg!");
                 }
             } else {
-                DDLogError(@"[ERROR] Invalid source!");
+                errorMessage = @"Source could not verified!";
             }
             
             if ( verified ) {
                 verified = [sourceController verifyBaseSystemFromSource:newSource error:&error];
                 if ( ! verified ) {
-                    errorMessage = @"BaseSystem Verify Failed!";
-                    DDLogError(@"[ERROR] BaseSystem Verify Failed!");
-                    DDLogError(@"[ERROR] %@", error);
+                    errorMessage = [error localizedDescription];
                 }
             } else {
-                DDLogError(@"[ERROR] Verification failed!");
+                errorMessage = @"Source could not verified!";
             }
         }
         
@@ -723,14 +723,13 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
-    
     NSURL *draggedFileURL = [self getDraggedSourceURLFromPasteboard:[sender draggingPasteboard]];
-    if ( draggedFileURL ) {
+    if ( [draggedFileURL checkResourceIsReachableAndReturnError:nil] ) {
         DDLogInfo(@"%@ was dropped as source", [draggedFileURL lastPathComponent]);
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationImagrVerifyDroppedSource
                                                             object:self
                                                           userInfo:@{ NBCNotificationVerifyDroppedSourceUserInfoSourceURL : draggedFileURL }];
-        
         return YES;
     } else {
         return NO;

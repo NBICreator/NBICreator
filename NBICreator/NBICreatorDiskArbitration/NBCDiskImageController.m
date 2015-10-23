@@ -27,6 +27,7 @@
 #import "NSString+SymlinksAndAliases.h"
 #import "NBCController.h"
 #import "NBCLogging.h"
+#import "NBCError.h"
 
 DDLogLevel ddLogLevel;
 
@@ -475,7 +476,7 @@ DDLogLevel ddLogLevel;
     }
 } // convertDiskImageAtPath:shadowImagePath
 
-+ (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath {
++ (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath error:(NSError **)error {
     DDLogInfo(@"Resizing disk image using shadow file...");
     DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
     DDLogDebug(@"[DEBUG] Disk image shadow path: %@", shadowImagePath);
@@ -507,7 +508,7 @@ DDLogLevel ddLogLevel;
     } else {
         DDLogError(@"[hdiutil] %@", stdOut);
         DDLogError(@"[hdiutil] %@", stdErr);
-        DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
+        *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]]];
         return NO;
     }
 }

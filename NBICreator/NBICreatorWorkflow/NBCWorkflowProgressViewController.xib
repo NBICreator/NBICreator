@@ -26,6 +26,18 @@
             <rect key="frame" x="0.0" y="0.0" width="410" height="72"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
+                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nfc-W4-XIp">
+                    <rect key="frame" x="66" y="27" width="304" height="14"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="14" id="1bU-P7-JRP"/>
+                    </constraints>
+                    <animations/>
+                    <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="left" id="5l7-Ju-KEU">
+                        <font key="font" metaFont="systemSemibold" size="11"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
                 <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="dl5-Dn-LjZ">
                     <rect key="frame" x="12" y="12" width="48" height="48"/>
                     <constraints>
@@ -135,18 +147,6 @@
                     <animations/>
                     <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="0:00" id="j72-TA-JPr">
                         <font key="font" metaFont="miniSystem"/>
-                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                    </textFieldCell>
-                </textField>
-                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="nfc-W4-XIp">
-                    <rect key="frame" x="66" y="27" width="304" height="14"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="14" id="1bU-P7-JRP"/>
-                    </constraints>
-                    <animations/>
-                    <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="left" id="5l7-Ju-KEU">
-                        <font key="font" metaFont="systemSemibold" size="11"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>

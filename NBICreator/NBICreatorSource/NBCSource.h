@@ -68,6 +68,7 @@ extern NSString *const NBCSourceTypeUnknown;
 
 // NBI
 @property NSDictionary *nbImageInfo;
+@property NSURL *nbImageInfoURL;
 
 // Methods
 - (id)initWithSourceType:(NSString *)sourceType;

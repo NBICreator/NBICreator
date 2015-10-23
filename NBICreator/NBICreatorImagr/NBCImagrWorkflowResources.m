@@ -14,6 +14,7 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCWorkflowNBIController.h"
+#import "NBCError.h"
 
 DDLogLevel ddLogLevel;
 
@@ -28,6 +29,7 @@ DDLogLevel ddLogLevel;
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     DDLogInfo(@"Starting workflow Imagr Resources...");
     
+    NSError *error = nil;
     _resourcesNetInstallDict = [[NSMutableDictionary alloc] init];
     _resourcesBaseSystemDict = [[NSMutableDictionary alloc] init];
     _resourcesNetInstallCopy = [[NSMutableArray alloc] init];
@@ -126,8 +128,10 @@ DDLogLevel ddLogLevel;
         //  Packages
         // ---------------------------
         if ( [packagesArray count] != 0 ) {
-            if ( ! [self preparePackages:workflowItem] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            if ( ! [self preparePackages:workflowItem error:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing packages failed"] }];
                 return;
             }
         }
@@ -136,8 +140,10 @@ DDLogLevel ddLogLevel;
         //  Certificates
         // ---------------------------
         if ( [certificatesArray count] != 0 ) {
-            if ( ! [self prepareCertificates:workflowItem] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            if ( ! [self prepareCertificates:workflowItem error:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing certificates failed"] }];
                 return;
             }
         }
@@ -146,8 +152,10 @@ DDLogLevel ddLogLevel;
         //  Imagr.app
         // ---------------------------
         if ( [_settingsChanged[NBCSettingsImagrVersion] boolValue] ) {
-            if ( ! [self getImagrApplication:workflowItem] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            if ( ! [self getImagrApplication:workflowItem error:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing Imagr.app failed"] }];
                 return;
             }
         }
@@ -160,8 +168,10 @@ DDLogLevel ddLogLevel;
             [_settingsChanged[NBCSettingsImagrReportingURL] boolValue] ||
             [_settingsChanged[NBCSettingsImagrSyslogServerURI] boolValue]
             ) {
-            if ( ! [self createImagrSettingsPlist:workflowItem] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            if ( ! [self createImagrSettingsPlist:workflowItem error:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing com.grahamgilbert.Imagr.plist failed"] }];
                 return;
             }
         }
@@ -172,14 +182,16 @@ DDLogLevel ddLogLevel;
         if (
             [_settingsChanged[NBCSettingsLaunchConsoleAppKey] boolValue]
             ) {
-            if ( ! [self createImagrRCImaging:workflowItem] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            if ( ! [self createImagrRCImaging:workflowItem error:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing rc.imaging failed"] }];
                 return;
             }
         }
         
         [self checkCompletedResources];
-    } else if ( _userSettings ) {
+    } else if ( [_userSettings count] != 0 ) {
         
         DDLogDebug(@"[DEBUG] Adding background source items to resource count required...");
         if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
@@ -194,8 +206,10 @@ DDLogLevel ddLogLevel;
         //  Packages
         // ---------------------------
         if ( [packagesArray count] != 0 ) {
-            if ( ! [self preparePackages:workflowItem] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            if ( ! [self preparePackages:workflowItem error:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing packages failed"] }];
                 return;
             }
         }
@@ -204,8 +218,10 @@ DDLogLevel ddLogLevel;
         //  Certificates
         // ---------------------------
         if ( [certificatesArray count] != 0 ) {
-            if ( ! [self prepareCertificates:workflowItem] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+            if ( ! [self prepareCertificates:workflowItem error:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing certificates failed"] }];
                 return;
             }
         }
@@ -213,51 +229,64 @@ DDLogLevel ddLogLevel;
         // ---------------------------
         //  Imagr.app
         // ---------------------------
-        if ( ! [self getImagrApplication:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        if ( ! [self getImagrApplication:workflowItem error:&error] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                object:self
+                                                              userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing Imagr.app failed"] }];
             return;
         }
         
         // ---------------------------
         //  com.grahamgilbert.Imagr.plist
         // ---------------------------
-        if ( ! [self createImagrSettingsPlist:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        if ( ! [self createImagrSettingsPlist:workflowItem error:&error] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                object:self
+                                                              userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing com.grahamgilbert.Imagr.plist failed"] }];
             return;
         }
         
         // ---------------------------
         //  rc.imaging
         // ---------------------------
-        if ( ! [self createImagrRCImaging:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        if ( ! [self createImagrRCImaging:workflowItem error:&error] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                object:self
+                                                              userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing rc.imaging failed"] }];
             return;
         }
         
         // ---------------------------
-        //  DesktopViewer
+        //  Desktop Picture
         // ---------------------------
-        if ( ! [self prepareDesktopViewer:workflowItem] ) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        if ( ! [self prepareDesktopViewer:workflowItem error:&error] ) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                object:self
+                                                              userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing desktop background failed"] }];
             return;
         }
         
         [self getItemsFromSource:workflowItem];
     } else {
-        DDLogError(@"[ERROR] UI settings are empty!");
-        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                            object:self
+                                                          userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"Unable to read user settings"] }];
+        return;
     }
 } // runWorkflow
 
-- (BOOL)prepareDesktopViewer:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Preparing desktop viewer...");
-    BOOL retval = YES;
-    NSDictionary *userSettings = [workflowItem userSettings];
-    if ( [userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+- (BOOL)prepareDesktopViewer:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
+    
+    if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
         
-        // NBCDesktopViewer.app
+        DDLogInfo(@"Preparing desktop background...");
+        
+        // ---------------------------
+        //  NBCDesktopViewer.app
+        // ---------------------------
         NSURL *desktopViewerURL = [[NSBundle mainBundle] URLForResource:@"NBICreatorDesktopViewer" withExtension:@"app"];
         NSString *desktopViewerTargetPath = [NSString stringWithFormat:@"%@/NBICreatorDesktopViewer.app", NBCApplicationsTargetPath];
+        
         NSDictionary *desktopViewerAttributes  = @{
                                                    NSFileOwnerAccountName : @"root",
                                                    NSFileGroupOwnerAccountName : @"wheel",
@@ -270,23 +299,31 @@ DDLogLevel ddLogLevel;
                                                    NBCWorkflowCopyTargetURL : desktopViewerTargetPath,
                                                    NBCWorkflowCopyAttributes : desktopViewerAttributes
                                                    };
+        
         [self updateBaseSystemCopyDict:desktopViewerCopySetting];
         
-        // Background Image
-        if ( ! [userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
-            NSString *backgroundImageURL = userSettings[NBCSettingsBackgroundImageKey];
-            if ( [backgroundImageURL length] != 0 ) {
-                NSError *error;
-                NSFileManager *fm = [NSFileManager defaultManager];
-                NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-                NSURL *temporaryBackgroundImageURL = [temporaryFolderURL URLByAppendingPathComponent:[backgroundImageURL lastPathComponent]];
-                if ( [fm copyItemAtURL:[NSURL fileURLWithPath:backgroundImageURL] toURL:temporaryBackgroundImageURL error:&error] ) {
+        // ---------------------------
+        //  Desktop Picture
+        // ---------------------------
+        if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
+
+            NSString *backgroundImagePath = _userSettings[NBCSettingsBackgroundImageKey];
+            DDLogDebug(@"[DEBUG] Background image path: %@", backgroundImagePath);
+            
+            if ( [backgroundImagePath length] != 0 ) {
+                NSURL *temporaryBackgroundImageURL = [[workflowItem temporaryFolderURL] URLByAppendingPathComponent:[backgroundImagePath lastPathComponent]];
+                
+                DDLogDebug(@"[DEBUG] Copying background image to temporary folder...");
+                if ( [[NSFileManager defaultManager] copyItemAtURL:[NSURL fileURLWithPath:backgroundImagePath] toURL:temporaryBackgroundImageURL error:error] ) {
+                    DDLogDebug(@"[DEBUG] Copy was successful!");
+                    
                     NSString *backgroundTargetPath;
                     if ( [_target nbiNetInstallURL] ) {
                         backgroundTargetPath = @"Packages/Background.jpg";
                     } else if ( [_target baseSystemURL] ) {
                         backgroundTargetPath = @"Library/Application Support/NBICreator/Background.jpg";
                     }
+                    
                     NSDictionary *backgroundImageAttributes  = @{
                                                                  NSFileOwnerAccountName : @"root",
                                                                  NSFileGroupOwnerAccountName : @"wheel",
@@ -299,77 +336,83 @@ DDLogLevel ddLogLevel;
                                                                  NBCWorkflowCopyTargetURL : backgroundTargetPath,
                                                                  NBCWorkflowCopyAttributes : backgroundImageAttributes
                                                                  };
+                    
                     if ( [_target nbiNetInstallURL] != nil ) {
                         [self updateNetInstallCopyDict:backgroundImageCopySetting];
                     } else if ( [_target baseSystemURL] ) {
                         [self updateBaseSystemCopyDict:backgroundImageCopySetting];
                     }
                 } else {
-                    DDLogError(@"Could not copy %@ to temporary folder at path %@", [backgroundImageURL lastPathComponent], [temporaryBackgroundImageURL path]);
-                    DDLogError(@"%@", error);
-                    retval = NO;
+                    return NO;
                 }
             } else {
-                DDLogError(@"[ERROR] backgroundImageURL was empty!");
-                retval = NO;
+                *error = [NBCError errorWithDescription:@"Background image path was empty"];
+                return NO;
             }
+        } else {
+            DDLogDebug(@"[DEBUG] Using default background path: %@", NBCBackgroundImageDefaultPath);
         }
     } else {
-        DDLogInfo(@"Use background not selected!");
+        DDLogDebug(@"[DEBUG] Including background not selected");
     }
     
-    return retval;
+    return YES;
 }
 
-- (BOOL)preparePackages:(NBCWorkflowItem *)workflowItem {
+- (BOOL)preparePackages:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
 #pragma unused(workflowItem)
-    DDLogInfo(@"Preparing packages...");
-    BOOL retval = YES;
-    NSError *error;
-    NSArray *packagesArray = _resourcesSettings[NBCSettingsPackagesKey];
     
+    NSArray *packagesArray = _resourcesSettings[NBCSettingsPackagesKey];
     if ( [packagesArray count] != 0 ) {
+        
         NSFileManager *fm = [NSFileManager defaultManager];
+        
+        DDLogInfo(@"Preparing %lu packages...", (unsigned long)[packagesArray count]);
+        
         NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
         NSURL *temporaryPackageFolderURL = [temporaryFolderURL URLByAppendingPathComponent:@"Packages"];
         if ( ! [temporaryPackageFolderURL checkResourceIsReachableAndReturnError:nil] ) {
-            if ( ! [fm createDirectoryAtURL:temporaryPackageFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                DDLogError(@"Creating temporary package folder failed!");
-                DDLogError(@"%@", error);
+            
+            DDLogDebug(@"[DEBUG] Creating temporary packages folder...");
+            if ( ! [fm createDirectoryAtURL:temporaryPackageFolderURL withIntermediateDirectories:YES attributes:nil error:error] ) {
                 return NO;
             }
         }
         
         for ( NSString *packagePath in packagesArray ) {
+            DDLogDebug(@"[DEBUG] Copying package at path: %@", packagePath);
+            
             NSURL *temporaryPackageURL = [temporaryPackageFolderURL URLByAppendingPathComponent:[packagePath lastPathComponent]];
-            if ( [fm copyItemAtURL:[NSURL fileURLWithPath:packagePath] toURL:temporaryPackageURL error:&error] ) {
+            if ( [fm copyItemAtURL:[NSURL fileURLWithPath:packagePath] toURL:temporaryPackageURL error:error] ) {
                 [self updateBaseSystemInstallerDict:temporaryPackageURL choiceChangesXML:nil];
             } else {
-                DDLogError(@"Could not copy %@ to temporary folder at path %@", [packagePath lastPathComponent], [temporaryPackageURL path]);
-                DDLogError(@"%@", error);
-                retval = NO;
+                return NO;
             }
         }
     } else {
-        DDLogInfo(@"No packages found!");
+        DDLogDebug(@"[DEBUG] Packages array was empty");
     }
-    return retval;
+    
+    return YES;
 } // preparePackages
 
-- (BOOL)prepareCertificates:(NBCWorkflowItem *)workflowItem {
+- (BOOL)prepareCertificates:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
 #pragma unused(workflowItem)
-    DDLogInfo(@"Preparing certificates...");
-    BOOL retval = YES;
-    NSError *error;
+
     NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
     if ( [certificatesArray count] != 0 ) {
+        
+        DDLogInfo(@"Preparing %lu certificates...", (unsigned long)[certificatesArray count]);
+        
         NSURL *certificateScriptURL = [[NSBundle mainBundle] URLForResource:@"installCertificates" withExtension:@"bash"];
+        
         NSString *certificateScriptTargetPath;
         if ( [_target nbiNetInstallURL] ) {
             certificateScriptTargetPath = [NSString stringWithFormat:@"%@/%@", NBCScriptsTargetPath, [certificateScriptURL lastPathComponent]];
         } else if ( [_target baseSystemURL] ) {
             certificateScriptTargetPath = [NSString stringWithFormat:@"%@/%@", NBCScriptsNBICreatorTargetPath, [certificateScriptURL lastPathComponent]];
         }
+        
         NSDictionary *certificateScriptAttributes  = @{
                                                        NSFileOwnerAccountName : @"root",
                                                        NSFileGroupOwnerAccountName : @"wheel",
@@ -382,19 +425,21 @@ DDLogLevel ddLogLevel;
                                                        NBCWorkflowCopyTargetURL : certificateScriptTargetPath,
                                                        NBCWorkflowCopyAttributes : certificateScriptAttributes
                                                        };
+        
         if ( [_target nbiNetInstallURL] ) {
             [self updateNetInstallCopyDict:certificateScriptCopySetting];
         } else if ( [_target baseSystemURL] ) {
             [self updateBaseSystemCopyDict:certificateScriptCopySetting];
         }
         
-        NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-        NSURL *temporaryCertificateFolderURL = [temporaryFolderURL URLByAppendingPathComponent:@"Certificates"];
+        NSURL *temporaryCertificateFolderURL = [[workflowItem temporaryFolderURL] URLByAppendingPathComponent:@"Certificates"];
         if ( ! [temporaryCertificateFolderURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSFileManager *fm = [NSFileManager defaultManager];
-            if ( ! [fm createDirectoryAtURL:temporaryCertificateFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                DDLogError(@"Creating temporary certificate folder failed!");
-                DDLogError(@"%@", error);
+            
+            DDLogDebug(@"[DEBUG] Creating temporary certificates folder...");
+            if ( ! [[NSFileManager defaultManager] createDirectoryAtURL:temporaryCertificateFolderURL
+                                            withIntermediateDirectories:YES
+                                                             attributes:nil
+                                                                  error:error] ) {
                 return NO;
             }
         }
@@ -404,12 +449,14 @@ DDLogLevel ddLogLevel;
             NSString *temporaryCertificateName = [NSString stringWithFormat:@"certificate%ld.cer", (long)index];
             NSURL *temporaryCertificateURL = [temporaryCertificateFolderURL URLByAppendingPathComponent:temporaryCertificateName];
             if ( [certificateData writeToURL:temporaryCertificateURL atomically:YES] ) {
+                
                 NSString *certificateTargetPath;
-                if ( [_target nbiNetInstallURL] != nil ) {
+                if ( [_target nbiNetInstallURL] ) {
                     certificateTargetPath = [NSString stringWithFormat:@"%@/%@", NBCCertificatesTargetURL, temporaryCertificateName];
                 } else if ( [_target baseSystemURL] ) {
                     certificateTargetPath = [NSString stringWithFormat:@"%@/%@", NBCCertificatesNBICreatorTargetURL, temporaryCertificateName];
                 }
+                
                 NSDictionary *certificateAttributes  = @{
                                                          NSFileOwnerAccountName : @"root",
                                                          NSFileGroupOwnerAccountName : @"wheel",
@@ -422,22 +469,23 @@ DDLogLevel ddLogLevel;
                                                          NBCWorkflowCopyTargetURL : certificateTargetPath,
                                                          NBCWorkflowCopyAttributes : certificateAttributes
                                                          };
-                if ( [_target nbiNetInstallURL] != nil ) {
+                
+                if ( [_target nbiNetInstallURL] ) {
                     [self updateNetInstallCopyDict:certificateCopySetting];
                 } else if ( [_target baseSystemURL] ) {
                     [self updateBaseSystemCopyDict:certificateCopySetting];
                 }
             } else {
-                DDLogError(@"Unable to write certificate to temporary folder!");
-                retval = NO;
+                *error = [NBCError errorWithDescription:@"Writing certificates to temporary folder failed"];
+                return NO;
             }
             index++;
         }
     } else {
-        DDLogInfo(@"No certificates found!");
+        DDLogDebug(@"[DEBUG] Certificates array was empty");
     }
     
-    return retval;
+    return YES;
 } // prepareCertificates
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -447,10 +495,12 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)fileDownloadCompleted:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
+    
     // ------------------------------------------------------
     //  Extract info from downloadInfo Dict
     // ------------------------------------------------------
     NSString *resourceTag = downloadInfo[NBCDownloaderTag];
+    
     // ------------------------------------------------------
     //  Send command to correct copy method based on tag
     // ------------------------------------------------------
@@ -474,21 +524,25 @@ DDLogLevel ddLogLevel;
     NSDictionary *resourcesPackageDict = sourceItemsResourcesDict[packagePath];
     NSArray *regexes = resourcesPackageDict[NBCSettingsSourceItemsRegexKey];
     for ( NSString *regex in regexes ) {
+        
         NSDictionary *newRegexCopySetting = @{
                                               NBCWorkflowCopyType : NBCWorkflowCopyRegex,
                                               NBCWorkflowCopyRegexSourceFolderURL : [resourceFolderPackage path],
                                               NBCWorkflowCopyRegex : regex
                                               };
+        
         [self updateBaseSystemCopyDict:newRegexCopySetting];
     }
     
     [self extractItemsFromSource:workflowItem];
 } // copySourceRegexComple:packagePath:resourceFolderPackageURL
 
-- (void)copySourceRegexFailed:(NBCWorkflowItem *)workflowItem temporaryFolderURL:(NSURL *)temporaryFolderURL {
+- (void)copySourceRegexFailed:(NBCWorkflowItem *)workflowItem temporaryFolderURL:(NSURL *)temporaryFolderURL error:(NSError *)error {
 #pragma unused(workflowItem, temporaryFolderURL)
-    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:nil];
-} // copySourceRegexFailed:temporaryFolderURL
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                        object:self
+                                                      userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Copying items from source failed"] }];
+} // copySourceRegexFailed:temporaryFolderURL:error
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -496,30 +550,35 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (BOOL)getImagrApplication:(NBCWorkflowItem *)workflowItem {
+- (BOOL)getImagrApplication:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
 #pragma unused(workflowItem)
+
     DDLogInfo(@"Preparing Imagr.app...");
-    BOOL retval = YES;
+
     NSString *selectedImagrVersion = _userSettings[NBCSettingsImagrVersion];
-    NSString *imagrApplicationTargetPath;
+    DDLogDebug(@"[DEBUG] Selected Imagr version: %@", selectedImagrVersion);
     
+    NSString *imagrApplicationTargetPath;
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         imagrApplicationTargetPath = NBCImagrApplicationNBICreatorTargetURL;
     } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         imagrApplicationTargetPath = NBCImagrApplicationTargetURL;
-    } else {
+    } else {                                                                         // Will this ever be true? Should this be removed?
         imagrApplicationTargetPath = [[_target imagrApplicationURL] path];
         if ( [imagrApplicationTargetPath length] == 0 ) {
-            DDLogError(@"Could not get path to Imagr.app from target!");
+            *error = [NBCError errorWithDescription:@"Unknown target path for Imagr.app"];
             return NO;
         }
     }
     
     if ( [selectedImagrVersion length] == 0 ) {
-        DDLogError(@"Could not get selected Imagr version from user settings!");
+        *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"Unknown Imagr version: %@", selectedImagrVersion]];
         return NO;
+        
     } else if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         NSString *imagrLocalVersionPath = _userSettings[NBCSettingsImagrLocalVersionPath];
+        DDLogDebug(@"[DEBUG] Selected local path to Imagr.app: %@", imagrLocalVersionPath);
+        
         if ( [imagrLocalVersionPath length] != 0 ) {
             NSDictionary *imagrLocalVersionAttributes  = @{
                                                            NSFileOwnerAccountName : @"root",
@@ -541,19 +600,28 @@ DDLogLevel ddLogLevel;
             
             [self checkCompletedResources];
         } else {
-            DDLogError(@"[ERROR] Could not get imagrLocalVersionPath from user settings!");
+            *error = [NBCError errorWithDescription:@"Local path to Imagr.app was empty"];
             return NO;
         }
+        
     } else if ( [selectedImagrVersion isEqualToString:NBCMenuItemGitBranch] ) {
+        
         NSString *branch = _resourcesSettings[NBCSettingsImagrGitBranch];
+        DDLogDebug(@"[DEBUG] Selected Imagr git branch: %@", branch);
+
         NSString *sha = _resourcesSettings[NBCSettingsImagrGitBranchSHA];
+        DDLogDebug(@"[DEBUG] Selected Imagr git branch SHA: %@", sha);
+        
         NSString *buildTarget = _resourcesSettings[NBCSettingsImagrBuildTarget];
+        DDLogDebug(@"[DEBUG] Selected Imagr git branch build target: %@", buildTarget);
         
         NSURL *imagrBranchCachedVersionURL = [_resourcesController cachedBranchURL:branch sha:sha resourcesFolder:NBCFolderResourcesCacheImagr];
         if ( [imagrBranchCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSString *target = _resourcesSettings[NBCSettingsImagrBuildTarget];
-            NSURL *targetImagrAppURL = [imagrBranchCachedVersionURL URLByAppendingPathComponent:[NSString stringWithFormat:@"build/%@/Imagr.app", target]];
+            DDLogDebug(@"[DEBUG] Cached download of selected branch exists at: %@", [imagrBranchCachedVersionURL path]);
+            
+            NSURL *targetImagrAppURL = [imagrBranchCachedVersionURL URLByAppendingPathComponent:[NSString stringWithFormat:@"build/%@/Imagr.app", buildTarget]];
             if ( [targetImagrAppURL checkResourceIsReachableAndReturnError:nil] ) {
+                DDLogDebug(@"[DEBUG] Cached build of selected branch/target exists at: %@", [targetImagrAppURL path]);
                 
                 NSDictionary *imagrCachedVersionAttributes  = @{
                                                                 NSFileOwnerAccountName : @"root",
@@ -567,6 +635,7 @@ DDLogLevel ddLogLevel;
                                                                 NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
                                                                 NBCWorkflowCopyAttributes : imagrCachedVersionAttributes
                                                                 };
+                
                 if ( [_target nbiNetInstallURL] ) {
                     [_resourcesNetInstallCopy addObject:imagrCachedVersionCopySetting];
                 } else if ( [_target baseSystemURL] ) {
@@ -575,13 +644,19 @@ DDLogLevel ddLogLevel;
                 
                 [self checkCompletedResources];
             } else {
+                DDLogDebug(@"[DEBUG] No cached build of selected branch/target exists");
                 [_resourcesController buildProjectAtURL:imagrBranchCachedVersionURL buildTarget:buildTarget];
             }
         } else {
+            DDLogDebug(@"[DEBUG] No cached download of selected branch exists");
+            
             NSString *imagrDownloadURL = _resourcesSettings[NBCSettingsImagrDownloadURL];
+            DDLogDebug(@"[DEBUG] Selected Imagr branch download URL: %@", imagrDownloadURL);
+            
             if ( [imagrDownloadURL length] != 0 ) {
-                DDLogInfo(@"Downloading Imagr Git Branch %@...", branch);
+                DDLogInfo(@"Downloading Imagr git branch %@...", branch);
                 [_delegate updateProgressStatus:@"Downloading Imagr Source..." workflow:self];
+                
                 NSDictionary *branchDict = @{
                                              NBCSettingsImagrGitBranch : branch,
                                              NBCSettingsImagrGitBranchSHA : sha,
@@ -592,30 +667,35 @@ DDLogLevel ddLogLevel;
                                                NBCDownloaderTag : NBCDownloaderTagImagrBranch,
                                                NBCSettingsImagrGitBranchDict : branchDict
                                                };
+                
                 NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
                 [downloader downloadFileFromURL:[NSURL URLWithString:imagrDownloadURL] destinationPath:@"/tmp" downloadInfo:downloadInfo];
             } else {
-                DDLogError(@"[ERROR] Could not get Imagr download url from resources settings!");
-                retval = NO;
+                *error = [NBCError errorWithDescription:@"Selected Imagr branch download URL was empty"];
+                return NO;
             }
         }
     } else {
         
         // ---------------------------------------------------------------
-        //  Check if Imagr is already downloaded, then return local url.
+        //  Check if Imagr release already have been downloaded, then return local url.
         //  If not, download Imagr and copy to resources for future use.
         // ---------------------------------------------------------------
         if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
-            if ( [_resourcesSettings[NBCSettingsImagrVersion] length] == 0 ) {
-                DDLogError(@"[ERROR] Imagr versions array is empty!");
+            selectedImagrVersion = _resourcesSettings[NBCSettingsImagrVersion];
+            DDLogDebug(@"[DEBUG] Imagr version latest: %@", selectedImagrVersion);
+            
+            if ( [selectedImagrVersion length] == 0 ) {
+                *error = [NBCError errorWithDescription:@"Found no version number for \"Latest Version\""];
                 return NO;
             }
-            selectedImagrVersion = _resourcesSettings[NBCSettingsImagrVersion];
         }
-        
         [self setImagrVersion:selectedImagrVersion];
+        
         NSURL *imagrCachedVersionURL = [_resourcesController cachedVersionURL:selectedImagrVersion resourcesFolder:NBCFolderResourcesCacheImagr];
         if ( [imagrCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
+            DDLogDebug(@"[DEBUG] Cached download of selected release exists at: %@", [imagrCachedVersionURL path]);
+            
             NSDictionary *imagrCachedVersionAttributes  = @{
                                                             NSFileOwnerAccountName : @"root",
                                                             NSFileGroupOwnerAccountName : @"wheel",
@@ -628,6 +708,7 @@ DDLogLevel ddLogLevel;
                                                             NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
                                                             NBCWorkflowCopyAttributes : imagrCachedVersionAttributes
                                                             };
+            
             if ( [_target nbiNetInstallURL] ) {
                 [_resourcesNetInstallCopy addObject:imagrCachedVersionCopySetting];
             } else if ( [_target baseSystemURL] ) {
@@ -636,26 +717,34 @@ DDLogLevel ddLogLevel;
             
             [self checkCompletedResources];
         } else {
+            DDLogDebug(@"[DEBUG] No cached download of selected Imagr release exists");
+            
             NSString *imagrDownloadURL = _resourcesSettings[NBCSettingsImagrDownloadURL];
+            DDLogDebug(@"[DEBUG] Selected Imagr release download URL: %@", imagrDownloadURL);
+            
             if ( [imagrDownloadURL length] != 0 ) {
                 DDLogInfo(@"Downloading Imagr version %@", selectedImagrVersion);
                 [_delegate updateProgressStatus:@"Downloading Imagr..." workflow:self];
+                
                 NSDictionary *downloadInfo = @{
                                                NBCDownloaderTag : NBCDownloaderTagImagr,
                                                NBCDownloaderVersion : selectedImagrVersion
                                                };
+                
                 NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
                 [downloader downloadFileFromURL:[NSURL URLWithString:imagrDownloadURL] destinationPath:@"/tmp" downloadInfo:downloadInfo];
             } else {
-                DDLogError(@"[ERROR] Could not get Imagr download url from resources settings!");
-                retval = NO;
+                *error = [NBCError errorWithDescription:@"Selected Imagr release download URL was empty"];
+                return NO;
             }
         }
     }
-    return retval;
-} // getImagrApplication
+    
+    return YES;
+} // getImagrApplication:error
 
 - (void)xcodeBuildComplete:(NSURL *)productURL {
+    
     NSString *imagrApplicationTargetPath;
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         imagrApplicationTargetPath = NBCImagrApplicationNBICreatorTargetURL;
@@ -687,6 +776,7 @@ DDLogLevel ddLogLevel;
     } else if ( [_target baseSystemURL] ) {
         [self updateBaseSystemCopyDict:imagrCopySettings];
     }
+    
     [self checkCompletedResources];
 }
 
@@ -1162,7 +1252,7 @@ DDLogLevel ddLogLevel;
             
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteResources object:self userInfo:nil];
         } else {
-            NSLog(@"Workflow already completed!");
+            DDLogDebug(@"[DEBUG] Workflow has already completed!");
         }
     }
 } // checkCompletedResources
@@ -1209,26 +1299,29 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (BOOL)createImagrSettingsPlist:(NBCWorkflowItem *)workflowItem {
+- (BOOL)createImagrSettingsPlist:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
+    
     DDLogInfo(@"Preparing com.grahamgilbert.Imagr.plist...");
-    BOOL retval = YES;
+    
     NSString *configurationURL = _userSettings[NBCSettingsImagrConfigurationURL];
+    DDLogDebug(@"[DEBUG] Imagr configuration URL: %@", configurationURL);
+    
     NSString *imagrConfigurationPlistTargetPath;
     if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         imagrConfigurationPlistTargetPath = NBCImagrConfigurationPlistNBICreatorTargetURL;
     } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         imagrConfigurationPlistTargetPath = NBCImagrConfigurationPlistTargetURL;
-    } else {
+    } else {                                                                        // Will this ever be true? Should this be removed?
         imagrConfigurationPlistTargetPath = [[_target imagrConfigurationPlistURL] path];
         if ( [imagrConfigurationPlistTargetPath length] == 0 ) {
-            DDLogError(@"Could not get path to Imagr.app from target!");
+            *error = [NBCError errorWithDescription:@"Unknown target path for com.grahamgilbert.Imagr.plist"];
             return NO;
         }
     }
     
-    if ( configurationURL ) {
+    if ( [configurationURL length] != 0 ) {
         NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-        if ( temporaryFolderURL ) {
+        if ( [temporaryFolderURL checkResourceIsReachableAndReturnError:error] ) {
             
             // ------------------------------------------------------------
             //  Create Imagr configuration plist and add to copy resources
@@ -1237,16 +1330,20 @@ DDLogLevel ddLogLevel;
             NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] initWithDictionary:@{ @"serverurl" : configurationURL }];
             
             NSString *reportingURL = _userSettings[NBCSettingsImagrReportingURL];
+            DDLogDebug(@"[DEBUG] Imagr reporting URL: %@", reportingURL);
             if ( [reportingURL length] != 0 ) {
-                settingsDict[NBCSettingsImagrReportingURLKey] = reportingURL;
+                settingsDict[NBCSettingsImagrReportingURLKey] = _userSettings[NBCSettingsImagrReportingURL];
             }
             
             NSString *syslogServerURI = _userSettings[NBCSettingsImagrSyslogServerURI];
+            DDLogDebug(@"[DEBUG] Imagr syslog URI: %@", syslogServerURI);
             if ( [syslogServerURI length] != 0 ) {
                 settingsDict[NBCSettingsImagrSyslogServerURIKey] = syslogServerURI;
             }
             
             if ( [settingsDict writeToURL:settingsFileURL atomically:YES] ) {
+                DDLogDebug(@"[DEBUG] Writing temporary com.grahamgilbert.Imagr.plist was successful!");
+                
                 NSDictionary *copyAttributes  = @{
                                                   NSFileOwnerAccountName : @"root",
                                                   NSFileGroupOwnerAccountName : @"wheel",
@@ -1259,54 +1356,61 @@ DDLogLevel ddLogLevel;
                                                NBCWorkflowCopyTargetURL : imagrConfigurationPlistTargetPath,
                                                NBCWorkflowCopyAttributes : copyAttributes
                                                };
+                
                 if ( [_target nbiNetInstallURL] ) {
                     [_resourcesNetInstallCopy addObject:copySettings];
                 } else if ( [_target baseSystemURL] ) {
                     [_resourcesBaseSystemCopy addObject:copySettings];
-                } else {
-                    DDLogError(@"[ERROR] No target defined!");
-                    return NO;
                 }
                 
                 [self checkCompletedResources];
             } else {
-                DDLogError(@"[ERROR] Could not write Imagr settings to url: %@", settingsFileURL);
-                retval = NO;
+                *error = [NBCError errorWithDescription:@"Writing temporary com.grahamgilbert.Imagr.plist failed"];
+                return NO;
             }
         } else {
-            DDLogError(@"[ERROR] Could not get temporaryFolderURL from workflow item!");
-            retval = NO;
+            return NO;
         }
     } else {
-        DDLogError(@"[ERROR] No configurationURL in user settings!");
-        retval = NO;
+        *error = [NBCError errorWithDescription:@"Imagr configuration url was empty"];
+        return NO;
     }
-    return retval;
-} // createImagrSettingsPlist
+    
+    return YES;
+} // createImagrSettingsPlist:error
 
-- (BOOL)createImagrRCImaging:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Preparing rc.imaging...");
-    BOOL retval = YES;
-    NSError *error;
-    NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
-    NSString *imagrRCImagingTargetPath;
-    NSURL *rcImagingURL;
+- (BOOL)createImagrRCImaging:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
+    
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
-    NSString *imagrRCImagingContent = [NBCWorkflowNBIController generateImagrRCImagingForNBICreator:[workflowItem userSettings] osMinorVersion:sourceVersionMinor];
+    
+    DDLogInfo(@"Preparing rc.imaging...");
+    
+    NSString *imagrRCImagingContent = [NBCWorkflowNBIController generateImagrRCImagingForNBICreator:_userSettings osMinorVersion:sourceVersionMinor];
     if ( [imagrRCImagingContent length] != 0 ) {
+        DDLogDebug(@"[DEBUG] ");
+        
+        NSURL *rcImagingURL;
+        
+        // --------------------------------------------------------------
+        //  If source is NBI and creation tool is System Image Utility.
+        //  Write the rc.imaging file to the NetInstall volume
+        // --------------------------------------------------------------
         if ( _isNBI && [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+            DDLogDebug(@"[DEBUG] Source IS NBI and creation tool is System Image Utility");
             
             // Write directly to the volume
             rcImagingURL = [[_target nbiNetInstallVolumeURL] URLByAppendingPathComponent:NBCRCImagingTargetURL];
             DDLogDebug(@"[DEBUG] Writing rc.imaging to path: %@", [rcImagingURL path]);
-            if ( [imagrRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:&error] ) {
+            if ( [imagrRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:error] ) {
                 [self checkCompletedResources];
             } else {
-                DDLogError(@"[ERROR] Could not write rc.imaging to url: %@", [rcImagingURL path]);
-                DDLogError(@"[ERROR] %@", error);
                 return NO;
             }
         } else {
+            
+            NSString *imagrRCImagingTargetPath;
+            NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
+            
             if ( [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
                 imagrRCImagingTargetPath = NBCRCImagingNBICreatorTargetURL;
             } else if ( [_nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
@@ -1327,18 +1431,20 @@ DDLogLevel ddLogLevel;
                 }
             }
             
-            if ( temporaryFolderURL ) {
+            if ( [temporaryFolderURL checkResourceIsReachableAndReturnError:error] ) {
                 
                 // ---------------------------------------------------
                 //  Create Imagr rc.imaging and add to copy resources
                 // ---------------------------------------------------
                 rcImagingURL = [temporaryFolderURL URLByAppendingPathComponent:@"rc.imaging"];
             } else {
-                DDLogError(@"[ERROR] Could not get temporaryFolderURL from workflow item!");
-                retval = NO;
+                return NO;
             }
             
-            if ( [imagrRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:&error] ) {
+            DDLogDebug(@"[DEBUG] Writing rc.imaging to path: %@", [rcImagingURL path]);
+            if ( [imagrRCImagingContent writeToURL:rcImagingURL atomically:YES encoding:NSUTF8StringEncoding error:error] ) {
+                DDLogDebug(@"[DEBUG] Writing rc.imaging was successful");
+                
                 NSDictionary *copyAttributes  = @{
                                                   NSFileOwnerAccountName : @"root",
                                                   NSFileGroupOwnerAccountName : @"wheel",
@@ -1361,17 +1467,15 @@ DDLogLevel ddLogLevel;
                 
                 [self checkCompletedResources];
             } else {
-                DDLogError(@"[ERROR] Could not write rc.imaging to url: %@", rcImagingURL);
-                DDLogError(@"%@", error);
-                retval = NO;
+                return NO;
             }
         }
     } else {
-        DDLogError(@"[ERROR] rcImagingContent is empty!");
-        retval = NO;
+        *error = [NBCError errorWithDescription:@"rc.imaging is empty"];
+        return NO;
     }
     
-    return retval;
+    return YES;
 } // createImagrRCImaging
 
 @end

@@ -394,22 +394,15 @@ DDLogLevel ddLogLevel;
             // ------------------------------------------------------------------
             //  If task failed, post workflow failed notification
             // ------------------------------------------------------------------
-            NSDictionary *userInfo = nil;
-            if ( proxyError ) {
-                DDLogError(@"[ERROR] %@", proxyError);
-                userInfo = @{ NBCUserInfoNSErrorKey : proxyError };
-            }
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:userInfo];
+            [self->_delegate copySourceRegexFailed:workflowItem temporaryFolderURL:resourceFolderPackage error:proxyError];
         }];
         
     }] runTaskWithCommandAtPath:commandURL arguments:scriptArguments currentDirectory:sourceFolder stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
         [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-            
-            if ( terminationStatus == 0 )
-            {
+            if ( terminationStatus == 0 ) {
                 // ------------------------------------------------------------------
                 //  If task exited successfully, post workflow complete notification
                 // ------------------------------------------------------------------
@@ -420,10 +413,9 @@ DDLogLevel ddLogLevel;
                 // ------------------------------------------------------------------
                 //  If task failed, post workflow failed notification
                 // ------------------------------------------------------------------
-                NSLog(@"Extracting package failed!");
                 [nc removeObserver:stdOutObserver];
                 [nc removeObserver:stdErrObserver];
-                [self->_delegate copySourceRegexFailed:workflowItem temporaryFolderURL:resourceFolderPackage];
+                [self->_delegate copySourceRegexFailed:workflowItem temporaryFolderURL:resourceFolderPackage error:error];
             }
         }];
     }];
@@ -456,6 +448,7 @@ DDLogLevel ddLogLevel;
         packageDict = [[NSMutableDictionary alloc] init];
         regexArrayDict = [[NSMutableArray alloc] init];
     }
+    
     for ( NSString *regex in regexArray ) {
         [regexArrayDict addObject:regex];
     }

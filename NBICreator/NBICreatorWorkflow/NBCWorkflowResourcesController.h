@@ -14,7 +14,7 @@
 @protocol NBCResourcesControllerDelegate
 @optional
 - (void)copySourceRegexComplete:(NBCWorkflowItem *)workflowItem packagePath:(NSString *)packagePath resourceFolderPackageURL:(NSURL *)resourceFolderPackage;
-- (void)copySourceRegexFailed:(NBCWorkflowItem *)workflowItem temporaryFolderURL:(NSURL *)temporaryFolderURL;
+- (void)copySourceRegexFailed:(NBCWorkflowItem *)workflowItem temporaryFolderURL:(NSURL *)temporaryFolderURL error:(NSError *)error;
 - (void)xcodeBuildComplete:(NSURL *)productURL;
 - (void)xcodeBuildFailed:(NSString *)errorOutput;
 @end

@@ -50,10 +50,9 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     //  Start workflow depending on selected creation tool
     // -------------------------------------------------------------
-    DDLogInfo(@"Starting workflow Imagr NBI...");
-    
     NSString *nbiCreationTool = [workflowItem userSettings][NBCSettingsNBICreationToolKey];
-    DDLogDebug(@"[DEBUG] NBI creation tool: %@", nbiCreationTool);
+    DDLogInfo(@"Creation tool: %@", nbiCreationTool);
+    
     if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
         [[workflowItem target] setCreationTool:NBCMenuItemSystemImageUtility];
         [self runWorkflowSystemImageUtility:workflowItem];
@@ -167,10 +166,8 @@ DDLogLevel ddLogLevel;
     
     // --------------------------------------------------------------------------
     //  Resize BaseSystem disk image and mount with shadow file
-    // --------------------------------------------------------------------------
-    DDLogInfo(@"Resize BaseSystem disk image and mount with shadow file...");
-    
-    if ( [modifyNBI resizeAndMountBaseSystemWithShadow:baseSystemTemporaryURL target:[workflowItem target]] ) {
+    // --------------------------------------------------------------------------    
+    if ( [modifyNBI resizeAndMountBaseSystemWithShadow:baseSystemTemporaryURL target:[workflowItem target] error:&error] ) {
         
         NSURL *baseSystemTemporaryVolumeURL = [[workflowItem target] baseSystemVolumeURL];
         DDLogDebug(@"[DEBUG] NBI BaseSystem volume path: %@", [baseSystemTemporaryVolumeURL path]);
@@ -259,7 +256,7 @@ DDLogLevel ddLogLevel;
     } else {
         [nc postNotificationName:NBCNotificationWorkflowFailed
                           object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"Resizing NBI BaseSystem failed"] }];
+                        userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Resizing NBI BaseSystem failed"] }];
         return;
     }
 } // createNBIFilesNBICreator
@@ -426,7 +423,6 @@ DDLogLevel ddLogLevel;
             [nc postNotificationName:NBCNotificationWorkflowFailed
                               object:self
                             userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:@"createNetInstall.sh failed"] }];
-            
             return;
         }];
         
@@ -508,7 +504,6 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] Deleting temporary item: %@", [temporaryItemURL lastPathComponent]);
         
         if ( ! [[NSFileManager defaultManager] removeItemAtURL:temporaryItemURL error:&error] ) {
-            DDLogError(@"[ERROR] Failed Deleting file: %@", [temporaryItemURL path] );
             DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
     }
@@ -596,7 +591,7 @@ DDLogLevel ddLogLevel;
             NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
             [nc removeObserver:self name:DADiskDidAppearNotification object:nil];
             [nc removeObserver:self name:DADiskDidChangeNotification object:nil];
-            
+
             [self updateProgressBarCopyNetInstall];
         }
     }
@@ -646,8 +641,7 @@ DDLogLevel ddLogLevel;
         [timer invalidate];
         timer = nil;
         
-        DDLogError(@"[ERROR] Could not get file attributes for volume: %@", _diskVolumePath);
-        DDLogError(@"[ERROR] %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
 } // checkCopyProgressNetInstall
 
@@ -681,8 +675,7 @@ DDLogLevel ddLogLevel;
         [timer invalidate];
         timer = nil;
         
-        DDLogError(@"[ERROR] Could not get file attributes for volume: %@", _diskVolumePath);
-        DDLogError(@"[ERROR] %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
 } // checkCopyProgress
 
