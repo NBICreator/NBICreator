@@ -11,7 +11,7 @@
 	<key>CheckForUpdates</key>
 	<true/>
 	<key>LogLevel</key>
-	<integer>3</integer>
+	<integer>7</integer>
 	<key>DateFormatString</key>
 	<string>yyyy-MM-dd</string>
 	<key>NetBootSelection</key>
