@@ -43,10 +43,10 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Getting InstallESD from %@", [sourceURL path]);
     
-    if ( ! sourceURL ) {
-        DDLogError(@"[ERROR] No url was passed!");
+    if ( ! [sourceURL checkResourceIsReachableAndReturnError:error] ) {
         return NO;
     }
+    
     BOOL verified = NO;
     NSURL *installESDDiskImageURL;
     
@@ -85,11 +85,9 @@ DDLogLevel ddLogLevel;
     if ( verified ) {
         if ( [installESDDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
             [source setInstallESDDiskImageURL:installESDDiskImageURL];
-            verified = YES;
+            return YES;
         } else {
-            DDLogError(@"File doesn't exist: %@", [installESDDiskImageURL path]);
-            DDLogError(@"%@", *error);
-            verified = NO;
+            return NO;
         }
     }
     
@@ -174,11 +172,6 @@ DDLogLevel ddLogLevel;
         [source setSystemVolumeBSDIdentifier:[systemDisk BSDName]];
         systemVolumeURL = [systemDisk volumeURL];
         DDLogDebug(@"[DEBUG] Disk image volume path: %@", [systemVolumeURL path]);
-        if ( [systemVolumeURL checkResourceIsReachableAndReturnError:error] ) {
-            [source setSystemVolumeURL:systemVolumeURL];
-        } else {
-            return NO;
-        }
     } else {
         
         NSDictionary *systemDiskImageDict;
@@ -208,7 +201,7 @@ DDLogLevel ddLogLevel;
                         [source setSystemVolumeBSDIdentifier:[systemDisk BSDName]];
                         [systemDisk setIsMountedByNBICreator:YES];
                     } else {
-                        *error = [NBCError errorWithDescription:@"Disk image disk object returned emtpy"];
+                        *error = [NBCError errorWithDescription:@"Disk image volume path not found among mounted volume paths"];
                         return NO;
                     }
                 } else {
@@ -223,37 +216,44 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    NSURL *systemVersionPlistURL = [systemVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/SystemVersion.plist"];
-    DDLogDebug(@"[DEBUG] SystemVersion.plist path: %@", [systemVersionPlistURL path]);
-    
-    if ( [systemVersionPlistURL checkResourceIsReachableAndReturnError:error] ) {
-        NSDictionary *systemVersionPlist = [NSDictionary dictionaryWithContentsOfURL:systemVersionPlistURL];
+    if ( [systemVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+        DDLogDebug(@"[DEBUG] Disk image is mounted at path: %@", [systemVolumeURL path]);
+        [source setSystemVolumeURL:systemVolumeURL];
         
-        if ( [systemVersionPlist count] != 0 ) {
-            NSString *systemOSVersion = systemVersionPlist[@"ProductUserVisibleVersion"];
-            DDLogInfo(@"Disk image os version: %@", systemOSVersion);
+        NSURL *systemVersionPlistURL = [systemVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/SystemVersion.plist"];
+        DDLogDebug(@"[DEBUG] SystemVersion.plist path: %@", [systemVersionPlistURL path]);
+        
+        if ( [systemVersionPlistURL checkResourceIsReachableAndReturnError:error] ) {
+            NSDictionary *systemVersionPlist = [NSDictionary dictionaryWithContentsOfURL:systemVersionPlistURL];
             
-            if ( [systemOSVersion length] != 0 ) {
-                [source setSystemOSVersion:systemOSVersion];
-                [source setSourceVersion:systemOSVersion];
+            if ( [systemVersionPlist count] != 0 ) {
+                NSString *systemOSVersion = systemVersionPlist[@"ProductUserVisibleVersion"];
+                DDLogInfo(@"Disk image os version: %@", systemOSVersion);
                 
-                NSString *systemOSBuild = systemVersionPlist[@"ProductBuildVersion"];
-                DDLogInfo(@"Disk image os build: %@", systemOSBuild);
-                
-                if ( [systemOSBuild length] != 0 ) {
-                    [source setSystemOSBuild:systemOSBuild];
-                    [source setSourceBuild:systemOSBuild];
-                    return YES;
+                if ( [systemOSVersion length] != 0 ) {
+                    [source setSystemOSVersion:systemOSVersion];
+                    [source setSourceVersion:systemOSVersion];
+                    
+                    NSString *systemOSBuild = systemVersionPlist[@"ProductBuildVersion"];
+                    DDLogInfo(@"Disk image os build: %@", systemOSBuild);
+                    
+                    if ( [systemOSBuild length] != 0 ) {
+                        [source setSystemOSBuild:systemOSBuild];
+                        [source setSourceBuild:systemOSBuild];
+                        return YES;
+                    } else {
+                        *error = [NBCError errorWithDescription:@"Unable to read os build from SystemVersion.plist"];
+                        return NO;
+                    }
                 } else {
-                    *error = [NBCError errorWithDescription:@"Unable to read os build from SystemVersion.plist"];
+                    *error = [NBCError errorWithDescription:@"Unable to read os version from SystemVersion.plist"];
                     return NO;
                 }
             } else {
-                *error = [NBCError errorWithDescription:@"Unable to read os version from SystemVersion.plist"];
+                *error = [NBCError errorWithDescription:@"SystemVersion.plist is empty!"];
                 return NO;
             }
         } else {
-            *error = [NBCError errorWithDescription:@"SystemVersion.plist is empty!"];
             return NO;
         }
     } else {
@@ -477,7 +477,7 @@ DDLogLevel ddLogLevel;
                         [source setBaseSystemVolumeBSDIdentifier:[baseSystemDisk BSDName]];
                         [baseSystemDisk setIsMountedByNBICreator:YES];
                     } else {
-                        *error = [NBCError errorWithDescription:@"Disk image disk object returned emtpy"];
+                        *error = [NBCError errorWithDescription:@"Disk image volume path not found among mounted volume paths"];
                         return NO;
                     }
                 } else {
@@ -587,7 +587,7 @@ DDLogLevel ddLogLevel;
                         [source setInstallESDVolumeBSDIdentifier:[installESDDisk BSDName]];
                         [installESDDisk setIsMountedByNBICreator:YES];
                     } else {
-                        *error = [NBCError errorWithDescription:@"Disk image disk object returned emtpy"];
+                        *error = [NBCError errorWithDescription:@"Disk image volume path not found among mounted volume paths"];
                         return NO;
                     }
                 } else {

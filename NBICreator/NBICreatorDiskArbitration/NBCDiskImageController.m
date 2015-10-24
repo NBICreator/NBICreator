@@ -438,8 +438,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)convertDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath format:(NSString *)format destinationPath:(NSString *)destinationPath {
-    DDLogInfo(@"Converting disk image...");
-    DDLogDebug(@"[DEBUG] Disk image path: %@", diskImagePath);
+    DDLogDebug(@"[DEBUG] Converting disk image at path: %@", diskImagePath);
     DDLogDebug(@"[DEBUG] Disk image selected format: %@", format);
     DDLogDebug(@"[DEBUG] Disk image destination path: %@", destinationPath);
     
@@ -706,6 +705,7 @@ DDLogLevel ddLogLevel;
     return diskImageURL;
 }
 
+/* Wrong approach to do the testing, here, just return disk object and then check for correct info in respective method.
 + (NBCDisk *)getBaseSystemDiskFromDiskImageURL:(NSURL *)diskImageURL {
     DDLogDebug(@"[DEBUG] Getting BaseSystem disk object from disk image path...");
     DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
@@ -768,6 +768,35 @@ DDLogLevel ddLogLevel;
     
     return disk;
 }
+*/
++ (NBCDisk *)getDiskFromDiskImageURL:(NSURL *)diskImageURL {
+    DDLogDebug(@"[DEBUG] Getting disk object from disk image path...");
+    DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
+    
+    NSString *diskImagPathResolved = [[diskImageURL path] stringByResolvingSymlink];
+    DDLogDebug(@"[DEBUG] Disk image path (resolved): %@", diskImagPathResolved);
+    
+    NBCDisk *disk;
+    NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
+    for ( NSDictionary *image in hdiutilDict[@"images"] ) {
+        NSString *imagePath = image[@"image-path"];
+        DDLogDebug(@"[DEBUG] Checking disk image at path: %@", imagePath);
+        
+        if ( [[diskImageURL path] isEqualToString:imagePath] || [diskImagPathResolved isEqualToString:imagePath] ) {
+            NSDictionary *systemEntities = image[@"system-entities"];
+            for ( NSDictionary *entity in systemEntities ) {
+                NSString *mountPoint = entity[@"mount-point"];
+                if ( [mountPoint length] != 0 ) {
+                    
+                    DDLogDebug(@"[DEBUG] Disk image volume path: %@", mountPoint);
+                    disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
+                }
+            }
+        }
+    }
+    
+    return disk;
+}
 
 + (NBCDisk *)checkDiskImageAlreadyMounted:(NSURL *)diskImageURL imageType:(NSString *)imageType {
     DDLogDebug(@"[DEBUG] Checking if disk image is mounted...");
@@ -779,10 +808,8 @@ DDLogLevel ddLogLevel;
     
     if ( [imageType isEqualToString:@"System"] ) {
         partitionHint = @"Apple_HFS";    // "Apple_HFS" - Mac OS Extended (HFS+)
-    } else if ( [imageType isEqualToString:@"BaseSystem"] ) {
-        return [self getBaseSystemDiskFromDiskImageURL:diskImageURL];
-    } else if ( [imageType isEqualToString:@"InstallESD"] || [imageType isEqualToString:@"NetInstall"] ) {
-        return [self getInstallESDDiskFromDiskImageURL:diskImageURL];;
+    } else if ( [imageType isEqualToString:@"BaseSystem"] || [imageType isEqualToString:@"InstallESD"] || [imageType isEqualToString:@"NetInstall"] ) {
+        return [self getDiskFromDiskImageURL:diskImageURL];;
     } else if ( [imageType isEqualToString:@"Recovery"] ) {
         partitionHint = @"426F6F74-0000-11AA-AA11-00306543ECAC"; // "" - OS X Recovery Partition
     }
@@ -838,7 +865,7 @@ DDLogLevel ddLogLevel;
     }
     
     if ( ( [imageType isEqualToString:@"System"] || [imageType isEqualToString:@"NetInstall"] ) && disk == nil ) {
-        disk = [self getBaseSystemDiskFromDiskImageURL:diskImageURL];
+        disk = [self getDiskFromDiskImageURL:diskImageURL];
     }
     
     return disk;

@@ -149,11 +149,18 @@ DDLogLevel ddLogLevel;
     NSString *baseSystemOSVersion = [source baseSystemOSVersion];
     NSString *baseSystemOSBuild = [source baseSystemOSBuild];
     
+    if ( [sourceType isEqualToString:NBCSourceTypeNBI] ) {
+        if ( ! [[NSFileManager defaultManager] isWritableFileAtPath:[[source sourceURL] path]] ) {
+            [NBCAlerts showAlertSourceReadOnly];
+            [self restoreDropView];
+            return;
+        }
+    }
+    
     // ------------------------------------------------------
     //  Set Source Title to system version string
     // ------------------------------------------------------
     NSString *systemVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", baseSystemOSVersion, baseSystemOSBuild];
-    DDLogInfo(@"Source version: %@", systemVersionString);
     [_textFieldSourceTitle setStringValue:systemVersionString];
     
     // ------------------------------------------------------
@@ -608,7 +615,7 @@ DDLogLevel ddLogLevel;
                     // Unmount ? Might fix an error
                     
                     verified = [targetController verifyNetInstallFromDiskImageURL:nbiNetInstallURL target:newTarget error:&error];
-                    if ( verified ) {
+                    if ( verified ) { 
                         verified = [targetController verifyBaseSystemFromTarget:newTarget source:newSource error:&error];
                         if ( verified ) {
                             [newSource setSourceURL:sourceURL];
@@ -656,7 +663,7 @@ DDLogLevel ddLogLevel;
                     errorMessage = @"No path returned for InstallESD.dmg!";
                 }
             } else {
-                errorMessage = @"Source could not verified!";
+                errorMessage = [error localizedDescription] ?: @"Source could not verified!";
             }
             
             if ( verified ) {
@@ -665,7 +672,7 @@ DDLogLevel ddLogLevel;
                     errorMessage = [error localizedDescription];
                 }
             } else {
-                errorMessage = @"Source could not verified!";
+                errorMessage = [error localizedDescription] ?: @"Source could not verified!";
             }
         }
         

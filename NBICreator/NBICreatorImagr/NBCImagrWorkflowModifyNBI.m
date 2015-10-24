@@ -124,7 +124,6 @@ DDLogLevel ddLogLevel;
 
 - (void)convertBaseSystem {
     
-    DDLogInfo(@"Converting BaseSystem disk image and shadow file...");
     [self->_delegate updateProgressStatus:@"Converting BaseSystem disk image and shadow file..." workflow:self];
     
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);

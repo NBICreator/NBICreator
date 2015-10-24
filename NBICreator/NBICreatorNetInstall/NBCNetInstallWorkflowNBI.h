@@ -25,6 +25,8 @@
 // ------------------------------------------------------
 //@property NBCWorkflowProgressViewController *progressView;
 
+@property BOOL packageOnlyScriptRun;
+
 // ------------------------------------------------------
 //  Properties
 // ------------------------------------------------------

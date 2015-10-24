@@ -30,7 +30,7 @@ DDLogLevel ddLogLevel;
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     
     NSError *err;
-    __unsafe_unretained typeof(self) weakSelf = self;
+    [self setPackageOnlyScriptRun:NO];
     [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
     [self setTemporaryNBIPath:[[workflowItem temporaryNBIURL] path]];
     NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
@@ -327,6 +327,14 @@ DDLogLevel ddLogLevel;
         //[[[workflowItem source] recoveryDisk] unmountWithOptions:kDADiskUnmountOptionDefault];
     }
     
+    [self runSystemImageUtilityScript:workflowItem striptArguments:scriptArguments];
+}
+
+- (void)runSystemImageUtilityScript:(NBCWorkflowItem *)workflowItem striptArguments:(NSArray *)scriptArguments {
+    
+    __unsafe_unretained typeof(self) weakSelf = self;
+    BOOL packageOnly = [[workflowItem userSettings][NBCSettingsNetInstallPackageOnlyKey] boolValue];
+    
     // ------------------------------------------
     //  Setup command to run createNetInstall.sh
     // ------------------------------------------
@@ -421,6 +429,12 @@ DDLogLevel ddLogLevel;
                 [nc removeObserver:stdErrObserver];
                 [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
             } else {
+                
+                // Emergency fix, need to figure out WHY the script always fail the first time it is run.
+                if ( packageOnly && ! self->_packageOnlyScriptRun ) {
+                    [self setPackageOnlyScriptRun:YES];
+                    [self runSystemImageUtilityScript:workflowItem striptArguments:scriptArguments];
+                }
                 
                 // ------------------------------------------------------------------
                 //  If task failed, post workflow failed notification

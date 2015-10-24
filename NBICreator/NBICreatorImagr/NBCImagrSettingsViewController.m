@@ -1644,6 +1644,7 @@ DDLogLevel ddLogLevel;
             //  Imagr.app Configuration
             // -------------------------------------------------------------------------------
             NSURL *nbiImagrConfigurationDictURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCImagrConfigurationPlistTargetURL];
+            DDLogDebug(@"[DEBUG] com.grahamgilbert.imagr.plist path: %@", [nbiImagrConfigurationDictURL path]);
             NSDictionary *nbiImagrConfigurationDict;
             if ( [nbiImagrConfigurationDictURL checkResourceIsReachableAndReturnError:nil] ) {
                 nbiImagrConfigurationDict = [[NSDictionary alloc] initWithContentsOfURL:nbiImagrConfigurationDictURL];
@@ -1805,7 +1806,7 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] %@ = %@", NBCSettingsKeyboardLayoutKey, settingsDict[NBCSettingsKeyboardLayoutKey]);
         
         NSString *netInstallPath = [[nbiURL URLByAppendingPathComponent:@"NetInstall.dmg"] path];
-        NSString *netInstallPathResolved = [netInstallPath stringByResolvingSymlinksAndAliases];
+        NSString *netInstallPathResolved = [netInstallPath stringByResolvingSymlink];
         if ( [netInstallPathResolved isEqualToString:netInstallPath] ) {
             settingsDict[NBCSettingsDiskImageReadWriteKey] = @NO;
         } else {
@@ -1818,7 +1819,7 @@ DDLogLevel ddLogLevel;
         
         NSURL *localtime = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"private/etc/localtime"];
         if ( [localtime checkResourceIsReachableAndReturnError:nil] ) {
-            NSString *localtimeTarget = [[localtime path] stringByResolvingSymlinksAndAliases];
+            NSString *localtimeTarget = [[localtime path] stringByResolvingSymlink];
             if ( [localtimeTarget length] != 0 ) {
                 NSString *timeZone = [localtimeTarget stringByReplacingOccurrencesOfString:@"/usr/share/zoneinfo/" withString:@""];
                 if ( [timeZone length] != 0 ) {
@@ -2221,7 +2222,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     NSString *customBackgroundPath = [NBCVariables expandVariables:_imageBackgroundURL source:_source applicationSource:_siuSource];
     [self setImageBackground:@""];
-    [self setImageBackground:[customBackgroundPath stringByResolvingSymlinksAndAliases]];
+    [self setImageBackground:[customBackgroundPath stringByResolvingSymlink]];
     
 } // expandVariablesForCurrentSettings
 

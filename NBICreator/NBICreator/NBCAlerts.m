@@ -72,10 +72,23 @@ DDLogLevel ddLogLevel;
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Recovery Version Mismatch"];
-    [alert setInformativeText:[NSString stringWithFormat:@"System version and it's Recovery HD must be of the same OS build and version to create a correct DeployStudio NBI. Consider using a Disk Image created from AutoDMG as source."]];
+    [alert setInformativeText:@"System version and it's Recovery HD must be of the same OS build and version to create a correct DeployStudio NBI. Consider using a Disk Image created from AutoDMG as source."];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         #pragma unused(returnCode)
+        
+    }];
+}
+
++ (void)showAlertSourceReadOnly {
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:NBCButtonTitleOK];
+    [alert setMessageText:@"Read Only Destination"];
+    [alert setInformativeText:  @"NBICreator have insufficient permissions to modify the selected NBI.\n\n"
+                                @"Please move the NBI to a directory where NBICreator have write permissions and/or update the permissions on the NBI folder."];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+#pragma unused(returnCode)
         
     }];
 }
@@ -145,7 +158,8 @@ DDLogLevel ddLogLevel;
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Source"];
-    [alert setInformativeText:[NSString stringWithFormat:@"%@\n\n%@", errorMessage, informativeText]];
+    [alert setInformativeText:errorMessage];
+    //[alert setInformativeText:[NSString stringWithFormat:@"%@\n\n%@", errorMessage, informativeText]]; // Testing to only show error message
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
                 #pragma unused(returnCode)
