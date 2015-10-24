@@ -205,7 +205,7 @@ DDLogLevel ddLogLevel;
 } // attachDiskImageAndReturnPropertyList
 
 + (BOOL)mountAtPath:(NSString *)path withArguments:(NSArray *)args forDisk:(NSString *)diskID {
-    DDLogDebug(@"[DEBUG] Mounting disk at path: %@...", path);
+    DDLogDebug(@"[DEBUG] Mounting disk: %@ at path: %@...", diskID, path);
     
     DASessionRef session = NULL;
     session = DASessionCreate(kCFAllocatorDefault);
@@ -241,6 +241,12 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)detachDiskImageAtPath:(NSString *)mountPath {
+    
+    if ( [mountPath length] == 0 ) {
+        DDLogError(@"[ERROR] No mount path passed to hdiutil! Please check before calling detachDiskImageAtPath");
+        return YES;
+    }
+    
     DDLogDebug(@"[DEBUG] Detaching disk image mounted at path: %@", mountPath);
     
     NSTask *hdiutilTask =  [[NSTask alloc] init];
@@ -291,6 +297,12 @@ DDLogLevel ddLogLevel;
 } // detachDiskImageAtPath
 
 + (BOOL)detachDiskImageDevice:(NSString *)devName {
+    
+    if ( [devName length] == 0 ) {
+        DDLogError(@"[ERROR] No BSD identifier passed to hdiutil! Please check before calling detachDiskImageDevice");
+        return YES;
+    }
+    
     DDLogDebug(@"[DEBUG] Detaching disk image with device name: %@", devName);
     BOOL retval = YES;
     

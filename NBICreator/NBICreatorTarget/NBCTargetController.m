@@ -573,10 +573,8 @@ DDLogLevel ddLogLevel;
             NSString *targetURLString = copyDict[NBCWorkflowCopyTargetURL];
             if ( [targetURLString length] != 0 ) {
                 targetURL = [blockVolumeURL URLByAppendingPathComponent:targetURLString];
-                if ( ! [[targetURL URLByDeletingLastPathComponent] checkResourceIsReachableAndReturnError:error] ) {
+                if ( ! [[targetURL URLByDeletingLastPathComponent] checkResourceIsReachableAndReturnError:nil] ) {
                     if ( ! [fileManager createDirectoryAtURL:[targetURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:error] ) {
-                        DDLogError(@"[ERROR] Could not create target folder: %@", [targetURL URLByDeletingLastPathComponent]);
-                        DDLogError(@"%@", *error);
                         return NO;
                     }
                 }
