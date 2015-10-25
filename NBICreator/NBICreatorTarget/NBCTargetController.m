@@ -118,6 +118,7 @@ DDLogLevel ddLogLevel;
 - (NSMutableDictionary *)updateNBImageInfoDict:(NSMutableDictionary *)nbImageInfoDict nbImageInfoURL:(NSURL *)nbImageInfoURL workflowItem:(NBCWorkflowItem *)workflowItem {
 #pragma unused(nbImageInfoURL)
     DDLogDebug(@"[DEBUG] Updating NBImageInfo.plist...");
+    
     NBCSource *source = [workflowItem source];
     id applicationSource = [workflowItem applicationSource];
     
@@ -355,10 +356,10 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)convertNetInstallFromShadow:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     
+    DDLogInfo(@"Converting NetInstall disk image and shadow file...");
+    
     NBCTarget *target = [workflowItem target];
     NSFileManager *fm = [NSFileManager defaultManager];
-    
-    DDLogInfo(@"Converting NetInstall disk image and shadow file...");
     
     NSURL *netInstallURL = [target nbiNetInstallURL];
     DDLogDebug(@"[DEBUG] NetInstall disk image path: %@", [netInstallURL path]);
@@ -482,9 +483,9 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)convertBaseSystemFromShadow:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     
-    NSFileManager *fm = [NSFileManager defaultManager];
-    
     DDLogInfo(@"Converting BaseSystem disk image and shadow file...");
+    
+    NSFileManager *fm = [NSFileManager defaultManager];
     
     NSURL *baseSystemURL = [[workflowItem target] baseSystemURL];
     DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemURL path]);
@@ -553,7 +554,9 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)copyResourcesToVolume:(NSURL *)volumeURL resourcesDict:(NSDictionary *)resourcesDict target:(NBCTarget *)target  error:(NSError **)error {
 #pragma unused(target)
+    
     DDLogInfo(@"Copying resources to volume...");
+    
     BOOL verified = YES;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
@@ -562,24 +565,42 @@ DDLogLevel ddLogLevel;
     for ( NSDictionary *copyDict in copyArray ) {
         NSString *copyType = copyDict[NBCWorkflowCopyType];
         if ( [copyType isEqualToString:NBCWorkflowCopy] ) {
+            
+            NSString *sourcePath = copyDict[NBCWorkflowCopySourceURL];
+            DDLogDebug(@"[DEBUG] Copy source path: %@", sourcePath);
+            
+            NSURL *sourceURL;
+            if ( [sourcePath length] != 0 ) {
+                sourceURL = [NSURL fileURLWithPath:sourcePath];
+                if ( ! [sourceURL checkResourceIsReachableAndReturnError:error] ) {
+                    return NO;
+                }
+            } else {
+                *error = [NBCError errorWithDescription:@"Copy target path is empty"];
+                return NO;
+            }
+            
+            NSString *targetPath = copyDict[NBCWorkflowCopyTargetURL];
+            DDLogDebug(@"[DEBUG] Copy target path: %@", targetPath);
+            
             NSURL *targetURL;
-            NSString *targetURLString = copyDict[NBCWorkflowCopyTargetURL];
-            if ( [targetURLString length] != 0 ) {
-                targetURL = [blockVolumeURL URLByAppendingPathComponent:targetURLString];
+            if ( [targetPath length] != 0 ) {
+                targetURL = [blockVolumeURL URLByAppendingPathComponent:targetPath];
                 if ( ! [[targetURL URLByDeletingLastPathComponent] checkResourceIsReachableAndReturnError:nil] ) {
+                    
+                    DDLogDebug(@"[DEBUG] Creating target directory...");
                     if ( ! [fileManager createDirectoryAtURL:[targetURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:error] ) {
                         return NO;
                     }
                 }
             } else {
-                DDLogError(@"[ERROR] Target URLString is empty!");
+                *error = [NBCError errorWithDescription:@"Copy target path is empty"];
                 return NO;
             }
             
-            NSString *sourceURLString = copyDict[NBCWorkflowCopySourceURL];
-            NSURL *sourceURL = [NSURL fileURLWithPath:sourceURLString];
-            
+            DDLogDebug(@"[DEBUG] Copying: %@ to: %@", [sourceURL lastPathComponent],  targetPath);
             if ( [fileManager copyItemAtURL:sourceURL toURL:targetURL error:error] ) {
+                
                 NSDictionary *attributes = copyDict[NBCWorkflowCopyAttributes];
                 if ( ! [fileManager setAttributes:attributes ofItemAtPath:[targetURL path] error:error] ) {
                     DDLogError(@"[ERROR] Changing file permissions failed on file: %@", [targetURL path]);
@@ -768,6 +789,8 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForFindMyDeviced:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogInfo(@"Modifying settings for com.apple.Boot.plist...");
+    
     BOOL retval = YES;
     //NSError *error;
     //NSFileManager *fm = [NSFileManager defaultManager];
@@ -868,6 +891,8 @@ DDLogLevel ddLogLevel;
 } // modifySettingsForSystemKeychain:workflowItem
 
 - (BOOL)modifySettingsForBootPlist:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogInfo(@"Modifying settings for com.apple.Boot.plist...");
+    
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -916,6 +941,8 @@ DDLogLevel ddLogLevel;
 } // modifySettingsForBootPlist
 
 - (BOOL)modifySettingsForSystemKeychain:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    DDLogInfo(@"Modifying settings for System Keychain...");
+    
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -984,7 +1011,7 @@ DDLogLevel ddLogLevel;
 } // keyboardLayoutIDFromSourceID
 
 - (BOOL)modifySettingsForKextd:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Configure settings for com.apple.kextd.plist...");
+    DDLogInfo(@"Modifying settings for com.apple.kextd.plist...");
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1032,6 +1059,8 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)modifyRCInstall:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
 #pragma unused(modifyDictArray)
+    DDLogInfo(@"Modifying settings for rc.install...");
+    
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1147,7 +1176,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForLanguageAndKeyboardLayout:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Configure settings for Language and Keyboard...");
+    DDLogInfo(@"Modifying settings for Language and Keyboard...");
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1497,7 +1526,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForCasperImaging:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Configure settings for Casper Imaging...");
+    DDLogInfo(@"Modifying settings for Casper Imaging...");
     BOOL retval = YES;
     NSDictionary *userSettings = [workflowItem userSettings];
     NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];
@@ -1551,7 +1580,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForLaunchdLogging:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Configure settings for launchd settings...");
+    DDLogInfo(@"Modifying settings for launchd settings...");
     BOOL retval = YES;
     NSFileManager *fm = [NSFileManager defaultManager];
     
@@ -1613,7 +1642,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForConsole:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Configure settings for Console...");
+    DDLogInfo(@"Modifying settings for Console...");
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1699,7 +1728,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForVNC:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Configure settings for ARD/VNC...");
+    DDLogInfo(@"Modifying settings for ARD/VNC...");
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -2018,7 +2047,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)modifySettingsForRCCdrom:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
 #pragma unused(modifyDictArray)
-    DDLogInfo(@"Configure settings for rc.cdrom...");
+    DDLogInfo(@"Modifying settings for rc.cdrom...");
     BOOL retval = YES;
     NSError *error;
     
@@ -2323,7 +2352,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifyNBIRemoveWiFi:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Configure settings for WiFi...");
+    DDLogInfo(@"Modifying settings for WiFi...");
     BOOL retval = YES;
     
     NSURL *volumeURL = [[workflowItem target] baseSystemVolumeURL];

@@ -9,6 +9,7 @@
 #import "NBCWorkflowProgressViewController.h"
 
 #import "NBCConstants.h"
+#import "NBCLog.h"
 #import "NBCLogging.h"
 #import "NBCError.h"
 
@@ -74,12 +75,12 @@ DDLogLevel ddLogLevel;
     
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     
-    DDLogWarn(@"[WARN] User canceled workflow...");
     [nc postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
                       object:self
                     userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
     
     if ( _isRunning ) {
+        DDLogWarn(@"[WARN] User canceled workflow...");
         [nc postNotificationName:NBCNotificationWorkflowFailed
                           object:self
                         userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"User Canceled"] }];
@@ -134,12 +135,23 @@ DDLogLevel ddLogLevel;
 }
 - (IBAction)buttonOpenLog:(id)sender {
 #pragma unused(sender)
-    NSError *error = nil;
-    if ( ! [_nbiLogURL checkResourceIsReachableAndReturnError:&error] ) {
-        DDLogError(@"[ERROR] %@", [error localizedDescription]);
-        return;
-    } else {
-        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ _nbiLogURL ]];
+    DDLogDebug(@"[DEBUG] Open Log!");
+    
+    DDFileLogger *fileLogger = [NBCLog fileLogger];
+    if ( fileLogger ) {
+        NSString *logFilePath = [[fileLogger currentLogFileInfo] filePath];
+        DDLogDebug(@"[DEBUG] Log file path: %@", logFilePath);
+        
+        if ( [logFilePath length] != 0 ) {
+            NSError *error = nil;
+            NSURL *logFileURL = [NSURL fileURLWithPath:logFilePath];
+            if ( [logFileURL checkResourceIsReachableAndReturnError:&error] ) {
+                [[NSWorkspace sharedWorkspace] openURL:logFileURL];
+            } else {
+                DDLogError(@"[ERROR] %@", [error localizedDescription] ?: [NSString stringWithFormat:@"Log file at path: %@ doesn't exist", [logFileURL path]]);
+                return;
+            }
+        }
     }
 }
 

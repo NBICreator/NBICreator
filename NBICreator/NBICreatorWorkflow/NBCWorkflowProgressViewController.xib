@@ -110,7 +110,7 @@
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6s6-PX-ioV">
                     <rect key="frame" x="162" y="26" width="67" height="16"/>
                     <animations/>
-                    <buttonCell key="cell" type="push" title="Open Log" bezelStyle="rounded" alignment="center" controlSize="mini" enabled="NO" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="krQ-nt-GD6">
+                    <buttonCell key="cell" type="push" title="Open Log" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="krQ-nt-GD6">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="miniSystem"/>
                     </buttonCell>

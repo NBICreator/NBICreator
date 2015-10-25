@@ -81,8 +81,16 @@ DDLogLevel ddLogLevel;
         default:
             break;
     }
+}
+
++ (DDFileLogger *)fileLogger {
+    NSArray *allLoggers = [DDLog allLoggers];
+    NSUInteger indexOfFileLogger = [allLoggers indexOfObjectPassingTest:^(id logger, NSUInteger idx, BOOL* stop) {
+#pragma unused(idx, stop)
+        return [logger isKindOfClass:[DDFileLogger class]];
+    }];
     
-    
+    return indexOfFileLogger == NSNotFound ? nil : [allLoggers objectAtIndex:indexOfFileLogger];
 }
 
 @end

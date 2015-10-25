@@ -172,23 +172,46 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)convertNetInstall {
-    DDLogInfo(@"Converting NetInstall disk image and shadow file...");
+    
     [self->_delegate updateProgressStatus:@"Converting NetInstall disk image and shadow file..." workflow:self];
     
     __block NSError *error = nil;
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     NSDictionary *userSettings = [_workflowItem userSettings];
-    NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
     NSURL *baseSystemDiskImageURL = [_target baseSystemURL];
     
+    NSString *nbiCreationTool = userSettings[NBCSettingsNBICreationToolKey];
+    DDLogDebug(@"[DEBUG] Creation tool is: %@", nbiCreationTool);
+    
     if ( [nbiCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-        DDLogDebug(@"[DEBUG] Creation tool is System Image Utility");
         
         // ------------------------------------------------------
         //  Convert and rename NetInstall image from shadow file
         // ------------------------------------------------------
         dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
         dispatch_async(taskQueue, ^{
+            
+            DDLogDebug(@"[DEBUG] Hiding BaseSystem disk images...");
+            
+            DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
+            if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:&error] ) {
+                if ( ! [baseSystemDiskImageURL setResourceValue:@YES forKey:NSURLIsHiddenKey error:&error] ) {
+                    DDLogWarn(@"[WARN] %@", [error localizedDescription]);
+                }
+                
+                if ( [[baseSystemDiskImageURL pathExtension] isEqualToString:@"sparseimage"] ) {
+                    NSURL *baseSystemDiskImageSymlinkURL = [[baseSystemDiskImageURL URLByDeletingPathExtension] URLByAppendingPathExtension:@"dmg"];
+                    DDLogDebug(@"[DEBUG] BaseSystem disk image symlink path: %@", [baseSystemDiskImageURL path]);
+                    
+                    if ( [baseSystemDiskImageSymlinkURL checkResourceIsReachableAndReturnError:nil] ) {
+                        if ( ! [baseSystemDiskImageSymlinkURL setResourceValue:@YES forKey:NSURLIsHiddenKey error:&error] ) {
+                            DDLogWarn(@"[WARN] %@", [error localizedDescription]);
+                        }
+                    }
+                }
+            } else {
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
+            }
             
             if ( [self->_targetController convertNetInstallFromShadow:self->_workflowItem error:&error] ) {
                 DDLogDebug(@"[DEBUG] Conversion successful!");
@@ -228,22 +251,9 @@ DDLogLevel ddLogLevel;
                             return;
                         }
                     } else {
-                        DDLogDebug(@"[DEBUG] Creating symlink from NetInstall.dmg to NetInstall.sparseimage...");
                         
+                        DDLogDebug(@"[DEBUG] Creating symlink from NetInstall.dmg to NetInstall.sparseimage...");
                         if ( [self createSymlinkToSparseimageAtURL:[self->_target nbiNetInstallURL] error:&error] ) {
-                            
-                            if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:&error] ) {
-                                if ( ! [baseSystemDiskImageURL setResourceValue:@YES forKey:NSURLIsHiddenKey error:&error] ) {
-                                    DDLogWarn(@"[WARN] %@", [error localizedDescription]);
-                                }
-                            } else {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                                        object:self
-                                                                                      userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"BaseSystem disk doesn't exist"] }];
-                                });
-                                return;
-                            }
                             
                             dispatch_async(dispatch_get_main_queue(), ^{
                                 [nc postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
@@ -269,7 +279,6 @@ DDLogLevel ddLogLevel;
             }
         });
     } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
-        DDLogDebug(@"[DEBUG] Creation tool is NBICreator");
         
         if ( ! [userSettings[NBCSettingsDiskImageReadWriteKey] boolValue] ) {
             DDLogDebug(@"[DEBUG] Read/Write NetInstall images is NOT selected");

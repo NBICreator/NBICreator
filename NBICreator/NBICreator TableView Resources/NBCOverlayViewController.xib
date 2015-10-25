@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
     </dependencies>
@@ -18,6 +18,7 @@
             <subviews>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="y4y-XD-wll">
                     <rect key="frame" x="199" y="11" width="103" height="14"/>
+                    <animations/>
                     <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="Drop Package Here" id="kpZ-ce-PNj">
                         <font key="font" size="11" name=".HelveticaNeueDeskInterface-Light"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -30,6 +31,7 @@
                         <constraint firstAttribute="width" constant="48" id="Ae6-ar-qdz"/>
                         <constraint firstAttribute="height" constant="48" id="CWQ-Ej-oCr"/>
                     </constraints>
+                    <animations/>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconCertPersonal" id="yRu-Ri-Qb7"/>
                 </imageView>
                 <imageView hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="hB5-fg-Y7c">
@@ -38,6 +40,7 @@
                         <constraint firstAttribute="height" constant="48" id="HMW-LT-WII"/>
                         <constraint firstAttribute="width" constant="48" id="l5U-pj-g0g"/>
                     </constraints>
+                    <animations/>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyUpOrDown" image="IconCertPersonal" id="ExS-vo-dCg"/>
                 </imageView>
             </subviews>
@@ -51,6 +54,7 @@
                 <constraint firstItem="hB5-fg-Y7c" firstAttribute="leading" secondItem="LuT-Eb-glV" secondAttribute="trailing" constant="16" id="tO7-f7-dYQ"/>
                 <constraint firstItem="y4y-XD-wll" firstAttribute="centerX" secondItem="BW2-Vl-St0" secondAttribute="centerX" id="vnf-Z8-5cA"/>
             </constraints>
+            <animations/>
             <connections>
                 <outlet property="imageView" destination="LuT-Eb-glV" id="6ao-68-atL"/>
                 <outlet property="imageViewRight" destination="hB5-fg-Y7c" id="jlL-la-CZI"/>

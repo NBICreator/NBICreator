@@ -103,9 +103,10 @@ DDLogLevel ddLogLevel;
     if ( userApplicationSupport ) {
         _templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesImagr isDirectory:YES];
     } else {
-        NSLog(@"Could not get user Application Support Folder");
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR]: %@", [error localizedDescription]);
+        // Should display error dialog
     }
+    
     _siuSource = [[NBCSystemImageUtilitySource alloc] init];
     _templatesDict = [[NSMutableDictionary alloc] init];
     [self setShowARDPassword:NO];
@@ -2121,7 +2122,10 @@ DDLogLevel ddLogLevel;
     
     if ( ! [_templatesFolderURL checkResourceIsReachableAndReturnError:&error] ) {
         if ( ! [fm createDirectoryAtURL:_templatesFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-            NSLog(@"Imagr template folder create failed: %@", error);
+            DDLogError(@"[ERROR]: %@", [error localizedDescription]);
+
+            // Should display error
+            return;
         }
     }
     
@@ -2131,11 +2135,12 @@ DDLogLevel ddLogLevel;
     if ( [mainDict writeToURL:settingsURL atomically:NO] ) {
         _templatesDict[name] = settingsURL;
     } else {
-        NSLog(@"Writing Imagr template to disk failed!");
+        DDLogError(@"[ERROR] Writing Imagr template to disk failed!");
     }
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
+    NSError *error = nil;
     BOOL retval = YES;
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameImagrDefaults withExtension:@"plist"];
     if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -2166,7 +2171,7 @@ DDLogLevel ddLogLevel;
     }
     
     NSURL *savedSettingsURL = _templatesDict[_selectedTemplate];
-    if ( [savedSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+    if ( [savedSettingsURL checkResourceIsReachableAndReturnError:&error] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         NSDictionary *savedSettings = [self returnSettingsFromURL:savedSettingsURL];
         if ( currentSettings && savedSettings ) {
@@ -2174,10 +2179,10 @@ DDLogLevel ddLogLevel;
                 retval = NO;
             }
         } else {
-            NSLog(@"Could not compare UI settings to saved template settings, one of them is nil!");
+            DDLogError(@"[ERROR] Could not compare UI settings to saved template settings, one of them was empty!");
         }
     } else {
-        NSLog(@"Could not get URL to current template file!");
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     return retval;
@@ -3103,7 +3108,9 @@ DDLogLevel ddLogLevel;
 } // buildNBI
 
 - (void)verifySettings:(NSDictionary *)preWorkflowTasks {
+    
     DDLogInfo(@"Verifying settings...");
+    
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeImagr
                                                               workflowSessionType:kWorkflowSessionTypeGUI];
     [workflowItem setSource:_source];
@@ -3118,7 +3125,7 @@ DDLogLevel ddLogLevel;
     //  Collect current UI settings and pass them through verification
     // ----------------------------------------------------------------
     NSDictionary *userSettings = [self returnSettingsFromUI];
-    if ( userSettings ) {
+    if ( [userSettings count] != 0 ) {
         [workflowItem setUserSettings:userSettings];
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
         
@@ -3137,6 +3144,7 @@ DDLogLevel ddLogLevel;
             if ( [error count] != 0 ) {
                 configurationError = YES;
                 for ( NSString *errorString in error ) {
+                    DDLogError(@"[ERROR] %@", errorString);
                     [alertInformativeText appendString:[NSString stringWithFormat:@"\n\n• %@", errorString]];
                 }
             }
@@ -3144,6 +3152,7 @@ DDLogLevel ddLogLevel;
             if ( [warning count] != 0 ) {
                 configurationWarning = YES;
                 for ( NSString *warningString in warning ) {
+                    DDLogWarn(@"[WARN] %@", warningString);
                     [alertInformativeText appendString:[NSString stringWithFormat:@"\n\n• %@", warningString]];
                 }
             }
@@ -3166,6 +3175,7 @@ DDLogLevel ddLogLevel;
                 [alerts showAlertSettingsWarning:alertInformativeText alertInfo:alertInfo];
             }
         } else {
+            DDLogDebug(@"[DEBUG] Verification complete!");
             [self prepareWorkflowItem:workflowItem];
         }
     } else {
@@ -3174,6 +3184,9 @@ DDLogLevel ddLogLevel;
 } // verifySettings
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
+    
+    DDLogInfo(@"Preparing workflow item...");
+    
     NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
     NSDictionary *userSettings = [workflowItem userSettings];
     

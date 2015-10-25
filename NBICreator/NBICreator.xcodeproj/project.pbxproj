@@ -318,8 +318,8 @@
 		53121E9E1AD5C24A004515D6 /* NBCPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCPreferences.h; path = NBICreator/NBCPreferences.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53121E9F1AD5C24A004515D6 /* NBCPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCPreferences.m; path = NBICreator/NBCPreferences.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53121EA01AD5C24A004515D6 /* NBCPreferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCPreferences.xib; path = NBICreator/NBCPreferences.xib; sourceTree = SOURCE_ROOT; };
-		5318EF6C1B729B3400F818FC /* NBCCertificateTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCCertificateTableCellView.h; sourceTree = "<group>"; };
-		5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCCertificateTableCellView.m; sourceTree = "<group>"; };
+		5318EF6C1B729B3400F818FC /* NBCCertificateTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCertificateTableCellView.h; path = "../NBICreator TableView Resources/NBCCertificateTableCellView.h"; sourceTree = "<group>"; };
+		5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCertificateTableCellView.m; path = "../NBICreator TableView Resources/NBCCertificateTableCellView.m"; sourceTree = "<group>"; };
 		531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = ImagrDefaults.plist; path = "Supporting Files/Property Lists/ImagrDefaults.plist"; sourceTree = "<group>"; };
 		5324C1531AEACF130054B375 /* NBCDeployStudioDropViewImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCDeployStudioDropViewImage.h; path = NBICreatorDeployStudio/NBCDeployStudioDropViewImage.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		5324C1541AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCDeployStudioDropViewImage.m; path = NBICreatorDeployStudio/NBCDeployStudioDropViewImage.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -397,9 +397,9 @@
 		5386EA8C1AFFB0EA0091D57A /* NBCDownloaderPython.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCDownloaderPython.h; path = NBICreatorNetworking/NBCDownloaderPython.h; sourceTree = "<group>"; };
 		5386EA8D1AFFB0EA0091D57A /* NBCDownloaderPython.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCDownloaderPython.m; path = NBICreatorNetworking/NBCDownloaderPython.m; sourceTree = "<group>"; };
 		5388051F1BB9CF1C004A4BD8 /* CasperImaging.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = CasperImaging.plist; path = "Supporting Files/Dependencies/CasperImaging.plist"; sourceTree = "<group>"; };
-		538AC3CB1BB1B281006BC343 /* NBCOverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCOverlayViewController.h; sourceTree = "<group>"; };
-		538AC3CC1BB1B281006BC343 /* NBCOverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCOverlayViewController.m; sourceTree = "<group>"; };
-		538AC3CD1BB1B281006BC343 /* NBCOverlayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = NBCOverlayViewController.xib; sourceTree = "<group>"; };
+		538AC3CB1BB1B281006BC343 /* NBCOverlayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCOverlayViewController.h; path = "../NBICreator TableView Resources/NBCOverlayViewController.h"; sourceTree = "<group>"; };
+		538AC3CC1BB1B281006BC343 /* NBCOverlayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCOverlayViewController.m; path = "../NBICreator TableView Resources/NBCOverlayViewController.m"; sourceTree = "<group>"; };
+		538AC3CD1BB1B281006BC343 /* NBCOverlayViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCOverlayViewController.xib; path = "../NBICreator TableView Resources/NBCOverlayViewController.xib"; sourceTree = "<group>"; };
 		538DAF331AD7179600F2A3DD /* DeployStudioDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = DeployStudioDefaults.plist; path = "Supporting Files/Property Lists/DeployStudioDefaults.plist"; sourceTree = "<group>"; };
 		53909A8D1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCImagrRAMDiskPathCellView.h; path = NBICreatorImagr/NBCImagrRAMDiskPathCellView.h; sourceTree = "<group>"; };
 		53909A8E1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCImagrRAMDiskPathCellView.m; path = NBICreatorImagr/NBCImagrRAMDiskPathCellView.m; sourceTree = "<group>"; };
@@ -434,8 +434,8 @@
 		539DAEF51AF15ACB0037F06B /* NBCImagrDropViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCImagrDropViewController.m; path = NBICreatorImagr/NBCImagrDropViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		539DAEF61AF15ACB0037F06B /* NBCImagrDropViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCImagrDropViewController.xib; path = NBICreatorImagr/NBCImagrDropViewController.xib; sourceTree = "<group>"; };
 		539DAEFA1AF162A10037F06B /* NetInstallDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = NetInstallDefaults.plist; path = "Supporting Files/Property Lists/NetInstallDefaults.plist"; sourceTree = "<group>"; };
-		539EA4F71BB0D6C8007F1175 /* NBCConfigurationProfileTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCConfigurationProfileTableCellView.h; sourceTree = "<group>"; };
-		539EA5001BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCConfigurationProfileTableCellView.m; sourceTree = "<group>"; };
+		539EA4F71BB0D6C8007F1175 /* NBCConfigurationProfileTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCConfigurationProfileTableCellView.h; path = "../NBICreator TableView Resources/NBCConfigurationProfileTableCellView.h"; sourceTree = "<group>"; };
+		539EA5001BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCConfigurationProfileTableCellView.m; path = "../NBICreator TableView Resources/NBCConfigurationProfileTableCellView.m"; sourceTree = "<group>"; };
 		539EA5021BB110ED007F1175 /* NBCDDReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCDDReader.h; sourceTree = "<group>"; };
 		539EA5031BB110ED007F1175 /* NBCDDReader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCDDReader.m; sourceTree = "<group>"; };
 		53A195A71AD4F29500489CCF /* IconLion.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconLion.icns; sourceTree = "<group>"; };
@@ -484,8 +484,8 @@
 		53D2B9B11BA0B870000ACD23 /* NBCCasperTrustedNetBootServerCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCasperTrustedNetBootServerCellView.h; path = "NBICreator Casper/NBCCasperTrustedNetBootServerCellView.h"; sourceTree = "<group>"; };
 		53D2B9BA1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCasperTrustedNetBootServerCellView.m; path = "NBICreator Casper/NBCCasperTrustedNetBootServerCellView.m"; sourceTree = "<group>"; };
 		53D34D941B73F7E900F11CFF /* installCertificates.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = installCertificates.bash; path = "Supporting Files/Scripts/installCertificates.bash"; sourceTree = "<group>"; };
-		53D34D9E1B740D7F00F11CFF /* NBCPackageTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NBCPackageTableCellView.h; sourceTree = "<group>"; };
-		53D34D9F1B740DA600F11CFF /* NBCPackageTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NBCPackageTableCellView.m; sourceTree = "<group>"; };
+		53D34D9E1B740D7F00F11CFF /* NBCPackageTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCPackageTableCellView.h; path = "../NBICreator TableView Resources/NBCPackageTableCellView.h"; sourceTree = "<group>"; };
+		53D34D9F1B740DA600F11CFF /* NBCPackageTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCPackageTableCellView.m; path = "../NBICreator TableView Resources/NBCPackageTableCellView.m"; sourceTree = "<group>"; };
 		53DD632D1BCD9A1F005C460C /* NSString+SymlinksAndAliases.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSString+SymlinksAndAliases.h"; path = "NBICreatorCategories/NSString+SymlinksAndAliases.h"; sourceTree = "<group>"; };
 		53DD632E1BCD9A1F005C460C /* NSString+SymlinksAndAliases.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSString+SymlinksAndAliases.m"; path = "NBICreatorCategories/NSString+SymlinksAndAliases.m"; sourceTree = "<group>"; };
 		53DED1521B91723E00A95B6C /* NBICreatorTemplate.iconset */ = {isa = PBXFileReference; lastKnownFileType = folder.iconset; path = NBICreatorTemplate.iconset; sourceTree = "<group>"; };
@@ -706,6 +706,7 @@
 			children = (
 				53968C091A8E7A3E0079AA95 /* NBICreator */,
 				533BED671B9A360900524AE4 /* NBICreator CLI */,
+				53F797E11BDC9CF4000E3460 /* NBICreator TableView Resources */,
 				53B91EE41AD9BDDC0056CFC0 /* NBICreator Categories */,
 				53CBA9631ADE553700385C89 /* NBICreator Networking */,
 				53BC04031AD273380037DCBA /* NBICreator DiskArbitration */,
@@ -735,9 +736,6 @@
 		53968C091A8E7A3E0079AA95 /* NBICreator */ = {
 			isa = PBXGroup;
 			children = (
-				538AC3CB1BB1B281006BC343 /* NBCOverlayViewController.h */,
-				538AC3CC1BB1B281006BC343 /* NBCOverlayViewController.m */,
-				538AC3CD1BB1B281006BC343 /* NBCOverlayViewController.xib */,
 				539EA5021BB110ED007F1175 /* NBCDDReader.h */,
 				539EA5031BB110ED007F1175 /* NBCDDReader.m */,
 				53B9CEBA1A95DFD600C8015E /* NBCController.h */,
@@ -745,18 +743,12 @@
 				53383D131AFA9D3000C041F9 /* NBCConstants.h */,
 				53383D141AFA9D3000C041F9 /* NBCConstants.m */,
 				53931B9B1AED511B0076C1CC /* NBCVariables.h */,
+				53931B9C1AED511B0076C1CC /* NBCVariables.m */,
 				536AA0121BB8649B00A2FF0D /* NBCOptionBuildPanel.h */,
 				536AA0131BB8649B00A2FF0D /* NBCOptionBuildPanel.m */,
 				536AA0141BB8649B00A2FF0D /* NBCOptionBuildPanel.xib */,
-				53931B9C1AED511B0076C1CC /* NBCVariables.m */,
 				5332628E1B794A9E00BA7EC9 /* NBCDesktopEntity.h */,
 				5332628F1B794A9E00BA7EC9 /* NBCDesktopEntity.m */,
-				5318EF6C1B729B3400F818FC /* NBCCertificateTableCellView.h */,
-				5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */,
-				53D34D9E1B740D7F00F11CFF /* NBCPackageTableCellView.h */,
-				53D34D9F1B740DA600F11CFF /* NBCPackageTableCellView.m */,
-				539EA4F71BB0D6C8007F1175 /* NBCConfigurationProfileTableCellView.h */,
-				539EA5001BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m */,
 				530E0C791B190C550025A9C3 /* NBCViewNoInternetConnection.h */,
 				530E0C7A1B190C550025A9C3 /* NBCViewNoInternetConnection.m */,
 				539BE69D1B009A0000825C78 /* NBCInstallerPackageController.h */,
@@ -1034,6 +1026,23 @@
 				53F229E91B6837E200CC0B09 /* iOSLibStaticTest.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		53F797E11BDC9CF4000E3460 /* NBICreator TableView Resources */ = {
+			isa = PBXGroup;
+			children = (
+				5318EF6C1B729B3400F818FC /* NBCCertificateTableCellView.h */,
+				5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */,
+				53D34D9E1B740D7F00F11CFF /* NBCPackageTableCellView.h */,
+				53D34D9F1B740DA600F11CFF /* NBCPackageTableCellView.m */,
+				539EA4F71BB0D6C8007F1175 /* NBCConfigurationProfileTableCellView.h */,
+				539EA5001BB0D6F4007F1175 /* NBCConfigurationProfileTableCellView.m */,
+				538AC3CB1BB1B281006BC343 /* NBCOverlayViewController.h */,
+				538AC3CC1BB1B281006BC343 /* NBCOverlayViewController.m */,
+				538AC3CD1BB1B281006BC343 /* NBCOverlayViewController.xib */,
+			);
+			name = "NBICreator TableView Resources";
+			path = NBICreator;
 			sourceTree = "<group>";
 		};
 		53FB3E851B975CAD00CCE413 /* NBICreator Casper */ = {
