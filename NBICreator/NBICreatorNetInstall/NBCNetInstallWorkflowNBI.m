@@ -30,6 +30,7 @@ DDLogLevel ddLogLevel;
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
     
     NSError *err;
+    
     [self setPackageOnlyScriptRun:NO];
     [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
     [self setTemporaryNBIPath:[[workflowItem temporaryNBIURL] path]];
@@ -66,6 +67,7 @@ DDLogLevel ddLogLevel;
             return;
         }
     } else {
+        
         // -------------------------------------------------------------
         //  Get used space on InstallESD source volume for progress bar
         // -------------------------------------------------------------
@@ -332,6 +334,15 @@ DDLogLevel ddLogLevel;
 
 - (void)runSystemImageUtilityScript:(NBCWorkflowItem *)workflowItem striptArguments:(NSArray *)scriptArguments {
     
+    NSString *scriptName;
+    
+    if ( [scriptArguments count] != 0 ) {
+        scriptName = [scriptArguments[0] lastPathComponent];
+    } else {
+        DDLogError(@"[ERROR] Arguments array passed to script was empty");
+        return;
+    }
+    
     __unsafe_unretained typeof(self) weakSelf = self;
     BOOL packageOnly = [[workflowItem userSettings][NBCSettingsNetInstallPackageOnlyKey] boolValue];
     
@@ -363,7 +374,7 @@ DDLogLevel ddLogLevel;
                                         // -----------------------------------------------------------------------
                                         //  When output data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        NSLog(@"outStr=%@", outStr);
+                                        DDLogDebug(@"[%@][stdout] %@", scriptName, outStr);
                                         [weakSelf updateNetInstallWorkflowStatus:outStr stdErr:nil];
                                         
                                         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
@@ -386,12 +397,12 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
                                         // -----------------------------------------------------------------------
-                                        NSLog(@"errStr=%@", errStr);
+                                        DDLogDebug(@"[%@][stderr] %@", scriptName, errStr);
                                         [weakSelf updateNetInstallWorkflowStatus:nil stdErr:errStr];
                                         
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
@@ -432,6 +443,7 @@ DDLogLevel ddLogLevel;
                 
                 // Emergency fix, need to figure out WHY the script always fail the first time it is run.
                 if ( packageOnly && ! self->_packageOnlyScriptRun ) {
+                    DDLogDebug(@"[DEBUG] createRestoreFromSources.sh failed on first try, trying again...");
                     [self setPackageOnlyScriptRun:YES];
                     [self runSystemImageUtilityScript:workflowItem striptArguments:scriptArguments];
                 }
@@ -550,8 +562,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateNetInstallWorkflowStatus:(NSString *)outStr stdErr:(NSString *)stdErr {
-    
-    DDLogDebug(@"[createNetInstall.sh] %@", outStr);
+#pragma unused(stdErr)
     
     // -------------------------------------------------------------
     //  Check if string begins with chosen prefix or with PERCENT:
@@ -606,11 +617,6 @@ DDLogLevel ddLogLevel;
         NSString *progressPercentString = [outStr componentsSeparatedByString:@":"][1] ;
         double progressPercent = [progressPercentString doubleValue];
         [self updateProgressBar:progressPercent];
-    }
-    
-    if ( [stdErr length] != 0 )
-    {
-        NSLog(@"stdErr: %@", stdErr);
     }
 } // updateNetInstallWorkflowStatus:stdErr
 

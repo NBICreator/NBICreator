@@ -675,7 +675,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="a5G-lr-wTv">
-                                        <rect key="frame" x="18" y="287" width="256" height="17"/>
+                                        <rect key="frame" x="18" y="287" width="498" height="17"/>
                                         <animations/>
                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Optional settings for the NetInstall Image:" id="d11-jd-eEe">
                                             <font key="font" metaFont="system"/>
@@ -785,7 +785,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="le5-Gh-tjW">
-                                        <rect key="frame" x="18" y="136" width="405" height="17"/>
+                                        <rect key="frame" x="18" y="136" width="498" height="17"/>
                                         <animations/>
                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Choose a username and password to enable remote management:" id="hb7-rK-Ugy">
                                             <font key="font" metaFont="system"/>
@@ -947,6 +947,7 @@ asdasd</string>
                                     <constraint firstItem="OTA-IW-3wU" firstAttribute="centerY" secondItem="O9T-W9-bOG" secondAttribute="centerY" constant="-7" id="OkQ-vC-FKk"/>
                                     <constraint firstItem="ZMc-cR-Jf3" firstAttribute="top" secondItem="IKx-1c-tDW" secondAttribute="bottom" constant="9" id="QK2-Nn-9l2"/>
                                     <constraint firstItem="ZMc-cR-Jf3" firstAttribute="leading" secondItem="IKx-1c-tDW" secondAttribute="leading" id="SQI-K9-ZMI"/>
+                                    <constraint firstAttribute="trailing" secondItem="le5-Gh-tjW" secondAttribute="trailing" constant="20" symbolic="YES" id="TdX-mF-Bw4"/>
                                     <constraint firstItem="a5G-lr-wTv" firstAttribute="leading" secondItem="amG-dw-kSU" secondAttribute="leading" constant="20" symbolic="YES" id="Tra-UI-3i1"/>
                                     <constraint firstItem="AKh-5N-jNQ" firstAttribute="leading" secondItem="IKx-1c-tDW" secondAttribute="trailing" constant="8" symbolic="YES" id="V51-zM-odw"/>
                                     <constraint firstAttribute="trailing" secondItem="czc-3w-Cgp" secondAttribute="trailing" constant="20" symbolic="YES" id="WW4-cY-MKK"/>
@@ -966,6 +967,7 @@ asdasd</string>
                                     <constraint firstItem="QbF-v4-sZB" firstAttribute="leading" secondItem="cqG-je-rdy" secondAttribute="trailing" constant="63" id="lHW-Qm-YZr"/>
                                     <constraint firstItem="IKx-1c-tDW" firstAttribute="top" secondItem="a5G-lr-wTv" secondAttribute="bottom" constant="8" symbolic="YES" id="lyJ-df-hgC"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="centerX" secondItem="R4V-bE-WQo" secondAttribute="centerX" id="mRR-QG-BR7"/>
+                                    <constraint firstAttribute="trailing" secondItem="a5G-lr-wTv" secondAttribute="trailing" constant="20" symbolic="YES" id="mns-DS-gPQ"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="leading" secondItem="ng4-VJ-jJ3" secondAttribute="leading" id="mq8-ta-HRi"/>
                                     <constraint firstItem="QWc-j5-6UL" firstAttribute="baseline" secondItem="vwk-Qo-BCu" secondAttribute="baseline" id="mzV-cN-1AG"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="width" secondItem="R4V-bE-WQo" secondAttribute="width" id="ndB-mg-QCb"/>

@@ -94,14 +94,14 @@
 } // checkForUpdates
 
 - (void)getNBICreatorVersions {
-    DDLogInfo(@"Checking for application updates!");
+    DDLogDebug(@"[DEBUG] Checking for application updates!");
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCNBICreatorGitHubRepository
                                                  downloadInfo:@{ NBCDownloaderTag : NBCDownloaderTagNBICreator }];
 } // getNBICreatorVersions
 
 - (void)getNBICreatorResourcesVersions {
-    DDLogInfo(@"Checking for resources updates!");
+    DDLogDebug(@"[DEBUG] Checking for resources updates!");
     NBCDownloaderGitHub *downloader =  [[NBCDownloaderGitHub alloc] initWithDelegate:self];
     [downloader getReleaseVersionsAndURLsFromGithubRepository:NBCNBICreatorResourcesGitHubRepository
                                                  downloadInfo:@{ NBCDownloaderTag : NBCDownloaderTagNBICreatorResources }];

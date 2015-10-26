@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15A284" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
@@ -684,7 +684,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Vzu-DK-8f3">
-                                        <rect key="frame" x="18" y="287" width="256" height="17"/>
+                                        <rect key="frame" x="18" y="287" width="498" height="17"/>
                                         <animations/>
                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Optional settings for the NetInstall Image:" id="eDq-QO-lCK">
                                             <font key="font" metaFont="system"/>
@@ -768,7 +768,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Tzk-jh-mHD">
-                                        <rect key="frame" x="18" y="136" width="405" height="17"/>
+                                        <rect key="frame" x="18" y="136" width="498" height="17"/>
                                         <animations/>
                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Choose a username and password to enable remote management:" id="Yj8-bZ-Kyl">
                                             <font key="font" metaFont="system"/>
@@ -956,9 +956,11 @@ asdasd</string>
                                     <constraint firstItem="UaD-ql-OlJ" firstAttribute="width" secondItem="OvQ-PP-4Po" secondAttribute="width" id="mBv-GQ-PKr"/>
                                     <constraint firstItem="oeb-wd-4qe" firstAttribute="baseline" secondItem="88S-qv-gbh" secondAttribute="baseline" id="mdk-C3-im1"/>
                                     <constraint firstItem="bra-6W-hae" firstAttribute="baseline" secondItem="d0f-nn-VGQ" secondAttribute="baseline" id="mgi-lk-IEQ"/>
+                                    <constraint firstAttribute="trailing" secondItem="Tzk-jh-mHD" secondAttribute="trailing" constant="20" symbolic="YES" id="nR5-lA-VyR"/>
                                     <constraint firstItem="UaD-ql-OlJ" firstAttribute="leading" secondItem="qYb-MC-CFZ" secondAttribute="trailing" constant="8" symbolic="YES" id="o0z-ta-RaL"/>
                                     <constraint firstAttribute="bottom" secondItem="k94-od-5fG" secondAttribute="bottom" constant="20" symbolic="YES" id="osH-qC-T6k"/>
                                     <constraint firstItem="Vzu-DK-8f3" firstAttribute="leading" secondItem="k94-od-5fG" secondAttribute="leading" id="pup-nb-7C7"/>
+                                    <constraint firstAttribute="trailing" secondItem="Vzu-DK-8f3" secondAttribute="trailing" constant="20" symbolic="YES" id="qaX-Ik-UOY"/>
                                     <constraint firstItem="UaD-ql-OlJ" firstAttribute="centerY" secondItem="BqW-ov-6H4" secondAttribute="centerY" id="rHI-jz-0XM"/>
                                     <constraint firstItem="UaD-ql-OlJ" firstAttribute="baseline" secondItem="aUC-1C-Ccv" secondAttribute="baseline" id="rZJ-ee-a0p"/>
                                     <constraint firstItem="EBx-5W-YZF" firstAttribute="leading" secondItem="oeb-wd-4qe" secondAttribute="trailing" constant="58" id="s5f-LU-xiV"/>

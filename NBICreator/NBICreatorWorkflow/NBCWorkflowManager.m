@@ -226,9 +226,13 @@ DDLogLevel ddLogLevel;
 } // workflowCompleteModifyNBI
 
 - (void)endWorkflow {
+
+    NSString *name = [_currentWorkflowItem nbiName];
+    NSString *workflowTime = [_currentWorkflowItem workflowTime];
+    
+    DDLogInfo(@"*** Workflow: %@ completed in %@ ***", name, workflowTime);
+    
     if ( [[NSUserDefaults standardUserDefaults] boolForKey:NBCUserDefaultsUserNotificationsEnabled] ) {
-        NSString *name = [_currentWorkflowItem nbiName];
-        NSString *workflowTime = [_currentWorkflowItem workflowTime];
         [self postNotificationWithTitle:name informativeText:[NSString stringWithFormat:@"Completed in %@", workflowTime]];
     }
     
@@ -263,7 +267,11 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)workflowFailed:(NSNotification *)notification {
-    DDLogError(@"[ERROR] Workflow Failed!");
+    
+    NSString *name = [_currentWorkflowItem nbiName];
+    
+    DDLogError(@"*** Workflow: %@ failed ***", name);
+
     NSError *error = [notification userInfo][NBCUserInfoNSErrorKey];
     NSString *progressViewErrorMessage = nil;
     if ( error ) {
@@ -275,7 +283,7 @@ DDLogLevel ddLogLevel;
     [self setWorkflowRunning:NO];
     
     if ( [[NSUserDefaults standardUserDefaults] boolForKey:NBCUserDefaultsUserNotificationsEnabled] ) {
-        NSString *name = [_currentWorkflowItem nbiName];
+        
         [self postNotificationWithTitle:name informativeText:@"Workflow Failed!"];
     }
     
@@ -345,7 +353,8 @@ DDLogLevel ddLogLevel;
         [self setCurrentWorkflowItem:[_workflowQueue firstObject]];
         NSString *nbiName = [_currentWorkflowItem nbiName];
         if ( [nbiName length] != 0 ) {
-            DDLogInfo(@"Starting workflow: %@", nbiName);
+            
+            DDLogInfo(@"*** Workflow: %@ started ***", nbiName);
             if ( [nbiName containsString:@" "] ) {
                 DDLogDebug(@"[DEBUG] Replacing spaces in NBI name with dashes (-)...");
                 nbiName = [nbiName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
@@ -652,11 +661,11 @@ DDLogLevel ddLogLevel;
     }
     
     if ( [keysChanged count] == 0 ) {
-        DDLogDebug(@"[DEBUG] Only settings in the NBI folder changed...");
+        DDLogInfo(@"Only settings in the NBI folder changed...");
         NSDictionary *userSettings = [_currentWorkflowItem userSettings];
         
         if ( [keysNBImageInfo count] != 0 ) {
-            DDLogDebug(@"[DEBUG] Updating NBImageInfo.plist...");
+            DDLogInfo(@"Updating NBImageInfo.plist...");
             
             NSURL *nbImageInfoURL = [[_currentWorkflowItem source] nbImageInfoURL];
             DDLogDebug(@"[DEBUG] NBImageInfo.plist path: %@", [nbImageInfoURL path]);
@@ -706,7 +715,7 @@ DDLogLevel ddLogLevel;
         }
         
         if ( [keysBootPlist count] != 0 ) {
-            DDLogDebug(@"[DEBUG] Updating \"Kernel Flags\" in com.apple.Boot.plist...");
+            DDLogInfo(@"Updating com.apple.Boot.plist...");
             
             NSURL *bootPlistURL = [[_currentWorkflowItem nbiURL] URLByAppendingPathComponent:@"i386/com.apple.Boot.plist"];
             DDLogDebug(@"[DEBUG] com.apple.Boot.plist path: %@", [bootPlistURL path]);

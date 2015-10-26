@@ -212,7 +212,7 @@ DDLogLevel ddLogLevel;
             [_imageViewSource setImage:productImage];
         }
     }
-    
+        
     // ---------------------------------------------------------
     //  Post notification to update source
     // ---------------------------------------------------------
@@ -379,6 +379,7 @@ DDLogLevel ddLogLevel;
 - (IBAction)popUpButtonSource:(id)sender {
     
     [self setSelectedSource:[[sender selectedItem] title]];
+    DDLogInfo(@"%@ was selected as source", [[sender selectedItem] title]);
     
     // --------------------------------------------------------------------------------------------
     //  If "No Selection" got selected, remove source from UI and post removed source notification
@@ -394,6 +395,7 @@ DDLogLevel ddLogLevel;
     // ----------------------------------------------------------------------
     id selectedItem = _sourceDictLinks[_selectedSource];
     NBCSource *selectedSource = _sourceDictSources[_selectedSource];
+    
     if ( selectedSource != nil ) {
         [self setSource:selectedSource];
         
@@ -614,6 +616,8 @@ DDLogLevel ddLogLevel;
                     
                     // Unmount ? Might fix an error
                     
+                    // new property to decide where to add imagr.app for example
+                    
                     verified = [targetController verifyNetInstallFromDiskImageURL:nbiNetInstallURL target:newTarget error:&error];
                     if ( verified ) { 
                         verified = [targetController verifyBaseSystemFromTarget:newTarget source:newSource error:&error];
@@ -680,6 +684,7 @@ DDLogLevel ddLogLevel;
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self setSource:newSource];
                 if ( newTarget ) {
+                    DDLogDebug(@"[DEBUG] Setting Target!");
                     [self setTarget:newTarget];
                 }
                 [self updateSourceInfo:newSource];

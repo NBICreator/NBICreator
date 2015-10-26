@@ -766,8 +766,6 @@ DDLogLevel ddLogLevel;
     NSDictionary *userSettings = [_workflowItem userSettings];
     NSURL *volumeURL = [_target baseSystemVolumeURL];
     
-    
-    
     if ( 11 <= sourceVersionMinor ) {
         if ( verified ) {
             verified = [_targetController modifyRCInstall:modifyDictArray workflowItem:_workflowItem];
@@ -951,6 +949,7 @@ DDLogLevel ddLogLevel;
 - (void)addUsersToNBI {
     
     DDLogInfo(@"Adding users to NBI...");
+    
     [_delegate updateProgressStatus:@"Adding user to NBI..." workflow:self];
     
     NSArray *createUserVariables;
@@ -1009,7 +1008,7 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
@@ -1196,7 +1195,7 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
@@ -1377,7 +1376,7 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
@@ -1506,7 +1505,7 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser

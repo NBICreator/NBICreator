@@ -672,7 +672,7 @@ DDLogLevel ddLogLevel;
                                                 //  Convert data to string
                                                 // ------------------------
                                                 NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                                NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                                NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                                 
                                                 // -----------------------------------------------------------------------
                                                 //  When error data becomes available, pass it to workflow status parser
@@ -1108,7 +1108,9 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForDesktopViewer:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Modifying settings for Desktop Viewer...");
+    
+    DDLogInfo(@"Modifying settings for desktop background...");
+    
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1728,7 +1730,9 @@ DDLogLevel ddLogLevel;
 }
 
 - (BOOL)modifySettingsForVNC:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Modifying settings for ARD/VNC...");
+    
+    DDLogInfo(@"Modifying settings for remote login...");
+    
     BOOL retval = YES;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -2881,13 +2885,15 @@ DDLogLevel ddLogLevel;
             
             if ( isBaseSystem ) {
                 DDLogInfo(@"NetInstall disk image is a BaseSystem disk image");
+                /*
                 [target setNbiNetInstallVolumeURL:nil];
                 [target setBaseSystemDisk:netInstallDisk];
                 [target setBaseSystemVolumeBSDIdentifier:[netInstallDisk BSDName]];
                 [target setBaseSystemVolumeURL:netInstallVolumeURL];
                 [target setBaseSystemDiskImageDict:[target nbiNetInstallDiskImageDict]];
                 [target setBaseSystemURL:netInstallDiskImageURL];
-                return YES;
+                 */
+                return NO;
             } else {
                 *error = [NBCError errorWithDescription:@"NetInstall contains no BaseSystem disk image"];
                 return NO;
@@ -2903,7 +2909,7 @@ DDLogLevel ddLogLevel;
     DDLogInfo(@"Verifying BaseSystem disk image...");
     
     NSURL *baseSystemDiskImageURL = [target baseSystemURL];
-    DDLogDebug(@"[DEBUG] NetInstall disk image path: %@", [baseSystemDiskImageURL path]);
+    DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
     if ( ! [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
         return NO;
     }

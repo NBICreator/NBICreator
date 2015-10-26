@@ -959,10 +959,13 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateSource:(NSNotification *)notification {
-    DDLogDebug(@"[DEBUG] Updating source...");
+    
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
     if ( source != nil ) {
+        DDLogDebug(@"[DEBUG] Updating source...");
         [self setSource:source];
+    } else {
+        
     }
     
     [self updateSettingVisibility];
@@ -976,7 +979,7 @@ DDLogLevel ddLogLevel;
     
     NBCTarget *target = [notification userInfo][NBCNotificationUpdateSourceUserInfoTarget];
     if ( target != nil ) {
-        DDLogDebug(@"[DEBUG] ");
+        DDLogDebug(@"[DEBUG] Updating target...");
         [self setTarget:target];
     }
     
@@ -3085,6 +3088,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI:(NSDictionary *)preWorkflowTasks {
+    
     if ( ! _isNBI && [self haveSettingsChanged] ) {
         NSDictionary *alertInfo = @{
                                     NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
@@ -3111,12 +3115,24 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Verifying settings...");
     
+    DDLogDebug(@"[DEBUG] Creating new workflow item");
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeImagr
                                                               workflowSessionType:kWorkflowSessionTypeGUI];
-    [workflowItem setSource:_source];
+    
+    if ( _source ) {
+        DDLogDebug(@"[DEBUG] Settings workflow item source...");
+        [workflowItem setSource:_source];
+    } else {
+        DDLogError(@"[ERROR] Source was empty!");
+        return;
+    }
+    
+    
     if ( _target ) {
+        DDLogDebug(@"[DEBUG] Settings workflow item target...");
         [workflowItem setTarget:_target];
     }
+    
     [workflowItem setApplicationSource:_siuSource];
     [workflowItem setSettingsViewController:self];
     [workflowItem setPreWorkflowTasks:preWorkflowTasks];
@@ -3224,6 +3240,7 @@ DDLogLevel ddLogLevel;
         }
     } else if ( ! [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
         NSString *selectedImagrVersion = userSettings[NBCSettingsImagrVersion];
+        DDLogDebug(@"[DEBUG] Selected Imagr.app version: %@", selectedImagrVersion);
         if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
             if ( [_imagrVersions count] == 0 ) {
                 DDLogError(@"[ERROR] Imagr versions array is empty!");
@@ -3233,6 +3250,7 @@ DDLogLevel ddLogLevel;
         }
         
         NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
+        DDLogDebug(@"[DEBUG] Selected Imagr.app download url: %@", imagrDownloadURL);
         if ( [imagrDownloadURL length] == 0 ) {
             DDLogError(@"[ERROR] Imagr download link is empty!");
             return;

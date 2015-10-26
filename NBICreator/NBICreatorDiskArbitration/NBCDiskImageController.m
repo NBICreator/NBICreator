@@ -71,15 +71,15 @@ DDLogLevel ddLogLevel;
         NSError *plistError = nil;
         *propertyList = [NSPropertyListSerialization propertyListWithData:stdOutData options:NSPropertyListImmutable format:nil error:&plistError];
         if ( ! *propertyList ) {
-            DDLogWarn(@"[hdiutil] %@", stdOut);
-            DDLogWarn(@"[hdiutil] %@", stdErr);
+            DDLogWarn(@"[hdiutil][stdout] %@", stdOut);
+            DDLogWarn(@"[hdiutil][stderr] %@", stdErr);
             DDLogError(@"[ERROR] hdiutil output could not be serialized as property list");
             *error = plistError;
             return NO;
         }
     } else {
-        DDLogWarn(@"[hdiutil] %@", stdOut);
-        DDLogWarn(@"[hdiutil] %@", stdErr);
+        DDLogWarn(@"[hdiutil][stdout] %@", stdOut);
+        DDLogWarn(@"[hdiutil][stderr] %@", stdErr);
         DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
         return NO;
     }
@@ -268,19 +268,27 @@ DDLogLevel ddLogLevel;
 
     
     if ( [hdiutilTask terminationStatus] != 0 ) {
-        DDLogWarn(@"[hdiutil] %@", stdOut);
-        DDLogWarn(@"[hdiutil] %@", stdErr);
+        DDLogWarn(@"[hdiutil][stdout] %@", stdOut);
+        DDLogWarn(@"[hdiutil][stderr] %@", stdErr);
         DDLogWarn(@"[WARN] Detach failed, trying with force...");
         [args addObject:@"-force"];
         
         int maxTries;
         for ( maxTries = 1; maxTries < 5; maxTries = maxTries + 1 ) {
-            DDLogWarn(@"[WARN] Detach try %d of 3", maxTries);
+            DDLogWarn(@"[WARN] Detach with force try %d of 3", maxTries);
             NSTask *forceTask =  [[NSTask alloc] init];
             [forceTask setLaunchPath:@"/usr/bin/hdiutil"];
             [forceTask setArguments:args];
+            [forceTask setStandardOutput:[NSPipe pipe]];
+            [forceTask setStandardError:[NSPipe pipe]];
             [forceTask launch];
             [forceTask waitUntilExit];
+            
+            stdOutData = [[[forceTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+            stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+            
+            stdErrData = [[[forceTask standardError] fileHandleForReading] readDataToEndOfFile];
+            stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
             
             if ( [forceTask terminationStatus] == 0 ) {
                 DDLogInfo(@"Detach successful on try %d!", maxTries);
@@ -288,6 +296,8 @@ DDLogLevel ddLogLevel;
             }
         }
         
+        DDLogError(@"[hdiutil][stdout] %@", stdOut);
+        DDLogError(@"[hdiutil][stderr] %@", stdErr);
         DDLogError(@"[DEBUG] Detach failed!");
         return NO;
     } else {
@@ -324,24 +334,37 @@ DDLogLevel ddLogLevel;
     NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
     
     if ( [hdiutilTask terminationStatus] != 0 ) {
-        DDLogWarn(@"[hdiutil] %@", stdOut);
-        DDLogWarn(@"[hdiutil] %@", stdErr);
+        DDLogWarn(@"[hdiutil][stdout] %@", stdOut);
+        DDLogWarn(@"[hdiutil][stderr] %@", stdErr);
         DDLogWarn(@"[WARN] Detach failed, trying with force...");
         [args addObject:@"-force"];
         
         int maxTries;
         for( maxTries = 1; maxTries < 5; maxTries = maxTries + 1 ) {
+            DDLogWarn(@"[WARN] Detach with force try %d of 3", maxTries);
             NSTask *forceTask =  [[NSTask alloc] init];
             [forceTask setLaunchPath:@"/usr/bin/hdiutil"];
             [forceTask setArguments:args];
+            [forceTask setStandardOutput:[NSPipe pipe]];
+            [forceTask setStandardError:[NSPipe pipe]];
             [forceTask launch];
             [forceTask waitUntilExit];
+            
+            stdOutData = [[[forceTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+            stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+            
+            stdErrData = [[[forceTask standardError] fileHandleForReading] readDataToEndOfFile];
+            stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
             
             if ( [forceTask terminationStatus] == 0 ) {
                 DDLogInfo(@"Detach successful on try %d!", maxTries);
                 return retval;
             }
         }
+        
+        DDLogError(@"[hdiutil][stdout] %@", stdOut);
+        DDLogError(@"[hdiutil][stderr] %@", stdErr);
+        DDLogError(@"[DEBUG] Detach failed!");
         retval = NO;
     } else {
         DDLogDebug(@"[DEBUG] Detach successful!");
@@ -372,24 +395,37 @@ DDLogLevel ddLogLevel;
     NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
     
     if ( [hdiutilTask terminationStatus] != 0 ) {
-        DDLogWarn(@"[hdiutil] %@", stdOut);
-        DDLogWarn(@"[hdiutil] %@", stdErr);
+        DDLogWarn(@"[hdiutil][stdout] %@", stdOut);
+        DDLogWarn(@"[hdiutil][stderr] %@", stdErr);
         DDLogWarn(@"[WARN] Unmount failed, trying with force...");
         [args addObject:@"-force"];
         
         int maxTries;
         for ( maxTries = 1; maxTries < 5; maxTries = maxTries + 1 ) {
+            DDLogWarn(@"[WARN] Detach with force try %d of 3", maxTries);
             NSTask *forceTask =  [[NSTask alloc] init];
             [forceTask setLaunchPath:@"/usr/bin/hdiutil"];
             [forceTask setArguments:args];
+            [forceTask setStandardOutput:[NSPipe pipe]];
+            [forceTask setStandardError:[NSPipe pipe]];
             [forceTask launch];
             [forceTask waitUntilExit];
+            
+            stdOutData = [[[forceTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+            stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+            
+            stdErrData = [[[forceTask standardError] fileHandleForReading] readDataToEndOfFile];
+            stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
             
             if ( [forceTask terminationStatus] == 0 ) {
                 DDLogInfo(@"Unmount successful on try %d!", maxTries);
                 return retval;
             }
         }
+        
+        DDLogError(@"[hdiutil][stdout] %@", stdOut);
+        DDLogError(@"[hdiutil][stderr] %@", stdErr);
+        DDLogError(@"[DEBUG] Detach failed!");
         retval = NO;
     } else {
         DDLogDebug(@"[DEBUG] Unmount successful!");
@@ -430,8 +466,8 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] hdiutil command successful!");
         return YES;
     } else {
-        DDLogError(@"[hdiutil] %@", stdOut);
-        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[hdiutil][stdout] %@", stdOut);
+        DDLogError(@"[hdiutil][stderr] %@", stdErr);
         DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
         return NO;
     }
@@ -480,8 +516,8 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] hdiutil command successful!");
         return YES;
     } else {
-        DDLogError(@"[hdiutil] %@", stdOut);
-        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[hdiutil][stdout] %@", stdOut);
+        DDLogError(@"[hdiutil][stderr] %@", stdErr);
         DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
         return NO;
     }
@@ -517,8 +553,8 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] hdiutil command successful!");
         return YES;
     } else {
-        DDLogError(@"[hdiutil] %@", stdOut);
-        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[hdiutil][stdout] %@", stdOut);
+        DDLogError(@"[hdiutil][stderr] %@", stdErr);
         *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]]];
         return NO;
     }
@@ -560,8 +596,8 @@ DDLogLevel ddLogLevel;
             }
         }
     } else {
-        DDLogError(@"[hdiutil] %@", stdOut);
-        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[hdiutil][stdout] %@", stdOut);
+        DDLogError(@"[hdiutil][stderr] %@", stdErr);
         DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
     }
     
@@ -666,8 +702,8 @@ DDLogLevel ddLogLevel;
         NSPropertyListFormat format;
         NSDictionary *hdiutilDict = [NSPropertyListSerialization propertyListWithData:stdOutData options:NSPropertyListImmutable format:&format error:&plistError];
         if ( hdiutilDict == nil ) {
-            DDLogError(@"[hdiutil] %@", stdOut);
-            DDLogError(@"[hdiutil] %@", stdErr);
+            DDLogError(@"[hdiutil][stdout] %@", stdOut);
+            DDLogError(@"[hdiutil][stderr] %@", stdErr);
             DDLogError(@"[ERROR] hdiutil output could not be serialized as property list");
             DDLogError(@"[ERROR] %@", [plistError localizedDescription]);
             return nil;
@@ -675,8 +711,8 @@ DDLogLevel ddLogLevel;
             return hdiutilDict;
         }
     } else {
-        DDLogError(@"[hdiutil] %@", stdOut);
-        DDLogError(@"[hdiutil] %@", stdErr);
+        DDLogError(@"[hdiutil][stdout] %@", stdOut);
+        DDLogError(@"[hdiutil][stderr] %@", stdErr);
         DDLogError(@"[ERROR] hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]);
         return nil;
     }

@@ -867,7 +867,7 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
@@ -1058,7 +1058,7 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
@@ -1239,7 +1239,7 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
@@ -1372,7 +1372,7 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser
@@ -1474,7 +1474,7 @@ DDLogLevel ddLogLevel;
                                         //  Convert data to string
                                         // ------------------------
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser

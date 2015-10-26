@@ -27,7 +27,8 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
-    DDLogInfo(@"Starting workflow Imagr Resources...");
+    
+    DDLogInfo(@"Preparing resources...");
     
     NSError *error = nil;
     _resourcesNetInstallDict = [[NSMutableDictionary alloc] init];
@@ -570,6 +571,7 @@ DDLogLevel ddLogLevel;
             return NO;
         }
     }
+    DDLogDebug(@"[DEBUG] Imagr.app target path: %@", imagrApplicationTargetPath);
     
     if ( [selectedImagrVersion length] == 0 ) {
         *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"Unknown Imagr version: %@", selectedImagrVersion]];
@@ -592,6 +594,7 @@ DDLogLevel ddLogLevel;
                                                            NBCWorkflowCopyTargetURL : imagrApplicationTargetPath,
                                                            NBCWorkflowCopyAttributes : imagrLocalVersionAttributes
                                                            };
+            
             if ( [_target nbiNetInstallURL] ) {
                 [_resourcesNetInstallCopy addObject:imagrLocalVersionCopySetting];
             } else if ( [_target baseSystemURL] ) {
@@ -690,6 +693,7 @@ DDLogLevel ddLogLevel;
                 return NO;
             }
         }
+        
         [self setImagrVersion:selectedImagrVersion];
         
         NSURL *imagrCachedVersionURL = [_resourcesController cachedVersionURL:selectedImagrVersion resourcesFolder:NBCFolderResourcesCacheImagr];
@@ -1066,7 +1070,7 @@ DDLogLevel ddLogLevel;
                                                 //  Convert data to string
                                                 // ------------------------
                                                 NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                                NSString *errStr = [[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding];
+                                                NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                                 
                                                 // -----------------------------------------------------------------------
                                                 //  When error data becomes available, pass it to workflow status parser
