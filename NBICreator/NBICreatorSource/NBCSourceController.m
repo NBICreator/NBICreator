@@ -17,6 +17,7 @@
 #import "NBCLogging.h"
 #import "NBCWorkflowItem.h"
 #import "NBCError.h"
+#import "NBCDiskController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -279,13 +280,13 @@ DDLogLevel ddLogLevel;
     }
     
     NSURL *recoveryVolumeURL;
-    NSString *recoveryPartitionDiskIdentifier = [NBCDiskImageController getRecoveryPartitionIdentifierFromVolumeMountURL:systemVolumeURL];
+    NSString *recoveryPartitionDiskIdentifier = [NBCDiskController getRecoveryPartitionIdentifierFromVolumeURL:systemVolumeURL];
     DDLogDebug(@"[DEBUG] Disk image recovery partition BSD identifier: %@", recoveryPartitionDiskIdentifier);
     
     if ( [recoveryPartitionDiskIdentifier length] != 0 ) {
         [source setRecoveryVolumeBSDIdentifier:recoveryPartitionDiskIdentifier];
         
-        NBCDisk *recoveryDisk = [NBCController diskFromBSDName:recoveryPartitionDiskIdentifier];
+        NBCDisk *recoveryDisk = [NBCDiskController diskFromBSDName:recoveryPartitionDiskIdentifier];
         if ( [recoveryDisk isMounted] ) {
             [source setRecoveryDisk:recoveryDisk];
             recoveryVolumeURL = [recoveryDisk volumeURL];
@@ -300,9 +301,9 @@ DDLogLevel ddLogLevel;
                                          @"-j",
                                          ];
             
-            if ( [NBCDiskImageController mountAtPath:[recoveryVolumeURL path]
-                                       withArguments:diskutilOptions
-                                             forDisk:recoveryPartitionDiskIdentifier] ) {
+            if ( [NBCDiskController mountAtPath:[recoveryVolumeURL path]
+                                      arguments:diskutilOptions
+                                 diskIdentifier:recoveryPartitionDiskIdentifier] ) {
                 
                 [source setRecoveryDisk:recoveryDisk];
                 [recoveryDisk setIsMountedByNBICreator:YES];
@@ -321,11 +322,11 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] Disk image recovery partition is mounted at path: %@", [recoveryVolumeURL path]);
         [source setRecoveryVolumeURL:recoveryVolumeURL];
         
-        NSURL *baseSystemURL = [recoveryVolumeURL URLByAppendingPathComponent:@"com.apple.recovery.boot/BaseSystem.dmg"];
-        DDLogDebug(@"[DEBUG] Recovery partition BaseSystem disk image path: %@", [baseSystemURL path]);
+        NSURL *baseSystemDiskImageURL = [recoveryVolumeURL URLByAppendingPathComponent:@"com.apple.recovery.boot/BaseSystem.dmg"];
+        DDLogDebug(@"[DEBUG] Recovery partition BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
         
-        if ( [baseSystemURL checkResourceIsReachableAndReturnError:error] ) {
-            [source setBaseSystemURL:baseSystemURL];
+        if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
+            [source setBaseSystemDiskImageURL:baseSystemDiskImageURL];
             return YES;
         } else {
             return NO;
@@ -363,14 +364,14 @@ DDLogLevel ddLogLevel;
         }
         
         if ( [recoveryPartitionDiskIdentifier length] == 0 ) {
-            recoveryPartitionDiskIdentifier = [NBCDiskImageController getRecoveryPartitionIdentifierFromVolumeMountURL:systemVolumeURL];
+            recoveryPartitionDiskIdentifier = [NBCDiskController getRecoveryPartitionIdentifierFromVolumeURL:systemVolumeURL];
         }
         
         if ( [recoveryPartitionDiskIdentifier length] != 0 ) {
             DDLogDebug(@"[DEBUG] Disk image recovery partition BSD identifier: %@", recoveryPartitionDiskIdentifier);
             
             [source setRecoveryVolumeBSDIdentifier:recoveryPartitionDiskIdentifier];
-            recoveryDisk = [NBCController diskFromBSDName:recoveryPartitionDiskIdentifier];
+            recoveryDisk = [NBCDiskController diskFromBSDName:recoveryPartitionDiskIdentifier];
             if ( [recoveryDisk isMounted] ) {
                 [source setRecoveryDisk:recoveryDisk];
                 [source setRecoveryDiskImageURL:systemDiskImageURL];
@@ -392,9 +393,9 @@ DDLogLevel ddLogLevel;
                                              @"-j",
                                              ];
                 
-                if ( [NBCDiskImageController mountAtPath:[recoveryVolumeURL path]
-                                           withArguments:diskutilOptions
-                                                 forDisk:recoveryPartitionDiskIdentifier] ) {
+                if ( [NBCDiskController mountAtPath:[recoveryVolumeURL path]
+                                          arguments:diskutilOptions
+                                     diskIdentifier:recoveryPartitionDiskIdentifier] ) {
                     
                     [source setRecoveryDisk:recoveryDisk];
                     [source setRecoveryDiskImageURL:systemDiskImageURL];
@@ -416,10 +417,10 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] Disk image recovery partition is mounted at path: %@", [recoveryVolumeURL path]);
         [source setRecoveryVolumeURL:recoveryVolumeURL];
         
-        NSURL *baseSystemURL = [recoveryVolumeURL URLByAppendingPathComponent:@"com.apple.recovery.boot/BaseSystem.dmg"];
-        DDLogDebug(@"[DEBUG] Recovery partition BaseSystem disk image path: %@", [baseSystemURL path]);
-        if ( [baseSystemURL checkResourceIsReachableAndReturnError:error] ) {
-            [source setBaseSystemURL:baseSystemURL];
+        NSURL *baseSystemDiskImageURL = [recoveryVolumeURL URLByAppendingPathComponent:@"com.apple.recovery.boot/BaseSystem.dmg"];
+        DDLogDebug(@"[DEBUG] Recovery partition BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
+        if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
+            [source setBaseSystemDiskImageURL:baseSystemDiskImageURL];
             return YES;
         } else {
             return NO;
@@ -439,7 +440,7 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Verifying that disk contains a valid BaseSystem.dmg...");
     
-    NSURL *baseSystemDiskImageURL = [source baseSystemURL];
+    NSURL *baseSystemDiskImageURL = [source baseSystemDiskImageURL];
     DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
     
     if ( ! [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
@@ -606,11 +607,11 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] InstallESD disk image volume is mounted at path: %@", [installESDVolumeURL path]);
         [source setInstallESDVolumeURL:installESDVolumeURL];
         
-        NSURL *baseSystemURL = [installESDVolumeURL URLByAppendingPathComponent:@"BaseSystem.dmg"];
-        DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemURL path]);
+        NSURL *baseSystemDiskImageURL = [installESDVolumeURL URLByAppendingPathComponent:@"BaseSystem.dmg"];
+        DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
         
-        if ( [baseSystemURL checkResourceIsReachableAndReturnError:error] ) {
-            [source setBaseSystemURL:baseSystemURL];
+        if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
+            [source setBaseSystemDiskImageURL:baseSystemDiskImageURL];
             return YES;
         } else {
             return NO;
@@ -1443,10 +1444,6 @@ DDLogLevel ddLogLevel;
         packageEssentialsRegexes = [[NSMutableArray alloc] init];
     }
     
-    // Testing
-    //NSString *regexOpen = @".*/bin/open.*";
-    //[packageEssentialsRegexes addObject:regexOpen];
-    
     NSString *regexShareKit = @".*ShareKit.framework.*";
     [packageEssentialsRegexes addObject:regexShareKit];
     
@@ -1476,6 +1473,9 @@ DDLogLevel ddLogLevel;
     
     NSString *regexCloudDocs = @".*CloudDocs.framework.*";
     [packageEssentialsRegexes addObject:regexCloudDocs];
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
 }
 
 + (void)addRuby:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
