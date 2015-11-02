@@ -3357,7 +3357,6 @@ DDLogLevel ddLogLevel;
     NBCWorkflowResources *resources = [[NBCWorkflowResources alloc] initWithWorkflowItem:workflowItem];
     resourcesSettings = [resources prepareResourcesToExtract:resourcesSettings];
     
-     /*
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     if ( ! [[_source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
@@ -3519,7 +3518,7 @@ DDLogLevel ddLogLevel;
         // ------------------------------------------------------------------
         resourcesSettings[NBCSettingsSourceItemsKey] = [sourceItemsDict copy];
     }
-    */
+
       
     NSMutableArray *certificates = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
