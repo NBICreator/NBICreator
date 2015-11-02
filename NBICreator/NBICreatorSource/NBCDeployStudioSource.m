@@ -42,6 +42,7 @@ DDLogLevel ddLogLevel;
     NSArray *deployStudioApplicationURLs = (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.deploystudio.admin"), NULL));
     NSURL *dsAdminURL = [deployStudioApplicationURLs firstObject];
     if ( [dsAdminURL checkResourceIsReachableAndReturnError:nil] ) {
+        [self setDeployStudioAdminBundle:[NSBundle bundleWithURL:dsAdminURL]];
         [self setDeployStudioAdminURL:dsAdminURL];
         if ( [_deployStudioAdminURL checkResourceIsReachableAndReturnError:&error] ) {
             [self setIsInstalled:YES];
@@ -68,6 +69,7 @@ DDLogLevel ddLogLevel;
         
         [self setSysBuilderFolder:[_deployStudioAssistantURL URLByAppendingPathComponent:@"Contents/Resources/sysBuilder"]];
         [self setSysBuilderScript:[_sysBuilderFolder URLByAppendingPathComponent:@"sys_builder.sh"]];
+        [self setSysBuilderScriptRp:[_sysBuilderFolder URLByAppendingPathComponent:@"sys_builder_rp.sh"]];
         [self setSysBuilderScriptFillVolume:[_sysBuilderFolder URLByAppendingPathComponent:[NSString stringWithFormat:@"%@/fill_volume.sh", _sourceImageOSVersion]]];
         [self setSysBuilderScriptBestRecoveryDevice:[_sysBuilderFolder URLByAppendingPathComponent:@"netboot_helpers/ds_best_recovery_device_info.sh"]];
         [self setDeployStudioBackgroundURL:[_sysBuilderFolder URLByAppendingPathComponent:@"common/DefaultDesktop.jpg"]];
@@ -121,6 +123,14 @@ DDLogLevel ddLogLevel;
 + (NSArray *)deployStudioAdminVersions {
     NSArray *versions;
     return versions;
+}
+
+- (NSURL *)urlForDSAdminResource:(NSString *)resource extension:(NSString *)extension {
+    if ( [resource isEqualToString:@"self"] ) {
+        return [_deployStudioAdminBundle bundleURL];
+    } else {
+        return [_deployStudioAdminBundle URLForResource:resource withExtension:extension];
+    }
 }
 
 @end

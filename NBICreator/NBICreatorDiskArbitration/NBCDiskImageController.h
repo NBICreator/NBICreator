@@ -19,6 +19,8 @@
 
 #import <Foundation/Foundation.h>
 @class NBCDisk;
+@class NBCTarget;
+@class NBCSource;
 
 @protocol NBCDiskImageDelegate
 @optional
@@ -34,6 +36,13 @@
 // Attaching
 + (BOOL)attachDiskImageAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options error:(NSError **)error;
 + (BOOL)attachDiskImageVolumeByOffsetAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options offset:(NSString *)offset error:(NSError **)error;
++ (BOOL)attachBaseSystemDiskImageWithShadowFile:(NSURL *)baseSystemDiskImageURL target:(NBCTarget *)target error:(NSError **)error;
+
+// Verifying
+
++ (BOOL)verifyInstallESDDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source error:(NSError **)error;
++ (BOOL)verifyBaseSystemDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source error:(NSError **)error;
++ (BOOL)verifySystemDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source requireRecoveryPartition:(BOOL)requireRecoveryPartition error:(NSError **)error;
 
 // Mounting
 + (BOOL)mountDiskImageVolumeByDeviceAndReturnMountURL:(id *)mountURL deviceName:(NSString *)devName error:(NSError **)error;
@@ -47,6 +56,7 @@
 
 // Resizing
 + (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath error:(NSError **)error;
++ (BOOL)resizeAndMountBaseSystemWithShadow:(NSURL *)baseSystemURL target:(NBCTarget *)target error:(NSError **)error;
 
 // Converting
 + (BOOL)convertDiskImageAtPath:(NSString *)diskImagePath shadowImagePath:(NSString *)shadowImagePath format:(NSString *)format destinationPath:(NSString *)destinationPath;
@@ -56,9 +66,8 @@
 + (BOOL)getOffsetForRecoveryPartitionOnImageDevice:(id *)offset diskIdentifier:(NSString *)diskIdentifier;
 + (NSURL *)getMountURLFromHdiutilOutputPropertyList:(NSDictionary *)propertyList;
 + (NSString *)getRecoveryPartitionIdentifierFromHdiutilOutputPropertyList:(NSDictionary *)propertyList;
-+ (NSString *)getRecoveryPartitionIdentifierFromVolumeMountURL:(NSURL *)mountURL;
-+ (BOOL)mountAtPath:(NSString *)path withArguments:(NSArray *)args forDisk:(NSString *)diskID;
 + (NSURL *)getDiskImageURLFromMountURL:(NSURL *)mountURL;
 + (NBCDisk *)checkDiskImageAlreadyMounted:(NSURL *)diskImageURL imageType:(NSString *)imageType;
++ (NSURL *)installESDURLfromInstallerApplicationURL:(NSURL *)sourceURL source:(NBCSource *)source error:(NSError **)error;
 
 @end

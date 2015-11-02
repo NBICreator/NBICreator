@@ -825,12 +825,12 @@ DDLogLevel ddLogLevel;
     
     NSString *deployStudioVersion = [[workflowItem applicationSource] deployStudioAssistantVersion];
     int deployStudioVersionInt = [[deployStudioVersion stringByReplacingOccurrencesOfString:@"." withString:@""] intValue];
-    
+    NSLog(@"deployStudioVersionInt=%d", deployStudioVersionInt);
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     //int sourceVersionPatch = (int)[[[workflowItem source] expandVariables:@"%OSPATCH%"] integerValue];
     
     if ( 11 <= sourceVersionMinor ) {
-        if ( 1616 <= deployStudioVersionInt ) {
+        if ( deployStudioVersionInt <= 1616 ) {
             NSString *errorMessage = [NSString stringWithFormat:@"OS X %@ is not supported by DeployStudio version %@. Please upgrade DeployStudio to create a working NetInstall set.", [[workflowItem source] baseSystemOSVersion], deployStudioVersion];
             [settingsErrors addObject:errorMessage];
         }

@@ -24,6 +24,7 @@
 #import "NBCTargetController.h"
 #import "NBCDiskImageController.h"
 #import "NBCError.h"
+#import "NBCWorkflowNBICreator.h"
 
 DDLogLevel ddLogLevel;
 
@@ -226,7 +227,7 @@ DDLogLevel ddLogLevel;
 } // workflowCompleteModifyNBI
 
 - (void)endWorkflow {
-
+    
     NSString *name = [_currentWorkflowItem nbiName];
     NSString *workflowTime = [_currentWorkflowItem workflowTime];
     
@@ -271,7 +272,7 @@ DDLogLevel ddLogLevel;
     NSString *name = [_currentWorkflowItem nbiName];
     
     DDLogError(@"*** Workflow: %@ failed ***", name);
-
+    
     NSError *error = [notification userInfo][NBCUserInfoNSErrorKey];
     NSString *progressViewErrorMessage = nil;
     if ( error ) {
@@ -426,11 +427,21 @@ DDLogLevel ddLogLevel;
         return;
     }
     
-    [self setCurrentWorkflowNBI:[_currentWorkflowItem workflowNBI]];
-    if ( _currentWorkflowNBI ) {
-        [_currentWorkflowNBI setDelegate:_currentWorkflowProgressView];
-        [_currentWorkflowNBI runWorkflow:_currentWorkflowItem];
-    }
+    /*
+    if ( [[_currentWorkflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemNBICreator] ) {
+        NBCWorkflowNBICreator *workflowNBICreator = [[NBCWorkflowNBICreator alloc] initWithDelegate:[_currentWorkflowItem progressView]];
+        [_currentWorkflowItem setWorkflowNBI:workflowNBICreator];
+        [self setCurrentWorkflowNBI:workflowNBICreator];
+        if ( workflowNBICreator ) {
+            [workflowNBICreator createNBI:_currentWorkflowItem];
+        }
+    } else {*/
+        [self setCurrentWorkflowNBI:[_currentWorkflowItem workflowNBI]];
+        if ( _currentWorkflowNBI ) {
+            [_currentWorkflowNBI setDelegate:_currentWorkflowProgressView];
+            [_currentWorkflowNBI runWorkflow:_currentWorkflowItem];
+        }
+    //}
     
     [self setCurrentWorkflowResources:[_currentWorkflowItem workflowResources]];
     if ( _currentWorkflowResources ) {
@@ -876,7 +887,11 @@ DDLogLevel ddLogLevel;
         }
         case kWorkflowTypeDeployStudio:
         {
-            retval = [sc verifySourceIsMountedOSVolume:[_currentWorkflowItem source]];
+            if ( [[_currentWorkflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemDeployStudioAssistant] ) {
+                retval = [sc verifySourceIsMountedOSVolume:[_currentWorkflowItem source]];
+            } else {
+                retval = [sc verifySourceIsMountedInstallESD:[_currentWorkflowItem source]];
+            }
             break;
         }
         case kWorkflowTypeImagr:

@@ -36,6 +36,8 @@
 #import "NBCXcodeSource.h"
 #import "NSString+SymlinksAndAliases.h"
 #import "NBCDiskImageController.h"
+#import "NBCWorkflowModifyNBI.h"
+#import "NBCWorkflowResources.h"
 
 DDLogLevel ddLogLevel;
 
@@ -1400,12 +1402,12 @@ DDLogLevel ddLogLevel;
 
 - (NSDictionary *)returnSettingsFromUI {
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
-    settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
+    settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: NBCMenuItemNBICreator;
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"1";
     settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"NFS";
-    settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: @"Current";
-    settingsDict[NBCSettingsKeyboardLayoutKey] = _nbiKeyboardLayout ?: @"Current";
+    settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: NBCMenuItemCurrent;
+    settingsDict[NBCSettingsKeyboardLayoutKey] = _nbiKeyboardLayout ?: NBCMenuItemCurrent;
     settingsDict[NBCSettingsEnabledKey] = @(_nbiEnabled) ?: @NO;
     settingsDict[NBCSettingsDefaultKey] = @(_nbiDefault) ?: @NO;
     settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
@@ -1423,7 +1425,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsDisplaySleepMinutesKey] = @(_displaySleepMinutes) ?: @30;
     settingsDict[NBCSettingsDisplaySleepKey] = ( _displaySleepMinutes == 120 ) ? @NO : @YES;
     settingsDict[NBCSettingsIncludeSystemUIServerKey] = @(_includeSystemUIServer) ?: @NO;
-    settingsDict[NBCSettingsImagrVersion] = _imagrVersion ?: @"Latest Release";
+    settingsDict[NBCSettingsImagrVersion] = _imagrVersion ?: NBCMenuItemImagrVersionLatest;
     settingsDict[NBCSettingsImagrConfigurationURL] = _imagrConfigurationURL ?: @"";
     settingsDict[NBCSettingsImagrReportingURL] = _imagrReportingURL ?: @"";
     settingsDict[NBCSettingsImagrUseLocalVersion] = @(_imagrUseLocalVersion) ?: @NO;
@@ -3127,7 +3129,6 @@ DDLogLevel ddLogLevel;
         return;
     }
     
-    
     if ( _target ) {
         DDLogDebug(@"[DEBUG] Settings workflow item target...");
         [workflowItem setTarget:_target];
@@ -3353,6 +3354,10 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     //  Create list of items to extract from installer
     // -------------------------------------------------------------
+    NBCWorkflowResources *resources = [[NBCWorkflowResources alloc] initWithWorkflowItem:workflowItem];
+    resourcesSettings = [resources prepareResourcesToExtract:resourcesSettings];
+    
+     /*
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     if ( ! [[_source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
@@ -3514,7 +3519,8 @@ DDLogLevel ddLogLevel;
         // ------------------------------------------------------------------
         resourcesSettings[NBCSettingsSourceItemsKey] = [sourceItemsDict copy];
     }
-    
+    */
+      
     NSMutableArray *certificates = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
         NSData *certificate = certificateDict[NBCDictionaryKeyCertificate];
@@ -3578,6 +3584,9 @@ DDLogLevel ddLogLevel;
     
     NBCImagrWorkflowNBI *workflowNBI = [[NBCImagrWorkflowNBI alloc] init];
     [workflowItem setWorkflowNBI:workflowNBI];
+    
+    //NBCWorkflowModifyNBI *workflowModifyNBI = [[NBCWorkflowModifyNBI alloc] init];
+    //[workflowItem setWorkflowModifyNBI:workflowModifyNBI];
     
     NBCImagrWorkflowModifyNBI *workflowModifyNBI = [[NBCImagrWorkflowModifyNBI alloc] init];
     [workflowItem setWorkflowModifyNBI:workflowModifyNBI];

@@ -16,8 +16,9 @@
 #import "NBCNetInstallWorkflowNBI.h"
 #import "NBCNetInstallWorkflowResources.h"
 #import "NBCMessageDelegate.h"
+#import "NBCWorkflowProgressDelegate.h"
 
-@interface NBCWorkflowProgressViewController : NSViewController <NBCImagrWorkflowNBIDelegate, NBCImagrWorkflowResourcesDelegate, NBCDeployStudioWorkflowNBIDelegate, NBCNetInstallWorkflowNBIDelegate, NBCMessageDelegate>
+@interface NBCWorkflowProgressViewController : NSViewController <NBCImagrWorkflowNBIDelegate, NBCImagrWorkflowResourcesDelegate, NBCDeployStudioWorkflowNBIDelegate, NBCNetInstallWorkflowNBIDelegate, NBCMessageDelegate, NBCWorkflowProgressDelegate>
 
 @property (strong) IBOutlet NSLayoutConstraint *layoutContraintStatusInfoLeading;
 

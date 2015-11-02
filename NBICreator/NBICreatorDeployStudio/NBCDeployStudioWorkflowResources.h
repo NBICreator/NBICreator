@@ -32,6 +32,7 @@
 //  Properties
 // ------------------------------------------------------
 @property int resourcesCount;
+@property BOOL workflowCompleted;
 
 @property NSMutableDictionary *resourcesNetInstallDict;
 @property NSMutableDictionary *resourcesBaseSystemDict;

@@ -22,13 +22,13 @@
 #import "NBCAlerts.h"
 #import "NBCOptionBuildPanel.h"
 
-@class NBCDisk;
 @class NBCSource;
 @class NBCNetInstallDropViewController;
 #import "NBCNetInstallSettingsViewController.h"
 #import "NBCDeployStudioSettingsViewController.h"
 #import "NBCImagrSettingsViewController.h"
 #import "NBCCasperSettingsViewController.h"
+#import "NBCCustomSettingsViewController.h"
 @class NBCPreferences;
 
 @interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate, NSWindowDelegate, NBCOptionBuildPanelDelegate>
@@ -44,7 +44,7 @@
 
 @property (strong) NSViewController *nbiSettingsViewController;
 
-@property (strong) NSViewController *dsDropViewController;
+@property (strong) NBCDropViewController *dsDropViewController;
 @property (strong) NBCDeployStudioSettingsViewController *dsSettingsViewController;
 
 @property (strong) NBCNetInstallDropViewController *niDropViewController;
@@ -56,8 +56,8 @@
 @property (strong) NSViewController *casperDropViewController;
 @property (strong) NBCCasperSettingsViewController *casperSettingsViewController;
 
-@property (strong) NSViewController *customDropViewController;
-@property (strong) NSViewController *customSettingsViewController;
+@property (strong) NBCDropViewController *customDropViewController;
+@property (strong) NBCCustomSettingsViewController *customSettingsViewController;
 
 @property (strong) NBCOptionBuildPanel *optionBuildPanel;
 
@@ -97,9 +97,5 @@
 
 // Constraints
 @property (strong) IBOutlet NSLayoutConstraint *constraintBetweenButtonBuildAndViewOutput;
-
-+ (NBCDisk *)diskFromBSDName:(NSString *)bsdName;
-+ (NBCDisk *)diskFromVolumeURL:(NSURL *)volumeURL;
-+ (NSArray *)mountedDiskUUUIDs;
 
 @end

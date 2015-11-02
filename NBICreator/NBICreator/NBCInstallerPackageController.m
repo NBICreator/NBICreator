@@ -47,7 +47,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)installSuccessfulForPackage:(NSURL *)packageURL {
-    
     DDLogInfo(@"%@ installed successfully!", [packageURL lastPathComponent]);
     [_packagesQueue removeObjectAtIndex:0];
     [self runPackageQueue];
@@ -92,8 +91,8 @@ DDLogLevel ddLogLevel;
         [installerArguments addObject:@"-package"];
         [installerArguments addObject:[packageURL path]];
     } else {
-        if ( [self->_delegate respondsToSelector:@selector(installFailed:)] ) {
-            [self->_delegate installFailed:err];
+        if ( [self->_delegate respondsToSelector:@selector(installFailedWithError:)] ) {
+            [self->_delegate installFailedWithError:err];
         }
         return;
     }
@@ -102,8 +101,8 @@ DDLogLevel ddLogLevel;
         [installerArguments addObject:@"-target"];
         [installerArguments addObject:[volumeURL path]];
     } else {
-        if ( [self->_delegate respondsToSelector:@selector(installFailed:)] ) {
-            [self->_delegate installFailed:err];
+        if ( [self->_delegate respondsToSelector:@selector(installFailedWithError:)] ) {
+            [self->_delegate installFailedWithError:err];
         }
         return;
     }
@@ -154,7 +153,7 @@ DDLogLevel ddLogLevel;
     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
         [nc removeObserver:stdOutObserver];
         [nc removeObserver:stdErrObserver];
-        [self->_delegate installFailed:proxyError];
+        [self->_delegate installFailedWithError:proxyError];
         
     }] runTaskWithCommandAtPath:commandURL arguments:installerArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
@@ -165,7 +164,7 @@ DDLogLevel ddLogLevel;
         } else {
             [nc removeObserver:stdOutObserver];
             [nc removeObserver:stdErrObserver];
-            [self->_delegate installFailed:error];
+            [self->_delegate installFailedWithError:error];
         }
     }];
 }

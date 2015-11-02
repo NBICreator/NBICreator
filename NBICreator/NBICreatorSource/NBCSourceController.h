@@ -75,5 +75,6 @@
 + (void)addVNC:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 + (void)addARD:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 + (void)addKerberos:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
++ (void)addDeployStudioDependencies:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source;
 
 @end

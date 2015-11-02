@@ -1010,6 +1010,46 @@ DDLogLevel ddLogLevel;
     return keyboardLayoutID;
 } // keyboardLayoutIDFromSourceID
 
+- (BOOL)modifySettingsForSpotlight:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
+    
+    DDLogDebug(@"[DEBUG] Generating settings for spotlight...");
+    
+    // --------------------------------------------------------------
+    //  /.Spotlight-V100/_IndexPolicy.plist
+    // --------------------------------------------------------------
+    NSURL *spotlightIndexingSettingsURL = [[[workflowItem target] baseSystemVolumeURL] URLByAppendingPathComponent:@".Spotlight-V100/_IndexPolicy.plist"];
+    DDLogDebug(@"[DEBUG] _IndexPolicy.plist path: %@", spotlightIndexingSettingsURL);
+    NSDictionary *spotlightIndexingSettingsAttributes;
+    NSMutableDictionary *spotlightIndexingSettingsDict;
+    
+    if ( [spotlightIndexingSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+        spotlightIndexingSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:spotlightIndexingSettingsURL];
+        spotlightIndexingSettingsAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[spotlightIndexingSettingsURL path] error:nil];
+    }
+    
+    if ( [spotlightIndexingSettingsDict count] == 0 ) {
+        spotlightIndexingSettingsDict = [[NSMutableDictionary alloc] init];
+        spotlightIndexingSettingsAttributes = @{
+                                                NSFileOwnerAccountName : @"root",
+                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                NSFilePosixPermissions : @0600
+                                                };
+    }
+    
+    spotlightIndexingSettingsDict[@"Policy"] = @3;
+    
+    NSDictionary *modifySpotlightIndexingSettings = @{
+                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                                      NBCWorkflowModifyContent : spotlightIndexingSettingsDict,
+                                                      NBCWorkflowModifyAttributes : spotlightIndexingSettingsAttributes,
+                                                      NBCWorkflowModifyTargetURL : [spotlightIndexingSettingsURL path]
+                                                      };
+    
+    [modifyDictArray addObject:modifySpotlightIndexingSettings];
+    
+    return YES;
+} // modifySettingsForSpotlight
+
 - (BOOL)modifySettingsForKextd:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
     DDLogInfo(@"Modifying settings for com.apple.kextd.plist...");
     BOOL retval = YES;
@@ -1119,8 +1159,6 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] volumeURL is nil");
         return NO;
     }
-    NSDictionary *resourceSettings = [workflowItem resourcesSettings];
-    DDLogDebug(@"resourceSettings=%@", resourceSettings);
     
     // ------------------------------------------------------------------
     //  /Library/Desktop Pictures/...

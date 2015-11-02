@@ -68,8 +68,8 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     //  Get used space for BaseSystem.dmg for copy progress bar
     // -------------------------------------------------------------
-    NSURL *baseSystemURL = [[workflowItem source] baseSystemURL];
-    NSString *baseSystemPath = [baseSystemURL path];
+    NSURL *baseSystemDiskImageURL = [[workflowItem source] baseSystemDiskImageURL];
+    NSString *baseSystemPath = [baseSystemDiskImageURL path];
     if ( [baseSystemPath length] != 0 ) {
         NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:baseSystemPath error:&error];
         if ( [volumeAttributes count] != 0 ) {
@@ -125,7 +125,7 @@ DDLogLevel ddLogLevel;
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0);
     dispatch_async(taskQueue, ^{
         NSError *blockError;
-        if ( ! [fm copyItemAtURL:baseSystemURL toURL:baseSystemTargetURL error:&blockError] ) {
+        if ( ! [fm copyItemAtURL:baseSystemDiskImageURL toURL:baseSystemTargetURL error:&blockError] ) {
             [self setCopyComplete:YES];
             dispatch_async(dispatch_get_main_queue(), ^{
                 DDLogError(@"[ERROR] Could not copy BaseSystem.dmg to NBI folder!");

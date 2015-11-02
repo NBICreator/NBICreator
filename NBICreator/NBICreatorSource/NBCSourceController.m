@@ -924,9 +924,114 @@ DDLogLevel ddLogLevel;
     sourceItemsDict[packageBSDPath] = packageBSDDict;
 }
 
++ (void)addDeployStudioDependencies:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
+    NSError *error;
+    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+    NSMutableArray *packageEssentialsRegexes;
+    if ( [packageEssentialsDict count] != 0 ) {
+        packageEssentialsRegexes = packageEssentialsDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageEssentialsRegexes == nil ) {
+            packageEssentialsRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageEssentialsDict = [[NSMutableDictionary alloc] init];
+        packageEssentialsRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSURL *casperImagingDependenciesURL;
+    
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
+    if ( ! userApplicationSupport ) {
+        DDLogError(@"Could not get Application Support folder for current User");
+        DDLogError(@"Error: %@", error);
+    }
+    
+    NSString *casperImagingDependenciesPathComponent = [NSString stringWithFormat:@"%@/DeployStudio.plist", NBCFolderResourcesDependencies];
+    casperImagingDependenciesURL = [userApplicationSupport URLByAppendingPathComponent:casperImagingDependenciesPathComponent isDirectory:YES];
+    if ( ! [casperImagingDependenciesURL checkResourceIsReachableAndReturnError:nil] ) {
+        DDLogError(@"[ERROR] Could not find a downloaded resource file!");
+        casperImagingDependenciesURL = [[NSBundle mainBundle] URLForResource:@"DeployStudio" withExtension:@"plist"];
+    }
+    
+    NSString *sourceVersionOS = [source expandVariables:@"%OSVERSION%"];
+    NSString *sourceBuild = [source expandVariables:@"%OSBUILD%"];
+    NSDictionary *buildDict;
+    if ( [casperImagingDependenciesURL checkResourceIsReachableAndReturnError:&error] ) {
+        NSDictionary *casperImagingDependenciesDict = [NSDictionary dictionaryWithContentsOfURL:casperImagingDependenciesURL];
+        if ( [casperImagingDependenciesDict count] != 0 ) {
+            NSDictionary *sourceDict = casperImagingDependenciesDict[sourceVersionOS];
+            NSArray *sourceBuilds = [sourceDict allKeys];
+            if ( [sourceDict count] != 0 && [sourceBuilds containsObject:sourceBuild] ) {
+                buildDict = sourceDict[sourceBuild];
+            } else {
+                NSLog(@"Fix!");
+            }
+            
+            if ( [buildDict count] == 0 ) {
+                DDLogError(@"ERROR");
+            }
+        }
+    }
+    
+    NSArray *casperImagingDepencenciesEssentials = buildDict[@"Essentials"];
+    if ( [casperImagingDepencenciesEssentials count] != 0 ) {
+        [packageEssentialsRegexes addObjectsFromArray:casperImagingDepencenciesEssentials];
+    }
+    
+    int sourceVersionMinor = (int)[[source expandVariables:@"%OSMINOR%"] integerValue];
+    if ( 11 <= sourceVersionMinor ) {
+        
+        // For 'IOKit'
+        //NSString *regexLibenergytrace = @".*/lib/libenergytrace.dylib.*";
+        //[packageEssentialsRegexes addObject:regexLibenergytrace];
+    }
+    
+    packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = packageEssentialsRegexes;
+    sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+    
+    NSString *baseSystemBinariesPath = [NSString stringWithFormat:@"%@/Packages/BaseSystemBinaries.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *baseSystemBinariesDict = [sourceItemsDict[baseSystemBinariesPath] mutableCopy];
+    NSMutableArray *baseSystemBinariesRegexes;
+    if ( [baseSystemBinariesDict count] != 0 ) {
+        baseSystemBinariesRegexes = [baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
+        if ( baseSystemBinariesRegexes == nil )
+        {
+            baseSystemBinariesRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        baseSystemBinariesDict = [[NSMutableDictionary alloc] init];
+        baseSystemBinariesRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    NSArray *casperImagingDepencenciesBaseSystemBinaries = buildDict[@"BaseSystemBinaries"];
+    if ( [casperImagingDepencenciesBaseSystemBinaries count] != 0 ) {
+        [baseSystemBinariesRegexes addObjectsFromArray:casperImagingDepencenciesBaseSystemBinaries];
+    }
+    
+    baseSystemBinariesDict[NBCSettingsSourceItemsRegexKey] = baseSystemBinariesRegexes;
+    sourceItemsDict[baseSystemBinariesPath] = baseSystemBinariesDict;
+    
+    NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[source installESDVolumeURL] path]];
+    NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
+    NSMutableArray *packageBSDRegexes;
+    if ( [packageBSDDict count] != 0 ) {
+        packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
+        if ( packageBSDRegexes == nil ) {
+            packageBSDRegexes = [[NSMutableArray alloc] init];
+        }
+    } else {
+        packageBSDDict = [[NSMutableDictionary alloc] init];
+        packageBSDRegexes = [[NSMutableArray alloc] init];
+    }
+    
+    packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
+    sourceItemsDict[packageBSDPath] = packageBSDDict;
+}
+
 + (void)addCasperImaging:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {
     NSError *error;
-    
     NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[source installESDVolumeURL] path]];
     NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
     NSMutableArray *packageEssentialsRegexes;
@@ -1204,8 +1309,6 @@ DDLogLevel ddLogLevel;
     
     packageBSDDict[NBCSettingsSourceItemsRegexKey] = packageBSDRegexes;
     sourceItemsDict[packageBSDPath] = packageBSDDict;
-    
-    
 }
 
 + (void)addTaskgated:(NSMutableDictionary *)sourceItemsDict source:(NBCSource *)source {

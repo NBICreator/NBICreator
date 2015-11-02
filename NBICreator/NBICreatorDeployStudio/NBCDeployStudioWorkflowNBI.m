@@ -13,6 +13,8 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCLogging.h"
+#import "NBCError.h"
+#import "NBCWorkflowNBICreator.h"
 
 DDLogLevel ddLogLevel;
 
@@ -25,11 +27,38 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
-    
-    NSError *err;
-    __unsafe_unretained typeof(self) weakSelf = self;
     [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
     [self setTemporaryNBIPath:[[workflowItem temporaryNBIURL] path]];
+    
+    // -------------------------------------------------------------
+    //  Start workflow depending on selected creation tool
+    // -------------------------------------------------------------
+    NSString *nbiCreationTool = [workflowItem userSettings][NBCSettingsNBICreationToolKey];
+    
+    if ( [nbiCreationTool isEqualToString:NBCMenuItemDeployStudioAssistant] ) {
+        [[workflowItem target] setCreationTool:NBCMenuItemDeployStudioAssistant];
+        [self runWorkflowDeployStudioAssistant:workflowItem];
+    } else if ( [nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
+        [[workflowItem target] setCreationTool:NBCMenuItemNBICreator];
+        [self runWorkflowNBICreator:workflowItem];
+    } else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                            object:self
+                                                          userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:[NSString stringWithFormat:@"Unknown NBI creation tool: %@", nbiCreationTool]] }];
+        return;
+    }
+}
+
+- (void)runWorkflowNBICreator:(NBCWorkflowItem *)workflowItem {
+#pragma unused(workflowItem)
+    DDLogInfo(@"Workflow: NBICreator");
+    NBCWorkflowNBICreator *workflowNBICreator = [[NBCWorkflowNBICreator alloc] initWithDelegate:_delegate];
+    [workflowNBICreator createNBI:workflowItem];
+}
+
+- (void)runWorkflowDeployStudioAssistant:(NBCWorkflowItem *)workflowItem {
+    NSError *err;
+    __unsafe_unretained typeof(self) weakSelf = self;
     NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     
@@ -79,7 +108,7 @@ DDLogLevel ddLogLevel;
                                         NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
                                         NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
-                                        DDLogInfo(@"[sys_builder.sh] %@", outStr);
+                                        DDLogDebug(@"[sys_builder.sh][stdout] %@", outStr);
                                         
                                         // -----------------------------------------------------------------------
                                         //  When output data becomes available, pass it to workflow status parser
@@ -108,7 +137,7 @@ DDLogLevel ddLogLevel;
                                         NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
                                         NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         
-                                        DDLogError(@"[sys_builder.sh][ERROR] %@", errStr);
+                                        DDLogDebug(@"[sys_builder.sh][stderr] %@", errStr);
                                         
                                         // -----------------------------------------------------------------------
                                         //  When error data becomes available, pass it to workflow status parser

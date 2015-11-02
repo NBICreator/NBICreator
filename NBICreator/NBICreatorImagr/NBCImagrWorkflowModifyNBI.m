@@ -417,7 +417,7 @@ DDLogLevel ddLogLevel;
     [self copyFilesToBaseSystem];
 } // installSuccessful
 
-- (void)installFailed:(NSError *)error {
+- (void)installFailedWithError:(NSError *)error {
 #pragma unused(error)
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                         object:self
@@ -790,6 +790,10 @@ DDLogLevel ddLogLevel;
     }
     
     if ( ! _isNBI ) {
+        if ( verified ) {
+            verified = [_targetController modifySettingsForSpotlight:modifyDictArray workflowItem:_workflowItem];
+        }
+        
         if ( verified && [userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue] ) {
             verified = [_targetController modifySettingsForMenuBar:modifyDictArray workflowItem:_workflowItem];
         }
@@ -1285,44 +1289,6 @@ DDLogLevel ddLogLevel;
                                                       userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Copying files to volume failed"] }];
 } // copyFailedWithError
 
-- (void)generateSettingsForSpotlight:(NSMutableArray *)modifyDictArray workflowItem:(NBCWorkflowItem *)workflowItem {
-    
-    DDLogDebug(@"[DEBUG] Generating settings for spotlight...");
-    
-    // --------------------------------------------------------------
-    //  /.Spotlight-V100/_IndexPolicy.plist
-    // --------------------------------------------------------------
-    NSURL *spotlightIndexingSettingsURL = [[[workflowItem target] baseSystemVolumeURL] URLByAppendingPathComponent:@".Spotlight-V100/_IndexPolicy.plist"];
-    DDLogDebug(@"[DEBUG] _IndexPolicy.plist path: %@", spotlightIndexingSettingsURL);
-    NSDictionary *spotlightIndexingSettingsAttributes;
-    NSMutableDictionary *spotlightIndexingSettingsDict;
-    
-    if ( [spotlightIndexingSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
-        spotlightIndexingSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:spotlightIndexingSettingsURL];
-        spotlightIndexingSettingsAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[spotlightIndexingSettingsURL path] error:nil];
-    }
-    
-    if ( [spotlightIndexingSettingsDict count] == 0 ) {
-        spotlightIndexingSettingsDict = [[NSMutableDictionary alloc] init];
-        spotlightIndexingSettingsAttributes = @{
-                                                NSFileOwnerAccountName : @"root",
-                                                NSFileGroupOwnerAccountName : @"wheel",
-                                                NSFilePosixPermissions : @0600
-                                                };
-    }
-    
-    spotlightIndexingSettingsDict[@"Policy"] = @3;
-    
-    NSDictionary *modifySpotlightIndexingSettings = @{
-                                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                                      NBCWorkflowModifyContent : spotlightIndexingSettingsDict,
-                                                      NBCWorkflowModifyAttributes : spotlightIndexingSettingsAttributes,
-                                                      NBCWorkflowModifyTargetURL : [spotlightIndexingSettingsURL path]
-                                                      };
-    
-    [modifyDictArray addObject:modifySpotlightIndexingSettings];
-} // generateSettingsForSpotlight:workflowItem
-
 - (void)disableSpotlight {
     
     DDLogInfo(@"Disabling Spotlight...");
@@ -1405,7 +1371,7 @@ DDLogLevel ddLogLevel;
             if ( terminationStatus == 0 ) {
                 [nc removeObserver:stdOutObserver];
                 [nc removeObserver:stdErrObserver];
-                [self disableSpotlightIndex];
+                [self finalizeWorkflow];
             } else {
                 [nc removeObserver:stdOutObserver];
                 [nc removeObserver:stdErrObserver];
@@ -1413,40 +1379,6 @@ DDLogLevel ddLogLevel;
             }
         }];
     }];
-}
-
-- (void)disableSpotlightIndex {
-    
-    DDLogDebug(@"[DEBUG] Disabling spotlight index...");
-    
-    NSMutableArray *spotlightSettings = [[NSMutableArray alloc] init];
-    [self generateSettingsForSpotlight:spotlightSettings workflowItem:_workflowItem];
-    
-    if ( [spotlightSettings count] != 0 ) {
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                
-                // ------------------------------------------------------------------
-                //  If task failed, post workflow failed notification
-                // ------------------------------------------------------------------
-                [self modifyFailedWithError:proxyError];
-            }];
-            
-        }] modifyResourcesOnVolume:[[_workflowItem target] baseSystemVolumeURL] resourcesDictArray:spotlightSettings withReply:^(NSError *error, int terminationStatus) {
-            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                if ( terminationStatus == 0 ) {
-                    [self finalizeWorkflow];
-                } else {
-                    [self modifyFailedWithError:error];
-                }
-            }];
-        }];
-    } else {
-        [self modifyFailedWithError:[NBCError errorWithDescription:@"Generated spotlight settings was empty"]];
-    }
 }
 
 - (void)generateBootCachePlaylist {

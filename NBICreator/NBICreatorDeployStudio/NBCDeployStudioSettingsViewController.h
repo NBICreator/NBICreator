@@ -10,6 +10,7 @@
 #import "NBCDeployStudioDropViewImage.h"
 #import "NBCAlerts.h"
 
+#import "NBCTarget.h"
 #import "NBCSource.h"
 #import "NBCDeployStudioSource.h"
 #import "NBCTemplatesController.h"
@@ -17,8 +18,9 @@
 #import "NBCBonjourBrowser.h"
 #import "NBCDownloader.h"
 #import "NBCDownloaderDeployStudio.h"
+#import "NBCDropViewController.h"
 
-@interface NBCDeployStudioSettingsViewController : NSViewController <NSTabViewDelegate, NSComboBoxDataSource, NBCDownloaderDelegate, NBCDownloaderDeployStudioDelegate, NBCTemplatesDelegate, NBCAlertDelegate>
+@interface NBCDeployStudioSettingsViewController : NSViewController <NSTabViewDelegate, NSComboBoxDataSource, NBCDownloaderDelegate, NBCDownloaderDeployStudioDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCDropViewDelegate>
 
 // ------------------------------------------------------
 //  Properties
@@ -36,10 +38,13 @@
 //  Class Instance Properties
 // ------------------------------------------------------
 @property NBCSource *source;
+@property NBCTarget *target;
 @property NBCDeployStudioSource *dsSource;
 @property NBCBonjourBrowser *bonjourBrowser;
 @property NBCTemplatesController *templates;
 @property NBCDownloader *deployStudioDownloader;
+
+@property (weak) IBOutlet NSPopUpButton *popUpButtonTool;
 
 // ------------------------------------------------------
 //  Templates
@@ -143,6 +148,9 @@
 //  UI Binding Properties
 // ------------------------------------------------------
 @property NSString *deployStudioVersion;
+@property NSString *nbiCreationTool;
+
+@property BOOL isNBI;
 
 @property BOOL nbiEnabled;
 @property BOOL nbiDefault;
@@ -198,6 +206,7 @@
 // ------------------------------------------------------
 //  Instance Methods
 // ------------------------------------------------------
+- (void)removedSource;
 - (void)buildNBI:(NSDictionary *)preWorkflowTasks;
 - (void)verifyBuildButton;
 - (BOOL)haveSettingsChanged;

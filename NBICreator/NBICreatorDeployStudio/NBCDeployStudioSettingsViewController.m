@@ -23,6 +23,8 @@
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 #import "NBCLogging.h"
+#import "NBCSourceController.h"
+#import "NBCWorkflowModifyNBI.h"
 
 DDLogLevel ddLogLevel;
 
@@ -54,8 +56,6 @@ DDLogLevel ddLogLevel;
     //  Add Notification Observers
     // --------------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc addObserver:self selector:@selector(updateSource:) name:NBCNotificationDeployStudioUpdateSource object:nil];
-    [nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationDeployStudioRemovedSource object:nil];
     [nc addObserver:self selector:@selector(updateNBIIcon:) name:NBCNotificationDeployStudioUpdateNBIIcon object:nil];
     [nc addObserver:self selector:@selector(updateNBIBackground:) name:NBCNotificationDeployStudioUpdateNBIBackground object:nil];
     [nc addObserver:self selector:@selector(addBonjourService:) name:NBCNotificationDeployStudioAddBonjourService object:nil];
@@ -360,7 +360,6 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsaved] ) {
         NSString *selectedTemplate = alertInfo[NBCAlertUserInfoSelectedTemplate];
         if ( returnCode == NSAlertFirstButtonReturn ) {         // Save
@@ -373,6 +372,30 @@ DDLogLevel ddLogLevel;
             [self setSelectedTemplate:selectedTemplate];
             [self updateUISettingsFromURL:_templatesDict[_selectedTemplate]];
             [self expandVariablesForCurrentSettings];
+            return;
+        } else {                                                // Cancel
+            [_popUpButtonTemplates selectItemWithTitle:_selectedTemplate];
+            return;
+        }
+    }
+    
+    if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsavedBuild] ) {
+        NSString *selectedTemplate = alertInfo[NBCAlertUserInfoSelectedTemplate];
+        NSDictionary *preWorkflowTasks = alertInfo[NBCAlertUserInfoPreWorkflowTasks];
+        if ( returnCode == NSAlertFirstButtonReturn ) {         // Save and Continue
+            if ( [_selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
+                [_templates showSheetSaveUntitled:selectedTemplate buildNBI:YES preWorkflowTasks:preWorkflowTasks];
+                return;
+            } else {
+                [self saveUISettingsWithName:_selectedTemplate atUrl:_templatesDict[_selectedTemplate]];
+                [self setSelectedTemplate:selectedTemplate];
+                [self updateUISettingsFromURL:_templatesDict[_selectedTemplate]];
+                [self expandVariablesForCurrentSettings];
+                [self verifySettings:preWorkflowTasks];
+                return;
+            }
+        } else if ( returnCode == NSAlertSecondButtonReturn ) { // Continue
+            [self verifySettings:preWorkflowTasks];
             return;
         } else {                                                // Cancel
             [_popUpButtonTemplates selectItemWithTitle:_selectedTemplate];
@@ -424,9 +447,8 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)updateSource:(NSNotification *)notification {
-    
-    NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
+- (void)updateSource:(NBCSource *)source target:(NBCTarget *)target {
+#pragma unused(target)
     if ( source != nil ) {
         _source = source;
     }
@@ -438,15 +460,12 @@ DDLogLevel ddLogLevel;
         [self setImageBackground:[deployStudioBackgroundURL path]];
         [self setImageBackgroundURL:NBCDeployStudioBackgroundImageDefaultPath];
     }
-    
     [self expandVariablesForCurrentSettings];
     [self verifyBuildButton];
     [self updatePopOver];
 } // updateSource
 
-- (void)removedSource:(NSNotification *)notification {
-#pragma unused(notification)
-    
+- (void)removedSource {
     if ( _source ) {
         _source = nil;
     }
@@ -546,6 +565,10 @@ DDLogLevel ddLogLevel;
     
 } // removeBonjourService
 
+- (void)refreshCreationTool {
+    [self setNbiCreationTool:_nbiCreationTool ?: NBCMenuItemNBICreator];
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Key/Value Observing
@@ -554,7 +577,6 @@ DDLogLevel ddLogLevel;
 
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
-    
     if ([keyPath isEqualToString:NBCUserDefaultsIndexCounter]) {
         NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_dsSource];
         [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
@@ -568,7 +590,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateUISettingsFromDict:(NSDictionary *)settingsDict {
-    
+    [self setNbiCreationTool:settingsDict[NBCSettingsNBICreationToolKey]];
     [self setNbiName:settingsDict[NBCSettingsNameKey]];
     [self setNbiIndex:settingsDict[NBCSettingsIndexKey]];
     [self setNbiProtocol:settingsDict[NBCSettingsProtocolKey]];
@@ -602,6 +624,8 @@ DDLogLevel ddLogLevel;
     [self setUseCustomBackgroundImage:[settingsDict[NBCSettingsUseBackgroundImageKey] boolValue]];
     [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
     
+    [self uppdatePopUpButtonTool];
+    
     [self expandVariablesForCurrentSettings];
 } // updateUISettingsFromDict
 
@@ -634,6 +658,7 @@ DDLogLevel ddLogLevel;
         }
     }
     
+    settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: NBCMenuItemDeployStudioAssistant;
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"";
     settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"";
@@ -687,7 +712,7 @@ DDLogLevel ddLogLevel;
     return settingsDict;
 } // returnSettingsFromURL
 
-- (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL {    
+- (void)saveUISettingsWithName:(NSString *)name atUrl:(NSURL *)settingsURL {
     NSURL *targetURL = settingsURL;
     // -------------------------------------------------------------
     //  Create an empty dict and add template type, name and version
@@ -823,6 +848,22 @@ DDLogLevel ddLogLevel;
     [self setImageBackground:customBackgroundPath];
     
 } // expandVariablesForCurrentSettings
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton NBI Creation Tool
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)uppdatePopUpButtonTool {
+    if ( _popUpButtonTool ) {
+        [_popUpButtonTool removeAllItems];
+        //[_popUpButtonTool addItemWithTitle:NBCMenuItemNBICreator];
+        [_popUpButtonTool addItemWithTitle:NBCMenuItemDeployStudioAssistant];
+        [_popUpButtonTool selectItemWithTitle:_nbiCreationTool ?: NBCMenuItemNBICreator];
+        [self setNbiCreationTool:[_popUpButtonTool titleOfSelectedItem]];
+    }
+} // uppdatePopUpButtonTool
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -969,8 +1010,8 @@ DDLogLevel ddLogLevel;
                 }
                 [self setDeployStudioDownloader:[[NBCDownloader alloc] initWithDelegate:self]];
                 [_deployStudioDownloader downloadFileFromURL:[NSURL URLWithString:downloadURL]
-                                destinationPath:[selectedURL path]
-                                   downloadInfo:downloadInfo];
+                                             destinationPath:[selectedURL path]
+                                                downloadInfo:downloadInfo];
                 [self showDeployStudioDownloadProgess:_deployStudioLatestVersion];
             } else {
                 NSLog(@"Could not get download url for latest DeployStudio Version!");
@@ -1062,13 +1103,11 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
-    
     NSLog(@"Importing %@", url);
     NSLog(@"templateInfo=%@", templateInfo);
 } // importTemplateAtURL
 
 - (void)updatePopUpButtonTemplates {
-    
     [_templates updateTemplateListForPopUpButton:_popUpButtonTemplates title:nil];
 } // updatePopUpButtonTemplates
 
@@ -1103,6 +1142,9 @@ DDLogLevel ddLogLevel;
 
 - (void)verifyBuildButton {
     
+    // Why is this here?
+    //[self updatePopUpButtonTemplates];
+    
     BOOL buildEnabled = YES;
     
     // -------------------------------------------------------------
@@ -1128,7 +1170,6 @@ DDLogLevel ddLogLevel;
 } // verifyBuildButton
 
 - (IBAction)buttonPopOver:(id)sender {
-    
     [self updatePopOver];
     [_popOverVariables showRelativeToRect:[sender bounds] ofView:sender preferredEdge:NSMaxXEdge];
 } // buttonPopOver
@@ -1222,10 +1263,42 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI:(NSDictionary *)preWorkflowTasks {
+    if ( ! _isNBI && [self haveSettingsChanged] ) {
+        NSDictionary *alertInfo = @{
+                                    NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
+                                    NBCAlertUserInfoSelectedTemplate : _selectedTemplate,
+                                    NBCAlertUserInfoPreWorkflowTasks : preWorkflowTasks ?: @{}
+                                    };
+        
+        NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
+        [alert showAlertSettingsUnsavedBuild:@"You have unsaved settings, do you want to save current template and continue?"
+                                   alertInfo:alertInfo];
+    } else {
+        [self verifySettings:preWorkflowTasks];
+    }
+}
+
+- (void)verifySettings:(NSDictionary *)preWorkflowTasks {
     
+    DDLogInfo(@"Verifying settings...");
+    
+    DDLogDebug(@"[DEBUG] Creating new workflow item");
     NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeDeployStudio
                                                               workflowSessionType:kWorkflowSessionTypeGUI];
+    
+    if ( _source ) {
+        DDLogDebug(@"[DEBUG] Settings workflow item source...");
     [workflowItem setSource:_source];
+    } else {
+        DDLogError(@"[ERROR] Source was empty!");
+        return;
+    }
+    
+    if ( _target ) {
+        DDLogDebug(@"[DEBUG] Settings workflow item target...");
+        [workflowItem setTarget:_target];
+    }
+    
     [workflowItem setApplicationSource:_dsSource];
     [workflowItem setSettingsViewController:self];
     [workflowItem setPreWorkflowTasks:preWorkflowTasks];
@@ -1236,8 +1309,11 @@ DDLogLevel ddLogLevel;
     NSDictionary *userSettings = [self returnSettingsFromUI];
     if ( userSettings ) {
         [workflowItem setUserSettings:userSettings];
-        
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
+        
+        // ----------------------------------------------------
+        //  Check all settings for possible errors or warnings
+        // ----------------------------------------------------
         NSDictionary *errorInfoDict = [sc verifySettings:workflowItem];
         if ( [errorInfoDict count] != 0 ) {
             BOOL configurationError = NO;
@@ -1280,14 +1356,99 @@ DDLogLevel ddLogLevel;
                 [alerts showAlertSettingsWarning:alertInformativeText alertInfo:alertInfo];
             }
         } else {
+            DDLogDebug(@"[DEBUG] Verification complete!");
             [self prepareWorkflowItem:workflowItem];
         }
     } else {
-        NSLog(@"Could not get settings from UI");
+        DDLogError(@"[ERROR] Settings dict returned empty");
     }
 } // buildNBI
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
+    
+    DDLogInfo(@"Preparing workflow item...");
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    
+    if ( [userSettings[NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemNBICreator] ) {
+        NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
+        int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
+        
+        [NBCSourceController addDeployStudioDependencies:sourceItemsDict source:_source];
+        
+        
+        if ( 11 <= sourceVersionMinor ) {
+            NSString *packageAdditionalEssentialsPath = [NSString stringWithFormat:@"%@/Packages/AdditionalEssentials.pkg", [[_source installESDVolumeURL] path]];
+            NSMutableDictionary *packageAdditionalEssentialsDict = sourceItemsDict[packageAdditionalEssentialsPath];
+            NSMutableArray *packageAdditionalEssentialsRegexes;
+            if ( [packageAdditionalEssentialsDict count] != 0 ) {
+                packageAdditionalEssentialsRegexes = packageAdditionalEssentialsDict[NBCSettingsSourceItemsRegexKey];
+                NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
+                NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+                NSMutableArray *packageEssentialsRegexes;
+                if ( [packageEssentialsDict count] == 0 ) {
+                    packageEssentialsDict = [[NSMutableDictionary alloc] init];
+                }
+                packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
+                if ( packageEssentialsRegexes == nil ) {
+                    packageEssentialsRegexes = [[NSMutableArray alloc] init];
+                }
+                [packageEssentialsRegexes addObjectsFromArray:packageAdditionalEssentialsRegexes];
+                packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects] ;
+                sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+                [sourceItemsDict removeObjectForKey:packageAdditionalEssentialsPath];
+            }
+            
+            NSString *packageBSDPath = [NSString stringWithFormat:@"%@/Packages/BSD.pkg", [[_source installESDVolumeURL] path]];
+            NSMutableDictionary *packageBSDDict = sourceItemsDict[packageBSDPath];
+            NSArray *packageBSDRegexes;
+            if ( [packageBSDDict count] != 0 ) {
+                packageBSDRegexes = packageBSDDict[NBCSettingsSourceItemsRegexKey];
+                NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
+                NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+                NSMutableArray *packageEssentialsRegexes;
+                if ( [packageEssentialsDict count] == 0 ) {
+                    packageEssentialsDict = [[NSMutableDictionary alloc] init];
+                }
+                packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
+                if ( packageEssentialsRegexes == nil ) {
+                    packageEssentialsRegexes = [[NSMutableArray alloc] init];
+                }
+                [packageEssentialsRegexes addObjectsFromArray:packageBSDRegexes];
+                packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
+                sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+                [sourceItemsDict removeObjectForKey:packageBSDPath];
+            }
+            
+            NSString *packageBaseSystemBinariesPath = [NSString stringWithFormat:@"%@/Packages/BaseSystemBinaries.pkg", [[_source installESDVolumeURL] path]];
+            NSMutableDictionary *packageBaseSystemBinariesDict = sourceItemsDict[packageBaseSystemBinariesPath];
+            NSArray *packageBaseSystemBinariesRegexes;
+            if ( [packageBaseSystemBinariesDict count] != 0 ) {
+                packageBaseSystemBinariesRegexes = packageBaseSystemBinariesDict[NBCSettingsSourceItemsRegexKey];
+                NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [[_source installESDVolumeURL] path]];
+                NSMutableDictionary *packageEssentialsDict = sourceItemsDict[packageEssentialsPath];
+                NSMutableArray *packageEssentialsRegexes;
+                if ( [packageEssentialsDict count] == 0 ) {
+                    packageEssentialsDict = [[NSMutableDictionary alloc] init];
+                }
+                packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy];
+                if ( packageEssentialsRegexes == nil ) {
+                    packageEssentialsRegexes = [[NSMutableArray alloc] init];
+                }
+                [packageEssentialsRegexes addObjectsFromArray:packageBaseSystemBinariesRegexes];
+                packageEssentialsDict[NBCSettingsSourceItemsRegexKey] = [[NSSet setWithArray:[packageEssentialsRegexes copy]] allObjects];;
+                sourceItemsDict[packageEssentialsPath] = packageEssentialsDict;
+                [sourceItemsDict removeObjectForKey:packageBaseSystemBinariesPath];
+            }
+        }
+        
+        // --------------------------------------------------------------
+        //  Set dict of resources to be included in NBI to workflow item
+        // --------------------------------------------------------------
+        resourcesSettings[NBCSettingsSourceItemsKey] = sourceItemsDict;
+        [workflowItem setResourcesSettings:[resourcesSettings copy]];
+    }
     
     // -------------------------------------------------------------------
     //  Instantiate all workflows to be used to create a DeployStudio NBI
@@ -1297,6 +1458,9 @@ DDLogLevel ddLogLevel;
     
     NBCDeployStudioWorkflowNBI *workflowNBI = [[NBCDeployStudioWorkflowNBI alloc] init];
     [workflowItem setWorkflowNBI:workflowNBI];
+    
+    //NBCWorkflowModifyNBI *workflowModifyNBI = [[NBCWorkflowModifyNBI alloc] init];
+    //[workflowItem setWorkflowModifyNBI:workflowModifyNBI];
     
     NBCDeployStudioWorkflowModifyNBI *workflowModifyNBI = [[NBCDeployStudioWorkflowModifyNBI alloc] init];
     [workflowItem setWorkflowModifyNBI:workflowModifyNBI];
@@ -1344,8 +1508,8 @@ DDLogLevel ddLogLevel;
             }
             [self setDeployStudioDownloader:[[NBCDownloader alloc] initWithDelegate:self]];
             [_deployStudioDownloader downloadFileFromURL:downloadURL
-                            destinationPath:[selectedURL path]
-                               downloadInfo:downloadInfo];
+                                         destinationPath:[selectedURL path]
+                                            downloadInfo:downloadInfo];
         }
     } else {
         NSLog(@"Could not get download url for latest DeployStudio Version!");
@@ -1376,4 +1540,5 @@ DDLogLevel ddLogLevel;
         [_deployStudioDownloader cancelDownload];
     }
 }
+
 @end

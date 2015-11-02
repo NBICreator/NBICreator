@@ -78,10 +78,10 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     DDLogInfo(@"Getting size of BaseSystem disk image...");
     
-    NSURL *baseSystemURL = [[workflowItem source] baseSystemURL];
-    DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemURL path]);
-    if ( [baseSystemURL checkResourceIsReachableAndReturnError:&error] ) {
-        NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[baseSystemURL path] error:&error];
+    NSURL *baseSystemDiskImageURL = [[workflowItem source] baseSystemDiskImageURL];
+    DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
+    if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:&error] ) {
+        NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[baseSystemDiskImageURL path] error:&error];
         if ( [volumeAttributes count] != 0 ) {
             double fileSize = [volumeAttributes[NSFileSize] doubleValue];
             DDLogDebug(@"[DEBUG] BaseSystem disk image size: %f", fileSize);
@@ -127,7 +127,7 @@ DDLogLevel ddLogLevel;
     dispatch_async(taskQueue, ^{
         
         NSError *blockError = nil;
-        if ( [fm copyItemAtURL:baseSystemURL toURL:baseSystemTargetURL error:&blockError] ) {
+        if ( [fm copyItemAtURL:baseSystemDiskImageURL toURL:baseSystemTargetURL error:&blockError] ) {
             DDLogDebug(@"[DEBUG] Copy complete!");
             [self setCopyComplete:YES];
             

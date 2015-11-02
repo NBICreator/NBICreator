@@ -202,25 +202,26 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
 
 - (NSImage *)productImageForOSVersion:(NSString *)osVersion {
     
+    DDLogDebug(@"[DEBUG] Getting product image for os version: %@", osVersion);
+
     NSImage *productImage;
-    if ([osVersion containsString:@"10.6"]) {
+    if ([osVersion hasPrefix:@"10.6"]) {
         productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconYosemite" withExtension:@"icns"]];
-    } else if ([osVersion containsString:@"10.7"]) {
+    } else if ([osVersion hasPrefix:@"10.7"]) {
         productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconLion" withExtension:@"icns"]];
-    } else if ([osVersion containsString:@"10.8"]) {
+    } else if ([osVersion hasPrefix:@"10.8"]) {
         productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconMountainLion" withExtension:@"icns"]];
-    } else if ([osVersion containsString:@"10.9"]) {
+    } else if ([osVersion hasPrefix:@"10.9"]) {
         productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconMavericks" withExtension:@"icns"]];
-    } else if ([osVersion containsString:@"10.10"]) {
+    } else if ([osVersion hasPrefix:@"10.10"]) {
         productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconYosemite" withExtension:@"icns"]];
-    } else if ([osVersion containsString:@"10.11"] ) {
+    } else if ([osVersion hasPrefix:@"10.11"] ) {
         productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconElCapitan" withExtension:@"icns"]];
     }
     return productImage;
 }
 
 - (void)printAllVariables {
-    
     DDLogDebug(@"sourceVersion=%@", _sourceVersion);
     DDLogDebug(@"sourceBuild=%@", _sourceBuild);
     DDLogDebug(@"sourceType=%@", _sourceType);
@@ -245,7 +246,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
     DDLogDebug(@"recoveryVolumeURL=%@", _recoveryVolumeURL);
     DDLogDebug(@"recoveryVolumeBSDIdentifier=%@", _recoveryVolumeBSDIdentifier);
     DDLogDebug(@"baseSystemDisk=%@", _baseSystemDisk);
-    DDLogDebug(@"baseSystemURL=%@", _baseSystemURL);
+    DDLogDebug(@"baseSystemDiskImageURL=%@", _baseSystemDiskImageURL);
     DDLogDebug(@"baseSystemVolumeURL=%@", _baseSystemVolumeURL);
     DDLogDebug(@"baseSystemDiskImageDict=%@", _baseSystemDiskImageDict);
     DDLogDebug(@"baseSystemOSVersion=%@", _baseSystemOSVersion);

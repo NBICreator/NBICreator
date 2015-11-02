@@ -25,9 +25,12 @@
 #import <DiskArbitration/DiskArbitration.h>
 #import "NSString+randomString.h"
 #import "NSString+SymlinksAndAliases.h"
+#import "NBCConstants.h"
 #import "NBCController.h"
 #import "NBCLogging.h"
 #import "NBCError.h"
+#import "NBCSource.h"
+#import "NBCDiskController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -204,42 +207,6 @@ DDLogLevel ddLogLevel;
     return retval;
 } // attachDiskImageAndReturnPropertyList
 
-+ (BOOL)mountAtPath:(NSString *)path withArguments:(NSArray *)args forDisk:(NSString *)diskID {
-    DDLogDebug(@"[DEBUG] Mounting disk: %@ at path: %@...", diskID, path);
-    
-    DASessionRef session = NULL;
-    session = DASessionCreate(kCFAllocatorDefault);
-    if ( ! session ) {
-        DDLogError(@"[ERROR] Can't create Disk Arbitration session");
-        return NO;
-    }
-    
-    DADiskRef disk = NULL;
-    disk = DADiskCreateFromBSDName(kCFAllocatorDefault, session, [diskID UTF8String]);
-    if ( ! disk ) {
-        DDLogError(@"[ERROR] DADiskCreateFromBSDName(%s) failed", [diskID UTF8String]);
-        return NO;
-    }
-    
-    CFDictionaryRef dd = NULL;
-    dd = DADiskCopyDescription(disk);
-    if ( ! dd ) {
-        DDLogError(@"[ERROR] DADiskCopyDescription(%s) failed", [diskID UTF8String]);
-        return NO;
-    }
-    
-    CFStringRef *argv = calloc(args.count + 1, sizeof(CFStringRef));
-    CFArrayGetValues((__bridge CFArrayRef)args, CFRangeMake(0, (CFIndex)args.count), (const void **)argv );
-    
-    NSURL *url = path ? [NSURL fileURLWithPath:path.stringByExpandingTildeInPath] : NULL;
-    NSFileManager *fm = [NSFileManager defaultManager];
-    [fm createDirectoryAtURL:url withIntermediateDirectories:NO attributes:nil error:nil];
-    DADiskMountWithArguments((DADiskRef) disk, (__bridge CFURLRef) url, kDADiskMountOptionDefault, NULL, (__bridge void *)self, argv);
-    
-    free(argv);
-    return YES;
-}
-
 + (BOOL)detachDiskImageAtPath:(NSString *)mountPath {
     
     if ( [mountPath length] == 0 ) {
@@ -265,7 +232,7 @@ DDLogLevel ddLogLevel;
     
     NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
     NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
-
+    
     
     if ( [hdiutilTask terminationStatus] != 0 ) {
         DDLogWarn(@"[hdiutil][stdout] %@", stdOut);
@@ -489,10 +456,10 @@ DDLogLevel ddLogLevel;
      */
     
     NSMutableArray *args = [NSMutableArray arrayWithArray:@[
-                      @"convert", diskImagePath,
-                      @"-format", format,
-                      @"-o", destinationPath,
-                      ]];
+                                                            @"convert", diskImagePath,
+                                                            @"-format", format,
+                                                            @"-o", destinationPath,
+                                                            ]];
     
     if ( [shadowImagePath length] != 0 ) {
         DDLogDebug(@"[DEBUG] Disk image shadow path: %@", shadowImagePath);
@@ -558,12 +525,12 @@ DDLogLevel ddLogLevel;
         *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"hdiutil command failed with exit status: %d", [hdiutilTask terminationStatus]]];
         return NO;
     }
-}
+} // resizeDiskImageAtURL
 
 + (BOOL)getOffsetForRecoveryPartitionOnImageDevice:(id *)offset diskIdentifier:(NSString *)diskIdentifier {
     DDLogDebug(@"[DEBUG] Getting recovery partition byte offset from disk...");
     DDLogDebug(@"[DEBUG] Disk identifier: %@", diskIdentifier);
-
+    
     NSTask *hdiutilTask =  [[NSTask alloc] init];
     [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSArray *args = @[ @"pmap", diskIdentifier ];
@@ -640,47 +607,9 @@ DDLogLevel ddLogLevel;
     return recoveryPartitionIdentifier;
 }
 
-+ (NSString *)getRecoveryPartitionIdentifierFromVolumeMountURL:(NSURL *)mountURL {
-    DDLogDebug(@"[DEBUG] Getting recovery partition BSD identifier from volume mount path...");
-    DDLogDebug(@"[DEBUG] Volume mount path: %@", [mountURL path]);
-    
-    NSString *recoveryPartitionIdentifier;
-    NSTask *diskutilTask =  [[NSTask alloc] init];
-    [diskutilTask setLaunchPath:@"/bin/bash"];
-    NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/usr/sbin/diskutil info \"%@\" | /usr/bin/grep \"Recovery Disk:\" | /usr/bin/awk '{ print $NF }'", [mountURL path]]];
-    [diskutilTask setArguments:args];
-    [diskutilTask setStandardOutput:[NSPipe pipe]];
-    [diskutilTask setStandardError:[NSPipe pipe]];
-    [diskutilTask launch];
-    [diskutilTask waitUntilExit];
-    
-    NSData *stdOutData = [[[diskutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
-    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
-    
-    NSData *stdErrData = [[[diskutilTask standardError] fileHandleForReading] readDataToEndOfFile];
-    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
-    
-    if ( [diskutilTask terminationStatus] == 0 ) {
-        DDLogDebug(@"[DEBUG] diskutil command successful!");
-        NSString *partitionIdentifier = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
-        partitionIdentifier = [partitionIdentifier stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-        if ( [partitionIdentifier length] != 0 && [partitionIdentifier containsString:@"/dev/"] ) {
-            recoveryPartitionIdentifier = partitionIdentifier;
-        } else if ( [partitionIdentifier length] != 0 ) {
-            recoveryPartitionIdentifier = [NSString stringWithFormat:@"/dev/%@", partitionIdentifier];
-        }
-        DDLogDebug(@"[DEBUG] Recovery partition BSD identifier: %@", recoveryPartitionIdentifier);
-    } else {
-        DDLogError(@"[diskutil] %@", stdOut);
-        DDLogError(@"[diskutil] %@", stdErr);
-        DDLogError(@"[ERROR] diskutil command failed with exit status: %d", [diskutilTask terminationStatus]);
-    }
-    return recoveryPartitionIdentifier;
-}
-
 + (NSDictionary *)getHdiutilInfoDict {
     DDLogDebug(@"[DEBUG] Getting information from hdiutil about all disk images currently attached...");
-
+    
     NSTask *hdiutilTask =  [[NSTask alloc] init];
     [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSArray *args = @[ @"info", @"-plist" ];
@@ -742,69 +671,69 @@ DDLogLevel ddLogLevel;
 }
 
 /* Wrong approach to do the testing, here, just return disk object and then check for correct info in respective method.
-+ (NBCDisk *)getBaseSystemDiskFromDiskImageURL:(NSURL *)diskImageURL {
-    DDLogDebug(@"[DEBUG] Getting BaseSystem disk object from disk image path...");
-    DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
-    
-    NSError *error;
-    NBCDisk *disk;
-    NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
-    for ( NSDictionary *image in hdiutilDict[@"images"] ) {
-        NSString *imagePath = image[@"image-path"];
-        if ( [[diskImageURL path] isEqualToString:imagePath] ) {
-            NSDictionary *systemEntities = image[@"system-entities"];
-            for ( NSDictionary *entity in systemEntities ) {
-                NSString *mountPoint = entity[@"mount-point"];
-                if ( [mountPoint length] != 0 ) {
-                    NSArray *rootItems = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[NSURL fileURLWithPath:mountPoint]
-                                                                       includingPropertiesForKeys:@[]
-                                                                                          options:NSDirectoryEnumerationSkipsHiddenFiles
-                                                                                            error:&error];
-                    __block BOOL isBaseSystem;
-                    [rootItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-#pragma unused(idx)
-                        NSString *itemName = [obj lastPathComponent];
-                        if ( [itemName hasPrefix:@"Install OS X"] && [itemName hasSuffix:@".app"] ) {
-                            isBaseSystem = YES;
-                            *stop = YES;;
-                        }
-                    }];
-                    if ( isBaseSystem ) {
-                        disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
-                    }
-                }
-            }
-        }
-    }
-    
-    return disk;
-}
-
-+ (NBCDisk *)getInstallESDDiskFromDiskImageURL:(NSURL *)diskImageURL {
-    DDLogDebug(@"[DEBUG] Getting InstallESD/NetInstall disk object from disk image path...");
-    DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
-    
-    NBCDisk *disk;
-    NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
-    for ( NSDictionary *image in hdiutilDict[@"images"] ) {
-        NSString *imagePath = image[@"image-path"];
-        if ( [[diskImageURL path] isEqualToString:imagePath] ) {
-            NSDictionary *systemEntities = image[@"system-entities"];
-            for ( NSDictionary *entity in systemEntities ) {
-                NSString *mountPoint = entity[@"mount-point"];
-                if ( [mountPoint length] != 0 ) {
-                    NSURL *baseSystemURL = [[NSURL fileURLWithPath:mountPoint] URLByAppendingPathComponent:@"BaseSystem.dmg"];
-                    if ( [baseSystemURL checkResourceIsReachableAndReturnError:nil] ) {
-                        disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
-                    }
-                }
-            }
-        }
-    }
-    
-    return disk;
-}
-*/
+ + (NBCDisk *)getBaseSystemDiskFromDiskImageURL:(NSURL *)diskImageURL {
+ DDLogDebug(@"[DEBUG] Getting BaseSystem disk object from disk image path...");
+ DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
+ 
+ NSError *error;
+ NBCDisk *disk;
+ NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
+ for ( NSDictionary *image in hdiutilDict[@"images"] ) {
+ NSString *imagePath = image[@"image-path"];
+ if ( [[diskImageURL path] isEqualToString:imagePath] ) {
+ NSDictionary *systemEntities = image[@"system-entities"];
+ for ( NSDictionary *entity in systemEntities ) {
+ NSString *mountPoint = entity[@"mount-point"];
+ if ( [mountPoint length] != 0 ) {
+ NSArray *rootItems = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:[NSURL fileURLWithPath:mountPoint]
+ includingPropertiesForKeys:@[]
+ options:NSDirectoryEnumerationSkipsHiddenFiles
+ error:&error];
+ __block BOOL isBaseSystem;
+ [rootItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+ #pragma unused(idx)
+ NSString *itemName = [obj lastPathComponent];
+ if ( [itemName hasPrefix:@"Install OS X"] && [itemName hasSuffix:@".app"] ) {
+ isBaseSystem = YES;
+ *stop = YES;;
+ }
+ }];
+ if ( isBaseSystem ) {
+ disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
+ }
+ }
+ }
+ }
+ }
+ 
+ return disk;
+ }
+ 
+ + (NBCDisk *)getInstallESDDiskFromDiskImageURL:(NSURL *)diskImageURL {
+ DDLogDebug(@"[DEBUG] Getting InstallESD/NetInstall disk object from disk image path...");
+ DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
+ 
+ NBCDisk *disk;
+ NSDictionary *hdiutilDict = [self getHdiutilInfoDict];
+ for ( NSDictionary *image in hdiutilDict[@"images"] ) {
+ NSString *imagePath = image[@"image-path"];
+ if ( [[diskImageURL path] isEqualToString:imagePath] ) {
+ NSDictionary *systemEntities = image[@"system-entities"];
+ for ( NSDictionary *entity in systemEntities ) {
+ NSString *mountPoint = entity[@"mount-point"];
+ if ( [mountPoint length] != 0 ) {
+ NSURL *baseSystemURL = [[NSURL fileURLWithPath:mountPoint] URLByAppendingPathComponent:@"BaseSystem.dmg"];
+ if ( [baseSystemURL checkResourceIsReachableAndReturnError:nil] ) {
+ disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
+ }
+ }
+ }
+ }
+ }
+ 
+ return disk;
+ }
+ */
 + (NBCDisk *)getDiskFromDiskImageURL:(NSURL *)diskImageURL {
     DDLogDebug(@"[DEBUG] Getting disk object from disk image path...");
     DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
@@ -825,7 +754,7 @@ DDLogLevel ddLogLevel;
                 if ( [mountPoint length] != 0 ) {
                     
                     DDLogDebug(@"[DEBUG] Disk image volume path: %@", mountPoint);
-                    disk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
+                    disk = [NBCDiskController diskFromVolumeURL:[NSURL fileURLWithPath:mountPoint]];
                 }
             }
         }
@@ -890,11 +819,11 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    NSArray *mountedDisksUUIDs = [NBCController mountedDiskUUUIDs];
+    NSArray *mountedDisksUUIDs = [NBCDiskController mountedDiskUUUIDs];
     
-    for (NSString *uuid in diskImageUUIDs) {
-        for (NSDictionary *dict in mountedDisksUUIDs) {
-            if ([uuid isEqualToString:dict[@"uuid"]]) {
+    for ( NSString *uuid in diskImageUUIDs ) {
+        for ( NSDictionary *dict in mountedDisksUUIDs ) {
+            if ( [uuid isEqualToString:dict[@"uuid"]] ) {
                 return dict[@"disk"];
             }
         }
@@ -907,4 +836,476 @@ DDLogLevel ddLogLevel;
     return disk;
 }
 
++ (BOOL)resizeAndMountBaseSystemWithShadow:(NSURL *)baseSystemURL target:(NBCTarget *)target error:(NSError **)error {
+    
+    DDLogInfo(@"Resize BaseSystem disk image and mount with shadow file...");
+    
+    // ---------------------------------------------------
+    //  Generate a random path for BaseSystem shadow file
+    // ---------------------------------------------------
+    NSString *shadowFilePath = [NSString stringWithFormat:@"/tmp/dmg.%@.shadow", [NSString nbc_randomString]];
+    DDLogDebug(@"[DEBUG] BaseSystem disk image shadow file path: %@", shadowFilePath);
+    [target setBaseSystemShadowPath:shadowFilePath];
+    
+    if ( [baseSystemURL checkResourceIsReachableAndReturnError:error] ) {
+        
+        // ----------------------------------------
+        //  Resize BaseSystem to fit extra content
+        // ----------------------------------------
+        //[_delegate updateProgressStatus:@"Resizing disk image using shadow file..." workflow:self];
+        if ( [NBCDiskImageController resizeDiskImageAtURL:baseSystemURL shadowImagePath:shadowFilePath error:error] ) {
+            
+            // -------------------------------------------------------
+            //  Attach BaseSystem and add volume url to target object
+            // -------------------------------------------------------
+            return [self attachBaseSystemDiskImageWithShadowFile:baseSystemURL target:target error:error];
+        } else {
+            return NO;
+        }
+    } else {
+        return NO;
+    }
+} // resizeAndMountBaseSystemWithShadow:target:error
+
++ (BOOL)attachBaseSystemDiskImageWithShadowFile:(NSURL *)baseSystemDiskImageURL target:(NBCTarget *)target error:(NSError **)error {
+    
+    DDLogInfo(@"Attaching BaseSystem disk image with shadow file...");
+    
+    NSString *shadowPath = [target baseSystemShadowPath];
+    if ( [shadowPath length] == 0 ) {
+        shadowPath = [NSString stringWithFormat:@"/tmp/dmg.%@.shadow", [NSString nbc_randomString]];
+    }
+    
+    if ( [self attachDiskImageAtURL:baseSystemDiskImageURL shadowPath:shadowPath error:error] ) {
+        NBCDisk *baseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:baseSystemDiskImageURL
+                                                                             imageType:@"BaseSystem"];
+        
+        if ( ! baseSystemDisk ) {
+            *error = [NBCError errorWithDescription:@"Disk image volume path not found among mounted volume paths"];
+            return NO;
+        }
+        
+        [target setBaseSystemDisk:baseSystemDisk];
+        [target setBaseSystemVolumeBSDIdentifier:[baseSystemDisk BSDName]];
+        [target setBaseSystemURL:baseSystemDiskImageURL];
+        [target setBaseSystemVolumeURL:[baseSystemDisk volumeURL]];
+        [target setBaseSystemShadowPath:shadowPath];
+        return YES;
+    } else {
+        return NO;
+    }
+}
+
++ (BOOL)attachDiskImageAtURL:(NSURL *)diskImageURL shadowPath:(NSString *)shadowPath error:(NSError **)error {
+    
+    DDLogDebug(@"[DEBUG] Attaching disk image with shadow file...");
+    
+    NSURL *volumeURL;
+    NSDictionary *diskImageDict;
+    
+    NSArray *hdiutilOptions = @[
+                                @"-mountRandom", @"/Volumes",
+                                @"-shadow", shadowPath,
+                                @"-owners", @"on",
+                                @"-nobrowse",
+                                @"-noverify",
+                                @"-plist",
+                                ];
+    
+    if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&diskImageDict
+                                                              dmgPath:diskImageURL
+                                                              options:hdiutilOptions
+                                                                error:error] ) {
+        if ( [diskImageDict count] != 0 ) {
+            volumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:diskImageDict];
+            
+            return [volumeURL checkResourceIsReachableAndReturnError:error];
+        } else {
+            *error = [NBCError errorWithDescription:@"Disk image hdiutil info was empty"];
+            return NO;
+        }
+    } else {
+        return NO;
+    }
+} // attachBaseSystemDiskImageWithShadowFile
+
++ (BOOL)verifyBaseSystemDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source error:(NSError **)error {
+#pragma unused(diskImageURL, source, error)
+    
+    DDLogInfo(@"Verifying disk image is a BaseSystem.dmg...");
+    
+    NSURL *baseSystemVolumeURL;
+    NBCDisk *baseSystemDisk = [self checkDiskImageAlreadyMounted:diskImageURL
+                                                       imageType:@"BaseSystem"];
+    
+    if ( baseSystemDisk ) {
+        [source setBaseSystemDisk:baseSystemDisk];
+        [source setBaseSystemDiskImageURL:diskImageURL];
+        [source setBaseSystemVolumeBSDIdentifier:[baseSystemDisk BSDName]];
+        baseSystemVolumeURL = [baseSystemDisk volumeURL];
+        DDLogDebug(@"[DEBUG] BaseSystem disk image volume path: %@", [baseSystemVolumeURL path]);
+    } else {
+        
+        NSDictionary *baseSystemDiskImageDict;
+        NSArray *hdiutilOptions = @[
+                                    @"-mountRandom", @"/Volumes",
+                                    @"-nobrowse",
+                                    @"-noverify",
+                                    @"-plist",
+                                    ];
+        
+        if ( [self attachDiskImageAndReturnPropertyList:&baseSystemDiskImageDict
+                                                dmgPath:diskImageURL
+                                                options:hdiutilOptions
+                                                  error:error] ) {
+            if ( [baseSystemDiskImageDict count] != 0 ) {
+                [source setBaseSystemDiskImageDict:baseSystemDiskImageDict];
+                baseSystemVolumeURL = [self getMountURLFromHdiutilOutputPropertyList:baseSystemDiskImageDict];
+                DDLogDebug(@"[DEBUG] BaseSystem disk image volume path: %@", [baseSystemVolumeURL path]);
+                
+                if ( [baseSystemVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+                    baseSystemDisk = [self checkDiskImageAlreadyMounted:diskImageURL
+                                                              imageType:@"BaseSystem"];
+                    
+                    if ( baseSystemDisk ) {
+                        [source setBaseSystemDisk:baseSystemDisk];
+                        [source setBaseSystemVolumeBSDIdentifier:[baseSystemDisk BSDName]];
+                        [baseSystemDisk setIsMountedByNBICreator:YES];
+                    } else {
+                        *error = [NBCError errorWithDescription:@"BaseSystem disk image volume path not found among mounted volume paths"];
+                        return NO;
+                    }
+                } else {
+                    return NO;
+                }
+            } else {
+                *error = [NBCError errorWithDescription:@"BaseSystem disk image hdiutil info was empty"];
+                return NO;
+            }
+        } else {
+            return NO;
+        }
+    }
+    
+    if ( [baseSystemVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+        DDLogDebug(@"[DEBUG] BaseSystem disk image volume is mounted at path: %@", [baseSystemVolumeURL path]);
+        [source setBaseSystemVolumeURL:baseSystemVolumeURL];
+        
+        NSURL *baseSystemVersionPlistURL = [baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/SystemVersion.plist"];
+        DDLogDebug(@"[DEBUG] BaseSystem disk image volume SystemVersion.plist path: %@", [baseSystemVersionPlistURL path]);
+        
+        if ( [baseSystemVersionPlistURL checkResourceIsReachableAndReturnError:error] ) {
+            NSDictionary *baseSystemVersionPlist = [NSDictionary dictionaryWithContentsOfURL:baseSystemVersionPlistURL];
+            
+            if ( [baseSystemVersionPlist count] != 0 ) {
+                NSString *baseSystemOSVersion = baseSystemVersionPlist[@"ProductUserVisibleVersion"];
+                DDLogInfo(@"BaseSystem os version: %@", baseSystemOSVersion);
+                
+                if ( [baseSystemOSVersion length] != 0 ) {
+                    [source setBaseSystemOSVersion:baseSystemOSVersion];
+                    
+                    NSString *baseSystemOSBuild = baseSystemVersionPlist[@"ProductBuildVersion"];
+                    DDLogInfo(@"BaseSystem os build: %@", baseSystemOSBuild);
+                    
+                    if ( [baseSystemOSBuild length] != 0 ) {
+                        [source setBaseSystemOSBuild:baseSystemOSBuild];
+                        
+                    } else {
+                        *error = [NBCError errorWithDescription:@"Unable to read os build from SystemVersion.plist"];
+                        return NO;
+                    }
+                } else {
+                    *error = [NBCError errorWithDescription:@"Unable to read os version from SystemVersion.plist"];
+                    return NO;
+                }
+            } else {
+                *error = [NBCError errorWithDescription:@"BaseSystem disk image volume SystemVersion.plist is empty!"];
+                return NO;
+            }
+        } else {
+            return NO;
+        }
+    } else {
+        return NO;
+    }
+    
+    return YES;
+}
+
++ (BOOL)verifyInstallESDDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source error:(NSError **)error {
+    
+    DDLogInfo(@"Verifying disk image contains an OS X Installer...");
+    
+    NSURL *installESDVolumeURL;
+    NBCDisk *installESDDisk = [self checkDiskImageAlreadyMounted:diskImageURL
+                                                       imageType:@"InstallESD"];
+    
+    if ( installESDDisk ) {
+        [source setInstallESDDisk:installESDDisk];
+        [source setInstallESDDiskImageURL:diskImageURL];
+        [source setInstallESDVolumeBSDIdentifier:[installESDDisk BSDName]];
+        installESDVolumeURL = [installESDDisk volumeURL];
+        DDLogDebug(@"[DEBUG] InstallESD disk image volume path: %@", [installESDVolumeURL path]);
+    } else {
+        
+        NSDictionary *installESDDiskImageDict;
+        NSArray *hdiutilOptions = @[
+                                    @"-mountRandom", @"/Volumes",
+                                    @"-nobrowse",
+                                    @"-noverify",
+                                    @"-plist",
+                                    ];
+        
+        if ( [self attachDiskImageAndReturnPropertyList:&installESDDiskImageDict
+                                                dmgPath:diskImageURL
+                                                options:hdiutilOptions
+                                                  error:error] ) {
+            
+            if ( [installESDDiskImageDict count] != 0 ) {
+                [source setInstallESDDiskImageDict:installESDDiskImageDict];
+                installESDVolumeURL = [self getMountURLFromHdiutilOutputPropertyList:installESDDiskImageDict];
+                DDLogDebug(@"[DEBUG] InstallESD disk image volume path: %@", [installESDVolumeURL path]);
+                
+                if ( [installESDVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+                    installESDDisk = [self checkDiskImageAlreadyMounted:diskImageURL
+                                                              imageType:@"InstallESD"];
+                    
+                    if ( installESDDisk ) {
+                        [source setInstallESDDisk:installESDDisk];
+                        [source setInstallESDDiskImageURL:diskImageURL];
+                        [source setInstallESDVolumeBSDIdentifier:[installESDDisk BSDName]];
+                        [installESDDisk setIsMountedByNBICreator:YES];
+                        
+                    } else {
+                        *error = [NBCError errorWithDescription:@"InstallESD disk image volume path not found among mounted volume paths"];
+                        return NO;
+                    }
+                } else {
+                    return NO;
+                }
+            } else {
+                *error = [NBCError errorWithDescription:@"InstallESD disk image hdiutil info was empty"];
+                return NO;
+            }
+        } else {
+            return NO;
+        }
+    }
+    
+    if ( [installESDVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+        DDLogDebug(@"[DEBUG] InstallESD disk image volume is mounted at path: %@", [installESDVolumeURL path]);
+        [source setInstallESDVolumeURL:installESDVolumeURL];
+        
+        NSURL *baseSystemDiskImageURL = [installESDVolumeURL URLByAppendingPathComponent:@"BaseSystem.dmg"];
+        DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
+        
+        if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
+            [source setBaseSystemDiskImageURL:baseSystemDiskImageURL];
+            return [self verifyBaseSystemDiskImage:baseSystemDiskImageURL source:source error:error];
+        } else {
+            return NO;
+        }
+    } else {
+        return NO;
+    }
+}
+
++ (NSURL *)installESDURLfromInstallerApplicationURL:(NSURL *)sourceURL source:(NBCSource *)source error:(NSError **)error {
+    
+    DDLogDebug(@"[DEBUG] Getting InstallESD from %@", [sourceURL path]);
+    
+    if ( ! [sourceURL checkResourceIsReachableAndReturnError:error] ) {
+        return nil;
+    }
+    
+    [source setOsxInstallerURL:sourceURL];
+    NSBundle *osxInstallerBundle = [NSBundle bundleWithURL:sourceURL];
+    if ( osxInstallerBundle ) {
+        NSURL *osxInstallerIconURL = [osxInstallerBundle URLForResource:@"InstallAssistant" withExtension:@"icns"];
+        if ( [osxInstallerIconURL checkResourceIsReachableAndReturnError:error] ) {
+            [source setOsxInstallerIconURL:osxInstallerIconURL];
+            return [[osxInstallerBundle bundleURL] URLByAppendingPathComponent:@"Contents/SharedSupport/InstallESD.dmg"];
+        } else {
+            return nil;
+        }
+    } else {
+        return nil;
+    }
+} // installESDURLfromInstallerApplicationURL
+
++ (BOOL)verifySystemDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source requireRecoveryPartition:(BOOL)requireRecoveryPartition error:(NSError **)error {
+    
+    DDLogInfo(@"Verifying disk image contains an OS X System...");
+    
+    NSURL *systemVolumeURL;
+    NBCDisk *systemDisk = [self checkDiskImageAlreadyMounted:diskImageURL
+                                                   imageType:@"BaseSystem"];
+    if ( systemDisk ) {
+        [source setSystemDisk:systemDisk];
+        [source setSystemDiskImageURL:diskImageURL];
+        [source setSystemVolumeBSDIdentifier:[systemDisk BSDName]];
+        systemVolumeURL = [systemDisk volumeURL];
+        DDLogDebug(@"[DEBUG] System disk image volume path: %@", [systemVolumeURL path]);
+        
+    } else {
+        
+        NSDictionary *systemDiskImageDict;
+        NSArray *hdiutilOptions = @[
+                                    @"-mountRandom", @"/Volumes",
+                                    @"-nobrowse",
+                                    @"-noverify",
+                                    @"-plist",
+                                    ];
+        
+        if ( [self attachDiskImageAndReturnPropertyList:&systemDiskImageDict
+                                                dmgPath:diskImageURL
+                                                options:hdiutilOptions
+                                                  error:error] ) {
+            
+            if ( [systemDiskImageDict count] != 0 ) {
+                [source setSystemDiskImageDict:systemDiskImageDict];
+                systemVolumeURL = [self getMountURLFromHdiutilOutputPropertyList:systemDiskImageDict];
+                DDLogDebug(@"[DEBUG] System disk image volume path: %@", [systemVolumeURL path]);
+                
+                if ( [systemVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+                    systemDisk = [self checkDiskImageAlreadyMounted:diskImageURL
+                                                          imageType:@"BaseSystem"];
+                    
+                    if ( systemDisk ) {
+                        [source setSystemDisk:systemDisk];
+                        [source setSystemDiskImageURL:diskImageURL];
+                        [source setSystemVolumeBSDIdentifier:[systemDisk BSDName]];
+                        [systemDisk setIsMountedByNBICreator:YES];
+                        
+                    } else {
+                        *error = [NBCError errorWithDescription:@"System disk image volume path not found among mounted volume paths"];
+                        return NO;
+                    }
+                } else {
+                    return NO;
+                }
+            } else {
+                *error = [NBCError errorWithDescription:@"System disk image hdiutil info was empty"];
+                return NO;
+            }
+        } else {
+            return NO;
+        }
+    }
+    
+    if ( [systemVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+        DDLogDebug(@"[DEBUG] System disk image volume is mounted at path: %@", [systemVolumeURL path]);
+        [source setSystemVolumeURL:systemVolumeURL];
+        
+        NSURL *systemVersionPlistURL = [systemVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/SystemVersion.plist"];
+        DDLogDebug(@"[DEBUG] System disk image volume SystemVersion.plist path: %@", [systemVersionPlistURL path]);
+        
+        if ( [systemVersionPlistURL checkResourceIsReachableAndReturnError:error] ) {
+            NSDictionary *systemVersionPlist = [NSDictionary dictionaryWithContentsOfURL:systemVersionPlistURL];
+            
+            if ( [systemVersionPlist count] != 0 ) {
+                NSString *systemOSVersion = systemVersionPlist[@"ProductUserVisibleVersion"];
+                DDLogInfo(@"System os version: %@", systemOSVersion);
+                
+                if ( [systemOSVersion length] != 0 ) {
+                    [source setSystemOSVersion:systemOSVersion];
+                    [source setSourceVersion:systemOSVersion];
+                    
+                    NSString *systemOSBuild = systemVersionPlist[@"ProductBuildVersion"];
+                    DDLogInfo(@"System os build: %@", systemOSBuild);
+                    
+                    if ( [systemOSBuild length] != 0 ) {
+                        [source setSystemOSBuild:systemOSBuild];
+                        [source setSourceBuild:systemOSBuild];
+                        
+                    } else {
+                        *error = [NBCError errorWithDescription:@"Unable to read os build from SystemVersion.plist"];
+                        return NO;
+                    }
+                } else {
+                    *error = [NBCError errorWithDescription:@"Unable to read os version from SystemVersion.plist"];
+                    return NO;
+                }
+            } else {
+                *error = [NBCError errorWithDescription:@"System disk image volume SystemVersion.plist is empty!"];
+                return NO;
+            }
+        } else {
+            return NO;
+        }
+    } else {
+        return NO;
+    }
+
+    if ( requireRecoveryPartition && ! [[source systemOSVersion] hasPrefix:@"10.6"] ) {
+        return [self verifyRecoveryPartitionFromSystemVolumeURL:systemVolumeURL source:source error:error];
+    } else {
+        return YES;
+    }
+}
+
++ (BOOL)verifyRecoveryPartitionFromSystemVolumeURL:(NSURL *)systemVolumeURL source:(NBCSource *)source error:(NSError **)error {
+    
+    DDLogInfo(@"Verifying disk has a recovery partition...");
+    
+    NSURL *recoveryVolumeURL;
+    NSString *recoveryPartitionDiskIdentifier = [NBCDiskController getRecoveryPartitionIdentifierFromVolumeURL:systemVolumeURL];
+    DDLogDebug(@"[DEBUG] Recovery partition BSD identifier: %@", recoveryPartitionDiskIdentifier);
+    
+    if ( [recoveryPartitionDiskIdentifier length] != 0 ) {
+        NBCDisk *recoveryDisk = [NBCDiskController diskFromBSDName:recoveryPartitionDiskIdentifier];
+        if ( [recoveryDisk isMounted] ) {
+            [source setRecoveryDisk:recoveryDisk];
+            [source setRecoveryVolumeBSDIdentifier:recoveryPartitionDiskIdentifier];
+            recoveryVolumeURL = [recoveryDisk volumeURL];
+            DDLogDebug(@"[DEBUG] Recovery partition volume path: %@", [systemVolumeURL path]);
+            
+        } else {
+            recoveryVolumeURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/Volumes/dmg.%@", [NSString nbc_randomString]]];
+            
+            NSArray *diskutilOptions = @[
+                                         @"rdonly",
+                                         @"noowners",
+                                         @"nobrowse",
+                                         @"-j",
+                                         ];
+            
+            if ( [NBCDiskController mountAtPath:[recoveryVolumeURL path]
+                                       arguments:diskutilOptions
+                                             diskIdentifier:recoveryPartitionDiskIdentifier] ) {
+                
+                [source setRecoveryDisk:recoveryDisk];
+                [source setRecoveryVolumeBSDIdentifier:recoveryPartitionDiskIdentifier];
+                [recoveryDisk setIsMountedByNBICreator:YES];
+                
+                usleep(2000000); // Wait for disk to mount, need to fix by watching for disk mounts!
+            } else {
+                *error = [NBCError errorWithDescription:@"Mounting recovery partition failed"];
+                return NO;
+            }
+        }
+    } else {
+        *error = [NBCError errorWithDescription:@"Recovery partition BSD identifier was empty"];
+        return NO;
+    }
+    
+    if ( [recoveryVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+        DDLogDebug(@"[DEBUG] Recovery partition is mounted at path: %@", [recoveryVolumeURL path]);
+        [source setRecoveryVolumeURL:recoveryVolumeURL];
+        
+        NSURL *baseSystemDiskImageURL = [recoveryVolumeURL URLByAppendingPathComponent:@"com.apple.recovery.boot/BaseSystem.dmg"];
+        DDLogDebug(@"[DEBUG] Recovery partition BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
+        
+        if ( [baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
+            [source setBaseSystemDiskImageURL:baseSystemDiskImageURL];
+            return [self verifyBaseSystemDiskImage:baseSystemDiskImageURL source:source error:error];
+        } else {
+            return NO;
+        }
+    } else {
+        return NO;
+    }
+}
+
 @end
+

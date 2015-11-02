@@ -240,7 +240,6 @@ enum {
     DDLogDebug(@"[DEBUG] Default template for workflow path: %@", defaultSettingsPath);
     DDLogDebug(@"[DEBUG] Templates folder for workflow path: %@", [[_settingsViewController templatesFolderURL] path] );
     if ( [[_settingsViewController templatesFolderURL] checkResourceIsReachableAndReturnError:nil] ) {
-        DDLogDebug(@"[DEBUG] Templates folder exists!");
         userTemplateFolderExists = YES;
         
         /*///////////////////////////////////////////////////////////////////////////////////////////////////////////////

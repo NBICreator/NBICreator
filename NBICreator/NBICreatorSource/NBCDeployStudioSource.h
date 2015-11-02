@@ -16,6 +16,9 @@
 @property BOOL isSupported;
 @property BOOL isInstalled;
 
+@property NSBundle *deployStudioAdminBundle;
+@property NSBundle *deployStudioAssistantBundle;
+
 // DeployStudio
 @property NSString *selectedVersion;
 @property NSURL *deployStudioAdminURL;
@@ -29,11 +32,14 @@
 @property NSURL *deployStudioBackgroundURL;
 @property NSURL *sysBuilderFolder;
 @property NSURL *sysBuilderScript;
+@property NSURL *sysBuilderScriptRp;
 @property NSURL *sysBuilderScriptFillVolume;
 @property NSURL *sysBuilderScriptBestRecoveryDevice;
 
 // Methods
 - (NSString *)expandVariables:(NSString *)string;
 + (NSArray *)deployStudioAdminVersions;
+
+- (NSURL *)urlForDSAdminResource:(NSString *)resource extension:(NSString *)extension;
 
 @end

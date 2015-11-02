@@ -88,7 +88,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
-    
     if ( [workflow isEqualTo:[_workflowItem workflowNBI]] && ! _workflowNBIComplete ) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self->_textFieldStatusInfo setStringValue:statusMessage];
@@ -220,6 +219,12 @@ DDLogLevel ddLogLevel;
     NSLog(@"message=%@", message);
 }
 
+- (void)updateProgressStatus:(NSString *)statusMessage {
+    if ( ! [statusMessage hasPrefix:@"update_dyld_shared_cache: Omitting development cache"] ) {
+        NSLog(@"%@", statusMessage);
+    }
+}
+
 - (void)workflowCompleted {
     [_layoutContraintStatusInfoLeading setConstant:1.0];
     
@@ -250,6 +255,22 @@ DDLogLevel ddLogLevel;
     dispatch_async(dispatch_get_main_queue(), ^{
         [self updateProgressStatus:[NSString stringWithFormat:@"NBI created successfully in %@!", workflowTime] workflow:self];
     });
+}
+
+- (void)logDebug:(NSString *)logMessage {
+    DDLogDebug(@"[DEBUG] %@", logMessage);
+}
+
+- (void)logInfo:(NSString *)logMessage {
+    DDLogInfo(@"%@", logMessage);
+}
+
+- (void)logWarn:(NSString *)logMessage {
+    DDLogWarn(@"[WARN] %@", logMessage);
+}
+
+- (void)logError:(NSString *)logMessage {
+    DDLogError(@"[ERROR] %@", logMessage);
 }
 
 @end

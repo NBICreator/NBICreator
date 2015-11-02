@@ -715,7 +715,7 @@ asdasd</string>
                                             <outlet property="delegate" destination="-2" id="L6e-8n-64P"/>
                                         </connections>
                                     </textField>
-                                    <secureTextField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="R4V-bE-WQo">
+                                    <secureTextField verticalHuggingPriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="R4V-bE-WQo">
                                         <rect key="frame" x="159" y="76" width="295" height="22"/>
                                         <animations/>
                                         <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesSingleLineMode="YES" id="85H-ig-gGc">
@@ -757,10 +757,13 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.showARDPassword" id="Ovr-lS-gam"/>
                                         </connections>
                                     </button>
-                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ulR-LX-e1A">
+                                    <textField verticalHuggingPriority="1000" translatesAutoresizingMaskIntoConstraints="NO" id="ulR-LX-e1A">
                                         <rect key="frame" x="159" y="76" width="295" height="22"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="22" id="kNd-ys-6wk"/>
+                                        </constraints>
                                         <animations/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="GzG-Xq-fpW">
+                                        <textFieldCell key="cell" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="GzG-Xq-fpW">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
@@ -983,9 +986,11 @@ asdasd</string>
                                     <constraint firstItem="czc-3w-Cgp" firstAttribute="leading" secondItem="ulR-LX-e1A" secondAttribute="trailing" constant="8" symbolic="YES" id="uXG-Nk-hvi"/>
                                     <constraint firstItem="BgM-LU-gAy" firstAttribute="leading" secondItem="LuM-gP-Ek6" secondAttribute="leading" id="uj0-ZD-pG3"/>
                                     <constraint firstItem="OXa-Ei-ogf" firstAttribute="top" secondItem="le5-Gh-tjW" secondAttribute="bottom" constant="15" id="v7G-uh-7X1"/>
+                                    <constraint firstItem="ulR-LX-e1A" firstAttribute="height" secondItem="R4V-bE-WQo" secondAttribute="height" id="vBt-Qz-KkR"/>
                                     <constraint firstItem="cqG-je-rdy" firstAttribute="baseline" secondItem="QbF-v4-sZB" secondAttribute="baseline" id="vDp-rg-DYJ"/>
                                     <constraint firstItem="LuM-gP-Ek6" firstAttribute="top" secondItem="ZMc-cR-Jf3" secondAttribute="bottom" constant="9" id="vFV-6j-Jj1"/>
                                     <constraint firstItem="ulR-LX-e1A" firstAttribute="baseline" secondItem="czc-3w-Cgp" secondAttribute="baseline" id="wvT-CY-uP0"/>
+                                    <constraint firstItem="ulR-LX-e1A" firstAttribute="top" secondItem="FMB-Sz-PUq" secondAttribute="bottom" constant="3" id="y1k-8Z-AQC"/>
                                     <constraint firstItem="LuM-gP-Ek6" firstAttribute="leading" secondItem="OTA-IW-3wU" secondAttribute="leading" id="yhs-BX-V18"/>
                                 </constraints>
                                 <animations/>
@@ -1542,9 +1547,9 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="E2X-rn-O1J">
-                                        <rect key="frame" x="34" y="244" width="369" height="18"/>
+                                        <rect key="frame" x="34" y="244" width="356" height="18"/>
                                         <animations/>
-                                        <buttonCell key="cell" type="check" title="Rename NetInstall.sparseimage instead of creating a symbolic link" bezelStyle="regularSquare" imagePosition="left" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="iWO-Ax-9Fg">
+                                        <buttonCell key="cell" type="check" title="Rename sparseimage to dmg instead of creating a symbolic link" bezelStyle="regularSquare" imagePosition="left" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="iWO-Ax-9Fg">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="smallSystem"/>
                                         </buttonCell>

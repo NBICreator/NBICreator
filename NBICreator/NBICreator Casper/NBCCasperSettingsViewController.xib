@@ -1527,9 +1527,9 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="EB1-Wi-oUS">
-                                        <rect key="frame" x="34" y="244" width="369" height="18"/>
+                                        <rect key="frame" x="34" y="244" width="356" height="18"/>
                                         <animations/>
-                                        <buttonCell key="cell" type="check" title="Rename NetInstall.sparseimage instead of creating a symbolic link" bezelStyle="regularSquare" imagePosition="left" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="pct-5f-EdB">
+                                        <buttonCell key="cell" type="check" title="Rename sparseimage to dmg instead of creating a symbolic link" bezelStyle="regularSquare" imagePosition="left" controlSize="small" refusesFirstResponder="YES" state="on" inset="2" id="pct-5f-EdB">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                             <font key="font" metaFont="smallSystem"/>
                                         </buttonCell>

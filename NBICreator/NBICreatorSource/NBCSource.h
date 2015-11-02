@@ -52,7 +52,7 @@ extern NSString *const NBCSourceTypeUnknown;
 
 // Source BaseSystem
 @property NBCDisk *baseSystemDisk;
-@property NSURL *baseSystemURL;             // Path to BaseSystem.dmg
+@property NSURL *baseSystemDiskImageURL;             // Path to BaseSystem.dmg
 @property NSURL *baseSystemVolumeURL;       // Path to mounted base system volume
 @property NSDictionary *baseSystemDiskImageDict;
 @property NSString *baseSystemOSVersion;

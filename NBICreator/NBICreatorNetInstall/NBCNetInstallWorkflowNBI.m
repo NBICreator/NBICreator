@@ -325,7 +325,6 @@ DDLogLevel ddLogLevel;
     // Mount recovery if not already mounted
     if ( packageOnly ) {
         NSLog(@"Mounting!");
-        NSLog(@"[workflowItem=%@", [workflowItem temporaryNBIURL]);
         //[[[workflowItem source] recoveryDisk] unmountWithOptions:kDADiskUnmountOptionDefault];
     }
     

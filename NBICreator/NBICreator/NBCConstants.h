@@ -101,6 +101,7 @@ extern NSString *const NBCMenuItemRestoreOriginalBackground;
 extern NSString *const NBCMenuItemNoSelection;
 extern NSString *const NBCMenuItemNBICreator;
 extern NSString *const NBCMenuItemSystemImageUtility;
+extern NSString *const NBCMenuItemDeployStudioAssistant;
 extern NSString *const NBCMenuItemCurrent;
 extern NSString *const NBCMenuItemWorkflows;
 extern NSString *const NBCMenuItemMainWindow;
@@ -489,7 +490,6 @@ extern NSString *const NBCWorkflowInstall;
 extern NSString *const NBCWorkflowInstallerName;
 extern NSString *const NBCWorkflowInstallerSourceURL;
 extern NSString *const NBCWorkflowInstallerChoiceChangeXML;
-
 
 // --------------------------------------------------------------
 //  Imagr

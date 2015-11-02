@@ -110,7 +110,7 @@ case ${osVersionMinor} in
                             -c "${nbiVolumePath}/i386/x86_64/kernelcache" \
 							"${targetVolumePath}/System/Library/Extensions"
 		/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch x86_64 -force
-		
+		sleep 60
 		if [[ ${dyldArchi386} == yes ]]; then
 			/usr/bin/update_dyld_shared_cache -root "${targetVolumePath}" -arch i386 -force
 		fi

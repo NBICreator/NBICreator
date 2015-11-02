@@ -101,6 +101,7 @@ NSString *const NBCMenuItemRestoreOriginalBackground = @"Restore Original Backgr
 NSString *const NBCMenuItemNoSelection = @"No Selection";
 NSString *const NBCMenuItemNBICreator = @"NBICreator";
 NSString *const NBCMenuItemSystemImageUtility = @"System Image Utility";
+NSString *const NBCMenuItemDeployStudioAssistant = @"DeployStudio Assistant";
 NSString *const NBCMenuItemCurrent = @"Current";
 NSString *const NBCMenuItemWorkflows = @"Workflows";
 NSString *const NBCMenuItemMainWindow = @"MainWindow";

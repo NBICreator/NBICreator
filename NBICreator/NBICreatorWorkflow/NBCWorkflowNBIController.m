@@ -236,7 +236,13 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------------
     //  Add sysBuilder.sh path
     // -------------------------------------------------------------------
-    NSString *sysBuilderPath = [[[workflowItem applicationSource] sysBuilderScript] path];
+    NSString *sysBuilderPath;
+    if ( 11 <= (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue] ) {
+        sysBuilderPath = [[[workflowItem applicationSource] sysBuilderScriptRp] path];
+    } else {
+        sysBuilderPath = [[[workflowItem applicationSource] sysBuilderScript] path];
+    }
+    
     if ( [sysBuilderPath length] != 0 ) {
         [sysBuilderArguments addObject:sysBuilderPath];
     } else {

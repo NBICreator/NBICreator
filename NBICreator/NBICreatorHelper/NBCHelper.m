@@ -9,7 +9,7 @@
 #import "NBCHelper.h"
 #import "NBCHelperProtocol.h"
 #import "NBCHelperAuthorization.h"
-#import "NBCMessageDelegate.h"
+#import "NBCWorkflowProgressDelegate.h"
 #import <CommonCrypto/CommonDigest.h>
 
 #import "NBCTarget.h"
@@ -58,7 +58,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 #pragma unused(listener)
     
     // This is called by the XPC listener when there is a new connection.
-    [newConnection setRemoteObjectInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCMessageDelegate)]];
+    [newConnection setRemoteObjectInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
     [newConnection setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCHelperProtocol)]];
     [newConnection setExportedObject:self];
     
@@ -80,7 +80,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     [newConnection resume];
     
     return YES;
-}
+} // listener
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -88,14 +88,13 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (NSXPCConnection *)connection
-{
+- (NSXPCConnection *)connection {
     return [_connections lastObject];
-}
+} // connection
 
 - (void)getVersionWithReply:(void(^)(NSString *version))reply {
     reply([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
-}
+} // getVersionWithReply
 
 - (void)quitHelper:(void (^)(BOOL success))reply {
     for ( NSXPCConnection *connection in _connections ) {
@@ -109,7 +108,527 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     [_connections removeAllObjects];
     [self setHelperToolShouldQuit:YES];
     reply(YES);
+} // quitHelper
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark runTaskWithCommand
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)runTaskWithCommand:(NSString *)command
+                 arguments:(NSArray *)arguments
+          currentDirectory:(NSString *)currentDirectory
+      environmentVariables:(NSDictionary *)environmentVariables
+                 withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    
+    // -----------------------------------------------------------------------------------
+    //  Create stdout and stderr file handles and send all output to remoteObjectProxy
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdOut = [[NSPipe alloc] init];
+    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdOut fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        NSData *stdOutData = [[stdOut fileHandleForReading] availableData];
+                                        NSString *stdOutString = [[[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        if ( [stdOutString length] != 0 ) {
+                                            [[[self connection] remoteObjectProxy] updateProgressStatus:stdOutString];
+                                        }
+                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    NSPipe *stdErr = [[NSPipe alloc] init];
+    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdErr fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        NSData *stdErrData = [[stdErr fileHandleForReading] availableData];
+                                        NSString *stdErrString = [[[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        if ( [stdErrString length] != 0 ) {
+                                            [[[self connection] remoteObjectProxy] updateProgressStatus:stdErrString];
+                                        }
+                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    // ------------------------
+    //  Setup task
+    // ------------------------
+    NSTask *task = [[NSTask alloc] init];
+    [task setLaunchPath:command];
+    [task setArguments:arguments];
+    [task setStandardOutput:stdOut];
+    [task setStandardError:stdErr];
+    
+    if ( [currentDirectory length] != 0 ) {
+        [task setCurrentDirectoryPath:currentDirectory];
+    }
+    
+    if ( [environmentVariables count] != 0 ) {
+        [task setEnvironment:environmentVariables];
+    }
+    
+    // ------------------------
+    //  Launch task
+    // ------------------------
+    [task launch];
+    [task waitUntilExit];
+    
+    [nc removeObserver:stdOutObserver];
+    [nc removeObserver:stdErrObserver];
+    if ( ! [task isRunning] ) {
+        reply(nil, [task terminationStatus]);
+    } else {
+        reply(nil, -1);
+    }
+} // runTaskWithCommand:arguments:currentDirectory:environmentVariables:withReply
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark copyResourcesToVolume
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)copyResourcesToVolume:(NSURL *)volumeURL copyArray:(NSArray *)copyArray
+                    withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSMutableDictionary *regexDict = [[NSMutableDictionary alloc] init];
+    
+    for ( NSDictionary *copyDict in copyArray ) {
+        
+        // ----------------------------------------------------------------------
+        //  Examine dict NBCWorkflowCopyType and proceed accordingly
+        //
+        //  Available copy types are:
+        //
+        //      NBCWorkflowCopy      = Standard source to target path copy
+        //      NBCWorkflowCopyRegex = Copy all files matching regex from source
+        // ----------------------------------------------------------------------
+        NSString *copyType = copyDict[NBCWorkflowCopyType] ?: @"";
+        
+        if ( [copyType isEqualToString:NBCWorkflowCopy] ) {
+            
+            // ----------------------------------------------------------------------
+            //  Remove item at target path if it exist
+            //  Create target path if it doesn't exist
+            // ----------------------------------------------------------------------
+            NSURL *targetURL;
+            NSString *targetURLString = copyDict[NBCWorkflowCopyTargetURL];
+            if ( [targetURLString length] != 0 ) {
+                targetURL = [volumeURL URLByAppendingPathComponent:targetURLString];
+                [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying target path: %@", [targetURL path]]];
+                
+                if ( [targetURL checkResourceIsReachableAndReturnError:nil] ) {
+                    if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
+                        reply(error, 1);
+                    }
+                } else if ( ! [[targetURL URLByDeletingLastPathComponent] checkResourceIsReachableAndReturnError:nil] ) {
+                    if ( ! [fm createDirectoryAtURL:[targetURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error] ) {
+                        reply(error, 1);
+                    }
+                }
+            } else {
+                reply(nil, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Verify item exists
+            // ----------------------------------------------------------------------
+            NSURL *sourceURL = [NSURL fileURLWithPath:copyDict[NBCWorkflowCopySourceURL] ?: @""];
+            [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying source path: %@", [sourceURL path]]];
+            if ( ! [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
+                reply(error, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Copy item
+            // ----------------------------------------------------------------------
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Copying %@...", [sourceURL lastPathComponent]]];
+            if ( ! [fm copyItemAtURL:sourceURL toURL:targetURL error:&error] ) {
+                reply(error, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Update permissions and attributes for item
+            // ----------------------------------------------------------------------
+            NSDictionary *attributes = copyDict[NBCWorkflowCopyAttributes];
+            if ( [attributes count] != 0 ) {
+                [[[self connection] remoteObjectProxy] logDebug:@"Updating permissions and attributes..."];
+                if ( ! [fm setAttributes:attributes ofItemAtPath:[targetURL path] error:&error] ) {
+                    reply(error, 1);
+                }
+            }
+            
+        } else if ( [copyType isEqualToString:NBCWorkflowCopyRegex] ) {
+            
+            // ----------------------------------------------------------------------
+            //  Verify item exists
+            // ----------------------------------------------------------------------
+            NSURL *sourceFolderURL = [NSURL fileURLWithPath:copyDict[NBCWorkflowCopyRegexSourceFolderURL] ?: @""];
+            [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying source folder: %@", [sourceFolderURL path]]];
+            if ( ! [sourceFolderURL checkResourceIsReachableAndReturnError:&error] ) {
+                reply(error, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Verify regex isn't empty
+            // ----------------------------------------------------------------------
+            NSString *regexString = copyDict[NBCWorkflowCopyRegex];
+            [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying regex: %@", regexString]];
+            if ( [regexString length] == 0 ) {
+                reply(nil, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Add regex to regex array
+            // ----------------------------------------------------------------------
+            NSMutableArray *sourceFolderRegexes = [regexDict[[sourceFolderURL path]] mutableCopy] ?: [[NSMutableArray alloc] init];
+            [sourceFolderRegexes addObject:regexString];
+            regexDict[[sourceFolderURL path]] = [sourceFolderRegexes copy];
+        } else {
+            [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"Unknown copy type: %@", copyType]];
+            reply(nil, 1);
+        }
+    }
+    
+    // ---------------------------------------------------------------------------------------------------------
+    //  If any regexes were added to array, loop through each ource folder and create a single regex from array
+    //  Then copy all files using cpio
+    // ---------------------------------------------------------------------------------------------------------
+    if ( [regexDict count] != 0 ) {
+        
+        NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+        for ( NSString *sourceFolderPath in [regexDict allKeys] ) {
+            
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Copying items from %@...", [sourceFolderPath lastPathComponent]]];
+            
+            NSArray *regexArray = regexDict[sourceFolderPath];
+            __block NSString *regexString = @"";
+            [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+#pragma unused(stop)
+                if ( idx == 0 ) {
+                    regexString = [regexString stringByAppendingString:[NSString stringWithFormat:@"-regex '%@'", obj]];
+                } else {
+                    regexString = [regexString stringByAppendingString:[NSString stringWithFormat:@" -o -regex '%@'", obj]];
+                }
+            }];
+            
+            // -----------------------------------------------------------------------------------
+            //  Create stdout and stderr file handles and send all output to remoteObjectProxy
+            // -----------------------------------------------------------------------------------
+            NSPipe *stdOut = [[NSPipe alloc] init];
+            [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+            id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                                object:[stdOut fileHandleForReading]
+                                                 queue:nil
+                                            usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                                NSData *stdOutData = [[stdOut fileHandleForReading] availableData];
+                                                NSString *stdOutString = [[[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                                if ( [stdOutString length] != 0 ) {
+                                                    [[[self connection] remoteObjectProxy] updateProgressStatus:stdOutString];
+                                                }
+                                                [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                            }];
+            
+            NSPipe *stdErr = [[NSPipe alloc] init];
+            [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+            id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                                object:[stdErr fileHandleForReading]
+                                                 queue:nil
+                                            usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                                NSData *stdErrData = [[stdErr fileHandleForReading] availableData];
+                                                NSString *stdErrString = [[[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                                if ( [stdErrString length] != 0 ) {
+                                                    [[[self connection] remoteObjectProxy] updateProgressStatus:stdErrString];
+                                                }
+                                                [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                            }];
+            
+            // ------------------------
+            //  Setup task
+            // ------------------------
+            NSTask *task = [[NSTask alloc] init];
+            [task setLaunchPath:@"/bin/bash"];
+            [task setArguments:@[
+                                 @"-c",
+                                 [NSString stringWithFormat:@"/usr/bin/find -E . -depth %@ | /usr/bin/cpio -admpu --quiet '%@'", regexString, [volumeURL path]]
+                                 ]];
+            [task setStandardOutput:stdOut];
+            [task setStandardError:stdErr];
+            [task setCurrentDirectoryPath:sourceFolderPath];
+            
+            // ------------------------
+            //  Launch task
+            // ------------------------
+            [task launch];
+            [task waitUntilExit];
+            
+            [nc removeObserver:stdOutObserver];
+            [nc removeObserver:stdErrObserver];
+            
+            if ( [task terminationStatus] == 0 ) {
+                [[[self connection] remoteObjectProxy] logDebug:@"Copy items successful!"];
+            } else {
+                reply(nil, -1);
+            }
+        }
+    }
+    
+    reply(nil, 0);
 }
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark modifyResourcesOnVolume
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)modifyResourcesOnVolume:(NSURL *)volumeURL modificationsArray:(NSArray *)modificationsArray
+                      withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    for ( NSDictionary *modificationsDict in modificationsArray ) {
+        
+        NSURL *targetURL = [NSURL fileURLWithPath:modificationsDict[NBCWorkflowModifyTargetURL] ?: @""];
+        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Item target path: %@", [targetURL path]]];
+        
+        // ----------------------------------------------------------------------
+        //  Examine modifications dict and proceed accordingly
+        //
+        //  Available modification types are:
+        //
+        //      NBCWorkflowModifyFileTypePlist      = Write included plist content to targetURL
+        //      NBCWorkflowModifyFileTypeGeneric    = Write included file contents to targetURL
+        //      NBCWorkflowModifyFileTypeFolder     = Create folder at targetURL
+        //      NBCWorkflowModifyFileTypeDelete     = Delete item at targetURL
+        //      NBCWorkflowModifyFileTypeMove       = Move item at source URL to target URL
+        //      NBCWorkflowModifyFileTypeLink       = Create symlink at source URL to target URL
+        // ----------------------------------------------------------------------
+        
+        NSString *modificationType = modificationsDict[NBCWorkflowModifyFileType];
+        
+        // ----------------------------------------------------------------------
+        //  NBCWorkflowModifyFileTypePlist
+        // ----------------------------------------------------------------------
+        if ( [modificationType isEqualToString:NBCWorkflowModifyFileTypePlist] ) {
+            
+            // ----------------------------------------------------------------------
+            //  Create target folder if it doesn't exist
+            // ----------------------------------------------------------------------
+            NSURL *targetFolderURL = [targetURL URLByDeletingLastPathComponent];
+            if ( ! [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+                if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES
+                                     attributes:@{
+                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileGroupOwnerAccountName : @"wheel",
+                                                  NSFilePosixPermissions : @0755
+                                                  }
+                                          error:&error] ) {
+                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                    reply(error, 1);
+                }
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Write included plist content to target URL
+            // ----------------------------------------------------------------------
+            NSDictionary *plistContent = modificationsDict[NBCWorkflowModifyContent];
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Writing plist %@...", [targetURL lastPathComponent]]];
+            if ( ! [plistContent writeToURL:targetURL atomically:NO] ) {
+                [[[self connection] remoteObjectProxy] logError:@"Writing plist failed"];
+                reply(nil, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Update permissions and attributes for item
+            // ----------------------------------------------------------------------
+            NSDictionary *attributes = modificationsDict[NBCWorkflowModifyAttributes];
+            if ( [attributes count] != 0 ) {
+                [[[self connection] remoteObjectProxy] logDebug:@"Updating permissions and attributes..."];
+                if ( ! [fm setAttributes:attributes ofItemAtPath:[targetURL path] error:&error] ) {
+                    reply(error, 1);
+                }
+            }
+            
+            // ----------------------------------------------------------------------
+            //  NBCWorkflowModifyFileTypeGeneric
+            // ----------------------------------------------------------------------
+        } else if ( [modificationType isEqualToString:NBCWorkflowModifyFileTypeGeneric] ) {
+            
+            NSData *fileContent = modificationsDict[NBCWorkflowModifyContent];
+            if ( ! fileContent ) {
+                [[[self connection] remoteObjectProxy] logError:@"File contents were empty"];
+                reply(nil, 1);
+            }
+            
+            NSDictionary *attributes = modificationsDict[NBCWorkflowModifyAttributes];
+            if ( [attributes count] == 0 ) {
+                [[[self connection] remoteObjectProxy] logError:@"File attributes were empty"];
+                reply(nil, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Create target folder if it doesn't exist
+            // ----------------------------------------------------------------------
+            NSURL *targetFolderURL = [targetURL URLByDeletingLastPathComponent];
+            if ( ! [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+                if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES
+                                     attributes:@{
+                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileGroupOwnerAccountName : @"wheel",
+                                                  NSFilePosixPermissions : @0755
+                                                  }
+                                          error:&error] ) {
+                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                    reply(error, 1);
+                }
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Write included file contents to target URL (and set attributes)
+            // ----------------------------------------------------------------------
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Writing file %@...", [targetURL lastPathComponent]]];
+            if ( ! [fm createFileAtPath:[targetURL path] contents:fileContent attributes:attributes] ) {
+                [[[self connection] remoteObjectProxy] logError:@"Creating file failed"];
+                reply(nil, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  NBCWorkflowModifyFileTypeFolder
+            // ----------------------------------------------------------------------
+        } else if ( [modificationType isEqualToString:NBCWorkflowModifyFileTypeFolder] ) {
+            
+            NSDictionary *attributes = modificationsDict[NBCWorkflowModifyAttributes];
+            if ( [attributes count] == 0 ) {
+                [[[self connection] remoteObjectProxy] logError:@"File attributes were empty"];
+                reply(nil, 1);
+            }
+            
+            // ------------------------------------------------------------------------------------
+            //  Create directory (and intermediate directories) at target URL (and set attributes)
+            // ------------------------------------------------------------------------------------
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Creating directory %@...", [targetURL lastPathComponent]]];
+            if ( ! [fm createDirectoryAtURL:targetURL withIntermediateDirectories:YES attributes:attributes error:&error] ) {
+                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                reply(error, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  NBCWorkflowModifyFileTypeDelete
+            // ----------------------------------------------------------------------
+        } else if ( [modificationType isEqualToString:NBCWorkflowModifyFileTypeDelete] ) {
+            
+            // ------------------------------------------------------------------------------------
+            //  Delete item at target URL
+            // ------------------------------------------------------------------------------------
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Deleting item %@...", [targetURL lastPathComponent]]];
+            if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
+                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                reply(error, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  NBCWorkflowModifyFileTypeMove
+            // ----------------------------------------------------------------------
+        } else if ( [modificationType isEqualToString:NBCWorkflowModifyFileTypeMove] ) {
+            
+            // ----------------------------------------------------------------------
+            //  Verify source item exists
+            // ----------------------------------------------------------------------
+            NSURL *sourceURL = [NSURL fileURLWithPath:modificationsDict[NBCWorkflowModifySourceURL] ?: @""];
+            [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Item source path: %@", [sourceURL path]]];
+            if ( ! [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
+                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                reply(error, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Remove target item if it already exists
+            // ----------------------------------------------------------------------
+            if ( [targetURL checkResourceIsReachableAndReturnError:&error] ) {
+                if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
+                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                    reply(error, 1);
+                }
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Create target folder if it doesn't exist
+            // ----------------------------------------------------------------------
+            NSURL *targetFolderURL = [targetURL URLByDeletingLastPathComponent];
+            if ( ! [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+                if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES
+                                     attributes:@{
+                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileGroupOwnerAccountName : @"wheel",
+                                                  NSFilePosixPermissions : @0755
+                                                  }
+                                          error:&error] ) {
+                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                    reply(error, 1);
+                }
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Move item
+            // ----------------------------------------------------------------------
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Moving %@ to %@", [sourceURL lastPathComponent], [targetURL path]]];
+            if ( ! [fm moveItemAtURL:sourceURL toURL:targetURL error:&error] ) {
+                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                reply(error, 1);
+            }
+            
+            // ----------------------------------------------------------------------
+            //  NBCWorkflowModifyFileTypeLink
+            // ----------------------------------------------------------------------
+        } else if ( [modificationType isEqualToString:NBCWorkflowModifyFileTypeLink] ) {
+            
+            // ----------------------------------------------------------------------
+            //  Remove source item if it already exists
+            // ----------------------------------------------------------------------
+            NSURL *sourceURL = [NSURL fileURLWithPath:modificationsDict[NBCWorkflowModifySourceURL] ?: @""];
+            [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Item source path: %@", [targetURL path]]];
+            if ( [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
+                if ( ! [fm removeItemAtURL:sourceURL error:&error] ) {
+                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                    reply(error, 1);
+                }
+            }
+            
+            // ----------------------------------------------------------------------
+            //  Create symbolic link
+            // ----------------------------------------------------------------------
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Creating symlink to %@", [targetURL path]]];
+            if ( ! [fm createSymbolicLinkAtURL:sourceURL withDestinationURL:targetURL error:&error] ) {
+                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
+                reply(error, 1);
+            }
+        } else {
+            [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"Unknown modification type: %@", modificationType]];
+            reply(nil, 1);
+        }
+    }
+    reply(nil, 0);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark OLD METHODS
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)runTaskWithCommandAtPath:(NSURL *)taskCommandPath
                        arguments:(NSArray *)taskArguments
@@ -229,10 +748,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     reply([newTask terminationStatus]);
 }
 
-- (void)sendMessageToMainApplication:(NSString *)message {
-    
-}
-
 - (void)removeItemAtURL:(NSURL *)itemURL
               withReply:(void(^)(NSError *error, int terminationStatus))reply {
     NSError *error;
@@ -277,7 +792,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
         NSTask *perlTask =  [[NSTask alloc] init];
         [perlTask setLaunchPath:@"/bin/bash"];
-        NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }; print \"\n\"'", [vncPasswordFile path]]];
+        NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }'", [vncPasswordFile path]]];
         [perlTask setArguments:args];
         [perlTask setStandardOutput:[NSPipe pipe]];
         [perlTask setStandardError:[NSPipe pipe]];
@@ -306,7 +821,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     reply(nil, retval, [mutableSettingsDict copy] );
 }
-
 - (void)copyResourcesToVolume:(NSURL *)volumeURL resourcesDict:(NSDictionary *)resourcesDict
                     withReply:(void(^)(NSError *error, int terminationStatus))reply {
     NSError *error;
@@ -375,8 +889,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     
     if ( [regexDict count] != 0 ) {
-        NSArray *keys = [regexDict allKeys];
-        for ( NSString *sourceFolderPath in keys ) {
+        for ( NSString *sourceFolderPath in [regexDict allKeys] ) {
             NSArray *regexArray = regexDict[sourceFolderPath];
             __block NSString *regexString = @"";
             [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -568,44 +1081,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     
     reply(nil, 0);
-}
-
-
-// Unused atm
-#define SALTED_SHA1_LEN 48
-#define SALTED_SHA1_OFFSET (64 + 40 + 64)
-#define SHADOW_HASH_LEN 1240
-
-- (NSString *)calculateShadowHash:(NSString *)pwd {
-    CC_SHA1_CTX ctx;
-    unsigned char salted_sha1_hash[24];
-    union _salt {
-        unsigned char bytes[4];
-        u_int32_t value;
-    } *salt = (union _salt *)&salted_sha1_hash[0];
-    unsigned char *hash = &salted_sha1_hash[4];
-    
-    // Calculate salted sha1 hash.
-    CC_SHA1_Init(&ctx);
-    salt->value = arc4random();
-    CC_SHA1_Update(&ctx, salt->bytes, sizeof(salt->bytes));
-    CC_SHA1_Update(&ctx, [pwd UTF8String], (CC_LONG)[pwd lengthOfBytesUsingEncoding:NSUTF8StringEncoding]);
-    CC_SHA1_Final(hash, &ctx);
-    
-    
-    NSMutableString *shadowHash = [[NSMutableString alloc] initWithString:@""];
-    // Generate new shadow hash.
-    [shadowHash appendFormat:@"%0168X", 0];
-    assert([shadowHash length] == SALTED_SHA1_OFFSET);
-    for (int i = 0; i < sizeof(salted_sha1_hash); i++) {
-        [shadowHash appendFormat:@"%02X", salted_sha1_hash[i]];
-    }
-    while ([shadowHash length] < SHADOW_HASH_LEN) {
-        [shadowHash appendFormat:@"%064X", 0];
-    }
-    assert([shadowHash length] == SHADOW_HASH_LEN);
-    
-    return shadowHash;
 }
 
 @end

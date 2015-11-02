@@ -16,6 +16,7 @@
 #import "NBCDiskImageController.h"
 #import "NBCLogging.h"
 #import "NBCWorkflowItem.h"
+#import "NBCDiskController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -584,7 +585,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)getSystemDisk:(NSTimer *)timer {
-    NBCDisk *systemDisk = [NBCController diskFromVolumeURL:[NSURL fileURLWithPath:@"/"]];
+    NBCDisk *systemDisk = [NBCDiskController diskFromVolumeURL:[NSURL fileURLWithPath:@"/"]];
     if ( systemDisk ) {
         [timer invalidate];
         timer = nil;

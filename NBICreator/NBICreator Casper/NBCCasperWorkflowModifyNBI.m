@@ -321,7 +321,7 @@ DDLogLevel ddLogLevel;
     [self copyFilesToBaseSystem];
 } // installSuccessful
 
-- (void)installFailed:(NSError *)error {
+- (void)installFailedWithError:(NSError *)error {
 #pragma unused(error)
     DDLogError(@"[ERROR] Install Failed!");
     NSDictionary *userInfo = nil;

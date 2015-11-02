@@ -40,6 +40,7 @@
 #import "NBCHelperAuthorization.h"
 
 // UI
+#import "NBCDropViewController.h"
 #import "NBCDeployStudioDropViewController.h"
 #import "NBCNetInstallDropViewController.h"
 #import "NBCImagrDropViewController.h"
@@ -51,7 +52,6 @@
 // Other
 #import "NBCSource.h"
 #import "NBCWorkflowManager.h"
-#import "NBCDisk.h"
 #import "NBCDiskArbitrator.h"
 #import "NBCDiskImageController.h"
 #import "Reachability.h"
@@ -208,10 +208,6 @@ enum {
     // --------------------------------------------------------------
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(updateButtonBuild:) name:NBCNotificationUpdateButtonBuild object:nil];
-    [center addObserver:self selector:@selector(diskDidChange:) name:DADiskDidChangeNotification object:nil];
-    [center addObserver:self selector:@selector(didAttemptEject:) name:DADiskDidAttemptEjectNotification object:nil];
-    [center addObserver:self selector:@selector(didAttemptMount:) name:DADiskDidAttemptMountNotification object:nil];
-    [center addObserver:self selector:@selector(didAttemptUnmount:) name:DADiskDidAttemptUnmountNotification object:nil];
     
     // --------------------------------------------------------------
     //  Register user defaults
@@ -428,9 +424,7 @@ enum {
     if ( [_currentSettingsController haveSettingsChanged] ) {
         NBCAlerts *alerts = [[NBCAlerts alloc] initWithDelegate:self];
         [alerts showAlertSettingsUnsavedQuit:@"You have unsaved Settings."
-                                   alertInfo:@{
-                                               NBCAlertTagKey : NBCAlertTagSettingsUnsavedQuit
-                                               }];
+                                   alertInfo:@{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedQuit }];
     } else {
         [self checkWorkflowRunningQuit];
     }
@@ -445,9 +439,7 @@ enum {
     if ( [[NBCWorkflowManager sharedManager] workflowRunning] ) {
         NBCAlerts *alerts = [[NBCAlerts alloc] initWithDelegate:self];
         [alerts showAlertWorkflowRunningQuit:@"A workflow is still running. If you quit now, the current workflow will cancel and delete the NBI in creation."
-                                   alertInfo:@{
-                                               NBCAlertTagKey : NBCAlertTagWorkflowRunningQuit
-                                               }];
+                                   alertInfo:@{ NBCAlertTagKey : NBCAlertTagWorkflowRunningQuit }];
     } else {
         [self terminateApp];
     }
@@ -517,39 +509,6 @@ enum {
     }
 } // updateButtonBuild
 
-/*//////////////////////////////////////////////////////////////////////////////
- /// UNUSED - SOME WILL PROBABLY WILL BE USED IN THE FUTURE, KEEPING ATM     ///
- //////////////////////////////////////////////////////////////////////////////*/
-
-- (void)diskDidChange:(NSNotification *)notif {
-    
-    NBCDisk *disk = [notif object];
-    if ( [disk isMounted] ) {
-    }
-}
-
-- (void)didAttemptMount:(NSNotification *)notif {
-    
-    NBCDisk *disk = [notif object];
-    if ( [disk isMounted] ) {
-    }
-}
-
-- (void)didAttemptUnmount:(NSNotification *)notif {
-    
-    NBCDisk *disk = [notif object];
-    if ( [disk isMounted] ) {
-    }
-}
-
-- (void)didAttemptEject:(NSNotification *)notif {
-    
-    NBCDisk *disk = [notif object];
-    if ( [disk isMounted] ) {
-    }
-}
-/* -------------------------------------------------------------------------- */
-
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Helper Tool
@@ -604,8 +563,7 @@ enum {
 } // blessHelperWithLabel
 
 - (void)showHelperToolInstallBox {
-    
-    
+
     // --------------------------------------------------------------
     //  Show box with "Install Helper" button just above build button
     // --------------------------------------------------------------
@@ -747,7 +705,6 @@ enum {
 
 - (void)showNoInternetConnection {
     
-    
     // --------------------------------------------------------------
     //  Show banner at top of application with text "No Internet Connection"
     // --------------------------------------------------------------
@@ -770,77 +727,11 @@ enum {
 
 - (void)hideNoInternetConnection {
     
-    
     // --------------------------------------------------------------
     //  Hider banner with text "No Internet Connection"
     // --------------------------------------------------------------
     [_viewNoInternetConnection removeFromSuperview];
 } // hideNoInternetConnection
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark NBCArbitrator Functions
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-+ (NBCDisk *)diskFromBSDName:(NSString *)bsdName {
-    
-    
-    // --------------------------------------------------------------
-    //  Return NBCDisk object for passed BSD identifier (if found)
-    // --------------------------------------------------------------
-    NSString *bsdNameCut = [bsdName lastPathComponent];
-    NBCDisk *diskToReturn;
-    for ( NBCDisk *disk in [[NBCDiskArbitrator sharedArbitrator] disks] ) {
-        if ( [[disk BSDName] isEqualToString:bsdNameCut] ) {
-            diskToReturn = disk;
-            break;
-        }
-    }
-    return diskToReturn;
-} // diskFromBSDName
-
-+ (NBCDisk *)diskFromVolumeURL:(NSURL *)volumeURL {
-    
-    // --------------------------------------------------------------
-    //  Return NBCDisk object for passed VolumeURL (if found)
-    // --------------------------------------------------------------
-    NBCDisk *diskToReturn;
-    for ( NBCDisk *disk in [[NBCDiskArbitrator sharedArbitrator] disks] ) {
-        if ( [disk isMounted] ) {
-            CFDictionaryRef diskDescription = [disk diskDescription];
-            CFURLRef value = CFDictionaryGetValue(diskDescription, kDADiskDescriptionVolumePathKey);
-            if ( value ) {
-                if ( [[(__bridge NSURL *)value path] isEqualToString:[volumeURL path]]) {
-                    return disk;
-                }
-            } else {
-                DDLogWarn(@"[WARN] Disk %@ is listed as mounted but has no mountpoint!", diskDescription);
-            }
-        }
-    }
-    return diskToReturn;
-} // diskFromVolumeURL
-
-+(NSArray *)mountedDiskUUUIDs {
-    
-    // --------------------------------------------------------------
-    //  Return array of UUIDs for all mounted disks
-    // --------------------------------------------------------------
-    NSMutableArray *diskUUIDs = [[NSMutableArray alloc] init];
-    NSMutableSet *disks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
-    for ( NBCDisk *disk in disks ) {
-        if ([disk isMounted]) {
-            NSMutableDictionary *disksDict = [[NSMutableDictionary alloc] initWithObjectsAndKeys:disk, @"disk", nil];
-            NSString *uuid = [disk uuid];
-            if ( uuid ) {
-                disksDict[@"uuid"] = uuid;
-                [diskUUIDs addObject:disksDict];
-            }
-        }
-    }
-    return diskUUIDs;
-} // mountedDiskUUUIDs
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -874,14 +765,6 @@ enum {
             _currentSettingsController = _niSettingsViewController;
         }
     } else if (selectedSegment == kSegmentedControlDeployStudio) {
-        if ( ! _dsDropViewController ) {
-            _dsDropViewController = [[NBCDeployStudioDropViewController alloc] init];
-        }
-        
-        if ( _dsDropViewController ) {
-            [self addViewToDropView:[_dsDropViewController view]];
-        }
-        
         if ( ! _dsSettingsViewController) {
             _dsSettingsViewController = [[NBCDeployStudioSettingsViewController alloc] init];
         }
@@ -890,6 +773,15 @@ enum {
             [self addViewToSettingsView:[_dsSettingsViewController view]];
             _currentSettingsController = _dsSettingsViewController;
             [_currentSettingsController updateDeployStudioVersion];
+        }
+        
+        if ( ! _dsDropViewController ) {
+            _dsDropViewController = [[NBCDropViewController alloc] initWithDelegate:_dsSettingsViewController];
+            [_dsDropViewController setSettingsViewController:_dsSettingsViewController];
+        }
+        
+        if ( _dsDropViewController ) {
+            [self addViewToDropView:[_dsDropViewController view]];
         }
     } else if (selectedSegment == kSegmentedControlImagr) {
         if ( ! _imagrDropViewController ) {
@@ -924,6 +816,24 @@ enum {
         if ( _casperSettingsViewController ) {
             [self addViewToSettingsView:[_casperSettingsViewController view]];
             _currentSettingsController = _casperSettingsViewController;
+        }
+    } else if (selectedSegment == kSegmentedControlCustom) {
+        if ( ! _customSettingsViewController ) {
+            _customSettingsViewController = [[NBCCustomSettingsViewController alloc] init];
+        }
+        
+        if ( _customSettingsViewController ) {
+            [self addViewToSettingsView:[_customSettingsViewController view]];
+            _currentSettingsController = _customSettingsViewController;
+        }
+        
+        if ( ! _customDropViewController ) {
+            _customDropViewController = [[NBCDropViewController alloc] initWithDelegate:_customSettingsViewController];
+            [_customDropViewController setSettingsViewController:_customSettingsViewController];
+        }
+        
+        if ( _customDropViewController ) {
+            [self addViewToDropView:[_customDropViewController view]];
         }
     }
     
@@ -1026,6 +936,20 @@ enum {
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(noSourceView)];
         [_viewDropView addConstraints:constraintsArray];
+    } else if ( [dropView isEqualTo:[_customDropViewController view]] ) {
+        NSView *noSourceView = [_customDropViewController viewNoSource];
+        [_viewDropView addSubview:noSourceView];
+        [noSourceView setTranslatesAutoresizingMaskIntoConstraints:NO];
+        constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|[noSourceView]|"
+                                                                   options:0
+                                                                   metrics:nil
+                                                                     views:NSDictionaryOfVariableBindings(noSourceView)];
+        [_viewDropView addConstraints:constraintsArray];
+        constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[noSourceView]|"
+                                                                   options:0
+                                                                   metrics:nil
+                                                                     views:NSDictionaryOfVariableBindings(noSourceView)];
+        [_viewDropView addConstraints:constraintsArray];
     }
     
 } // addViewToDropView
@@ -1080,7 +1004,7 @@ enum {
 - (IBAction)menuItemPreferences:(id)sender {
 #pragma unused(sender)
     if ( ! _preferencesWindow ) {
-        _preferencesWindow = [[NBCPreferences alloc] initWithWindowNibName:@"NBCPreferences"];
+        [self setPreferencesWindow:[[NBCPreferences alloc] initWithWindowNibName:@"NBCPreferences"]];
     }
     [_preferencesWindow updateCacheFolderSize];
     [[_preferencesWindow window] makeKeyAndOrderFront:self];
@@ -1088,14 +1012,12 @@ enum {
 
 - (IBAction)menuItemHelp:(id)sender {
 #pragma unused(sender)
-    
     DDLogInfo(@"Opening help URL: %@", NBCHelpURL);
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NBCHelpURL]];
 } // menuItemHelp
 
 - (IBAction)menuItemMainWindow:(id)sender {
 #pragma unused(sender)
-    
     if ( _window ) {
         [_window makeKeyAndOrderFront:self];
     }
