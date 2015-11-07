@@ -62,6 +62,9 @@
              modificationsArray:(NSArray *)modificationsArray
                       withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
+- (void)removeItemsAtURLs:(NSArray *)itemURLs
+              withReply:(void(^)(NSError *error, BOOL success))reply;
+
 - (void)removeItemAtURL:(NSURL *)itemURL
               withReply:(void(^)(NSError *error, int terminationStatus))reply;
 

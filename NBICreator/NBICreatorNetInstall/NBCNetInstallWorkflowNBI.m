@@ -34,7 +34,6 @@ DDLogLevel ddLogLevel;
     [self setPackageOnlyScriptRun:NO];
     [self setNbiVolumeName:[[workflowItem nbiName] stringByDeletingPathExtension]];
     [self setTemporaryNBIPath:[[workflowItem temporaryNBIURL] path]];
-    NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
     
     NSDictionary *resourcesSettings = [workflowItem resourcesSettings];
     
@@ -48,7 +47,7 @@ DDLogLevel ddLogLevel;
         // -------------------------------------------------------------
         //  Create arguments array for createRestoreFromSources.sh
         // -------------------------------------------------------------
-        NSArray *createRestoreFromSourcesArguments = [nbiController generateScriptArgumentsForCreateRestoreFromSources:workflowItem];
+        NSArray *createRestoreFromSourcesArguments = [NBCWorkflowNBIController generateScriptArgumentsForCreateRestoreFromSources:workflowItem];
         if ( [createRestoreFromSourcesArguments count] != 0 ) {
             [workflowItem setScriptArguments:createRestoreFromSourcesArguments];
             scriptArguments = createRestoreFromSourcesArguments;
@@ -60,7 +59,7 @@ DDLogLevel ddLogLevel;
         // -------------------------------------------------------------
         //  Create environment variables for createRestoreFromSources.sh
         // -------------------------------------------------------------
-        if ( [nbiController generateEnvironmentVariablesForCreateRestoreFromSources:workflowItem] ) {
+        if ( [NBCWorkflowNBIController generateEnvironmentVariablesForCreateRestoreFromSources:workflowItem] ) {
             environmentVariables = @{}; // Here because not changing Helper Yet
         } else {
             DDLogError(@"[ERROR] No variables for createRestoreFromSources!");
@@ -90,7 +89,7 @@ DDLogLevel ddLogLevel;
         // -------------------------------------------------------------
         //  Create arguments array for createNetInstall.sh
         // -------------------------------------------------------------
-        NSArray *createNetInstallArguments = [nbiController generateScriptArgumentsForCreateNetInstall:workflowItem];
+        NSArray *createNetInstallArguments = [NBCWorkflowNBIController generateScriptArgumentsForCreateNetInstall:workflowItem];
         if ( [createNetInstallArguments count] != 0 ) {
             [workflowItem setScriptArguments:createNetInstallArguments];
             scriptArguments = createNetInstallArguments;
@@ -102,7 +101,7 @@ DDLogLevel ddLogLevel;
         // -------------------------------------------------------------
         //  Create environment variables for createNetInstall.sh
         // -------------------------------------------------------------
-        NSDictionary *createNetInstallEnvironmentVariables = [nbiController generateEnvironmentVariablesForCreateNetInstall:workflowItem];
+        NSDictionary *createNetInstallEnvironmentVariables = [NBCWorkflowNBIController generateEnvironmentVariablesForCreateNetInstall:workflowItem];
         if ( [createNetInstallEnvironmentVariables count] != 0 ) {
             [workflowItem setScriptEnvironmentVariables:createNetInstallEnvironmentVariables];
             environmentVariables = createNetInstallEnvironmentVariables;

@@ -21,10 +21,19 @@
                 <outlet property="buttonRemoveTrustedServer" destination="dpX-Xe-pyE" id="41U-i5-R6z"/>
                 <outlet property="buttonShowJSSCertificate" destination="1Af-er-Pow" id="ZsZ-5c-noQ"/>
                 <outlet property="buttonVerifyJSS" destination="3Fo-nW-IX1" id="RRG-2I-Uwe"/>
+                <outlet property="checkboxARDPasswordShow" destination="aUC-1C-Ccv" id="UAn-8u-Ctu"/>
+                <outlet property="checkboxAddBackground" destination="eYk-tM-hyH" id="hMA-vs-s6z"/>
                 <outlet property="checkboxAllowInvalidCertificate" destination="4rO-jD-c82" id="kAA-oB-FfI"/>
                 <outlet property="checkboxAvailabilityDefault" destination="VW3-gv-sX6" id="xht-Co-vHy"/>
                 <outlet property="checkboxAvailabilityEnabled" destination="Xz7-FM-R8p" id="VpE-1b-eID"/>
+                <outlet property="checkboxConsoleLaunchBehindApp" destination="weA-wb-Ce2" id="gA5-KO-08k"/>
+                <outlet property="checkboxDisableBluetooth" destination="QWT-wK-0EX" id="QjD-ad-Tmg"/>
                 <outlet property="checkboxDisableWiFi" destination="JV6-sF-KVi" id="A4U-hO-iwE"/>
+                <outlet property="checkboxIncludeConsole" destination="jct-vi-yLB" id="Uxl-uO-06b"/>
+                <outlet property="checkboxIncludePython" destination="cKa-Hl-5xh" id="uAM-EO-m5N"/>
+                <outlet property="checkboxIncludeRuby" destination="4bS-ke-MSf" id="YHG-0y-dXe"/>
+                <outlet property="checkboxIncludeSystemUIServer" destination="FPK-vP-rLi" id="aw6-pu-uop"/>
+                <outlet property="checkboxUseNetworkTimeServer" destination="aeI-Pu-jo2" id="7H7-c0-Cwm"/>
                 <outlet property="constraintSavedTemplatesToTool" destination="h5y-O3-YGu" id="88K-oA-hCP"/>
                 <outlet property="constraintTemplatesBoxHeight" destination="uXh-WZ-RaK" id="NEF-7P-whY"/>
                 <outlet property="imageViewBackgroundImage" destination="ZDY-Vy-Prg" id="0WW-Ol-8CC"/>
@@ -158,6 +167,7 @@
                                 </popUpButtonCell>
                                 <connections>
                                     <action selector="popUpButtonTool:" target="-2" id="iJw-1w-AAe"/>
+                                    <binding destination="-2" name="selectedValue" keyPath="self.nbiCreationTool" id="Rwf-hW-hbj"/>
                                 </connections>
                             </popUpButton>
                             <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Nf4-h5-EoY">

@@ -17,10 +17,11 @@
 
 #import "NBCDownloader.h"
 #import "NBCWorkflowResourcesController.h"
+#import "NBCDropViewController.h"
 
 #define BasicTableViewDragAndDropDataType @"BasicTableViewDragAndDropDataType"
 
-@interface NBCCasperSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate>
+@interface NBCCasperSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate, NBCDropViewDelegate>
 
 @property NSMutableArray *certificateTableViewContents;
 @property NSMutableArray *packagesTableViewContents;
@@ -33,6 +34,8 @@
 @property (strong) IBOutlet NSLayoutConstraint *constraintTemplatesBoxHeight;
 @property (strong) IBOutlet NSLayoutConstraint *constraintSavedTemplatesToTool;
 
+@property NSDictionary *nbiSourceSettings;
+
 // ------------------------------------------------------
 //  Class Instance Properties
 // ------------------------------------------------------
@@ -44,7 +47,6 @@
 @property NBCDownloader *jssCertificateDownloader;
 @property NBCDownloader *jssVersionDownloader;
 
-@property (weak) IBOutlet NSButton *checkboxDisableWiFi;
 // ------------------------------------------------------
 //  Tool
 // ------------------------------------------------------
@@ -149,9 +151,16 @@
 // ------------------------------------------------------
 //  TabView Options
 // ------------------------------------------------------
+@property (weak) IBOutlet NSButton *checkboxDisableWiFi;
+@property (weak) IBOutlet NSButton *checkboxDisableBluetooth;
+@property (weak) IBOutlet NSButton *checkboxIncludeRuby;
+@property (weak) IBOutlet NSButton *checkboxIncludePython;
+@property (weak) IBOutlet NSButton *checkboxIncludeSystemUIServer;
 @property (weak) IBOutlet NSTextField *textFieldARDLogin;
 @property (weak) IBOutlet NSTextField *textFieldARDPassword;
 @property (weak) IBOutlet NSSecureTextField *secureTextFieldARDPassword;
+@property (weak) IBOutlet NSButton *checkboxARDPasswordShow;
+@property (weak) IBOutlet NSButton *checkboxUseNetworkTimeServer;
 @property (weak) IBOutlet NSTextField *textFieldNetworkTimeServer;
 
 @property (weak) IBOutlet NSView *superViewPackages;
@@ -177,8 +186,14 @@
 // Pop Over
 
 @property BOOL settingTrustedNetBootServersVisible;
-
+@property (weak) IBOutlet NSButton *checkboxAddBackground;
 @property (weak) IBOutlet NBCCasperDropViewImageBackground *imageViewBackgroundImage;
+
+// ------------------------------------------------------
+//  TabView Debug
+// ------------------------------------------------------
+@property (weak) IBOutlet NSButton *checkboxIncludeConsole;
+@property (weak) IBOutlet NSButton *checkboxConsoleLaunchBehindApp;
 
 // ------------------------------------------------------
 //  UI Binding Properties

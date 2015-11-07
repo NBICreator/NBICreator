@@ -16,7 +16,6 @@
 #import "NBCSourceController.h"
 #import "NBCController.h"
 
-#import "NBCImagrWorkflowNBI.h"
 #import "NBCImagrWorkflowResources.h"
 #import "NBCImagrWorkflowModifyNBI.h"
 
@@ -85,8 +84,8 @@ DDLogLevel ddLogLevel;
     //  Add Notification Observers
     // --------------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc addObserver:self selector:@selector(updateSource:) name:NBCNotificationImagrUpdateSource object:nil];
-    [nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationImagrRemovedSource object:nil];
+    //[nc addObserver:self selector:@selector(updateSource:) name:NBCNotificationImagrUpdateSource object:nil];
+    //[nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationImagrRemovedSource object:nil];
     [nc addObserver:self selector:@selector(updateNBIIcon:) name:NBCNotificationImagrUpdateNBIIcon object:nil];
     [nc addObserver:self selector:@selector(updateNBIBackground:) name:NBCNotificationImagrUpdateNBIBackground object:nil];
     [nc addObserver:self selector:@selector(editingDidEnd:) name:NSControlTextDidEndEditingNotification object:nil];
@@ -960,6 +959,58 @@ DDLogLevel ddLogLevel;
     }
 }
 
+- (void)updateSource:(NBCSource *)source target:(NBCTarget *)target {
+#pragma unused(target)
+    if ( source != nil ) {
+        [self setSource:source];
+    }
+    
+    [self updateSettingVisibility];
+    
+    NSString *currentBackgroundImageURL = _imageBackgroundURL;
+    if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
+        [self setImageBackground:@""];
+        [self setImageBackground:NBCBackgroundImageDefaultPath];
+        [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
+    }
+    
+    if ( target != nil ) {
+        DDLogDebug(@"[DEBUG] Updating target...");
+        [self setTarget:target];
+    }
+    
+    if ( [[source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+        
+        // If current source is NBI, remove current template.
+        if ( _isNBI ) {
+            NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
+            if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
+                [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:NO];
+            }
+        }
+        
+        [self setIsNBI:YES];
+        NSURL *nbiURL = [source sourceURL];
+        [self createSettingsFromNBI:nbiURL];
+    } else {
+        if ( _isNBI ) {
+            NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
+            if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
+                [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:YES];
+            }
+        }
+        
+        [self setNbiSourceSettings:nil];
+        [self setIsNBI:NO];
+        [self updateUIForSourceType:[source sourceType] settings:nil];
+        [self expandVariablesForCurrentSettings];
+        [self verifyBuildButton];
+    }
+    
+    [self updatePopOver];
+}
+
+/* REMOVED
 - (void)updateSource:(NSNotification *)notification {
     
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
@@ -1015,7 +1066,38 @@ DDLogLevel ddLogLevel;
     
     [self updatePopOver];
 } // updateSource
+*/
 
+- (void)removedSource {
+    if ( _source ) {
+        [self setSource:nil];
+    }
+    
+    [self updateSettingVisibility];
+    
+    NSString *currentBackgroundImageURL = _imageBackgroundURL;
+    if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
+        [self setImageBackground:@""];
+        [self setImageBackground:NBCBackgroundImageDefaultPath];
+        [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
+    }
+    
+    if ( _isNBI ) {
+        NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
+        if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
+            [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:YES];
+        }
+    }
+    
+    [self setIsNBI:NO];
+    [self setNbiSourceSettings:nil];
+    [self updateUIForSourceType:NBCSourceTypeInstallerApplication settings:nil];
+    [self expandVariablesForCurrentSettings];
+    [self verifyBuildButton];
+    [self updatePopOver];
+}
+
+/* REMOVED
 - (void)removedSource:(NSNotification *)notification {
 #pragma unused(notification)
     if ( _source ) {
@@ -1045,6 +1127,11 @@ DDLogLevel ddLogLevel;
     [self verifyBuildButton];
     [self updatePopOver];
 } // removedSource
+*/
+
+- (void)refreshCreationTool {
+    [self setNbiCreationTool:_nbiCreationTool ?: NBCMenuItemNBICreator];
+}
 
 - (void)updateNBIIcon:(NSNotification *)notification {
     
@@ -2974,7 +3061,7 @@ DDLogLevel ddLogLevel;
     
     NSURL *imagrDownloadsDictURL = [_resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesCacheImagr];
     if ( imagrDownloadsDictURL != nil ) {
-        NSURL *imagrResourceFolder = [_resourcesController urlForResourceFolder:NBCFolderResourcesCacheImagr];
+        NSURL *imagrResourceFolder = [NBCWorkflowResourcesController urlForResourceFolder:NBCFolderResourcesCacheImagr];
         if ( ! [imagrResourceFolder checkResourceIsReachableAndReturnError:nil] ) {
             NSError *error;
             NSFileManager *fm = [NSFileManager defaultManager];
@@ -3351,12 +3438,6 @@ DDLogLevel ddLogLevel;
         return;
     }
     
-    // -------------------------------------------------------------
-    //  Create list of items to extract from installer
-    // -------------------------------------------------------------
-    NBCWorkflowResources *resources = [[NBCWorkflowResources alloc] initWithWorkflowItem:workflowItem];
-    resourcesSettings = [resources prepareResourcesToExtract:resourcesSettings];
-    
     NSMutableDictionary *sourceItemsDict = [[NSMutableDictionary alloc] init];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     if ( ! [[_source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
@@ -3519,7 +3600,7 @@ DDLogLevel ddLogLevel;
         resourcesSettings[NBCSettingsSourceItemsKey] = [sourceItemsDict copy];
     }
 
-      
+    
     NSMutableArray *certificates = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
         NSData *certificate = certificateDict[NBCDictionaryKeyCertificate];
@@ -3574,22 +3655,7 @@ DDLogLevel ddLogLevel;
     //  Set dict of resources to be included in NBI to workflow item
     // --------------------------------------------------------------
     [workflowItem setResourcesSettings:[resourcesSettings copy]];
-    
-    // -------------------------------------------------------------
-    //  Instantiate all workflows to be used to create a Imagr NBI
-    // -------------------------------------------------------------
-    NBCImagrWorkflowResources *workflowResources = [[NBCImagrWorkflowResources alloc] init];
-    [workflowItem setWorkflowResources:workflowResources];
-    
-    NBCImagrWorkflowNBI *workflowNBI = [[NBCImagrWorkflowNBI alloc] init];
-    [workflowItem setWorkflowNBI:workflowNBI];
-    
-    //NBCWorkflowModifyNBI *workflowModifyNBI = [[NBCWorkflowModifyNBI alloc] init];
-    //[workflowItem setWorkflowModifyNBI:workflowModifyNBI];
-    
-    NBCImagrWorkflowModifyNBI *workflowModifyNBI = [[NBCImagrWorkflowModifyNBI alloc] init];
-    [workflowItem setWorkflowModifyNBI:workflowModifyNBI];
-    
+        
     // -------------------------------------------------------------
     //  Post notification to add workflow item to queue
     // -------------------------------------------------------------

@@ -121,7 +121,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     [self hideNoSource];
 } // viewDidLoad
 
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
     if ( [keyPath isEqualToString:@"nbiCreationTool"] ) {
         NSString *creationTool = change[@"new"];

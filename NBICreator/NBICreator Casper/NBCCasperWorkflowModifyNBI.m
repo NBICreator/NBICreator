@@ -1325,9 +1325,7 @@ DDLogLevel ddLogLevel;
     NSURL *casperImagingURL = [volumeURL URLByAppendingPathComponent:NBCCasperImagingApplicationNBICreatorTargetURL];
     
     NSURL *command = [NSURL fileURLWithPath:@"/usr/sbin/chown"];
-    NSArray *arguments = @[
-                           @"-R", @"root:wheel", [casperImagingURL path]
-                           ];
+    NSArray *arguments = @[ @"-R", @"root:wheel", [casperImagingURL path] ];
     
     // -----------------------------------------------------------------------------------
     //  Create standard output file handle and register for data available notifications.

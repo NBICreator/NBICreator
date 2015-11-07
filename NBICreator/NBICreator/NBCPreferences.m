@@ -131,8 +131,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSURL *)cacheFolderURL {
-    NBCWorkflowResourcesController *resourcesController = [[NBCWorkflowResourcesController alloc] init];
-    return [resourcesController urlForResourceFolder:NBCFolderResourcesCache];
+    return [NBCWorkflowResourcesController urlForResourceFolder:NBCFolderResourcesCache];
 }
 
 - (void)updateCacheFolderSize {

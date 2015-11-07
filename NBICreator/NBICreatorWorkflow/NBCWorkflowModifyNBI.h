@@ -22,10 +22,12 @@
 
 @property BOOL updatedKernelCache;
 @property BOOL addedUsers;
+@property NSString *creationTool;
+@property int workflowType;
 
 // Methods
 
 - (id)initWithDelegate:(id<NBCWorkflowProgressDelegate>)delegate;
-- (void)runWorkflow:(NBCWorkflowItem *)workflowItem;
+- (void)modifyNBI:(NBCWorkflowItem *)workflowItem;
 
 @end

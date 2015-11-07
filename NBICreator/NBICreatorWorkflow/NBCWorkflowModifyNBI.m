@@ -24,6 +24,12 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCWorkflowModifyNBI
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Initialization
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 - (id)initWithDelegate:(id<NBCWorkflowProgressDelegate>)delegate {
     self = [super init];
     if (self) {
@@ -32,11 +38,20 @@ DDLogLevel ddLogLevel;
     return self;
 }
 
-- (void)runWorkflow:(NBCWorkflowItem *)workflowItem {
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Modify
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)modifyNBI:(NBCWorkflowItem *)workflowItem {
     
     DDLogInfo(@"Modifying NBI...");
-
+    
     [self setWorkflowItem:workflowItem];
+    [self setWorkflowType:[_workflowItem workflowType]];
+    [self setCreationTool:[_workflowItem userSettings][NBCSettingsNBICreationToolKey]];
+    
     NSDictionary *settingsChanged = [workflowItem userSettingsChanged];
     
     NSError *error;
@@ -73,7 +88,9 @@ DDLogLevel ddLogLevel;
                                       ) ) ) {
             
             DDLogInfo(@"Updating NBImageInfo.plist...");
-            [_delegate updateProgressStatus:@"Updating NBImageInfo.plist..." workflow:self];
+            if ( _delegate && [_delegate respondsToSelector:@selector(updateProgressStatus:workflow:)] ) {
+                [_delegate updateProgressStatus:@"Updating NBImageInfo.plist..." workflow:self];
+            }
             
             if ( ! [self updateNBImageInfoForNBIAtURL:nbiURL workflowItem:workflowItem error:&error] ) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
@@ -318,6 +335,7 @@ DDLogLevel ddLogLevel;
                                                               userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Resize and mount BaseSystem failed"] }];
         } else {
             NSLog(@"JUST MOUNT!?");
+            [[_workflowItem target] printAllVariables];
         }
     } else {
         [self modifyVolumeNetInstall];
@@ -345,15 +363,32 @@ DDLogLevel ddLogLevel;
             [self setCurrentVolumeURL:netInstallVolumeURL];
             [self setCurrentVolumeResources:resourcesNetInstallDict];
             
-            // ---------------------------------------------------------------
-            //  Install Packages
-            // ---------------------------------------------------------------
-            [self installPackagesToVolume];
+            // ------------------------------------------------------------------
+            //  Delete and recreate folder Packages
+            // ------------------------------------------------------------------
+            if (
+                [_creationTool isEqualToString:NBCMenuItemNBICreator]
+                && (
+                    [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeInstallerApplication] ||
+                    [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeInstallESDDiskImage]
+                    ) ) {
+                    
+                    // ---------------------------------------------------------------
+                    //  Remove folder Packages and recreate an empty version
+                    // ---------------------------------------------------------------
+                    [self removeFolderPackagesInNetInstallVolume:netInstallVolumeURL];
+                } else {
+                    
+                    // ---------------------------------------------------------------
+                    //  Install Packages
+                    // ---------------------------------------------------------------
+                    [self installPackagesToVolume];
+                }
         } else {
             NSLog(@"NET INSTALL NOT MOUNTED! FIX HERE");
         }
     } else {
-        [self modifyVolumeNetInstall];
+        [self finalizeWorkflow];
     }
 } // modifyVolumeNetInstall
 
@@ -362,11 +397,19 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"[DEBUG] Current volume is: %@", _currentVolume);
     
     NSDictionary *userSettings = [_workflowItem userSettings];
+    NSDictionary *userSettingsChanged = [_workflowItem userSettingsChanged];
     NSString *creationTool = userSettings[NBCSettingsNBICreationToolKey];
     
     if ( [_currentVolume isEqualToString:@"BaseSystem"] ) {
         
-        if ( ! _updatedKernelCache ) {
+        if ( ( ! _isNBI && ! _updatedKernelCache && (
+                                                     [[_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] ||
+                                                     [[_workflowItem userSettings][NBCSettingsDisableBluetoothKey] boolValue] )
+              ) || ( _isNBI && ! _updatedKernelCache && (
+                                                         [userSettingsChanged[NBCSettingsDisableWiFiKey] boolValue] ||
+                                                         [userSettingsChanged[NBCSettingsDisableBluetoothKey] boolValue]
+                                                         )
+                    ) ) {
             [self updateKernelCache];
             return;
         }
@@ -399,10 +442,12 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)finalizeWorkflow {
-    if ( ! _isNBI || ( _isNBI && [_workflowItem userSettingsChangedRequiresBaseSystem] ) ) {
+    if ( [[[_workflowItem target] baseSystemDisk] isMounted] && [[[_workflowItem target] baseSystemShadowPath] length] != 0 ) {
         [self convertBaseSystemFromShadow];
-    } else {
+    } else if ( [[[_workflowItem target] nbiNetInstallDisk] isMounted] && [[[_workflowItem target] nbiNetInstallShadowPath] length] != 0 ) {
         [self convertNetInstallFromShadow];
+    } else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteModifyNBI object:self userInfo:nil];
     }
 }
 
@@ -415,7 +460,9 @@ DDLogLevel ddLogLevel;
 - (void)convertBaseSystemFromShadow {
     
     DDLogInfo(@"Converting BaseSystem disk image and shadow file...");
-    [self->_delegate updateProgressStatus:@"Converting BaseSystem disk image and shadow file..." workflow:self];
+    if ( _delegate && [_delegate respondsToSelector:@selector(updateProgressStatus:workflow:)] ) {
+        [self->_delegate updateProgressStatus:@"Converting BaseSystem disk image and shadow file..." workflow:self];
+    }
     
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -812,15 +859,73 @@ DDLogLevel ddLogLevel;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark Modify Items In Volume
+#pragma mark Modify Items On Volume
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)applyModificationsToVolume {
-    NBCWorkflowResourcesModify *resourcesModify = [[NBCWorkflowResourcesModify alloc] initWithWorkflowItem:_workflowItem];
-    NSArray *modificationsArray = [resourcesModify prepareResourcesToModify];
-    if ( [modificationsArray count] != 0 ) {
+- (void)removeFolderPackagesInNetInstallVolume:(NSURL *)netInstallVolumeURL {
+    NSURL *packagesFolderURL = [netInstallVolumeURL URLByAppendingPathComponent:@"Packages"];
+    DDLogDebug(@"[DEBUG] Packages folder path: %@", [packagesFolderURL path]);
+    
+    if ( [packagesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+        DDLogInfo(@"Removing folder Packages in NetInstall volume...");
+        
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        [[helperConnector connection] setExportedObject:[_workflowItem progressView]];
+        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                [self modifyFailedWithError:proxyError];
+            }];
+        }] removeItemAtURL:packagesFolderURL withReply:^(NSError *error, int terminationStatus) {
+            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                if ( terminationStatus == 0 ) {
+                    [self createFolderPackagesInNetInstallVolume:packagesFolderURL];
+                } else {
+                    [self modifyFailedWithError:error];
+                }
+            }];
+        }];
+    } else {
+        [self createFolderPackagesInNetInstallVolume:packagesFolderURL];
+    }
+}
 
+- (void)createFolderPackagesInNetInstallVolume:(NSURL *)packagesFolderURL {
+    
+    DDLogInfo(@"Creating empty folder Packages/Extra in NetInstall volume...");
+    
+    NSError *error;
+    
+    NSURL *extrasFolderURL = [packagesFolderURL URLByAppendingPathComponent:@"Extras"];
+    DDLogDebug(@"[DEBUG] Extras folder path: %@", [extrasFolderURL path]);
+    
+    if ( [[[NSFileManager alloc] init] createDirectoryAtURL:extrasFolderURL withIntermediateDirectories:YES attributes:@{
+                                                                                                                         NSFileOwnerAccountName :      @"root",
+                                                                                                                         NSFileGroupOwnerAccountName : @"wheel",
+                                                                                                                         NSFilePosixPermissions :      @0777
+                                                                                                                         } error:&error] ) {
+        
+        // ---------------------------------------------------------------
+        //  Install Packages
+        // ---------------------------------------------------------------
+        [self installPackagesToVolume];
+    } else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                            object:self
+                                                          userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Creating folder Extras failed!"]}];
+    }
+}
+
+- (void)applyModificationsToVolume {
+    
+    NSError *err = nil;
+    
+    NBCWorkflowResourcesModify *workflowResourcesModify = [[NBCWorkflowResourcesModify alloc] initWithWorkflowItem:_workflowItem];
+    NSArray *modificationsArray = [workflowResourcesModify prepareResourcesToModify:&err];
+    if ( [modificationsArray count] != 0 ) {
+        
         DDLogInfo(@"Applying modifications to volume...");
         [_delegate updateProgressStatus:@"Applying modifications to volume..." workflow:self];
         
@@ -830,7 +935,7 @@ DDLogLevel ddLogLevel;
         [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
         [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
-                [self copyFailedWithError:proxyError];
+                [self modifyFailedWithError:proxyError];
             }];
         }] modifyResourcesOnVolume:_currentVolumeURL modificationsArray:modificationsArray withReply:^(NSError *error, int terminationStatus) {
             [[NSOperationQueue mainQueue]addOperationWithBlock:^{
@@ -842,7 +947,13 @@ DDLogLevel ddLogLevel;
             }];
         }];
     } else {
-        [self disableSpotlightOnVolume];
+        if ( ! err ) {
+            [self disableSpotlightOnVolume];
+        } else {
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                object:self
+                                                              userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:[NSString stringWithFormat:@"Modifying volume %@ failed", _currentVolume ]]}];
+        }
     }
 } // applyModificationsToVolume
 
@@ -977,7 +1088,7 @@ DDLogLevel ddLogLevel;
                 [self setAddedUsers:YES];
                 [self modifyComplete];
             } else {
-                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Creating user failed!"] }];
             }
         }];
     }];

@@ -307,7 +307,7 @@ DDLogLevel ddLogLevel;
         //  Desktop Picture
         // ---------------------------
         if ( ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
-
+            
             NSString *backgroundImagePath = _userSettings[NBCSettingsBackgroundImageKey];
             DDLogDebug(@"[DEBUG] Background image path: %@", backgroundImagePath);
             
@@ -399,7 +399,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)prepareCertificates:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
 #pragma unused(workflowItem)
-
+    
     NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
     if ( [certificatesArray count] != 0 ) {
         
@@ -553,9 +553,9 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)getImagrApplication:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
 #pragma unused(workflowItem)
-
+    
     DDLogInfo(@"Preparing Imagr.app...");
-
+    
     NSString *selectedImagrVersion = _userSettings[NBCSettingsImagrVersion];
     DDLogDebug(@"[DEBUG] Selected Imagr version: %@", selectedImagrVersion);
     
@@ -611,14 +611,14 @@ DDLogLevel ddLogLevel;
         
         NSString *branch = _resourcesSettings[NBCSettingsImagrGitBranch];
         DDLogDebug(@"[DEBUG] Selected Imagr git branch: %@", branch);
-
+        
         NSString *sha = _resourcesSettings[NBCSettingsImagrGitBranchSHA];
         DDLogDebug(@"[DEBUG] Selected Imagr git branch SHA: %@", sha);
         
         NSString *buildTarget = _resourcesSettings[NBCSettingsImagrBuildTarget];
         DDLogDebug(@"[DEBUG] Selected Imagr git branch build target: %@", buildTarget);
         
-        NSURL *imagrBranchCachedVersionURL = [_resourcesController cachedBranchURL:branch sha:sha resourcesFolder:NBCFolderResourcesCacheImagr];
+        NSURL *imagrBranchCachedVersionURL = [NBCWorkflowResourcesController cachedBranchURL:branch sha:sha resourcesFolder:NBCFolderResourcesCacheImagr];
         if ( [imagrBranchCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
             DDLogDebug(@"[DEBUG] Cached download of selected branch exists at: %@", [imagrBranchCachedVersionURL path]);
             
@@ -696,7 +696,7 @@ DDLogLevel ddLogLevel;
         
         [self setImagrVersion:selectedImagrVersion];
         
-        NSURL *imagrCachedVersionURL = [_resourcesController cachedVersionURL:selectedImagrVersion resourcesFolder:NBCFolderResourcesCacheImagr];
+        NSURL *imagrCachedVersionURL = [NBCWorkflowResourcesController cachedVersionURL:selectedImagrVersion resourcesFolder:NBCFolderResourcesCacheImagr];
         if ( [imagrCachedVersionURL checkResourceIsReachableAndReturnError:nil] ) {
             DDLogDebug(@"[DEBUG] Cached download of selected release exists at: %@", [imagrCachedVersionURL path]);
             
@@ -811,7 +811,7 @@ DDLogLevel ddLogLevel;
         // ---------------------------------------------------------------
         //  Extract Imagr from zip and copy to resourecs for future use
         // ---------------------------------------------------------------
-        NSURL *imagrProjectURL = [_resourcesController unzipAndCopyGitBranchToResourceFolder:downloadedFileURL resourcesFolder:NBCFolderResourcesCacheImagr branchDict:branchDict];
+        NSURL *imagrProjectURL = [NBCWorkflowResourcesController unzipAndCopyGitBranchToResourceFolder:downloadedFileURL resourcesFolder:NBCFolderResourcesCacheImagr branchDict:branchDict];
         if ( imagrProjectURL ) {
             [_resourcesController buildProjectAtURL:imagrProjectURL buildTarget:buildTarget];
         } else {
@@ -842,10 +842,10 @@ DDLogLevel ddLogLevel;
     // ---------------------------------------------------------------
     //  Extract Imagr from dmg and copy to resourecs for future use
     // ---------------------------------------------------------------
-    NSURL *imagrDownloadedVersionURL = [_resourcesController attachDiskImageAndCopyFileToResourceFolder:downloadedFileURL
-                                                                                               filePath:@"Imagr.app"
-                                                                                        resourcesFolder:NBCFolderResourcesCacheImagr
-                                                                                                version:version];
+    NSURL *imagrDownloadedVersionURL = [NBCWorkflowResourcesController attachDiskImageAndCopyFileToResourceFolder:downloadedFileURL
+                                                                                                         filePath:@"Imagr.app"
+                                                                                                  resourcesFolder:NBCFolderResourcesCacheImagr
+                                                                                                          version:version];
     if ( imagrDownloadedVersionURL ) {
         NSDictionary *imagrDownloadedVersionAttributes  = @{
                                                             NSFileOwnerAccountName : @"root",

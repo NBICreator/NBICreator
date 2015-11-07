@@ -18,7 +18,7 @@ DDLogLevel ddLogLevel;
 
 
 
-- (NSArray *)generateScriptArgumentsForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
++ (NSArray *)generateScriptArgumentsForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
     NSMutableArray *createRestoreFromSourcesArguments = [[NSMutableArray alloc] init];
     
     // -------------------------------------------------------------------
@@ -46,7 +46,7 @@ DDLogLevel ddLogLevel;
     
 } // generateSysBuilderArgumentsFromSettingsDict
 
-- (NSArray *)generateScriptArgumentsForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
++ (NSArray *)generateScriptArgumentsForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
     NSMutableArray *createNetInstallArguments = [[NSMutableArray alloc] init];
     
     // -------------------------------------------------------------------
@@ -74,7 +74,7 @@ DDLogLevel ddLogLevel;
     
 } // generateSysBuilderArgumentsFromSettingsDict
 
-- (BOOL)generateEnvironmentVariablesForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
++ (BOOL)generateEnvironmentVariablesForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
     BOOL retval = YES;
     NSMutableString *environmentVariablesContent = [[NSMutableString alloc] init];
     
@@ -144,7 +144,7 @@ DDLogLevel ddLogLevel;
     return retval;
 } // generateEnvironmentVariablesForCreateNetInstall
 
-- (NSDictionary *)generateEnvironmentVariablesForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
++ (NSDictionary *)generateEnvironmentVariablesForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
     
     NSMutableDictionary *environmentVariables = [[NSMutableDictionary alloc] init];
     NSString *envVariablesContent;
@@ -222,7 +222,7 @@ DDLogLevel ddLogLevel;
     return environmentVariables;
 } // generateEnvironmentVariablesForCreateNetInstall
 
-- (NSArray *)generateScriptArgumentsForSysBuilder:(NBCWorkflowItem *)workflowItem {
++ (NSArray *)generateScriptArgumentsForSysBuilder:(NBCWorkflowItem *)workflowItem {
     
     NSMutableArray *sysBuilderArguments = [[NSMutableArray alloc] init];
     // -------------------------------------------------------------------

@@ -259,7 +259,6 @@ DDLogLevel ddLogLevel;
     DDLogInfo(@"Using System Image Utitlity to create base NBI");
     NSError *err;
     __unsafe_unretained typeof(self) weakSelf = self;
-    NBCWorkflowNBIController *nbiController = [[NBCWorkflowNBIController alloc] init];
     
     // -------------------------------------------------------------
     //  Get used space on InstallESD source volume for progress bar
@@ -283,7 +282,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     //  Create arguments array for createNetInstall.sh
     // -------------------------------------------------------------
-    NSArray *createNetInstallArguments = [nbiController generateScriptArgumentsForCreateNetInstall:workflowItem];
+    NSArray *createNetInstallArguments = [NBCWorkflowNBIController generateScriptArgumentsForCreateNetInstall:workflowItem];
     if ( [createNetInstallArguments count] != 0 ) {
         [workflowItem setScriptArguments:createNetInstallArguments];
     } else {
@@ -294,7 +293,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     //  Create environment variables for createNetInstall.sh
     // -------------------------------------------------------------
-    NSDictionary *environmentVariables = [nbiController generateEnvironmentVariablesForCreateNetInstall:workflowItem];
+    NSDictionary *environmentVariables = [NBCWorkflowNBIController generateEnvironmentVariablesForCreateNetInstall:workflowItem];
     if ( [environmentVariables count] != 0 ) {
         [workflowItem setScriptEnvironmentVariables:environmentVariables];
     } else {

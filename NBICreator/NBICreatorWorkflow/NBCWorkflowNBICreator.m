@@ -17,6 +17,12 @@
 
 @implementation NBCWorkflowNBICreator
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Initialization
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 - (id)initWithDelegate:(id<NBCWorkflowProgressDelegate>)delegate {
     self = [super init];
     if (self) {
@@ -24,6 +30,12 @@
     }
     return self;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Create NBI
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)createNBI:(NBCWorkflowItem *)workflowItem {
     
@@ -35,6 +47,8 @@
     //  Get BaseSystem disk image size for copy progress bar
     // -------------------------------------------------------------
     DDLogInfo(@"Getting size of BaseSystem disk image...");
+    
+    [self setWorkflowItem:workflowItem];
     
     NSURL *baseSystemDiskImageURL = [[workflowItem source] baseSystemDiskImageURL];
     DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
@@ -205,7 +219,7 @@
             }
             
             if ( [fm copyItemAtURL:kernelCacheSourceURL toURL:kernelCacheTargetURL error:&error] ) {
-                [nc postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
+                [self finalizeNBI];
             } else {
                 [nc postNotificationName:NBCNotificationWorkflowFailed
                                   object:self
@@ -226,6 +240,31 @@
         return;
     }
 } // createNBIFilesNBICreator
+
+- (void)finalizeNBI {
+    
+    DDLogInfo(@"Removing temporary items...");
+    
+    __block NSError *error;
+    NSFileManager *fm = [NSFileManager defaultManager];
+    
+    // -------------------------------------------------------------
+    //  Delete all items in temporaryItems array at end of workflow
+    // -------------------------------------------------------------
+    NSArray *temporaryItemsNBI = [_workflowItem temporaryItemsNBI];
+    for ( NSURL *temporaryItemURL in temporaryItemsNBI ) {
+        DDLogDebug(@"[DEBUG] Removing item at path: %@", [temporaryItemURL path]);
+        
+        if ( ! [fm removeItemAtURL:temporaryItemURL error:&error] ) {
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        }
+    }
+    
+    // ------------------------
+    //  Send workflow complete
+    // ------------------------
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
+}
 
 -(void)checkCopyProgressBaseSystem:(NSTimer *)timer {
     

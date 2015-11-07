@@ -81,8 +81,8 @@ DDLogLevel ddLogLevel;
     //  Add Notification Observers
     // --------------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc addObserver:self selector:@selector(updateSource:) name:NBCNotificationCasperUpdateSource object:nil];
-    [nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationCasperRemovedSource object:nil];
+    //[nc addObserver:self selector:@selector(updateSource:) name:NBCNotificationCasperUpdateSource object:nil];
+    //[nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationCasperRemovedSource object:nil];
     [nc addObserver:self selector:@selector(updateNBIIcon:) name:NBCNotificationCasperUpdateNBIIcon object:nil];
     [nc addObserver:self selector:@selector(updateNBIBackground:) name:NBCNotificationCasperUpdateNBIBackground object:nil];
     [nc addObserver:self selector:@selector(editingDidEnd:) name:NSControlTextDidEndEditingNotification object:nil];
@@ -966,6 +966,57 @@ DDLogLevel ddLogLevel;
     }
 }
 
+- (void)updateSource:(NBCSource *)source target:(NBCTarget *)target {
+    if ( source != nil ) {
+        [self setSource:source];
+    }
+    
+    [self updateSettingVisibility];
+    
+    NSString *currentBackgroundImageURL = _imageBackgroundURL;
+    if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
+        [self setImageBackground:@""];
+        [self setImageBackground:NBCBackgroundImageDefaultPath];
+        [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
+    }
+    
+    if ( target != nil ) {
+        DDLogDebug(@"[DEBUG] Updating target...");
+        [self setTarget:target];
+    }
+    
+    if ( [[source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+        
+        // If current source is NBI, remove current template.
+        if ( _isNBI ) {
+            NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
+            if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
+                [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:NO];
+            }
+        }
+        
+        [self setIsNBI:YES];
+        NSURL *nbiURL = [source sourceURL];
+        [self createSettingsFromNBI:nbiURL];
+    } else {
+        if ( _isNBI ) {
+            NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
+            if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
+                [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:YES];
+            }
+        }
+        
+        [self setNbiSourceSettings:nil];
+        [self setIsNBI:NO];
+        //[self updateUIForSourceType:[source sourceType] settings:nil];
+        [self expandVariablesForCurrentSettings];
+        [self verifyBuildButton];
+    }
+    
+    [self updatePopOver];
+}
+
+/* REMOVED
 - (void)updateSource:(NSNotification *)notification {
     
     NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
@@ -1002,7 +1053,38 @@ DDLogLevel ddLogLevel;
     
     [self updatePopOver];
 } // updateSource
+*/
 
+- (void)removedSource {
+    if ( _source ) {
+        [self setSource:nil];
+    }
+    
+    [self updateSettingVisibility];
+    
+    NSString *currentBackgroundImageURL = _imageBackgroundURL;
+    if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
+        [self setImageBackground:@""];
+        [self setImageBackground:NBCBackgroundImageDefaultPath];
+        [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
+    }
+    
+    if ( _isNBI ) {
+        NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
+        if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
+            [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:YES];
+        }
+    }
+    
+    [self setIsNBI:NO];
+    [self setNbiSourceSettings:nil];
+    //[self updateUIForSourceType:NBCSourceTypeInstallerApplication settings:nil];
+    [self expandVariablesForCurrentSettings];
+    [self verifyBuildButton];
+    [self updatePopOver];
+}
+
+/*
 - (void)removedSource:(NSNotification *)notification {
 #pragma unused(notification)
     
@@ -1027,6 +1109,11 @@ DDLogLevel ddLogLevel;
     [self verifyBuildButton];
     [self updatePopOver];
 } // removedSource
+*/
+
+- (void)refreshCreationTool {
+    [self setNbiCreationTool:_nbiCreationTool ?: NBCMenuItemNBICreator];
+}
 
 - (void)updateNBIIcon:(NSNotification *)notification {
     
@@ -1335,6 +1422,94 @@ DDLogLevel ddLogLevel;
     }
     /* --------------------------------------------------------------------- */
 } // updateUISettingsFromDict
+
+- (void)updateUIForSourceType:(NSString *)sourceType settings:(NSDictionary *)settingsDict{
+    
+    // -------------------------------------------------------------------------------
+    //  If source is NBI, disable all settings that require extraction from OS Source.
+    // -------------------------------------------------------------------------------
+    if ( [sourceType isEqualToString:NBCSourceTypeNBI] ) {
+        
+        [_popUpButtonTool setEnabled:NO];
+        [_popUpButtonTemplates setEnabled:NO];
+        
+        // Tab Bar: General
+        [_textFieldDestinationFolder setEnabled:NO];
+        [_buttonChooseDestinationFolder setEnabled:NO];
+        
+        // Tab Bar: Options
+        if ( [settingsDict[NBCSettingsDisableWiFiKey] boolValue] ) {
+            [_checkboxDisableWiFi setEnabled:NO];
+        } else {
+            [_checkboxDisableWiFi setEnabled:YES];
+        }
+        
+        if ( [settingsDict[NBCSettingsDisableBluetoothKey] boolValue] ) {
+            [_checkboxDisableBluetooth setEnabled:NO];
+        } else {
+            [_checkboxDisableBluetooth setEnabled:YES];
+        }
+        
+        [_checkboxIncludeRuby setEnabled:NO];
+        [_checkboxIncludePython setEnabled:NO];
+        [_checkboxIncludeSystemUIServer setEnabled:NO];
+        
+        if ( [settingsDict[NBCSettingsARDLoginKey] length] != 0 ) {
+            [_textFieldARDLogin setEnabled:YES];
+            [_textFieldARDPassword setEnabled:YES];
+            [_secureTextFieldARDPassword setEnabled:YES];
+            [_checkboxARDPasswordShow setEnabled:YES];
+        } else {
+            [_textFieldARDLogin setEnabled:NO];
+            [_textFieldARDPassword setEnabled:NO];
+            [_secureTextFieldARDPassword setEnabled:NO];
+            [_checkboxARDPasswordShow setEnabled:NO];
+        }
+        
+        if ( [settingsDict[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
+            [_checkboxUseNetworkTimeServer setEnabled:YES];
+        } else {
+            [_checkboxUseNetworkTimeServer setEnabled:NO];
+        }
+        
+        // Tab Bar: Advanced
+        [_checkboxAddBackground setEnabled:NO];
+        
+        // Tab Bar: Debug
+        [_checkboxIncludeConsole setEnabled:NO];
+        if ( [settingsDict[NBCSettingsIncludeConsoleAppKey] boolValue] ) {
+            [_checkboxConsoleLaunchBehindApp setEnabled:YES];
+        } else {
+            [_checkboxConsoleLaunchBehindApp setEnabled:NO];
+        }
+    } else {
+        [_popUpButtonTool setEnabled:YES];
+        [_popUpButtonTemplates setEnabled:YES];
+        
+        // Tab Bar: General
+        [_textFieldDestinationFolder setEnabled:YES];
+        [_buttonChooseDestinationFolder setEnabled:YES];
+        
+        // Tab Bar: Options
+        [_checkboxDisableWiFi setEnabled:YES];
+        [_checkboxDisableBluetooth setEnabled:YES];
+        [_checkboxIncludeRuby setEnabled:YES];
+        [_checkboxIncludePython setEnabled:YES];
+        [_checkboxIncludeSystemUIServer setEnabled:YES];
+        [_textFieldARDLogin setEnabled:YES];
+        [_textFieldARDPassword setEnabled:YES];
+        [_secureTextFieldARDPassword setEnabled:YES];
+        [_checkboxARDPasswordShow setEnabled:YES];
+        [_checkboxUseNetworkTimeServer setEnabled:YES];
+        
+        // Tab Bar: Advanced
+        [_checkboxAddBackground setEnabled:YES];
+        
+        // Tab Bar: Debug
+        [_checkboxIncludeConsole setEnabled:YES];
+        [_checkboxConsoleLaunchBehindApp setEnabled:YES];
+    }
+}
 
 - (void)updateJSSCACertificateExpirationFromDateNotValidAfter:(NSDate *)dateAfter dateNotValidBefore:(NSDate *)dateBefore {
 #pragma unused(dateBefore)

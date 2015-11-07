@@ -13,10 +13,6 @@
 #import "NBCWorkflowItem.h"
 #import "NBCSettingsController.h"
 
-#import "NBCDeployStudioWorkflowNBI.h"
-#import "NBCDeployStudioWorkflowResources.h"
-#import "NBCDeployStudioWorkflowModifyNBI.h"
-
 #import "Reachability.h"
 #import "NBCWorkflowResourcesController.h"
 
@@ -450,7 +446,7 @@ DDLogLevel ddLogLevel;
 - (void)updateSource:(NBCSource *)source target:(NBCTarget *)target {
 #pragma unused(target)
     if ( source != nil ) {
-        _source = source;
+        [self setSource:source];
     }
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
@@ -467,7 +463,7 @@ DDLogLevel ddLogLevel;
 
 - (void)removedSource {
     if ( _source ) {
-        _source = nil;
+        [self setSource:nil];
     }
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
@@ -1449,22 +1445,7 @@ DDLogLevel ddLogLevel;
         resourcesSettings[NBCSettingsSourceItemsKey] = sourceItemsDict;
         [workflowItem setResourcesSettings:[resourcesSettings copy]];
     }
-    
-    // -------------------------------------------------------------------
-    //  Instantiate all workflows to be used to create a DeployStudio NBI
-    // -------------------------------------------------------------------
-    NBCDeployStudioWorkflowResources *workflowResources = [[NBCDeployStudioWorkflowResources alloc] init];
-    [workflowItem setWorkflowResources:workflowResources];
-    
-    NBCDeployStudioWorkflowNBI *workflowNBI = [[NBCDeployStudioWorkflowNBI alloc] init];
-    [workflowItem setWorkflowNBI:workflowNBI];
-    
-    //NBCWorkflowModifyNBI *workflowModifyNBI = [[NBCWorkflowModifyNBI alloc] init];
-    //[workflowItem setWorkflowModifyNBI:workflowModifyNBI];
-    
-    NBCDeployStudioWorkflowModifyNBI *workflowModifyNBI = [[NBCDeployStudioWorkflowModifyNBI alloc] init];
-    [workflowItem setWorkflowModifyNBI:workflowModifyNBI];
-    
+        
     // -------------------------------------------------------------
     //  Post notification to add workflow item to queue
     // -------------------------------------------------------------

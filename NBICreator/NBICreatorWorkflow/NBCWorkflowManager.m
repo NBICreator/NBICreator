@@ -13,8 +13,6 @@
 #import "NSString+randomString.h"
 #import "NBCImagrWorkflowResources.h"
 #import "NBCImagrWorkflowModifyNBI.h"
-#import "NBCDeployStudioWorkflowResources.h"
-#import "NBCDeployStudioWorkflowModifyNBI.h"
 #import "NBCNetInstallWorkflowResources.h"
 #import "NBCNetInstallWorkflowModifyNBI.h"
 #import "NBCHelperConnection.h"
@@ -25,6 +23,10 @@
 #import "NBCDiskImageController.h"
 #import "NBCError.h"
 #import "NBCWorkflowNBICreator.h"
+#import "NBCWorkflowResources.h"
+#import "NBCWorkflowModifyNBI.h"
+#import "NBCWorkflowSystemImageUtility.h"
+#import "NBCWorkflowDeployStudioAssistant.h"
 
 DDLogLevel ddLogLevel;
 
@@ -374,6 +376,14 @@ DDLogLevel ddLogLevel;
         [self setCurrentWorkflowProgressView:[_currentWorkflowItem progressView]];
         [_currentWorkflowProgressView workflowStartedForItem:_currentWorkflowItem];
         
+        NSString *creationTool = [_currentWorkflowItem userSettings][NBCSettingsNBICreationToolKey];
+        DDLogDebug(@"[DEBUG] NBI creation tool: %@", creationTool);
+        if ( [creationTool length] != 0 ) {
+            [self setCurrentCreationTool:creationTool];
+        } else {
+            
+        }
+        
         // -------------------------------------------------------------
         //  Create a path to a unique temporary folder
         // -------------------------------------------------------------
@@ -427,26 +437,57 @@ DDLogLevel ddLogLevel;
         return;
     }
     
-    /*
-    if ( [[_currentWorkflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemNBICreator] ) {
-        NBCWorkflowNBICreator *workflowNBICreator = [[NBCWorkflowNBICreator alloc] initWithDelegate:[_currentWorkflowItem progressView]];
+    if ( [_currentCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
+        NBCWorkflowNBICreator *workflowNBICreator = [[NBCWorkflowNBICreator alloc] initWithDelegate:_currentWorkflowProgressView];
         [_currentWorkflowItem setWorkflowNBI:workflowNBICreator];
         [self setCurrentWorkflowNBI:workflowNBICreator];
         if ( workflowNBICreator ) {
             [workflowNBICreator createNBI:_currentWorkflowItem];
         }
-    } else {*/
+        
+        NBCWorkflowResources *workflowResources = [[NBCWorkflowResources alloc] initWithDelegate:_currentWorkflowProgressView];
+        [self setCurrentWorkflowResources:workflowResources];
+        if ( workflowResources ) {
+            [workflowResources prepareResources:_currentWorkflowItem];
+        }
+    } else if ( [_currentCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+        NBCWorkflowSystemImageUtility *workflowSystemImageUtility = [[NBCWorkflowSystemImageUtility alloc] initWithDelegate:_currentWorkflowProgressView];
+        [_currentWorkflowItem setWorkflowNBI:workflowSystemImageUtility];
+        [self setCurrentWorkflowNBI:workflowSystemImageUtility];
+        if ( workflowSystemImageUtility ) {
+            [workflowSystemImageUtility createNBI:_currentWorkflowItem];
+        }
+        
+        NBCWorkflowResources *workflowResources = [[NBCWorkflowResources alloc] initWithDelegate:_currentWorkflowProgressView];
+        [self setCurrentWorkflowResources:workflowResources];
+        if ( workflowResources ) {
+            [workflowResources prepareResources:_currentWorkflowItem];
+        }
+    } else if ( [_currentCreationTool isEqualToString:NBCMenuItemDeployStudioAssistant] ) {
+        NBCWorkflowDeployStudioAssistant *workflowDeployStudioAssistant = [[NBCWorkflowDeployStudioAssistant alloc] initWithDelegate:_currentWorkflowProgressView];
+        [_currentWorkflowItem setWorkflowNBI:workflowDeployStudioAssistant];
+        [self setCurrentWorkflowNBI:workflowDeployStudioAssistant];
+        if ( workflowDeployStudioAssistant ) {
+            [workflowDeployStudioAssistant createNBI:_currentWorkflowItem];
+        }
+        
+        NBCWorkflowResources *workflowResources = [[NBCWorkflowResources alloc] initWithDelegate:_currentWorkflowProgressView];
+        [self setCurrentWorkflowResources:workflowResources];
+        if ( workflowResources ) {
+            [workflowResources prepareResources:_currentWorkflowItem];
+        }
+    } else {
         [self setCurrentWorkflowNBI:[_currentWorkflowItem workflowNBI]];
         if ( _currentWorkflowNBI ) {
             [_currentWorkflowNBI setDelegate:_currentWorkflowProgressView];
             [_currentWorkflowNBI runWorkflow:_currentWorkflowItem];
         }
-    //}
-    
-    [self setCurrentWorkflowResources:[_currentWorkflowItem workflowResources]];
-    if ( _currentWorkflowResources ) {
-        [_currentWorkflowResources setDelegate:_currentWorkflowProgressView];
-        [_currentWorkflowResources runWorkflow:_currentWorkflowItem];
+        
+        [self setCurrentWorkflowResources:[_currentWorkflowItem workflowResources]];
+        if ( _currentWorkflowResources ) {
+            [_currentWorkflowResources setDelegate:_currentWorkflowProgressView];
+            [_currentWorkflowResources runWorkflow:_currentWorkflowItem];
+        }
     }
 }
 
@@ -823,13 +864,26 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)workflowQueueRunWorkflowPostprocessing {
-    [self setCurrentWorkflowModifyNBI:[_currentWorkflowItem workflowModifyNBI]];
-    if ( _currentWorkflowModifyNBI ) {
-        [_currentWorkflowModifyNBI setDelegate:_currentWorkflowProgressView];
-        [_currentWorkflowModifyNBI runWorkflow:_currentWorkflowItem];
+    if (
+        [_currentCreationTool isEqualToString:NBCMenuItemNBICreator] ||
+        [_currentCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ||
+        [_currentCreationTool isEqualToString:NBCMenuItemDeployStudioAssistant]
+        ) {
+        NBCWorkflowModifyNBI *workflowModifyNBI = [[NBCWorkflowModifyNBI alloc] initWithDelegate:[_currentWorkflowItem progressView]];
+        [_currentWorkflowItem setWorkflowModifyNBI:workflowModifyNBI];
+        [self setCurrentWorkflowModifyNBI:workflowModifyNBI];
+        if ( workflowModifyNBI ) {
+            [workflowModifyNBI modifyNBI:_currentWorkflowItem];
+        }
     } else {
-        DDLogError(@"[ERROR] workflowModifyNBI is nil");
-        [self updateWorkflowStatusErrorWithMessage:@"Workflow ModifyNBI is nil"];
+        [self setCurrentWorkflowModifyNBI:[_currentWorkflowItem workflowModifyNBI]];
+        if ( _currentWorkflowModifyNBI ) {
+            [_currentWorkflowModifyNBI setDelegate:_currentWorkflowProgressView];
+            [_currentWorkflowModifyNBI runWorkflow:_currentWorkflowItem];
+        } else {
+            DDLogError(@"[ERROR] workflowModifyNBI is nil");
+            [self updateWorkflowStatusErrorWithMessage:@"Workflow ModifyNBI is nil"];
+        }
     }
 } // workflowQueueRunWorkflowPostprocessing
 

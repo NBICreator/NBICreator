@@ -273,4 +273,12 @@ DDLogLevel ddLogLevel;
     DDLogError(@"[ERROR] %@", logMessage);
 }
 
+- (void)logStdOut:(NSString *)stdOutString {
+    DDLogDebug(@"[stdout] %@", stdOutString);
+}
+
+- (void)logStdErr:(NSString *)stdErrString {
+    DDLogDebug(@"[stderr] %@", stdErrString);
+}
+
 @end

@@ -137,7 +137,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                         NSData *stdOutData = [[stdOut fileHandleForReading] availableData];
                                         NSString *stdOutString = [[[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         if ( [stdOutString length] != 0 ) {
-                                            [[[self connection] remoteObjectProxy] updateProgressStatus:stdOutString];
+                                            [[[self connection] remoteObjectProxy] logStdOut:stdOutString];
                                         }
                                         [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -152,7 +152,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                         NSData *stdErrData = [[stdErr fileHandleForReading] availableData];
                                         NSString *stdErrString = [[[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                         if ( [stdErrString length] != 0 ) {
-                                            [[[self connection] remoteObjectProxy] updateProgressStatus:stdErrString];
+                                            [[[self connection] remoteObjectProxy] logStdErr:stdErrString];
                                         }
                                         [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                     }];
@@ -334,7 +334,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                 NSData *stdOutData = [[stdOut fileHandleForReading] availableData];
                                                 NSString *stdOutString = [[[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                                 if ( [stdOutString length] != 0 ) {
-                                                    [[[self connection] remoteObjectProxy] updateProgressStatus:stdOutString];
+                                                    [[[self connection] remoteObjectProxy] logStdOut:stdOutString];
                                                 }
                                                 [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
                                             }];
@@ -349,7 +349,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                 NSData *stdErrData = [[stdErr fileHandleForReading] availableData];
                                                 NSString *stdErrString = [[[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
                                                 if ( [stdErrString length] != 0 ) {
-                                                    [[[self connection] remoteObjectProxy] updateProgressStatus:stdErrString];
+                                                    [[[self connection] remoteObjectProxy] logStdErr:stdErrString];
                                                 }
                                                 [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
                                             }];
@@ -519,7 +519,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ------------------------------------------------------------------------------------
             //  Create directory (and intermediate directories) at target URL (and set attributes)
             // ------------------------------------------------------------------------------------
-            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Creating directory %@...", [targetURL lastPathComponent]]];
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Creating directory %@...", [targetURL path]]];
             if ( ! [fm createDirectoryAtURL:targetURL withIntermediateDirectories:YES attributes:attributes error:&error] ) {
                 [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
                 reply(error, 1);
@@ -622,6 +622,25 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     reply(nil, 0);
 }
+
+- (void)removeItemsAtURLs:(NSArray *)itemURLs
+                withReply:(void(^)(NSError *error, BOOL success))reply {
+    
+    NSError *error;
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    // ----------------------------------------------------------
+    // Loop through each path in array and remove it recursively
+    // ----------------------------------------------------------
+    for ( NSURL *itemURL in itemURLs ) {
+        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Removing item at path: %@", [itemURL path]]];
+        if ( ! [fm removeItemAtURL:itemURL error:&error] ) {
+            reply(error, NO);
+        }
+    }
+
+    reply(error, YES);
+} // removeItemsAtURLs
 
 
 ////////////////////////////////////////////////////////////////////////////////

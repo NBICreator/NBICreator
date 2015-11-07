@@ -34,7 +34,7 @@ DDLogLevel ddLogLevel;
     return self;
 }
 
-- (NSURL *)urlForResourceFolder:(NSString *)resourceFolder {
++ (NSURL *)urlForResourceFolder:(NSString *)resourceFolder {
     
     NSURL *resourceFolderURL;
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -50,6 +50,23 @@ DDLogLevel ddLogLevel;
     return resourceFolderURL;
 }
 
++ (NSURL *)packageTemporaryFolderURL:(NBCWorkflowItem *)workflowItem {
+    NSError *error;
+    NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
+    NSString *packageTemporaryFolderName = [NSString stringWithFormat:@"pkg.%@", [NSString nbc_randomString]];
+    NSURL *packageTemporaryFolderURL = [temporaryFolderURL URLByAppendingPathComponent:packageTemporaryFolderName isDirectory:YES];
+    if ( ! [packageTemporaryFolderURL checkResourceIsReachableAndReturnError:&error] ) {
+        NSFileManager *fm = [NSFileManager defaultManager];
+        if ( ! [fm createDirectoryAtURL:packageTemporaryFolderURL withIntermediateDirectories:NO attributes:nil error:&error] ){
+            DDLogError(@"[ERROR] Could not create temporary pkg folder!");
+            DDLogError(@"%@", error);
+            packageTemporaryFolderURL = nil;
+        }
+    }
+    
+    return packageTemporaryFolderURL;
+} // getTemporaryFolderURL
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Cached Resources
@@ -57,7 +74,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSArray *)cachedVersionsFromResourceFolder:(NSString *)resourceFolder {
-    NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
+    NSURL *currentResourceFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourceFolder];
     if ( currentResourceFolder ) {
         NSURL *currentResourceDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         if ( [currentResourceDictURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -72,7 +89,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder {
-    NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
+    NSURL *currentResourceFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourceFolder];
     if ( currentResourceFolder ) {
         NSURL *currentDownloadsDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileNameDownloadsDict];
         if ( [currentDownloadsDictURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -85,7 +102,7 @@ DDLogLevel ddLogLevel;
 
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder {
     NSURL *cachedDownloadsDictURL;
-    NSURL *currentResourceFolder = [self urlForResourceFolder:resourceFolder];
+    NSURL *currentResourceFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourceFolder];
     if ( currentResourceFolder ) {
         return [currentResourceFolder URLByAppendingPathComponent:NBCFileNameDownloadsDict];
     }
@@ -93,9 +110,9 @@ DDLogLevel ddLogLevel;
     return cachedDownloadsDictURL;
 }
 
-- (NSURL *)cachedBranchURL:(NSString *)branch sha:(NSString *)sha resourcesFolder:(NSString *)resourcesFolder {
++ (NSURL *)cachedBranchURL:(NSString *)branch sha:(NSString *)sha resourcesFolder:(NSString *)resourcesFolder {
     NSURL *cachedBranchURL;
-    NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
+    NSURL *currentResourcesFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
     if ( [currentResourcesFolder checkResourceIsReachableAndReturnError:nil] ) {
         NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -118,9 +135,9 @@ DDLogLevel ddLogLevel;
     return cachedBranchURL;
 }
 
-- (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder {
++ (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder {
     NSURL *cachedVersionURL;
-    NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
+    NSURL *currentResourcesFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
     if ( [currentResourcesFolder checkResourceIsReachableAndReturnError:nil] ) {
         NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -142,7 +159,7 @@ DDLogLevel ddLogLevel;
 - (NSDictionary *)getCachedSourceItemsDict:(NSString *)buildVersion resourcesFolder:(NSString *)resourcesFolder {
     
     NSDictionary *cachedSourceItemsDict;
-    NSURL *currentResourcesFolder = [self urlForResourceFolder:resourcesFolder];
+    NSURL *currentResourcesFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
     
     if ( currentResourcesFolder != nil ) {
         NSDictionary *resourcesDict;
@@ -163,13 +180,13 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (NSURL *)copyFileToResources:(NSURL *)fileURL resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
++ (NSURL *)copyFileToResources:(NSURL *)fileURL resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
     
     NSURL *destinationURL;
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
-    NSURL *resouresFolder = [self urlForResourceFolder:resourcesFolder];
+    NSURL *resouresFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
     
     // Create resource folder if it does not exist
     NSURL *resourceFolderVersion = [resouresFolder URLByAppendingPathComponent:version];
@@ -223,7 +240,7 @@ DDLogLevel ddLogLevel;
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
     
-    NSURL *resouresFolder = [self urlForResourceFolder:resourcesFolder];
+    NSURL *resouresFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
     
     // Create resource folder if it does not exist
     NSURL *resourceFolderBuildVersion = [resouresFolder URLByAppendingPathComponent:sourceBuild];
@@ -298,7 +315,7 @@ DDLogLevel ddLogLevel;
     
     NSError *err;
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSURL *resouresFolder = [self urlForResourceFolder:resourcesFolder];
+    NSURL *resouresFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
     
     // Create resource folder if it does not exist
     NSString *packageName = [[packagePath lastPathComponent] stringByDeletingPathExtension];
@@ -472,14 +489,14 @@ DDLogLevel ddLogLevel;
     [_delegate copySourceRegexComplete:workflowItem packagePath:packagePath resourceFolderPackageURL:resourceFolderPackage];
 }
 
-- (NSURL *)unzipAndCopyGitBranchToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict {
++ (NSURL *)unzipAndCopyGitBranchToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict {
     NSError *error;
     NSURL *destinationURL;
     NSFileManager *fm = [NSFileManager defaultManager];
     
     NSString *branchName = branchDict[NBCSettingsImagrGitBranch];
     
-    NSURL *resouresFolderURL = [self urlForResourceFolder:resourcesFolder];
+    NSURL *resouresFolderURL = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
     NSURL *targetFolderURL = [resouresFolderURL URLByAppendingPathComponent:branchName];
     NSURL *xcodeProjectFolderTargetURL = [targetFolderURL URLByAppendingPathComponent:@"Imagr"];
     if ( [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -601,7 +618,7 @@ DDLogLevel ddLogLevel;
     });
 }
 
-- (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
++ (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
     
     NSURL *destinationURL;
     

@@ -34,9 +34,8 @@ DDLogLevel ddLogLevel;
         _browser = [[NSNetServiceBrowser alloc] init];
     }
     [_browser setDelegate:self];
-    DDLogDebug(@"[DEBUG] Starting bonjour browser...");
     [_browser searchForServicesOfType:NBCBonjourServiceDeployStudio inDomain:@"local."];
-    DDLogDebug(@"[DEBUG] Searching for service type: %@ in domain: %@", NBCBonjourServiceDeployStudio, @"local.");
+    DDLogDebug(@"[DEBUG] Searching for bonjour service type: %@ in domain: %@", NBCBonjourServiceDeployStudio, @"local.");
 } // startSearch
 
 - (void)dealloc {
@@ -136,6 +135,7 @@ DDLogLevel ddLogLevel;
     
     if ( _browser ) {
         [_browser stop];
+        DDLogDebug(@"[DEBUG] Stopped bonjour search");
         [_browser setDelegate:nil];
         [self setBrowser:nil];
     }

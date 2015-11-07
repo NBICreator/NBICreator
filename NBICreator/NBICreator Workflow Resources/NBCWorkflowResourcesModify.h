@@ -16,9 +16,11 @@
 @property NSDictionary *settingsChanged;
 @property NBCWorkflowItem *workflowItem;
 @property int sourceVersionMinor;
+@property int workflowType;
 @property NSString *creationTool;
+@property NSDictionary *userSettings;
 
 - (id)initWithWorkflowItem:(NBCWorkflowItem *)workflowItem;
-- (NSArray *)prepareResourcesToModify;
+- (NSArray *)prepareResourcesToModify:(NSError **)error;
 
 @end

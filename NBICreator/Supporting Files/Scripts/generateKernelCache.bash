@@ -97,6 +97,7 @@ case ${osVersionMinor} in
         if [[ -d ${targetVolumePath} ]]; then
             /bin/rm -f "${targetVolumePath}/var/db/dyld/dyld_"*
             /bin/rm -f "${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"
+            /bin/rm -f "${nbiVolumePath}/i386/x86_64/kernelcache"
 #/bin/rm -f "${targetVolumePath}/usr/standalone/bootcaches.plist"
         fi
 

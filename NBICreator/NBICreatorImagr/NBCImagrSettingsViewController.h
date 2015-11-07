@@ -18,10 +18,11 @@
 #import "NBCDownloader.h"
 #import "NBCDownloaderGitHub.h"
 #import "NBCWorkflowResourcesController.h"
+#import "NBCDropViewController.h"
 
 #define BasicTableViewDragAndDropDataType @"BasicTableViewDragAndDropDataType"
 
-@interface NBCImagrSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate>
+@interface NBCImagrSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate, NBCDropViewDelegate>
 
 @property NSMutableArray *certificateTableViewContents;
 @property NSMutableArray *packagesTableViewContents;

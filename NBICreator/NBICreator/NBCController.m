@@ -41,7 +41,6 @@
 
 // UI
 #import "NBCDropViewController.h"
-#import "NBCDeployStudioDropViewController.h"
 #import "NBCNetInstallDropViewController.h"
 #import "NBCImagrDropViewController.h"
 #import "NBCCasperDropViewController.h"
@@ -784,14 +783,6 @@ enum {
             [self addViewToDropView:[_dsDropViewController view]];
         }
     } else if (selectedSegment == kSegmentedControlImagr) {
-        if ( ! _imagrDropViewController ) {
-            _imagrDropViewController = [[NBCImagrDropViewController alloc] init];
-        }
-        
-        if ( _imagrDropViewController ) {
-            [self addViewToDropView:[_imagrDropViewController view]];
-        }
-        
         if ( ! _imagrSettingsViewController ) {
             _imagrSettingsViewController = [[NBCImagrSettingsViewController alloc] init];
         }
@@ -800,15 +791,16 @@ enum {
             [self addViewToSettingsView:[_imagrSettingsViewController view]];
             _currentSettingsController = _imagrSettingsViewController;
         }
+        
+        if ( ! _imagrDropViewController ) {
+            _imagrDropViewController = [[NBCDropViewController alloc] initWithDelegate:_imagrSettingsViewController];
+            [_imagrDropViewController setSettingsViewController:_imagrSettingsViewController];
+        }
+        
+        if ( _imagrDropViewController ) {
+            [self addViewToDropView:[_imagrDropViewController view]];
+        }
     } else if (selectedSegment == kSegmentedControlCasper) {
-        if ( ! _casperDropViewController ) {
-            _casperDropViewController = [[NBCCasperDropViewController alloc] init];
-        }
-        
-        if ( _casperDropViewController ) {
-            [self addViewToDropView:[_casperDropViewController view]];
-        }
-        
         if ( ! _casperSettingsViewController ) {
             _casperSettingsViewController = [[NBCCasperSettingsViewController alloc] init];
         }
@@ -816,6 +808,15 @@ enum {
         if ( _casperSettingsViewController ) {
             [self addViewToSettingsView:[_casperSettingsViewController view]];
             _currentSettingsController = _casperSettingsViewController;
+        }
+        
+        if ( ! _casperDropViewController ) {
+            _casperDropViewController = [[NBCDropViewController alloc] initWithDelegate:_casperSettingsViewController];
+            [_casperDropViewController setSettingsViewController:_casperSettingsViewController];
+        }
+        
+        if ( _casperDropViewController ) {
+            [self addViewToDropView:[_casperDropViewController view]];
         }
     } else if (selectedSegment == kSegmentedControlCustom) {
         if ( ! _customSettingsViewController ) {

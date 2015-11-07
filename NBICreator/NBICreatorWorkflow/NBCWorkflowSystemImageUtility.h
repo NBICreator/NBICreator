@@ -1,8 +1,8 @@
 //
-//  NBCWorkflowNBICreator.h
+//  NBCWorkflowSystemImageUtility.h
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-10-26.
+//  Created by Erik Berglund on 2015-11-06.
 //  Copyright © 2015 NBICreator. All rights reserved.
 //
 
@@ -10,14 +10,20 @@
 #import "NBCWorkflowProgressDelegate.h"
 @class NBCWorkflowItem;
 
-@interface NBCWorkflowNBICreator : NSObject
+@interface NBCWorkflowSystemImageUtility : NSObject <NBCWorkflowProgressDelegate>
+
 @property NBCWorkflowItem *workflowItem;
 @property (nonatomic, weak) id delegate;
-@property double temporaryNBIBaseSystemSize;
-@property BOOL copyComplete;
-@property NSString *temporaryNBIBaseSystemPath;
+@property double netInstallVolumeSize;
 
-// Methods
+@property BOOL packageOnly;
+@property BOOL packageOnlyScriptRun;
+
+@property BOOL copyComplete;
+
+@property NSString *nbiVolumeName;
+@property NSString *nbiVolumePath;
+@property NSURL *temporaryNBIURL;
 
 - (id)initWithDelegate:(id<NBCWorkflowProgressDelegate>)delegate;
 - (void)createNBI:(NBCWorkflowItem *)workflowItem;

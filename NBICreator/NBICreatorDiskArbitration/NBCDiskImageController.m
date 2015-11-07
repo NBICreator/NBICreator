@@ -1003,12 +1003,14 @@ DDLogLevel ddLogLevel;
                 
                 if ( [baseSystemOSVersion length] != 0 ) {
                     [source setBaseSystemOSVersion:baseSystemOSVersion];
+                    [source setSourceVersion:baseSystemOSVersion];
                     
                     NSString *baseSystemOSBuild = baseSystemVersionPlist[@"ProductBuildVersion"];
                     DDLogInfo(@"BaseSystem os build: %@", baseSystemOSBuild);
                     
                     if ( [baseSystemOSBuild length] != 0 ) {
                         [source setBaseSystemOSBuild:baseSystemOSBuild];
+                        [source setSourceBuild:baseSystemOSBuild];
                         
                     } else {
                         *error = [NBCError errorWithDescription:@"Unable to read os build from SystemVersion.plist"];

@@ -27,18 +27,19 @@
 //  Public Methods
 // -------------------------------------------------------------
 - (id)initWithDelegate:(id<NBCResourcesControllerDelegate>)delegate;
-- (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder;
-- (NSURL *)cachedBranchURL:(NSString *)branch sha:(NSString *)sha resourcesFolder:(NSString *)resourcesFolder;
++ (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder;
++ (NSURL *)cachedBranchURL:(NSString *)branch sha:(NSString *)sha resourcesFolder:(NSString *)resourcesFolder;
 - (NSDictionary *)getCachedSourceItemsDict:(NSString *)buildVersion resourcesFolder:(NSString *)resourcesFolder;
-- (NSURL *)copyFileToResources:(NSURL *)fileURL resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version;
++ (NSURL *)copyFileToResources:(NSURL *)fileURL resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version;
 - (NSURL *)copySourceItemToResources:(NSURL *)fileURL sourceItemPath:(NSString *)sourceItemPath resourcesFolder:(NSString *)resourcesFolder sourceBuild:(NSString *)sourceBuild;
 - (void)copySourceRegexToResources:(NBCWorkflowItem *)workflowItem regexArray:(NSArray *)regexArray packagePath:(NSString *)packagePath sourceFolder:(NSString *)sourceFolder resourcesFolder:(NSString *)resourcesFolder sourceBuild:(NSString *)sourceBuild;
-- (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version;
++ (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version;
 - (NSArray *)cachedVersionsFromResourceFolder:(NSString *)resourceFolder;
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder;
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder;
-- (NSURL *)urlForResourceFolder:(NSString *)resourceFolder;
-- (NSURL *)unzipAndCopyGitBranchToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict;
++ (NSURL *)urlForResourceFolder:(NSString *)resourceFolder;
++ (NSURL *)unzipAndCopyGitBranchToResourceFolder:(NSURL *)zipURL resourcesFolder:(NSString *)resourcesFolder branchDict:(NSDictionary *)branchDict;
 - (void)buildProjectAtURL:(NSURL *)projectURL buildTarget:(NSString *)buildTarget;
++ (NSURL *)packageTemporaryFolderURL:(NBCWorkflowItem *)workflowItem;
 
 @end

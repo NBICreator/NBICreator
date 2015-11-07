@@ -50,10 +50,10 @@
 @property (strong) NBCNetInstallDropViewController *niDropViewController;
 @property (strong) NBCNetInstallSettingsViewController *niSettingsViewController;
 
-@property (strong) NSViewController *imagrDropViewController;
+@property (strong) NBCDropViewController *imagrDropViewController;
 @property (strong) NBCImagrSettingsViewController *imagrSettingsViewController;
 
-@property (strong) NSViewController *casperDropViewController;
+@property (strong) NBCDropViewController *casperDropViewController;
 @property (strong) NBCCasperSettingsViewController *casperSettingsViewController;
 
 @property (strong) NBCDropViewController *customDropViewController;

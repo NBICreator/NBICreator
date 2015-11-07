@@ -11,9 +11,7 @@
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowProgressViewController.h"
 #import "NBCWorkflowPanelController.h"
-#import "NBCImagrWorkflowNBI.h"
 #import "NBCImagrWorkflowResources.h"
-#import "NBCDeployStudioWorkflowNBI.h"
 #import "NBCNetInstallWorkflowNBI.h"
 #import "NBCWorkflowPreWorkflowTaskController.h"
 
@@ -38,6 +36,8 @@
 @property NBCWorkflowItem *currentWorkflowItem;
 @property NBCWorkflowPanelController *workflowPanel;
 @property NBCWorkflowProgressViewController *currentWorkflowProgressView;
+
+@property NSString *currentCreationTool;
 
 @property NSMutableArray *workflowQueue;
 @property NSMutableArray *workflowViewArray;
