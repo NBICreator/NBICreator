@@ -7,7 +7,22 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <Cocoa/Cocoa.h>
 
-@interface NBCImageDropViewController : NSObject
-
+@protocol NBCImageDropViewIconDelegate
+- (void)updateIconFromURL:(NSURL *)iconURL;
 @end
+
+@protocol NBCImageDropViewBackgroundDelegate
+- (void)updateBackgroundFromURL:(NSURL *)backgroundURL;
+@end
+
+@interface NBCImageDropViewIcon : NSImageView <NSDraggingDestination>
+@property (nonatomic, weak) id delegate;
+@end
+
+@interface NBCImageDropViewBackground : NSImageView <NSDraggingDestination>
+@property (nonatomic, weak) id delegate;
+@end
+
+

@@ -7,22 +7,20 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "NBCImagrDropViewImage.h"
 #import "NBCAlerts.h"
-
 #import "NBCSource.h"
 #import "NBCTarget.h"
 #import "NBCApplicationSourceSystemImageUtility.h"
 #import "NBCTemplatesController.h"
-
 #import "NBCDownloader.h"
 #import "NBCDownloaderGitHub.h"
 #import "NBCWorkflowResourcesController.h"
 #import "NBCSourceDropViewController.h"
+#import "NBCImageDropViewController.h"
 
 #define BasicTableViewDragAndDropDataType @"BasicTableViewDragAndDropDataType"
 
-@interface NBCImagrSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate, NBCSourceDropDelegate>
+@interface NBCImagrSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate, NBCSourceDropViewDelegate, NBCImageDropViewIconDelegate, NBCImageDropViewBackgroundDelegate>
 
 @property NSMutableArray *certificateTableViewContents;
 @property NSMutableArray *packagesTableViewContents;
@@ -72,7 +70,7 @@
 // ------------------------------------------------------
 //  TabView General
 // ------------------------------------------------------
-@property (weak) IBOutlet NBCImagrDropViewImageIcon *imageViewIcon;
+@property (weak) IBOutlet NBCImageDropViewIcon *imageViewIcon;
 @property (weak) IBOutlet NSTextField *textFieldNBIName;
 @property (weak) IBOutlet NSTextField *textFieldNBINamePreview;
 @property (weak) IBOutlet NSTextField *textFieldIndex;
@@ -188,7 +186,7 @@
 @property BOOL settingTrustedNetBootServersVisible;
 @property BOOL settingDisableATSVisible;
 @property (weak) IBOutlet NSButton *checkboxAddBackground;
-@property (weak) IBOutlet NBCImagrDropViewImageBackground *imageViewBackgroundImage;
+@property (weak) IBOutlet NBCImageDropViewBackground *imageViewBackgroundImage;
 
 // ------------------------------------------------------
 //  TabView Debug

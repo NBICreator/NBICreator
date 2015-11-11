@@ -47,7 +47,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (id)initWithDelegate:(id<NBCSourceDropDelegate>)delegate {
+- (id)initWithDelegate:(id<NBCSourceDropViewDelegate>)delegate {
     self = [super initWithNibName:@"NBCSourceDropViewController" bundle:nil];
     if (self != nil) {
         _delegate = delegate;
@@ -1299,7 +1299,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 
 - (NSDragOperation)draggingEntered:(id<NSDraggingInfo>)sender {
     NSURL *draggedFileURL = [self getDraggedSourceURLFromPasteboard:[sender draggingPasteboard]];
-    if ( draggedFileURL ) {
+    if ( [draggedFileURL checkResourceIsReachableAndReturnError:nil] ) {
         return NSDragOperationCopy;
     } else {
         return NSDragOperationNone;
@@ -1309,7 +1309,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 - (BOOL)performDragOperation:(id <NSDraggingInfo>)sender {
     NSURL *draggedFileURL = [self getDraggedSourceURLFromPasteboard:[sender draggingPasteboard]];
     if ( [draggedFileURL checkResourceIsReachableAndReturnError:nil] ) {
-        DDLogInfo(@"Dropped source: %@", [draggedFileURL path]);
+        DDLogInfo(@"Dropped source path: %@", [draggedFileURL path]);
+        
         if ( _delegate && [_delegate respondsToSelector:@selector(verifySourceAtURL:)]) {
             [_delegate verifySourceAtURL:draggedFileURL];
         }

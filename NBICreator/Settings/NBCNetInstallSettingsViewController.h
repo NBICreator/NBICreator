@@ -7,19 +7,16 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "NBCNetInstallDropViewImage.h"
 #import "NBCAlerts.h"
-
 #import "NBCSource.h"
 #import "NBCApplicationSourceSystemImageUtility.h"
 #import "NBCTemplatesController.h"
-
 #import "NBCDownloader.h"
 #import "NBCDownloaderGitHub.h"
-
 #import "NBCSourceDropViewController.h"
+#import "NBCImageDropViewController.h"
 
-@interface NBCNetInstallSettingsViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate, NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCSourceDropDelegate>
+@interface NBCNetInstallSettingsViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate, NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCSourceDropViewDelegate, NBCImageDropViewIconDelegate>
 
 // ------------------------------------------------------
 //  Properties
@@ -57,7 +54,7 @@
 // ------------------------------------------------------
 //  TabView General
 // ------------------------------------------------------
-@property (weak) IBOutlet NBCNetInstallDropViewImageIcon *imageViewIcon;
+@property (weak) IBOutlet NBCImageDropViewIcon *imageViewIcon;
 @property (weak) IBOutlet NSTextField *textFieldNBIName;
 @property (weak) IBOutlet NSTextField *textFieldNBINamePreview;
 @property (weak) IBOutlet NSTextField *textFieldIndex;

@@ -51,8 +51,6 @@ DDLogLevel ddLogLevel;
     //  Add Notification Observers
     // --------------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc addObserver:self selector:@selector(updateNBIIcon:) name:NBCNotificationDeployStudioUpdateNBIIcon object:nil];
-    [nc addObserver:self selector:@selector(updateNBIBackground:) name:NBCNotificationDeployStudioUpdateNBIBackground object:nil];
     [nc addObserver:self selector:@selector(addBonjourService:) name:NBCNotificationDeployStudioAddBonjourService object:nil];
     [nc addObserver:self selector:@selector(removeBonjourService:) name:NBCNotificationDeployStudioRemoveBonjourService object:nil];
     
@@ -75,6 +73,8 @@ DDLogLevel ddLogLevel;
         NSLog(@"Error: %@", error);
     }
     
+    [_imageViewIcon setDelegate:self];
+    [_imageViewBackgroundImage setDelegate:self];
     [self setDsSource:[[NBCApplicationSourceDeployStudio alloc] init]];
     [self setTemplatesDict:[[NSMutableDictionary alloc] init]];
     [self setDiscoveredServers:[[NSMutableArray alloc] init]];
@@ -257,6 +257,31 @@ DDLogLevel ddLogLevel;
     [self verifyBuildButton];
     
 } // controlTextDidChange
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Delegate Methods ImageDropView
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updateIconFromURL:(NSURL *)iconURL {
+    if ( iconURL != nil )
+    {
+        // To get the view to update I have to first set the nbiIcon property to @""
+        // It only happens when it recieves a dropped image, not when setting in code.
+        [self setNbiIcon:@""];
+        [self setNbiIconPath:[iconURL path]];
+    }
+}
+
+- (void)updateBackgroundFromURL:(NSURL *)backgroundURL {
+    if ( backgroundURL != nil ) {
+        // To get the view to update I have to first set the nbiIcon property to @""
+        // It only happens when it recieves a dropped image, not when setting in code.
+        [self setImageBackground:@""];
+        [self setImageBackgroundURL:[backgroundURL path]];
+    }
+} // updateBackgroundFromURL
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -478,34 +503,12 @@ DDLogLevel ddLogLevel;
     [self updatePopOver];
 } // removedSource
 
-- (void)updateNBIIcon:(NSNotification *)notification {
-    
-    NSURL *nbiIconURL = [notification userInfo][NBCNotificationUpdateNBIIconUserInfoIconURL];
-    if ( nbiIconURL != nil ) {
-        // To get the view to update I have to first set the nbiIcon property to @""
-        // It only happens when it recieves a dropped image, not when setting in code.
-        [self setNbiIcon:@""];
-        [self setNbiIconPath:[nbiIconURL path]];
-    }
-} // updateNBIIcon
-
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
     
     [self setNbiIconPath:NBCFilePathNBIIconDeployStudio];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
-
-- (void)updateNBIBackground:(NSNotification *)notification {
-    
-    NSURL *nbiBackgroundURL = [notification userInfo][NBCNotificationUpdateNBIBackgroundUserInfoIconURL];
-    if ( nbiBackgroundURL != nil ) {
-        // To get the view to update I have to first set the nbiIcon property to @""
-        // It only happens when it recieves a dropped image, not when setting in code.
-        [self setImageBackground:@""];
-        [self setImageBackgroundURL:[nbiBackgroundURL path]];
-    }
-} // updateImageBackground
 
 - (void)restoreNBIBackground:(NSNotification *)notification {
 #pragma unused(notification)

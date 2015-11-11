@@ -48,7 +48,7 @@ extern NSString *const NBCSourceTypeSystem;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-@protocol NBCSourceDropViewController
+@protocol NBCSourceDropViewDelegate
 - (void)updateSource:(NBCSource *)source target:(NBCTarget *)target;
 - (void)removedSource;
 - (void)refreshCreationTool;
@@ -153,7 +153,7 @@ extern NSString *const NBCSourceTypeSystem;
 // ------------------------------------------------------
 //  Methods
 // ------------------------------------------------------
-- (id)initWithDelegate:(id<NBCSourceDropDelegate>)delegate;
+- (id)initWithDelegate:(id<NBCSourceDropViewDelegate>)delegate;
 + (NSArray *)sourceTypesForCreationTool:(NSString *)creationTool;
 @end
 

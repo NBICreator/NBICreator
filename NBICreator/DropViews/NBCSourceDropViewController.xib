@@ -6,7 +6,7 @@
         <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
     <objects>
-        <customObject id="-2" userLabel="File's Owner" customClass="NBCSourceDr">
+        <customObject id="-2" userLabel="File's Owner" customClass="NBCSourceDropViewController">
             <connections>
                 <outlet property="constraintPopUpButtonSourceWidth" destination="OIa-fR-STv" id="CHU-CK-SOi"/>
                 <outlet property="constraintVerticalToImageView1" destination="OoA-uQ-wwO" id="YxE-YR-VcY"/>

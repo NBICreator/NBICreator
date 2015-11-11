@@ -70,20 +70,16 @@ DDLogLevel ddLogLevel;
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    _keyboardLayoutDict = [[NSMutableDictionary alloc] init];
-    _certificateTableViewContents = [[NSMutableArray alloc] init];
-    _packagesTableViewContents = [[NSMutableArray alloc] init];
-    _trustedServers = [[NSMutableArray alloc] init];
-    _ramDisks = [[NSMutableArray alloc] init];
+    [self setKeyboardLayoutDict:[[NSMutableDictionary alloc] init]];
+    [self setCertificateTableViewContents:[[NSMutableArray alloc] init]];
+    [self setPackagesTableViewContents:[[NSMutableArray alloc] init]];
+    [self setTrustedServers:[[NSMutableArray alloc] init]];
+    [self setRamDisks:[[NSMutableArray alloc] init]];
     
     // --------------------------------------------------------------
     //  Add Notification Observers
     // --------------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    //[nc addObserver:self selector:@selector(updateSource:) name:NBCNotificationImagrUpdateSource object:nil];
-    //[nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationImagrRemovedSource object:nil];
-    [nc addObserver:self selector:@selector(updateNBIIcon:) name:NBCNotificationImagrUpdateNBIIcon object:nil];
-    [nc addObserver:self selector:@selector(updateNBIBackground:) name:NBCNotificationImagrUpdateNBIBackground object:nil];
     [nc addObserver:self selector:@selector(editingDidEnd:) name:NSControlTextDidEndEditingNotification object:nil];
     
     // --------------------------------------------------------------
@@ -104,6 +100,8 @@ DDLogLevel ddLogLevel;
         // Should display error dialog
     }
     
+    [_imageViewIcon setDelegate:self];
+    [_imageViewBackgroundImage setDelegate:self];
     [self setSiuSource:[[NBCApplicationSourceSystemImageUtility alloc] init]];
     [self setTemplatesDict:[[NSMutableDictionary alloc] init]];
     [self setShowARDPassword:NO];
@@ -746,6 +744,31 @@ DDLogLevel ddLogLevel;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
+#pragma mark Delegate Methods ImageDropView
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updateIconFromURL:(NSURL *)iconURL {
+    if ( iconURL != nil )
+    {
+        // To get the view to update I have to first set the nbiIcon property to @""
+        // It only happens when it recieves a dropped image, not when setting in code.
+        [self setNbiIcon:@""];
+        [self setNbiIconPath:[iconURL path]];
+    }
+}
+
+- (void)updateBackgroundFromURL:(NSURL *)backgroundURL {
+    if ( backgroundURL != nil ) {
+        // To get the view to update I have to first set the nbiIcon property to @""
+        // It only happens when it recieves a dropped image, not when setting in code.
+        [self setImageBackground:@""];
+        [self setImageBackgroundURL:[backgroundURL path]];
+    }
+} // updateBackgroundFromURL
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark Delegate Methods PopUpButton
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
@@ -1129,34 +1152,12 @@ DDLogLevel ddLogLevel;
     [self setNbiCreationTool:_nbiCreationTool ?: NBCMenuItemNBICreator];
 }
 
-- (void)updateNBIIcon:(NSNotification *)notification {
-    
-    NSURL *nbiIconURL = [notification userInfo][NBCNotificationUpdateNBIIconUserInfoIconURL];
-    if ( nbiIconURL != nil )
-    {
-        // To get the view to update I have to first set the nbiIcon property to @""
-        // It only happens when it recieves a dropped image, not when setting in code.
-        [self setNbiIcon:@""];
-        [self setNbiIconPath:[nbiIconURL path]];
-    }
-} // updateNBIIcon
-
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
     
     [self setNbiIconPath:NBCFilePathNBIIconImagr];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
-
-- (void)updateNBIBackground:(NSNotification *)notification {
-    NSURL *nbiBackgroundURL = [notification userInfo][NBCNotificationUpdateNBIBackgroundUserInfoIconURL];
-    if ( nbiBackgroundURL != nil ) {
-        // To get the view to update I have to first set the nbiIcon property to @""
-        // It only happens when it recieves a dropped image, not when setting in code.
-        [self setImageBackground:@""];
-        [self setImageBackgroundURL:[nbiBackgroundURL path]];
-    }
-} // updateImageBackground
 
 - (void)restoreNBIBackground:(NSNotification *)notification {
 #pragma unused(notification)

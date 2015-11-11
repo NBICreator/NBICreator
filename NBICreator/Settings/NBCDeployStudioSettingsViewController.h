@@ -7,7 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "NBCDeployStudioDropViewImage.h"
 #import "NBCAlerts.h"
 
 #import "NBCTarget.h"
@@ -19,8 +18,9 @@
 #import "NBCDownloader.h"
 #import "NBCDownloaderDeployStudio.h"
 #import "NBCSourceDropViewController.h"
+#import "NBCImageDropViewController.h"
 
-@interface NBCDeployStudioSettingsViewController : NSViewController <NSTabViewDelegate, NSComboBoxDataSource, NBCDownloaderDelegate, NBCDownloaderDeployStudioDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCSourceDropDelegate>
+@interface NBCDeployStudioSettingsViewController : NSViewController <NSTabViewDelegate, NSComboBoxDataSource, NBCDownloaderDelegate, NBCDownloaderDeployStudioDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCSourceDropViewDelegate, NBCImageDropViewIconDelegate, NBCImageDropViewBackgroundDelegate>
 
 // ------------------------------------------------------
 //  Properties
@@ -88,7 +88,7 @@
 // ------------------------------------------------------
 //  TabView General
 // ------------------------------------------------------
-@property (weak) IBOutlet NBCDeployStudioDropViewImageIcon *imageViewIcon;
+@property (weak) IBOutlet NBCImageDropViewIcon *imageViewIcon;
 @property (weak) IBOutlet NSTextField *textFieldNBIName;
 @property (weak) IBOutlet NSTextField *textFieldNBINamePreview;
 @property (weak) IBOutlet NSTextField *textFieldIndex;
@@ -132,7 +132,7 @@
 // ------------------------------------------------------
 //  TabView Options
 // ------------------------------------------------------
-@property (weak) IBOutlet NBCDeployStudioDropViewImageBackground *imageViewBackgroundImage;
+@property (weak) IBOutlet NBCImageDropViewBackground *imageViewBackgroundImage;
 @property (weak) IBOutlet NSButton *checkboxUseCustomBackgroundImage;
 @property (weak) IBOutlet NSButton *checkboxIncludePython;
 @property (weak) IBOutlet NSButton *checkboxIncludeRuby;

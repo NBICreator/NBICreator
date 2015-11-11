@@ -58,9 +58,6 @@ DDLogLevel ddLogLevel;
     //  Add Notification Observers
     // --------------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    //[nc addObserver:self selector:@selector(updateSource:) name:NBCNotificationNetInstallUpdateSource object:nil];
-    //[nc addObserver:self selector:@selector(removedSource:) name:NBCNotificationNetInstallRemovedSource object:nil];
-    [nc addObserver:self selector:@selector(updateNBIIcon:) name:NBCNotificationNetInstallUpdateNBIIcon object:nil];
     [nc addObserver:self selector:@selector(editingDidEnd:) name:NSControlTextDidEndEditingNotification object:nil];
     
     // --------------------------------------------------------------
@@ -82,6 +79,7 @@ DDLogLevel ddLogLevel;
         NSLog(@"Error: %@", error);
     }
     
+    [_imageViewIcon setDelegate:self];
     [self setSiuSource:[[NBCApplicationSourceSystemImageUtility alloc] init]];
     [self setTemplatesDict:[[NSMutableDictionary alloc] init]];
     [self initializeTableViewOverlays];
@@ -229,6 +227,22 @@ DDLogLevel ddLogLevel;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
+#pragma mark Delegate Methods ImageDropView
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updateIconFromURL:(NSURL *)iconURL {
+    if ( iconURL != nil )
+    {
+        // To get the view to update I have to first set the nbiIcon property to @""
+        // It only happens when it recieves a dropped image, not when setting in code.
+        [self setNbiIcon:@""];
+        [self setNbiIconPath:[iconURL path]];
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark Delegate Methods NBCAlert
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
@@ -337,17 +351,6 @@ DDLogLevel ddLogLevel;
     [self setNbiCreationTool:_nbiCreationTool ?: NBCMenuItemSystemImageUtility];
     [self setNbiType:_nbiType ?: @"NetInstall"];
 }
-
-- (void)updateNBIIcon:(NSNotification *)notification {
-    
-    NSURL *nbiIconURL = [notification userInfo][NBCNotificationUpdateNBIIconUserInfoIconURL];
-    if ( nbiIconURL != nil ) {
-        // To get the view to update I have to first set the nbiIcon property to @""
-        // It only happens when it recieves a dropped image, not when setting in code.
-        [self setNbiIcon:@""];
-        [self setNbiIconPath:[nbiIconURL path]];
-    }
-} // updateNBIIcon
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)

@@ -22,7 +22,6 @@
 		5318EF6E1B729B3400F818FC /* NBCCertificateTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */; };
 		531E7F4F1B0A5D88001573E7 /* ImagrDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */; };
 		5324335A1B0E691300152DC6 /* NBCConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53383D141AFA9D3000C041F9 /* NBCConstants.m */; };
-		5324C1551AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 5324C1541AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m */; };
 		532A67901B18D98C007528AE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 532A678F1B18D98C007528AE /* SystemConfiguration.framework */; };
 		532A67961B18EBC9007528AE /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 532A67951B18EBC9007528AE /* Reachability.m */; };
 		533262901B794A9E00BA7EC9 /* NBCDesktopEntity.m in Sources */ = {isa = PBXBuildFile; fileRef = 5332628F1B794A9E00BA7EC9 /* NBCDesktopEntity.m */; };
@@ -95,7 +94,6 @@
 		53A24A2B1BF3AB5A00FA759D /* NBCImageDropViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A24A2A1BF3AB5A00FA759D /* NBCImageDropViewController.m */; };
 		53A643421B1A5872003BFF71 /* createUser.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53A643411B1A5872003BFF71 /* createUser.bash */; };
 		53A882681BED3F8A00F1F08C /* NBCWorkflowDeployStudioAssistant.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A882671BED3F8A00F1F08C /* NBCWorkflowDeployStudioAssistant.m */; };
-		53A9B9941AAB2804000E06BA /* NBCNetInstallDropViewImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A9B9931AAB2804000E06BA /* NBCNetInstallDropViewImage.m */; };
 		53ADBF6F1BDE73B000970B83 /* NBCSourceDropViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53ADBF6E1BDE73B000970B83 /* NBCSourceDropViewController.m */; };
 		53ADBF711BDE73DD00970B83 /* NBCSourceDropViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53ADBF701BDE73DD00970B83 /* NBCSourceDropViewController.xib */; };
 		53ADBF761BDEB3B700970B83 /* NBCCustomSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53ADBF741BDEB3B700970B83 /* NBCCustomSettingsViewController.m */; };
@@ -133,7 +131,6 @@
 		53DED1531B91723E00A95B6C /* NBICreatorTemplate.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 53DED1521B91723E00A95B6C /* NBICreatorTemplate.iconset */; };
 		53DF9CF21AA36DC8004B68D8 /* Defaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 53DF9CF11AA36DC8004B68D8 /* Defaults.plist */; };
 		53DFA2521BA153620009EFEC /* NBCImagrTrustedNetBootServerCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53DFA2511BA153620009EFEC /* NBCImagrTrustedNetBootServerCellView.m */; };
-		53E51C2A1AF56C35009364E7 /* NBCImagrDropViewImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 53E51C291AF56C35009364E7 /* NBCImagrDropViewImage.m */; };
 		53E5B8641B06FE1500A771F7 /* NBCTemplatesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53E5B8621B06FE1500A771F7 /* NBCTemplatesController.m */; };
 		53E5B8651B06FE1500A771F7 /* NBCTemplatesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53E5B8631B06FE1500A771F7 /* NBCTemplatesController.xib */; };
 		53E5CE881ADE8C7C0014A379 /* NBCApplicationSourceSystemImageUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 53E5CE871ADE8C7C0014A379 /* NBCApplicationSourceSystemImageUtility.m */; };
@@ -148,7 +145,6 @@
 		53F6122F1AFFEA3B00CFD435 /* NBCWorkflowResourcesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53F6122E1AFFEA3B00CFD435 /* NBCWorkflowResourcesController.m */; };
 		53FB3E961B975D3B00CCE413 /* NBCCasperSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53FB3E941B975D3B00CCE413 /* NBCCasperSettingsViewController.m */; };
 		53FB3E971B975D3B00CCE413 /* NBCCasperSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53FB3E951B975D3B00CCE413 /* NBCCasperSettingsViewController.xib */; };
-		53FB3EA71B975DC400CCE413 /* NBCCasperDropViewImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 53FB3EA61B975DC400CCE413 /* NBCCasperDropViewImage.m */; };
 		53FB3EB21B97763600CCE413 /* CasperDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 53FB3EB11B97763600CCE413 /* CasperDefaults.plist */; };
 		53FB849A1BDE579D000152DA /* NBCWorkflowNBICreator.m in Sources */ = {isa = PBXBuildFile; fileRef = 53FB84991BDE579D000152DA /* NBCWorkflowNBICreator.m */; };
 /* End PBXBuildFile section */
@@ -310,8 +306,6 @@
 		5318EF6C1B729B3400F818FC /* NBCCertificateTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCertificateTableCellView.h; path = "../TableView Resources/NBCCertificateTableCellView.h"; sourceTree = "<group>"; };
 		5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCertificateTableCellView.m; path = "../TableView Resources/NBCCertificateTableCellView.m"; sourceTree = "<group>"; };
 		531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = ImagrDefaults.plist; path = "Supporting Files/Property Lists/ImagrDefaults.plist"; sourceTree = "<group>"; };
-		5324C1531AEACF130054B375 /* NBCDeployStudioDropViewImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCDeployStudioDropViewImage.h; path = DropViews/NBCDeployStudioDropViewImage.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		5324C1541AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCDeployStudioDropViewImage.m; path = DropViews/NBCDeployStudioDropViewImage.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		532A678F1B18D98C007528AE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		532A67941B18EBC9007528AE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = Networking/Reachability.h; sourceTree = "<group>"; };
 		532A67951B18EBC9007528AE /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Reachability.m; path = Networking/Reachability.m; sourceTree = "<group>"; };
@@ -428,8 +422,6 @@
 		53A643411B1A5872003BFF71 /* createUser.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = createUser.bash; path = "Supporting Files/Scripts/createUser.bash"; sourceTree = "<group>"; };
 		53A882661BED3F8A00F1F08C /* NBCWorkflowDeployStudioAssistant.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowDeployStudioAssistant.h; path = "Workflow NBI/NBCWorkflowDeployStudioAssistant.h"; sourceTree = "<group>"; };
 		53A882671BED3F8A00F1F08C /* NBCWorkflowDeployStudioAssistant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowDeployStudioAssistant.m; path = "Workflow NBI/NBCWorkflowDeployStudioAssistant.m"; sourceTree = "<group>"; };
-		53A9B9921AAB2804000E06BA /* NBCNetInstallDropViewImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCNetInstallDropViewImage.h; path = DropViews/NBCNetInstallDropViewImage.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		53A9B9931AAB2804000E06BA /* NBCNetInstallDropViewImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCNetInstallDropViewImage.m; path = DropViews/NBCNetInstallDropViewImage.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53ADBF601BDE737C00970B83 /* NBCSourceDropViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCSourceDropViewController.h; path = DropViews/NBCSourceDropViewController.h; sourceTree = "<group>"; };
 		53ADBF6E1BDE73B000970B83 /* NBCSourceDropViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCSourceDropViewController.m; path = DropViews/NBCSourceDropViewController.m; sourceTree = "<group>"; };
 		53ADBF701BDE73DD00970B83 /* NBCSourceDropViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCSourceDropViewController.xib; path = DropViews/NBCSourceDropViewController.xib; sourceTree = "<group>"; };
@@ -492,8 +484,6 @@
 		53DF9CF11AA36DC8004B68D8 /* Defaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = Defaults.plist; path = "Supporting Files/Property Lists/Defaults.plist"; sourceTree = "<group>"; };
 		53DFA2501BA1534E0009EFEC /* NBCImagrTrustedNetBootServerCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCImagrTrustedNetBootServerCellView.h; path = "TableView Resources/NBCImagrTrustedNetBootServerCellView.h"; sourceTree = SOURCE_ROOT; };
 		53DFA2511BA153620009EFEC /* NBCImagrTrustedNetBootServerCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCImagrTrustedNetBootServerCellView.m; path = "TableView Resources/NBCImagrTrustedNetBootServerCellView.m"; sourceTree = SOURCE_ROOT; };
-		53E51C281AF56C28009364E7 /* NBCImagrDropViewImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCImagrDropViewImage.h; path = DropViews/NBCImagrDropViewImage.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		53E51C291AF56C35009364E7 /* NBCImagrDropViewImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCImagrDropViewImage.m; path = DropViews/NBCImagrDropViewImage.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53E5B8611B06FE1500A771F7 /* NBCTemplatesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCTemplatesController.h; path = "UI Controllers/NBCTemplatesController.h"; sourceTree = "<group>"; };
 		53E5B8621B06FE1500A771F7 /* NBCTemplatesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCTemplatesController.m; path = "UI Controllers/NBCTemplatesController.m"; sourceTree = "<group>"; };
 		53E5B8631B06FE1500A771F7 /* NBCTemplatesController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCTemplatesController.xib; path = "UI Controllers/NBCTemplatesController.xib"; sourceTree = "<group>"; };
@@ -519,8 +509,6 @@
 		53FB3E931B975D3B00CCE413 /* NBCCasperSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCasperSettingsViewController.h; path = Settings/NBCCasperSettingsViewController.h; sourceTree = "<group>"; };
 		53FB3E941B975D3B00CCE413 /* NBCCasperSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCasperSettingsViewController.m; path = Settings/NBCCasperSettingsViewController.m; sourceTree = "<group>"; };
 		53FB3E951B975D3B00CCE413 /* NBCCasperSettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCCasperSettingsViewController.xib; path = Settings/NBCCasperSettingsViewController.xib; sourceTree = "<group>"; };
-		53FB3EA51B975DC400CCE413 /* NBCCasperDropViewImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCasperDropViewImage.h; path = DropViews/NBCCasperDropViewImage.h; sourceTree = "<group>"; };
-		53FB3EA61B975DC400CCE413 /* NBCCasperDropViewImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCasperDropViewImage.m; path = DropViews/NBCCasperDropViewImage.m; sourceTree = "<group>"; };
 		53FB3EB11B97763600CCE413 /* CasperDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = CasperDefaults.plist; path = "Supporting Files/Property Lists/CasperDefaults.plist"; sourceTree = "<group>"; };
 		53FB84981BDE579D000152DA /* NBCWorkflowNBICreator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowNBICreator.h; path = "Workflow NBI/NBCWorkflowNBICreator.h"; sourceTree = "<group>"; };
 		53FB84991BDE579D000152DA /* NBCWorkflowNBICreator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowNBICreator.m; path = "Workflow NBI/NBCWorkflowNBICreator.m"; sourceTree = "<group>"; };
@@ -784,14 +772,6 @@
 				53ADBF601BDE737C00970B83 /* NBCSourceDropViewController.h */,
 				53ADBF6E1BDE73B000970B83 /* NBCSourceDropViewController.m */,
 				53ADBF701BDE73DD00970B83 /* NBCSourceDropViewController.xib */,
-				53A9B9921AAB2804000E06BA /* NBCNetInstallDropViewImage.h */,
-				53A9B9931AAB2804000E06BA /* NBCNetInstallDropViewImage.m */,
-				5324C1531AEACF130054B375 /* NBCDeployStudioDropViewImage.h */,
-				5324C1541AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m */,
-				53E51C281AF56C28009364E7 /* NBCImagrDropViewImage.h */,
-				53E51C291AF56C35009364E7 /* NBCImagrDropViewImage.m */,
-				53FB3EA51B975DC400CCE413 /* NBCCasperDropViewImage.h */,
-				53FB3EA61B975DC400CCE413 /* NBCCasperDropViewImage.m */,
 				53A24A291BF3AB5A00FA759D /* NBCImageDropViewController.h */,
 				53A24A2A1BF3AB5A00FA759D /* NBCImageDropViewController.m */,
 			);
@@ -1308,7 +1288,6 @@
 			files = (
 				5379C4031BE39AB500353E95 /* NBCWorkflowModifyNBI.m in Sources */,
 				536AA0151BB8649B00A2FF0D /* NBCOptionBuildPanel.m in Sources */,
-				53A9B9941AAB2804000E06BA /* NBCNetInstallDropViewImage.m in Sources */,
 				535753E51BAF40A7000C9935 /* NBCCasperRAMDiskPathCellView.m in Sources */,
 				53121EA11AD5C24A004515D6 /* NBCPreferences.m in Sources */,
 				5332C3311BF339F200D51074 /* NBCWorkflowResourcesNBI.m in Sources */,
@@ -1321,10 +1300,8 @@
 				53CBA96C1ADE556600385C89 /* TFHppleElement.m in Sources */,
 				53D1CDCB1BEA358E00208FCF /* NBCWorkflowResourcesExtract.m in Sources */,
 				535EA1531ADFBAAB0092136C /* NBCBonjourBrowser.m in Sources */,
-				53E51C2A1AF56C35009364E7 /* NBCImagrDropViewImage.m in Sources */,
 				538157B51BEA9D8B00B23B42 /* NBCWorkflowResourceImagr.m in Sources */,
 				532A67961B18EBC9007528AE /* Reachability.m in Sources */,
-				5324C1551AEACF1F0054B375 /* NBCDeployStudioDropViewImage.m in Sources */,
 				53B9CEB81A95D68700C8015E /* NBCDeployStudioSettingsViewController.m in Sources */,
 				5336DE861BC4529C00A2CE93 /* NBCNetInstallTrustedNetBootServerCellView.m in Sources */,
 				53B85C501BD796FF0024EF14 /* NBCWorkflowPreWorkflowTaskController.m in Sources */,
@@ -1371,7 +1348,6 @@
 				5386EA8E1AFFB0EA0091D57A /* NBCDownloaderPython.m in Sources */,
 				536E68291BB533C700B7E1A1 /* Main.m in Sources */,
 				53E6551D1BE6271A00981FCA /* NBCWorkflowResourcesModify.m in Sources */,
-				53FB3EA71B975DC400CCE413 /* NBCCasperDropViewImage.m in Sources */,
 				5353A0091BB534D400679A4F /* ioapi.c in Sources */,
 				53F6122F1AFFEA3B00CFD435 /* NBCWorkflowResourcesController.m in Sources */,
 				53E5B8641B06FE1500A771F7 /* NBCTemplatesController.m in Sources */,
