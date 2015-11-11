@@ -40,7 +40,7 @@
 #import "NBCHelperAuthorization.h"
 
 // UI
-#import "NBCDropViewController.h"
+#import "NBCSourceDropViewController.h"
 
 #import "NBCPreferences.h"
 
@@ -758,7 +758,7 @@ enum {
         }
         
         if ( ! _niDropViewController ) {
-            _niDropViewController = [[NBCDropViewController alloc] initWithDelegate:_niSettingsViewController];
+            _niDropViewController = [[NBCSourceDropViewController alloc] initWithDelegate:_niSettingsViewController];
             [_niDropViewController setSettingsViewController:_niSettingsViewController];
         }
         
@@ -777,7 +777,7 @@ enum {
         }
         
         if ( ! _dsDropViewController ) {
-            _dsDropViewController = [[NBCDropViewController alloc] initWithDelegate:_dsSettingsViewController];
+            _dsDropViewController = [[NBCSourceDropViewController alloc] initWithDelegate:_dsSettingsViewController];
             [_dsDropViewController setSettingsViewController:_dsSettingsViewController];
         }
         
@@ -795,7 +795,7 @@ enum {
         }
         
         if ( ! _imagrDropViewController ) {
-            _imagrDropViewController = [[NBCDropViewController alloc] initWithDelegate:_imagrSettingsViewController];
+            _imagrDropViewController = [[NBCSourceDropViewController alloc] initWithDelegate:_imagrSettingsViewController];
             [_imagrDropViewController setSettingsViewController:_imagrSettingsViewController];
         }
         
@@ -813,7 +813,7 @@ enum {
         }
         
         if ( ! _casperDropViewController ) {
-            _casperDropViewController = [[NBCDropViewController alloc] initWithDelegate:_casperSettingsViewController];
+            _casperDropViewController = [[NBCSourceDropViewController alloc] initWithDelegate:_casperSettingsViewController];
             [_casperDropViewController setSettingsViewController:_casperSettingsViewController];
         }
         
@@ -831,7 +831,7 @@ enum {
         }
         
         if ( ! _customDropViewController ) {
-            _customDropViewController = [[NBCDropViewController alloc] initWithDelegate:_customSettingsViewController];
+            _customDropViewController = [[NBCSourceDropViewController alloc] initWithDelegate:_customSettingsViewController];
             [_customDropViewController setSettingsViewController:_customSettingsViewController];
         }
         

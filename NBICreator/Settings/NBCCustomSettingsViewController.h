@@ -9,9 +9,9 @@
 #import <Cocoa/Cocoa.h>
 
 #import "NBCTemplatesController.h"
-#import "NBCDropViewController.h"
+#import "NBCSourceDropViewController.h"
 
-@interface NBCCustomSettingsViewController : NSViewController <NBCDropViewDelegate>
+@interface NBCCustomSettingsViewController : NSViewController <NBCSourceDropDelegate>
 
 @property NBCTemplatesController *templates;
 

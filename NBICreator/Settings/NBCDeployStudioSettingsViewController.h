@@ -18,9 +18,9 @@
 #import "NBCBonjourBrowser.h"
 #import "NBCDownloader.h"
 #import "NBCDownloaderDeployStudio.h"
-#import "NBCDropViewController.h"
+#import "NBCSourceDropViewController.h"
 
-@interface NBCDeployStudioSettingsViewController : NSViewController <NSTabViewDelegate, NSComboBoxDataSource, NBCDownloaderDelegate, NBCDownloaderDeployStudioDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCDropViewDelegate>
+@interface NBCDeployStudioSettingsViewController : NSViewController <NSTabViewDelegate, NSComboBoxDataSource, NBCDownloaderDelegate, NBCDownloaderDeployStudioDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCSourceDropDelegate>
 
 // ------------------------------------------------------
 //  Properties

@@ -54,31 +54,31 @@
 // --------------------------------------------------------------
 //  Views: DeployStudio
 // --------------------------------------------------------------
-@property (strong) NBCDropViewController *dsDropViewController;
+@property (strong) NBCSourceDropViewController *dsDropViewController;
 @property (strong) NBCDeployStudioSettingsViewController *dsSettingsViewController;
 
 // --------------------------------------------------------------
 //  Views: NetInstall
 // --------------------------------------------------------------
-@property (strong) NBCDropViewController *niDropViewController;
+@property (strong) NBCSourceDropViewController *niDropViewController;
 @property (strong) NBCNetInstallSettingsViewController *niSettingsViewController;
 
 // --------------------------------------------------------------
 //  Views: Imagr
 // --------------------------------------------------------------
-@property (strong) NBCDropViewController *imagrDropViewController;
+@property (strong) NBCSourceDropViewController *imagrDropViewController;
 @property (strong) NBCImagrSettingsViewController *imagrSettingsViewController;
 
 // --------------------------------------------------------------
 //  Views: Casper
 // --------------------------------------------------------------
-@property (strong) NBCDropViewController *casperDropViewController;
+@property (strong) NBCSourceDropViewController *casperDropViewController;
 @property (strong) NBCCasperSettingsViewController *casperSettingsViewController;
 
 // --------------------------------------------------------------
 //  Views: Custom
 // --------------------------------------------------------------
-@property (strong) NBCDropViewController *customDropViewController;
+@property (strong) NBCSourceDropViewController *customDropViewController;
 @property (strong) NBCCustomSettingsViewController *customSettingsViewController;
 
 // --------------------------------------------------------------

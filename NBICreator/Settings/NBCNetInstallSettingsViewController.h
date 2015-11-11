@@ -17,9 +17,9 @@
 #import "NBCDownloader.h"
 #import "NBCDownloaderGitHub.h"
 
-#import "NBCDropViewController.h"
+#import "NBCSourceDropViewController.h"
 
-@interface NBCNetInstallSettingsViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate, NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCDropViewDelegate>
+@interface NBCNetInstallSettingsViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate, NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCSourceDropDelegate>
 
 // ------------------------------------------------------
 //  Properties
