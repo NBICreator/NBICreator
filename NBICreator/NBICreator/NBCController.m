@@ -41,10 +41,6 @@
 
 // UI
 #import "NBCDropViewController.h"
-#import "NBCNetInstallDropViewController.h"
-#import "NBCImagrDropViewController.h"
-#import "NBCCasperDropViewController.h"
-
 
 #import "NBCPreferences.h"
 
@@ -85,7 +81,7 @@ enum {
 @interface NBCController() {
     AuthorizationRef _authRef;
     Reachability *_internetReachableFoo;
-}
+} // NBCController
 
 @property (atomic, copy, readwrite) NSData *authorization;
 
@@ -107,6 +103,10 @@ enum {
 - (id)init {
     self = [super init];
     if ( self ) {
+        
+        // --------------------------------------------------------------
+        //  Event monitor to catch Option Key application wide
+        // --------------------------------------------------------------
         NSEvent * (^monitorHandler)(NSEvent *);
         monitorHandler = ^NSEvent * (NSEvent * theEvent){
             if ( [theEvent modifierFlags] & NSAlternateKeyMask ) {
@@ -144,11 +144,11 @@ enum {
         _keyEventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSFlagsChangedMask handler:monitorHandler];
     }
     return self;
-}
+} // init
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
+} // dealloc
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -220,8 +220,8 @@ enum {
             [ud registerDefaults:defaultSettingsDict];
         }
     } else {
-        NSLog(@"Could not find default settings plist \"Defaults.plist\" in main bundle!");
-        NSLog(@"%@", error);
+        // Use NSLog as CocoaLumberjack isn't available yet
+        NSLog(@"%@", [error localizedDescription]);
     }
     
     // --------------------------------------------------------------
@@ -317,8 +317,10 @@ enum {
  /// FUTURE FUNCTIONALITY - OPEN/IMPORT TEMPLATES                             ///
  //////////////////////////////////////////////////////////////////////////////*/
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {
-    DDLogInfo(@"Recieved file to open: %@", filename);
 #pragma unused(theApplication)
+    
+    DDLogInfo(@"Recieved file to open: %@", filename);
+    
     NSError *error;
     NSURL *fileURL = [NSURL fileURLWithPath:filename];
     
@@ -431,7 +433,6 @@ enum {
 
 - (void)checkWorkflowRunningQuit {
     
-    
     // --------------------------------------------------------------
     //  Alert user if there are any workflows currently running before quitting
     // --------------------------------------------------------------
@@ -445,7 +446,6 @@ enum {
 } // checkWorkflowRunningQuit
 
 - (void)terminateApp {
-    
     [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
 } // terminateApp
 
@@ -456,7 +456,6 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
-    
     NSString *alertTag = alertInfo[NBCAlertTagKey];
     if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsavedQuit] ) {
         if ( returnCode == NSAlertFirstButtonReturn ) {             // Save and Quit
@@ -492,6 +491,7 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateButtonBuild:(NSNotification *)notification {
+    
     BOOL buttonState = [[notification userInfo][NBCNotificationUpdateButtonBuildUserInfoButtonState] boolValue];
     
     // --------------------------------------------------------------
@@ -517,13 +517,15 @@ enum {
 - (BOOL)blessHelperWithLabel:(NSString *)label {
     
     DDLogInfo(@"Installing helper tool...");
+    
     BOOL result = NO;
     NSError *error = nil;
     
     // --------------------------------------------------------------
     //  Create an Authorization Right for installing helper tool
     // --------------------------------------------------------------
-    DDLogDebug(@"Creating authorization right...");
+    DDLogDebug(@"[DEBUG] Creating authorization right...");
+    
     AuthorizationItem authItem		= { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
     AuthorizationRights authRights	= { 1, &authItem };
     AuthorizationFlags flags		= kAuthorizationFlagDefaults |
@@ -534,21 +536,21 @@ enum {
     // --------------------------------------------------------------
     //  Try to obtain the right from authorization system (Ask User)
     // --------------------------------------------------------------
-    DDLogDebug(@"Asking authorization system to grant right...");
+    DDLogDebug(@"[DEBUG] Asking authorization system to grant right...");
+    
     OSStatus status = AuthorizationCopyRights(_authRef, &authRights, kAuthorizationEmptyEnvironment, flags, NULL);
     if ( status != errAuthorizationSuccess ) {
-        DDLogError(@"[ERROR] Could not install helper tool!");
-        DDLogError(@"[ERROR] Authorization failed!");
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
         DDLogError(@"[ERROR] %@", error);
     } else {
         CFErrorRef  cfError;
-        DDLogDebug(@"Authorization successful!");
+        DDLogDebug(@"[DEBUG] Authorization successful!");
         
         // --------------------------------------------------------------
         //  Install helper tool using SMJobBless
         // --------------------------------------------------------------
-        DDLogDebug(@"Running SMJobBless..");
+        DDLogDebug(@"[DEBUG] Running SMJobBless..");
+        
         result = (BOOL) SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)label, _authRef, &cfError);
         if ( ! result ) {
             DDLogError(@"[ERROR] Could not install helper tool!");
@@ -562,7 +564,7 @@ enum {
 } // blessHelperWithLabel
 
 - (void)showHelperToolInstallBox {
-
+    
     // --------------------------------------------------------------
     //  Show box with "Install Helper" button just above build button
     // --------------------------------------------------------------
@@ -582,7 +584,6 @@ enum {
 
 - (void)showHelperToolUpgradeBox {
     
-    
     // --------------------------------------------------------------
     //  Show box with "Upgrade Helper" button just above build button
     // --------------------------------------------------------------
@@ -593,7 +594,6 @@ enum {
 
 - (void)hideHelperToolInstallBox {
     
-    
     // --------------------------------------------------------------
     //  Hide box with "Install/Upgrade Helper" button
     // --------------------------------------------------------------
@@ -602,6 +602,7 @@ enum {
 } // hideHelperToolInstallBox
 
 - (void)checkHelperVersion {
+    
     DDLogDebug(@"[DEBUG] Checking installed helper tool version...");
     
     // --------------------------------------------------------------
@@ -615,43 +616,44 @@ enum {
     // --------------------------------------------------------------
     //  Connect to helper and get installed helper's version
     // --------------------------------------------------------------
-    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-    [helperConnector connectToHelper];
-    
-    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-#pragma unused(proxyError)
-        DDLogInfo(@"Unable to connect to the helper tool!");
-        // --------------------------------------------------------------
-        //  If connection failed, require (re)install of helper tool
-        // --------------------------------------------------------------
-        [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(taskQueue, ^{
+        
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            DDLogError(@"%@", [proxyError localizedDescription]);
+            
+            // --------------------------------------------------------------
+            //  If connection failed, require (re)install of helper tool
+            // --------------------------------------------------------------
             [self setHelperAvailable:NO];
-            [self showHelperToolInstallBox];
-            [self->_buttonBuild setEnabled:NO];
-        }];
-        
-    }] getVersionWithReply:^(NSString *version) {
-        DDLogDebug(@"[DEBUG] Connection to the helper tool successful!");
-        DDLogDebug(@"[DEBUG] Currently installed helper tool version: %@", version);
-        
-        if ( ! [currentHelperToolBundleVersion isEqualToString:version] ) {
-            DDLogInfo(@"A new version of the helper tool is availbale");
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self showHelperToolInstallBox];
+                [self->_buttonBuild setEnabled:NO];
+            });
+            
+        }] getVersionWithReply:^(NSString *version) {
+            DDLogDebug(@"[DEBUG] Currently installed helper tool version: %@", version);
             
             // --------------------------------------------------------------
             //  If versions mismatch, require update of helper tool
             // --------------------------------------------------------------
-            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+            if ( ! [currentHelperToolBundleVersion isEqualToString:version] ) {
+                DDLogInfo(@"A new version of the helper tool is available");
+                
                 [self setHelperAvailable:NO];
-                [self showHelperToolUpgradeBox];
-                [self->_buttonBuild setEnabled:NO];
-            }];
-        } else {
-            DDLogDebug(@"[DEBUG] Installed helper tool is up to date.");
-            [[NSOperationQueue mainQueue]addOperationWithBlock:^{
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self showHelperToolUpgradeBox];
+                    [self->_buttonBuild setEnabled:NO];
+                });
+            } else {
+                DDLogDebug(@"[DEBUG] Installed helper tool is up to date.");
                 [self setHelperAvailable:YES];
-            }];
-        }
-    }];
+            }
+        }];
+    });
 } // checkHelperVersion
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -714,10 +716,12 @@ enum {
                                                                                       options:0
                                                                                       metrics:nil
                                                                                         views:NSDictionaryOfVariableBindings(_viewNoInternetConnection)]];
+    
     [_viewMainWindow addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_viewNoInternetConnection]|"
                                                                             options:0
                                                                             metrics:nil
                                                                               views:NSDictionaryOfVariableBindings(_viewNoInternetConnection)]];
+    
     [_viewMainWindow addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_viewNoInternetConnection]"
                                                                             options:0
                                                                             metrics:nil
@@ -725,10 +729,6 @@ enum {
 } // showNoInternetConnection
 
 - (void)hideNoInternetConnection {
-    
-    // --------------------------------------------------------------
-    //  Hider banner with text "No Internet Connection"
-    // --------------------------------------------------------------
     [_viewNoInternetConnection removeFromSuperview];
 } // hideNoInternetConnection
 
@@ -743,18 +743,11 @@ enum {
 } // selectedSegment
 
 - (void)selectSegmentedControl:(NSInteger)selectedSegment {
+    
     // --------------------------------------------------------------
     //  Add selected workflows views to main window placeholders
     // --------------------------------------------------------------
     if ( selectedSegment == kSegmentedControlNetInstall ) {
-        if ( ! _niDropViewController ) {
-            _niDropViewController = [[NBCNetInstallDropViewController alloc] init];
-        }
-        
-        if ( _niDropViewController ) {
-            [self addViewToDropView:[_niDropViewController view]];
-        }
-        
         if ( ! _niSettingsViewController ) {
             _niSettingsViewController = [[NBCNetInstallSettingsViewController alloc] init];
         }
@@ -762,6 +755,15 @@ enum {
         if ( _niSettingsViewController ) {
             [self addViewToSettingsView:[_niSettingsViewController view]];
             _currentSettingsController = _niSettingsViewController;
+        }
+        
+        if ( ! _niDropViewController ) {
+            _niDropViewController = [[NBCDropViewController alloc] initWithDelegate:_niSettingsViewController];
+            [_niDropViewController setSettingsViewController:_niSettingsViewController];
+        }
+        
+        if ( _niDropViewController ) {
+            [self addViewToDropView:[_niDropViewController view]];
         }
     } else if (selectedSegment == kSegmentedControlDeployStudio) {
         if ( ! _dsSettingsViewController) {
@@ -871,6 +873,7 @@ enum {
 } // selectSegmentedControl
 
 - (void)addViewToSettingsView:(NSView *)settingsView {
+    
     // --------------------------------------------------------------
     //  Remove current view(s) from settings view placeholder
     // --------------------------------------------------------------
@@ -898,6 +901,7 @@ enum {
 } // addViewToSettingsView
 
 - (void)addViewToDropView:(NSView *)dropView {
+    
     // --------------------------------------------------------------
     //  Remove current view(s) from drop view placeholder
     // --------------------------------------------------------------
@@ -922,37 +926,6 @@ enum {
                                                                metrics:nil
                                                                  views:NSDictionaryOfVariableBindings(dropView)];
     [_viewDropView addConstraints:constraintsArray];
-    
-    if ( [dropView isEqualTo:[_niDropViewController view]] ) {
-        NSView *noSourceView = [_niDropViewController viewDropViewNoSource];
-        [_viewDropView addSubview:noSourceView];
-        [noSourceView setTranslatesAutoresizingMaskIntoConstraints:NO];
-        constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|[noSourceView]|"
-                                                                   options:0
-                                                                   metrics:nil
-                                                                     views:NSDictionaryOfVariableBindings(noSourceView)];
-        [_viewDropView addConstraints:constraintsArray];
-        constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[noSourceView]|"
-                                                                   options:0
-                                                                   metrics:nil
-                                                                     views:NSDictionaryOfVariableBindings(noSourceView)];
-        [_viewDropView addConstraints:constraintsArray];
-    } else if ( [dropView isEqualTo:[_customDropViewController view]] ) {
-        NSView *noSourceView = [_customDropViewController viewNoSource];
-        [_viewDropView addSubview:noSourceView];
-        [noSourceView setTranslatesAutoresizingMaskIntoConstraints:NO];
-        constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|[noSourceView]|"
-                                                                   options:0
-                                                                   metrics:nil
-                                                                     views:NSDictionaryOfVariableBindings(noSourceView)];
-        [_viewDropView addConstraints:constraintsArray];
-        constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|[noSourceView]|"
-                                                                   options:0
-                                                                   metrics:nil
-                                                                     views:NSDictionaryOfVariableBindings(noSourceView)];
-        [_viewDropView addConstraints:constraintsArray];
-    }
-    
 } // addViewToDropView
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1022,6 +995,6 @@ enum {
     if ( _window ) {
         [_window makeKeyAndOrderFront:self];
     }
-}
+} // menuItemMainWindow
 
 @end

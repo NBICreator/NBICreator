@@ -21,48 +21,78 @@
 #import <Foundation/Foundation.h>
 #import "NBCAlerts.h"
 #import "NBCOptionBuildPanel.h"
-
-@class NBCSource;
-@class NBCNetInstallDropViewController;
 #import "NBCNetInstallSettingsViewController.h"
 #import "NBCDeployStudioSettingsViewController.h"
 #import "NBCImagrSettingsViewController.h"
 #import "NBCCasperSettingsViewController.h"
 #import "NBCCustomSettingsViewController.h"
+@class NBCSource;
 @class NBCPreferences;
 
-@interface NBCController : NSObject <NSApplicationDelegate, NBCAlertDelegate, NSWindowDelegate, NBCOptionBuildPanelDelegate>
+@interface NBCController : NSObject <NSApplicationDelegate, NSWindowDelegate, NBCAlertDelegate, NBCOptionBuildPanelDelegate>
 
-// Windows
+// --------------------------------------------------------------
+//  Windows
+// --------------------------------------------------------------
 @property (weak) IBOutlet NSWindow *window;
-- (IBAction)menuItemPreferences:(id)sender;
-- (IBAction)menuItemHelp:(id)sender;
-- (IBAction)menuItemMainWindow:(id)sender;
+@property (strong) NBCOptionBuildPanel *optionBuildPanel;
+@property (strong) NBCPreferences *preferencesWindow;
 
-// Views
+// --------------------------------------------------------------
+//  Layout Constraints
+// --------------------------------------------------------------
+@property (strong) IBOutlet NSLayoutConstraint *constraintBetweenButtonBuildAndViewOutput;
+
+// --------------------------------------------------------------
+//  Properties
+// --------------------------------------------------------------
+@property (readonly) NSInteger selectedSegment;
+@property BOOL helperAvailable;
 @property id keyEventMonitor;
+@property id currentSettingsController;
 
-@property (strong) NSViewController *nbiSettingsViewController;
-
+// --------------------------------------------------------------
+//  Views: DeployStudio
+// --------------------------------------------------------------
 @property (strong) NBCDropViewController *dsDropViewController;
 @property (strong) NBCDeployStudioSettingsViewController *dsSettingsViewController;
 
-@property (strong) NBCNetInstallDropViewController *niDropViewController;
+// --------------------------------------------------------------
+//  Views: NetInstall
+// --------------------------------------------------------------
+@property (strong) NBCDropViewController *niDropViewController;
 @property (strong) NBCNetInstallSettingsViewController *niSettingsViewController;
 
+// --------------------------------------------------------------
+//  Views: Imagr
+// --------------------------------------------------------------
 @property (strong) NBCDropViewController *imagrDropViewController;
 @property (strong) NBCImagrSettingsViewController *imagrSettingsViewController;
 
+// --------------------------------------------------------------
+//  Views: Casper
+// --------------------------------------------------------------
 @property (strong) NBCDropViewController *casperDropViewController;
 @property (strong) NBCCasperSettingsViewController *casperSettingsViewController;
 
+// --------------------------------------------------------------
+//  Views: Custom
+// --------------------------------------------------------------
 @property (strong) NBCDropViewController *customDropViewController;
 @property (strong) NBCCustomSettingsViewController *customSettingsViewController;
 
-@property (strong) NBCOptionBuildPanel *optionBuildPanel;
+// --------------------------------------------------------------
+//  Views: Other
+// --------------------------------------------------------------
+@property (weak) IBOutlet NSView *viewMainWindow;
+@property (weak) IBOutlet NSView *viewDropView;
+@property (weak) IBOutlet NSView *viewNBISettings;
+@property (weak) IBOutlet NSBox *viewInstallHelper;
+@property (weak) IBOutlet NSView *viewNoInternetConnection;
 
-@property (readonly) NSInteger selectedSegment;
-
+// --------------------------------------------------------------
+//  Menu Items
+// --------------------------------------------------------------
 @property (weak) IBOutlet NSMenuItem *menuItemNew;
 @property (weak) IBOutlet NSMenuItem *menuItemSave;
 @property (weak) IBOutlet NSMenuItem *menuItemSaveAs;
@@ -72,30 +102,23 @@
 @property (weak) IBOutlet NSMenuItem *menuItemShowInFinder;
 @property (weak) IBOutlet NSMenuItem *menuItemHelp;
 @property (weak) IBOutlet NSMenuItem *menuItemWindowWorkflows;
+- (IBAction)menuItemHelp:(id)sender;
+- (IBAction)menuItemPreferences:(id)sender;
+- (IBAction)menuItemMainWindow:(id)sender;
 
-@property (weak) IBOutlet NSView *viewMainWindow;
-@property (weak) IBOutlet NSView *viewDropView;
-@property (weak) IBOutlet NSView *viewNBISettings;
-@property (weak) IBOutlet NSBox *viewInstallHelper;
-@property (weak) IBOutlet NSView *viewNoInternetConnection;
-
-@property BOOL helperAvailable;
-@property id currentSettingsController;
-@property NBCPreferences *preferencesWindow;
-
-// Buttons
+// --------------------------------------------------------------
+//  Buttons
+// --------------------------------------------------------------
 @property (weak) IBOutlet NSButton *buttonBuild;
-- (IBAction)buttonBuild:(id)sender;
-@property (weak) IBOutlet NSSegmentedControl *segmentedControlNBI;
-- (IBAction)segmentedControlNBI:(id)sender;
-
 @property (weak) IBOutlet NSButton *buttonInstallHelper;
+@property (weak) IBOutlet NSSegmentedControl *segmentedControlNBI;
+- (IBAction)buttonBuild:(id)sender;
+- (IBAction)segmentedControlNBI:(id)sender;
 - (IBAction)buttonInstallHelper:(id)sender;
 
-// Text Fields and Labels
+// --------------------------------------------------------------
+//  TextFields
+// --------------------------------------------------------------
 @property (weak) IBOutlet NSTextField *textFieldInstallHelperText;
-
-// Constraints
-@property (strong) IBOutlet NSLayoutConstraint *constraintBetweenButtonBuildAndViewOutput;
 
 @end
