@@ -40,7 +40,6 @@
 @property NSMutableArray *workflowQueue;
 @property NSMutableArray *workflowViewArray;
 
-
 // -------------------------------------------------------------
 //  Class Methods
 // -------------------------------------------------------------

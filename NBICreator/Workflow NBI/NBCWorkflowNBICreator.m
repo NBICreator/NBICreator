@@ -8,7 +8,6 @@
 
 #import "NBCWorkflowNBICreator.h"
 #import "NBCWorkflowItem.h"
-
 #import "NBCError.h"
 #import "NBCConstants.h"
 #import "NBCLogging.h"

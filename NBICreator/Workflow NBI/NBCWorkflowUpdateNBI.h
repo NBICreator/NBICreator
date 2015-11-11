@@ -1,26 +1,24 @@
 //
-//  NBCWorkflowNBICreator.h
+//  NBCWorkflowNBI.h
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-10-26.
+//  Created by Erik Berglund on 2015-11-11.
 //  Copyright © 2015 NBICreator. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import "NBCWorkflowProgressDelegate.h"
 @class NBCWorkflowItem;
+@class NBCTarget;
 
-@interface NBCWorkflowNBICreator : NSObject
+@interface NBCWorkflowUpdateNBI : NSObject
 
 @property NBCWorkflowItem *workflowItem;
+@property NBCTarget *target;
 @property (nonatomic, weak) id delegate;
-@property double temporaryNBIBaseSystemSize;
-@property BOOL copyComplete;
-@property NSString *temporaryNBIBaseSystemPath;
 
 // Methods
-
 - (id)initWithDelegate:(id<NBCWorkflowProgressDelegate>)delegate;
-- (void)createNBI:(NBCWorkflowItem *)workflowItem;
+- (void)updateNBI:(NBCWorkflowItem *)workflowItem;
 
 @end

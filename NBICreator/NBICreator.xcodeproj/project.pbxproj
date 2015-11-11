@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5302CB981BF389880022CE68 /* NBCWorkflowNBI.m in Sources */ = {isa = PBXBuildFile; fileRef = 5302CB971BF389880022CE68 /* NBCWorkflowNBI.m */; };
+		5302CB981BF389880022CE68 /* NBCWorkflowUpdateNBI.m in Sources */ = {isa = PBXBuildFile; fileRef = 5302CB971BF389880022CE68 /* NBCWorkflowUpdateNBI.m */; };
 		5303EBBB1AF4268200F6120D /* NBCTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 5303EBBA1AF4268200F6120D /* NBCTarget.m */; };
 		5304B4AE1BA1E741007D7A9F /* ServerInformation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */; };
 		530BFF571B00F3160012D067 /* NBCWorkflowNBIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */; };
@@ -283,14 +283,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5302CB961BF389880022CE68 /* NBCWorkflowNBI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowNBI.h; path = "Workflow NBI/NBCWorkflowNBI.h"; sourceTree = "<group>"; };
-		5302CB971BF389880022CE68 /* NBCWorkflowNBI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowNBI.m; path = "Workflow NBI/NBCWorkflowNBI.m"; sourceTree = "<group>"; };
+		5302CB961BF389880022CE68 /* NBCWorkflowUpdateNBI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowUpdateNBI.h; path = "Workflow NBI/NBCWorkflowUpdateNBI.h"; sourceTree = "<group>"; };
+		5302CB971BF389880022CE68 /* NBCWorkflowUpdateNBI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowUpdateNBI.m; path = "Workflow NBI/NBCWorkflowUpdateNBI.m"; sourceTree = "<group>"; };
 		5303EBB91AF4268200F6120D /* NBCTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCTarget.h; path = Target/NBCTarget.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		5303EBBA1AF4268200F6120D /* NBCTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCTarget.m; path = Target/NBCTarget.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		5304B4A41BA1E601007D7A9F /* ServerInformationComputerModelInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ServerInformationComputerModelInfo.h; path = "Supporting Files/Frameworks/ServerInformationComputerModelInfo.h"; sourceTree = "<group>"; };
 		5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServerInformation.framework; path = /System/Library/PrivateFrameworks/ServerInformation.framework; sourceTree = "<absolute>"; };
-		530BFF551B00F3160012D067 /* NBCWorkflowNBIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowNBIController.h; path = Workflow/NBCWorkflowNBIController.h; sourceTree = "<group>"; };
-		530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowNBIController.m; path = Workflow/NBCWorkflowNBIController.m; sourceTree = "<group>"; };
+		530BFF551B00F3160012D067 /* NBCWorkflowNBIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowNBIController.h; path = "Workflow NBI/NBCWorkflowNBIController.h"; sourceTree = "<group>"; };
+		530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowNBIController.m; path = "Workflow NBI/NBCWorkflowNBIController.m"; sourceTree = "<group>"; };
 		530D983C1BAB4728007FA973 /* sharedLibraryDependencyChecker.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = sharedLibraryDependencyChecker.bash; path = "Supporting Files/Scripts/sharedLibraryDependencyChecker.bash"; sourceTree = "<group>"; };
 		530E0C791B190C550025A9C3 /* NBCViewNoInternetConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCViewNoInternetConnection.h; path = "UI Controllers/NBCViewNoInternetConnection.h"; sourceTree = "<group>"; };
 		530E0C7A1B190C550025A9C3 /* NBCViewNoInternetConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCViewNoInternetConnection.m; path = "UI Controllers/NBCViewNoInternetConnection.m"; sourceTree = "<group>"; };
@@ -457,12 +457,12 @@
 		53CBA9681ADE556600385C89 /* TFHppleElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TFHppleElement.m; path = "Supporting Files/Libraries/Hpple/TFHppleElement.m"; sourceTree = "<group>"; };
 		53CBA9691ADE556600385C89 /* XPathQuery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = XPathQuery.h; path = "Supporting Files/Libraries/Hpple/XPathQuery.h"; sourceTree = "<group>"; };
 		53CBA96A1ADE556600385C89 /* XPathQuery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = XPathQuery.m; path = "Supporting Files/Libraries/Hpple/XPathQuery.m"; sourceTree = "<group>"; };
-		53CBB1B81ACF1DF900B83089 /* NBCWorkflowProgressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCWorkflowProgressViewController.h; path = Workflow/NBCWorkflowProgressViewController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		53CBB1B91ACF1DF900B83089 /* NBCWorkflowProgressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCWorkflowProgressViewController.m; path = Workflow/NBCWorkflowProgressViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		53CBB1BA1ACF1DF900B83089 /* NBCWorkflowProgressViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCWorkflowProgressViewController.xib; path = Workflow/NBCWorkflowProgressViewController.xib; sourceTree = "<group>"; };
-		53CBB1C21ACF253200B83089 /* NBCWorkflowPanelController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCWorkflowPanelController.h; path = Workflow/NBCWorkflowPanelController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		53CBB1C31ACF253200B83089 /* NBCWorkflowPanelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCWorkflowPanelController.m; path = Workflow/NBCWorkflowPanelController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		53CBB1C41ACF253200B83089 /* NBCWorkflowPanelController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCWorkflowPanelController.xib; path = Workflow/NBCWorkflowPanelController.xib; sourceTree = "<group>"; };
+		53CBB1B81ACF1DF900B83089 /* NBCWorkflowProgressViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCWorkflowProgressViewController.h; path = "Workflow Progress/NBCWorkflowProgressViewController.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		53CBB1B91ACF1DF900B83089 /* NBCWorkflowProgressViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCWorkflowProgressViewController.m; path = "Workflow Progress/NBCWorkflowProgressViewController.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		53CBB1BA1ACF1DF900B83089 /* NBCWorkflowProgressViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCWorkflowProgressViewController.xib; path = "Workflow Progress/NBCWorkflowProgressViewController.xib"; sourceTree = "<group>"; };
+		53CBB1C21ACF253200B83089 /* NBCWorkflowPanelController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCWorkflowPanelController.h; path = "Workflow Progress/NBCWorkflowPanelController.h"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		53CBB1C31ACF253200B83089 /* NBCWorkflowPanelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCWorkflowPanelController.m; path = "Workflow Progress/NBCWorkflowPanelController.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		53CBB1C41ACF253200B83089 /* NBCWorkflowPanelController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCWorkflowPanelController.xib; path = "Workflow Progress/NBCWorkflowPanelController.xib"; sourceTree = "<group>"; };
 		53CBB1C71ACF27B400B83089 /* NBCWorkflowManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCWorkflowManager.h; path = Workflow/NBCWorkflowManager.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53CBB1C81ACF27B400B83089 /* NBCWorkflowManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCWorkflowManager.m; path = Workflow/NBCWorkflowManager.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53CBB1CA1ACF288000B83089 /* NBCWorkflowItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCWorkflowItem.h; path = Workflow/NBCWorkflowItem.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -505,7 +505,7 @@
 		53F3B28A1B7D1A88005BEAD3 /* WorkflowCancel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = WorkflowCancel.png; sourceTree = "<group>"; };
 		53F6122D1AFFEA3B00CFD435 /* NBCWorkflowResourcesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowResourcesController.h; path = "Workflow Resources/NBCWorkflowResourcesController.h"; sourceTree = "<group>"; };
 		53F6122E1AFFEA3B00CFD435 /* NBCWorkflowResourcesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowResourcesController.m; path = "Workflow Resources/NBCWorkflowResourcesController.m"; sourceTree = "<group>"; };
-		53F9001F1BE2C6050090DD49 /* NBCWorkflowProgressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowProgressDelegate.h; path = Workflow/NBCWorkflowProgressDelegate.h; sourceTree = "<group>"; };
+		53F9001F1BE2C6050090DD49 /* NBCWorkflowProgressDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowProgressDelegate.h; path = "Workflow Progress/NBCWorkflowProgressDelegate.h"; sourceTree = "<group>"; };
 		53FB3E931B975D3B00CCE413 /* NBCCasperSettingsViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCasperSettingsViewController.h; path = Settings/NBCCasperSettingsViewController.h; sourceTree = "<group>"; };
 		53FB3E941B975D3B00CCE413 /* NBCCasperSettingsViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCasperSettingsViewController.m; path = Settings/NBCCasperSettingsViewController.m; sourceTree = "<group>"; };
 		53FB3E951B975D3B00CCE413 /* NBCCasperSettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCCasperSettingsViewController.xib; path = Settings/NBCCasperSettingsViewController.xib; sourceTree = "<group>"; };
@@ -621,8 +621,10 @@
 		53958D0C1AD948E10042CB8F /* Workflow NBI */ = {
 			isa = PBXGroup;
 			children = (
-				5302CB961BF389880022CE68 /* NBCWorkflowNBI.h */,
-				5302CB971BF389880022CE68 /* NBCWorkflowNBI.m */,
+				530BFF551B00F3160012D067 /* NBCWorkflowNBIController.h */,
+				530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */,
+				5302CB961BF389880022CE68 /* NBCWorkflowUpdateNBI.h */,
+				5302CB971BF389880022CE68 /* NBCWorkflowUpdateNBI.m */,
 				53FB84981BDE579D000152DA /* NBCWorkflowNBICreator.h */,
 				53FB84991BDE579D000152DA /* NBCWorkflowNBICreator.m */,
 				53DACFB01BEC777500375684 /* NBCWorkflowSystemImageUtility.h */,
@@ -646,6 +648,7 @@
 				53BC04031AD273380037DCBA /* DiskArbitration */,
 				53D9771B1BEE849800266C85 /* Settings */,
 				53D9771A1BEE845F00266C85 /* Workflow */,
+				53FC6CC71BF3D8BD00EADEF3 /* Workflow Progress */,
 				53958D0C1AD948E10042CB8F /* Workflow NBI */,
 				53D1CDB91BEA34FF00208FCF /* Workflow Resources */,
 				53A91B681BF27EF1009326A3 /* Workflow Modify */,
@@ -919,15 +922,6 @@
 				53CBB1C81ACF27B400B83089 /* NBCWorkflowManager.m */,
 				53B85C4E1BD796FF0024EF14 /* NBCWorkflowPreWorkflowTaskController.h */,
 				53B85C4F1BD796FF0024EF14 /* NBCWorkflowPreWorkflowTaskController.m */,
-				530BFF551B00F3160012D067 /* NBCWorkflowNBIController.h */,
-				530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */,
-				53F9001F1BE2C6050090DD49 /* NBCWorkflowProgressDelegate.h */,
-				53CBB1B81ACF1DF900B83089 /* NBCWorkflowProgressViewController.h */,
-				53CBB1B91ACF1DF900B83089 /* NBCWorkflowProgressViewController.m */,
-				53CBB1BA1ACF1DF900B83089 /* NBCWorkflowProgressViewController.xib */,
-				53CBB1C21ACF253200B83089 /* NBCWorkflowPanelController.h */,
-				53CBB1C31ACF253200B83089 /* NBCWorkflowPanelController.m */,
-				53CBB1C41ACF253200B83089 /* NBCWorkflowPanelController.xib */,
 			);
 			name = Workflow;
 			sourceTree = "<group>";
@@ -1044,6 +1038,20 @@
 			);
 			name = "TableView Resources";
 			path = NBICreator;
+			sourceTree = "<group>";
+		};
+		53FC6CC71BF3D8BD00EADEF3 /* Workflow Progress */ = {
+			isa = PBXGroup;
+			children = (
+				53F9001F1BE2C6050090DD49 /* NBCWorkflowProgressDelegate.h */,
+				53CBB1B81ACF1DF900B83089 /* NBCWorkflowProgressViewController.h */,
+				53CBB1B91ACF1DF900B83089 /* NBCWorkflowProgressViewController.m */,
+				53CBB1BA1ACF1DF900B83089 /* NBCWorkflowProgressViewController.xib */,
+				53CBB1C21ACF253200B83089 /* NBCWorkflowPanelController.h */,
+				53CBB1C31ACF253200B83089 /* NBCWorkflowPanelController.m */,
+				53CBB1C41ACF253200B83089 /* NBCWorkflowPanelController.xib */,
+			);
+			name = "Workflow Progress";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1293,7 +1301,7 @@
 				5332C3311BF339F200D51074 /* NBCWorkflowResourcesNBI.m in Sources */,
 				530E0C7B1B190C550025A9C3 /* NBCViewNoInternetConnection.m in Sources */,
 				53FB3E961B975D3B00CCE413 /* NBCCasperSettingsViewController.m in Sources */,
-				5302CB981BF389880022CE68 /* NBCWorkflowNBI.m in Sources */,
+				5302CB981BF389880022CE68 /* NBCWorkflowUpdateNBI.m in Sources */,
 				5303EBBB1AF4268200F6120D /* NBCTarget.m in Sources */,
 				53CBB1C91ACF27B400B83089 /* NBCWorkflowManager.m in Sources */,
 				5337D0C21AD9BAE200DF7579 /* NSString+randomString.m in Sources */,

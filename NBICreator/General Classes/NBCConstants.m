@@ -319,6 +319,7 @@ NSString *const NBCSettingsConfigurationProfilesKey = @"ConfigurationProfiles";
 // Workflows
 NSString *const NBCNotificationAddWorkflowItemToQueue = @"addWorkflowItemToQueue";
 NSString *const NBCNotificationWorkflowCompleteNBI = @"workflowCompleteNBI";
+NSString *const NBCNotificationWorkflowCompleteUpdateNBI = @"workflowCompleteUpdateNBI";
 NSString *const NBCNotificationWorkflowCompleteResources = @"workflowCompleteResources";
 NSString *const NBCNotificationWorkflowCompleteModifyNBI = @"workflowCompleteModifyNBI";
 NSString *const NBCNotificationWorkflowFailed = @"workflowFailed";

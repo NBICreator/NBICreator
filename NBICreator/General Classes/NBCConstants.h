@@ -314,6 +314,7 @@ extern NSString *const NBCWorkflowNBIModify;
 // Workflows
 extern NSString *const NBCNotificationAddWorkflowItemToQueue;
 extern NSString *const NBCNotificationWorkflowCompleteNBI;
+extern NSString *const NBCNotificationWorkflowCompleteUpdateNBI;
 extern NSString *const NBCNotificationWorkflowCompleteResources;
 extern NSString *const NBCNotificationWorkflowCompleteModifyNBI;
 extern NSString *const NBCNotificationWorkflowFailed;

@@ -16,6 +16,7 @@
 #import "NBCLogging.h"
 #import "NBCDiskImageController.h"
 #import "NBCError.h"
+#import "NBCWorkflowUpdateNBI.h"
 #import "NBCWorkflowNBICreator.h"
 #import "NBCWorkflowResources.h"
 #import "NBCWorkflowModifyNBI.h"
@@ -48,6 +49,7 @@ DDLogLevel ddLogLevel;
         NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
         [center addObserver:self selector:@selector(removeWorkflowItem:) name:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem object:nil];
         [center addObserver:self selector:@selector(workflowFailed:) name:NBCNotificationWorkflowFailed object:nil];
+        [center addObserver:self selector:@selector(workflowCompleteUpdateNBI:) name:NBCNotificationWorkflowCompleteUpdateNBI object:nil];
         [center addObserver:self selector:@selector(workflowCompleteNBI:) name:NBCNotificationWorkflowCompleteNBI object:nil];
         [center addObserver:self selector:@selector(workflowCompleteResources:) name:NBCNotificationWorkflowCompleteResources object:nil];
         [center addObserver:self selector:@selector(workflowCompleteModifyNBI:) name:NBCNotificationWorkflowCompleteModifyNBI object:nil];
@@ -63,7 +65,7 @@ DDLogLevel ddLogLevel;
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
+} // dealloc
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -72,16 +74,12 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    
-    BOOL retval = NO;
-    
     if ( [[menuItem title] isEqualToString:NBCMenuItemWorkflows] ) {
         if ( [[[_workflowPanel stackView] views] count] != 0 ) {
-            retval = YES;
+            return YES;
         }
     }
-    
-    return retval;
+    return NO;
 } // validateMenuItem
 
 - (void)menuItemWindowWorkflows:(id)sender {
@@ -104,7 +102,7 @@ DDLogLevel ddLogLevel;
             [[_workflowPanel window] makeKeyAndOrderFront:self];
         }
     }
-}
+} // menuItemWindowWorkflows
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -158,7 +156,7 @@ DDLogLevel ddLogLevel;
             [workflowItem setNbiIcon:nbiIcon];
             [[progressView nbiIcon] setImage:nbiIcon];
         } else {
-            DDLogError(@"Error: %@", [error localizedDescription]);
+            [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
         }
     }
     
@@ -195,10 +193,21 @@ DDLogLevel ddLogLevel;
     
     if ( _currentWorkflowNBIComplete && _currentWorkflowResourcesComplete ) {
         [self workflowQueueRunWorkflowPostprocessing];
+    } else if ( _currentWorkflowNBIComplete && [_currentWorkflowNBI  isKindOfClass:[NBCWorkflowNBI class]] ) {
+        NBCWorkflowResources *workflowResources = [[NBCWorkflowResources alloc] initWithDelegate:_currentWorkflowProgressView];
+        [self setCurrentWorkflowResources:workflowResources];
+        if ( workflowResources ) {
+            [workflowResources prepareResources:_currentWorkflowItem];
+        }
     } else {
         DDLogInfo(@"Waiting for additional resources to be prepared...");
     }
 } // workflowCompleteNBI
+
+- (void)workflowCompleteUpdateNBI:(NSNotification *)notification {
+#pragma unused(notification)
+    [self updateWorkflowStatusComplete];
+} // workflowCompleteUpdateNBI
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
 #pragma unused(notification)
@@ -228,7 +237,6 @@ DDLogLevel ddLogLevel;
         NSString *workflowTime = [_currentWorkflowItem workflowTime];
         
         DDLogInfo(@"*** Workflow: %@ completed in %@ ***", name, workflowTime);
-        
         
         if ( [[NSUserDefaults standardUserDefaults] boolForKey:NBCUserDefaultsUserNotificationsEnabled] ) {
             NSString *notificationMessage;
@@ -306,7 +314,7 @@ DDLogLevel ddLogLevel;
 - (BOOL)userNotificationCenter:(NSUserNotificationCenter *)center shouldPresentNotification:(NSUserNotification *)notification {
 #pragma unused(center, notification)
     return YES;
-}
+} // userNotificationCenter
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -349,18 +357,19 @@ DDLogLevel ddLogLevel;
         [self setCurrentWorkflowItem:[_workflowQueue firstObject]];
         NSString *nbiName = [_currentWorkflowItem nbiName];
         if ( [nbiName length] != 0 ) {
-            
             DDLogInfo(@"*** Workflow: %@ started ***", nbiName);
+            
             if ( [nbiName containsString:@" "] ) {
                 DDLogDebug(@"[DEBUG] Replacing spaces in NBI name with dashes (-)...");
+                
                 nbiName = [nbiName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
                 DDLogDebug(@"[DEBUG] New NBI name is: %@", nbiName);
             }
         } else {
-            DDLogError(@"[ERROR] NBI name cannot be empty!");
             [self updateWorkflowStatusErrorWithMessage:@"NBI name cannot be empty!"];
             return;
         }
+        
         [_currentWorkflowItem setStartTime:[NSDate date]];
         
         // -------------------------------------------------------------
@@ -371,17 +380,19 @@ DDLogLevel ddLogLevel;
         
         NSString *creationTool = [_currentWorkflowItem userSettings][NBCSettingsNBICreationToolKey];
         DDLogDebug(@"[DEBUG] NBI creation tool: %@", creationTool);
+        
         if ( [creationTool length] != 0 ) {
             [self setCurrentCreationTool:creationTool];
         } else {
-            
+            [self updateWorkflowStatusErrorWithMessage:@"Creation tool cannot be empty"];
+            return;
         }
         
         // -------------------------------------------------------------
         //  Create a path to a unique temporary folder
         // -------------------------------------------------------------
         if ( ! [self createTemporaryFolderForNBI:nbiName] ) {
-            DDLogError(@"[ERROR] Creating temporary folder failed!");
+            [self updateWorkflowStatusErrorWithMessage:@"Creating temporary folder failed"];
             return;
         }
         
@@ -397,6 +408,23 @@ DDLogLevel ddLogLevel;
         DDLogInfo(@"Workflow queue is empty");
     }
 } // workflowQueueRunWorkflow
+
+- (void)workflowQueueRunWorkflowPostprocessing {
+    if (
+        [_currentCreationTool isEqualToString:NBCMenuItemNBICreator] ||
+        [_currentCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ||
+        [_currentCreationTool isEqualToString:NBCMenuItemDeployStudioAssistant]
+        ) {
+        NBCWorkflowModifyNBI *workflowModifyNBI = [[NBCWorkflowModifyNBI alloc] initWithDelegate:[_currentWorkflowItem progressView]];
+        [_currentWorkflowItem setWorkflowModifyNBI:workflowModifyNBI];
+        [self setCurrentWorkflowModifyNBI:workflowModifyNBI];
+        if ( workflowModifyNBI ) {
+            [workflowModifyNBI modifyNBI:_currentWorkflowItem];
+        }
+    } else {
+        [self updateWorkflowStatusErrorWithMessage:[NSString stringWithFormat:@"Unknown creation tool: %@", _currentCreationTool]];
+    }
+} // workflowQueueRunWorkflowPostprocessing
 
 - (void)preWorkflowTasksCompleted {
     DDLogDebug(@"[DEBUG] Pre-workflow tasks completed");
@@ -420,7 +448,12 @@ DDLogLevel ddLogLevel;
     if ( ! [sourceType isEqualToString:NBCSourceTypeNBI] ) {
         [self runWorkflow];
     } else {
-        [self runWorkflowNBISource:target];
+        NBCWorkflowUpdateNBI *workflowUpdateNBI = [[NBCWorkflowUpdateNBI alloc] initWithDelegate:_currentWorkflowProgressView];
+        [_currentWorkflowItem setWorkflowNBI:workflowUpdateNBI];
+        [self setCurrentWorkflowNBI:workflowUpdateNBI];
+        if ( workflowUpdateNBI ) {
+            [workflowUpdateNBI updateNBI:_currentWorkflowItem];
+        }
     }
 }
 
@@ -460,7 +493,7 @@ DDLogLevel ddLogLevel;
             [workflowDeployStudioAssistant createNBI:_currentWorkflowItem];
         }
     } else {
-        DDLogError(@"[ERROR] Unknown creation tool: %@", _currentCreationTool);
+        [self updateWorkflowStatusErrorWithMessage:[NSString stringWithFormat:@"Unknown creation tool: %@", _currentCreationTool]];
         return;
     }
     
@@ -471,429 +504,36 @@ DDLogLevel ddLogLevel;
     }
 }
 
-- (void)workflowQueueRunWorkflowPostprocessing {
-    if (
-        [_currentCreationTool isEqualToString:NBCMenuItemNBICreator] ||
-        [_currentCreationTool isEqualToString:NBCMenuItemSystemImageUtility] ||
-        [_currentCreationTool isEqualToString:NBCMenuItemDeployStudioAssistant]
-        ) {
-        NBCWorkflowModifyNBI *workflowModifyNBI = [[NBCWorkflowModifyNBI alloc] initWithDelegate:[_currentWorkflowItem progressView]];
-        [_currentWorkflowItem setWorkflowModifyNBI:workflowModifyNBI];
-        [self setCurrentWorkflowModifyNBI:workflowModifyNBI];
-        if ( workflowModifyNBI ) {
-            [workflowModifyNBI modifyNBI:_currentWorkflowItem];
-        }
-    } else {
-        DDLogError(@"[ERROR] Unkown creation tool: %@", _currentCreationTool);
-    }
-} // workflowQueueRunWorkflowPostprocessing
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark prepareNBICreatorNBI
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-- (void)prepareNBICreatorNBI:(NBCTarget *)target {
-    
-    [_currentWorkflowItem setUserSettingsChangedRequiresBaseSystem:YES];
-    
-    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_async(taskQueue, ^{
-        
-        NSError *error;
-        if ( [NBCDiskImageController attachBaseSystemDiskImageWithShadowFile:[target baseSystemURL] target:target error:&error] ) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
-                
-                //[self setCurrentWorkflowResources:[self->_currentWorkflowItem workflowResources]];
-                //if ( self->_currentWorkflowResources ) {
-                //    [self->_currentWorkflowResources setDelegate:self->_currentWorkflowProgressView];
-                //    [self->_currentWorkflowResources runWorkflow:self->_currentWorkflowItem];
-                //}
-            });
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                DDLogError(@"[ERROR] Attaching BaseSystem disk image failed!");
-                DDLogError(@"[ERROR] %@", [error localizedDescription]);
-                [self updateWorkflowStatusErrorWithMessage:@"Attaching BaseSystem disk image failed"];
-            });
-        }
-    });
-}
-
-- (void)prepareSystemImageUtilityNBI:(NBCTarget *)target {
-    __block NSError *error;
-
-    DDLogDebug(@"[DEBUG] Workflow creation tool is: %@", NBCMenuItemSystemImageUtility);
-    
-    if ( [[target nbiNetInstallDisk] isWritable] ) {
-        DDLogDebug(@"[DEBUG] NetInstall disk image is writeable");
-        
-        if ( ! [[target nbiNetInstallDisk] isMounted] ) {
-            DDLogDebug(@"[DEBUG] NetInstall disk image is NOT mounted");
-            
-            dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            dispatch_async(taskQueue, ^{
-                
-                NSDictionary *netInstallDiskImageDict;
-                NSArray *hdiutilOptions = @[
-                                            @"-mountRandom", @"/Volumes",
-                                            @"-nobrowse",
-                                            @"-noverify",
-                                            @"-plist",
-                                            ];
-                
-                if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&netInstallDiskImageDict
-                                                                          dmgPath:[target nbiNetInstallURL]
-                                                                          options:hdiutilOptions
-                                                                            error:&error] ) {
-                    
-                    if ( netInstallDiskImageDict ) {
-                        [target setNbiNetInstallDiskImageDict:netInstallDiskImageDict];
-                        
-                        NSURL *netInstallVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:netInstallDiskImageDict];
-                        if ( [netInstallVolumeURL checkResourceIsReachableAndReturnError:&error] ) {
-                            
-                            NBCDisk *netInstallDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:[target nbiNetInstallURL]
-                                                                                                 imageType:@"InstallESD"];
-                            if ( netInstallDisk ) {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    DDLogDebug(@"[DEBUG] NetInstall disk image volume mounted!");
-                                    [target setNbiNetInstallDisk:netInstallDisk];
-                                    DDLogDebug(@"[DEBUG] NetInstall disk image volume bsd identifier: %@", [netInstallDisk BSDName]);
-                                    [target setNbiNetInstallVolumeBSDIdentifier:[netInstallDisk BSDName]];
-                                    DDLogDebug(@"[DEBUG] NetInstall disk image volume path: %@", [netInstallVolumeURL path]);
-                                    [target setNbiNetInstallVolumeURL:netInstallVolumeURL];
-                                    [netInstallDisk setIsMountedByNBICreator:YES];
-                                    [self prepareSystemImageUtilityNBIBaseSystem:target];
-                                });
-                            } else {
-                                dispatch_async(dispatch_get_main_queue(), ^{
-                                    DDLogError(@"[ERROR] Found no disk object matching disk image volume url");
-                                    [self updateWorkflowStatusErrorWithMessage:@"Found no disk object matching disk image volume url"];
-                                    return;
-                                });
-                            }
-                        } else {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                DDLogError(@"[ERROR] NetInstall disk image volume url doesn't exist");
-                                DDLogError(@"[ERROR] %@", [error localizedDescription] );
-                                [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
-                                return;
-                            });
-                        }
-                    } else {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            DDLogError(@"[ERROR] Information dictionary returned from hdiutil was empty");
-                            [self updateWorkflowStatusErrorWithMessage:@"Information dictionary returned from hdiutil was empty"];
-                            return;
-                        });
-                    }
-                } else {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        DDLogError(@"[ERROR] Attaching NetInstall disk image failed");
-                        [self updateWorkflowStatusErrorWithMessage:@"Attaching NetInstall disk image failed"];
-                        return;
-                    });
-                }
-            });
-        }
-    } else {
-        DDLogDebug(@"[DEBUG] NetInstall disk image is NOT writeable");
-        
-        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        dispatch_async(taskQueue, ^{
-            
-            if ( [[target nbiNetInstallDisk] isMounted] ) {
-                DDLogDebug(@"[DEBUG] NetInstall disk image IS mounted");
-                
-                DDLogDebug(@"[DEBUG] Detaching NetInstall disk image...");
-                if ( ! [NBCDiskImageController detachDiskImageAtPath:[[target nbiNetInstallVolumeURL] path]] ) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        DDLogError(@"[ERROR] Detaching NetInstall disk image failed!");
-                        [self updateWorkflowStatusErrorWithMessage:@"Detaching NetInstall disk image failed"];
-                        return;
-                    });
-                }
-            }
-            
-            if ( [NBCDiskImageController attachNetInstallDiskImageWithShadowFile:[target nbiNetInstallURL] target:target error:&error] ) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self prepareSystemImageUtilityNBIBaseSystem:target];
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    DDLogError(@"[ERROR] Attaching NetInstall disk image failed!");
-                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
-                    [self updateWorkflowStatusErrorWithMessage:@"Attaching NetInstall disk image failed"];
-                    return;
-                });
-            }
-        });
-    }
-}
-
-- (void)prepareSystemImageUtilityNBIBaseSystem:(NBCTarget *)target {
-
-    NSDictionary *settingsChanged = [_currentWorkflowItem userSettingsChanged];
-    if (
-        [settingsChanged[NBCSettingsARDLoginKey] boolValue] ||
-        [settingsChanged[NBCSettingsARDPasswordKey] boolValue] ||
-        [settingsChanged[NBCSettingsAddCustomRAMDisksKey] boolValue] ||
-        [settingsChanged[NBCSettingsRAMDisksKey] boolValue] ||
-        [settingsChanged[NBCSettingsDisableBluetoothKey] boolValue] ||
-        [settingsChanged[NBCSettingsDisableWiFiKey] boolValue] ||
-        [settingsChanged[NBCSettingsIncludeConsoleAppKey] boolValue] ||
-        [settingsChanged[NBCSettingsIncludeRubyKey] boolValue] ||
-        [settingsChanged[NBCSettingsIncludeSystemUIServerKey] boolValue] ||
-        [settingsChanged[NBCSettingsKeyboardLayoutID] boolValue] ||
-        [settingsChanged[NBCSettingsLanguageKey] boolValue] ||
-        [settingsChanged[NBCSettingsUseNetworkTimeServerKey] boolValue] ||
-        [settingsChanged[NBCSettingsNetworkTimeServerKey] boolValue] ||
-        [settingsChanged[NBCSettingsTimeZoneKey] boolValue]
-        ) {
-        
-        DDLogDebug(@"[DEBUG] At least one setting that require BaseSystem was changed");
-        [_currentWorkflowItem setUserSettingsChangedRequiresBaseSystem:YES];
-        
-        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        dispatch_async(taskQueue, ^{
-            
-            NSError *error;
-            if ( [NBCDiskImageController attachBaseSystemDiskImageWithShadowFile:[target baseSystemURL] target:target error:&error] ) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
-                    
-                    //[self setCurrentWorkflowResources:[self->_currentWorkflowItem workflowResources]];
-                    //if ( self->_currentWorkflowResources ) {
-                    //    [self->_currentWorkflowResources setDelegate:self->_currentWorkflowProgressView];
-                    //    [self->_currentWorkflowResources runWorkflow:self->_currentWorkflowItem];
-                    //}
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    DDLogError(@"[ERROR] Attaching BaseSystem disk image failed!");
-                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
-                    [self updateWorkflowStatusErrorWithMessage:@"Attaching BaseSystem disk image failed"];
-                });
-            }
-        });
-    } else {
-        DDLogDebug(@"[DEBUG] No settings that require BaseSystem were changed");
-        [_currentWorkflowItem setUserSettingsChangedRequiresBaseSystem:NO];
-        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowCompleteNBI object:self userInfo:nil];
-        
-        //[self setCurrentWorkflowResources:[_currentWorkflowItem workflowResources]];
-        //if ( _currentWorkflowResources ) {
-        //    [_currentWorkflowResources setDelegate:_currentWorkflowProgressView];
-        //    [_currentWorkflowResources runWorkflow:_currentWorkflowItem];
-        //}
-    }
-}
-
-- (BOOL)onlyChangeNBImageInfo:(NSError **)error {
-    
-    NSDictionary *settingsChanged = [_currentWorkflowItem userSettingsChanged];
-    NSMutableArray *keysChanged = [[settingsChanged allKeysForObject:@YES] mutableCopy];
-    NSMutableArray *keysNBImageInfo = [[NSMutableArray alloc] init];
-    NSMutableArray *keysBootPlist = [[NSMutableArray alloc] init];
-    for ( NSString *key in [keysChanged copy] ) {
-        if (
-            [key isEqualToString:NBCSettingsProtocolKey] ||
-            [key isEqualToString:NBCSettingsIndexKey] ||
-            [key isEqualToString:NBCSettingsEnabledKey] ||
-            [key isEqualToString:NBCSettingsDefaultKey] ||
-            [key isEqualToString:NBCSettingsDescriptionKey]
-            ) {
-            [keysNBImageInfo addObject:key];
-            [keysChanged removeObject:key];
-        } else if ( [key isEqualToString:NBCSettingsUseVerboseBootKey] ) {
-            [keysBootPlist addObject:key];
-            [keysChanged removeObject:key];
-        }
-    }
-    
-    if ( [keysChanged count] == 0 ) {
-        DDLogInfo(@"Only settings in the NBI folder changed...");
-        NSDictionary *userSettings = [_currentWorkflowItem userSettings];
-        
-        if ( [keysNBImageInfo count] != 0 ) {
-            DDLogInfo(@"Updating NBImageInfo.plist...");
-            
-            NSURL *nbImageInfoURL = [[_currentWorkflowItem source] nbImageInfoURL];
-            DDLogDebug(@"[DEBUG] NBImageInfo.plist path: %@", [nbImageInfoURL path]);
-            
-            if ( [nbImageInfoURL checkResourceIsReachableAndReturnError:error] ) {
-                DDLogDebug(@"[DEBUG] NBImageInfo.plist exists!");
-                
-                NSMutableDictionary *nbImageInfoDict = [NSMutableDictionary dictionaryWithContentsOfURL:nbImageInfoURL];
-                if ( [nbImageInfoDict count] != 0 ) {
-                    
-                    NSString *nbImageInfoKey;
-                    for ( NSString *key in keysNBImageInfo ) {
-                        if ( [key isEqualToString:NBCSettingsProtocolKey] ) {
-                            nbImageInfoKey = NBCNBImageInfoDictProtocolKey;
-                        } else if ( [key isEqualToString:NBCSettingsIndexKey] ) {
-                            nbImageInfoKey = NBCNBImageInfoDictIndexKey;
-                        } else if ( [key isEqualToString:NBCSettingsEnabledKey] ) {
-                            nbImageInfoKey = NBCNBImageInfoDictIsEnabledKey;
-                        } else if ( [key isEqualToString:NBCSettingsDefaultKey] ) {
-                            nbImageInfoKey = NBCNBImageInfoDictIsDefaultKey;
-                        } else if ( [key isEqualToString:NBCSettingsDescriptionKey] ) {
-                            nbImageInfoKey = NBCNBImageInfoDictDescriptionKey;
-                        }
-                        
-                        DDLogDebug(@"[DEBUG] Changing key: %@", nbImageInfoKey);
-                        DDLogDebug(@"[DEBUG] Original value: %@", nbImageInfoDict[nbImageInfoKey]);
-                        DDLogDebug(@"[DEBUG] New value: %@", userSettings[key]);
-                        if ( [key isEqualToString:NBCSettingsIndexKey] ) {
-                            nbImageInfoDict[nbImageInfoKey] = @( [userSettings[key] integerValue] );
-                        } else {
-                            nbImageInfoDict[nbImageInfoKey] = userSettings[key];
-                        }
-                    }
-                    
-                    DDLogDebug(@"[DEBUG] Writing updated NBImageInfo.plist...");
-                    if ( ! [nbImageInfoDict writeToURL:nbImageInfoURL atomically:YES] ) {
-                        *error = [NBCError errorWithDescription:@"Writing updated NBImageInfo.plist failed"];
-                        return YES;
-                    }
-                } else {
-                    *error = [NBCError errorWithDescription:@"NBImageInfo.plist was empty"];
-                    return YES;
-                }
-            } else {
-                return YES;
-            }
-        }
-        
-        if ( [keysBootPlist count] != 0 ) {
-            DDLogInfo(@"Updating com.apple.Boot.plist...");
-            
-            NSURL *bootPlistURL = [[_currentWorkflowItem nbiURL] URLByAppendingPathComponent:@"i386/com.apple.Boot.plist"];
-            DDLogDebug(@"[DEBUG] com.apple.Boot.plist path: %@", [bootPlistURL path]);
-            
-            NSMutableDictionary *bootPlistDict;
-            if ( [bootPlistURL checkResourceIsReachableAndReturnError:nil] ) {
-                DDLogDebug(@"[DEBUG] com.apple.Boot.plist exists!");
-                
-                bootPlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:bootPlistURL];
-                if ( ! bootPlistDict ) {
-                    bootPlistDict = [[NSMutableDictionary alloc] init];
-                }
-            } else {
-                bootPlistDict = [[NSMutableDictionary alloc] init];
-            }
-            
-            if ( [userSettings[NBCSettingsUseVerboseBootKey] boolValue] ) {
-                DDLogDebug(@"[DEBUG] Adding \"-v\" to \"Kernel Flags\"");
-                if ( [bootPlistDict[@"Kernel Flags"] length] != 0 ) {
-                    NSString *currentKernelFlags = bootPlistDict[@"Kernel Flags"];
-                    bootPlistDict[@"Kernel Flags"] = [NSString stringWithFormat:@"%@ -v", currentKernelFlags];
-                } else {
-                    bootPlistDict[@"Kernel Flags"] = @"-v";
-                }
-            } else {
-                DDLogDebug(@"[DEBUG] Removing \"-v\" from \"Kernel Flags\"");
-                if ( [bootPlistDict[@"Kernel Flags"] length] != 0 ) {
-                    NSString *currentKernelFlags = bootPlistDict[@"Kernel Flags"];
-                    bootPlistDict[@"Kernel Flags"] = [currentKernelFlags stringByReplacingOccurrencesOfString:@"-v" withString:@""];
-                } else {
-                    bootPlistDict[@"Kernel Flags"] = @"";
-                }
-            }
-            
-            if ( ! [bootPlistDict writeToURL:bootPlistURL atomically:YES] ) {
-                *error = [NBCError errorWithDescription:@"Writing updated com.apple.Boot.plist failed"];
-                return YES;
-            }
-        }
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-- (void)runWorkflowNBISource:(NBCTarget *)target {
-    
-    NSError *error = nil;
-    
-    // If only changes outside disk images are made, do those directly
-    if ( [self onlyChangeNBImageInfo:&error] ) {
-        if ( ! error ) {
-            [self updateWorkflowStatusComplete];
-        } else {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                object:self
-                                                              userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Updating files in NBI folder failed"] }];
-        }
-        return;
-    }
-    
-    if ( [[target baseSystemDisk] isMounted] ) {
-        DDLogDebug(@"[DEBUG] BaseSystem disk image IS mounted");
-        DDLogDebug(@"[DEBUG] Detaching BaseSystem disk image...");
-        
-        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        dispatch_async(taskQueue, ^{
-            
-            if ( [NBCDiskImageController detachDiskImageAtPath:[[target baseSystemVolumeURL] path]] ) {
-                if ( [[self->_currentWorkflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self prepareSystemImageUtilityNBI:target];
-                    });
-                } else {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self prepareNBICreatorNBI:target];
-                    });
-                }
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    DDLogError(@"[ERROR] Detaching BaseSystem disk image failed!");
-                    [self updateWorkflowStatusErrorWithMessage:@"Detaching BaseSystem disk image failed"];
-                    return;
-                });
-            }
-        });
-    } else {
-        if ( [[_currentWorkflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
-            [self prepareSystemImageUtilityNBI:target];
-        } else {
-            [self prepareNBICreatorNBI:target];
-        }
-    }
-}
-
 - (BOOL)createTemporaryFolderForNBI:(NSString *)nbiName {
+    
     NSError *error = nil;
     DDLogDebug(@"[DEBUG] Preparing workflow temporary folder...");
+    
     NSURL *temporaryFolderURL = [self temporaryFolderURL];
     DDLogDebug(@"[DEBUG] Temporary folder path: %@", [temporaryFolderURL path]);
-    if ( temporaryFolderURL ) {
+    
+    if ( [temporaryFolderURL checkResourceIsReachableAndReturnError:&error] ) {
         [_currentWorkflowItem setTemporaryFolderURL:temporaryFolderURL];
         
         NSURL *temporaryNBIURL = [temporaryFolderURL URLByAppendingPathComponent:nbiName];
         DDLogDebug(@"[DEBUG] Temporary NBI path: %@", [temporaryNBIURL path]);
-        if ( temporaryNBIURL ) {
+        
+        if ( [temporaryNBIURL checkResourceIsReachableAndReturnError:&error] ) {
             [_currentWorkflowItem setTemporaryNBIURL:temporaryNBIURL];
             
             NSFileManager *fileManager = [NSFileManager defaultManager];
             DDLogDebug(@"[DEBUG] Creating temporary NBI folder...");
+            
             if ( ! [fileManager createDirectoryAtURL:temporaryNBIURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                DDLogError(@"[ERROR] Creating temporary NBI folder failed!");
-                DDLogError(@"[ERROR] %@", error);
-                [self updateWorkflowStatusErrorWithMessage:@"Creating temporary NBI folder failed"];
+                [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
                 return NO;
             }
         } else {
-            DDLogError(@"[ERROR] Temporary NBI path cannot be empty!");
-            [self updateWorkflowStatusErrorWithMessage:@"Temporary NBI path cannot be empty"];
+            [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
             return NO;
         }
     } else {
-        DDLogError(@"[ERROR] Temporary folder path cannot be empty!");
-        [self updateWorkflowStatusErrorWithMessage:@"Temporary folder path cannot be empty"];
+        [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
         return NO;
     }
     
@@ -902,7 +542,7 @@ DDLogLevel ddLogLevel;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark
+#pragma mark Other Methods
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -915,6 +555,7 @@ DDLogLevel ddLogLevel;
     if ( [currentIndex integerValue] == 65535 ) {
         currentIndex = @0;
     }
+    
     NSNumber *newIndex = @([currentIndex intValue] + 1);
     DDLogDebug(@"[DEBUG] New index: %@", [newIndex stringValue]);
     
@@ -994,23 +635,35 @@ DDLogLevel ddLogLevel;
 } // moveNBIToDestination:destinationURL
 
 - (NSURL *)temporaryFolderURL {
-    NSURL *temporaryFolderURL;
     NSString *tmpFolderName = [NSString stringWithFormat:@"%@/workflow.%@", NBCBundleIdentifier, [NSString nbc_randomString]];
     NSString *tmpFolderPath = [NSTemporaryDirectory() stringByAppendingPathComponent:tmpFolderName];
-    
     if ( [tmpFolderPath length] != 0 ) {
-        temporaryFolderURL = [NSURL fileURLWithPath:tmpFolderPath];
+        return [NSURL fileURLWithPath:tmpFolderPath];
     }
-    
-    return temporaryFolderURL;
+    return nil;
 } // temporaryFolderURL
 
 - (void)removeTemporaryFolder {
-    NSError *error;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
+    
     NSURL *temporaryFolderURL = [_currentWorkflowItem temporaryFolderURL];
-    if ( ! [fileManager removeItemAtURL:temporaryFolderURL error:&error] ) {
-        DDLogError(@"%@", [error localizedDescription]);
+    if ( [temporaryFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+        
+        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_async(taskQueue, ^{
+            
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [[helperConnector connection] setExportedObject:self->_currentWorkflowProgressView];
+            [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+            [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+                DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
+            }] removeItemsAtPaths:@[ [temporaryFolderURL path] ] withReply:^(NSError *error, BOOL success) {
+                if ( ! success ) {
+                } else {
+                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                }
+            }];
+        });
     }
 } // removeTemporaryFolder
 

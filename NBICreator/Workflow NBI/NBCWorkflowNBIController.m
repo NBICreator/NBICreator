@@ -16,8 +16,6 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCWorkflowNBIController
 
-
-
 + (NSArray *)generateScriptArgumentsForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
     NSMutableArray *createRestoreFromSourcesArguments = [[NSMutableArray alloc] init];
     
