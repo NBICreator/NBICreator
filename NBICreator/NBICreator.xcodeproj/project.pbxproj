@@ -1604,7 +1604,7 @@
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"\"Helper/Supporting Files/NBICreatorHelper-Info.plist\"",
+					"\"Helper/Supporting Files/NBICreatorHelper-Launchd.plist\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.NBICreatorHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1627,7 +1627,7 @@
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"\"Helper/Supporting Files/NBICreatorHelper-Info.plist\"",
+					"\"Helper/Supporting Files/NBICreatorHelper-Launchd.plist\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.NBICreatorHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
