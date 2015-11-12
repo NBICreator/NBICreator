@@ -28,10 +28,12 @@
 @property NBCWorkflowItem *workflowItem;
 @property int sourceVersionMinor;
 @property int workflowType;
+@property BOOL isNBI;
 
 @property NSString *creationTool;
 @property NSDictionary *userSettings;
 @property NSDictionary *resourcesSettings;
+@property NSDictionary *settingsChanged;
 
 - (id)initWithDelegate:(id<NBCWorkflowProgressDelegate>)delegate;
 - (void)prepareResources:(NBCWorkflowItem *)workflowItem;

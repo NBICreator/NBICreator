@@ -143,15 +143,23 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     
     if ( [keyPath isEqualToString:@"nbiCreationTool"] ) {
         NSString *creationTool = change[@"new"];
+        DDLogDebug(@"[DEBUG] Selected creation tool: %@", creationTool);
+        
         if ( [creationTool length] != 0 && [_creationTool length] == 0 ) {
             [self setCreationTool:creationTool];
             [self setSourceTypes:[NBCSourceDropViewController sourceTypesForCreationTool:creationTool allowNBISource:_allowNBISource] ?: @[]];
             [self updateViewForSourceTypes];
+            
         } else if ( [creationTool length] != 0 && ! [creationTool isEqualToString:_creationTool] ) {
             [self setCreationTool:creationTool];
             [self setSourceTypes:[NBCSourceDropViewController sourceTypesForCreationTool:creationTool allowNBISource:_allowNBISource] ?: @[]];
             [self updateViewForSourceTypes];
-            if ( [creationTool isEqualToString:NBCMenuItemNBICreator] && _sourceNBICreator ) {
+            
+            if ( [_nbiSelectedSource length] != 0 && _sourceNBI ) {
+                if ( _delegate && [_delegate respondsToSelector:@selector(updateSource:target:)] ) {
+                    [_delegate updateSource:_sourceNBI target:nil];
+                }
+            } else if ( [creationTool isEqualToString:NBCMenuItemNBICreator] && _sourceNBICreator ) {
                 if ( _delegate && [_delegate respondsToSelector:@selector(updateSource:target:)] ) {
                     [_delegate updateSource:_sourceNBICreator target:nil];
                 }
@@ -177,10 +185,12 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             [self setNbiType:nbiType];
             [self setSourceTypes:[NBCSourceDropViewController sourceTypesForNbiType:nbiType] ?: @[]];
             [self updateViewForSourceTypes];
+            
         } else if ( [nbiType length] != 0 && ! [nbiType isEqualToString:_nbiType] ) {
             [self setNbiType:nbiType];
             [self setSourceTypes:[NBCSourceDropViewController sourceTypesForNbiType:nbiType] ?: @[]];
             [self updateViewForSourceTypes];
+            
             if ( [nbiType isEqualToString:@"NetInstall"] && _sourceSystemImageUtility ) {
                 if ( _delegate && [_delegate respondsToSelector:@selector(updateSource:target:)] ) {
                     [_delegate updateSource:_sourceSystemImageUtility target:nil];

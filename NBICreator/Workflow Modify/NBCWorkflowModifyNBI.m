@@ -53,6 +53,9 @@ DDLogLevel ddLogLevel;
     [self setWorkflowType:[_workflowItem workflowType]];
     [self setCreationTool:[_workflowItem userSettings][NBCSettingsNBICreationToolKey]];
     
+    [self setIsNBI:( [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
+    DDLogDebug(@"[DEBUG] Source is NBI: %@", ( _isNBI ) ? @"YES" : @"NO" );
+    
     NSDictionary *settingsChanged = [workflowItem userSettingsChanged];
     
     NSError *error;
@@ -586,9 +589,14 @@ DDLogLevel ddLogLevel;
             return;
         }
         
-        if ( [userSettings[NBCSettingsARDPasswordKey] length] != 0 && ! _addedUsers ) {
-            [self addUsers];
-            return;
+        if ( ! _isNBI || (
+                          [userSettingsChanged[NBCSettingsARDLoginKey] boolValue] ||
+                          [userSettingsChanged[NBCSettingsARDPasswordKey] boolValue]
+                          ) ) {
+            if ( [userSettings[NBCSettingsARDPasswordKey] length] != 0 && ! _addedUsers ) {
+                [self addUsers];
+                return;
+            }
         }
         
         if ( [creationTool isEqualToString:NBCMenuItemNBICreator] ) {
@@ -1182,9 +1190,15 @@ DDLogLevel ddLogLevel;
                 }] modifyResourcesOnVolume:self->_currentVolumeURL modificationsArray:modificationsArray withReply:^(NSError *error, int terminationStatus) {
                     [self setModificationsApplied:YES];
                     if ( terminationStatus == 0 ) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [self disableSpotlightOnVolume];
-                        });
+                        if ( ! self->_isNBI ) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self disableSpotlightOnVolume];
+                            });
+                        } else {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self modifyComplete];
+                            });
+                        }
                     } else {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [self modifyFailedWithError:error];
@@ -1194,7 +1208,11 @@ DDLogLevel ddLogLevel;
             });
         } else {
             if ( ! err ) {
-                [self disableSpotlightOnVolume];
+                if ( ! _isNBI ) {
+                    [self disableSpotlightOnVolume];
+                } else {
+                    [self modifyComplete];
+                }
             } else {
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                     object:self
@@ -1203,7 +1221,11 @@ DDLogLevel ddLogLevel;
         }
     } else {
         DDLogInfo(@"Modifications have already been applied...");
-        [self disableSpotlightOnVolume];
+        if ( ! _isNBI ) {
+            [self disableSpotlightOnVolume];
+        } else {
+            [self modifyComplete];
+        }
     }
 } // applyModificationsToVolume
 

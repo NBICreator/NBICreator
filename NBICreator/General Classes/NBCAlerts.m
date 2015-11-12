@@ -238,7 +238,20 @@ DDLogLevel ddLogLevel;
     [alert addButtonWithTitle:@"Save and Quit"];        //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleQuit];      //NSAlertSecondButton
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertThirdButton
-    [alert setMessageText:@"Unsaved Settings!"];
+    [alert setMessageText:@"Unsaved Settings"];
+    [alert setInformativeText:informativeText ?: @""];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+    }];
+}
+
+- (void)showAlertSettingsUnsavedQuitNoSave:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
+    
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:NBCButtonTitleCancel];            //NSAlertFirstButton
+    [alert addButtonWithTitle:@"Discard changes and Quit"];     //NSAlertSecondButton
+    [alert setMessageText:@"Unsaved Settings"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
@@ -249,8 +262,8 @@ DDLogLevel ddLogLevel;
 - (void)showAlertWorkflowRunningQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"Quit Anyway"];          //NSAlertFirstButton
-    [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertSecondButton
+    [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertFirstButton
+    [alert addButtonWithTitle:@"Quit Anyway"];          //NSAlertSecondButton
     [alert setMessageText:@"Workflow Running!"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];

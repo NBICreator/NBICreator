@@ -1069,7 +1069,7 @@ DDLogLevel ddLogLevel;
 }
 
 + (BOOL)verifyNBINetInstallDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source target:(NBCTarget *)target error:(NSError **)error {
-    
+
     DDLogInfo(@"Verifying NetInstall disk image...");
     
     NSURL *netInstallVolumeURL;
@@ -1155,7 +1155,7 @@ DDLogLevel ddLogLevel;
             }];
             
             if ( isBaseSystem ) {
-                target = [[NBCTarget alloc] init];
+                [target resetAllVariables];
                 [target setBaseSystemURL:diskImageURL];
                 
                 DDLogInfo(@"NetInstall disk image is a BaseSystem disk image");

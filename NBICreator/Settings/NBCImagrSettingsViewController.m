@@ -999,15 +999,17 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateSource:(NBCSource *)source target:(NBCTarget *)target {
-#pragma unused(target)
-    if ( [source isEqualTo:_source] ) {
+
+    if ( source != nil && [source isEqualTo:_source] ) {
         if ( target == nil || ( target != nil && [target isEqualTo:_target] ) ) {
             return;
         }
     } else if ( source != nil ) {
         [self setSource:source];
+    } else if ( source == nil ) {
+        DDLogWarn(@"[WARN] Source is nil");
     }
-    
+
     [self updateSettingVisibility];
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
@@ -1055,6 +1057,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)removedSource {
+    NSLog(@"removedSource");
     if ( _source ) {
         [self setSource:nil];
     }
@@ -2547,6 +2550,7 @@ DDLogLevel ddLogLevel;
     //  Verify that the current source is not nil.
     // -------------------------------------------------------------
     if ( _source == nil ) {
+        DDLogDebug(@"[DEBUG] Verify build button failed, source is nil");
         buildEnabled = NO;
     }
     

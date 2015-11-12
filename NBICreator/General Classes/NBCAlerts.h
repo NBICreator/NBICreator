@@ -44,6 +44,7 @@
 - (void)showAlertSettingsUnsaved:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo;
 - (void)showAlertSettingsUnsavedBuild:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo;
 - (void)showAlertSettingsUnsavedQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo;
+- (void)showAlertSettingsUnsavedQuitNoSave:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo;
 - (void)showAlertWorkflowRunningQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo;
 - (void)showAlertDeleteTemplate:(NSString *)informativeText templateName:(NSString *)templateName  alertInfo:(NSDictionary *)alertInfo;
 

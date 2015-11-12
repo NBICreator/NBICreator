@@ -206,10 +206,9 @@ DDLogLevel ddLogLevel;
 #pragma unused(notification)
     DDLogInfo(@"Base NBI created successfully!");
     [self setCurrentWorkflowNBIComplete:YES];
-    
     if ( _currentWorkflowNBIComplete && _currentWorkflowResourcesComplete ) {
         [self workflowQueueRunWorkflowPostprocessing];
-    } else if ( _currentWorkflowNBIComplete && [_currentWorkflowNBI  isKindOfClass:[NBCWorkflowNBI class]] ) {
+    } else if ( _currentWorkflowNBIComplete && [_currentWorkflowNBI isKindOfClass:[NBCWorkflowUpdateNBI class]] ) {
         NBCWorkflowResources *workflowResources = [[NBCWorkflowResources alloc] initWithDelegate:_currentWorkflowProgressView];
         [self setCurrentWorkflowResources:workflowResources];
         if ( workflowResources ) {

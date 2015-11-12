@@ -1013,6 +1013,7 @@ DDLogLevel ddLogLevel;
         }
         
         [self setIsNBI:YES];
+        
         NSURL *nbiURL = [source sourceURL];
         [self createSettingsFromNBI:nbiURL];
     } else {

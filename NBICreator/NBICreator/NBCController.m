@@ -366,7 +366,7 @@ enum {
                     if ( self->_currentSettingsController ) {
                         [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
                     } else {
-                        NSLog(@"ERROR! Could not import template, internal error!");
+                        DDLogError(@"[ERROR] Could not import template, internal error!");
                     }
                 } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
                     [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlDeployStudio];
@@ -374,7 +374,7 @@ enum {
                     if ( self->_currentSettingsController ) {
                         [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
                     } else {
-                        NSLog(@"ERROR! Could not import template, internal error!");
+                        DDLogError(@"[ERROR] Could not import template, internal error!");
                     }
                 } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
                     [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlImagr];
@@ -382,7 +382,7 @@ enum {
                     if ( self->_currentSettingsController ) {
                         [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
                     } else {
-                        NSLog(@"ERROR! Could not import template, internal error!");
+                        DDLogError(@"[ERROR] Could not import template, internal error!");
                     }
                 }
             }
@@ -419,13 +419,57 @@ enum {
     // --------------------------------------------------------------
     //  Alert user if there are unsaved settings before quitting
     // --------------------------------------------------------------
+    BOOL currentSettingsUnsaved = NO;
+    int settingsUnsaved = 0;
+    NSMutableString *settingsChanged = [[NSMutableString alloc] initWithString:@""];
+    if ( _niSettingsViewController && [_niSettingsViewController haveSettingsChanged] ) {
+        [settingsChanged appendString:@"• NetInstall\n"];
+        settingsUnsaved++;
+        if ( [_niSettingsViewController isEqualTo:_currentSettingsController] ) {
+            currentSettingsUnsaved = YES;
+        }
+    }
     
-    //+ IMPROVEMENT Check ALL nbi types, not just currently selected.
+    if ( _dsSettingsViewController && [_dsSettingsViewController haveSettingsChanged] ) {
+        [settingsChanged appendString:@"• DeployStudio\n"];
+        settingsUnsaved++;
+        if ( [_dsSettingsViewController isEqualTo:_currentSettingsController] ) {
+            currentSettingsUnsaved = YES;
+        }
+    }
     
-    if ( [_currentSettingsController haveSettingsChanged] ) {
+    if ( _imagrSettingsViewController && [_imagrSettingsViewController haveSettingsChanged] ) {
+        if ( ! [_imagrSettingsViewController isNBI] ) {
+            [settingsChanged appendString:@"• Imagr\n"];
+            settingsUnsaved++;
+            if ( [_imagrSettingsViewController isEqualTo:_currentSettingsController] ) {
+                currentSettingsUnsaved = YES;
+            }
+        }
+    }
+    
+    if ( _casperSettingsViewController && [_casperSettingsViewController haveSettingsChanged] ) {
+        [settingsChanged appendString:@"• Casper\n"];
+        settingsUnsaved++;
+        if ( [_casperSettingsViewController isEqualTo:_currentSettingsController] ) {
+            currentSettingsUnsaved = YES;
+        }
+    }
+    
+    if ( settingsUnsaved == 1 && currentSettingsUnsaved ) {
+        if ( [[_currentSettingsController selectedTemplate] isEqualToString:NBCMenuItemUntitled] ) {
+            NBCAlerts *alerts = [[NBCAlerts alloc] initWithDelegate:self];
+            [alerts showAlertSettingsUnsavedQuitNoSave:@"You have unsaved settings.\n\nTo save your changes in a template, select Save As... from the template popup menu and choose a name."
+                                       alertInfo:@{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedQuitNoSave }];
+        } else {
+            NBCAlerts *alerts = [[NBCAlerts alloc] initWithDelegate:self];
+            [alerts showAlertSettingsUnsavedQuit:@"You have unsaved settings."
+                                       alertInfo:@{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedQuit }];
+        }
+    } else if ( 0 < settingsUnsaved ) {
         NBCAlerts *alerts = [[NBCAlerts alloc] initWithDelegate:self];
-        [alerts showAlertSettingsUnsavedQuit:@"You have unsaved Settings."
-                                   alertInfo:@{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedQuit }];
+        [alerts showAlertSettingsUnsavedQuitNoSave:[NSString stringWithFormat:@"You have unsaved settings for the following workflows:\n\n%@", settingsChanged]
+                                         alertInfo:@{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedQuitNoSave }];
     } else {
         [self checkWorkflowRunningQuit];
     }
@@ -503,11 +547,17 @@ enum {
             [self checkWorkflowRunningQuit];
         } else if ( returnCode == NSAlertSecondButtonReturn ) {     // Quit
             [self checkWorkflowRunningQuit];
-        } else if ( returnCode == NSAlertThirdButtonReturn ) {      // Cancel
+        } else {                                                    // Cancel
+            [NSApp replyToApplicationShouldTerminate:NO];
+        }
+    } else if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsavedQuitNoSave] ) {
+        if ( returnCode == NSAlertSecondButtonReturn ) {            // Quit Anyway
+            [self checkWorkflowRunningQuit];
+        } else {                                                    // Cancel
             [NSApp replyToApplicationShouldTerminate:NO];
         }
     } else if ( [alertTag isEqualToString:NBCAlertTagWorkflowRunningQuit] ) {
-        if ( returnCode == NSAlertFirstButtonReturn ) {             // Quit Anyway
+        if ( returnCode == NSAlertSecondButtonReturn ) {            // Quit Anyway
             
             /*//////////////////////////////////////////////////////////////////////////////
              /// NEED TO IMPLEMENT THIS TO QUIT ALL RUNNING AND QUEUED WORKFLOWS         ///
@@ -516,7 +566,7 @@ enum {
             /* --------------------------------------------------------------------------- */
             
             [self terminateApp];
-        } else if ( returnCode == NSAlertSecondButtonReturn ) {     // Cancel
+        } else {                                                    // Cancel
             [NSApp replyToApplicationShouldTerminate:NO];
         }
     }

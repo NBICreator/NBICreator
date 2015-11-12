@@ -403,6 +403,7 @@ extern NSString *const NBCAlertTagKey;
 extern NSString *const NBCAlertTagSettingsWarning;
 extern NSString *const NBCAlertTagSettingsUnsaved;
 extern NSString *const NBCAlertTagSettingsUnsavedQuit;
+extern NSString *const NBCAlertTagSettingsUnsavedQuitNoSave;
 extern NSString *const NBCAlertTagSettingsUnsavedBuild;
 extern NSString *const NBCAlertTagDeleteTemplate;
 extern NSString *const NBCAlertTagWorkflowRunningQuit;

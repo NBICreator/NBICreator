@@ -43,6 +43,7 @@
 @property NSDictionary *baseSystemDiskImageDict;
 @property NSString *baseSystemVolumeBSDIdentifier;
 
+- (void)resetAllVariables;
 - (void)printAllVariables;
 
 @end

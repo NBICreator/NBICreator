@@ -1223,6 +1223,8 @@ DDLogLevel ddLogLevel;
         //  Imagr.app
         // -------------------------------------------------------------------------------
         NSURL *nbiApplicationURL = [nbiNetInstallVolumeURL URLByAppendingPathComponent:NBCImagrApplicationTargetURL];
+        DDLogDebug(@"[DEBUG] Imagr.app path: %@", [nbiApplicationURL path]);
+        
         NSString *nbiImagrVersion;
         if ( [nbiApplicationURL checkResourceIsReachableAndReturnError:nil] ) {
             nbiImagrVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
@@ -1260,6 +1262,8 @@ DDLogLevel ddLogLevel;
         //  Imagr.app
         // -------------------------------------------------------------------------------
         NSURL *nbiApplicationURL = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:NBCImagrApplicationNBICreatorTargetURL];
+        DDLogDebug(@"[DEBUG] Imagr.app path: %@", [nbiApplicationURL path]);
+        
         NSString *nbiImagrVersion;
         if ( [nbiApplicationURL checkResourceIsReachableAndReturnError:nil] ) {
             nbiImagrVersion = [[NSBundle bundleWithURL:nbiApplicationURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];

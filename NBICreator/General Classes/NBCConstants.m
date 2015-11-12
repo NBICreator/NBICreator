@@ -444,6 +444,7 @@ NSString *const NBCAlertTagDeleteTemplate = @"DeleteTemplate";
 NSString *const NBCAlertTagSettingsWarning = @"SettingsWarning";
 NSString *const NBCAlertTagSettingsUnsaved = @"SettingsUnsaved";
 NSString *const NBCAlertTagSettingsUnsavedQuit = @"SettingsUnsavedQuit";
+NSString *const NBCAlertTagSettingsUnsavedQuitNoSave = @"SettingsUnsavedQuitNoSave";
 NSString *const NBCAlertTagSettingsUnsavedBuild = @"SettingsUnsavedBuild";
 NSString *const NBCAlertWorkflowItemKey = @"WorkflowItem";
 NSString *const NBCAlertTagWorkflowRunningQuit = @"WorkflowRunningQuit";

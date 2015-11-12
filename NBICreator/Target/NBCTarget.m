@@ -13,6 +13,32 @@ DDLogLevel ddLogLevel;
 
 @implementation NBCTarget
 
+- (void)resetAllVariables {
+    [self setResourcesNetInstallDict:nil];
+    [self setResourcesBaseSystemDict:nil];
+    [self setCreationTool:nil];
+    [self setNbiURL:nil],
+    [self setImagrApplicationExistOnTarget:NO];
+    [self setImagrApplicationURL:nil];
+    [self setImagrConfigurationPlistURL:nil];
+    [self setRcImagingURL:nil];
+    [self setRcImagingContent:nil];
+    [self setCasperImagingApplicationURL:nil];
+    [self setCasperJSSPreferencePlistURL:nil];
+    [self setNbiNetInstallDisk:nil];
+    [self setNbiNetInstallURL:nil];
+    [self setNbiNetInstallShadowPath:nil];
+    [self setNbiNetInstallVolumeURL:nil];
+    [self setNbiNetInstallDiskImageDict:nil];
+    [self setNbiNetInstallVolumeBSDIdentifier:nil];
+    [self setBaseSystemDisk:nil];
+    [self setBaseSystemURL:nil];
+    [self setBaseSystemShadowPath:nil];
+    [self setBaseSystemVolumeURL:nil];
+    [self setBaseSystemDiskImageDict:nil];
+    [self setBaseSystemVolumeBSDIdentifier:nil];
+}
+
 - (void)printAllVariables
 {
     DDLogDebug(@"resourcesNetInstallDict=%@", _resourcesNetInstallDict);

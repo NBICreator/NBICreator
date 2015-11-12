@@ -55,11 +55,15 @@ DDLogLevel ddLogLevel;
     [self setUserSettings:[_workflowItem userSettings]];
     [self setResourcesSettings:[_workflowItem resourcesSettings]];
     
+    [self setIsNBI:( [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
+    DDLogDebug(@"[DEBUG] Source is NBI: %@", ( _isNBI ) ? @"YES" : @"NO" );
+    
+    [self setSettingsChanged:[_workflowItem userSettingsChanged]];
+    
     if (
         [[_source sourceType] isEqualToString:NBCSourceTypeInstallESDDiskImage] ||
         [[_source sourceType] isEqualToString:NBCSourceTypeInstallerApplication]
         ) {
-        
         NSError *error;
         NSURL *installESDVolumeURL = [_source installESDVolumeURL];
         if ( [installESDVolumeURL checkResourceIsReachableAndReturnError:&error] ) {
@@ -110,7 +114,8 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------------------------
     if (
         _workflowType == kWorkflowTypeImagr ||
-        _workflowType == kWorkflowTypeCasper ) {
+        _workflowType == kWorkflowTypeCasper
+        ) {
         NSArray *packagesArray = _resourcesSettings[NBCSettingsPackagesKey];
         if ( [packagesArray count] != 0 ) {
             if ( ! [self addInstallPackages:packagesArray error:&error] ) {
@@ -151,9 +156,12 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------------------------
     // Certificates
     // --------------------------------------------------------------------------------
-    if (
-        _workflowType == kWorkflowTypeImagr ||
-        _workflowType == kWorkflowTypeCasper ) {
+    if ( ( ! _isNBI && (
+                        _workflowType == kWorkflowTypeImagr ||
+                        _workflowType == kWorkflowTypeCasper
+                        ) ) || ( _isNBI && (
+                                            [_settingsChanged[NBCSettingsCertificatesKey] boolValue]
+                                            ) ) ) {
         NSArray *certificatesArray = _resourcesSettings[NBCSettingsCertificatesKey];
         if ( [certificatesArray count] != 0 ) {
             if ( ! [self addCopyCertificateScript:&error] ) {
@@ -192,9 +200,13 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------------------------
     // Desktop Picture (Custom)
     // --------------------------------------------------------------------------------
-    if (
-        _workflowType == kWorkflowTypeImagr ||
-        _workflowType == kWorkflowTypeCasper ) {
+    if ( ( ! _isNBI && (
+                        _workflowType == kWorkflowTypeImagr ||
+                        _workflowType == kWorkflowTypeCasper
+                        ) ) || ( _isNBI && (
+                                            [_settingsChanged[NBCSettingsUseBackgroundImageKey] boolValue] ||
+                                            [_settingsChanged[NBCSettingsBackgroundImageKey] boolValue]
+                                            ) ) ) {
         if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
             if ( ! [self addCopyDesktopPictureCustom:&error] ) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
@@ -210,9 +222,15 @@ DDLogLevel ddLogLevel;
         // --------------------------------------------------------------------------------
         // Imagr.app
         // --------------------------------------------------------------------------------
-        NBCWorkflowResourceImagr *workflowResourceImagr = [[NBCWorkflowResourceImagr alloc] initWithDelegate:self];
-        [workflowResourceImagr setProgressDelegate:_delegate];
-        [workflowResourceImagr addCopyImagr:_workflowItem];
+        if ( ! _isNBI || ( _isNBI && (
+                                      [_settingsChanged[NBCSettingsImagrVersion] boolValue]
+                                      ) ) ) {
+            NBCWorkflowResourceImagr *workflowResourceImagr = [[NBCWorkflowResourceImagr alloc] initWithDelegate:self];
+            [workflowResourceImagr setProgressDelegate:_delegate];
+            [workflowResourceImagr addCopyImagr:_workflowItem];
+        } else {
+            [self prepareResourcesComplete];
+        }
     } else if ( _workflowType == kWorkflowTypeCasper ) {
         
         // --------------------------------------------------------------------------------
@@ -622,7 +640,11 @@ DDLogLevel ddLogLevel;
         [self addItemToCopyToNetInstall:copyDict];
     }
     
-    [self prepareResourcesToExtract];
+    if ( ! _isNBI ) {
+        [self prepareResourcesToExtract];
+    } else {
+        [self prepareResourcesComplete];
+    }
 } //imagrCopyDict
 
 - (void)imagrCopyError:(NSError *)error {
