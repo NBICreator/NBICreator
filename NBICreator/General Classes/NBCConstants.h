@@ -135,6 +135,7 @@ extern NSString *const NBCSettingsTitleKey;
 extern NSString *const NBCSettingsTypeKey;
 extern NSString *const NBCSettingsVersionKey;
 extern NSString *const NBCSettingsSettingsKey;
+extern NSString *const NBCSettingsSourceIsNBI;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - General
@@ -247,7 +248,6 @@ extern NSString *const NBCSettingsImagrDownloadURL;
 extern NSString *const NBCSettingsImagrDownloadPython;
 extern NSString *const NBCSettingsImagrUseLocalVersion;
 extern NSString *const NBCSettingsImagrLocalVersionPath;
-extern NSString *const NBCSettingsImagrSourceIsNBI;
 extern NSString *const NBCSettingsImagrDisableATS;
 extern NSString *const NBCSettingsImagrVersionLatest;
 extern NSString *const NBCSettingsImagrUseGitBranch;

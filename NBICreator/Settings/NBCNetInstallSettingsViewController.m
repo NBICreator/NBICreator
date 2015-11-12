@@ -306,21 +306,6 @@ DDLogLevel ddLogLevel;
     [self updatePopOver];
 } // updateSource
 
-/*
-- (void)updateSource:(NSNotification *)notification {
-    
-    NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
-    if ( source != nil ) {
-        _source = source;
-    }
-    
-    [self updateSettingVisibility];
-    [self expandVariablesForCurrentSettings];
-    [self verifyBuildButton];
-    [self updatePopOver];
-} // updateSource
-*/
-
 - (void)removedSource {
     if ( _source ) {
         [self setSource:nil];
@@ -332,25 +317,10 @@ DDLogLevel ddLogLevel;
     [self updatePopOver];
 } // removedSource
 
-/*
-- (void)removedSource:(NSNotification *)notification {
-#pragma unused(notification)
-
-    if ( _source ) {
-        _source = nil;
-    }
-    
-    [self updateSettingVisibility];
-    [self expandVariablesForCurrentSettings];
-    [self verifyBuildButton];
-    [self updatePopOver];
-} // removedSource
-*/
-
 - (void)refreshCreationTool {
     [self setNbiCreationTool:_nbiCreationTool ?: NBCMenuItemSystemImageUtility];
     [self setNbiType:_nbiType ?: @"NetInstall"];
-}
+} // refreshCreationTool
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
@@ -565,7 +535,8 @@ DDLogLevel ddLogLevel;
     
     if ( ! [_templatesFolderURL checkResourceIsReachableAndReturnError:&error] ) {
         if ( ! [fm createDirectoryAtURL:_templatesFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-            NSLog(@"NetInstall template folder create failed: %@", error);
+            [NBCAlerts showAlertError:error];
+            return;
         }
     }
     
@@ -575,7 +546,7 @@ DDLogLevel ddLogLevel;
     if ( [mainDict writeToURL:settingsURL atomically:NO] ) {
         _templatesDict[name] = settingsURL;
     } else {
-        NSLog(@"Writing NetInstall template to disk failed!");
+        [NBCAlerts showAlertErrorWithTitle:@"Saving Template Failed!" informativeText:@"Writing NetInstall template to disk failed"];
     }
 } // saveUISettingsWithName:atUrl
 
@@ -1021,7 +992,7 @@ DDLogLevel ddLogLevel;
         [workflowItem setUserSettings:[userSettings copy]];
         
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
-        NSDictionary *errorInfoDict = [sc verifySettings:workflowItem];
+        NSDictionary *errorInfoDict = [sc verifySettingsForWorkflowItem:workflowItem];
         if ( [errorInfoDict count] != 0 ) {
             BOOL configurationError = NO;
             BOOL configurationWarning = NO;

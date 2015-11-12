@@ -41,10 +41,10 @@
 
 
 // Verifying
-
 + (BOOL)verifyInstallESDDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source error:(NSError **)error;
 + (BOOL)verifyBaseSystemDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source error:(NSError **)error;
 + (BOOL)verifySystemDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source requireRecoveryPartition:(BOOL)requireRecoveryPartition error:(NSError **)error;
++ (BOOL)verifyNBINetInstallDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source target:(NBCTarget *)target error:(NSError **)error;
 
 // Mounting
 + (BOOL)mountDiskImageVolumeByDeviceAndReturnMountURL:(id *)mountURL deviceName:(NSString *)devName error:(NSError **)error;
@@ -71,5 +71,6 @@
 + (NSURL *)getDiskImageURLFromMountURL:(NSURL *)mountURL;
 + (NBCDisk *)checkDiskImageAlreadyMounted:(NSURL *)diskImageURL imageType:(NSString *)imageType;
 + (NSURL *)installESDURLfromInstallerApplicationURL:(NSURL *)sourceURL source:(NBCSource *)source error:(NSError **)error;
++ (NSURL *)netInstallURLFromNBI:(NSURL *)nbiURL source:(NBCSource *)source error:(NSError **)error;
 
 @end

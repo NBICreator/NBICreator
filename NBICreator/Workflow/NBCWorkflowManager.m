@@ -69,6 +69,22 @@ DDLogLevel ddLogLevel;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
+#pragma mark Delegate Methods SourceMountDelegate
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)sourceMountSuccessful {
+    [[_currentWorkflowItem source] setDelegate:nil];
+    [self runWorkflow];
+} // sourceMountSuccessful
+
+- (void)sourceMountFailedWithError:(NSError *)error {
+    [[_currentWorkflowItem source] setDelegate:nil];
+    [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
+} // sourceMountFailedWithError
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark Delegate Methods PopUpButton
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
@@ -339,6 +355,9 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)workflowQueueRunWorkflow {
+    
+    NSError *error;
+    
     if ( ! _workflowRunning && [_workflowQueue count] != 0 ) {
         DDLogDebug(@"[DEBUG] Starting queued workflow...");
         
@@ -391,8 +410,8 @@ DDLogLevel ddLogLevel;
         // -------------------------------------------------------------
         //  Create a path to a unique temporary folder
         // -------------------------------------------------------------
-        if ( ! [self createTemporaryFolderForNBI:nbiName] ) {
-            [self updateWorkflowStatusErrorWithMessage:@"Creating temporary folder failed"];
+        if ( ! [self createTemporaryFolderForNBI:nbiName error:&error] ) {
+            [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
             return;
         }
         
@@ -402,7 +421,7 @@ DDLogLevel ddLogLevel;
             [preWorkflowTaskController setProgressDelegate:_currentWorkflowProgressView];
             [preWorkflowTaskController runPreWorkflowTasks:preWorkflowTasks workflowItem:_currentWorkflowItem];
         } else {
-            [self runWorkflows];
+            [self prepareSource];
         }
     } else {
         DDLogInfo(@"Workflow queue is empty");
@@ -428,10 +447,10 @@ DDLogLevel ddLogLevel;
 
 - (void)preWorkflowTasksCompleted {
     DDLogDebug(@"[DEBUG] Pre-workflow tasks completed");
-    [self runWorkflows];
+    [self prepareSource];
 } // preWorkflowTasksCompleted
 
-- (void)runWorkflows {
+- (void)prepareSource {
     
     // -------------------------------------------------------------
     //  Instantiate workflow target if it doesn't exist.
@@ -446,7 +465,15 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"[DEBUG] Workflow source type is: %@", sourceType);
     
     if ( ! [sourceType isEqualToString:NBCSourceTypeNBI] ) {
-        [self runWorkflow];
+        
+        // -------------------------------------------------------------
+        //  Mount source if not mounted
+        // -------------------------------------------------------------
+        DDLogInfo(@"Verifying source is mounted...");
+        [_currentWorkflowProgressView updateProgressStatus:@"Verifying source..." workflow:self];
+        [[_currentWorkflowItem source] setDelegate:self];
+        [[_currentWorkflowItem source] verifySourceIsMounted];
+
     } else {
         NBCWorkflowUpdateNBI *workflowUpdateNBI = [[NBCWorkflowUpdateNBI alloc] initWithDelegate:_currentWorkflowProgressView];
         [_currentWorkflowItem setWorkflowNBI:workflowUpdateNBI];
@@ -459,17 +486,7 @@ DDLogLevel ddLogLevel;
 
 - (void)runWorkflow {
     
-    NSError *error;
-    
-    // -------------------------------------------------------------
-    //  Mount source if not mounted
-    // -------------------------------------------------------------
-    DDLogInfo(@"Verifying source is mounted...");
-    
-    if ( ! [[_currentWorkflowItem source] verifyMounted:&error] ) {
-        [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
-        return;
-    }
+    DDLogDebug(@"[DEBUG] RUN WORKFLOW");
     
     if ( [_currentCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         NBCWorkflowNBICreator *workflowNBICreator = [[NBCWorkflowNBICreator alloc] initWithDelegate:_currentWorkflowProgressView];
@@ -504,38 +521,48 @@ DDLogLevel ddLogLevel;
     }
 }
 
-- (BOOL)createTemporaryFolderForNBI:(NSString *)nbiName {
+- (BOOL)createTemporaryFolderForNBI:(NSString *)nbiName error:(NSError **)error {
     
-    NSError *error = nil;
-    DDLogDebug(@"[DEBUG] Preparing workflow temporary folder...");
+    DDLogInfo(@"Preparing workflow temporary folder...");
     
-    NSURL *temporaryFolderURL = [self temporaryFolderURL];
-    DDLogDebug(@"[DEBUG] Temporary folder path: %@", [temporaryFolderURL path]);
+    NSFileManager *fm = [NSFileManager defaultManager];
     
-    if ( [temporaryFolderURL checkResourceIsReachableAndReturnError:&error] ) {
-        [_currentWorkflowItem setTemporaryFolderURL:temporaryFolderURL];
-        
-        NSURL *temporaryNBIURL = [temporaryFolderURL URLByAppendingPathComponent:nbiName];
-        DDLogDebug(@"[DEBUG] Temporary NBI path: %@", [temporaryNBIURL path]);
-        
-        if ( [temporaryNBIURL checkResourceIsReachableAndReturnError:&error] ) {
-            [_currentWorkflowItem setTemporaryNBIURL:temporaryNBIURL];
-            
-            NSFileManager *fileManager = [NSFileManager defaultManager];
-            DDLogDebug(@"[DEBUG] Creating temporary NBI folder...");
-            
-            if ( ! [fileManager createDirectoryAtURL:temporaryNBIURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
-                return NO;
-            }
-        } else {
-            [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
-            return NO;
-        }
+    NSString *temporaryFolderName = [NSString stringWithFormat:@"%@/workflow.%@", NBCBundleIdentifier, [NSString nbc_randomString]];
+    DDLogDebug(@"[DEBUG] Temporary folder name: %@", temporaryFolderName);
+
+    NSString *temporaryFolderPath = [NSTemporaryDirectory() stringByAppendingPathComponent:temporaryFolderName];
+    DDLogDebug(@"[DEBUG] Temporary folder path: %@", temporaryFolderPath);
+    
+    NSURL *temporaryFolderURL;
+    if ( [temporaryFolderPath length] != 0 ) {
+        temporaryFolderURL = [NSURL fileURLWithPath:temporaryFolderPath];
     } else {
-        [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
+        *error = [NBCError errorWithDescription:@"Temporary folder path was empty"];
         return NO;
     }
+    
+    if ( ! [temporaryFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+        DDLogDebug(@"[DEBUG] Creating temporary folder...");
+        
+        if ( ! [fm createDirectoryAtURL:temporaryFolderURL withIntermediateDirectories:YES attributes:@{} error:error] ) {
+            return NO;
+        }
+    }
+    
+    [_currentWorkflowItem setTemporaryFolderURL:temporaryFolderURL];
+    
+    NSURL *temporaryNBIURL = [temporaryFolderURL URLByAppendingPathComponent:nbiName];
+    DDLogDebug(@"[DEBUG] Temporary NBI folder path: %@", [temporaryNBIURL path]);
+    
+    if ( ! [temporaryNBIURL checkResourceIsReachableAndReturnError:error] ) {
+        DDLogDebug(@"[DEBUG] Creating temporary NBI folder...");
+        
+        if ( ! [fm createDirectoryAtURL:temporaryNBIURL withIntermediateDirectories:YES attributes:nil error:error] ) {
+            return NO;
+        }
+    }
+    
+    [_currentWorkflowItem setTemporaryNBIURL:temporaryNBIURL];
     
     return YES;
 }
@@ -633,15 +660,6 @@ DDLogLevel ddLogLevel;
         }
     }
 } // moveNBIToDestination:destinationURL
-
-- (NSURL *)temporaryFolderURL {
-    NSString *tmpFolderName = [NSString stringWithFormat:@"%@/workflow.%@", NBCBundleIdentifier, [NSString nbc_randomString]];
-    NSString *tmpFolderPath = [NSTemporaryDirectory() stringByAppendingPathComponent:tmpFolderName];
-    if ( [tmpFolderPath length] != 0 ) {
-        return [NSURL fileURLWithPath:tmpFolderPath];
-    }
-    return nil;
-} // temporaryFolderURL
 
 - (void)removeTemporaryFolder {
     

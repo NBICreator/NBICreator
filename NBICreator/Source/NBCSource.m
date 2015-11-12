@@ -244,72 +244,165 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
     return productImage;
 }
 
-- (BOOL)verifyMounted:(NSError **)error {
+- (void)verifySourceIsMounted {
     
     DDLogDebug(@"[DEBUG] Source type: %@", _sourceType);
     
-    if ( [_sourceType isEqualToString:NBCSourceTypeInstallerApplication] || [_sourceType isEqualToString:NBCSourceTypeInstallESDDiskImage] ) {
-        if ( [_installESDDisk isMounted] ) {
-            return YES;
-        }
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(taskQueue, ^{
         
-        if ( [_installESDDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
-            if ( [NBCDiskImageController verifyInstallESDDiskImage:_installESDDiskImageURL source:self error:error] ) {
-                if ( [_installESDDisk isMounted] ) {
-                    return YES;
+        NSError *error;
+        
+        // --------------------------------------------------------------
+        //  Installer Application & InstallESD
+        // --------------------------------------------------------------
+        if ( [self->_sourceType isEqualToString:NBCSourceTypeInstallerApplication] || [self->_sourceType isEqualToString:NBCSourceTypeInstallESDDiskImage] ) {
+            if ( [self->_installESDDisk isMounted] ) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountSuccessful)] ) {
+                        [self->_delegate sourceMountSuccessful];
+                    }
+                });
+                return;
+            }
+            
+            if ( [self->_installESDDiskImageURL checkResourceIsReachableAndReturnError:&error] ) {
+                if ( [NBCDiskImageController verifyInstallESDDiskImage:self->_installESDDiskImageURL source:self error:&error] ) {
+                    if ( [self->_installESDDisk isMounted] ) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountSuccessful)] ) {
+                                [self->_delegate sourceMountSuccessful];
+                            }
+                        });
+                        return;
+                    } else {
+                        error = [NBCError errorWithDescription:@"Unable to mount selected source"];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountFailedWithError:)] ) {
+                                [self->_delegate sourceMountFailedWithError:error];
+                            }
+                        });
+                        return;
+                    }
                 } else {
-                    *error = [NBCError errorWithDescription:@"Unable to mount selected source"];
-                    return NO;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountFailedWithError:)] ) {
+                            [self->_delegate sourceMountFailedWithError:error];
+                        }
+                    });
+                    return;
                 }
             } else {
-                return NO;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountFailedWithError:)] ) {
+                        [self->_delegate sourceMountFailedWithError:error];
+                    }
+                });
+                return;
             }
-        } else {
-            return NO;
-        }
-    } else if ( [_sourceType isEqualToString:NBCSourceTypeSystemDisk] ) {
-        if ( [_systemDisk isMounted] ) {
-            return YES;
-        } else {
-            [_systemDisk mount];
-            if ( [_systemDisk isMounted] ) {
-                return YES;
+            
+            // --------------------------------------------------------------
+            //  System Disk
+            // --------------------------------------------------------------
+        } else if ( [self->_sourceType isEqualToString:NBCSourceTypeSystemDisk] ) {
+            if ( [self->_systemDisk isMounted] ) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountSuccessful)] ) {
+                        [self->_delegate sourceMountSuccessful];
+                    }
+                });
+                return;
             } else {
-                *error = [NBCError errorWithDescription:@"Unable to mount selected source"];
-                return NO;
-            }
-        }
-    } else if ( [_sourceType isEqualToString:NBCSourceTypeSystemDiskImage] ) {
-        
-        
-        if ( [_systemDisk isMounted] ) {
-            return YES;
-        } else {
-            [_systemDisk mount];
-            if ( [_systemDisk isMounted] ) {
-                return YES;
-            }
-        }
-        
-        
-        if ( [_systemDiskImageURL checkResourceIsReachableAndReturnError:error] ) {
-            if ( [NBCDiskImageController verifySystemDiskImage:_systemDiskImageURL source:self requireRecoveryPartition:YES error:error] ) {
-                if ( [_systemDisk isMounted] ) {
-                    return YES;
+                [self->_systemDisk mount];
+                if ( [self->_systemDisk isMounted] ) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountSuccessful)] ) {
+                            [self->_delegate sourceMountSuccessful];
+                        }
+                    });
+                    return;
                 } else {
-                    *error = [NBCError errorWithDescription:@"Unable to mount selected source"];
-                    return NO;
+                    error = [NBCError errorWithDescription:@"Unable to mount selected source"];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountFailedWithError:)] ) {
+                            [self->_delegate sourceMountFailedWithError:error];
+                        }
+                    });
+                    return;
+                }
+            }
+            
+            // --------------------------------------------------------------
+            //  System Disk Image
+            // --------------------------------------------------------------
+        } else if ( [self->_sourceType isEqualToString:NBCSourceTypeSystemDiskImage] ) {
+            if ( [self->_systemDisk isMounted] ) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountSuccessful)] ) {
+                        [self->_delegate sourceMountSuccessful];
+                    }
+                });
+                return;
+            } else {
+                [self->_systemDisk mount];
+                if ( [self->_systemDisk isMounted] ) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountSuccessful)] ) {
+                            [self->_delegate sourceMountSuccessful];
+                        }
+                    });
+                    return;
+                }
+            }
+            
+            if ( [self->_systemDiskImageURL checkResourceIsReachableAndReturnError:&error] ) {
+                if ( [NBCDiskImageController verifySystemDiskImage:self->_systemDiskImageURL source:self requireRecoveryPartition:YES error:&error] ) {
+                    if ( [self->_systemDisk isMounted] ) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountSuccessful)] ) {
+                                [self->_delegate sourceMountSuccessful];
+                            }
+                        });
+                        return;
+                    } else {
+                        error = [NBCError errorWithDescription:@"Unable to mount selected source"];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountFailedWithError:)] ) {
+                                [self->_delegate sourceMountFailedWithError:error];
+                            }
+                        });
+                        return;
+                    }
+                } else {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountFailedWithError:)] ) {
+                            [self->_delegate sourceMountFailedWithError:error];
+                        }
+                    });
+                    return;
                 }
             } else {
-                return NO;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountFailedWithError:)] ) {
+                        [self->_delegate sourceMountFailedWithError:error];
+                    }
+                });
+                return;
             }
+            
+            // --------------------------------------------------------------
+            //  Unknown Source Type
+            // --------------------------------------------------------------
         } else {
-            return NO;
+            error = [NBCError errorWithDescription:[NSString stringWithFormat:@"Unknown source type: %@", self->_sourceType]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ( self->_delegate && [self->_delegate respondsToSelector:@selector(sourceMountFailedWithError:)] ) {
+                    [self->_delegate sourceMountFailedWithError:error];
+                }
+            });
+            return;
         }
-    } else {
-        *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"Unknown source type: %@", _sourceType]];
-        return NO;
-    }
+    });
 }
 
 - (void)printAllVariables {

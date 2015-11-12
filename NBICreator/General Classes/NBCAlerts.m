@@ -36,7 +36,7 @@ DDLogLevel ddLogLevel;
     return self;
 }
 
-- (void)showAlertError:(NSError *)error {
++ (void)showAlertError:(NSError *)error {
     NSAlert *alert = [NSAlert alertWithError:error];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         #pragma unused(returnCode)
@@ -47,8 +47,8 @@ DDLogLevel ddLogLevel;
 + (void)showAlertOKWithTitle:(NSString *)title informativeText:(NSString *)informativeText {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
-    [alert setMessageText:title];
-    [alert setInformativeText:informativeText];
+    [alert setMessageText:title ?: @""];
+    [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSInformationalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
 #pragma unused(returnCode)
@@ -59,8 +59,8 @@ DDLogLevel ddLogLevel;
 + (void)showAlertErrorWithTitle:(NSString *)title informativeText:(NSString *)informativeText {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
-    [alert setMessageText:title];
-    [alert setInformativeText:informativeText];
+    [alert setMessageText:title ?: @"Error"];
+    [alert setInformativeText:informativeText ?: @"Unknown Error"];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
 #pragma unused(returnCode)
@@ -72,7 +72,7 @@ DDLogLevel ddLogLevel;
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Nothing to update"];
-    [alert setInformativeText:[NSString stringWithFormat:@"You have not made any changes to the NBI. "]];
+    [alert setInformativeText:[NSString stringWithFormat:@"You have not made any changes to the NBI."]];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
 #pragma unused(returnCode)
@@ -158,7 +158,7 @@ DDLogLevel ddLogLevel;
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Source"];
-    [alert setInformativeText:errorMessage];
+    [alert setInformativeText:errorMessage ?: @"Unknown Error"];
     [alert setInformativeText:[NSString stringWithFormat:@"%@\n\n%@", errorMessage, informativeText]]; // Testing to only show error message
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
@@ -183,7 +183,7 @@ DDLogLevel ddLogLevel;
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Template already exist!"];
-    [alert setInformativeText:informativeText];
+    [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
 #pragma unused(returnCode)
@@ -211,7 +211,7 @@ DDLogLevel ddLogLevel;
     [alert addButtonWithTitle:@"Discard"];          //NSAlertSecondButton
     [alert addButtonWithTitle:NBCButtonTitleCancel]; //NSAlertThirdButton
     [alert setMessageText:@"Unsaved Settings!"];
-    [alert setInformativeText:informativeText];
+    [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
@@ -225,7 +225,7 @@ DDLogLevel ddLogLevel;
     [alert addButtonWithTitle:NBCButtonTitleContinue];  //NSAlertSecondButton
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertThirdButton
     [alert setMessageText:@"Unsaved Settings!"];
-    [alert setInformativeText:informativeText];
+    [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
@@ -239,7 +239,7 @@ DDLogLevel ddLogLevel;
     [alert addButtonWithTitle:NBCButtonTitleQuit];      //NSAlertSecondButton
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertThirdButton
     [alert setMessageText:@"Unsaved Settings!"];
-    [alert setInformativeText:informativeText];
+    [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
@@ -252,7 +252,7 @@ DDLogLevel ddLogLevel;
     [alert addButtonWithTitle:@"Quit Anyway"];          //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertSecondButton
     [alert setMessageText:@"Workflow Running!"];
-    [alert setInformativeText:informativeText];
+    [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
@@ -265,7 +265,7 @@ DDLogLevel ddLogLevel;
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertFirstButton
     [alert addButtonWithTitle:@"Delete"];               //NSAlertSecondButton
     [alert setMessageText:[NSString stringWithFormat:@"Delete %@?", templateName]];
-    [alert setInformativeText:informativeText];
+    [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
     [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
         [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];

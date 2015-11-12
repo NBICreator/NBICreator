@@ -28,7 +28,7 @@
 }
 
 - (id)initWithDelegate:(id<NBCAlertDelegate>)delegate;
-- (void)showAlertError:(NSError *)error;
++ (void)showAlertError:(NSError *)error;
 + (void)showAlertOKWithTitle:(NSString *)title informativeText:(NSString *)informativeText;
 + (void)showAlertErrorWithTitle:(NSString *)title informativeText:(NSString *)informativeText;
 + (void)showAlertUnrecognizedImagrApplication;

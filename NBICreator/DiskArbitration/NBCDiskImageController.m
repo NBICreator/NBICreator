@@ -1068,6 +1068,209 @@ DDLogLevel ddLogLevel;
     return YES;
 }
 
++ (BOOL)verifyNBINetInstallDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source target:(NBCTarget *)target error:(NSError **)error {
+    
+    DDLogInfo(@"Verifying NetInstall disk image...");
+    
+    NSURL *netInstallVolumeURL;
+    NBCDisk *netInstallDisk = [self checkDiskImageAlreadyMounted:diskImageURL
+                                                       imageType:@"NetInstall"];
+    
+    if ( netInstallDisk ) {
+        [target setNbiNetInstallDisk:netInstallDisk];
+        [target setNbiNetInstallURL:diskImageURL];
+        [target setNbiNetInstallVolumeBSDIdentifier:[netInstallDisk BSDName]];
+        netInstallVolumeURL = [netInstallDisk volumeURL];
+        DDLogDebug(@"[DEBUG] NetInstall disk image volume path: %@", [netInstallVolumeURL path]);
+    } else {
+        
+        NSDictionary *netInstallDiskImageDict;
+        NSArray *hdiutilOptions = @[
+                                    @"-mountRandom", @"/Volumes",
+                                    @"-nobrowse",
+                                    @"-noverify",
+                                    @"-plist",
+                                    ];
+        
+        if ( [self attachDiskImageAndReturnPropertyList:&netInstallDiskImageDict
+                                                dmgPath:diskImageURL
+                                                options:hdiutilOptions
+                                                  error:error] ) {
+            if ( [netInstallDiskImageDict count] != 0 ) {
+                [target setNbiNetInstallDiskImageDict:netInstallDiskImageDict];
+                
+                netInstallVolumeURL = [self getMountURLFromHdiutilOutputPropertyList:netInstallDiskImageDict];
+                DDLogDebug(@"[DEBUG] NetInstall disk image volume path: %@", [netInstallVolumeURL path]);
+                
+                if ( [netInstallVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+                    netInstallDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:diskImageURL
+                                                                                imageType:@"NetInstall"];
+                    
+                    if ( netInstallDisk ) {
+                        [target setNbiNetInstallDisk:netInstallDisk];
+                        [target setNbiNetInstallVolumeBSDIdentifier:[netInstallDisk BSDName]];
+                        [netInstallDisk setIsMountedByNBICreator:YES];
+                    } else {
+                        *error = [NBCError errorWithDescription:@"NetInstall disk image volume path not found among mounted volume paths"];
+                        return NO;
+                    }
+                } else {
+                    return NO;
+                }
+            } else {
+                *error = [NBCError errorWithDescription:@"NetInstall disk image hdiutil info was empty"];
+                return NO;
+            }
+        } else {
+            return NO;
+        }
+    }
+    
+    if ( [netInstallVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+        DDLogDebug(@"[DEBUG] NetInstall disk image is mounted at path: %@", [netInstallVolumeURL path]);
+        [target setNbiNetInstallVolumeURL:netInstallVolumeURL];
+        
+        NSURL *baseSystemURL = [netInstallVolumeURL URLByAppendingPathComponent:@"BaseSystem.dmg"];
+        if ( [baseSystemURL checkResourceIsReachableAndReturnError:nil] ) {
+            DDLogDebug(@"[DEBUG] NetInstall BaseSystem disk image path: %@", [baseSystemURL path]);
+            
+            [target setBaseSystemURL:baseSystemURL];
+            return [self verifyNBIBaseSystemDiskImage:baseSystemURL source:source target:target error:error];
+        } else {
+            error = nil;
+            NSArray *rootItems = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:netInstallVolumeURL includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:error];
+            
+            if ( [rootItems count] == 0 && error ) {
+                return NO;
+            }
+            
+            __block BOOL isBaseSystem;
+            [rootItems enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+#pragma unused(idx)
+                NSString *itemName = [obj lastPathComponent];
+                if ( [itemName hasPrefix:@"Install OS X"] && [itemName hasSuffix:@".app"] ) {
+                    isBaseSystem = YES;
+                    *stop = YES;;
+                }
+            }];
+            
+            if ( isBaseSystem ) {
+                target = [[NBCTarget alloc] init];
+                [target setBaseSystemURL:diskImageURL];
+                
+                DDLogInfo(@"NetInstall disk image is a BaseSystem disk image");
+                return [self verifyNBIBaseSystemDiskImage:diskImageURL source:source target:target error:error];
+            } else {
+                *error = [NBCError errorWithDescription:@"NetInstall contains no BaseSystem disk image"];
+                return NO;
+            }
+        }
+    } else {
+        return NO;
+    }
+}
+
++ (BOOL)verifyNBIBaseSystemDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source target:(NBCTarget *)target error:(NSError **)error {
+    
+    DDLogInfo(@"Verifying NetInstall BaseSystem disk image...");
+    
+    NBCDisk *baseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:diskImageURL
+                                                                         imageType:@"BaseSystem"];
+    
+    NSURL *baseSystemVolumeURL;
+    if ( baseSystemDisk != nil ) {
+        [target setBaseSystemDisk:baseSystemDisk];
+        baseSystemVolumeURL = [baseSystemDisk volumeURL];
+        DDLogDebug(@"[DEBUG] NetInstall BaseSystem disk image volume path: %@", [baseSystemVolumeURL path]);
+    } else {
+        
+        NSDictionary *baseSystemDiskImageDict;
+        NSArray *hdiutilOptions = @[
+                                    @"-mountRandom", @"/Volumes",
+                                    @"-nobrowse",
+                                    @"-noverify",
+                                    @"-plist"
+                                    ];
+        
+        if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&baseSystemDiskImageDict
+                                                                  dmgPath:diskImageURL
+                                                                  options:hdiutilOptions
+                                                                    error:error] ) {
+            
+            if ( [baseSystemDiskImageDict count] != 0 ) {
+                [target setBaseSystemDiskImageDict:baseSystemDiskImageDict];
+                baseSystemVolumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:baseSystemDiskImageDict];
+                DDLogDebug(@"[DEBUG] NetInstall BaseSystem disk image volume path: %@", [baseSystemVolumeURL path]);
+                
+                if ( [baseSystemVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+                    baseSystemDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:diskImageURL
+                                                                                imageType:@"BaseSystem"];
+                    
+                    if ( baseSystemDisk ) {
+                        [target setBaseSystemDisk:baseSystemDisk];
+                        [target setBaseSystemVolumeBSDIdentifier:[baseSystemDisk BSDName]];
+                        [baseSystemDisk setIsMountedByNBICreator:YES];
+                    } else {
+                        *error = [NBCError errorWithDescription:@"NetInstall BaseSystem disk image volume path not found among mounted volume paths"];
+                        return NO;
+                    }
+                } else {
+                    return NO;
+                }
+            } else {
+                *error = [NBCError errorWithDescription:@"NetInstall BaseSystem disk image hdiutil info was empty"];
+                return NO;
+            }
+        } else {
+            return NO;
+        }
+    }
+    
+    if ( [baseSystemVolumeURL checkResourceIsReachableAndReturnError:error] ) {
+        DDLogDebug(@"[DEBUG] NetInstall BaseSystem disk image is mounted at path: %@", [baseSystemVolumeURL path]);
+        [target setBaseSystemVolumeURL:baseSystemVolumeURL];
+        
+        NSURL *systemVersionPlistURL = [baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/CoreServices/SystemVersion.plist"];
+        DDLogDebug(@"[DEBUG] SystemVersion.plist path: %@", [systemVersionPlistURL path]);
+        
+        if ( [systemVersionPlistURL checkResourceIsReachableAndReturnError:error] ) {
+            NSDictionary *systemVersionPlist = [NSDictionary dictionaryWithContentsOfURL:systemVersionPlistURL];
+            
+            if ( [systemVersionPlist count] != 0 ) {
+                NSString *baseSystemOSVersion = systemVersionPlist[@"ProductUserVisibleVersion"];
+                DDLogInfo(@"NetInstall BaseSystem os version: %@", baseSystemOSVersion);
+                
+                if ( baseSystemOSVersion != nil ) {
+                    [source setBaseSystemOSVersion:baseSystemOSVersion];
+                    [source setSourceVersion:baseSystemOSVersion];
+                    
+                    NSString *baseSystemOSBuild = systemVersionPlist[@"ProductBuildVersion"];
+                    DDLogInfo(@"NetInstall BaseSystem os build: %@", baseSystemOSBuild);
+                    
+                    if ( baseSystemOSBuild != nil ) {
+                        [source setBaseSystemOSBuild:baseSystemOSBuild];
+                        [source setSourceBuild:baseSystemOSBuild];
+                        return YES;
+                    } else {
+                        *error = [NBCError errorWithDescription:@"Unable to read os build from SystemVersion.plist"];
+                        return NO;
+                    }
+                } else {
+                    *error = [NBCError errorWithDescription:@"Unable to read os version from SystemVersion.plist"];
+                    return NO;
+                }
+            } else {
+                *error = [NBCError errorWithDescription:@"SystemVersion.plist is empty!"];
+                return NO;
+            }
+        } else {
+            return NO;
+        }
+    } else {
+        return NO;
+    }
+}
+
 + (BOOL)verifyInstallESDDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source error:(NSError **)error {
     
     DDLogInfo(@"Verifying disk image contains an OS X Installer...");
@@ -1099,6 +1302,7 @@ DDLogLevel ddLogLevel;
             
             if ( [installESDDiskImageDict count] != 0 ) {
                 [source setInstallESDDiskImageDict:installESDDiskImageDict];
+                
                 installESDVolumeURL = [self getMountURLFromHdiutilOutputPropertyList:installESDDiskImageDict];
                 DDLogDebug(@"[DEBUG] InstallESD disk image volume path: %@", [installESDVolumeURL path]);
                 
@@ -1340,6 +1544,42 @@ DDLogLevel ddLogLevel;
         }
     } else {
         return NO;
+    }
+}
+
++ (NSURL *)netInstallURLFromNBI:(NSURL *)nbiURL source:(NBCSource *)source error:(NSError **)error {
+    
+    DDLogDebug(@"[DEBUG] Getting NetInstall disk image from %@", [nbiURL path]);
+    
+    if ( ! [nbiURL checkResourceIsReachableAndReturnError:error] ) {
+        return nil;
+    }
+    
+    NSURL *nbImageInfoURL = [nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"];
+    DDLogDebug(@"[DEBUG] NBImageInfo.plist path: %@", [nbImageInfoURL path]);
+
+    if ( [nbImageInfoURL checkResourceIsReachableAndReturnError:error] ) {
+        [source setNbImageInfoURL:nbImageInfoURL];
+        
+        NSDictionary *nbImageInfoDict = [NSDictionary dictionaryWithContentsOfURL:nbImageInfoURL];
+        if ( [nbImageInfoDict count] != 0 ) {
+            [source setNbImageInfo:nbImageInfoDict];
+            
+            NSString *rootPath = nbImageInfoDict[@"RootPath"];
+            DDLogDebug(@"[DEBUG] NBImageInfo \"RootPath\" = %@", rootPath);
+            
+            if ( [rootPath length] != 0 ) {
+                return [nbiURL URLByAppendingPathComponent:rootPath];
+            } else {
+                *error = [NBCError errorWithDescription:@"NBImageInfo \"RootPath\" was empty"];
+                return nil;
+            }
+        } else {
+            *error = [NBCError errorWithDescription:@"Could not read NBImageInfo.plist"];
+            return nil;
+        }
+    } else {
+        return nil;
     }
 }
 

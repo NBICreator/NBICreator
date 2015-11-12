@@ -19,7 +19,14 @@ extern NSString *const NBCSourceTypeSystemDisk;
 extern NSString *const NBCSourceTypeNBI;
 extern NSString *const NBCSourceTypeUnknown;
 
+@protocol NBCSourceMountDelegate
+- (void)sourceMountSuccessful;
+- (void)sourceMountFailedWithError:(NSError *)error;
+@end
+
 @interface NBCSource : NSObject
+
+@property (nonatomic, weak) id delegate;
 
 // ------------------------------------------------------
 //  System
@@ -88,6 +95,6 @@ extern NSString *const NBCSourceTypeUnknown;
 - (void)printAllVariables;
 - (NSString *)expandVariables:(NSString *)string;
 - (NSImage *)productImageForOSVersion:(NSString *)osVersion;
-- (BOOL)verifyMounted:(NSError **)error;
+- (void)verifySourceIsMounted;
 
 @end

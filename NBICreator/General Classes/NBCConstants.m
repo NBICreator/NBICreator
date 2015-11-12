@@ -135,6 +135,7 @@ NSString *const NBCSettingsTitleKey = @"Title";
 NSString *const NBCSettingsTypeKey = @"Type";
 NSString *const NBCSettingsVersionKey = @"Version";
 NSString *const NBCSettingsSettingsKey = @"Settings";
+NSString *const NBCSettingsSourceIsNBI = @"IsNBI";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - General
@@ -259,7 +260,6 @@ NSString *const NBCSettingsImagrDownloadURL = @"ImagrDownloadURL";
 NSString *const NBCSettingsImagrDownloadPython = @"ImagrDownloadPython";
 NSString *const NBCSettingsImagrUseLocalVersion = @"ImagrUseLocalVersion";
 NSString *const NBCSettingsImagrLocalVersionPath = @"ImagrLocalVersionPath";
-NSString *const NBCSettingsImagrSourceIsNBI = @"IsNBI";
 NSString *const NBCSettingsImagrDisableATS = @"ImagrDisableATS";
 NSString *const NBCSettingsImagrVersionLatest = @"ImagrVersionLatest";
 NSString *const NBCSettingsImagrUseGitBranch = @"ImagrUseGitBranch";

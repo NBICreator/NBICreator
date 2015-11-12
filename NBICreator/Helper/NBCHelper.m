@@ -648,6 +648,78 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     reply(error, YES);
 } // removeItemsAtURLs
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark readSettingsFromNBI
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL settingsDict:(NSDictionary *)settingsDict withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply {
+    
+    BOOL retval = YES;
+    NSError *err;
+    NSString *userName;
+    NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
+    
+    // -------------------------------------------------------------------------------
+    //  Screen Sharing - User login
+    // -------------------------------------------------------------------------------
+    NSURL *dsLocalUsersURL = [nbiVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
+    if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
+        NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
+        NSMutableArray *userFilesFiltered = [[userFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (self BEGINSWITH '_')"]] mutableCopy];
+        [userFilesFiltered removeObjectsInArray:@[ @"daemon.plist", @"nobody.plist", @"root.plist" ]];
+        if ( [userFilesFiltered count] != 0 ) {
+            NSString *firstUser = userFilesFiltered[0];
+            NSURL *firstUserPlistURL = [dsLocalUsersURL URLByAppendingPathComponent:firstUser];
+            NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
+            if ( firstUserDict ) {
+                NSArray *userNameArray = firstUserDict[@"name"];
+                userName = userNameArray[0];
+            }
+        }
+    } else {
+        [[[self connection] remoteObjectProxy] logWarn:[err localizedDescription]];
+    }
+    mutableSettingsDict[NBCSettingsARDLoginKey] = userName ?: @"";
+    
+    // -------------------------------------------------------------------------------
+    //  Screen Sharing - User password
+    // -------------------------------------------------------------------------------
+    NSString *vncPassword;
+    NSURL *vncPasswordFile = [nbiVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];
+    if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
+        NSTask *perlTask =  [[NSTask alloc] init];
+        [perlTask setLaunchPath:@"/bin/bash"];
+        NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }'", [vncPasswordFile path]]];
+        [perlTask setArguments:args];
+        [perlTask setStandardOutput:[NSPipe pipe]];
+        [perlTask setStandardError:[NSPipe pipe]];
+        [perlTask launch];
+        [perlTask waitUntilExit];
+        
+        NSData *stdOutData = [[[perlTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+        
+        NSData *stdErrData = [[[perlTask standardError] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+        
+        if ( [perlTask terminationStatus] == 0 ) {
+            if ( [stdOut length] != 0 ) {
+                vncPassword = stdOut;
+            }
+            retval = YES;
+        } else {
+            [[[self connection] remoteObjectProxy] logStdOut:stdOut];
+            [[[self connection] remoteObjectProxy] logStdErr:stdErr];
+            [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"perl command failed with exit status: %d", [perlTask terminationStatus]]];
+            retval = NO;
+        }
+    }
+    mutableSettingsDict[NBCSettingsARDPasswordKey] = vncPassword ?: @"";
+    
+    reply(nil, retval, [mutableSettingsDict copy] );
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -787,65 +859,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     reply(error, replyInt);
 }
 
-- (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL settingsDict:(NSDictionary *)settingsDict withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply {
-    BOOL retval = YES;
-    NSError *err;
-    NSString *userName;
-    NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
-    NSURL *dsLocalUsersURL = [nbiVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
-    if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
-        NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
-        NSMutableArray *userFilesFiltered = [[userFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (self BEGINSWITH '_')"]] mutableCopy];
-        [userFilesFiltered removeObjectsInArray:@[ @"daemon.plist", @"nobody.plist", @"root.plist" ]];
-        if ( [userFilesFiltered count] != 0 ) {
-            NSString *firstUser = userFilesFiltered[0];
-            NSURL *firstUserPlistURL = [dsLocalUsersURL URLByAppendingPathComponent:firstUser];
-            NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
-            if ( firstUserDict ) {
-                NSArray *userNameArray = firstUserDict[@"name"];
-                userName = userNameArray[0];
-            }
-        }
-    } else {
-        NSLog(@"Could not get path to local user database");
-        NSLog(@"Error: %@", err);
-    }
-    mutableSettingsDict[NBCSettingsARDLoginKey] = userName ?: @"";
-    
-    NSString *vncPassword;
-    NSURL *vncPasswordFile = [nbiVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];
-    if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
-        NSTask *perlTask =  [[NSTask alloc] init];
-        [perlTask setLaunchPath:@"/bin/bash"];
-        NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }'", [vncPasswordFile path]]];
-        [perlTask setArguments:args];
-        [perlTask setStandardOutput:[NSPipe pipe]];
-        [perlTask setStandardError:[NSPipe pipe]];
-        [perlTask launch];
-        [perlTask waitUntilExit];
-        
-        NSData *stdOutData = [[[perlTask standardOutput] fileHandleForReading] readDataToEndOfFile];
-        NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
-        
-        NSData *stdErrData = [[[perlTask standardError] fileHandleForReading] readDataToEndOfFile];
-        NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
-        
-        if ( [perlTask terminationStatus] == 0 ) {
-            if ( [stdOut length] != 0 ) {
-                vncPassword = stdOut;
-            }
-            retval = YES;
-        } else {
-            NSLog(@"[bash] %@", stdOut);
-            NSLog(@"[bash] %@", stdErr);
-            NSLog(@"[ERROR] perl command failed with exit status: %d", [perlTask terminationStatus]);
-            retval = NO;
-        }
-    }
-    mutableSettingsDict[NBCSettingsARDPasswordKey] = vncPassword ?: @"";
-    
-    reply(nil, retval, [mutableSettingsDict copy] );
-}
 - (void)copyResourcesToVolume:(NSURL *)volumeURL resourcesDict:(NSDictionary *)resourcesDict
                     withReply:(void(^)(NSError *error, int terminationStatus))reply {
     NSError *error;

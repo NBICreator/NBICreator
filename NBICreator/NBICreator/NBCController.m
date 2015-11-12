@@ -446,7 +446,45 @@ enum {
 } // checkWorkflowRunningQuit
 
 - (void)terminateApp {
-    [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
+    
+    DDLogDebug(@"[DEBUG] Terminating application...");
+    
+    NSString *applicationTemporaryFolderPath = [NSTemporaryDirectory() stringByAppendingPathComponent:NBCBundleIdentifier];
+    DDLogDebug(@"[DEBUG] Application temporary folder path: %@", applicationTemporaryFolderPath);
+    
+    if ( [applicationTemporaryFolderPath length] != 0 ) {
+        NSURL *applicationTemporaryFolderURL = [NSURL fileURLWithPath:applicationTemporaryFolderPath];
+        if ( [applicationTemporaryFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+            
+            DDLogDebug(@"[DEBUG] Removing application temporary folder...");
+            
+            dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            dispatch_async(taskQueue, ^{
+                
+                NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+                [helperConnector connectToHelper];
+                [[helperConnector connection] setExportedObject:self];
+                [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+                [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+                    DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
+                    });
+                }] removeItemsAtPaths:@[ [applicationTemporaryFolderURL path] ] withReply:^(NSError *error, BOOL success) {
+                    if ( ! success ) {
+                        DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                    }
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
+                    });
+                }];
+            });
+        } else {
+            [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
+        }
+    } else {
+        [[NSApplication sharedApplication] replyToApplicationShouldTerminate:YES];
+    }
 } // terminateApp
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -996,5 +1034,39 @@ enum {
         [_window makeKeyAndOrderFront:self];
     }
 } // menuItemMainWindow
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark NBCWorkflowProgressDelegate
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
+#pragma unused(statusMessage, workflow)
+}
+- (void)updateProgressBar:(double)value {
+#pragma unused(value)
+}
+- (void)updateProgressStatus:(NSString *)statusMessage {
+#pragma unused(statusMessage)
+}
+- (void)logDebug:(NSString *)logMessage {
+    DDLogDebug(@"[DEBUG] %@", logMessage);
+}
+- (void)logInfo:(NSString *)logMessage {
+    DDLogInfo(@"%@", logMessage);
+}
+- (void)logWarn:(NSString *)logMessage {
+    DDLogWarn(@"[WARN] %@", logMessage);
+}
+- (void)logError:(NSString *)logMessage {
+    DDLogError(@"[ERROR] %@", logMessage);
+}
+- (void)logStdOut:(NSString *)stdOutString {
+    DDLogDebug(@"[DEBUG][stdout] %@", stdOutString);
+}
+- (void)logStdErr:(NSString *)stdErrString {
+    DDLogDebug(@"[DEBUG][stderr] %@", stdErrString);
+}
 
 @end

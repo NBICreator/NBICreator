@@ -2113,7 +2113,7 @@ DDLogLevel ddLogLevel;
         
         // Instantiate settingsController and run verification
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
-        NSDictionary *errorInfoDict = [sc verifySettings:workflowItem];
+        NSDictionary *errorInfoDict = [sc verifySettingsForWorkflowItem:workflowItem];
         
         if ( [errorInfoDict count] != 0 ) {
             BOOL configurationError = NO;

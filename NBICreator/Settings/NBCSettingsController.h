@@ -18,11 +18,23 @@
 //  limitations under the License.
 
 #import <Foundation/Foundation.h>
+@class NBCWorkflowItem;
+@class NBCSource;
+@class NBCTarget;
 
-#import "NBCWorkflowItem.h"
+@protocol NBCSettingsDelegate
+@optional
+- (void)readingSettingsComplete:(NSDictionary *)settingsDict;
+- (void)readingSettingsFailedWithError:(NSError *)error;
+@end
 
 @interface NBCSettingsController : NSObject
 
-- (NSDictionary *)verifySettings:(NBCWorkflowItem *)workflowItem;
+@property (nonatomic, weak) id delegate;
+
+// Methods
+- (id)initWithDelegate:(id<NBCSettingsDelegate>)delegate;
+- (NSDictionary *)verifySettingsForWorkflowItem:(NBCWorkflowItem *)workflowItem;
+- (void)readSettingsFromNBI:(NBCSource *)source target:(NBCTarget *)target;
 
 @end

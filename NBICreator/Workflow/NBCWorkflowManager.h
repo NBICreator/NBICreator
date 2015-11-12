@@ -7,13 +7,13 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "NBCSource.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowProgressViewController.h"
 #import "NBCWorkflowPanelController.h"
 #import "NBCWorkflowPreWorkflowTaskController.h"
 
-@interface NBCWorkflowManager : NSObject <NSUserNotificationCenterDelegate, NBCWorkflowPreWorkflowTaskControllerDelegate>
+@interface NBCWorkflowManager : NSObject <NSUserNotificationCenterDelegate, NBCWorkflowPreWorkflowTaskControllerDelegate, NBCSourceMountDelegate>
 
 // -------------------------------------------------------------
 //  Unsorted

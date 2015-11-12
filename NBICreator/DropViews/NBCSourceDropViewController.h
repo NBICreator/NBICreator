@@ -78,6 +78,7 @@ extern NSString *const NBCSourceTypeSystem;
 // ------------------------------------------------------
 @property NBCSource *currentSource;
 @property NBCSource *sourceDeployStudioAssistant;
+@property NBCSource *sourceNBI;
 @property NBCSource *sourceNBICreator;
 @property NBCSource *sourceSystemImageUtility;
 @property NBCSource *sourceSystemImageUtilityPackageOnly;
@@ -95,11 +96,13 @@ extern NSString *const NBCSourceTypeSystem;
 @property NSString *creationTool;
 @property NSString *nbiType;
 @property NSMutableArray *sourcesInstallESD;
+@property BOOL allowNBISource;
 
 // ------------------------------------------------------
 //  PopUpButton Source
 // ------------------------------------------------------
 @property NSString *currentSelectedSource;
+@property NSString *nbiSelectedSource;
 @property NSString *deployStudioAssistantSelectedSource;
 @property NSString *nbiCreatorSelectedSource;
 @property NSString *systemImageUtilitySelectedSource;
@@ -154,11 +157,12 @@ extern NSString *const NBCSourceTypeSystem;
 //  Methods
 // ------------------------------------------------------
 - (id)initWithDelegate:(id<NBCSourceDropViewDelegate>)delegate;
-+ (NSArray *)sourceTypesForCreationTool:(NSString *)creationTool;
++ (NSArray *)sourceTypesForCreationTool:(NSString *)creationTool allowNBISource:(BOOL)allowNBISource;
 @end
 
 @interface NBCDropView : NSView <NSDraggingDestination>
 @property (nonatomic, weak) id delegate;
+@property BOOL allowNBISource;
 - (id)initWithDelegate:(id<NBCSourceDropDelegate>)delegate;
 @property NSArray *sourceTypes;
 @end

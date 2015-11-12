@@ -88,7 +88,14 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     [self setImageViews:@[ _imageView1, _imageView2, _imageView3 ]];
     [self setTextFields:@[ _textField1, _textField2, _textField3 ]];
     
+    if ( [_settingsViewController isKindOfClass:[NBCImagrSettingsViewController class]] ) {
+        [self setAllowNBISource:YES];
+    } else {
+        [self setAllowNBISource:NO];
+    }
+    
     [self setDropView:[[NBCDropView alloc] initWithDelegate:self]];
+    [_dropView setAllowNBISource:_allowNBISource];
     [self setDelegatesTo:_dropView forSubviewsOfView:_viewDropView];
     
     if ( _settingsViewController ) {
@@ -136,15 +143,13 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     
     if ( [keyPath isEqualToString:@"nbiCreationTool"] ) {
         NSString *creationTool = change[@"new"];
-        DDLogDebug(@"[DEBUG] Selected creation tool: %@", _creationTool);
-        
         if ( [creationTool length] != 0 && [_creationTool length] == 0 ) {
             [self setCreationTool:creationTool];
-            [self setSourceTypes:[NBCSourceDropViewController sourceTypesForCreationTool:creationTool] ?: @[]];
+            [self setSourceTypes:[NBCSourceDropViewController sourceTypesForCreationTool:creationTool allowNBISource:_allowNBISource] ?: @[]];
             [self updateViewForSourceTypes];
         } else if ( [creationTool length] != 0 && ! [creationTool isEqualToString:_creationTool] ) {
             [self setCreationTool:creationTool];
-            [self setSourceTypes:[NBCSourceDropViewController sourceTypesForCreationTool:creationTool] ?: @[]];
+            [self setSourceTypes:[NBCSourceDropViewController sourceTypesForCreationTool:creationTool allowNBISource:_allowNBISource] ?: @[]];
             [self updateViewForSourceTypes];
             if ( [creationTool isEqualToString:NBCMenuItemNBICreator] && _sourceNBICreator ) {
                 if ( _delegate && [_delegate respondsToSelector:@selector(updateSource:target:)] ) {
@@ -247,6 +252,37 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     }
 }
 
+- (void)addNBIToPopUpButton {
+    
+    // ------------------------------------------------------
+    //  ONLY add this when an NBI is dropped
+    // ------------------------------------------------------
+    if ( [_nbiSelectedSource length] != 0 ) {
+        
+        // ------------------------------------------------------
+        //  Add menu title: NBI
+        // ------------------------------------------------------
+        [[_popUpButtonSource menu] addItem:[NSMenuItem separatorItem]];
+        NSMenuItem *titleMenuItem = [[NSMenuItem alloc] initWithTitle:@"NBI" action:nil keyEquivalent:@""];
+        [titleMenuItem setTarget:nil];
+        [titleMenuItem setEnabled:NO];
+        [[_popUpButtonSource menu] addItem:titleMenuItem];
+        [[_popUpButtonSource menu] addItem:[NSMenuItem separatorItem]];
+        
+        // ------------------------------------------------------
+        //  Add currently selected NBI to source popUpButton
+        // ------------------------------------------------------
+        NSMenuItem *newMenuItem = [[NSMenuItem alloc] initWithTitle:_nbiSelectedSource action:nil keyEquivalent:@""];
+        NSURL *nbiURL = [_targetNBI nbiURL];
+        if ( [nbiURL checkResourceIsReachableAndReturnError:nil] ) {
+            NSImage *nbiImage = [[NSWorkspace sharedWorkspace] iconForFile:[nbiURL path]];
+            [nbiImage setSize:NSMakeSize(16, 16)];
+            [newMenuItem setImage:nbiImage];
+        }
+        [[_popUpButtonSource menu] addItem:newMenuItem];
+    }
+}
+
 - (void)addInstallerToPopUpButton {
     
     // ------------------------------------------------------
@@ -335,8 +371,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
                 }
             }
         } else if ( CFErrorGetCode(error) != kLSApplicationNotFoundErr ) {
-            NSLog(@"Got no URLs from bundle Identifier \"%@\"", bundleIdentifier);
-            NSLog(@"Error: %@", error);
+            DDLogError(@"[ERROR] %@", error);
         }
     }
     
@@ -862,9 +897,13 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
         }
     }];
     
-    DDLogDebug(@"[DEBUG] Creation tool: %@", _creationTool);
+    DDLogDebug(@"[DEBUG] Current creation tool: %@", _creationTool);
     
-    if ( [_creationTool isEqualToString:NBCMenuItemNBICreator] && _sourceNBICreator ) {
+    if ( [_nbiSelectedSource length] != 0 ) {
+        [self updateSourceInfo:_sourceNBI];
+        [self setCurrentSelectedSource:_nbiSelectedSource ?: NBCMenuItemNoSelection];
+        [_popUpButtonSource selectItemWithTitle:_nbiSelectedSource ?: NBCMenuItemNoSelection];
+    } else if ( [_creationTool isEqualToString:NBCMenuItemNBICreator] && _sourceNBICreator ) {
         [self updateSourceInfo:_sourceNBICreator];
         [self setCurrentSelectedSource:_nbiCreatorSelectedSource ?: NBCMenuItemNoSelection];
         [_popUpButtonSource selectItemWithTitle:_nbiCreatorSelectedSource ?: NBCMenuItemNoSelection];
@@ -922,7 +961,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
         } else if ( [obj isEqualToString:NBCSourceTypeSystem] ) {
             [self addSystemDisksToPopUpButton];
         } else if ( [obj isEqualToString:NBCSourceTypeNBI] ) {
-            DDLogDebug(@"[DEBUG] No source items in popUpButton for NBI:s");
+            [self addNBIToPopUpButton];
         } else {
             DDLogError(@"[ERROR] Unknown source type: %@", obj );
         }
@@ -933,12 +972,22 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 
 - (IBAction)popUpButtonSource:(id)sender {
     
-    DDLogInfo(@"Selected source: %@", [[sender selectedItem] title]);
+    NSString *selectedSource = [[sender selectedItem] title];
+    DDLogInfo(@"Selected source: %@", selectedSource);
+    
+    // --------------------------------------------------------------------------------------------
+    //  If an NBI is selected twice, don't update anything, else remove nbi selection
+    // --------------------------------------------------------------------------------------------
+    if ( [selectedSource isEqualToString:_nbiSelectedSource] ) {
+        return;
+    } else {
+        [self setNbiSelectedSource:nil];
+    }
     
     // --------------------------------------------------------------------------------------------
     //  If "No Selection" got selected, remove source from UI and post removed source notification
     // --------------------------------------------------------------------------------------------
-    if ( [[[sender selectedItem] title] isEqualToString:NBCMenuItemNoSelection] ) {
+    if ( [selectedSource isEqualToString:NBCMenuItemNoSelection] ) {
         [self restoreDropView];
         return;
     }
@@ -1019,6 +1068,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 
 - (void)verifySourceAtURL:(NSURL *)sourceURL {
     
+    [self setNbiSelectedSource:nil];
+    
     // ------------------------------------------------------
     //  Disable build button while checking new source
     // ------------------------------------------------------
@@ -1075,23 +1126,37 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
                 }
             }
         } else if ( [sourceExtension isEqualToString:@"app"] ) {
+            [source setSourceType:NBCSourceTypeInstallerApplication];
             if ( [self->_sourceTypes containsObject:NBCSourceTypeInstaller] ) {
                 NSURL *installESDURL = [NBCDiskImageController installESDURLfromInstallerApplicationURL:sourceURL source:source error:&error];
                 DDLogDebug(@"[DEBUG] InstallESD disk image path: %@", [installESDURL path]);
+                
                 if ( [installESDURL checkResourceIsReachableAndReturnError:&error] ) {
                     if ( [NBCDiskImageController verifyInstallESDDiskImage:installESDURL source:source error:&error] ) {
                         verified = YES;
-                        [source setSourceType:NBCSourceTypeInstallerApplication];
                         [source setSourceMenuName:[sourceURL path]];
                     }
                 }
             }
         } else if ( [sourceExtension isEqualToString:@"nbi"] ) {
-            
-            
-            // +IMPROVEMENT Need to implement this after moving other sources
-            
-            
+            [source setSourceType:NBCSourceTypeNBI];
+            if ( [self->_sourceTypes containsObject:NBCSourceTypeNBI] ) {
+                NSURL *netInstallURL = [NBCDiskImageController netInstallURLFromNBI:sourceURL source:source error:&error];
+                DDLogDebug(@"[DEBUG] NetInstall disk image path: %@", [netInstallURL path]);
+                
+                if ( [netInstallURL checkResourceIsReachableAndReturnError:&error] ) {
+                    if ( ! target ) {
+                        target = [[NBCTarget alloc] init];
+                    }
+                    
+                    if ( [NBCDiskImageController verifyNBINetInstallDiskImage:netInstallURL source:source target:target error:&error] ) {
+                        verified = YES;
+                        [source setSourceURL:sourceURL];
+                        [target setNbiURL:sourceURL];
+                        [source setSourceMenuName:[NSString stringWithFormat:@"%@ - %@ (%@)", [sourceURL lastPathComponent] , [source sourceVersion], [source sourceBuild]]];
+                    }
+                }
+            }
         } else if ( [sourceExtension length] == 0 ) {
             if ( [self->_sourceTypes containsObject:NBCSourceTypeSystem] ) {
                 if ( [NBCDiskController verifySystemDisk:[NBCDiskController diskFromVolumeURL:sourceURL] source:source requireRecoveryPartition:YES error:&error] ) {
@@ -1109,17 +1174,22 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
         }
         
         if ( verified ) {
-            [self updateSource:source creationTool:currentCreationTool nbiType:currentNbiType];
-            if ( target ) {
+            if ( [[source sourceType] isEqualToString:NBCSourceTypeNBI] && target ) {
                 [self setTargetNBI:target];
+                [self setNbiSelectedSource:[source sourceMenuName]];
+                [self updatePopUpButtonSource];
             }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if ( [currentCreationTool isEqualToString:self->_creationTool] ) {
-                    if ( [currentNbiType length] == 0 || ( [currentNbiType length] != 0 && [currentNbiType isEqualToString:self->_nbiType] ) ) {
+            
+            [self updateSource:source creationTool:currentCreationTool nbiType:currentNbiType];
+            
+            if ( [currentCreationTool isEqualToString:self->_creationTool] ) {
+                if ( [currentNbiType length] == 0 || ( [currentNbiType length] != 0 && [currentNbiType isEqualToString:self->_nbiType] ) ) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
                         [self updateSourceInfo:source];
-                    }
+                    });
                 }
-            });
+            }
+
             if ( ! [[source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
                 self->_sourceDictSources[self->_currentSelectedSource] = source;
                 [source detachBaseSystem];
@@ -1167,10 +1237,12 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     }
     
     if ( [creationTool length] != 0 ) {
-        DDLogDebug(@"Selecting source: %@", selection);
+        DDLogDebug(@"[DEBUG] Selecting source: %@", selection);
         [self setCurrentSelectedSource:selection];
         
-        if ( [creationTool isEqualToString:NBCMenuItemNBICreator] ) {
+        if ( [selection isEqualToString:_nbiSelectedSource] ) {
+            [self setNbiSelectedSource:selection];
+        } else if ( [creationTool isEqualToString:NBCMenuItemNBICreator] ) {
             [self setNbiCreatorSelectedSource:selection];
         } else if ( [creationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
             if ( [_nbiType isEqualToString:@"Package Only"] ) {
@@ -1197,7 +1269,10 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     
     if ( [creationTool length] != 0 ) {
         [self setCurrentSource:source];
-        if ( [creationTool isEqualToString:NBCMenuItemNBICreator] ) {
+        
+        if ( [_nbiSelectedSource length] != 0 ) {
+            [self setSourceNBI:source];
+        } else if ( [creationTool isEqualToString:NBCMenuItemNBICreator] ) {
             [self setSourceNBICreator:source];
         } else if ( [creationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
             if ( [nbiType isEqualToString:@"Package Only"] ) {
@@ -1221,6 +1296,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 
 - (void)removeSource {
     [self setCurrentSource:nil];
+    [self setTargetNBI:nil];
+    
     if ( [_creationTool length] != 0 ) {
         if ( [_creationTool isEqualToString:NBCMenuItemNBICreator] ) {
             [self setSourceNBICreator:nil];
@@ -1238,17 +1315,24 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     }
 } // removeSource
 
-+ (NSArray *)sourceTypesForCreationTool:(NSString *)creationTool {
++ (NSArray *)sourceTypesForCreationTool:(NSString *)creationTool allowNBISource:(BOOL)allowNBISource {
+    NSMutableArray *sourceTypes = [[NSMutableArray alloc] init];
     if ( [creationTool isEqualToString:NBCMenuItemNBICreator] ) {
-        return @[ NBCSourceTypeInstaller ];
+        [sourceTypes addObjectsFromArray:@[ NBCSourceTypeInstaller ]];
     } else if ( [creationTool isEqualToString:NBCMenuItemDeployStudioAssistant] ) {
-        return @[ NBCSourceTypeSystem ];
+        [sourceTypes addObjectsFromArray:@[ NBCSourceTypeSystem ]];
     } else if ( [creationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-        return @[ NBCSourceTypeInstaller ];
+        [sourceTypes addObjectsFromArray:@[ NBCSourceTypeInstaller ]];
     } else {
         DDLogError(@"[ERROR] Unknown creation tool: %@", creationTool);
-        return @[];
+        [sourceTypes addObjectsFromArray:@[]];
     }
+    
+    if ( allowNBISource ) {
+        [sourceTypes addObject:NBCSourceTypeNBI];
+    }
+    
+    return [sourceTypes copy];
 } // sourceTypesForCreationTool
 
 + (NSArray *)sourceTypesForNbiType:(NSString *)nbiType {
@@ -1291,7 +1375,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 - (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
     if ( [keyPath isEqualToString:@"nbiCreationTool"] ) {
-        [self setSourceTypes:[NBCSourceDropViewController sourceTypesForCreationTool:change[@"new"]] ?: @[]];
+        [self setSourceTypes:[NBCSourceDropViewController sourceTypesForCreationTool:change[@"new"] allowNBISource:_allowNBISource] ?: @[]];
     } else if ( [keyPath isEqualToString:@"nbiType"] ) {
         [self setSourceTypes:[NBCSourceDropViewController sourceTypesForNbiType:change[@"new"]] ?: @[]];
     }
@@ -1331,10 +1415,10 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             return nil;
         } else {
             NSURL *draggedFileURL = [NSURL fileURLWithPath:[files firstObject]];
-            DDLogDebug(@"[DEBUG] Dragged item path: %@", [draggedFileURL path]);
+            //DDLogDebug(@"[DEBUG] Dragged item path: %@", [draggedFileURL path]);
             
             NSString *draggedFileExtension = [draggedFileURL pathExtension];
-            DDLogDebug(@"[DEBUG] Dragged item extension: %@", draggedFileExtension);
+            //DDLogDebug(@"[DEBUG] Dragged item extension: %@", draggedFileExtension);
             
             if ( [draggedFileExtension isEqualToString:@"dmg"] && ( [_sourceTypes containsObject:NBCSourceTypeInstaller] || [_sourceTypes containsObject:NBCSourceTypeSystem] ) ) {
                 return draggedFileURL;

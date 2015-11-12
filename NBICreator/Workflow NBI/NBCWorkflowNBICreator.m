@@ -84,7 +84,7 @@
                         userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Unable to create temporary NBI folders"] }];
         return;
     }
-    
+
     // -------------------------------------------------------------
     //  Copy BaseSystem disk image to temporary NBI Folder
     // -------------------------------------------------------------

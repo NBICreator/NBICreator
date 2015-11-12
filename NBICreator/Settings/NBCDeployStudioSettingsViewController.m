@@ -1313,7 +1313,7 @@ DDLogLevel ddLogLevel;
         // ----------------------------------------------------
         //  Check all settings for possible errors or warnings
         // ----------------------------------------------------
-        NSDictionary *errorInfoDict = [sc verifySettings:workflowItem];
+        NSDictionary *errorInfoDict = [sc verifySettingsForWorkflowItem:workflowItem];
         if ( [errorInfoDict count] != 0 ) {
             BOOL configurationError = NO;
             BOOL configurationWarning = NO;
