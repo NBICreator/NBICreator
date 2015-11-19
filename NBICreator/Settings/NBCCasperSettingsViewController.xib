@@ -1596,6 +1596,9 @@ asdasd</string>
                                     </button>
                                     <textField horizontalHuggingPriority="249" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rp4-3G-AFA" userLabel="Configuration URL">
                                         <rect key="frame" x="155" y="192" width="359" height="22"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="22" id="2nl-A2-rY5"/>
+                                        </constraints>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="" drawsBackground="YES" id="ums-AZ-wek">
                                             <font key="font" metaFont="system"/>
