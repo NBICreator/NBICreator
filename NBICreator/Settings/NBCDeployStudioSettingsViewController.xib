@@ -592,7 +592,7 @@ asdasd</string>
                                         <rect key="frame" x="20" y="241" width="494" height="38"/>
                                         <animations/>
                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                        <size key="cellSize" width="344" height="18"/>
+                                        <size key="cellSize" width="336" height="18"/>
                                         <size key="intercellSpacing" width="4" height="2"/>
                                         <buttonCell key="prototype" type="radio" title="Radio" imagePosition="left" alignment="left" inset="2" id="JSe-nD-Luq">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -872,7 +872,7 @@ asdasd</string>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="BsR-d0-KfO">
-                                        <rect key="frame" x="18" y="238" width="128" height="17"/>
+                                        <rect key="frame" x="18" y="238" width="135" height="17"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Runtime login:" id="Al2-tf-ZmY">
                                             <font key="font" metaFont="system"/>
@@ -881,7 +881,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="frL-4v-1sp">
-                                        <rect key="frame" x="80" y="213" width="66" height="17"/>
+                                        <rect key="frame" x="87" y="213" width="66" height="17"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Password:" id="qFj-EE-r9H">
                                             <font key="font" metaFont="system"/>
@@ -890,7 +890,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <secureTextField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aZh-Nr-mBx">
-                                        <rect key="frame" x="152" y="210" width="302" height="22"/>
+                                        <rect key="frame" x="159" y="210" width="295" height="22"/>
                                         <animations/>
                                         <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesSingleLineMode="YES" id="hHu-8K-jm9">
                                             <font key="font" metaFont="system"/>
@@ -910,7 +910,7 @@ asdasd</string>
                                         </connections>
                                     </secureTextField>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="I1K-Ct-quT">
-                                        <rect key="frame" x="152" y="210" width="302" height="22"/>
+                                        <rect key="frame" x="159" y="210" width="295" height="22"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="3YC-jb-Jrs">
                                             <font key="font" metaFont="system"/>
@@ -931,7 +931,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="70P-xa-mdb">
-                                        <rect key="frame" x="18" y="107" width="128" height="17"/>
+                                        <rect key="frame" x="18" y="107" width="135" height="17"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="ARD user login:" id="O7N-pb-b0H">
                                             <font key="font" metaFont="system"/>
@@ -940,7 +940,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mwb-ae-F6c">
-                                        <rect key="frame" x="18" y="82" width="128" height="17"/>
+                                        <rect key="frame" x="18" y="82" width="135" height="17"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="ARD/VNC password:" id="42W-tZ-wgi">
                                             <font key="font" metaFont="system"/>
@@ -949,7 +949,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bw5-LB-eCJ">
-                                        <rect key="frame" x="152" y="104" width="302" height="22"/>
+                                        <rect key="frame" x="159" y="104" width="295" height="22"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="j3R-GN-b6M">
                                             <font key="font" metaFont="system"/>
@@ -965,7 +965,7 @@ asdasd</string>
                                         </connections>
                                     </textField>
                                     <secureTextField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="psU-pC-87v">
-                                        <rect key="frame" x="152" y="79" width="302" height="22"/>
+                                        <rect key="frame" x="159" y="79" width="295" height="22"/>
                                         <animations/>
                                         <secureTextFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" usesSingleLineMode="YES" id="hcV-Wx-2Ly">
                                             <font key="font" metaFont="system"/>
@@ -996,7 +996,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Eiu-La-HJi">
-                                        <rect key="frame" x="152" y="79" width="302" height="22"/>
+                                        <rect key="frame" x="159" y="79" width="295" height="22"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="ERv-zU-2kp">
                                             <font key="font" metaFont="system"/>
@@ -1038,7 +1038,7 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
                                         </textFieldCell>
                                     </textField>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HLA-gT-f6X">
-                                        <rect key="frame" x="152" y="235" width="302" height="22"/>
+                                        <rect key="frame" x="159" y="235" width="295" height="22"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="sZU-95-GAw">
                                             <font key="font" metaFont="system"/>
@@ -1063,7 +1063,7 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
                                         </textFieldCell>
                                     </textField>
                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="eLp-3c-cpg">
-                                        <rect key="frame" x="152" y="20" width="302" height="22"/>
+                                        <rect key="frame" x="159" y="20" width="295" height="22"/>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="Xc9-CK-ZgR">
                                             <font key="font" metaFont="system"/>
@@ -1145,6 +1145,7 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
                                     <constraint firstItem="DdI-Of-tHm" firstAttribute="leading" secondItem="jHz-0y-Mkf" secondAttribute="leading" constant="20" symbolic="YES" id="uDP-5N-u6g"/>
                                     <constraint firstItem="bw5-LB-eCJ" firstAttribute="leading" secondItem="70P-xa-mdb" secondAttribute="trailing" constant="8" symbolic="YES" id="wBV-xr-9ug"/>
                                     <constraint firstItem="mwb-ae-F6c" firstAttribute="leading" secondItem="jHz-0y-Mkf" secondAttribute="leading" constant="20" symbolic="YES" id="xE4-3I-SDr"/>
+                                    <constraint firstItem="eLp-3c-cpg" firstAttribute="leading" secondItem="DdI-Of-tHm" secondAttribute="trailing" constant="8" symbolic="YES" id="xnl-WI-lKs"/>
                                     <constraint firstItem="eLp-3c-cpg" firstAttribute="width" secondItem="bw5-LB-eCJ" secondAttribute="width" id="yer-Ut-s8x"/>
                                     <constraint firstAttribute="trailing" secondItem="ESg-D4-aIT" secondAttribute="trailing" constant="20" symbolic="YES" id="zed-HZ-FIP"/>
                                 </constraints>
