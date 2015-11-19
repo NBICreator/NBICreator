@@ -219,6 +219,13 @@ DDLogLevel ddLogLevel;
                                             [_settingsChanged[NBCSettingsBackgroundImageKey] boolValue]
                                             ) ) ) {
         if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
+            if ( ! [self addCopyDesktopViewer:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing NBICreatorDesktopViewer.app failed"]}];
+                return;
+            }
+            
             if ( ! [self addCopyDesktopPictureCustom:&error] ) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                     object:self
@@ -932,7 +939,33 @@ DDLogLevel ddLogLevel;
     }
 } // addCopyDesktopPictureCustom
 
-
+- (BOOL)addCopyDesktopViewer:(NSError **)error {
+    
+    DDLogInfo(@"Adding copy NBICreatorDesktopViewer.app...");
+    
+    NSURL *desktopViewerURL = [[NSBundle mainBundle] URLForResource:@"NBICreatorDesktopViewer" withExtension:@"app"];
+    DDLogDebug(@"[DEBUG] NBICreatorDesktopViewer.app path: %@", [desktopViewerURL path]);
+    
+    if ( [desktopViewerURL checkResourceIsReachableAndReturnError:error] ) {
+        NSString *desktopViewerTargetPath = [NSString stringWithFormat:@"%@/NBICreatorDesktopViewer.app", NBCApplicationsTargetPath];
+        DDLogDebug(@"[DEBUG] NBICreatorDesktopViewer.app target path: %@", desktopViewerTargetPath);
+        
+        // Update copy array
+        [self addItemToCopyToBaseSystem:@{
+                                          NBCWorkflowCopyType :        NBCWorkflowCopy,
+                                          NBCWorkflowCopySourceURL :   [desktopViewerURL path],
+                                          NBCWorkflowCopyTargetURL :   desktopViewerTargetPath,
+                                          NBCWorkflowCopyAttributes :  @{
+                                                  NSFileOwnerAccountName :      @"root",
+                                                  NSFileGroupOwnerAccountName : @"wheel",
+                                                  NSFilePosixPermissions :      @0755
+                                                  }
+                                          }];
+        return YES;
+    } else {
+        return NO;
+    }
+} // addCopyDesktopViewer
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -1274,7 +1307,7 @@ DDLogLevel ddLogLevel;
     if ( 11 <= _sourceVersionMinor ) {
         NSArray *essentials;
         switch (_sourceVersionMinor) {
-            case 11:
+                case 11:
                 essentials = @[ @".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*"];
                 break;
             default:
@@ -1294,16 +1327,16 @@ DDLogLevel ddLogLevel;
         
         NSArray *mediaFiles;
         switch (_sourceVersionMinor) {
-            case 10:
+                case 10:
                 mediaFiles = @[ @".*Library/Desktop\\ Pictures/Yosemite.jpg.*"];
                 break;
-            case 9:
+                case 9:
                 mediaFiles = @[ @".*Library/Desktop\\ Pictures/Wave.jpg.*"];
                 break;
-            case 8:
+                case 8:
                 mediaFiles = @[ @".*Library/Desktop\\ Pictures/Galaxy.jpg.*"];
                 break;
-            case 7:
+                case 7:
                 mediaFiles = @[ @".*Library/Desktop\\ Pictures/Lion.jpg.*"];
                 break;
             default:
@@ -1317,29 +1350,6 @@ DDLogLevel ddLogLevel;
         }
     }
 } // addDesktopPictureDefault
-
-- (void)addExtractDesktopViewer {
-    
-    DDLogInfo(@"Adding copy NBICreatorDesktopViewer.app...");
-    
-    NSURL *desktopViewerURL = [[NSBundle mainBundle] URLForResource:@"NBICreatorDesktopViewer" withExtension:@"app"];
-    DDLogDebug(@"[DEBUG] NBICreatorDesktopViewer.app path: %@", [desktopViewerURL path]);
-    
-    NSString *desktopViewerTargetPath = [NSString stringWithFormat:@"%@/NBICreatorDesktopViewer.app", NBCApplicationsTargetPath];
-    DDLogDebug(@"[DEBUG] NBICreatorDesktopViewer.app target path: %@", desktopViewerTargetPath);
-    
-    // Update copy array
-    [self addItemToCopyToBaseSystem:@{
-                                      NBCWorkflowCopyType :        NBCWorkflowCopy,
-                                      NBCWorkflowCopySourceURL :   [desktopViewerURL path],
-                                      NBCWorkflowCopyTargetURL :   desktopViewerTargetPath,
-                                      NBCWorkflowCopyAttributes :  @{
-                                              NSFileOwnerAccountName :      @"root",
-                                              NSFileGroupOwnerAccountName : @"wheel",
-                                              NSFilePosixPermissions :      @0755
-                                              }
-                                      }];
-}
 
 - (void)addExtractKerberos:(NSMutableDictionary *)sourceItemsDict {
     
