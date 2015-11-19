@@ -2,9 +2,20 @@
 //  NBCNISettingsController.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-04-09.
+//  Created by Erik Berglund.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCNetInstallSettingsViewController.h"
 #import "NBCConstants.h"
@@ -17,6 +28,7 @@
 #import "NBCConfigurationProfileTableCellView.h"
 #import "NBCDDReader.h"
 #import "NBCOverlayViewController.h"
+#import "NBCError.h"
 #import "NSString+validIP.h"
 #import "NBCNetInstallTrustedNetBootServerCellView.h"
 
@@ -162,7 +174,7 @@ DDLogLevel ddLogLevel;
     if ( [[[sender object] class] isSubclassOfClass:[NSTextField class]] ) {
         NSTextField *textField = [sender object];
         if ( [[[textField superview] class] isSubclassOfClass:[NBCNetInstallTrustedNetBootServerCellView class]] ) {
-            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            NSNumber *textFieldTag = @([textField tag]);
             if ( textFieldTag != nil ) {
                 if ( [sender object] == [[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:[textFieldTag integerValue] makeIfNecessary:NO] textFieldTrustedNetBootServer] ) {
                     NSDictionary *userInfo = [sender userInfo];
@@ -377,12 +389,20 @@ DDLogLevel ddLogLevel;
     [_tableViewPackagesNetInstall reloadData];
     if ( [settingsDict[NBCSettingsNetInstallPackagesKey] count] != 0 ) {
         NSArray *packagesArray = settingsDict[NBCSettingsNetInstallPackagesKey];
+        NSMutableArray *bundleStylePackages = [[NSMutableArray alloc] init];
         for ( NSString *packagePath in packagesArray ) {
             NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
             NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
             if ( [packageDict count] != 0 ) {
-                [self insertItemInPackagesNetInstallTableView:packageDict];
+                if ( /* DISABLES CODE */ (NO) ) {
+                    [bundleStylePackages addObject:packageDict];
+                } else {
+                    [self insertItemInPackagesNetInstallTableView:packageDict];
+                }
             }
+        }
+        if ( [bundleStylePackages count] != 0 ) {
+            [NBCAlerts showAlertErrorWithTitle:@"Bundle Packages!" informativeText:[NSString stringWithFormat:@"%lu paket!", (unsigned long)[bundleStylePackages count]]];
         }
     } else {
         [_viewOverlayPackagesNetInstall setHidden:NO];
@@ -555,14 +575,12 @@ DDLogLevel ddLogLevel;
     BOOL retval = YES;
     
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameNetInstallDefaults withExtension:@"plist"];
-    if ( defaultSettingsURL ) {
+    if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
-        if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
-            if ( currentSettings && defaultSettings ) {
-                if ( [currentSettings isEqualToDictionary:defaultSettings] ) {
-                    return NO;
-                }
+        NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
+        if ( [currentSettings count] != 0 && [defaultSettings count] != 0 ) {
+            if ( [currentSettings isEqualToDictionary:defaultSettings] ) {
+                return NO;
             }
         }
     }
@@ -571,20 +589,20 @@ DDLogLevel ddLogLevel;
         return retval;
     }
     
+    NSError *error = nil;
     NSURL *savedSettingsURL = _templatesDict[_selectedTemplate];
-    if ( savedSettingsURL ) {
+    if ( [savedSettingsURL checkResourceIsReachableAndReturnError:&error] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         NSDictionary *savedSettings = [self returnSettingsFromURL:savedSettingsURL];
-        
-        if ( currentSettings && savedSettings ) {
+        if ( [currentSettings count] != 0 && [savedSettings count] != 0 ) {
             if ( [currentSettings isEqualToDictionary:savedSettings] ) {
                 retval = NO;
             }
         } else {
-            NSLog(@"Could not compare UI settings to saved template settings, one of them is nil!");
+            DDLogError(@"[ERROR] Could not compare UI settings to saved template settings, one of them was empty!");
         }
     } else {
-        NSLog(@"Could not get URL to current template file!");
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     return retval;
@@ -711,13 +729,17 @@ DDLogLevel ddLogLevel;
     if ( [addPackages runModal] == NSModalResponseOK ) {
         NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
         NSArray* selectedURLs = [addPackages URLs];
+        NSMutableArray *bundleStylePackages = [[NSMutableArray alloc] init];
         for ( NSURL *url in selectedURLs ) {
-            NSError *error;
-            NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:[url path] error:&error];
+            NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:[url path] error:nil];
             if ( [workspace type:fileType conformsToType:@"com.apple.installer-package-archive"] ) {
                 NSDictionary *packageDict = [self examinePackageAtURL:url];
                 if ( [packageDict count] != 0 ) {
-                    [self insertItemInPackagesNetInstallTableView:packageDict];
+                    if ( /* DISABLES CODE */ (NO) ) {
+                        [bundleStylePackages addObject:packageDict];
+                    } else {
+                        [self insertItemInPackagesNetInstallTableView:packageDict];
+                    }
                     return;
                 }
             } else if ( [workspace type:fileType conformsToType:@"public.shell-script"] ) {
@@ -727,6 +749,9 @@ DDLogLevel ddLogLevel;
                     return;
                 }
             }
+        }
+        if ( [bundleStylePackages count] != 0 ) {
+            [NBCAlerts showAlertErrorWithTitle:@"Bundle Packages!" informativeText:[NSString stringWithFormat:@"%lu paket!", (unsigned long)[bundleStylePackages count]]];
         }
     }
 }
@@ -889,6 +914,7 @@ DDLogLevel ddLogLevel;
         [alert showAlertSettingsUnsaved:@"You have unsaved settings, do you want to discard changes and continue?"
                               alertInfo:alertInfo];
     }
+    
     NSLog(@"Importing %@", url);
     NSLog(@"templateInfo=%@", templateInfo);
 } // importTemplateAtURL
@@ -1136,13 +1162,24 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)examinePackageAtURL:(NSURL *)url {
+    
+    DDLogDebug(@"[DEBUG] Examine installer package...");
+    
     NSMutableDictionary *newPackageDict = [[NSMutableDictionary alloc] init];
-    newPackageDict[NBCDictionaryKeyPath] = [url path];
-    newPackageDict[NBCDictionaryKeyName] = [url lastPathComponent];
+
+    newPackageDict[NBCDictionaryKeyPath] = [url path] ?: @"Unknown";
+    DDLogDebug(@"[DEBUG] Package path: %@", newPackageDict[NBCDictionaryKeyPath]);
+    
+    newPackageDict[NBCDictionaryKeyName] = [url lastPathComponent] ?: @"Unknown";
+    DDLogDebug(@"[DEBUG] Package pame: %@", newPackageDict[NBCDictionaryKeyName]);
+    
     return newPackageDict;
 }
 
 - (NSDictionary *)examineScriptAtURL:(NSURL *)url {
+    
+    DDLogDebug(@"[DEBUG] Examine script...");
+    
     NSMutableDictionary *newScriptDict = [[NSMutableDictionary alloc] init];
     NBCDDReader *reader = [[NBCDDReader alloc] initWithFilePath:[url path]];
     [reader enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
@@ -1155,9 +1192,15 @@ DDLogLevel ddLogLevel;
         }
     }];
     
+    DDLogDebug(@"[DEBUG] Script type: %@", newScriptDict[NBCDictionaryKeyScriptType] ?: @"Unknown");
+    
     if ( [newScriptDict[NBCDictionaryKeyScriptType] length] != 0 ) {
-        newScriptDict[NBCDictionaryKeyPath] = [url path];
-        newScriptDict[NBCDictionaryKeyName] = [url lastPathComponent];
+        newScriptDict[NBCDictionaryKeyPath] = [url path] ?: @"Unknown";
+        DDLogDebug(@"[DEBUG] Script path: %@", newScriptDict[NBCDictionaryKeyPath]);
+        
+        newScriptDict[NBCDictionaryKeyName] = [url lastPathComponent] ?: @"Unknown";
+        DDLogDebug(@"[DEBUG] Script name: %@", newScriptDict[NBCDictionaryKeyName]);
+        
         return newScriptDict;
     } else {
         return nil;
@@ -1165,13 +1208,23 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)examineConfigurationProfileAtURL:(NSURL *)url {
+    
+    DDLogDebug(@"[DEBUG] Examine configuration profile...");
+    
     NSMutableDictionary *newConfigurationProfileDict = [[NSMutableDictionary alloc] init];
+    
     newConfigurationProfileDict[NBCDictionaryKeyConfigurationProfilePath] = [url path];
+    DDLogDebug(@"[DEBUG] Configuration profile path: %@", newConfigurationProfileDict[NBCDictionaryKeyConfigurationProfilePath] ?: @"Unknown");
+    
     NSDictionary *configurationProfileDict = [NSDictionary dictionaryWithContentsOfURL:url];
-    NSString *payloadName = configurationProfileDict[@"PayloadDisplayName"];
+    NSString *payloadName = configurationProfileDict[@"PayloadDisplayName"] ?: [[url lastPathComponent] stringByDeletingPathExtension];
     newConfigurationProfileDict[NBCDictionaryKeyConfigurationProfilePayloadDisplayName] = payloadName ?: @"Unknown";
-    NSString *payloadDescription = configurationProfileDict[@"PayloadDescription"];
+    DDLogDebug(@"[DEBUG] Configuration profile name: %@", newConfigurationProfileDict[NBCDictionaryKeyConfigurationProfilePayloadDisplayName]);
+    
+    NSString *payloadDescription = configurationProfileDict[@"PayloadDescription"] ?: [[url lastPathComponent] stringByDeletingPathExtension];
     newConfigurationProfileDict[NBCDictionaryKeyConfigurationProfilePayloadDisplayName] = payloadDescription ?: @"";
+    DDLogDebug(@"[DEBUG] Configuration profile description: %@", newConfigurationProfileDict[NBCDictionaryKeyConfigurationProfilePayloadDisplayName]);
+    
     return newConfigurationProfileDict;
 }
 
@@ -1342,14 +1395,14 @@ DDLogLevel ddLogLevel;
     __block NSNumber *index;
     [_trustedServers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ( [obj length] == 0 ) {
-            index = [NSNumber numberWithInteger:(NSInteger)idx];
+            index = @((NSInteger)idx);
             *stop = YES;
         }
     }];
     
     if ( index == nil ) {
         // Insert new view
-        index = [NSNumber numberWithInteger:[self insertNetBootServerIPInTableView:@""]];
+        index = @([self insertNetBootServerIPInTableView:@""]);
     }
     
     NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:(NSUInteger)index];
@@ -1393,7 +1446,7 @@ DDLogLevel ddLogLevel;
         }
     }];
     
-    NSString *trustedNetBootServerCount = [[NSNumber numberWithInt:validNetBootServersCounter] stringValue];
+    NSString *trustedNetBootServerCount = [@(validNetBootServersCounter) stringValue];
     if ( containsInvalidNetBootServer ) {
         NSMutableAttributedString *trustedNetBootServerCountMutable = [[NSMutableAttributedString alloc] initWithString:trustedNetBootServerCount];
         [trustedNetBootServerCountMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[trustedNetBootServerCountMutable length])];
@@ -1524,6 +1577,7 @@ DDLogLevel ddLogLevel;
 - (void)insertItemInPackagesNetInstallTableView:(NSTableView *)tableView draggingInfo:(id<NSDraggingInfo>)info row:(NSInteger)row {
     NSArray *classes = @[ [NBCDesktopPackageEntity class], [NBCDesktopScriptEntity class] ];
     __block NSInteger insertionIndex = row;
+    __block NSMutableArray *bundleStylePackages = [[NSMutableArray alloc] init];
     [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                  usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
@@ -1532,20 +1586,24 @@ DDLogLevel ddLogLevel;
                                          if ( [entity isKindOfClass:[NBCDesktopPackageEntity class]] ) {
                                              NSDictionary *packageDict = [self examinePackageAtURL:[entity fileURL]];
                                              if ( [packageDict count] != 0 ) {
-                                                 
-                                                 NSString *packagePath = packageDict[NBCDictionaryKeyPath];
-                                                 for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
-                                                     if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
-                                                         DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
-                                                         return;
+                                                 if ( /* DISABLES CODE */ (NO) ) {
+                                                     [bundleStylePackages addObject:packageDict];
+                                                 } else {
+                                                     
+                                                     NSString *packagePath = packageDict[NBCDictionaryKeyPath];
+                                                     for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
+                                                         if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
+                                                             DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
+                                                             return;
+                                                         }
                                                      }
+                                                     
+                                                     [self->_packagesNetInstallTableViewContents insertObject:packageDict atIndex:(NSUInteger)insertionIndex];
+                                                     [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
+                                                     [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
+                                                     insertionIndex++;
+                                                     [self->_viewOverlayPackagesNetInstall setHidden:YES];
                                                  }
-                                                 
-                                                 [self->_packagesNetInstallTableViewContents insertObject:packageDict atIndex:(NSUInteger)insertionIndex];
-                                                 [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
-                                                 [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
-                                                 insertionIndex++;
-                                                 [self->_viewOverlayPackagesNetInstall setHidden:YES];
                                              }
                                          }
                                      } else if ( [[draggingItem item] isKindOfClass:[NBCDesktopScriptEntity class]] ) {
@@ -1571,6 +1629,10 @@ DDLogLevel ddLogLevel;
                                          }
                                      }
                                  }];
+    
+    if ( [bundleStylePackages count] != 0 ) {
+        [NBCAlerts showAlertErrorWithTitle:@"Bundle Packages!" informativeText:[NSString stringWithFormat:@"%lu paket!", (unsigned long)[bundleStylePackages count]]];
+    }
 }
 
 @end

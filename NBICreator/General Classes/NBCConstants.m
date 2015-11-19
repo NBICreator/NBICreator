@@ -403,6 +403,7 @@ NSString *const NBCDictionaryKeyPath = @"Path";
 NSString *const NBCDictionaryKeyName = @"Name";
 NSString *const NBCDictionaryKeyPackagePath = @"PackagePath";
 NSString *const NBCDictionaryKeyPackageName = @"PackageName";
+NSString *const NBCDictionaryKeyPackageFormat = @"PackageFormat";
 
 NSString *const NBCDictionaryKeyConfigurationProfilePath = @"ConfigurationProfilePath";
 NSString *const NBCDictionaryKeyConfigurationProfilePayloadDisplayName = @"PayloadDisplayName";

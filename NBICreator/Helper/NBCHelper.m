@@ -2,9 +2,20 @@
 //  NBCHelper.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-02-14.
+//  Created by Erik Berglund.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCHelper.h"
 #import "NBCHelperProtocol.h"
@@ -303,12 +314,19 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     //  If any regexes were added to array, loop through each ource folder and create a single regex from array
     //  Then copy all files using cpio
     // ---------------------------------------------------------------------------------------------------------
+    double sourceCount = (double)[[regexDict allKeys] count];
+    double sourceProgressIncrementStep = ( 10.0 / ( sourceCount + 1.0 ));
+    double sourceProgressIncrement = 0.0;
+    
     if ( [regexDict count] != 0 ) {
         
         NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
         for ( NSString *sourceFolderPath in [regexDict allKeys] ) {
             
+            sourceProgressIncrement += sourceProgressIncrementStep;
+            
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Copying items extracted from %@...", [sourceFolderPath lastPathComponent]]];
+            [[[self connection] remoteObjectProxy] incrementProgressBar:sourceProgressIncrement];
             
             NSArray *regexArray = regexDict[sourceFolderPath];
             __block NSString *regexString = @"";
@@ -584,7 +602,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ----------------------------------------------------------------------
             //  Move item
             // ----------------------------------------------------------------------
-            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Moving %@ to %@", [sourceURL lastPathComponent], [targetURL path]]];
+            [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Moving %@ to %@", [sourceURL lastPathComponent], [[targetFolderURL path] lastPathComponent]]];
             if ( ! [fm moveItemAtURL:sourceURL toURL:targetURL error:&error] ) {
                 [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
                 reply(error, 1);

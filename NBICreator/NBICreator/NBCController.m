@@ -26,7 +26,6 @@
 // Main
 #import "NBCController.h"
 #import "NBCLog.h"
-//#import "NBCLogging.h"
 #import "NBCConstants.h"
 
 // Apple
@@ -330,22 +329,17 @@ enum {
     NSDictionary *templateInfo = [NBCTemplatesController templateInfoFromTemplateAtURL:fileURL error:&error];
     if ( [templateInfo count] != 0 ) {
         NSString *title = templateInfo[NBCSettingsTitleKey];
+        DDLogDebug(@"[DEBUG] Template title: %@", title);
+        
         NSString *type = templateInfo[NBCSettingsTypeKey];
+        DDLogDebug(@"[DEBUG] Template type: %@", type);
         
         // --------------------------------------------------------------
         //  Check if template settings are an exact duplicate of an existing template
         // --------------------------------------------------------------
         if ( [NBCTemplatesController templateIsDuplicate:fileURL] ) {
-            [NBCAlerts showAlertImportTemplateDuplicate:@"Template already imported!"];
+            [NBCAlerts showAlertImportTemplateDuplicate:[NSString stringWithFormat:@"The template you are trying to import is identical to an already existing template:\n\nWorkflow:\t%@\nName:\t%@", type, title]];
             return NO;
-        }
-        
-        if ( [type isEqualToString:NBCSettingsTypeNetInstall] ) {
-            
-        } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
-            
-        } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
-            
         }
         
         NSString *importTitle = [NSString stringWithFormat:@"Import %@ Template?", type];
@@ -366,7 +360,7 @@ enum {
                     if ( self->_currentSettingsController ) {
                         [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
                     } else {
-                        DDLogError(@"[ERROR] Could not import template, internal error!");
+                        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
                     }
                 } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
                     [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlDeployStudio];
@@ -374,7 +368,7 @@ enum {
                     if ( self->_currentSettingsController ) {
                         [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
                     } else {
-                        DDLogError(@"[ERROR] Could not import template, internal error!");
+                        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
                     }
                 } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
                     [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlImagr];
@@ -382,15 +376,24 @@ enum {
                     if ( self->_currentSettingsController ) {
                         [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
                     } else {
-                        DDLogError(@"[ERROR] Could not import template, internal error!");
+                        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
                     }
+                } else if ( [type isEqualToString:NBCSettingsTypeCasper] ) {
+                    [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlCasper];
+                    [self selectSegmentedControl:kSegmentedControlCasper];
+                    if ( self->_currentSettingsController ) {
+                        [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
+                    } else {
+                        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
+                    }
+                } else {
+                    [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Unknown template type."];
                 }
             }
         }];
         return YES;
     } else {
-        DDLogError(@"[ERROR] Could not read template!");
-        DDLogError(@"[ERROR] %@", error);
+        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:[error localizedDescription]];
         return NO;
     }
 } // application:openFile
@@ -1094,11 +1097,14 @@ enum {
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
 #pragma unused(statusMessage, workflow)
 }
+- (void)updateProgressStatus:(NSString *)statusMessage {
+#pragma unused(statusMessage)
+}
 - (void)updateProgressBar:(double)value {
 #pragma unused(value)
 }
-- (void)updateProgressStatus:(NSString *)statusMessage {
-#pragma unused(statusMessage)
+- (void)incrementProgressBar:(double)value {
+#pragma unused(value)
 }
 - (void)logDebug:(NSString *)logMessage {
     DDLogDebug(@"[DEBUG] %@", logMessage);

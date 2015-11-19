@@ -2,9 +2,20 @@
 //  NBCCLIArguments.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-09-04.
+//  Created by Erik Berglund.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCCLIArguments.h"
 #import "NBCConstants.h"
@@ -32,7 +43,7 @@ DDLogLevel ddLogLevel;
     if ( [templatePath length] != 0 ) {
         templateURL = [NSURL fileURLWithPath:templatePath];
     } else {
-        NSLog(@"No template path specified!");
+        DDLogError(@"No template path specified!");
         return;
     }
     
@@ -40,14 +51,13 @@ DDLogLevel ddLogLevel;
     if ( [templateURL checkResourceIsReachableAndReturnError:&error] ) {
         templateDict = [NSDictionary dictionaryWithContentsOfURL:templateURL];
     } else {
-        NSLog(@"No such file or directory");
-        NSLog(@"%@", error);
+        DDLogError(@"%@", error);
         return;
     }
     
     NSString *sourcePath = [args objectForKey:NBCCLIArgumentSource];
     if ( [sourcePath length] == 0 ) {
-        NSLog(@"No source path specified!");
+        DDLogError(@"No source path specified!");
         return;
     }
     
@@ -56,13 +66,11 @@ DDLogLevel ddLogLevel;
     if ( [templateDict count] != 0 ) {
         workflowItem = [self workflowItemFromTemplate:templateDict];
     } else {
-        NSLog(@"Invalid Template File");
+        DDLogError(@"Invalid Template File");
         return;
     }
     
     // Vefify template settings
-    
-    
 }
 
 - (NBCWorkflowItem *)workflowItemFromTemplate:(NSDictionary *)templateDict {
@@ -78,16 +86,20 @@ DDLogLevel ddLogLevel;
         } else if ( [templateType isEqualToString:NBCSettingsTypeCasper] ) {
             workflowType = kWorkflowTypeCasper;
         } else {
-            NSLog(@"Unknown Template Type");
+            DDLogError(@"Unknown Template Type");
             return nil;
         }
         
         return [[NBCWorkflowItem alloc] initWithWorkflowType:workflowType
                                          workflowSessionType:kWorkflowSessionTypeCLI];
     } else {
-        NSLog(@"Invalid Template...");
+        DDLogError(@"Invalid Template...");
     }
     return nil;
+}
+
+- (void)printUsage {
+    DDLogInfo(@"Usage: NBICreator -");
 }
 
 @end

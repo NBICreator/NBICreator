@@ -56,7 +56,9 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     //  Expand variables for current external application
     // -------------------------------------------------------------
-    newString = [applicationSource expandVariables:newString];
+    if ( applicationSource ) {
+        newString = [applicationSource expandVariables:newString];
+    }
     
     // --------------------------------------------------------------
     //  Expand %COUNTER%

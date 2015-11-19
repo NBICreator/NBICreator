@@ -2,9 +2,20 @@
 //  NBCWorkflowResources.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-11-01.
-//  Copyright © 2015 NBICreator. All rights reserved.
+//  Created by Erik Berglund.
+//  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCWorkflowResources.h"
 #import "NBCWorkflowItem.h"
@@ -561,7 +572,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)addInstallPackages:(NSArray *)packagesArray error:(NSError **)error {
     
-    DDLogInfo(@"Adding %lu packages for installation...", (unsigned long)[packagesArray count]);
+    DDLogInfo(@"Adding %lu package(s) for installation...", (unsigned long)[packagesArray count]);
     
     NSURL *temporaryFolderURL = [_workflowItem temporaryFolderURL];
     NSURL *temporaryPackageFolderURL = [temporaryFolderURL URLByAppendingPathComponent:@"Packages"];
@@ -591,7 +602,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)addInstallPackagesNetInstall:(NSArray *)packagesArray error:(NSError **)error {
     
-    DDLogInfo(@"Adding %lu packages for NetInstall installation...", (unsigned long)[packagesArray count]);
+    DDLogInfo(@"Adding %lu package(s) for NetInstall installation...", (unsigned long)[packagesArray count]);
     
     for ( NSString *packagePath in packagesArray ) {
         DDLogDebug(@"[DEBUG] NetInstall package path: %@", packagePath);
@@ -694,7 +705,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)addCopyCertificates:(NSArray *)certificatesArray error:(NSError **)error {
     
-    DDLogInfo(@"Adding %lu certificates for copy...", (unsigned long)[certificatesArray count]);
+    DDLogInfo(@"Adding %lu certificate(s) for copy...", (unsigned long)[certificatesArray count]);
     
     NSURL *temporaryCertificateFolderURL = [[_workflowItem temporaryFolderURL] URLByAppendingPathComponent:@"Certificates"];
     DDLogDebug(@"[DEBUG] Certificates temporary folder path: %@", [temporaryCertificateFolderURL path]);

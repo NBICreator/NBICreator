@@ -2,9 +2,20 @@
 //  NBCWorkflowProgressViewController.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-04-03.
+//  Created by Erik Berglund.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCWorkflowProgressViewController.h"
 #import "NBCConstants.h"
@@ -48,19 +59,19 @@ DDLogLevel ddLogLevel;
 
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
-        [self setWorkflowNBIComplete:YES];
-        if ( ! _workflowNBIResourcesComplete ) {
-            if ( [_workflowNBIResourcesLastStatus length] == 0 ) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self updateProgressStatus:@"Preparing Resources to be added to NBI..." workflow:self];
-                    [self updateProgressBar:50.0];
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self updateProgressStatus:self->_workflowNBIResourcesLastStatus workflow:self];
-                });
-            }
+    [self setWorkflowNBIComplete:YES];
+    if ( ! _workflowNBIResourcesComplete ) {
+        if ( [_workflowNBIResourcesLastStatus length] == 0 ) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self updateProgressStatus:@"Preparing Resources to be added to NBI..." workflow:self];
+                [self updateProgressBar:60.0];
+            });
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self updateProgressStatus:self->_workflowNBIResourcesLastStatus workflow:self];
+            });
         }
+    }
 } // workflowCompleteNBI
 
 - (void)workflowCompleteResources:(NSNotification *)notification {
@@ -110,47 +121,74 @@ DDLogLevel ddLogLevel;
 } // updateProgressStatus
 
 - (void)updateProgressBar:(double)value {
-    [_progressIndicator setDoubleValue:value];
-    [_progressIndicator setNeedsDisplay:YES];
+    if ( _progressIndicator ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_progressIndicator setDoubleValue:value];
+            [self->_progressIndicator setNeedsDisplay:YES];
+        });
+    }
 } // updateProgressBar
+
+- (void)incrementProgressBar:(double)value {
+    if ( _progressIndicator ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_progressIndicator setDoubleValue:( [self->_progressIndicator doubleValue] + value )];
+            [self->_progressIndicator setNeedsDisplay:YES];
+        });
+    }
+} // incrementProgressBar
 
 - (IBAction)buttonShowInFinder:(id)sender {
 #pragma unused(sender)
-    if ( _nbiURL ) {
-        NSError *error = nil;
-        NSString *destinationFileName = [_nbiURL lastPathComponent];
-        if ( [destinationFileName containsString:@" "] ) {
-            destinationFileName = [destinationFileName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
-            [self setNbiURL:[[_nbiURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:destinationFileName]];
-            if ( ! [_nbiURL checkResourceIsReachableAndReturnError:&error] ) {
-                DDLogError(@"[ERROR] %@", [error localizedDescription]);
-                return;
+    
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(taskQueue, ^{
+        
+        if ( self->_nbiURL ) {
+            NSError *error = nil;
+            NSString *destinationFileName = [self->_nbiURL lastPathComponent];
+            if ( [destinationFileName containsString:@" "] ) {
+                destinationFileName = [destinationFileName stringByReplacingOccurrencesOfString:@" " withString:@"-"];
+                [self setNbiURL:[[self->_nbiURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:destinationFileName]];
+                if ( ! [self->_nbiURL checkResourceIsReachableAndReturnError:&error] ) {
+                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                    return;
+                }
             }
+            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ self->_nbiURL ]];
+        } else {
+            DDLogError(@"[ERROR] ");
         }
-        [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ _nbiURL ]];
-    }
+        
+    });
 } // buttonShowInFinder
 
 - (IBAction)buttonOpenLog:(id)sender {
 #pragma unused(sender)
+    
     DDLogDebug(@"[DEBUG] Open Log!");
     
-    DDFileLogger *fileLogger = [NBCLog fileLogger];
-    if ( fileLogger ) {
-        NSString *logFilePath = [[fileLogger currentLogFileInfo] filePath];
-        DDLogDebug(@"[DEBUG] Log file path: %@", logFilePath);
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(taskQueue, ^{
         
-        if ( [logFilePath length] != 0 ) {
-            NSError *error = nil;
-            NSURL *logFileURL = [NSURL fileURLWithPath:logFilePath];
-            if ( [logFileURL checkResourceIsReachableAndReturnError:&error] ) {
-                [[NSWorkspace sharedWorkspace] openURL:logFileURL];
-            } else {
-                DDLogError(@"[ERROR] %@", [error localizedDescription] ?: [NSString stringWithFormat:@"Log file at path: %@ doesn't exist", [logFileURL path]]);
-                return;
+        DDFileLogger *fileLogger = [NBCLog fileLogger];
+        if ( fileLogger ) {
+            NSString *logFilePath = [[fileLogger currentLogFileInfo] filePath];
+            DDLogDebug(@"[DEBUG] Log file path: %@", logFilePath);
+            
+            if ( [logFilePath length] != 0 ) {
+                NSError *error = nil;
+                NSURL *logFileURL = [NSURL fileURLWithPath:logFilePath];
+                if ( [logFileURL checkResourceIsReachableAndReturnError:&error] ) {
+                    [[NSWorkspace sharedWorkspace] openURL:logFileURL];
+                } else {
+                    DDLogError(@"[ERROR] %@", [error localizedDescription] ?: [NSString stringWithFormat:@"Log file at path: %@ doesn't exist", [logFileURL path]]);
+                    return;
+                }
             }
         }
-    }
+        
+    });
 } // buttonOpenLog
 
 - (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem {
@@ -179,12 +217,15 @@ DDLogLevel ddLogLevel;
     }
     
     NSDate *startTime = [_workflowItem startTime];
-    NSDate *endTime = [NSDate date];
-    NSTimeInterval secondsBetween = [endTime timeIntervalSinceDate:startTime];
-    NSString *workflowTime = [dateComponentsFormatter stringFromTimeInterval:secondsBetween];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_textFieldTimer setStringValue:workflowTime];
-    });
+    if ( startTime ) {
+        NSTimeInterval secondsBetween = [[NSDate date] timeIntervalSinceDate:startTime];
+        NSString *workflowTime = [dateComponentsFormatter stringFromTimeInterval:secondsBetween];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldTimer setStringValue:workflowTime];
+        });
+    } else {
+        DDLogError(@"[ERROR] Workflow start time NOT set!");
+    }
 } // timerTick
 
 - (void)workflowFailedWithError:(NSString *)errorMessage {
@@ -202,11 +243,13 @@ DDLogLevel ddLogLevel;
     [_layoutContraintStatusInfoLeading setConstant:1.0];
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
+    [_buttonOpenLog setHidden:NO];
     [self setIsRunning:NO];
     if ( _timer ) {
         [_timer invalidate];
         [_textFieldTimer setHidden:YES];
     }
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         [self->_textFieldStatusTitle setStringValue:@"Workflow Failed"];
         [self->_textFieldStatusInfo setStringValue:errorMessage ?: @""];
@@ -241,6 +284,7 @@ DDLogLevel ddLogLevel;
     }
     
     [self setWorkflowComplete:YES];
+    [_buttonOpenLog setHidden:NO];
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
     [self setIsRunning:NO];

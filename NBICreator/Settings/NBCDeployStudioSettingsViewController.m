@@ -2,9 +2,20 @@
 //  NBCDSViewController.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-02-19.
+//  Created by Erik Berglund.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCDeployStudioSettingsViewController.h"
 #import "NBCConstants.h"
@@ -763,16 +774,27 @@ DDLogLevel ddLogLevel;
     BOOL retval = YES;
     
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameDeployStudioDefaults withExtension:@"plist"];
-    if ( defaultSettingsURL ) {
+    if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
-        if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
-            if ( currentSettings && defaultSettings ) {
-                NSMutableDictionary *defaultSettingsOSBackground = [defaultSettings mutableCopy];
-                defaultSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundImageDefaultPath;
-                if ( [currentSettings isEqualToDictionary:defaultSettings] || [currentSettings isEqualToDictionary:defaultSettingsOSBackground] ) {
-                    return NO;
-                }
+        NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
+        if ( [currentSettings count] != 0 && [defaultSettings count] != 0 ) {
+            NSMutableDictionary *defaultSettingsOSBackground = [defaultSettings mutableCopy];
+            defaultSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundImageDefaultPath;
+            if ( [currentSettings isEqualToDictionary:defaultSettings] || [currentSettings isEqualToDictionary:defaultSettingsOSBackground] ) {
+                return NO;
+            } else {
+                /*
+                 NSArray *keys = [currentSettings allKeys];
+                 for ( NSString *key in keys ) {
+                 id currentValue = currentSettings[key];
+                 id defaultValue = defaultSettings[key];
+                 if ( ! [currentValue isEqualTo:defaultValue] || ! [[currentValue class] isEqualTo:[defaultValue class]]) {
+                 DDLogDebug(@"[DEBUG] Key \"%@\" has changed", key);
+                 DDLogDebug(@"[DEBUG] Value from current UI settings: %@ (%@)", currentValue, [currentValue class]);
+                 DDLogDebug(@"[DEBUG] Value from default settings: %@ (%@)", defaultValue, [defaultValue class]);
+                 }
+                 }
+                 */
             }
         }
     }
@@ -781,11 +803,12 @@ DDLogLevel ddLogLevel;
         return retval;
     }
     
+    NSError *error = nil;
     NSURL *savedSettingsURL = _templatesDict[_selectedTemplate];
-    if ( savedSettingsURL ) {
+    if ( [savedSettingsURL checkResourceIsReachableAndReturnError:&error] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         NSDictionary *savedSettings = [self returnSettingsFromURL:savedSettingsURL];
-        if ( currentSettings && savedSettings ) {
+        if ( [currentSettings count] != 0 && [savedSettings count] != 0 ) {
             NSMutableDictionary *currentSettingsOSBackground = [currentSettings mutableCopy];
             if ( [currentSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCDeployStudioBackgroundImageDefaultPath] ) {
                 currentSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundDefaultPath;
@@ -797,10 +820,10 @@ DDLogLevel ddLogLevel;
                 retval = NO;
             }
         } else {
-            NSLog(@"Could not compare UI settings to saved template settings, one of them is nil!");
+            DDLogError(@"[ERROR] Could not compare UI settings to saved template settings, one of them was empty!");
         }
     } else {
-        NSLog(@"Could not get URL to current template file!");
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     return retval;
@@ -1287,7 +1310,7 @@ DDLogLevel ddLogLevel;
     
     if ( _source ) {
         DDLogDebug(@"[DEBUG] Settings workflow item source...");
-    [workflowItem setSource:_source];
+        [workflowItem setSource:_source];
     } else {
         DDLogError(@"[ERROR] Source was empty!");
         return;
@@ -1366,7 +1389,7 @@ DDLogLevel ddLogLevel;
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
     
     DDLogInfo(@"Preparing workflow item...");
-
+    
     // -------------------------------------------------------------
     //  Post notification to add workflow item to queue
     // -------------------------------------------------------------

@@ -2,9 +2,20 @@
 //  NBCWorkflowNBI.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-11-11.
-//  Copyright © 2015 NBICreator. All rights reserved.
+//  Created by Erik Berglund.
+//  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCWorkflowUpdateNBI.h"
 #import "NBCWorkflowItem.h"
@@ -47,40 +58,39 @@
                                                                 object:self
                                                               userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Updating files in NBI folder failed"] }];
         }
-        return;
-    }
-    
-    if ( [[[_workflowItem target] baseSystemDisk] isMounted] ) {
-        DDLogDebug(@"[DEBUG] BaseSystem disk image IS mounted");
-        DDLogDebug(@"[DEBUG] Detaching BaseSystem disk image...");
-        
-        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        dispatch_async(taskQueue, ^{
+    } else {
+        if ( [[[_workflowItem target] baseSystemDisk] isMounted] ) {
+            DDLogDebug(@"[DEBUG] BaseSystem disk image IS mounted");
+            DDLogDebug(@"[DEBUG] Detaching BaseSystem disk image...");
             
-            if ( [NBCDiskImageController detachDiskImageAtPath:[[[self->_workflowItem target] baseSystemVolumeURL] path]] ) {
-                if ( [[self->_workflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self prepareSystemImageUtilityNBI:self->_target];
-                    });
+            dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            dispatch_async(taskQueue, ^{
+                
+                if ( [NBCDiskImageController detachDiskImageAtPath:[[[self->_workflowItem target] baseSystemVolumeURL] path]] ) {
+                    if ( [[self->_workflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self prepareSystemImageUtilityNBI:self->_target];
+                        });
+                    } else {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self prepareNBICreatorNBI:self->_target];
+                        });
+                    }
                 } else {
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self prepareNBICreatorNBI:self->_target];
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                            object:self
+                                                                          userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"Detaching BaseSystem disk image failed"] }];
                     });
+                    return;
                 }
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                        object:self
-                                                                      userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"Detaching BaseSystem disk image failed"] }];
-                });
-                return;
-            }
-        });
-    } else {
-        if ( [[_workflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
-            [self prepareSystemImageUtilityNBI:_target];
+            });
         } else {
-            [self prepareNBICreatorNBI:_target];
+            if ( [[_workflowItem userSettings][NBCSettingsNBICreationToolKey] isEqualToString:NBCMenuItemSystemImageUtility] ) {
+                [self prepareSystemImageUtilityNBI:_target];
+            } else {
+                [self prepareNBICreatorNBI:_target];
+            }
         }
     }
 }
@@ -128,7 +138,7 @@
             [keysChanged removeObject:key];
         }
     }
-    
+
     if ( [keysChanged count] == 0 ) {
         DDLogInfo(@"Only settings in the NBI folder changed...");
         NSDictionary *userSettings = [_workflowItem userSettings];
@@ -266,17 +276,17 @@
                             NBCDisk *netInstallDisk = [NBCDiskImageController checkDiskImageAlreadyMounted:[target nbiNetInstallURL]
                                                                                                  imageType:@"InstallESD"];
                             if ( netInstallDisk ) {
-                                    [target setNbiNetInstallDisk:netInstallDisk];
-                                    DDLogDebug(@"[DEBUG] NetInstall disk image volume mounted!");
-                                    
-                                    [target setNbiNetInstallVolumeBSDIdentifier:[netInstallDisk BSDName]];
-                                    DDLogDebug(@"[DEBUG] NetInstall disk image volume bsd identifier: %@", [netInstallDisk BSDName]);
-
-                                    [target setNbiNetInstallVolumeURL:netInstallVolumeURL];
-                                    DDLogDebug(@"[DEBUG] NetInstall disk image volume path: %@", [netInstallVolumeURL path]);
-                                    
-                                    [netInstallDisk setIsMountedByNBICreator:YES];
-                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                [target setNbiNetInstallDisk:netInstallDisk];
+                                DDLogDebug(@"[DEBUG] NetInstall disk image volume mounted!");
+                                
+                                [target setNbiNetInstallVolumeBSDIdentifier:[netInstallDisk BSDName]];
+                                DDLogDebug(@"[DEBUG] NetInstall disk image volume bsd identifier: %@", [netInstallDisk BSDName]);
+                                
+                                [target setNbiNetInstallVolumeURL:netInstallVolumeURL];
+                                DDLogDebug(@"[DEBUG] NetInstall disk image volume path: %@", [netInstallVolumeURL path]);
+                                
+                                [netInstallDisk setIsMountedByNBICreator:YES];
+                                dispatch_async(dispatch_get_main_queue(), ^{
                                     [self prepareSystemImageUtilityNBIBaseSystem:target];
                                 });
                             } else {

@@ -984,7 +984,7 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
                                     </button>
-                                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="3wC-vm-pbB" customClass="NBCDeployStudioDropViewImageBackground">
+                                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="3wC-vm-pbB">
                                         <rect key="frame" x="17" y="17" width="176" height="108"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="102" id="qng-BG-3SN"/>

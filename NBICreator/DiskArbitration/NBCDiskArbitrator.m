@@ -57,7 +57,9 @@
 }
 
 - (void)unregisterSession {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:DADiskDidAppearNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:DADiskDidDisappearNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:DADiskDidChangeNotification object:nil];
 }
 
 - (void)diskDidAppear:(NSNotification *)notif {

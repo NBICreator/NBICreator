@@ -16,7 +16,7 @@
 	<false/>
 	<key>NetworkTimeServer</key>
 	<string>time.apple.com</string>
-	<key>UseNetworkTimeServerKey</key>
+	<key>UseNetworkTimeServer</key>
 	<false/>
 	<key>DisplaySleepMinutes</key>
 	<integer>30</integer>
@@ -33,7 +33,7 @@
 	<key>ARDLogin</key>
 	<string></string>
 	<key>CasperImagingDebugMode</key>
-	<string></string>
+	<false/>
 	<key>CasperImagingPath</key>
 	<string></string>
 	<key>CasperJSSURL</key>
@@ -72,7 +72,7 @@
 	<string>Current</string>
 	<key>TimeZone</key>
 	<string>Current</string>
-	<key>KeyboardLayoutName</key>
+	<key>KeyboardLayout</key>
 	<string>Current</string>
 	<key>Protocol</key>
 	<string>NFS</string>
@@ -82,11 +82,11 @@
 	<string>%OSVERSION%_%OSBUILD%_Casper</string>
 	<key>AddRAMDisks</key>
 	<false/>
+	<key>AddTrustedNetBootServers</key>
+	<false/>
 	<key>RAMDisks</key>
 	<array/>
 	<key>TrustedNetBootServers</key>
 	<array/>
-	<key>AddTrustedNetBootServers</key>
-	<false/>
 </dict>
 </plist>

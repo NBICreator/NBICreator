@@ -53,6 +53,10 @@ enum {
             _templateDefaultSettings = NBCFileNameNetInstallDefaults;
         } else if ( [_templateType isEqualToString:NBCSettingsTypeDeployStudio] ) {
             _templateDefaultSettings = NBCFileNameDeployStudioDefaults;
+        } else if ( [_templateType isEqualToString:NBCSettingsTypeCasper] ) {
+            _templateDefaultSettings = NBCFileNameCasperDefaults;
+        } else {
+            DDLogWarn(@"[WARN] Unknown templatey type: %@", templateType);
         }
         
         _delegate = delegate;
@@ -182,7 +186,9 @@ enum {
 }
 
 - (void)disableTemplateAtURL:(NSURL *)templateURL {
+    
     DDLogError(@"[ERROR] Disabling template: %@", [templateURL lastPathComponent]);
+    
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
     
@@ -210,6 +216,7 @@ enum {
 }
 
 - (void)updateTemplateListForPopUpButton:(NSPopUpButton *)popUpButton title:(NSString *)title {
+    
     DDLogDebug(@"[DEBUG] Updating template list...");
     
     if ( ! _popUpButton ) {
@@ -397,6 +404,9 @@ enum {
 }
 
 + (BOOL)templateIsDuplicate:(NSURL *)templateURL {
+    
+    DDLogDebug(@"[DEBUG] Checking if template is a duplicate...");
+    
     BOOL retval = NO;
     NSFileManager *fm = [NSFileManager defaultManager];
     NSError *error;
@@ -410,8 +420,7 @@ enum {
     NSURL *templatesFolderURL;
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
     if ( ! userApplicationSupport ) {
-        NSLog(@"Could not get Application Support folder for current User");
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
         return NO;
     }
     
@@ -432,22 +441,29 @@ enum {
         if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
             return NO;
         }
+    } else if ( [type isEqualToString:NBCSettingsTypeCasper] ) {
+        templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesCasper isDirectory:YES];
+        if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+            return NO;
+        }
     } else {
         DDLogError(@"[ERROR] Unknown template type: %@", type);
         return NO;
     }
+    DDLogDebug(@"[DEBUG] Template folder path: %@", [templatesFolderURL path]);
     
     NSArray *contents = [fm contentsOfDirectoryAtURL:templatesFolderURL
                           includingPropertiesForKeys:@[]
                                              options:NSDirectoryEnumerationSkipsHiddenFiles
                                                error:nil];
-    
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'nbic'"];
+
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'nbictemplate'"];
     for ( NSURL *fileURL in [contents filteredArrayUsingPredicate:predicate] ) {
         NSDictionary *currentTemplateDict = [[NSDictionary alloc] initWithContentsOfURL:fileURL];
         if ( [currentTemplateDict count] != 0 ) {
             if ( [currentTemplateDict isEqualToDictionary:templateDict] ) {
                 retval = YES;
+                break;
             }
         }
     }
@@ -456,23 +472,23 @@ enum {
 }
 
 - (void)addUntitledTemplate {
+    
     [_popUpButton insertItemWithTitle:NBCMenuItemUntitled atIndex:0];
     [_popUpButton selectItemWithTitle:NBCMenuItemUntitled];
     [_settingsViewController setSelectedTemplate:NBCMenuItemUntitled];
     
     NSError *error;
-    NSURL *defaultSettingsPath = [[NSBundle mainBundle] URLForResource:_templateDefaultSettings withExtension:@"plist"];
+    NSURL *defaultTemplateURL = [[NSBundle mainBundle] URLForResource:_templateDefaultSettings withExtension:@"plist"];
     
-    if ( [defaultSettingsPath checkResourceIsReachableAndReturnError:&error] ) {
-        NSDictionary *defaultSettingsDict = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsPath];
-        if ( defaultSettingsDict ) {
-            [_settingsViewController updateUISettingsFromDict:defaultSettingsDict];
+    if ( [defaultTemplateURL checkResourceIsReachableAndReturnError:&error] ) {
+        NSDictionary *defaultTemplateDict = [NSDictionary dictionaryWithContentsOfURL:defaultTemplateURL];
+        if ( [defaultTemplateDict count] != 0 ) {
+            [_settingsViewController updateUISettingsFromDict:defaultTemplateDict];
         } else {
-            NSLog(@"Error while reading default template file for %@!", _templateType);
+            DDLogError(@"[ERROR] Template at path: %@ could not be opened", [defaultTemplateURL path]);
         }
     } else {
-        NSLog(@"Could not find default template file for %@!", _templateType);
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
 }
 
@@ -496,7 +512,7 @@ enum {
         }
         return [templateInfoDict copy];
     } else {
-        NSLog(@"Could not open template!");
+        DDLogError(@"[ERROR] Template at path: %@ could not be opened", [templateURL path]);
         return nil;
     }
 }
@@ -554,8 +570,7 @@ enum {
                 [_settingsViewController updateUISettingsFromDict:defaultSettingsDict];
             }
         } else {
-            NSLog(@"Could not find default settings file");
-            NSLog(@"Error: %@", error);
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
     }
 } // menuItemNew
@@ -694,8 +709,7 @@ enum {
             
             if ( [[self->_settingsViewController selectedTemplate] isEqualToString:NBCMenuItemUntitled] ) {
                 if ( ! [fm removeItemAtURL:selectedTemplateURL error:&error] ) {
-                    DDLogError(@"[ERROR] Could not remove temporary template file");
-                    DDLogError(@"[ERROR] %@", error);
+                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
                 }
             }
         }];
@@ -704,8 +718,7 @@ enum {
         
         if ( [[_settingsViewController selectedTemplate] isEqualToString:NBCMenuItemUntitled] ) {
             if ( ! [fm removeItemAtURL:selectedTemplateURL error:&error] ) {
-                DDLogError(@"[ERROR] Could not remove temporary template file");
-                DDLogError(@"[ERROR] %@", error);
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
             }
         }
     }

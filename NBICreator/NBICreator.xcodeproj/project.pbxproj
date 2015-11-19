@@ -1585,7 +1585,7 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "/Helper/Supporting Files/NBICreatorHelper-Info.plist";
+				INFOPLIST_FILE = "\"/Helper/Supporting Files/NBICreatorHelper-Info.plist\"";
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,
@@ -1608,7 +1608,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
-				INFOPLIST_FILE = "/Helper/Supporting Files/NBICreatorHelper-Info.plist";
+				INFOPLIST_FILE = "\"/Helper/Supporting Files/NBICreatorHelper-Info.plist\"";
 				OTHER_LDFLAGS = (
 					"-sectcreate",
 					__TEXT,

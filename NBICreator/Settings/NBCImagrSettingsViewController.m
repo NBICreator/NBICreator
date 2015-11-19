@@ -2,9 +2,20 @@
 //  NBCIMSettingsViewController.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-04-29.
+//  Created by Erik Berglund.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import <Carbon/Carbon.h>
 #import "NBCImagrSettingsViewController.h"
@@ -511,10 +522,15 @@ DDLogLevel ddLogLevel;
 
 - (NSDictionary *)examinePackageAtURL:(NSURL *)packageURL {
     
+    DDLogDebug(@"[DEBUG] Examine installer package...");
+    
     NSMutableDictionary *newPackageDict = [[NSMutableDictionary alloc] init];
     
-    newPackageDict[NBCDictionaryKeyPackagePath] = [packageURL path];
-    newPackageDict[NBCDictionaryKeyPackageName] = [packageURL lastPathComponent];
+    newPackageDict[NBCDictionaryKeyPackagePath] = [packageURL path] ?: @"Unknown";
+    DDLogDebug(@"[DEBUG] Package path: %@", newPackageDict[NBCDictionaryKeyPackagePath]);
+    
+    newPackageDict[NBCDictionaryKeyPackageName] = [packageURL lastPathComponent] ?: @"Unknown";
+    DDLogDebug(@"[DEBUG] Package pame: %@", newPackageDict[NBCDictionaryKeyPackageName]);
     
     return newPackageDict;
 }
@@ -805,7 +821,7 @@ DDLogLevel ddLogLevel;
     if ( [[[sender object] class] isSubclassOfClass:[NSTextField class]] ) {
         NSTextField *textField = [sender object];
         if ( [[[textField superview] class] isSubclassOfClass:[NBCImagrTrustedNetBootServerCellView class]] ) {
-            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            NSNumber *textFieldTag = @([textField tag]);
             if ( textFieldTag != nil ) {
                 if ( [sender object] == [[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:[textFieldTag integerValue] makeIfNecessary:NO] textFieldTrustedNetBootServer] ) {
                     NSDictionary *userInfo = [sender userInfo];
@@ -999,7 +1015,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateSource:(NBCSource *)source target:(NBCTarget *)target {
-
+    
     if ( source != nil && [source isEqualTo:_source] ) {
         if ( target == nil || ( target != nil && [target isEqualTo:_target] ) ) {
             return;
@@ -1009,7 +1025,7 @@ DDLogLevel ddLogLevel;
     } else if ( source == nil ) {
         DDLogWarn(@"[WARN] Source is nil");
     }
-
+    
     [self updateSettingVisibility];
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
@@ -1037,7 +1053,7 @@ DDLogLevel ddLogLevel;
         [self setIsNBI:YES];
         
         NBCSettingsController *settingsController = [[NBCSettingsController alloc] initWithDelegate:self];
-        [settingsController readSettingsFromNBI:source target:target];
+        [settingsController readSettingsFromNBI:source target:target workflowType:kWorkflowTypeImagr];
     } else {
         if ( _isNBI ) {
             NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
@@ -1057,7 +1073,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)removedSource {
-    NSLog(@"removedSource");
     if ( _source ) {
         [self setSource:nil];
     }
@@ -1086,41 +1101,9 @@ DDLogLevel ddLogLevel;
     [self updatePopOver];
 }
 
-/* REMOVED
- - (void)removedSource:(NSNotification *)notification {
- #pragma unused(notification)
- if ( _source ) {
- [self setSource:nil];
- }
- 
- [self updateSettingVisibility];
- 
- NSString *currentBackgroundImageURL = _imageBackgroundURL;
- if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
- [self setImageBackground:@""];
- [self setImageBackground:NBCBackgroundImageDefaultPath];
- [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
- }
- 
- if ( _isNBI ) {
- NSURL *selectedTemplate = _templatesDict[_selectedTemplate];
- if ( [selectedTemplate checkResourceIsReachableAndReturnError:nil] ) {
- [_templates deleteTemplateAtURL:selectedTemplate updateTemplateList:YES];
- }
- }
- 
- [self setIsNBI:NO];
- [self setNbiSourceSettings:nil];
- [self updateUIForSourceType:NBCSourceTypeInstallerApplication settings:nil];
- [self expandVariablesForCurrentSettings];
- [self verifyBuildButton];
- [self updatePopOver];
- } // removedSource
- */
-
 - (void)refreshCreationTool {
     [self setNbiCreationTool:_nbiCreationTool ?: NBCMenuItemNBICreator];
-}
+} // refreshCreationTool
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
@@ -1144,7 +1127,7 @@ DDLogLevel ddLogLevel;
             [self updateTrustedNetBootServersCount];
         } else if ( [[[textField superview] class] isSubclassOfClass:[NBCImagrRAMDiskPathCellView class]] ) {
             NSString *newPath = [textField stringValue];
-            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            NSNumber *textFieldTag = @([textField tag]);
             if ( textFieldTag != nil ) {
                 NSMutableDictionary *ramDiskDict = [NSMutableDictionary dictionaryWithDictionary:[_ramDisks objectAtIndex:(NSUInteger)[textFieldTag integerValue]]];
                 ramDiskDict[@"path"] = newPath ?: @"";
@@ -1153,7 +1136,7 @@ DDLogLevel ddLogLevel;
             }
         } else if ( [[[textField superview] class] isSubclassOfClass:[NBCImagrRAMDiskSizeCellView class]] ) {
             NSString *newSize = [[notification object] stringValue];
-            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            NSNumber *textFieldTag = @([textField tag]);
             if ( textFieldTag != nil ) {
                 NSMutableDictionary *ramDiskDict = [NSMutableDictionary dictionaryWithDictionary:[_ramDisks objectAtIndex:(NSUInteger)[textFieldTag integerValue]]];
                 ramDiskDict[@"size"] = newSize ?: @"";
@@ -1455,7 +1438,9 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromURL
 
 - (NSDictionary *)returnSettingsFromUI {
+    
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
+    
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: NBCMenuItemNBICreator;
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"1";
@@ -1528,7 +1513,7 @@ DDLogLevel ddLogLevel;
         }
     }
     settingsDict[NBCSettingsCertificatesKey] = certificateArray ?: @[];
-    
+
     NSMutableArray *packageArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *packageDict in _packagesTableViewContents ) {
         NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
@@ -1630,28 +1615,29 @@ DDLogLevel ddLogLevel;
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
-    NSError *error = nil;
+    
     BOOL retval = YES;
+    
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameImagrDefaults withExtension:@"plist"];
     if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
-        if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
-            if ( [currentSettings count] != 0 && [defaultSettings count] != 0 ) {
-                if ( [currentSettings isEqualToDictionary:defaultSettings] ) {
-                    return NO;
-                } else {
-                    /*
-                     NSArray *keys = [currentSettings allKeys];
-                     for (NSString *key in keys) {
-                     if ( ! [currentSettings[key] isEqualTo:defaultSettings[key]]) {
-                     DDLogDebug(@"[DEBUG] Key \"%@\" has changed", key);
-                     DDLogDebug(@"[DEBUG] Value from current UI settings: %@", currentSettings[key]);
-                     DDLogDebug(@"[DEBUG] Value from default settings: %@", defaultSettings[key]);
-                     }
-                     }
-                     */
-                }
+        NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
+        if ( [currentSettings count] != 0 && [defaultSettings count] != 0 ) {
+            if ( [currentSettings isEqualToDictionary:defaultSettings] ) {
+                return NO;
+            } else {
+                /*
+                 NSArray *keys = [currentSettings allKeys];
+                 for ( NSString *key in keys ) {
+                 id currentValue = currentSettings[key];
+                 id defaultValue = defaultSettings[key];
+                 if ( ! [currentValue isEqualTo:defaultValue] || ! [[currentValue class] isEqualTo:[defaultValue class]]) {
+                 DDLogDebug(@"[DEBUG] Key \"%@\" has changed", key);
+                 DDLogDebug(@"[DEBUG] Value from current UI settings: %@ (%@)", currentValue, [currentValue class]);
+                 DDLogDebug(@"[DEBUG] Value from default settings: %@ (%@)", defaultValue, [defaultValue class]);
+                 }
+                 }
+                 */
             }
         }
     }
@@ -1660,11 +1646,12 @@ DDLogLevel ddLogLevel;
         return retval;
     }
     
+    NSError *error = nil;
     NSURL *savedSettingsURL = _templatesDict[_selectedTemplate];
     if ( [savedSettingsURL checkResourceIsReachableAndReturnError:&error] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         NSDictionary *savedSettings = [self returnSettingsFromURL:savedSettingsURL];
-        if ( currentSettings && savedSettings ) {
+        if ( [currentSettings count] != 0 && [savedSettings count] != 0 ) {
             if ( [currentSettings isEqualToDictionary:savedSettings] ) {
                 retval = NO;
             }
@@ -2836,7 +2823,7 @@ DDLogLevel ddLogLevel;
         DDLogError(@"[ERROR] selectedTimeZone is nil!");
         return;
     }
-
+    
     NSMutableArray *certificates = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
         NSData *certificate = certificateDict[NBCDictionaryKeyCertificate];
@@ -2917,14 +2904,14 @@ DDLogLevel ddLogLevel;
     __block NSNumber *index;
     [_trustedServers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ( [obj length] == 0 ) {
-            index = [NSNumber numberWithInteger:(NSInteger)idx];
+            index = @((NSInteger)idx);
             *stop = YES;
         }
     }];
     
     if ( index == nil ) {
         // Insert new view
-        index = [NSNumber numberWithInteger:[self insertNetBootServerIPInTableView:@""]];
+        index = @([self insertNetBootServerIPInTableView:@""]);
     }
     
     NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:(NSUInteger)index];
@@ -2968,7 +2955,7 @@ DDLogLevel ddLogLevel;
         }
     }];
     
-    NSString *trustedNetBootServerCount = [[NSNumber numberWithInt:validNetBootServersCounter] stringValue];
+    NSString *trustedNetBootServerCount = [@(validNetBootServersCounter) stringValue];
     if ( containsInvalidNetBootServer ) {
         NSMutableAttributedString *trustedNetBootServerCountMutable = [[NSMutableAttributedString alloc] initWithString:trustedNetBootServerCount];
         [trustedNetBootServerCountMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[trustedNetBootServerCountMutable length])];
@@ -3025,7 +3012,7 @@ DDLogLevel ddLogLevel;
     __block NSNumber *index;
     [_ramDisks enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ( [obj[@"path"] length] == 0 && [obj[@"size"] isEqualToString:@"1"] ) {
-            index = [NSNumber numberWithInteger:(NSInteger)idx];
+            index = @((NSInteger)idx);
             *stop = YES;
         }
     }];
@@ -3036,7 +3023,7 @@ DDLogLevel ddLogLevel;
                                          @"path" : @"",
                                          @"size" : @"1",
                                          };
-        index = [NSNumber numberWithInteger:[self insertRAMDiskInTableView:newRamDiskDict]];
+        index = @([self insertRAMDiskInTableView:newRamDiskDict]);
     }
     
     NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:(NSUInteger)index];
@@ -3097,7 +3084,7 @@ DDLogLevel ddLogLevel;
         }
     }];
     
-    NSString *ramDisksCount = [[NSNumber numberWithInt:validRAMDisksCounter] stringValue];
+    NSString *ramDisksCount = [@(validRAMDisksCounter) stringValue];
     NSString *ramDiskSize = [NSByteCountFormatter stringFromByteCount:(long long)(sumRAMDiskSize * 1000000) countStyle:NSByteCountFormatterCountStyleDecimal];
     [_textFieldRAMDiskSize setStringValue:ramDiskSize];
     

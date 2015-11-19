@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9060"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NBCWorkflowProgressViewController">
@@ -107,7 +107,7 @@
                         <binding destination="-2" name="animate" keyPath="self.isRunning" id="xB8-vz-Uif"/>
                     </connections>
                 </progressIndicator>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6s6-PX-ioV">
+                <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6s6-PX-ioV">
                     <rect key="frame" x="162" y="26" width="67" height="16"/>
                     <animations/>
                     <buttonCell key="cell" type="push" title="Open Log" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="krQ-nt-GD6">
@@ -116,14 +116,9 @@
                     </buttonCell>
                     <connections>
                         <action selector="buttonOpenLog:" target="-2" id="mnz-Do-HJW"/>
-                        <binding destination="-2" name="hidden" keyPath="self.workflowComplete" id="quO-kv-shL">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">NSNegateBoolean</string>
-                            </dictionary>
-                        </binding>
                     </connections>
                 </button>
-                <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="x75-uz-1IE">
+                <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="x75-uz-1IE">
                     <rect key="frame" x="67" y="26" width="89" height="16"/>
                     <animations/>
                     <buttonCell key="cell" type="push" title="Show in Finder" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="BXt-cn-WgP">

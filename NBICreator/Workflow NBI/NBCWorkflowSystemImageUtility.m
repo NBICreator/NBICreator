@@ -2,9 +2,20 @@
 //  NBCWorkflowSystemImageUtility.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-11-06.
-//  Copyright © 2015 NBICreator. All rights reserved.
+//  Created by Erik Berglund.
+//  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCWorkflowSystemImageUtility.h"
 #import "NBCWorkflowItem.h"
@@ -162,7 +173,7 @@
             [temporaryItemsNBI addObject:installConfigurationProfilesScriptTargetURL];
             
             if ( [[NSFileManager defaultManager] copyItemAtURL:installConfigurationProfilesScriptURL toURL:installConfigurationProfilesScriptTargetURL error:error] ) {
-                [osInstallArray addObject:[NSString stringWithFormat:@"/System/Installation/Packages/%@.pkg", [installConfigurationProfilesScriptURL lastPathComponent]]];
+                [osInstallArray addObject:@"/System/Installation/Packages/netInstallConfigurationProfiles.sh.pkg"];
             } else {
                 return NO;
             }
@@ -293,8 +304,7 @@
         if ( writeOSInstall ) {
             NSURL *osInstallURL = [_temporaryNBIURL URLByAppendingPathComponent:@"OSInstall.collection"];
             [temporaryItemsNBI addObject:osInstallURL];
-            NSDictionary *osInstallDict = (NSDictionary*)osInstallArray;
-            [osInstallDict writeToURL:osInstallURL atomically:YES];
+            [(NSDictionary*)osInstallArray writeToURL:osInstallURL atomically:YES];
         }
     }
     
@@ -646,7 +656,7 @@
             [self setCopyComplete:YES];
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self->_delegate updateProgressStatus:@"Preparing the kernel and boot loader for the boot image..." workflow:self];
-                [self->_delegate updateProgressBar:80];
+                [self->_delegate updateProgressBar:55];
             });
             
             // --------------------------------------------------------------------------------------
@@ -655,7 +665,7 @@
         } else if ( [buildStep isEqualToString:@"finishingUp"] ) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self->_delegate updateProgressStatus:@"Performing post install cleanup..." workflow:self];
-                [self->_delegate updateProgressBar:85];
+                [self->_delegate updateProgressBar:60];
             });
         }
         
@@ -668,7 +678,7 @@
         if ( progressPercent <= 0 ) {
             return;
         }
-        double precentage = (40 * progressPercent)/[@100 doubleValue];
+        double precentage = (25 * progressPercent)/[@100 doubleValue];
         dispatch_async(dispatch_get_main_queue(), ^{
             [self->_delegate updateProgressStatus:[NSString stringWithFormat:@"Creating disk image... %d%%", (int)progressPercent] workflow:self];
             [self->_delegate updateProgressBar:precentage];
@@ -732,7 +742,7 @@
             [timer invalidate];
             timer = NULL;
         } else {
-            double precentage = (((30 * volumeCurrentSize)/_netInstallVolumeSize) + 30);
+            double precentage = (((25 * volumeCurrentSize)/_netInstallVolumeSize) + 25);
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self->_delegate updateProgressStatus:[NSString stringWithFormat:@"Copying BaseSystem.dmg... %@/%@", fileSizeString, fileSizeOriginal] workflow:self];
                 [self->_delegate updateProgressBar:precentage];
@@ -746,17 +756,6 @@
     }
 } // checkCopyProgress
 
-- (void)updateProgressBarValue:(double)value {
-    if ( value <= 0 ) {
-        return;
-    }
-    double precentage = (30 * value)/[@100 doubleValue];
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self->_delegate updateProgressStatus:[NSString stringWithFormat:@"Creating disk image... %d%%", (int)value] workflow:self];
-        [self->_delegate updateProgressBar:precentage];
-    });
-} // updateProgressBar
-
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark NBCWorkflowProgressDelegate (Required but unused/passed on)
@@ -766,11 +765,14 @@
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
     [_delegate updateProgressStatus:statusMessage workflow:workflow];
 }
+- (void)updateProgressStatus:(NSString *)statusMessage {
+    [_delegate updateProgressStatus:statusMessage];
+}
 - (void)updateProgressBar:(double)value {
     [_delegate updateProgressBar:value];
 }
-- (void)updateProgressStatus:(NSString *)statusMessage {
-    [_delegate updateProgressStatus:statusMessage];
+- (void)incrementProgressBar:(double)value {
+    [_delegate incrementProgressBar:value];
 }
 - (void)logDebug:(NSString *)logMessage {
     [_delegate logDebug:logMessage];

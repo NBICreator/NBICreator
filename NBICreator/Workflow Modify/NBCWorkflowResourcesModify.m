@@ -2,9 +2,20 @@
 //  NBCWorkflowResourcesModify.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-11-01.
-//  Copyright © 2015 NBICreator. All rights reserved.
+//  Created by Erik Berglund.
+//  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCWorkflowResourcesModify.h"
 #import "NBCWorkflowItem.h"
@@ -198,7 +209,9 @@ DDLogLevel ddLogLevel;
                                             [_settingsChanged[NBCSettingsNetworkTimeServerKey] boolValue]
                                             ) ) ) {
         if ( [_userSettings[NBCSettingsUseNetworkTimeServerKey] boolValue] ) {
-            [self modifyNTP:modifyDictArray];
+            if ( ! [self modifyNTP:modifyDictArray error:error] ) {
+                return nil;
+            }
         }
     }
     
@@ -229,7 +242,7 @@ DDLogLevel ddLogLevel;
             [_creationTool isEqualToString:NBCMenuItemNBICreator] ) {
             nbiToolPath = [NSString stringWithFormat:@"/%@", NBCImagrApplicationNBICreatorTargetURL];
         } else if ( [_creationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-            nbiToolPath = [NSString stringWithFormat:@"/%@", NBCImagrApplicationTargetURL];
+            nbiToolPath = [NSString stringWithFormat:@"/Volumes/Image\\ Volume/%@", NBCImagrApplicationTargetURL];
         } else {
             *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"Unknown creation tool for Imagr: %@", _creationTool]];
             return nil;
@@ -245,7 +258,7 @@ DDLogLevel ddLogLevel;
             [_creationTool isEqualToString:NBCMenuItemNBICreator] ) {
             nbiToolPath = [NSString stringWithFormat:@"/%@", NBCCasperImagingApplicationNBICreatorTargetURL];
         } else if ( [_creationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
-            nbiToolPath = [NSString stringWithFormat:@"/%@", NBCCasperImagingApplicationTargetURL];
+            nbiToolPath = [NSString stringWithFormat:@"/Volumes/Image\\ Volume/%@", NBCCasperImagingApplicationTargetURL];
         } else {
             *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"Unknown creation tool for Casper: %@", _creationTool]];
             return nil;
@@ -339,12 +352,12 @@ DDLogLevel ddLogLevel;
 - (NSNumber *)keyboardLayoutIDFromSourceID:(NSString *)sourceID {
 #pragma unused(sourceID)
     // +IMPROVEMENT Have not found a reliable way to get the current ID for a keyboard, so for now just sets 7 ( Swedish-Pro ) as it doesn't seem to matter if the source ID exists.
-    return [NSNumber numberWithInt:7];
+    return @7;
 } // keyboardLayoutIDFromSourceID
 
-- (BOOL)verifyNTPServer:(NSString *)ntpServer {
+- (BOOL)verifyNTPServer:(NSString *)ntpServer error:(NSError **)error {
     
-    DDLogInfo(@"[DEBUG] Verifying NTP server: %@...", ntpServer);
+    DDLogDebug(@"[DEBUG] Verifying NTP server: %@...", ntpServer);
     
     NSTask *digTask =  [[NSTask alloc] init];
     [digTask setLaunchPath:@"/usr/bin/dig"];
@@ -367,18 +380,21 @@ DDLogLevel ddLogLevel;
             NSArray *ntpServerArray = [digOutput componentsSeparatedByString:@"\n"];
             ntpServer = [NSString stringWithFormat:@"server %@", ntpServer];
             for ( NSString *ip in ntpServerArray ) {
-                if ( [ip isValidIPAddress] ) {
-                    DDLogInfo(@"NTP server ip address: %@", ip);
-                    ntpServer = [ntpServer stringByAppendingString:[NSString stringWithFormat:@"\nserver %@", ip]];
-                } else {
-                    DDLogError(@"[ERROR] NTP server ip address invalid: %@", ip);
-                    return NO;
+                if ( [ip length] != 0 ) {
+                    if ( [ip isValidIPAddress] ) {
+                        DDLogInfo(@"NTP server ip address: %@", ip);
+                        ntpServer = [ntpServer stringByAppendingString:[NSString stringWithFormat:@"\nserver %@", ip]];
+                    } else {
+                        *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"NTP server ip address invalid: %@", ip]];
+                        return NO;
+                    }
                 }
             }
             
             if ( [ntpServer length] != 0 ) {
                 return YES;
             } else {
+                *error = [NBCError errorWithDescription:@"NTP server ip was empty"];
                 return NO;
             }
         } else {
@@ -409,92 +425,106 @@ DDLogLevel ddLogLevel;
     //  /System/Library/Extensions/IOBluetoothFamily.kext
     // --------------------------------------------------------------
     NSURL *bluetoothKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IOBluetoothFamily.kext"];
-    NSURL *bluetoothKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IOBluetoothFamily.kext"];
-    
-    // Update modification array
-    [modifyDictArray addObject:@{
-                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                 NBCWorkflowModifySourceURL : [bluetoothKextURL path],
-                                 NBCWorkflowModifyTargetURL : [bluetoothKextTargetURL path]
-                                 }];
+    if ( [bluetoothKextURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *bluetoothKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IOBluetoothFamily.kext"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [bluetoothKextURL path],
+                                     NBCWorkflowModifyTargetURL : [bluetoothKextTargetURL path]
+                                     }];
+    }
     
     // --------------------------------------------------------------
     //  /System/Library/Extensions/IOBluetoothHIDDriver.kext
     // --------------------------------------------------------------
     NSURL *bluetoothHIDDriverKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IOBluetoothHIDDriver.kext"];
-    NSURL *bluetoothHIDDriverKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IOBluetoothHIDDriver.kext"];
-    
-    // Update modification array
-    [modifyDictArray addObject:@{
-                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                 NBCWorkflowModifySourceURL : [bluetoothHIDDriverKextURL path],
-                                 NBCWorkflowModifyTargetURL : [bluetoothHIDDriverKextTargetURL path]
-                                 }];
+    if ( [bluetoothHIDDriverKextURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *bluetoothHIDDriverKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IOBluetoothHIDDriver.kext"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [bluetoothHIDDriverKextURL path],
+                                     NBCWorkflowModifyTargetURL : [bluetoothHIDDriverKextTargetURL path]
+                                     }];
+    }
     
     // --------------------------------------------------------------
     //  /System/Library/Extensions/AppleBluetoothHIDMouse.kext
     // --------------------------------------------------------------
     NSURL *bluetoothHIDMouseKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleBluetoothHIDMouse.kext"];
-    NSURL *bluetoothHIDMouseKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothHIDMouse.kext"];
-    
-    // Update modification array
-    [modifyDictArray addObject:@{
-                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                 NBCWorkflowModifySourceURL : [bluetoothHIDMouseKextURL path],
-                                 NBCWorkflowModifyTargetURL : [bluetoothHIDMouseKextTargetURL path]
-                                 }];
+    if ( [bluetoothHIDMouseKextURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *bluetoothHIDMouseKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothHIDMouse.kext"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [bluetoothHIDMouseKextURL path],
+                                     NBCWorkflowModifyTargetURL : [bluetoothHIDMouseKextTargetURL path]
+                                     }];
+    }
     
     // --------------------------------------------------------------
     //  /System/Library/Extensions/AppleBluetoothHIDKeyboard.kext
     // --------------------------------------------------------------
     NSURL *bluetoothHIDKeyboardKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleBluetoothHIDKeyboard.kext"];
-    NSURL *bluetoothHIDKeyboardKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothHIDKeyboard.kext"];
-    
-    // Update modification array
-    [modifyDictArray addObject:@{
-                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                 NBCWorkflowModifySourceURL : [bluetoothHIDKeyboardKextURL path],
-                                 NBCWorkflowModifyTargetURL : [bluetoothHIDKeyboardKextTargetURL path]
-                                 }];
+    if ( [bluetoothHIDKeyboardKextURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *bluetoothHIDKeyboardKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothHIDKeyboard.kext"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [bluetoothHIDKeyboardKextURL path],
+                                     NBCWorkflowModifyTargetURL : [bluetoothHIDKeyboardKextTargetURL path]
+                                     }];
+    }
     
     // --------------------------------------------------------------
     //  /System/Library/Extensions/AppleBluetoothMultitouch.kext
     // --------------------------------------------------------------
     NSURL *bluetoothMultitouchKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleBluetoothMultitouch.kext"];
-    NSURL *bluetoothMultitouchKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothMultitouch.kext"];
-    
-    // Update modification array
-    [modifyDictArray addObject:@{
-                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                 NBCWorkflowModifySourceURL : [bluetoothMultitouchKextURL path],
-                                 NBCWorkflowModifyTargetURL : [bluetoothMultitouchKextTargetURL path]
-                                 }];
+    if ( [bluetoothMultitouchKextURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *bluetoothMultitouchKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothMultitouch.kext"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [bluetoothMultitouchKextURL path],
+                                     NBCWorkflowModifyTargetURL : [bluetoothMultitouchKextTargetURL path]
+                                     }];
+    }
     
     // --------------------------------------------------------------
     //  /System/Library/LaunchDaemons/com.apple.bluetoothReporter.plist
     // --------------------------------------------------------------
     NSURL *bluetoothReporterPlistURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.bluetoothReporter.plist"];
-    NSURL *bluetoothReporterPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.bluetoothReporter.plist"];
-    
-    // Update modification array
-    [modifyDictArray addObject:@{
-                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                 NBCWorkflowModifySourceURL : [bluetoothReporterPlistURL path],
-                                 NBCWorkflowModifyTargetURL : [bluetoothReporterPlistTargetURL path]
-                                 }];
+    if ( [bluetoothReporterPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *bluetoothReporterPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.bluetoothReporter.plist"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [bluetoothReporterPlistURL path],
+                                     NBCWorkflowModifyTargetURL : [bluetoothReporterPlistTargetURL path]
+                                     }];
+    }
     
     // --------------------------------------------------------------
     //  /System/Library/LaunchDaemons/com.apple.blued.plist
     // --------------------------------------------------------------
     NSURL *bluetoothBluedPlistURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.blued.plist"];
-    NSURL *bluetoothBluedPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.blued.plist"];
-    
-    // Update modification array
-    [modifyDictArray addObject:@{
-                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                 NBCWorkflowModifySourceURL : [bluetoothBluedPlistURL path],
-                                 NBCWorkflowModifyTargetURL : [bluetoothBluedPlistTargetURL path]
-                                 }];
+    if ( [bluetoothReporterPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *bluetoothBluedPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.blued.plist"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [bluetoothBluedPlistURL path],
+                                     NBCWorkflowModifyTargetURL : [bluetoothBluedPlistTargetURL path]
+                                     }];
+    }
 }
 
 - (void)modifyBootPlist:(NSMutableArray *)modifyDictArray {
@@ -875,12 +905,15 @@ DDLogLevel ddLogLevel;
     //  /Library/Preferences/com.grahamgilbert.Imagr.plist
     // ------------------------------------------------------------------
     NSString *comGrahamgilbertImagrPlistTargetPath;
+    NSURL *comGrahamgilbertImagrPlistTargetURL;
     if ( [_creationTool isEqualToString:NBCMenuItemNBICreator] ) {
         comGrahamgilbertImagrPlistTargetPath = NBCImagrConfigurationPlistNBICreatorTargetURL;
+        comGrahamgilbertImagrPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:comGrahamgilbertImagrPlistTargetPath];
     } else {
         comGrahamgilbertImagrPlistTargetPath = NBCImagrConfigurationPlistTargetURL;
+        comGrahamgilbertImagrPlistTargetURL = [_netInstallVolumeURL URLByAppendingPathComponent:comGrahamgilbertImagrPlistTargetPath];
+        
     }
-    NSURL *comGrahamgilbertImagrPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:comGrahamgilbertImagrPlistTargetPath];
     DDLogDebug(@"[DEBUG] com.grahamgilbert.Imagr.plist path: %@", [comGrahamgilbertImagrPlistTargetURL path]);
     
     NSMutableDictionary *comGrahamgilbertImagrPlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:comGrahamgilbertImagrPlistTargetURL] ?: [[NSMutableDictionary alloc] init];
@@ -994,10 +1027,10 @@ DDLogLevel ddLogLevel;
     
     // Update modification array
     [modifyDictArray addObject:@{
-                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                 NBCWorkflowModifyContent : hiToolboxPreferencesDict,
+                                 NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypePlist,
+                                 NBCWorkflowModifyContent :    hiToolboxPreferencesDict,
                                  NBCWorkflowModifyAttributes : hiToolboxPreferencesAttributes,
-                                 NBCWorkflowModifyTargetURL : [hiToolboxPreferencesURL path]
+                                 NBCWorkflowModifyTargetURL :  [hiToolboxPreferencesURL path]
                                  }];
     
     // --------------------------------------------------------------
@@ -1141,7 +1174,7 @@ DDLogLevel ddLogLevel;
 } // modifyNetBootServers
 
 
-- (BOOL)modifyNTP:(NSMutableArray *)modifyDictArray {
+- (BOOL)modifyNTP:(NSMutableArray *)modifyDictArray error:(NSError **)error {
     
     DDLogInfo(@"Preparing modifications for NTP...");
     
@@ -1151,7 +1184,7 @@ DDLogLevel ddLogLevel;
     NSString *ntpServer = [_workflowItem userSettings][NBCSettingsNetworkTimeServerKey] ?: NBCNetworkTimeServerDefault;
     
     // Verify that server resolves
-    if ( [self verifyNTPServer:ntpServer] ) {
+    if ( [self verifyNTPServer:ntpServer error:error] ) {
         NSURL *ntpConfURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/ntp.conf"];
         
         // Convert string to data
@@ -1411,7 +1444,7 @@ DDLogLevel ddLogLevel;
                     if ( [ramDiskSizeMB length] != 0 ) {
                         
                         // Uses 1024 instead of 1000
-                        NSString *ramDiskSizekB = [[NSNumber numberWithInt:( [ramDiskSizeMB intValue] * 1024 )] stringValue];
+                        NSString *ramDiskSizekB = [@(( [ramDiskSizeMB intValue] * 1024 )) stringValue];
                         [rcCdmCdrom appendString:[NSString stringWithFormat:@"RAMDisk %@ %@\n", ramDiskDict[@"path"], ramDiskSizekB]];
                     }
                 }
@@ -1634,17 +1667,25 @@ DDLogLevel ddLogLevel;
                                  "###\n"
                                  "### Start Console\n"
                                  "###\n"
-                                 "/Applications/Utilities/Console.app/Contents/MacOS/Console /var/log/system.log&\n"]];
+                                 "/Applications/Utilities/Console.app/Contents/MacOS/Console /var/log/system.log &\n"]];
     }
     
     // ------------------------------------------------------------------
     //  NBI Tool
     // ------------------------------------------------------------------
+    NSString *nbiToolExecutablePath;
+    if ( [[nbiToolPath pathExtension] isEqualToString:@"app"] ) {
+        nbiToolExecutablePath = [nbiToolPath stringByAppendingPathComponent:[NSString stringWithFormat:@"Contents/MacOS/%@", [[nbiToolPath lastPathComponent] stringByDeletingPathExtension]]];
+    } else {
+        nbiToolExecutablePath = nbiToolPath;
+    }
+    DDLogDebug(@"[DEBUG] NBI Tool executable path: %@", nbiToolExecutablePath);
+    
     [rcImaging appendString:[NSString stringWithFormat:@"\n"
                              "###\n"
                              "### Start %@\n"
                              "###\n"
-                             "%@&\n", [nbiToolPath lastPathComponent], nbiToolPath]];
+                             "%@\n", [nbiToolPath lastPathComponent], nbiToolExecutablePath]];
     
     // ------------------------------------------------------------------
     //  SystemUIServer
@@ -1661,7 +1702,6 @@ DDLogLevel ddLogLevel;
     //  Determine rc.imaging path
     // ------------------------------------------------------------------
     if ( [rcImaging length] != 0 ) {
-        
         NSURL *rcImagingURL;
         if (
             [_creationTool isEqualToString:NBCMenuItemNBICreator] ||

@@ -2,9 +2,20 @@
 //  NBCCasperSettingsViewController.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-09-02.
+//  Created by Erik Berglund.
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import <Carbon/Carbon.h>
 #import "NBCCasperSettingsViewController.h"
@@ -64,11 +75,12 @@ DDLogLevel ddLogLevel;
     [super viewDidLoad];
     
     [self setConnectedToInternet:NO];
-    _keyboardLayoutDict = [[NSMutableDictionary alloc] init];
-    _certificateTableViewContents = [[NSMutableArray alloc] init];
-    _packagesTableViewContents = [[NSMutableArray alloc] init];
-    _trustedServers = [[NSMutableArray alloc] init];
-    _ramDisks = [[NSMutableArray alloc] init];
+    
+    [self setKeyboardLayoutDict:[[NSMutableDictionary alloc] init]];
+    [self setCertificateTableViewContents:[[NSMutableArray alloc] init]];
+    [self setPackagesTableViewContents:[[NSMutableArray alloc] init]];
+    [self setTrustedServers:[[NSMutableArray alloc] init]];
+    [self setRamDisks:[[NSMutableArray alloc] init]];
     
     // --------------------------------------------------------------
     //  Add Notification Observers
@@ -122,7 +134,7 @@ DDLogLevel ddLogLevel;
     //  Load saved templates and create the template menu
     // --------------------------------------------------------------
     [self updatePopUpButtonTemplates];
-        
+    
     // ------------------------------------------------------------------------------------------
     //  Add contextual menu to NBI background image view to allow to restore original background.
     // ------------------------------------------------------------------------------------------
@@ -507,10 +519,15 @@ DDLogLevel ddLogLevel;
 
 - (NSDictionary *)examinePackageAtURL:(NSURL *)packageURL {
     
+    DDLogDebug(@"[DEBUG] Examine installer package...");
+    
     NSMutableDictionary *newPackageDict = [[NSMutableDictionary alloc] init];
     
-    newPackageDict[NBCDictionaryKeyPackagePath] = [packageURL path];
-    newPackageDict[NBCDictionaryKeyPackageName] = [packageURL lastPathComponent];
+    newPackageDict[NBCDictionaryKeyPackagePath] = [packageURL path] ?: @"Unknown";
+    DDLogDebug(@"[DEBUG] Package path: %@", newPackageDict[NBCDictionaryKeyPackagePath]);
+    
+    newPackageDict[NBCDictionaryKeyPackageName] = [packageURL lastPathComponent] ?: @"Unknown";
+    DDLogDebug(@"[DEBUG] Package pame: %@", newPackageDict[NBCDictionaryKeyPackageName]);
     
     return newPackageDict;
 }
@@ -806,7 +823,7 @@ DDLogLevel ddLogLevel;
     if ( [[[sender object] class] isSubclassOfClass:[NSTextField class]] ) {
         NSTextField *textField = [sender object];
         if ( [[[textField superview] class] isSubclassOfClass:[NBCCasperTrustedNetBootServerCellView class]] ) {
-            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            NSNumber *textFieldTag = @([textField tag]);
             if ( textFieldTag != nil ) {
                 if ( [sender object] == [[_tableViewTrustedServers viewAtColumn:[_tableViewTrustedServers selectedColumn] row:[textFieldTag integerValue] makeIfNecessary:NO] textFieldTrustedNetBootServer] ) {
                     NSDictionary *userInfo = [sender userInfo];
@@ -1026,52 +1043,13 @@ DDLogLevel ddLogLevel;
         
         [self setNbiSourceSettings:nil];
         [self setIsNBI:NO];
-        //[self updateUIForSourceType:[source sourceType] settings:nil];
+        [self updateUIForSourceType:[source sourceType] settings:nil];
         [self expandVariablesForCurrentSettings];
         [self verifyBuildButton];
     }
     
     [self updatePopOver];
 }
-
-/* REMOVED
-- (void)updateSource:(NSNotification *)notification {
-    
-    NBCSource *source = [notification userInfo][NBCNotificationUpdateSourceUserInfoSource];
-    if ( source != nil ) {
-        [self setSource:source];
-    }
-    
-    [self updateSettingVisibility];
-    
-    NSString *currentBackgroundImageURL = _imageBackgroundURL;
-    if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
-        [self setImageBackground:@""];
-        [self setImageBackground:NBCBackgroundImageDefaultPath];
-        [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
-    }
-    
-    NBCTarget *target = [notification userInfo][NBCNotificationUpdateSourceUserInfoTarget];
-    if ( target != nil ) {
-        [self setTarget:target];
-    }
-    
-    if ( [[source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
-        [self setIsNBI:YES];
-        NSURL *nbiURL = [source sourceURL];
-        [self createSettingsFromNBI:nbiURL];
-    } else {
-        [self setIsNBI:NO];
-        [_textFieldDestinationFolder setEnabled:YES];
-        [_buttonChooseDestinationFolder setEnabled:YES];
-        [_popUpButtonTool setEnabled:YES];
-        [self expandVariablesForCurrentSettings];
-        [self verifyBuildButton];
-    }
-    
-    [self updatePopOver];
-} // updateSource
-*/
 
 - (void)removedSource {
     if ( _source ) {
@@ -1103,31 +1081,31 @@ DDLogLevel ddLogLevel;
 }
 
 /*
-- (void)removedSource:(NSNotification *)notification {
-#pragma unused(notification)
-    
-    if ( _source ) {
-        [self setSource:nil];
-    }
-    
-    [self updateSettingVisibility];
-    
-    NSString *currentBackgroundImageURL = _imageBackgroundURL;
-    if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
-        [self setImageBackground:@""];
-        [self setImageBackground:NBCBackgroundImageDefaultPath];
-        [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
-    }
-    
-    [self setIsNBI:NO];
-    [_textFieldDestinationFolder setEnabled:YES];
-    [_buttonChooseDestinationFolder setEnabled:YES];
-    [_popUpButtonTool setEnabled:YES];
-    [self expandVariablesForCurrentSettings];
-    [self verifyBuildButton];
-    [self updatePopOver];
-} // removedSource
-*/
+ - (void)removedSource:(NSNotification *)notification {
+ #pragma unused(notification)
+ 
+ if ( _source ) {
+ [self setSource:nil];
+ }
+ 
+ [self updateSettingVisibility];
+ 
+ NSString *currentBackgroundImageURL = _imageBackgroundURL;
+ if ( [currentBackgroundImageURL isEqualToString:NBCBackgroundImageDefaultPath] ) {
+ [self setImageBackground:@""];
+ [self setImageBackground:NBCBackgroundImageDefaultPath];
+ [self setImageBackgroundURL:NBCBackgroundImageDefaultPath];
+ }
+ 
+ [self setIsNBI:NO];
+ [_textFieldDestinationFolder setEnabled:YES];
+ [_buttonChooseDestinationFolder setEnabled:YES];
+ [_popUpButtonTool setEnabled:YES];
+ [self expandVariablesForCurrentSettings];
+ [self verifyBuildButton];
+ [self updatePopOver];
+ } // removedSource
+ */
 
 - (void)refreshCreationTool {
     [self setNbiCreationTool:_nbiCreationTool ?: NBCMenuItemNBICreator];
@@ -1155,7 +1133,7 @@ DDLogLevel ddLogLevel;
             [self updateTrustedNetBootServersCount];
         } else if ( [[[textField superview] class] isSubclassOfClass:[NBCCasperRAMDiskPathCellView class]] ) {
             NSString *newPath = [textField stringValue];
-            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            NSNumber *textFieldTag = @([textField tag]);
             if ( textFieldTag != nil ) {
                 NSMutableDictionary *ramDiskDict = [NSMutableDictionary dictionaryWithDictionary:[_ramDisks objectAtIndex:(NSUInteger)[textFieldTag integerValue]]];
                 ramDiskDict[@"path"] = newPath ?: @"";
@@ -1164,7 +1142,7 @@ DDLogLevel ddLogLevel;
             }
         } else if ( [[[textField superview] class] isSubclassOfClass:[NBCCasperRAMDiskSizeCellView class]] ) {
             NSString *newSize = [[notification object] stringValue];
-            NSNumber *textFieldTag = [NSNumber numberWithInteger:[textField tag]];
+            NSNumber *textFieldTag = @([textField tag]);
             if ( textFieldTag != nil ) {
                 NSMutableDictionary *ramDiskDict = [NSMutableDictionary dictionaryWithDictionary:[_ramDisks objectAtIndex:(NSUInteger)[textFieldTag integerValue]]];
                 ramDiskDict[@"size"] = newSize ?: @"";
@@ -1394,10 +1372,13 @@ DDLogLevel ddLogLevel;
         [self selectTimeZone:[_popUpButtonTimeZone itemWithTitle:NBCMenuItemCurrent]];
     } else {
         NSString *selectedTimeZoneRegion = [selectedTimeZone componentsSeparatedByString:@"/"][0];
+        DDLogDebug(@"[DEBUG] TimeZone Region: %@", selectedTimeZoneRegion);
         NSString *selectedTimeZoneCity = [selectedTimeZone componentsSeparatedByString:@"/"][1];
+        DDLogDebug(@"[DEBUG] TimeZone City: %@", selectedTimeZoneCity);
         NSArray *regionArray = [[[_popUpButtonTimeZone itemWithTitle:selectedTimeZoneRegion] submenu] itemArray];
         for ( NSMenuItem *menuItem in regionArray ) {
             if ( [[menuItem title] isEqualToString:selectedTimeZoneCity] ) {
+                DDLogDebug(@"[DEBUG] Selecting menu item: %@", [menuItem title]);
                 [self selectTimeZone:menuItem];
                 break;
             }
@@ -1405,6 +1386,12 @@ DDLogLevel ddLogLevel;
     }
     
     [self expandVariablesForCurrentSettings];
+    
+    if ( _isNBI ) {
+        [self updateUIForSourceType:NBCSourceTypeNBI settings:settingsDict];
+    } else {
+        [self updateUIForSourceType:NBCSourceTypeInstallerApplication settings:settingsDict]; // Doesn't matter as long as it's not NBI
+    }
     
     /*/////////////////////////////////////////////////////////////////////////
      /// TEMPORARY FIX WHEN CHANGING KEY FOR KEYBOARD_LAYOUT IN TEMPLATE    ///
@@ -1554,12 +1541,12 @@ DDLogLevel ddLogLevel;
     
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
     
-    settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: @"NBICreator";
+    settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: NBCMenuItemNBICreator;
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"1";
     settingsDict[NBCSettingsProtocolKey] = _nbiProtocol ?: @"NFS";
-    settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: @"Current";
-    settingsDict[NBCSettingsKeyboardLayoutKey] = _nbiKeyboardLayout ?: @"Current";
+    settingsDict[NBCSettingsLanguageKey] = _nbiLanguage ?: NBCMenuItemCurrent;
+    settingsDict[NBCSettingsKeyboardLayoutKey] = _nbiKeyboardLayout ?: NBCMenuItemCurrent;
     settingsDict[NBCSettingsEnabledKey] = @(_nbiEnabled) ?: @NO;
     settingsDict[NBCSettingsDefaultKey] = @(_nbiDefault) ?: @NO;
     settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
@@ -1583,7 +1570,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsARDPasswordKey] = _ardPassword ?: @"";
     settingsDict[NBCSettingsUseNetworkTimeServerKey] = @(_useNetworkTimeServer) ?: @NO;
     settingsDict[NBCSettingsNetworkTimeServerKey] = _networkTimeServer ?: @"time.apple.com";
-    //settingsDict[NBCSettingsCasperSourceIsNBI] = @(_isNBI) ?: @NO;
+    settingsDict[NBCSettingsSourceIsNBI] = @(_isNBI) ?: @NO;
     settingsDict[NBCSettingsUseBackgroundImageKey] = @(_useBackgroundImage) ?: @NO;
     settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"%SOURCEURL%/System/Library/CoreServices/DefaultDesktop.jpg";
     settingsDict[NBCSettingsUseVerboseBootKey] = @(_useVerboseBoot) ?: @NO;
@@ -1626,6 +1613,14 @@ DDLogLevel ddLogLevel;
     }
     settingsDict[NBCSettingsRAMDisksKey] = ramDisksArray ?: @[];
     
+    NSMutableArray *trustedNetBootServersArray = [[NSMutableArray alloc] init];
+    for ( NSString *trustedNetBootServer in _trustedServers ) {
+        if ( [trustedNetBootServer length] != 0 ) {
+            [trustedNetBootServersArray insertObject:trustedNetBootServer atIndex:0];
+        }
+    }
+    settingsDict[NBCSettingsTrustedNetBootServersKey] = trustedNetBootServersArray ?: @[];
+    
     NSString *selectedTimeZone;
     NSString *selectedTimeZoneCity = [_selectedMenuItem title];
     if ( [selectedTimeZoneCity isEqualToString:NBCMenuItemCurrent] ) {
@@ -1637,7 +1632,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsTimeZoneKey] = selectedTimeZone ?: NBCMenuItemCurrent;
     
     return [settingsDict copy];
-} // returnSettingsFromUI
+} // haveettingsFromUI
 
 
 - (void)createSettingsFromNBI:(NSURL *)nbiURL {
@@ -1709,14 +1704,36 @@ DDLogLevel ddLogLevel;
     BOOL retval = YES;
     
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameCasperDefaults withExtension:@"plist"];
-    if ( defaultSettingsURL ) {
+    if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
-        if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
-            NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
-            if ( currentSettings && defaultSettings ) {
-                if ( [currentSettings isEqualToDictionary:defaultSettings] ) {
-                    return NO;
+        NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
+        if ( [currentSettings count] != 0 && [defaultSettings count] != 0 ) {
+            if ( [currentSettings isEqualToDictionary:defaultSettings] ) {
+                return NO;
+            } else {
+                /*
+                 NSArray *keys = [currentSettings allKeys];
+                 for ( NSString *key in keys ) {
+                 id currentValue = currentSettings[key];
+                 id defaultValue = defaultSettings[key];
+                 if ( ! [currentValue isEqualTo:defaultValue] || ! [[currentValue class] isEqualTo:[defaultValue class]]) {
+                 DDLogDebug(@"[DEBUG] Key \"%@\" has changed", key);
+                 DDLogDebug(@"[DEBUG] Value from current UI settings: %@ (%@)", currentValue, [currentValue class]);
+                 DDLogDebug(@"[DEBUG] Value from default settings: %@ (%@)", defaultValue, [defaultValue class]);
+                 }
+                 }
+                
+                keys = [defaultSettings allKeys];
+                for ( NSString *key in keys ) {
+                    id currentValue = currentSettings[key];
+                    id defaultValue = defaultSettings[key];
+                    if ( ! [currentValue isEqualTo:defaultValue] || ! [[currentValue class] isEqualTo:[defaultValue class]]) {
+                        DDLogDebug(@"[DEBUG] Key \"%@\" has changed", key);
+                        DDLogDebug(@"[DEBUG] Value from current UI settings: %@ (%@)", currentValue, [currentValue class]);
+                        DDLogDebug(@"[DEBUG] Value from default settings: %@ (%@)", defaultValue, [defaultValue class]);
+                    }
                 }
+                 */
             }
         }
     }
@@ -1725,19 +1742,20 @@ DDLogLevel ddLogLevel;
         return retval;
     }
     
+    NSError *error = nil;
     NSURL *savedSettingsURL = _templatesDict[_selectedTemplate];
-    if ( savedSettingsURL ) {
+    if ( [savedSettingsURL checkResourceIsReachableAndReturnError:&error] ) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         NSDictionary *savedSettings = [self returnSettingsFromURL:savedSettingsURL];
-        if ( currentSettings && savedSettings ) {
+        if ( [currentSettings count] != 0 && [savedSettings count] != 0 ) {
             if ( [currentSettings isEqualToDictionary:savedSettings] ) {
                 retval = NO;
             }
         } else {
-            NSLog(@"Could not compare UI settings to saved template settings, one of them is nil!");
+            DDLogError(@"[ERROR] Could not compare UI settings to saved template settings, one of them was empty!");
         }
     } else {
-        NSLog(@"Could not get URL to current template file!");
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     return retval;
@@ -2842,7 +2860,7 @@ DDLogLevel ddLogLevel;
         }
     }];
     
-    NSString *trustedNetBootServerCount = [[NSNumber numberWithInt:validNetBootServersCounter] stringValue];
+    NSString *trustedNetBootServerCount = [@(validNetBootServersCounter) stringValue];
     if ( containsInvalidNetBootServer ) {
         NSMutableAttributedString *trustedNetBootServerCountMutable = [[NSMutableAttributedString alloc] initWithString:trustedNetBootServerCount];
         [trustedNetBootServerCountMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[trustedNetBootServerCountMutable length])];
@@ -2893,7 +2911,7 @@ DDLogLevel ddLogLevel;
     __block NSNumber *index;
     [_ramDisks enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ( [obj[@"path"] length] == 0 && [obj[@"size"] isEqualToString:@"1"] ) {
-            index = [NSNumber numberWithInteger:(NSInteger)idx];
+            index = @((NSInteger)idx);
             *stop = YES;
         }
     }];
@@ -2904,7 +2922,7 @@ DDLogLevel ddLogLevel;
                                          @"path" : @"",
                                          @"size" : @"1",
                                          };
-        index = [NSNumber numberWithInteger:[self insertRAMDiskInTableView:newRamDiskDict]];
+        index = @([self insertRAMDiskInTableView:newRamDiskDict]);
     }
     
     NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:(NSUInteger)index];
@@ -2965,7 +2983,7 @@ DDLogLevel ddLogLevel;
         }
     }];
     
-    NSString *ramDisksCount = [[NSNumber numberWithInt:validRAMDisksCounter] stringValue];
+    NSString *ramDisksCount = [@(validRAMDisksCounter) stringValue];
     NSString *ramDiskSize = [NSByteCountFormatter stringFromByteCount:(long long)(sumRAMDiskSize * 1000000) countStyle:NSByteCountFormatterCountStyleDecimal];
     [_textFieldRAMDiskSize setStringValue:ramDiskSize];
     

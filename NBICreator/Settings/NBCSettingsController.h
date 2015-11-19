@@ -35,6 +35,6 @@
 // Methods
 - (id)initWithDelegate:(id<NBCSettingsDelegate>)delegate;
 - (NSDictionary *)verifySettingsForWorkflowItem:(NBCWorkflowItem *)workflowItem;
-- (void)readSettingsFromNBI:(NBCSource *)source target:(NBCTarget *)target;
+- (void)readSettingsFromNBI:(NBCSource *)source target:(NBCTarget *)target workflowType:(int)workflowType ;
 
 @end

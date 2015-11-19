@@ -1356,7 +1356,7 @@ asdasd</string>
                                         </connections>
                                     </imageView>
                                     <button translatesAutoresizingMaskIntoConstraints="NO" id="eYk-tM-hyH">
-                                        <rect key="frame" x="18" y="62" width="157" height="18"/>
+                                        <rect key="frame" x="18" y="106" width="158" height="18"/>
                                         <animations/>
                                         <buttonCell key="cell" type="check" title="Add background:" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="bKL-Cd-2B0">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1366,15 +1366,6 @@ asdasd</string>
                                             <binding destination="-2" name="value" keyPath="self.useBackgroundImage" id="6gb-Sw-Xwd"/>
                                         </connections>
                                     </button>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="a3d-58-Cx9">
-                                        <rect key="frame" x="18" y="39" width="157" height="17"/>
-                                        <animations/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="center" title="(Currently only .jpg files)" id="R1i-Z1-B0f">
-                                            <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                        </textFieldCell>
-                                    </textField>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="EMW-DB-TFE">
                                         <rect key="frame" x="18" y="287" width="180" height="17"/>
                                         <animations/>
@@ -1455,8 +1446,8 @@ asdasd</string>
                                     <constraint firstItem="7c0-5a-zP4" firstAttribute="baseline" secondItem="lHA-jo-ntP" secondAttribute="baseline" id="4K9-M6-QJI"/>
                                     <constraint firstItem="jFb-ua-GhY" firstAttribute="leading" secondItem="7c0-5a-zP4" secondAttribute="trailing" constant="8" symbolic="YES" id="4rT-5v-xeW"/>
                                     <constraint firstItem="eYk-tM-hyH" firstAttribute="leading" secondItem="sYA-N4-aW7" secondAttribute="leading" id="96z-cp-KbT"/>
+                                    <constraint firstItem="ZDY-Vy-Prg" firstAttribute="top" secondItem="eYk-tM-hyH" secondAttribute="top" id="9D6-FC-Nla"/>
                                     <constraint firstAttribute="trailing" secondItem="oKf-4k-2Oh" secondAttribute="trailing" constant="20" symbolic="YES" id="Bgv-29-Uxx"/>
-                                    <constraint firstItem="ZDY-Vy-Prg" firstAttribute="centerY" secondItem="eYk-tM-hyH" secondAttribute="centerY" id="DLZ-EE-2rl"/>
                                     <constraint firstItem="8IO-9N-LoC" firstAttribute="baseline" secondItem="sYA-N4-aW7" secondAttribute="baseline" id="DMu-JB-zAR"/>
                                     <constraint firstItem="sWI-Wq-c6p" firstAttribute="baseline" secondItem="8IO-9N-LoC" secondAttribute="baseline" id="DZf-xO-KC5"/>
                                     <constraint firstItem="sYA-N4-aW7" firstAttribute="leading" secondItem="sqh-e6-pE2" secondAttribute="leading" constant="20" symbolic="YES" id="FkH-I8-b4G"/>
@@ -1467,21 +1458,19 @@ asdasd</string>
                                     <constraint firstAttribute="trailing" secondItem="dTY-j0-6RE" secondAttribute="trailing" constant="20" symbolic="YES" id="M0n-He-Ivj"/>
                                     <constraint firstItem="oKf-4k-2Oh" firstAttribute="baseline" secondItem="lHA-jo-ntP" secondAttribute="baseline" id="N5N-S6-qAk"/>
                                     <constraint firstItem="lHA-jo-ntP" firstAttribute="leading" secondItem="Fmd-L5-Fi4" secondAttribute="leading" id="Nko-F1-J4t"/>
+                                    <constraint firstItem="ZDY-Vy-Prg" firstAttribute="leading" secondItem="eYk-tM-hyH" secondAttribute="trailing" constant="8" symbolic="YES" id="TG6-tA-Q81"/>
                                     <constraint firstAttribute="centerX" secondItem="ZDY-Vy-Prg" secondAttribute="centerX" id="TiZ-1I-h08"/>
                                     <constraint firstItem="7c0-5a-zP4" firstAttribute="baseline" secondItem="jFb-ua-GhY" secondAttribute="baseline" id="Y8v-EN-aaq"/>
                                     <constraint firstItem="8IO-9N-LoC" firstAttribute="leading" secondItem="sYA-N4-aW7" secondAttribute="trailing" constant="8" symbolic="YES" id="Z3u-KV-AGs"/>
                                     <constraint firstItem="oKf-4k-2Oh" firstAttribute="baseline" secondItem="7c0-5a-zP4" secondAttribute="baseline" id="abc-3h-f0g"/>
-                                    <constraint firstItem="eYk-tM-hyH" firstAttribute="leading" secondItem="a3d-58-Cx9" secondAttribute="leading" id="bGx-XE-Qih"/>
                                     <constraint firstAttribute="trailing" secondItem="sWI-Wq-c6p" secondAttribute="trailing" constant="20" symbolic="YES" id="clR-Cb-gYV"/>
                                     <constraint firstItem="Fmd-L5-Fi4" firstAttribute="leading" secondItem="EMW-DB-TFE" secondAttribute="leading" id="gQ0-PX-WwH"/>
                                     <constraint firstItem="Fmd-L5-Fi4" firstAttribute="top" secondItem="dTY-j0-6RE" secondAttribute="bottom" constant="8" symbolic="YES" id="hRu-wu-YNu"/>
                                     <constraint firstItem="7c0-5a-zP4" firstAttribute="baseline" secondItem="qUO-v4-nIM" secondAttribute="baseline" id="inc-6q-cfo"/>
                                     <constraint firstItem="lHA-jo-ntP" firstAttribute="top" secondItem="Fmd-L5-Fi4" secondAttribute="bottom" constant="8" symbolic="YES" id="jkk-ei-934"/>
-                                    <constraint firstItem="a3d-58-Cx9" firstAttribute="top" secondItem="eYk-tM-hyH" secondAttribute="bottom" constant="8" symbolic="YES" id="nT4-YX-Uiu"/>
                                     <constraint firstItem="sYA-N4-aW7" firstAttribute="top" secondItem="EMW-DB-TFE" secondAttribute="bottom" constant="10" id="oaK-VX-pFW"/>
                                     <constraint firstAttribute="bottom" secondItem="ZDY-Vy-Prg" secondAttribute="bottom" constant="20" symbolic="YES" id="rbC-OT-cQ6"/>
                                     <constraint firstItem="EMW-DB-TFE" firstAttribute="leading" secondItem="sqh-e6-pE2" secondAttribute="leading" constant="20" symbolic="YES" id="ts0-00-Fni"/>
-                                    <constraint firstItem="eYk-tM-hyH" firstAttribute="width" secondItem="a3d-58-Cx9" secondAttribute="width" id="vj0-eO-Crk"/>
                                     <constraint firstItem="qUO-v4-nIM" firstAttribute="leading" secondItem="jFb-ua-GhY" secondAttribute="trailing" constant="8" symbolic="YES" id="zPW-Nc-d02"/>
                                 </constraints>
                                 <animations/>

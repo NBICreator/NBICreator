@@ -546,6 +546,7 @@ extern NSString *const NBCDictionaryKeyPath;
 extern NSString *const NBCDictionaryKeyName;
 extern NSString *const NBCDictionaryKeyPackagePath;
 extern NSString *const NBCDictionaryKeyPackageName;
+extern NSString *const NBCDictionaryKeyPackageFormat;
 
 extern NSString *const NBCDictionaryKeyConfigurationProfilePath;
 extern NSString *const NBCDictionaryKeyConfigurationProfilePayloadDisplayName;

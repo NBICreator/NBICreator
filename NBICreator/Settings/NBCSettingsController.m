@@ -974,7 +974,7 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)readSettingsFromNBI:(NBCSource *)source target:(NBCTarget *)target {
+- (void)readSettingsFromNBI:(NBCSource *)source target:(NBCTarget *)target workflowType:(int)workflowType {
     
     DDLogInfo(@"Reading settings from NBI...");
     
@@ -1029,6 +1029,65 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------------------------
     settingsDict[NBCSettingsSourceIsNBI] =              @YES;
     settingsDict[NBCSettingsEnableLaunchdLoggingKey] =  @NO;
+    
+    // -------------------------------------------------------------------------------
+    //  NBI Icon
+    // -------------------------------------------------------------------------------
+    NSImage *nbiIcon = [[NSWorkspace sharedWorkspace] iconForFile:[nbiURL path]];
+    if ( nbiIcon ) {
+        NSData *nbiIconData = [nbiIcon TIFFRepresentation];
+        
+        NSString *applicationTemporaryFolderPath = [NSTemporaryDirectory() stringByAppendingPathComponent:NBCBundleIdentifier];
+        DDLogDebug(@"[DEBUG] Application temporary folder path: %@", applicationTemporaryFolderPath);
+        
+        if ( [applicationTemporaryFolderPath length] != 0 ) {
+            NSURL *applicationTemporaryFolderURL = [NSURL fileURLWithPath:applicationTemporaryFolderPath];
+            if ( ! [applicationTemporaryFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+                if ( ! [[NSFileManager defaultManager] createDirectoryAtURL:applicationTemporaryFolderURL withIntermediateDirectories:YES attributes:@{} error:&error] ) {
+                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                }
+            }
+            
+            NSURL *iconTmpStoreURL = [applicationTemporaryFolderURL URLByAppendingPathComponent:@"icns"];
+            if ( [[NSFileManager defaultManager] createDirectoryAtURL:iconTmpStoreURL withIntermediateDirectories:YES attributes:@{} error:&error] ) {
+                NSURL *iconTmpURL = [iconTmpStoreURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.icns", [[NSUUID UUID] UUIDString]]];
+                DDLogDebug(@"[DEBUG] Icon temporary path: %@", iconTmpURL);
+                
+                if ( [nbiIconData writeToURL:iconTmpURL atomically:NO] ) {
+                    settingsDict[NBCSettingsIconKey] = [iconTmpURL path] ?: @"";
+                } else {
+                    DDLogError(@"[ERROR] Failed storing temporary nbi icon");
+                }
+            } else {
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
+            }
+        }
+    }
+    
+    if ( [settingsDict[NBCSettingsIconKey] length] == 0 ) {
+        DDLogDebug(@"[DEBUG] Icon path was empty, setting default path...");
+        
+        NSString *defaulNbiIconPath;
+        switch (workflowType) {
+            case kWorkflowTypeNetInstall:
+                defaulNbiIconPath = NBCFilePathNBIIconNetInstall;
+                break;
+            case kWorkflowTypeDeployStudio:
+                defaulNbiIconPath = NBCFilePathNBIIconDeployStudio;
+                break;
+            case kWorkflowTypeImagr:
+                defaulNbiIconPath = NBCFilePathNBIIconImagr;
+                break;
+            case kWorkflowTypeCasper:
+                defaulNbiIconPath = NBCFilePathNBIIconCasper;
+                break;
+            default:
+                DDLogError(@"[ERROR] Unknown workflow type: %d", workflowType);
+                break;
+        }
+        
+        settingsDict[NBCSettingsIconKey] = defaulNbiIconPath ?: @"";
+    }
     
     // -------------------------------------------------------------------------------
     //  Reading Settings: NBImageInfo
@@ -1295,12 +1354,6 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------------------------
     
     // -------------------------------------------------------------------------------
-    //  NBI Icon
-    // -------------------------------------------------------------------------------
-    //NSImage *nbiIcon = [[NSWorkspace sharedWorkspace] iconForFile:[nbiURL path]]; // To be fixed later
-    // settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"";
-    
-    // -------------------------------------------------------------------------------
     //  Time Zone
     // -------------------------------------------------------------------------------
     NSURL *localtime = [nbiBaseSystemVolumeURL URLByAppendingPathComponent:@"private/etc/localtime"];
@@ -1452,9 +1505,9 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)readSettingsTabExtraFromTarget:(NBCTarget *)target settingsDict:(NSMutableDictionary *)settingsDict error:(NSError **)error {
 #pragma unused(error)
-
+    
     DDLogDebug(@"[DEBUG] Reading settings for settings tab: Extra");
-
+    
     NSURL *nbiNetInstallVolumeURL = [target nbiNetInstallVolumeURL];
     NSURL *nbiBaseSystemVolumeURL = [target baseSystemVolumeURL];
     
@@ -1712,7 +1765,7 @@ DDLogLevel ddLogLevel;
                     NSMutableArray *lineArray = [NSMutableArray arrayWithArray:[line componentsSeparatedByCharactersInSet:[NSCharacterSet whitespaceCharacterSet]]];
                     NSString *path = lineArray[1];
                     NSString *size = lineArray[2];
-                    NSString *ramDiskSize = [[NSNumber numberWithInt:( [size intValue] / 1024 )] stringValue];
+                    NSString *ramDiskSize = [@(( [size intValue] / 1024 )) stringValue];
                     [customRamDisks addObject:@{
                                                 @"path" : path,
                                                 @"size" : ramDiskSize
@@ -1796,11 +1849,14 @@ DDLogLevel ddLogLevel;
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
 #pragma unused(statusMessage, workflow)
 }
+- (void)updateProgressStatus:(NSString *)statusMessage {
+#pragma unused(statusMessage)
+}
 - (void)updateProgressBar:(double)value {
 #pragma unused(value)
 }
-- (void)updateProgressStatus:(NSString *)statusMessage {
-#pragma unused(statusMessage)
+- (void)incrementProgressBar:(double)value {
+#pragma unused(value)
 }
 - (void)logDebug:(NSString *)logMessage {
     DDLogDebug(@"[DEBUG] %@", logMessage);

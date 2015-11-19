@@ -2,9 +2,20 @@
 //  NBCWorkflowModifyNBI.m
 //  NBICreator
 //
-//  Created by Erik Berglund on 2015-10-30.
-//  Copyright © 2015 NBICreator. All rights reserved.
+//  Created by Erik Berglund.
+//  Copyright (c) 2015 NBICreator. All rights reserved.
 //
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 
 #import "NBCWorkflowModifyNBI.h"
 #import "NBCWorkflowItem.h"
@@ -53,10 +64,16 @@ DDLogLevel ddLogLevel;
     [self setWorkflowType:[_workflowItem workflowType]];
     [self setCreationTool:[_workflowItem userSettings][NBCSettingsNBICreationToolKey]];
     
+    // Set at what percentage the progress bar should start from ( 10.0 = 10% )
+    [self setProgressOffset:60.0];
+    
+    // Set how many percentages the progress bar should have moved ( 0.1 = 10% )
+    [self setProgressPercentage:0.4];
+    
     [self setIsNBI:( [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) ? YES : NO];
     DDLogDebug(@"[DEBUG] Source is NBI: %@", ( _isNBI ) ? @"YES" : @"NO" );
     
-    NSDictionary *settingsChanged = [workflowItem userSettingsChanged];
+    [self setUserSettingsChanged:[workflowItem userSettingsChanged] ?: @{}];
     
     NSError *error;
     NSURL *nbiURL;
@@ -68,6 +85,10 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"[DEBUG] NBI path: %@", [nbiURL path]);
     
     if ( [nbiURL checkResourceIsReachableAndReturnError:&error] ) {
+        
+        DDLogInfo(@"Updating NBI icon...");
+        [_delegate updateProgressStatus:@"Updating NBI icon..." workflow:self];
+        [_delegate updateProgressBar:(( 5.0 * _progressPercentage ) + _progressOffset )];
         
         // ---------------------------------------------------------------
         //  Update NBI Icon
@@ -83,16 +104,17 @@ DDLogLevel ddLogLevel;
         //  Apply all settings to NBImageInfo.plist in NBI
         // ---------------------------------------------------------------
         if ( ! _isNBI || ( _isNBI && (
-                                      [settingsChanged[NBCSettingsNameKey] boolValue] ||
-                                      [settingsChanged[NBCSettingsIndexKey] boolValue] ||
-                                      [settingsChanged[NBCSettingsProtocolKey] boolValue] ||
-                                      [settingsChanged[NBCSettingsEnabledKey] boolValue] ||
-                                      [settingsChanged[NBCSettingsDefaultKey] boolValue] ||
-                                      [settingsChanged[NBCSettingsDescriptionKey] boolValue]
+                                      [_userSettingsChanged[NBCSettingsNameKey] boolValue] ||
+                                      [_userSettingsChanged[NBCSettingsIndexKey] boolValue] ||
+                                      [_userSettingsChanged[NBCSettingsProtocolKey] boolValue] ||
+                                      [_userSettingsChanged[NBCSettingsEnabledKey] boolValue] ||
+                                      [_userSettingsChanged[NBCSettingsDefaultKey] boolValue] ||
+                                      [_userSettingsChanged[NBCSettingsDescriptionKey] boolValue]
                                       ) ) ) {
             
             DDLogInfo(@"Updating NBImageInfo.plist...");
             [_delegate updateProgressStatus:@"Updating NBImageInfo.plist..." workflow:self];
+            [_delegate updateProgressBar:(( 10.0 * _progressPercentage ) + _progressOffset )];
             
             if ( ! [self updateNBImageInfoForNBIAtURL:nbiURL workflowItem:workflowItem error:&error] ) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
@@ -111,9 +133,6 @@ DDLogLevel ddLogLevel;
 } // modifyNBI
 
 - (BOOL)updateNBIIconForNBIAtURL:(NSURL *)nbiURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
-    
-    DDLogInfo(@"Updating NBI icon...");
-    
     NSImage *icon = [workflowItem nbiIcon];
     if ( icon ) {
         return [[NSWorkspace sharedWorkspace] setIcon:icon forFile:[nbiURL path] options:0];
@@ -133,8 +152,6 @@ DDLogLevel ddLogLevel;
     
     NSMutableDictionary *nbImageInfoDict = [self nbImageInfoDictForNBIAtURL:nbiURL];
     if ( [nbImageInfoDict count] != 0 ) {
-        
-        DDLogDebug(@"[DEBUG] Updating NBImageInfo.plist...");
         
         NSMutableDictionary *newNBImageInfoDict = [nbImageInfoDict mutableCopy];
         NSDictionary *userSettings = [workflowItem userSettings];
@@ -285,10 +302,13 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)modifyVolumeBaseSystem {
+    [_delegate updateProgressBar:(( 15.0 * _progressPercentage ) + _progressOffset )];
+    
     NSDictionary *resourcesBaseSystemDict = [[_workflowItem target] resourcesBaseSystemDict];
     if ( [resourcesBaseSystemDict count] != 0 ) {
         
         DDLogInfo(@"Modify BaseSystem volume...");
+        [_delegate updateProgressStatus:@"Modify BaseSystem volume..." workflow:self];
         
         __block NSError *error;
         
@@ -348,6 +368,12 @@ DDLogLevel ddLogLevel;
                     // ------------------------------------------------------------------
                     //  Resize and mount BaseSystem if shadow path is not set in target
                     // ------------------------------------------------------------------
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        DDLogInfo(@"Attaching BaseSystem disk image with shadow...");
+                        [self->_delegate updateProgressStatus:@"Attaching BaseSystem disk image with shadow..." workflow:self];
+                        [self->_delegate updateProgressBar:(( 20.0 * self->_progressPercentage ) + self->_progressOffset )];
+                    });
+                    
                     if ( [NBCDiskImageController resizeAndMountBaseSystemWithShadow:[[self->_workflowItem target] baseSystemURL]  target:[self->_workflowItem target] error:&error] ) {
                         
                         NSURL *baseSystemVolumeURL = [[[self->_workflowItem target] baseSystemDisk] volumeURL];
@@ -395,11 +421,23 @@ DDLogLevel ddLogLevel;
                 // ------------------------------------------------------------------
                 //  Attach and mount NetInstall if shadow path is not set in target
                 // ------------------------------------------------------------------
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    DDLogInfo(@"Attaching NetInstall disk image with shadow...");
+                    [self->_delegate updateProgressStatus:@"Attaching NetInstall disk image with shadow..." workflow:self];
+                    [self->_delegate updateProgressBar:(( 20.0 * self->_progressPercentage ) + self->_progressOffset )];
+                });
+                
                 if ( [NBCDiskImageController attachNetInstallDiskImageWithShadowFile:[[self->_workflowItem target] nbiNetInstallURL] target:[self->_workflowItem target]  error:&error] ) {
                     
                     // ------------------------------------------------------------------
                     //  Resize and mount BaseSystem if shadow path is not set in target
                     // ------------------------------------------------------------------
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        DDLogInfo(@"Attaching BaseSystem disk image with shadow...");
+                        [self->_delegate updateProgressStatus:@"Attaching BaseSystem disk image with shadow..." workflow:self];
+                        [self->_delegate updateProgressBar:(( 22.5 * self->_progressPercentage ) + self->_progressOffset )];
+                    });
+                    
                     if ( [NBCDiskImageController resizeAndMountBaseSystemWithShadow:[[self->_workflowItem target] baseSystemURL]  target:[self->_workflowItem target] error:&error] ) {
                         
                         NSURL *baseSystemVolumeURL = [[[self->_workflowItem target] baseSystemDisk] volumeURL];
@@ -446,12 +484,15 @@ DDLogLevel ddLogLevel;
 } // modifyVolumeBaseSystem
 
 - (void)modifyVolumeNetInstall {
+    [_delegate updateProgressBar:(( 50.0 * _progressPercentage ) + _progressOffset )];
+    
     NSDictionary *resourcesNetInstallDict = [[_workflowItem target] resourcesNetInstallDict];
     if ( [resourcesNetInstallDict count] != 0 ) {
         
         DDLogInfo(@"Modify NetInstall volume...");
+        [_delegate updateProgressStatus:@"Modify NetInstall volume..." workflow:self];
         
-        NSError *error;
+        __block NSError *error;
         
         // ------------------------------------------------------------------
         //  Verify that NetInstall is mounted
@@ -514,56 +555,74 @@ DDLogLevel ddLogLevel;
             
             DDLogDebug(@"[DEBUG] Target NetInstall disk image is NOT mounted");
             
-            // ------------------------------------------------------------------
-            //  Attach and mount NetInstall if shadow path is not set in target
-            // ------------------------------------------------------------------
-            if ( [NBCDiskImageController attachNetInstallDiskImageWithShadowFile:[[_workflowItem target] nbiNetInstallURL] target:[_workflowItem target]  error:&error] ) {
+            dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+            dispatch_async(taskQueue, ^{
                 
-                NSURL *netInstallVolumeURL = [[_workflowItem target] nbiNetInstallVolumeURL];
-                DDLogDebug(@"[DEBUG] NetInstall disk image volume path: %@", [netInstallVolumeURL path]);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    DDLogInfo(@"Attaching NetInstall disk image with shadow...");
+                    [self->_delegate updateProgressStatus:@"Attaching NetInstall disk image with shadow..." workflow:self];
+                    [self->_delegate updateProgressBar:(( 55.0 * self->_progressPercentage ) + self->_progressOffset )];
+                });
                 
-                if ( [netInstallVolumeURL checkResourceIsReachableAndReturnError:&error] ) {
+                // ------------------------------------------------------------------
+                //  Attach and mount NetInstall if shadow path is not set in target
+                // ------------------------------------------------------------------
+                if ( [NBCDiskImageController attachNetInstallDiskImageWithShadowFile:[[self->_workflowItem target] nbiNetInstallURL] target:[self->_workflowItem target]  error:&error] ) {
                     
-                    [self setCurrentVolume:@"NetInstall"];
-                    [self setCurrentVolumeURL:netInstallVolumeURL];
-                    [self setCurrentVolumeResources:resourcesNetInstallDict];
+                    NSURL *netInstallVolumeURL = [[self->_workflowItem target] nbiNetInstallVolumeURL];
+                    DDLogDebug(@"[DEBUG] NetInstall disk image volume path: %@", [netInstallVolumeURL path]);
                     
-                    // ------------------------------------------------------------------
-                    //  Delete and recreate folder Packages
-                    // ------------------------------------------------------------------
-                    if ( (
-                          [_creationTool isEqualToString:NBCMenuItemNBICreator] ||
-                          [_workflowItem workflowType] == kWorkflowTypeImagr ||
-                          [_workflowItem workflowType] == kWorkflowTypeCasper
-                          ) && (
-                                [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeInstallerApplication] ||
-                                [[[_workflowItem source] sourceType] isEqualToString:NBCSourceTypeInstallESDDiskImage]
-                                ) ) {
+                    if ( [netInstallVolumeURL checkResourceIsReachableAndReturnError:&error] ) {
                         
-                        // ---------------------------------------------------------------
-                        //  Remove folder Packages and recreate an empty version
-                        // ---------------------------------------------------------------
-                        [self removeFolderPackagesInNetInstallVolume:netInstallVolumeURL];
+                        [self setCurrentVolume:@"NetInstall"];
+                        [self setCurrentVolumeURL:netInstallVolumeURL];
+                        [self setCurrentVolumeResources:resourcesNetInstallDict];
+                        
+                        // ------------------------------------------------------------------
+                        //  Delete and recreate folder Packages
+                        // ------------------------------------------------------------------
+                        if ( (
+                              [self->_creationTool isEqualToString:NBCMenuItemNBICreator] ||
+                              [self->_workflowItem workflowType] == kWorkflowTypeImagr ||
+                              [self->_workflowItem workflowType] == kWorkflowTypeCasper
+                              ) && (
+                                    [[[self->_workflowItem source] sourceType] isEqualToString:NBCSourceTypeInstallerApplication] ||
+                                    [[[self->_workflowItem source] sourceType] isEqualToString:NBCSourceTypeInstallESDDiskImage]
+                                    ) ) {
+                            
+                            // ---------------------------------------------------------------
+                            //  Remove folder Packages and recreate an empty version
+                            // ---------------------------------------------------------------
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self removeFolderPackagesInNetInstallVolume:netInstallVolumeURL];
+                            });
+                        } else {
+                            
+                            // ---------------------------------------------------------------
+                            //  Install Packages
+                            // ---------------------------------------------------------------
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                [self installPackagesToVolume];
+                            });
+                        }
                     } else {
-                        
-                        // ---------------------------------------------------------------
-                        //  Install Packages
-                        // ---------------------------------------------------------------
-                        [self installPackagesToVolume];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                                object:self
+                                                                              userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Attach NetInstall returned yes but can't find volume path"] }];
+                        });
                     }
                 } else {
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                        object:self
-                                                                      userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Attach NetInstall returned yes but can't find volume path"] }];
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                            object:self
+                                                                          userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Resize and mount NetInstall failed"] }];
+                    });
                 }
-            } else {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                    object:self
-                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Resize and mount NetInstall failed"] }];
-            }
+            });
         }
     } else {
-        [self finalizeWorkflow];
+        [self applyModificationsToVolume];
     }
 } // modifyVolumeNetInstall
 
@@ -571,41 +630,33 @@ DDLogLevel ddLogLevel;
     
     DDLogDebug(@"[DEBUG] Current volume is: %@", _currentVolume);
     
+    if ( ! [_currentVolume isEqualToString:@"BaseSystem"] && ! [_currentVolume isEqualToString:@"NetInstall"] ) {
+        DDLogDebug(@"[DEBUG] Current volume is unknown, setting current volume to BaseSystem...");
+        [self setCurrentVolume:@"BaseSystem"];
+    }
+    
     NSDictionary *userSettings = [_workflowItem userSettings];
-    NSDictionary *userSettingsChanged = [_workflowItem userSettingsChanged];
     NSString *creationTool = userSettings[NBCSettingsNBICreationToolKey];
     
     if ( [_currentVolume isEqualToString:@"BaseSystem"] ) {
         
-        if ( ( ! _isNBI && ! _updatedKernelCache && (
-                                                     [[_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] ||
-                                                     [[_workflowItem userSettings][NBCSettingsDisableBluetoothKey] boolValue] )
-              ) || ( _isNBI && ! _updatedKernelCache && (
-                                                         [userSettingsChanged[NBCSettingsDisableWiFiKey] boolValue] ||
-                                                         [userSettingsChanged[NBCSettingsDisableBluetoothKey] boolValue]
-                                                         )
-                    ) ) {
-            [self updateKernelCache];
-            return;
-        }
-        
         if ( ! _isNBI || (
-                          [userSettingsChanged[NBCSettingsARDLoginKey] boolValue] ||
-                          [userSettingsChanged[NBCSettingsARDPasswordKey] boolValue]
+                          [_userSettingsChanged[NBCSettingsARDLoginKey] boolValue] ||
+                          [_userSettingsChanged[NBCSettingsARDPasswordKey] boolValue]
                           ) ) {
-            if ( [userSettings[NBCSettingsARDPasswordKey] length] != 0 && ! _addedUsers ) {
+            if ( ! _addedUsers && [userSettings[NBCSettingsARDPasswordKey] length] != 0 ) {
                 [self addUsers];
                 return;
             }
         }
         
-        if ( [creationTool isEqualToString:NBCMenuItemNBICreator] ) {
-            [self finalizeWorkflow];
-        } else if ( [creationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+        if ( [creationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
             [self modifyVolumeNetInstall];
+        } else {
+            [self applyModificationsToVolume];
         }
     } else if ( [_currentVolume isEqualToString:@"NetInstall"] ) {
-        [self finalizeWorkflow];
+        [self applyModificationsToVolume];
     }
 } // modifyComplete
 
@@ -641,7 +692,7 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Converting BaseSystem disk image and shadow file...");
     [_delegate updateProgressStatus:@"Converting BaseSystem disk image and shadow file..." workflow:self];
-    [_delegate updateProgressBar:98.0];
+    [_delegate updateProgressBar:(( 95.0 * _progressPercentage ) + _progressOffset )];
     
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
@@ -766,6 +817,24 @@ DDLogLevel ddLogLevel;
                                                                       userInfo:@{ NBCUserInfoNSErrorKey : error }];
                 });
             }
+        } else if ( [self->_creationTool isEqualToString:NBCMenuItemNBICreator] ) {
+            DDLogDebug(@"[DEBUG] Renaming %@ to NetInstall.dmg...", [baseSystemDiskImageURL lastPathComponent]);
+            DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
+            
+            NSURL *netInstallDiskImageURL = [[baseSystemDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"NetInstall.dmg"];
+            DDLogDebug(@"[DEBUG] NetInstall disk image path: %@", [netInstallDiskImageURL path]);
+            
+            if ( [[[NSFileManager alloc] init] moveItemAtURL:baseSystemDiskImageURL toURL:netInstallDiskImageURL error:&error] ) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self finalizeWorkflow];
+                });
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                        object:self
+                                                                      userInfo:@{ NBCUserInfoNSErrorKey : error }];
+                });
+            }
         } else {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self finalizeWorkflow];
@@ -820,7 +889,7 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Converting NetInstall disk image and shadow file...");
     [self->_delegate updateProgressStatus:@"Converting NetInstall disk image and shadow file..." workflow:self];
-    [_delegate updateProgressBar:99.0];
+    [_delegate updateProgressBar:(( 99.0 * _progressPercentage ) + _progressOffset)];
     
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
@@ -1026,6 +1095,9 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)installPackagesToVolume {
+    
+    [_delegate updateProgressBar:(( 25.0 * _progressPercentage ) + _progressOffset)];
+    
     NSArray *packagesArray = _currentVolumeResources[NBCWorkflowInstall];
     if ( [packagesArray count] != 0 ) {
         
@@ -1057,6 +1129,9 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)copyFilesToVolume {
+    
+    [_delegate updateProgressBar:(( 30.0 * _progressPercentage ) + _progressOffset)];
+    
     NSArray *copyArray = _currentVolumeResources[NBCWorkflowCopy];
     if ( [copyArray count] != 0 ) {
         
@@ -1076,9 +1151,15 @@ DDLogLevel ddLogLevel;
                 });
             }] copyResourcesToVolume:self->_currentVolumeURL copyArray:copyArray withReply:^(NSError *error, int terminationStatus) {
                 if ( terminationStatus == 0 ) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self applyModificationsToVolume];
-                    });
+                    if ( ! self->_isNBI ) {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self disableSpotlightOnVolume];
+                        });
+                    } else {
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [self modifyComplete];
+                        });
+                    }
                 } else {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self copyFailedWithError:error];
@@ -1087,7 +1168,15 @@ DDLogLevel ddLogLevel;
             }];
         });
     } else {
-        [self applyModificationsToVolume];
+        if ( ! self->_isNBI ) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self disableSpotlightOnVolume];
+            });
+        } else {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self modifyComplete];
+            });
+        }
     }
 } // copyFilesToVolume
 
@@ -1104,11 +1193,16 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)removeFolderPackagesInNetInstallVolume:(NSURL *)netInstallVolumeURL {
+    
+    [_delegate updateProgressBar:(( 60.0 * _progressPercentage ) + _progressOffset)];
+    
     NSURL *packagesFolderURL = [netInstallVolumeURL URLByAppendingPathComponent:@"Packages"];
     DDLogDebug(@"[DEBUG] Packages folder path: %@", [packagesFolderURL path]);
     
     if ( [packagesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+        
         DDLogInfo(@"Removing folder Packages in NetInstall volume...");
+        [_delegate updateProgressStatus:@"Removing folder Packages in NetInstall volume..." workflow:self];
         
         dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(taskQueue, ^{
@@ -1140,7 +1234,10 @@ DDLogLevel ddLogLevel;
 
 - (void)createFolderPackagesInNetInstallVolume:(NSURL *)packagesFolderURL {
     
+    [_delegate updateProgressBar:(( 62.5 * _progressPercentage ) + _progressOffset)];
+    
     DDLogInfo(@"Creating empty folder Packages/Extra in NetInstall volume...");
+    [_delegate updateProgressStatus:@"Creating empty folder Packages/Extra in NetInstall volume..." workflow:self];
     
     NSError *error;
     
@@ -1166,6 +1263,8 @@ DDLogLevel ddLogLevel;
 
 - (void)applyModificationsToVolume {
     
+    [_delegate updateProgressBar:(( 85.0 * _progressPercentage ) + _progressOffset)];
+    
     NSError *err = nil;
     
     if ( ! _modificationsApplied ) {
@@ -1190,15 +1289,20 @@ DDLogLevel ddLogLevel;
                 }] modifyResourcesOnVolume:self->_currentVolumeURL modificationsArray:modificationsArray withReply:^(NSError *error, int terminationStatus) {
                     [self setModificationsApplied:YES];
                     if ( terminationStatus == 0 ) {
-                        if ( ! self->_isNBI ) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                [self disableSpotlightOnVolume];
-                            });
-                        } else {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                [self modifyComplete];
-                            });
-                        }
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if ( ( ! self->_isNBI && (
+                                                      [[self->_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] ||
+                                                      [[self->_workflowItem userSettings][NBCSettingsDisableBluetoothKey] boolValue]
+                                                      ) ) || ( self->_isNBI && (
+                                                                                [self->_userSettingsChanged[NBCSettingsDisableWiFiKey] boolValue] ||
+                                                                                [self->_userSettingsChanged[NBCSettingsDisableBluetoothKey] boolValue]
+                                                                                )
+                                                              ) ) {
+                                [self updateKernelCache];
+                            } else {
+                                [self finalizeWorkflow];
+                            }
+                        });
                     } else {
                         dispatch_async(dispatch_get_main_queue(), ^{
                             [self modifyFailedWithError:error];
@@ -1208,11 +1312,20 @@ DDLogLevel ddLogLevel;
             });
         } else {
             if ( ! err ) {
-                if ( ! _isNBI ) {
-                    [self disableSpotlightOnVolume];
-                } else {
-                    [self modifyComplete];
-                }
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if ( ( ! self->_isNBI && (
+                                              [[self->_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] ||
+                                              [[self->_workflowItem userSettings][NBCSettingsDisableBluetoothKey] boolValue]
+                                              ) ) || ( self->_isNBI && (
+                                                                        [self->_userSettingsChanged[NBCSettingsDisableWiFiKey] boolValue] ||
+                                                                        [self->_userSettingsChanged[NBCSettingsDisableBluetoothKey] boolValue]
+                                                                        )
+                                                      ) ) {
+                        [self updateKernelCache];
+                    } else {
+                        [self finalizeWorkflow];
+                    }
+                });
             } else {
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                     object:self
@@ -1221,11 +1334,20 @@ DDLogLevel ddLogLevel;
         }
     } else {
         DDLogInfo(@"Modifications have already been applied...");
-        if ( ! _isNBI ) {
-            [self disableSpotlightOnVolume];
-        } else {
-            [self modifyComplete];
-        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if ( ( ! self->_isNBI && (
+                                      [[self->_workflowItem userSettings][NBCSettingsDisableWiFiKey] boolValue] ||
+                                      [[self->_workflowItem userSettings][NBCSettingsDisableBluetoothKey] boolValue]
+                                      ) ) || ( self->_isNBI && (
+                                                                [self->_userSettingsChanged[NBCSettingsDisableWiFiKey] boolValue] ||
+                                                                [self->_userSettingsChanged[NBCSettingsDisableBluetoothKey] boolValue]
+                                                                )
+                                              ) ) {
+                [self updateKernelCache];
+            } else {
+                [self finalizeWorkflow];
+            }
+        });
     }
 } // applyModificationsToVolume
 
@@ -1239,6 +1361,7 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Disabling spotlight on volume...");
     [_delegate updateProgressStatus:@"Disabling spotlight on volume..." workflow:self];
+    [_delegate updateProgressBar:(( 35.0 * _progressPercentage ) + _progressOffset)];
     
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
@@ -1278,6 +1401,7 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Generating prelinked kernel and dyld caches...");
     [_delegate updateProgressStatus:@"Generating prelinked kernel and dyld caches..." workflow:self];
+    [_delegate updateProgressBar:(( 90.0 * _progressPercentage ) + _progressOffset)];
     
     NSError *err;
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
@@ -1311,9 +1435,8 @@ DDLogLevel ddLogLevel;
             });
         }] runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:@{} withReply:^(NSError *error, int terminationStatus) {
             if ( terminationStatus == 0 ) {
-                [self setUpdatedKernelCache:YES];
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    [self modifyComplete];
+                    [self finalizeWorkflow];
                 });
             } else {
                 dispatch_async(dispatch_get_main_queue(), ^{
@@ -1334,6 +1457,7 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Adding users...");
     [_delegate updateProgressStatus:@"Adding users..." workflow:self];
+    [_delegate updateProgressBar:(( 45.0 * _progressPercentage ) + _progressOffset)];
     
     NSError *err;
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
