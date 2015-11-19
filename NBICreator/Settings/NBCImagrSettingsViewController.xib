@@ -1341,8 +1341,8 @@ asdasd</string>
                                             <action selector="buttonManageTrustedServers:" target="-2" id="weW-te-xzF"/>
                                         </connections>
                                     </button>
-                                    <button misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="LDr-J1-Sdx">
-                                        <rect key="frame" x="18" y="106" width="157" height="18"/>
+                                    <button translatesAutoresizingMaskIntoConstraints="NO" id="LDr-J1-Sdx">
+                                        <rect key="frame" x="18" y="106" width="126" height="18"/>
                                         <animations/>
                                         <buttonCell key="cell" type="check" title="Add background:" bezelStyle="regularSquare" imagePosition="left" refusesFirstResponder="YES" state="on" inset="2" id="cn8-Vf-CnH">
                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -1578,6 +1578,9 @@ asdasd</string>
                                     </textField>
                                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4Vf-Sb-oV1" userLabel="Configuration URL">
                                         <rect key="frame" x="144" y="254" width="370" height="22"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="22" id="zzb-53-ajo"/>
+                                        </constraints>
                                         <animations/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="http://192.168.178.135/imagr_config.plist" drawsBackground="YES" id="LIr-q5-tzm">
                                             <font key="font" metaFont="system"/>
