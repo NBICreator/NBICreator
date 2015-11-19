@@ -1381,6 +1381,7 @@ DDLogLevel ddLogLevel;
         //  Add NBICreator static RAMDisks
         // ------------------------------------------------------------------------------
         if ( [rcCdmCdrom length] != 0 ) {
+            [rcCdmCdrom appendString:@"RAMDisk /tmp 32768\n"];
             [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches 32768\n"];
             [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches/com.apple.CVMS 32768\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/db/lsd 2048\n"];
@@ -1724,7 +1725,7 @@ DDLogLevel ddLogLevel;
                                                                                              error:nil] ?: @{
                                                                                                              NSFileOwnerAccountName :       @"root",
                                                                                                              NSFileGroupOwnerAccountName :  @"wheel",
-                                                                                                             NSFilePosixPermissions :       @0644
+                                                                                                             NSFilePosixPermissions :       @0755
                                                                                                              };
         
         // Update modification array
