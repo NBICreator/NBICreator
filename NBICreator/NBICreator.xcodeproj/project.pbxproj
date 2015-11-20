@@ -19,6 +19,8 @@
 		53121EA11AD5C24A004515D6 /* NBCPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 53121E9F1AD5C24A004515D6 /* NBCPreferences.m */; };
 		53121EA21AD5C24A004515D6 /* NBCPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53121EA01AD5C24A004515D6 /* NBCPreferences.xib */; };
 		5318EF6E1B729B3400F818FC /* NBCCertificateTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */; };
+		5319A52C1BFFD5EA002014EE /* SNTCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5319A5291BFFD5EA002014EE /* SNTCertificate.m */; };
+		5319A52D1BFFD5EA002014EE /* SNTCodesignChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 5319A52B1BFFD5EA002014EE /* SNTCodesignChecker.m */; };
 		531E7F4F1B0A5D88001573E7 /* ImagrDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */; };
 		5324335A1B0E691300152DC6 /* NBCConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53383D141AFA9D3000C041F9 /* NBCConstants.m */; };
 		532A67901B18D98C007528AE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 532A678F1B18D98C007528AE /* SystemConfiguration.framework */; };
@@ -303,6 +305,10 @@
 		53121EA01AD5C24A004515D6 /* NBCPreferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCPreferences.xib; path = "UI Controllers/NBCPreferences.xib"; sourceTree = SOURCE_ROOT; };
 		5318EF6C1B729B3400F818FC /* NBCCertificateTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCCertificateTableCellView.h; path = "../TableView Resources/NBCCertificateTableCellView.h"; sourceTree = "<group>"; };
 		5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCCertificateTableCellView.m; path = "../TableView Resources/NBCCertificateTableCellView.m"; sourceTree = "<group>"; };
+		5319A5281BFFD5EA002014EE /* SNTCertificate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SNTCertificate.h; path = Helper/SNTCertificate.h; sourceTree = SOURCE_ROOT; };
+		5319A5291BFFD5EA002014EE /* SNTCertificate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SNTCertificate.m; path = Helper/SNTCertificate.m; sourceTree = SOURCE_ROOT; };
+		5319A52A1BFFD5EA002014EE /* SNTCodesignChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SNTCodesignChecker.h; path = Helper/SNTCodesignChecker.h; sourceTree = SOURCE_ROOT; };
+		5319A52B1BFFD5EA002014EE /* SNTCodesignChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SNTCodesignChecker.m; path = Helper/SNTCodesignChecker.m; sourceTree = SOURCE_ROOT; };
 		531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = ImagrDefaults.plist; path = "Supporting Files/Property Lists/ImagrDefaults.plist"; sourceTree = "<group>"; };
 		532A678F1B18D98C007528AE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		532A67941B18EBC9007528AE /* Reachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Reachability.h; path = Networking/Reachability.h; sourceTree = "<group>"; };
@@ -700,6 +706,10 @@
 				538D6BB91BF3E77500E58468 /* NBCHelperConnection.h */,
 				538D6BBA1BF3E77500E58468 /* NBCHelperConnection.m */,
 				538D6BBB1BF3E77500E58468 /* NBCHelperProtocol.h */,
+				5319A5281BFFD5EA002014EE /* SNTCertificate.h */,
+				5319A5291BFFD5EA002014EE /* SNTCertificate.m */,
+				5319A52A1BFFD5EA002014EE /* SNTCodesignChecker.h */,
+				5319A52B1BFFD5EA002014EE /* SNTCodesignChecker.m */,
 				53950AD31A93D7C500E9EF39 /* Supporting Files */,
 			);
 			name = Helper;
@@ -1360,6 +1370,7 @@
 				53F6122F1AFFEA3B00CFD435 /* NBCWorkflowResourcesController.m in Sources */,
 				53E5B8641B06FE1500A771F7 /* NBCTemplatesController.m in Sources */,
 				53F33A881B08C3D50022C68F /* NBCAlerts.m in Sources */,
+				5319A52D1BFFD5EA002014EE /* SNTCodesignChecker.m in Sources */,
 				53CBA96D1ADE556600385C89 /* XPathQuery.m in Sources */,
 				53CD5C1C1BB5C5BA0047E879 /* NBCApplicationSourceXcode.m in Sources */,
 				539BE69F1B009A0000825C78 /* NBCInstallerPackageController.m in Sources */,
@@ -1369,6 +1380,7 @@
 				53D34DA01B740DA600F11CFF /* NBCPackageTableCellView.m in Sources */,
 				53931B9D1AED511B0076C1CC /* NBCVariables.m in Sources */,
 				534C66A31AE37422004A6DEE /* NBCSettingsController.m in Sources */,
+				5319A52C1BFFD5EA002014EE /* SNTCertificate.m in Sources */,
 				5353A00B1BB534D400679A4F /* unzip.c in Sources */,
 				53CBB1C51ACF253200B83089 /* NBCWorkflowPanelController.m in Sources */,
 				53BC04021AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.m in Sources */,
