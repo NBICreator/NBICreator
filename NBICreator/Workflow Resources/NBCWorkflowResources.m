@@ -219,13 +219,6 @@ DDLogLevel ddLogLevel;
                                             [_settingsChanged[NBCSettingsBackgroundImageKey] boolValue]
                                             ) ) ) {
         if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] && ! [_userSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCBackgroundImageDefaultPath] ) {
-            if ( ! [self addCopyDesktopViewer:&error] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                    object:self
-                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing NBICreatorDesktopViewer.app failed"]}];
-                return;
-            }
-            
             if ( ! [self addCopyDesktopPictureCustom:&error] ) {
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                     object:self
@@ -234,6 +227,26 @@ DDLogLevel ddLogLevel;
             }
         }
     }
+    
+    // --------------------------------------------------------------------------------
+    // NBICreatorDesktopViewer.app
+    // --------------------------------------------------------------------------------
+    if ( ( ! _isNBI && (
+                        _workflowType == kWorkflowTypeImagr ||
+                        _workflowType == kWorkflowTypeCasper
+                        ) ) || ( _isNBI && (
+                                            [_settingsChanged[NBCSettingsUseBackgroundImageKey] boolValue]
+                                            ) ) ) {
+        if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+            if ( ! [self addCopyDesktopViewer:&error] ) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing NBICreatorDesktopViewer.app failed"]}];
+                return;
+            }
+        }
+    }
+    
     
     if ( _workflowType == kWorkflowTypeImagr ) {
         
