@@ -36,5 +36,6 @@
 // -------------------------------------------------------------
 - (id)initWithDelegate:(id<NBCInstallerPackageDelegate>)delegate;
 - (void)installPackagesToVolume:(NSURL *)volumeURL packages:(NSArray *)packages;
++ (NSArray *)convertPackagesToProductArchivePackages:(NSArray *)packages;
 
 @end

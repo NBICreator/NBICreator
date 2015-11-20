@@ -204,6 +204,24 @@ DDLogLevel ddLogLevel;
     }];
 }
 
+- (void)showAlertIncorrectPackageType:(NSArray *)pkgDictArray alertInfo:(NSDictionary *)alertInfo {
+    NSMutableString *packageList = [[NSMutableString alloc] init];
+    for ( NSDictionary *pkgDict in pkgDictArray ) {
+        [packageList appendString:[NSString stringWithFormat:@"\n• %@", pkgDict[NBCDictionaryKeyName]]];
+    }
+    
+    NSString *text = [NSString stringWithFormat:@"Component packages to be installed by System Image Utility need to be incorporated into a product archive.\n\nThe following packages have to be updated:\n%@\n\nWould you like to create a temporary product archive version of the package(s) to be included in the NBI?", packageList];
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:NBCButtonTitleCancel];                                                    // NSAlertFirstButtonReturn
+    [alert addButtonWithTitle:( [pkgDictArray count] <= 1 ) ? @"Update Package" : @"Update Packages"];  // NSAlertSecondButtonReturn
+    [alert setMessageText:@"Incorrect Package Type"];
+    [alert setInformativeText:text];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+    }];
+}
+
 - (void)showAlertSettingsUnsaved:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     
     NSAlert *alert = [[NSAlert alloc] init];

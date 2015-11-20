@@ -48,6 +48,7 @@ NSString *const NBCFolderResourcesCacheDeployStudio = @"com.github.NBICreator/Re
 NSString *const NBCFolderResourcesCacheImagr = @"com.github.NBICreator/Resources/Imagr";
 NSString *const NBCFolderResourcesCacheCasper = @"com.github.NBICreator/Resources/Casper";
 NSString *const NBCFolderResourcesCacheSource = @"com.github.NBICreator/Resources/Source";
+NSString *const NBCFolderResourcesCachePackages = @"com.github.NBICreator/Resources/Packages";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark File Names
@@ -404,6 +405,7 @@ NSString *const NBCDictionaryKeyName = @"Name";
 NSString *const NBCDictionaryKeyPackagePath = @"PackagePath";
 NSString *const NBCDictionaryKeyPackageName = @"PackageName";
 NSString *const NBCDictionaryKeyPackageFormat = @"PackageFormat";
+NSString *const NBCDictionaryKeyPackageType = @"PackageType";
 
 NSString *const NBCDictionaryKeyConfigurationProfilePath = @"ConfigurationProfilePath";
 NSString *const NBCDictionaryKeyConfigurationProfilePayloadDisplayName = @"PayloadDisplayName";
@@ -447,8 +449,10 @@ NSString *const NBCAlertTagSettingsUnsaved = @"SettingsUnsaved";
 NSString *const NBCAlertTagSettingsUnsavedQuit = @"SettingsUnsavedQuit";
 NSString *const NBCAlertTagSettingsUnsavedQuitNoSave = @"SettingsUnsavedQuitNoSave";
 NSString *const NBCAlertTagSettingsUnsavedBuild = @"SettingsUnsavedBuild";
-NSString *const NBCAlertWorkflowItemKey = @"WorkflowItem";
 NSString *const NBCAlertTagWorkflowRunningQuit = @"WorkflowRunningQuit";
+NSString *const NBCAlertTagIncorrectPackageType = @"IncorrectPackageType";
+NSString *const NBCAlertWorkflowItemKey = @"WorkflowItem";
+NSString *const NBCAlertResourceKey = @"Resources";
 
 NSString *const NBCAlertUserInfoSelectedTemplate = @"SelectedTemplate";
 NSString *const NBCAlertUserInfoTemplateURL = @"TemplateURL";

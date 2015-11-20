@@ -31,6 +31,7 @@
 #import "NBCError.h"
 #import "NSString+validIP.h"
 #import "NBCNetInstallTrustedNetBootServerCellView.h"
+#import "NBCInstallerPackageController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -284,6 +285,28 @@ DDLogLevel ddLogLevel;
             [_popUpButtonTemplates selectItemWithTitle:_selectedTemplate];
             return;
         }
+    } else if ( [alertTag isEqualToString:NBCAlertTagIncorrectPackageType] ) {
+        if ( returnCode == NSAlertFirstButtonReturn ) {         // Cancel
+            DDLogDebug(@"[DEBUG] Canceled package update");
+        } else if ( returnCode == NSAlertSecondButtonReturn ) { // Update Package
+            NSArray *productArchivePackageURLs = [NBCInstallerPackageController convertPackagesToProductArchivePackages:alertInfo[NBCAlertResourceKey] ?: @[]];
+            NSMutableArray *incorrectPackageTypes = [[NSMutableArray alloc] init];
+            for ( NSURL *packageURL in productArchivePackageURLs ) {
+                NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
+                if ( [packageDict count] != 0 ) {
+                    if ( ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] || ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"] ) {
+                        [incorrectPackageTypes addObject:packageDict];
+                    } else {
+                        [self insertItemInPackagesNetInstallTableView:packageDict];
+                    }
+                }
+            }
+            
+            if ( [incorrectPackageTypes count] != 0 ) {
+                NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
+                [alert showAlertIncorrectPackageType:incorrectPackageTypes alertInfo:@{  }];
+            }
+        }
     }
 } // alertReturnCode:alertInfo
 
@@ -389,20 +412,34 @@ DDLogLevel ddLogLevel;
     [_tableViewPackagesNetInstall reloadData];
     if ( [settingsDict[NBCSettingsNetInstallPackagesKey] count] != 0 ) {
         NSArray *packagesArray = settingsDict[NBCSettingsNetInstallPackagesKey];
-        NSMutableArray *bundleStylePackages = [[NSMutableArray alloc] init];
+        NSMutableArray *incorrectPackageTypes = [[NSMutableArray alloc] init];
         for ( NSString *packagePath in packagesArray ) {
             NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
             NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
             if ( [packageDict count] != 0 ) {
-                if ( /* DISABLES CODE */ (NO) ) {
-                    [bundleStylePackages addObject:packageDict];
+                NSString *packageName = packageDict[NBCDictionaryKeyName];
+                for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
+                    if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
+                        DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
+                        return;
+                    }
+                    
+                    if ( [packageName isEqualToString:pkgDict[NBCDictionaryKeyName]] ) {
+                        DDLogWarn(@"A package with the name: \"%@\" has already been added!", [packagePath lastPathComponent]);
+                        return;
+                    }
+                }
+                
+                if ( ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] || ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"] ) {
+                    [incorrectPackageTypes addObject:packageDict];
                 } else {
                     [self insertItemInPackagesNetInstallTableView:packageDict];
                 }
             }
         }
-        if ( [bundleStylePackages count] != 0 ) {
-            [NBCAlerts showAlertErrorWithTitle:@"Bundle Packages!" informativeText:[NSString stringWithFormat:@"%lu paket!", (unsigned long)[bundleStylePackages count]]];
+        if ( [incorrectPackageTypes count] != 0 ) {
+            NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
+            [alert showAlertIncorrectPackageType:incorrectPackageTypes alertInfo:@{  }];
         }
     } else {
         [_viewOverlayPackagesNetInstall setHidden:NO];
@@ -729,14 +766,28 @@ DDLogLevel ddLogLevel;
     if ( [addPackages runModal] == NSModalResponseOK ) {
         NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
         NSArray* selectedURLs = [addPackages URLs];
-        NSMutableArray *bundleStylePackages = [[NSMutableArray alloc] init];
+        NSMutableArray *incorrectPackageTypes = [[NSMutableArray alloc] init];
         for ( NSURL *url in selectedURLs ) {
             NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:[url path] error:nil];
             if ( [workspace type:fileType conformsToType:@"com.apple.installer-package-archive"] ) {
                 NSDictionary *packageDict = [self examinePackageAtURL:url];
                 if ( [packageDict count] != 0 ) {
-                    if ( /* DISABLES CODE */ (NO) ) {
-                        [bundleStylePackages addObject:packageDict];
+                    NSString *packagePath = packageDict[NBCDictionaryKeyPath];
+                    NSString *packageName = packageDict[NBCDictionaryKeyName];
+                    for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
+                        if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
+                            DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
+                            return;
+                        }
+                        
+                        if ( [packageName isEqualToString:pkgDict[NBCDictionaryKeyName]] ) {
+                            DDLogWarn(@"A package with the name: \"%@\" has already been added!", [packagePath lastPathComponent]);
+                            return;
+                        }
+                    }
+                    
+                    if ( ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] || ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"] ) {
+                        [incorrectPackageTypes addObject:packageDict];
                     } else {
                         [self insertItemInPackagesNetInstallTableView:packageDict];
                     }
@@ -750,8 +801,9 @@ DDLogLevel ddLogLevel;
                 }
             }
         }
-        if ( [bundleStylePackages count] != 0 ) {
-            [NBCAlerts showAlertErrorWithTitle:@"Bundle Packages!" informativeText:[NSString stringWithFormat:@"%lu paket!", (unsigned long)[bundleStylePackages count]]];
+        if ( [incorrectPackageTypes count] != 0 ) {
+            NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
+            [alert showAlertIncorrectPackageType:incorrectPackageTypes alertInfo:@{  }];
         }
     }
 }
@@ -1165,13 +1217,69 @@ DDLogLevel ddLogLevel;
     
     DDLogDebug(@"[DEBUG] Examine installer package...");
     
+    NSError *error = nil;
     NSMutableDictionary *newPackageDict = [[NSMutableDictionary alloc] init];
 
+    // -------------------------------------------------------------
+    //  Package Format ( Bundle or Flat )
+    // -------------------------------------------------------------
+    NSNumber *isDirectory;
+    BOOL success = [url getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:&error];
+    if ( success ) {
+        if ( [isDirectory boolValue] ) {
+            newPackageDict[NBCDictionaryKeyPackageFormat] = @"Bundle";
+        } else {
+            newPackageDict[NBCDictionaryKeyPackageFormat] = @"Flat";
+        }
+    } else {
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        newPackageDict[NBCDictionaryKeyPackageFormat] = @"Unknown";
+    }
+    DDLogDebug(@"[DEBUG] Package format: %@", newPackageDict[NBCDictionaryKeyPackageFormat]);
+    
+    // -------------------------------------------------------------
+    //  Package Type ( Component or Product Archive )
+    // -------------------------------------------------------------
+    NSTask *hdiutilTask =  [[NSTask alloc] init];
+    [hdiutilTask setLaunchPath:@"/usr/bin/xar"];
+    NSArray *args = @[ @"-tf", [url path] ];
+    [hdiutilTask setArguments:args];
+    [hdiutilTask setStandardOutput:[NSPipe pipe]];
+    [hdiutilTask setStandardError:[NSPipe pipe]];
+    [hdiutilTask launch];
+    [hdiutilTask waitUntilExit];
+    
+    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+    
+    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+    
+    if ( [hdiutilTask terminationStatus] == 0 ) {
+        if ( [stdOut containsString:@"Distribution"] || [stdOut containsString:@"distribution"] ) {
+            newPackageDict[NBCDictionaryKeyPackageType] = @"Product Archive";
+        } else {
+            newPackageDict[NBCDictionaryKeyPackageType] = @"Component";
+        }
+    } else {
+        DDLogError(@"[xar][stdout] %@", stdOut);
+        DDLogError(@"[xar][stderr] %@", stdErr);
+        DDLogError(@"[ERROR] xar command failed with exit status: %d", [hdiutilTask terminationStatus]);
+        newPackageDict[NBCDictionaryKeyPackageType] = @"Unknown";
+    }
+    DDLogDebug(@"[DEBUG] Package type: %@", newPackageDict[NBCDictionaryKeyPackageType]);
+    
+    // -------------------------------------------------------------
+    //  Package Path
+    // -------------------------------------------------------------
     newPackageDict[NBCDictionaryKeyPath] = [url path] ?: @"Unknown";
     DDLogDebug(@"[DEBUG] Package path: %@", newPackageDict[NBCDictionaryKeyPath]);
     
+    // -------------------------------------------------------------
+    //  Package Name
+    // -------------------------------------------------------------
     newPackageDict[NBCDictionaryKeyName] = [url lastPathComponent] ?: @"Unknown";
-    DDLogDebug(@"[DEBUG] Package pame: %@", newPackageDict[NBCDictionaryKeyName]);
+    DDLogDebug(@"[DEBUG] Package name: %@", newPackageDict[NBCDictionaryKeyName]);
     
     return newPackageDict;
 }
@@ -1577,7 +1685,7 @@ DDLogLevel ddLogLevel;
 - (void)insertItemInPackagesNetInstallTableView:(NSTableView *)tableView draggingInfo:(id<NSDraggingInfo>)info row:(NSInteger)row {
     NSArray *classes = @[ [NBCDesktopPackageEntity class], [NBCDesktopScriptEntity class] ];
     __block NSInteger insertionIndex = row;
-    __block NSMutableArray *bundleStylePackages = [[NSMutableArray alloc] init];
+    __block NSMutableArray *incorrectPackageTypes = [[NSMutableArray alloc] init];
     [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                  usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
@@ -1586,18 +1694,23 @@ DDLogLevel ddLogLevel;
                                          if ( [entity isKindOfClass:[NBCDesktopPackageEntity class]] ) {
                                              NSDictionary *packageDict = [self examinePackageAtURL:[entity fileURL]];
                                              if ( [packageDict count] != 0 ) {
-                                                 if ( /* DISABLES CODE */ (NO) ) {
-                                                     [bundleStylePackages addObject:packageDict];
-                                                 } else {
-                                                     
-                                                     NSString *packagePath = packageDict[NBCDictionaryKeyPath];
-                                                     for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
-                                                         if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
-                                                             DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
-                                                             return;
-                                                         }
+                                                 NSString *packagePath = packageDict[NBCDictionaryKeyPath];
+                                                 NSString *packageName = packageDict[NBCDictionaryKeyName];
+                                                 for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
+                                                     if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
+                                                         DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
+                                                         return;
                                                      }
                                                      
+                                                     if ( [packageName isEqualToString:pkgDict[NBCDictionaryKeyName]] ) {
+                                                         DDLogWarn(@"A package with the name: \"%@\" has already been added!", [packagePath lastPathComponent]);
+                                                         return;
+                                                     }
+                                                 }
+                                                 
+                                                 if ( ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] || ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"] ) {
+                                                     [incorrectPackageTypes addObject:packageDict];
+                                                 } else {
                                                      [self->_packagesNetInstallTableViewContents insertObject:packageDict atIndex:(NSUInteger)insertionIndex];
                                                      [tableView insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)insertionIndex] withAnimation:NSTableViewAnimationEffectGap];
                                                      [draggingItem setDraggingFrame:[tableView frameOfCellAtColumn:0 row:insertionIndex]];
@@ -1630,8 +1743,12 @@ DDLogLevel ddLogLevel;
                                      }
                                  }];
     
-    if ( [bundleStylePackages count] != 0 ) {
-        [NBCAlerts showAlertErrorWithTitle:@"Bundle Packages!" informativeText:[NSString stringWithFormat:@"%lu paket!", (unsigned long)[bundleStylePackages count]]];
+    if ( [incorrectPackageTypes count] != 0 ) {
+        NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
+        [alert showAlertIncorrectPackageType:incorrectPackageTypes alertInfo:@{
+                                                                               NBCAlertTagKey : NBCAlertTagIncorrectPackageType,
+                                                                               NBCAlertResourceKey : incorrectPackageTypes
+                                                                               }];
     }
 }
 

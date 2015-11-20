@@ -48,6 +48,7 @@ extern NSString *const NBCFolderResourcesCacheDeployStudio;
 extern NSString *const NBCFolderResourcesCacheImagr;
 extern NSString *const NBCFolderResourcesCacheCasper;
 extern NSString *const NBCFolderResourcesCacheSource;
+extern NSString *const NBCFolderResourcesCachePackages;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark File Names
@@ -407,7 +408,9 @@ extern NSString *const NBCAlertTagSettingsUnsavedQuitNoSave;
 extern NSString *const NBCAlertTagSettingsUnsavedBuild;
 extern NSString *const NBCAlertTagDeleteTemplate;
 extern NSString *const NBCAlertTagWorkflowRunningQuit;
+extern NSString *const NBCAlertTagIncorrectPackageType;
 extern NSString *const NBCAlertWorkflowItemKey;
+extern NSString *const NBCAlertResourceKey;
 
 extern NSString *const NBCAlertUserInfoSelectedTemplate;
 extern NSString *const NBCAlertUserInfoTemplateURL;
@@ -547,6 +550,7 @@ extern NSString *const NBCDictionaryKeyName;
 extern NSString *const NBCDictionaryKeyPackagePath;
 extern NSString *const NBCDictionaryKeyPackageName;
 extern NSString *const NBCDictionaryKeyPackageFormat;
+extern NSString *const NBCDictionaryKeyPackageType;
 
 extern NSString *const NBCDictionaryKeyConfigurationProfilePath;
 extern NSString *const NBCDictionaryKeyConfigurationProfilePayloadDisplayName;

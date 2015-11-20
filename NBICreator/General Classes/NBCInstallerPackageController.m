@@ -23,6 +23,7 @@
 #import "NBCHelperProtocol.h"
 #import "NBCLogging.h"
 #import "NBCError.h"
+#import "NBCWorkflowResourcesController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -81,7 +82,7 @@ DDLogLevel ddLogLevel;
                                           @"-allowUntrusted",
                                           @"-plist",
                                           nil];
-
+    
     if ( choiceChangesXML ) {
         [installerArguments addObject:@"-applyChoiceChangesXML"];
         [installerArguments addObject:choiceChangesXML];
@@ -167,6 +168,85 @@ DDLogLevel ddLogLevel;
             [self->_delegate installFailedWithError:error];
         }
     }];
+}
+
++ (NSArray *)convertPackagesToProductArchivePackages:(NSArray *)packages {
+    
+    DDLogInfo(@"Converting %lu component package(s) to product archive...", (unsigned long)[packages count]);
+    
+    NSError *error = nil;
+    NSMutableArray *convertedPkgURLArray = [[NSMutableArray alloc] init];
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify package cache folder exist.
+    // -----------------------------------------------------------------------------------
+    NSURL *cacheFolderPackagesURL = [NBCWorkflowResourcesController urlForResourceFolder:NBCFolderResourcesCachePackages];
+    DDLogDebug(@"[DEBUG] Cache folder packages path: %@", cacheFolderPackagesURL);
+    
+    if ( ! [cacheFolderPackagesURL checkResourceIsReachableAndReturnError:nil] ) {
+        if ( ! [[NSFileManager defaultManager] createDirectoryAtURL:cacheFolderPackagesURL withIntermediateDirectories:YES attributes:@{} error:&error] ) {
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
+            return nil;
+        }
+    }
+    
+    // ------------------------------------------------------------------------------------------
+    //  Convert every package in array 'packages' to product archive using /usr/bin/productbuild.
+    // ------------------------------------------------------------------------------------------
+    for ( NSDictionary *pkgDict in packages ) {
+        NSURL *pkgURL = [NSURL fileURLWithPath:pkgDict[NBCDictionaryKeyPath]];
+        DDLogInfo(@"Component package path: %@", [pkgURL path]);
+        
+        if ( [pkgURL checkResourceIsReachableAndReturnError:&error] ) {
+            
+            NSURL *pkgTemporaryFolder = [cacheFolderPackagesURL URLByAppendingPathComponent:[[NSUUID UUID] UUIDString]];
+            DDLogDebug(@"[DEBUG] Product archive package folder path: %@", [pkgTemporaryFolder path]);
+            
+            if ( ! [[NSFileManager defaultManager] createDirectoryAtURL:pkgTemporaryFolder withIntermediateDirectories:YES attributes:@{} error:&error] ) {
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                continue;
+            }
+            
+            NSURL *pkgTargetURL = [pkgTemporaryFolder URLByAppendingPathComponent:[pkgURL lastPathComponent]];
+            DDLogDebug(@"[DEBUG] Product archive package path: %@", [pkgTargetURL path]);
+            
+            if ( ! [pkgTargetURL checkResourceIsReachableAndReturnError:nil] ) {
+                NSTask *productbuildTask =  [[NSTask alloc] init];
+                [productbuildTask setLaunchPath:@"/usr/bin/productbuild"];
+                NSArray *args = @[
+                                  @"--package", [pkgURL path],
+                                  [pkgTargetURL path]
+                                  ];
+                
+                [productbuildTask setArguments:args];
+                [productbuildTask setStandardOutput:[NSPipe pipe]];
+                [productbuildTask setStandardError:[NSPipe pipe]];
+                [productbuildTask launch];
+                [productbuildTask waitUntilExit];
+                
+                NSData *stdOutData = [[[productbuildTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+                NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+                
+                NSData *stdErrData = [[[productbuildTask standardError] fileHandleForReading] readDataToEndOfFile];
+                NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+                
+                if ( [productbuildTask terminationStatus] == 0 ) {
+                    DDLogDebug(@"[DEBUG] productbuild command successful!");
+                    [convertedPkgURLArray addObject:pkgTargetURL];
+                } else {
+                    DDLogError(@"[productbuild][stdout] %@", stdOut);
+                    DDLogError(@"[productbuild][stderr] %@", stdErr);
+                    DDLogError(@"productbuild command failed with exit status: %d", [productbuildTask terminationStatus]);
+                }
+            } else {
+                DDLogError(@"[ERROR] Package already exist at path!");
+            }
+        } else {
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        }
+    }
+    
+    return [convertedPkgURLArray copy];
 }
 
 @end
