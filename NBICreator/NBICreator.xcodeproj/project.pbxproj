@@ -1590,11 +1590,11 @@
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"\"Helper/Supporting Files/NBICreatorHelper-Info.plist\"",
+					"\"${SRCROOT}/Helper/Supporting Files/NBICreatorHelper-Info.plist\"",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"\"Helper/Supporting Files/NBICreatorHelper-Launchd.plist\"",
+					"\"${SRCROOT}/Helper/Supporting Files/NBICreatorHelper-Launchd.plist\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.NBICreatorHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1613,11 +1613,11 @@
 					"-sectcreate",
 					__TEXT,
 					__info_plist,
-					"\"Helper/Supporting Files/NBICreatorHelper-Info.plist\"",
+					"\"${SRCROOT}/Helper/Supporting Files/NBICreatorHelper-Info.plist\"",
 					"-sectcreate",
 					__TEXT,
 					__launchd_plist,
-					"\"Helper/Supporting Files/NBICreatorHelper-Launchd.plist\"",
+					"\"${SRCROOT}/Helper/Supporting Files/NBICreatorHelper-Launchd.plist\"",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.github.NBICreatorHelper;
 				PRODUCT_NAME = "$(TARGET_NAME)";
