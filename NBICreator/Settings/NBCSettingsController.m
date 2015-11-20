@@ -1061,6 +1061,8 @@ DDLogLevel ddLogLevel;
             } else {
                 DDLogError(@"[ERROR] %@", [error localizedDescription]);
             }
+        } else {
+            DDLogError(@"[ERROR] Temporary folder path was empty");
         }
     }
     

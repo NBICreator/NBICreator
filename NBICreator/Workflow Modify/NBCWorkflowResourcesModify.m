@@ -382,7 +382,7 @@ DDLogLevel ddLogLevel;
             for ( NSString *ip in ntpServerArray ) {
                 if ( [ip length] != 0 ) {
                     if ( [ip isValidIPAddress] ) {
-                        DDLogInfo(@"NTP server ip address: %@", ip);
+                        DDLogDebug(@"[DEBUG] NTP server ip address: %@", ip);
                         ntpServer = [ntpServer stringByAppendingString:[NSString stringWithFormat:@"\nserver %@", ip]];
                     } else {
                         *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"NTP server ip address invalid: %@", ip]];
