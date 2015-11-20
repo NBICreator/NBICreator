@@ -413,6 +413,7 @@ DDLogLevel ddLogLevel;
     if ( [settingsDict[NBCSettingsNetInstallPackagesKey] count] != 0 ) {
         NSArray *packagesArray = settingsDict[NBCSettingsNetInstallPackagesKey];
         NSMutableArray *incorrectPackageTypes = [[NSMutableArray alloc] init];
+        NSMutableArray *packageWarning = [[NSMutableArray alloc] init];
         for ( NSString *packagePath in packagesArray ) {
             NSURL *packageURL = [NSURL fileURLWithPath:packagePath];
             NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
@@ -420,11 +421,13 @@ DDLogLevel ddLogLevel;
                 NSString *packageName = packageDict[NBCDictionaryKeyName];
                 for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
                     if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
+                        [packageWarning addObject:packageDict];
                         DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
                         return;
                     }
                     
                     if ( [packageName isEqualToString:pkgDict[NBCDictionaryKeyName]] ) {
+                        [packageWarning addObject:packageDict];
                         DDLogWarn(@"A package with the name: \"%@\" has already been added!", [packagePath lastPathComponent]);
                         return;
                     }
@@ -437,6 +440,11 @@ DDLogLevel ddLogLevel;
                 }
             }
         }
+        
+        if ( [packageWarning count] != 0 ) {
+            [NBCAlerts showAlertPackageAlreadyAdded:packageWarning];
+        }
+        
         if ( [incorrectPackageTypes count] != 0 ) {
             NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
             [alert showAlertIncorrectPackageType:incorrectPackageTypes alertInfo:@{  }];
@@ -767,6 +775,7 @@ DDLogLevel ddLogLevel;
         NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
         NSArray* selectedURLs = [addPackages URLs];
         NSMutableArray *incorrectPackageTypes = [[NSMutableArray alloc] init];
+        NSMutableArray *packageWarning = [[NSMutableArray alloc] init];
         for ( NSURL *url in selectedURLs ) {
             NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:[url path] error:nil];
             if ( [workspace type:fileType conformsToType:@"com.apple.installer-package-archive"] ) {
@@ -776,11 +785,13 @@ DDLogLevel ddLogLevel;
                     NSString *packageName = packageDict[NBCDictionaryKeyName];
                     for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
                         if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
+                            [packageWarning addObject:packageDict];
                             DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
                             return;
                         }
                         
                         if ( [packageName isEqualToString:pkgDict[NBCDictionaryKeyName]] ) {
+                            [packageWarning addObject:packageDict];
                             DDLogWarn(@"A package with the name: \"%@\" has already been added!", [packagePath lastPathComponent]);
                             return;
                         }
@@ -801,6 +812,11 @@ DDLogLevel ddLogLevel;
                 }
             }
         }
+        
+        if ( [packageWarning count] != 0 ) {
+            [NBCAlerts showAlertPackageAlreadyAdded:packageWarning];
+        }
+        
         if ( [incorrectPackageTypes count] != 0 ) {
             NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
             [alert showAlertIncorrectPackageType:incorrectPackageTypes alertInfo:@{  }];
@@ -1686,6 +1702,7 @@ DDLogLevel ddLogLevel;
     NSArray *classes = @[ [NBCDesktopPackageEntity class], [NBCDesktopScriptEntity class] ];
     __block NSInteger insertionIndex = row;
     __block NSMutableArray *incorrectPackageTypes = [[NSMutableArray alloc] init];
+    __block NSMutableArray *packageWarning = [[NSMutableArray alloc] init];
     [info enumerateDraggingItemsWithOptions:0 forView:tableView classes:classes searchOptions:@{}
                                  usingBlock:^(NSDraggingItem *draggingItem, NSInteger idx, BOOL *stop) {
 #pragma unused(idx,stop)
@@ -1698,11 +1715,13 @@ DDLogLevel ddLogLevel;
                                                  NSString *packageName = packageDict[NBCDictionaryKeyName];
                                                  for ( NSDictionary *pkgDict in self->_packagesNetInstallTableViewContents ) {
                                                      if ( [packagePath isEqualToString:pkgDict[NBCDictionaryKeyPath]] ) {
+                                                         [packageWarning addObject:packageDict];
                                                          DDLogWarn(@"Package %@ is already added!", [packagePath lastPathComponent]);
                                                          return;
                                                      }
                                                      
                                                      if ( [packageName isEqualToString:pkgDict[NBCDictionaryKeyName]] ) {
+                                                         [packageWarning addObject:packageDict];
                                                          DDLogWarn(@"A package with the name: \"%@\" has already been added!", [packagePath lastPathComponent]);
                                                          return;
                                                      }
@@ -1742,6 +1761,9 @@ DDLogLevel ddLogLevel;
                                          }
                                      }
                                  }];
+    if ( [packageWarning count] != 0 ) {
+        [NBCAlerts showAlertPackageAlreadyAdded:packageWarning];
+    }
     
     if ( [incorrectPackageTypes count] != 0 ) {
         NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];

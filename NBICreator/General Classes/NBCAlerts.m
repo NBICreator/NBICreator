@@ -222,6 +222,23 @@ DDLogLevel ddLogLevel;
     }];
 }
 
++ (void)showAlertPackageAlreadyAdded:(NSArray *)pkgDictArray {
+    NSMutableString *packageList = [[NSMutableString alloc] init];
+    for ( NSDictionary *pkgDict in pkgDictArray ) {
+        [packageList appendString:[NSString stringWithFormat:@"\n• %@", pkgDict[NBCDictionaryKeyName]]];
+    }
+    
+    NSString *text = [NSString stringWithFormat:@"A package with the same name already exist:\n%@", packageList];
+    NSAlert *alert = [[NSAlert alloc] init];
+    [alert addButtonWithTitle:NBCButtonTitleOK];    // NSAlertFirstButtonReturn
+    [alert setMessageText:@"Package Already Added"];
+    [alert setInformativeText:text];
+    [alert setAlertStyle:NSCriticalAlertStyle];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+#pragma unused(returnCode)
+    }];
+}
+
 - (void)showAlertSettingsUnsaved:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     
     NSAlert *alert = [[NSAlert alloc] init];
