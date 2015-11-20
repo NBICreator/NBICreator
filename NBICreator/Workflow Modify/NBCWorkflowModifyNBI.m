@@ -1026,7 +1026,10 @@ DDLogLevel ddLogLevel;
             NSURL *sparseImageURL = [netInstallFolderURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.sparseimage", sparseImageName]];
             DDLogDebug(@"[DEBUG] NetInstall sparseimage path: %@", [sparseImageURL path]);
             
-            return [[[NSFileManager alloc] init] moveItemAtURL:sparseImageURL toURL:netInstallDiskImageURL error:error];
+            NSURL *dmgURL = [netInstallFolderURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.dmg", sparseImageName]];
+            DDLogDebug(@"[DEBUG] NetInstall disk image path: %@", [dmgURL path]);
+            
+            return [[[NSFileManager alloc] init] moveItemAtURL:sparseImageURL toURL:dmgURL error:error];
         } else {
             DDLogDebug(@"[DEBUG] Creating symlink from NetInstall.dmg to NetInstall.sparseimage...");
             return [self createSymlinkToSparseimageAtURL:netInstallDiskImageURL error:error];
