@@ -191,6 +191,30 @@ DDLogLevel ddLogLevel;
     });
 } // buttonOpenLog
 
+- (IBAction)buttonWorkflowReport:(id)sender {
+#pragma unused(sender)
+    
+    DDLogInfo(@"Saving workflow report...");
+    
+    if ( [[_linkerErrors allKeys] count] != 0 ) {
+        
+        NSSavePanel *panel = [NSSavePanel savePanel];
+        
+        [panel setCanCreateDirectories:YES];
+        [panel setTitle:@"Save Workflow Report"];
+        [panel setPrompt:@"Save"];
+        [panel setNameFieldStringValue:[NSString stringWithFormat:@"%@.plist", [_textFieldTitle stringValue] ?: @""]];
+        [panel beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger result) {
+            if ( result == NSFileHandlingPanelOKButton ) {
+                NSURL *saveURL = [panel URL];
+                if ( ! [self->_linkerErrors writeToURL:saveURL atomically:YES] ) {
+                    DDLogError(@"[ERROR] Saving workflow report failed!");
+                }
+            }
+        }];
+    }
+}
+
 - (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem {
     [self setWorkflowItem:workflowItem];
     [self setNbiURL:[_workflowItem nbiURL]];
@@ -244,6 +268,17 @@ DDLogLevel ddLogLevel;
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
     [_buttonOpenLog setHidden:NO];
+    
+    if ( [[[NSUserDefaults standardUserDefaults] objectForKey:@"WorkflowReportIncludeLinkerWarnings"] boolValue] ) {
+        int warnings = (int)[[_linkerErrors allKeys] count];
+        [_textFieldStatusWarnings setStringValue:[NSString stringWithFormat:@"%d warnings:", warnings]];
+        
+        if ( warnings != 0 ) {
+            [_buttonWorkflowReport setHidden:NO];
+            [_textFieldStatusWarnings setHidden:NO];
+        }
+    }
+    
     [self setIsRunning:NO];
     if ( _timer ) {
         [_timer invalidate];
@@ -285,6 +320,17 @@ DDLogLevel ddLogLevel;
     
     [self setWorkflowComplete:YES];
     [_buttonOpenLog setHidden:NO];
+    
+    if ( [[[NSUserDefaults standardUserDefaults] objectForKey:@"WorkflowReportIncludeLinkerWarnings"] boolValue] ) {
+        int warnings = (int)[[_linkerErrors allKeys] count];
+        [_textFieldStatusWarnings setStringValue:[NSString stringWithFormat:@"%d warnings:", warnings]];
+        
+        if ( warnings != 0 ) {
+            [_buttonWorkflowReport setHidden:NO];
+            [_textFieldStatusWarnings setHidden:NO];
+        }
+    }
+    
     [_progressIndicator setHidden:YES];
     [_progressIndicator stopAnimation:self];
     [self setIsRunning:NO];
@@ -295,6 +341,28 @@ DDLogLevel ddLogLevel;
     dispatch_async(dispatch_get_main_queue(), ^{
         [self updateProgressStatus:[NSString stringWithFormat:@"NBI created successfully in %@!", workflowTime] workflow:self];
     });
+}
+
+- (void)parseDyldError:(NSString *)stdErrStr {
+    
+    NSString *enumerationTmpString;
+    NSArray *enumerationTmpArray;
+    if ( ! _linkerErrors ) {
+        [self setLinkerErrors:[[NSMutableDictionary alloc] init]];
+    }
+    
+    // Here comes some ugly parsing, could simplify this a bit:
+    NSArray *stdErrArray = [stdErrStr componentsSeparatedByString:@", "];
+    for ( NSString *line in stdErrArray ) {
+        if ( [line hasPrefix:@"could not bind"] ) {
+            enumerationTmpString = [line stringByReplacingOccurrencesOfString:@"could not bind " withString:@""];
+            enumerationTmpString = [enumerationTmpString stringByReplacingOccurrencesOfString:@" because realpath() failed on " withString:@"\n"];
+            enumerationTmpArray = [enumerationTmpString componentsSeparatedByString:@"\n"];
+            NSMutableArray *sourceArray = [_linkerErrors[enumerationTmpArray[0]] mutableCopy] ?: [[NSMutableArray alloc] init];
+            [sourceArray addObject:enumerationTmpArray[1]];
+            _linkerErrors[enumerationTmpArray[0]] = [sourceArray copy];
+        }
+    }
 }
 
 - (void)logDebug:(NSString *)logMessage {
@@ -319,6 +387,9 @@ DDLogLevel ddLogLevel;
 
 - (void)logStdErr:(NSString *)stdErrString {
     DDLogDebug(@"[stderr] %@", stdErrString);
+    if ( [stdErrString hasPrefix:@"warning, could not bind"] ) {
+        [self parseDyldError:stdErrString];
+    }
 }
 
 @end

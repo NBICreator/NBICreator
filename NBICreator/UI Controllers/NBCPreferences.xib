@@ -22,14 +22,14 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <window title="NBICreator Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
-            <rect key="contentRect" x="196" y="240" width="509" height="321"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="contentRect" x="196" y="240" width="509" height="356"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" horizontalCompressionResistancePriority="749" id="se5-gp-TjO">
-                <rect key="frame" x="0.0" y="0.0" width="509" height="321"/>
+                <rect key="frame" x="0.0" y="0.0" width="509" height="356"/>
                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                 <subviews>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="p6D-pd-DFQ">
-                        <rect key="frame" x="18" y="284" width="147" height="17"/>
+                        <rect key="frame" x="18" y="319" width="147" height="17"/>
                         <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="NetBoot Index Counter:" id="wlw-Tf-1VH">
                             <font key="font" metaFont="system"/>
@@ -38,7 +38,7 @@
                         </textFieldCell>
                     </textField>
                     <textField verticalHuggingPriority="750" verticalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="7ZX-y2-fu7">
-                        <rect key="frame" x="171" y="281" width="47" height="22"/>
+                        <rect key="frame" x="171" y="316" width="47" height="22"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="47" id="Fnt-g5-KK4"/>
                         </constraints>
@@ -61,7 +61,7 @@
                         </connections>
                     </textField>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xkJ-eX-gsG">
-                        <rect key="frame" x="18" y="255" width="147" height="17"/>
+                        <rect key="frame" x="18" y="290" width="147" height="17"/>
                         <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Date Format:" id="9h4-4w-u3d">
                             <font key="font" metaFont="system"/>
@@ -70,7 +70,7 @@
                         </textFieldCell>
                     </textField>
                     <comboBox verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Ejt-D8-GaT">
-                        <rect key="frame" x="171" y="251" width="153" height="26"/>
+                        <rect key="frame" x="171" y="286" width="153" height="26"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="150" id="bob-sL-5s1"/>
                         </constraints>
@@ -91,7 +91,7 @@
                         </connections>
                     </comboBox>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OE9-Gp-3Ou">
-                        <rect key="frame" x="329" y="255" width="52" height="17"/>
+                        <rect key="frame" x="329" y="290" width="52" height="17"/>
                         <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Preview" id="Gzt-6h-jiK">
                             <font key="font" metaFont="system"/>
@@ -99,6 +99,99 @@
                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         </textFieldCell>
                     </textField>
+                    <button translatesAutoresizingMaskIntoConstraints="NO" id="JEY-5C-17f">
+                        <rect key="frame" x="183" y="219" width="229" height="18"/>
+                        <animations/>
+                        <buttonCell key="cell" type="check" title="Enable Sound for Desktop Notifications" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="6vX-Xe-ESY">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="smallSystem"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="GFb-t0-AJf" name="enabled" keyPath="values.UserNotificationsEnabled" id="ZWR-MD-Kaj"/>
+                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.UserNotificationsSoundEnabled" id="aZb-od-Rsh"/>
+                        </connections>
+                    </button>
+                    <button translatesAutoresizingMaskIntoConstraints="NO" id="QAv-eg-Mgk">
+                        <rect key="frame" x="169" y="240" width="197" height="18"/>
+                        <animations/>
+                        <buttonCell key="cell" type="check" title="Enable Desktop Notifications" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="H2c-zy-pIa">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.UserNotificationsEnabled" id="OP3-Pw-VZl"/>
+                        </connections>
+                    </button>
+                    <button translatesAutoresizingMaskIntoConstraints="NO" id="qCq-w5-WUG">
+                        <rect key="frame" x="169" y="264" width="217" height="18"/>
+                        <animations/>
+                        <buttonCell key="cell" type="check" title="Enable Workflow Duration Timer" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="wgT-b6-M6r">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.WorkflowTimerEnabled" id="Vhg-g2-Cq5"/>
+                        </connections>
+                    </button>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OBZ-Tg-Zl4">
+                        <rect key="frame" x="103" y="184" width="62" height="17"/>
+                        <animations/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Log level:" id="pv2-aG-AQh">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="esW-ed-2Ix">
+                        <rect key="frame" x="169" y="178" width="107" height="26"/>
+                        <animations/>
+                        <popUpButtonCell key="cell" type="push" title="Debug" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" tag="15" imageScaling="proportionallyDown" inset="2" selectedItem="aLw-Oe-1qf" id="FAm-Z4-SvU">
+                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="menu"/>
+                            <menu key="menu" id="ocE-3G-q7h">
+                                <items>
+                                    <menuItem title="Error" tag="1" id="gpq-rw-aZL"/>
+                                    <menuItem title="Warning" tag="3" id="QB0-Yy-XoP"/>
+                                    <menuItem title="Info" tag="7" id="QHu-mN-0l2"/>
+                                    <menuItem title="Debug" state="on" tag="15" id="aLw-Oe-1qf">
+                                        <modifierMask key="keyEquivalentModifierMask"/>
+                                    </menuItem>
+                                </items>
+                            </menu>
+                        </popUpButtonCell>
+                        <connections>
+                            <binding destination="GFb-t0-AJf" name="selectedTag" keyPath="values.LogLevel" id="jtp-1d-ggU"/>
+                        </connections>
+                    </popUpButton>
+                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5k4-zr-JbQ">
+                        <rect key="frame" x="281" y="181" width="20" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="20" id="84u-Nd-1r9"/>
+                            <constraint firstAttribute="width" constant="20" id="P5S-z9-NxM"/>
+                        </constraints>
+                        <animations/>
+                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSCaution" id="TQU-69-Fxn"/>
+                    </imageView>
+                    <textField horizontalHuggingPriority="249" verticalHuggingPriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="eUn-mG-6uF">
+                        <rect key="frame" x="307" y="184" width="184" height="14"/>
+                        <animations/>
+                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Will be reset on relaunch" id="78A-8L-qAO">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button translatesAutoresizingMaskIntoConstraints="NO" id="dks-jk-sdT">
+                        <rect key="frame" x="169" y="156" width="289" height="18"/>
+                        <animations/>
+                        <buttonCell key="cell" type="check" title="Include dyld cache errors in workflow report" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="QE1-bo-iDB">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.WorkflowReportIncludeLinkerWarnings" id="Ayj-xL-nj7"/>
+                        </connections>
+                    </button>
                     <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="PCt-hx-hcp">
                         <rect key="frame" x="165" y="13" width="109" height="32"/>
                         <animations/>
@@ -131,70 +224,6 @@
                             <binding destination="-2" name="animate" keyPath="self.checkingForApplicationUpdates" id="bjP-Xl-cJC"/>
                         </connections>
                     </progressIndicator>
-                    <button translatesAutoresizingMaskIntoConstraints="NO" id="JEY-5C-17f">
-                        <rect key="frame" x="183" y="184" width="229" height="18"/>
-                        <animations/>
-                        <buttonCell key="cell" type="check" title="Enable Sound for Desktop Notifications" bezelStyle="regularSquare" imagePosition="left" controlSize="small" state="on" inset="2" id="6vX-Xe-ESY">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="smallSystem"/>
-                        </buttonCell>
-                        <connections>
-                            <binding destination="GFb-t0-AJf" name="enabled" keyPath="values.UserNotificationsEnabled" id="ZWR-MD-Kaj"/>
-                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.UserNotificationsSoundEnabled" id="aZb-od-Rsh"/>
-                        </connections>
-                    </button>
-                    <button translatesAutoresizingMaskIntoConstraints="NO" id="QAv-eg-Mgk">
-                        <rect key="frame" x="169" y="205" width="197" height="18"/>
-                        <animations/>
-                        <buttonCell key="cell" type="check" title="Enable Desktop Notifications" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="H2c-zy-pIa">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.UserNotificationsEnabled" id="OP3-Pw-VZl"/>
-                        </connections>
-                    </button>
-                    <button translatesAutoresizingMaskIntoConstraints="NO" id="qCq-w5-WUG">
-                        <rect key="frame" x="169" y="229" width="217" height="18"/>
-                        <animations/>
-                        <buttonCell key="cell" type="check" title="Enable Workflow Duration Timer" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="wgT-b6-M6r">
-                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <binding destination="GFb-t0-AJf" name="value" keyPath="values.WorkflowTimerEnabled" id="Vhg-g2-Cq5"/>
-                        </connections>
-                    </button>
-                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OBZ-Tg-Zl4">
-                        <rect key="frame" x="103" y="149" width="62" height="17"/>
-                        <animations/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Log level:" id="pv2-aG-AQh">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="esW-ed-2Ix">
-                        <rect key="frame" x="169" y="143" width="107" height="26"/>
-                        <animations/>
-                        <popUpButtonCell key="cell" type="push" title="Debug" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" tag="15" imageScaling="proportionallyDown" inset="2" selectedItem="aLw-Oe-1qf" id="FAm-Z4-SvU">
-                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="menu"/>
-                            <menu key="menu" id="ocE-3G-q7h">
-                                <items>
-                                    <menuItem title="Error" tag="1" id="gpq-rw-aZL"/>
-                                    <menuItem title="Warning" tag="3" id="QB0-Yy-XoP"/>
-                                    <menuItem title="Info" tag="7" id="QHu-mN-0l2"/>
-                                    <menuItem title="Debug" state="on" tag="15" id="aLw-Oe-1qf">
-                                        <modifierMask key="keyEquivalentModifierMask"/>
-                                    </menuItem>
-                                </items>
-                            </menu>
-                        </popUpButtonCell>
-                        <connections>
-                            <binding destination="GFb-t0-AJf" name="selectedTag" keyPath="values.LogLevel" id="jtp-1d-ggU"/>
-                        </connections>
-                    </popUpButton>
                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="IQi-kR-kr4">
                         <rect key="frame" x="52" y="124" width="113" height="17"/>
                         <animations/>
@@ -235,24 +264,6 @@
                             <action selector="buttonShowCache:" target="-2" id="VtF-ir-Lvi"/>
                         </connections>
                     </button>
-                    <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5k4-zr-JbQ">
-                        <rect key="frame" x="281" y="146" width="20" height="20"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="20" id="84u-Nd-1r9"/>
-                            <constraint firstAttribute="width" constant="20" id="P5S-z9-NxM"/>
-                        </constraints>
-                        <animations/>
-                        <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSCaution" id="TQU-69-Fxn"/>
-                    </imageView>
-                    <textField horizontalHuggingPriority="249" verticalHuggingPriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="eUn-mG-6uF">
-                        <rect key="frame" x="307" y="149" width="184" height="14"/>
-                        <animations/>
-                        <textFieldCell key="cell" controlSize="small" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Will be reset on relaunch" id="78A-8L-qAO">
-                            <font key="font" metaFont="smallSystem"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="Nco-Zu-ksX">
                         <rect key="frame" x="169" y="59" width="217" height="18"/>
                         <animations/>
@@ -287,8 +298,10 @@
                     <constraint firstItem="OBZ-Tg-Zl4" firstAttribute="baseline" secondItem="esW-ed-2Ix" secondAttribute="baseline" id="NXH-4v-aD2"/>
                     <constraint firstItem="5k4-zr-JbQ" firstAttribute="leading" secondItem="esW-ed-2Ix" secondAttribute="trailing" constant="8" symbolic="YES" id="Pfg-HT-S1h"/>
                     <constraint firstItem="p6D-pd-DFQ" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="20" symbolic="YES" id="Plu-Ln-mjV"/>
+                    <constraint firstItem="w6g-Xt-IGx" firstAttribute="top" secondItem="dks-jk-sdT" secondAttribute="bottom" constant="17" id="SIF-S9-Yuy"/>
                     <constraint firstItem="PCt-hx-hcp" firstAttribute="leading" secondItem="1H8-Xg-Eec" secondAttribute="trailing" constant="8" symbolic="YES" id="UmG-4D-PNI"/>
                     <constraint firstItem="p6D-pd-DFQ" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="VSX-Oe-n5f"/>
+                    <constraint firstItem="dks-jk-sdT" firstAttribute="leading" secondItem="QAv-eg-Mgk" secondAttribute="leading" id="VVb-DO-CqF"/>
                     <constraint firstItem="KdZ-S8-dxV" firstAttribute="centerY" secondItem="uhO-ZD-3Xu" secondAttribute="centerY" id="Vb4-z5-xEm"/>
                     <constraint firstItem="p6D-pd-DFQ" firstAttribute="baseline" secondItem="7ZX-y2-fu7" secondAttribute="baseline" id="W4a-xg-zpO"/>
                     <constraint firstItem="PCt-hx-hcp" firstAttribute="centerY" secondItem="1H8-Xg-Eec" secondAttribute="centerY" id="W7P-vo-Ara"/>
@@ -308,8 +321,8 @@
                     <constraint firstItem="QAv-eg-Mgk" firstAttribute="top" secondItem="qCq-w5-WUG" secondAttribute="bottom" constant="10" id="rFC-Hi-M3F"/>
                     <constraint firstItem="JEY-5C-17f" firstAttribute="top" secondItem="QAv-eg-Mgk" secondAttribute="bottom" constant="8" symbolic="YES" id="rS4-T2-9yn"/>
                     <constraint firstItem="uhO-ZD-3Xu" firstAttribute="leading" secondItem="KdZ-S8-dxV" secondAttribute="trailing" constant="12" symbolic="YES" id="rSS-kx-4Kr"/>
+                    <constraint firstItem="dks-jk-sdT" firstAttribute="top" secondItem="5k4-zr-JbQ" secondAttribute="bottom" constant="9" id="tJ4-V8-fWk"/>
                     <constraint firstItem="QAv-eg-Mgk" firstAttribute="leading" secondItem="Ejt-D8-GaT" secondAttribute="leading" id="tro-yG-9Xz"/>
-                    <constraint firstItem="IQi-kR-kr4" firstAttribute="top" secondItem="OBZ-Tg-Zl4" secondAttribute="bottom" constant="8" symbolic="YES" id="yeB-61-Uau"/>
                     <constraint firstItem="OBZ-Tg-Zl4" firstAttribute="trailing" secondItem="IQi-kR-kr4" secondAttribute="trailing" id="yp0-w0-3hi"/>
                 </constraints>
                 <animations/>
@@ -317,7 +330,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>
-            <point key="canvasLocation" x="149.5" y="319"/>
+            <point key="canvasLocation" x="149.5" y="309.5"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="GFb-t0-AJf"/>
     </objects>

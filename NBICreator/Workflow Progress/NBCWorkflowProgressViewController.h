@@ -37,6 +37,7 @@
 @property (weak) IBOutlet NSTextField *textFieldTitle;
 @property (weak) IBOutlet NSTextField *textFieldStatusTitle;
 @property (weak) IBOutlet NSTextField *textFieldStatusInfo;
+@property (weak) IBOutlet NSTextField *textFieldStatusWarnings;
 
 @property NSTimer *timer;
 @property BOOL isRunning;
@@ -45,6 +46,7 @@
 @property BOOL workflowComplete;
 @property BOOL workflowFailed;
 
+@property NSMutableDictionary *linkerErrors;
 @property NSString *workflowNBIResourcesLastStatus;
 
 @property (weak) IBOutlet NSButton *buttonCancel;
@@ -55,6 +57,9 @@
 
 @property (weak) IBOutlet NSButton *buttonOpenLog;
 - (IBAction)buttonOpenLog:(id)sender;
+
+@property (weak) IBOutlet NSButton *buttonWorkflowReport;
+- (IBAction)buttonWorkflowReport:(id)sender;
 
 - (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem;
 - (void)workflowFailedWithError:(NSString *)errorMessage;
