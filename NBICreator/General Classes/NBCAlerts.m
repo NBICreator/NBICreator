@@ -167,7 +167,6 @@ DDLogLevel ddLogLevel;
 }
 
 + (void)showAlertSettingsError:(NSString *)informativeText {
-    
     NSString *text = [NSString stringWithFormat:@"The current settings contain errors that need to be addressed in order to create a valid NBI.\n%@", informativeText];
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
@@ -191,7 +190,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertSettingsWarning:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    
     NSString *text = [NSString stringWithFormat:@"The current settings contain warnings that you need to approve before creating a NBI.\n%@", informativeText];
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleCancel];     // NSAlertFirstButtonReturn
@@ -240,7 +238,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertSettingsUnsaved:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleSave];   //NSAlertFirstButton
     [alert addButtonWithTitle:@"Discard"];          //NSAlertSecondButton
@@ -254,7 +251,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertSettingsUnsavedBuild:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save and Continue"];    //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleContinue];  //NSAlertSecondButton
@@ -268,7 +264,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertSettingsUnsavedQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:@"Save and Quit"];        //NSAlertFirstButton
     [alert addButtonWithTitle:NBCButtonTitleQuit];      //NSAlertSecondButton
@@ -282,7 +277,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertSettingsUnsavedQuitNoSave:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleCancel];            //NSAlertFirstButton
     [alert addButtonWithTitle:@"Discard changes and Quit"];     //NSAlertSecondButton
@@ -295,7 +289,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertWorkflowRunningQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertFirstButton
     [alert addButtonWithTitle:@"Quit Anyway"];          //NSAlertSecondButton
@@ -308,7 +301,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showAlertDeleteTemplate:(NSString *)informativeText templateName:(NSString *)templateName  alertInfo:(NSDictionary *)alertInfo {
-    
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertFirstButton
     [alert addButtonWithTitle:@"Delete"];               //NSAlertSecondButton

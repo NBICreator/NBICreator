@@ -22,6 +22,7 @@
 #import "NBCLog.h"
 #import "NBCLogging.h"
 #import "NBCError.h"
+#import "NBCWorkflowManager.h"
 
 DDLogLevel ddLogLevel;
 
@@ -81,18 +82,31 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonCancel:(id)sender {
 #pragma unused(sender)
-    
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    
-    [nc postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
-                      object:self
-                    userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
-    
     if ( _isRunning ) {
-        DDLogWarn(@"[WARN] User canceled workflow...");
-        [nc postNotificationName:NBCNotificationWorkflowFailed
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"Don't Cancel"];     //NSAlertFirstButton
+        [alert addButtonWithTitle:@"Cancel Workflow"];  //NSAlertSecondButton
+        [alert setMessageText:@"Cancel Running Workflow?"];
+        [alert setInformativeText:[NSString stringWithFormat:@"Are you sure you want to cancel the running workflow:\n\n• %@\n", [_textFieldTitle stringValue]]];
+        [alert setAlertStyle:NSCriticalAlertStyle];
+        [alert beginSheetModalForWindow:[[[NBCWorkflowManager sharedManager] workflowPanel] window] completionHandler:^(NSInteger returnCode) {
+            if ( returnCode == NSAlertSecondButtonReturn ) {        // Cancel Workflow
+                DDLogWarn(@"[WARN] User canceled workflow...");
+                
+                NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+                [nc postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
+                                  object:self
+                                userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : self->_workflowItem }];
+                
+                [nc postNotificationName:NBCNotificationWorkflowFailed
+                                  object:self
+                                userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"User Canceled"] }];
+            }
+        }];
+    } else {
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
                           object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"User Canceled"] }];
+                        userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
     }
 } // buttonCancel
 
@@ -203,7 +217,7 @@ DDLogLevel ddLogLevel;
         [panel setCanCreateDirectories:YES];
         [panel setTitle:@"Save Workflow Report"];
         [panel setPrompt:@"Save"];
-        [panel setNameFieldStringValue:[NSString stringWithFormat:@"%@.plist", [_textFieldTitle stringValue] ?: @""]];
+        [panel setNameFieldStringValue:[NSString stringWithFormat:@"%@.plist", [[_textFieldTitle stringValue] stringByDeletingPathExtension] ?: @""]];
         [panel beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger result) {
             if ( result == NSFileHandlingPanelOKButton ) {
                 NSURL *saveURL = [panel URL];
