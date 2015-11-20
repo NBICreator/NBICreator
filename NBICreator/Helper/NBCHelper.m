@@ -21,8 +21,9 @@
 #import "NBCHelperProtocol.h"
 #import "NBCHelperAuthorization.h"
 #import "NBCWorkflowProgressDelegate.h"
+#import "SNTCodesignChecker.h"
 #import <CommonCrypto/CommonDigest.h>
-
+#import <syslog.h>
 #import "NBCTarget.h"
 #import "NBCConstants.h"
 
@@ -67,7 +68,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 
 - (BOOL)listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
 #pragma unused(listener)
-    
+
+    if ( ! [self connectionIsValid:newConnection] ) {
+        return NO;
+    }
+
     // This is called by the XPC listener when there is a new connection.
     [newConnection setRemoteObjectInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
     [newConnection setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCHelperProtocol)]];
@@ -82,7 +87,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         
         [self->_connections removeObject:weakConnection];
         if ( ! [self->_connections count] ) {
-            [self quitHelper:^(BOOL success){
+            [self quitHelper:^(BOOL success) {
             }];
         }
     }];
@@ -93,15 +98,40 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     return YES;
 } // listener
 
+- (NSXPCConnection *)connection {
+    return [_connections lastObject];
+} // connection
+
+- (BOOL)connectionIsValid:(NSXPCConnection *)connection {
+    
+    // --------------------------------------------
+    //  Get PID of remote application (NBICreator)
+    // --------------------------------------------
+    pid_t pid = connection.processIdentifier;
+    
+    // --------------------------------------------------------------
+    //  Instantiate codesign check for helper and remote application
+    // --------------------------------------------------------------
+    SNTCodesignChecker *selfCS = [[SNTCodesignChecker alloc] initWithSelf];
+    SNTCodesignChecker *remoteCS = [[SNTCodesignChecker alloc] initWithPID:pid];
+    
+    // ---------------------------------------
+    //  Get remote application using it's PID
+    // ---------------------------------------
+    NSRunningApplication *remoteApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
+    syslog(0, "Remote App: %s", remoteApp.description.UTF8String);
+    
+    // ------------------------------------------------------------------------
+    //  Verify that helper and remote application has matching code signatures
+    // ------------------------------------------------------------------------
+    return remoteApp && [remoteCS signingInformationMatches:selfCS];
+} // newConnectionIsValid:
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark NBCHelperProtocol methods
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
-
-- (NSXPCConnection *)connection {
-    return [_connections lastObject];
-} // connection
 
 - (void)getVersionWithReply:(void(^)(NSString *version))reply {
     reply([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
