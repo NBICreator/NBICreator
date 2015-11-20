@@ -87,7 +87,10 @@ const SecCSFlags kSigningFlags = kSecCSDefaultFlags;
 
     // Wrap SecCertificateRef objects in SNTCertificate and put in a new NSArray
     NSMutableArray *mutableCerts = [[NSMutableArray alloc] initWithCapacity:certs.count];
-    for (int i = 0; i < certs.count; ++i) {
+      
+      // EB - Changed int -> NSUInteger to silence Xcode errors about signedness
+      
+    for (NSUInteger i = 0; i < certs.count; ++i) {
       SecCertificateRef certRef = (__bridge SecCertificateRef)certs[i];
       SNTCertificate *newCert = [[SNTCertificate alloc] initWithSecCertificateRef:certRef];
       [mutableCerts addObject:newCert];

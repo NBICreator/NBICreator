@@ -245,7 +245,10 @@ static NSString *const kCertDataKey = @"certData";
   NSNumber *value = curCertVal[(__bridge NSString *)kSecPropertyKeyValue];
 
   NSTimeInterval interval = [value doubleValue];
-  if (interval) {
+    
+    // EB - Added cast to (int) to silence Xcode error about implicit conversion to int
+    
+  if ( (int)interval ) {
     return [NSDate dateWithTimeIntervalSinceReferenceDate:interval];
   }
 
