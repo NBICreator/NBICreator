@@ -35,6 +35,7 @@
 		534D7BD11BB6AAB2006DA88A /* libxml2.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 534D7BD01BB6AAB2006DA88A /* libxml2.2.tbd */; };
 		534DFB241B7C988800C9CE0E /* CocoaLumberjack.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; };
 		534DFB261B7C9E3B00C9CE0E /* CocoaLumberjack.framework in Copy CocoaLumberjack */ = {isa = PBXBuildFile; fileRef = 53F229D91B6837E200CC0B09 /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		534FB1031C013223004FED64 /* FileHash.m in Sources */ = {isa = PBXBuildFile; fileRef = 534FB0F51C013182004FED64 /* FileHash.m */; };
 		5353A0091BB534D400679A4F /* ioapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 5353A0011BB534D400679A4F /* ioapi.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		5353A00A1BB534D400679A4F /* mztools.c in Sources */ = {isa = PBXBuildFile; fileRef = 5353A0031BB534D400679A4F /* mztools.c */; settings = {COMPILER_FLAGS = "-w"; }; };
 		5353A00B1BB534D400679A4F /* unzip.c in Sources */ = {isa = PBXBuildFile; fileRef = 5353A0051BB534D400679A4F /* unzip.c */; settings = {COMPILER_FLAGS = "-w"; }; };
@@ -347,6 +348,8 @@
 		534C66A11AE37422004A6DEE /* NBCSettingsController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCSettingsController.h; path = Settings/NBCSettingsController.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		534C66A21AE37422004A6DEE /* NBCSettingsController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCSettingsController.m; path = Settings/NBCSettingsController.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		534D7BD01BB6AAB2006DA88A /* libxml2.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.2.tbd; path = usr/lib/libxml2.2.tbd; sourceTree = SDKROOT; };
+		534FB0F41C013182004FED64 /* FileHash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileHash.h; sourceTree = "<group>"; };
+		534FB0F51C013182004FED64 /* FileHash.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FileHash.m; sourceTree = "<group>"; };
 		5353A0001BB534D400679A4F /* crypt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crypt.h; path = "Supporting Files/Libraries/ZipArchive/crypt.h"; sourceTree = "<group>"; };
 		5353A0011BB534D400679A4F /* ioapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ioapi.c; path = "Supporting Files/Libraries/ZipArchive/ioapi.c"; sourceTree = "<group>"; };
 		5353A0021BB534D400679A4F /* ioapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ioapi.h; path = "Supporting Files/Libraries/ZipArchive/ioapi.h"; sourceTree = "<group>"; };
@@ -770,6 +773,8 @@
 				53AFED881BD95EFE00601525 /* NBCError.m */,
 				537DB2E31BB66A7B00CBB36B /* NBCLog.h */,
 				537DB2E41BB66A7B00CBB36B /* NBCLog.m */,
+				534FB0F41C013182004FED64 /* FileHash.h */,
+				534FB0F51C013182004FED64 /* FileHash.m */,
 			);
 			name = "General Classes";
 			path = NBICreator;
@@ -1407,6 +1412,7 @@
 			files = (
 				538D6BC21BF3E7CF00E58468 /* NBCHelper.m in Sources */,
 				53C417C81BFFDCB300FCDD9E /* SNTCertificate.m in Sources */,
+				534FB1031C013223004FED64 /* FileHash.m in Sources */,
 				538D6BC01BF3E77800E58468 /* main.m in Sources */,
 				53C417D51BFFDCB700FCDD9E /* SNTCodesignChecker.m in Sources */,
 				5324335A1B0E691300152DC6 /* NBCConstants.m in Sources */,

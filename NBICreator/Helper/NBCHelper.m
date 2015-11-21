@@ -26,6 +26,7 @@
 #import <syslog.h>
 #import "NBCTarget.h"
 #import "NBCConstants.h"
+#import "FileHash.h"
 
 static const NSTimeInterval kHelperCheckInterval = 1.0;
 
@@ -172,6 +173,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     if ( ! [[NSURL fileURLWithPath:scriptPath] checkResourceIsReachableAndReturnError:&err] ) {
         return reply(err, -1);
     }
+    
+    NSString *scriptMD5 = [FileHash md5HashOfFileAtPath:scriptPath];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script md5: %@", scriptMD5]];
     
     NSString *command = @"/bin/bash";
     NSArray *arguments = @[ scriptPath, nbiVolumePath, userShortName, userPassword, @"501", @"admin" ];
@@ -914,6 +918,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     if ( ! [[NSURL fileURLWithPath:scriptPath] checkResourceIsReachableAndReturnError:&err] ) {
         return reply(err, -1);
     }
+    
+    NSString *scriptMD5 = [FileHash md5HashOfFileAtPath:scriptPath];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script md5: %@", scriptMD5]];
     
     NSString *command = @"/bin/bash";
     NSArray *arguments = @[ scriptPath, targetVolumePath, nbiVolumePath, minorVersion ];
