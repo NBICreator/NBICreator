@@ -158,12 +158,76 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void)addUsersToVolumeAtPath:(NSString *)nbiVolumePath
+                 userShortName:(NSString *)userShortName
+                  userPassword:(NSString *)userPassword
+                     withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *err = nil;
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify script
+    // -----------------------------------------------------------------------------------
+    NSString *scriptPath = [[self remoteBundleScriptsPath] stringByAppendingPathComponent:@"createUser.bash"];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script path: %@", scriptPath]];
+    if ( ! [[NSURL fileURLWithPath:scriptPath] checkResourceIsReachableAndReturnError:&err] ) {
+        return reply(err, -1);
+    }
+    
+    NSString *command = @"/bin/bash";
+    NSArray *arguments = @[ scriptPath, nbiVolumePath, userShortName, userPassword, @"501", @"admin" ];
+    
+    [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
+} // addUsersToVolumeAtPath:userShortName:userPassword:withReply
+
+- (void)copyExtractedResourcesToCache:(NSString *)cachePath
+                         regexString:(NSString *)regexString
+                     temporaryFolder:(NSString *)temporaryFolder
+                           withReply:(void(^)(NSError *error, int terminationStatus))reply {
+        
+    NSString *command = @"/bin/bash";
+    NSArray *arguments = @[ @"-c", [NSString stringWithFormat:@"/usr/bin/find -E . -depth %@ | /usr/bin/cpio -admp --quiet '%@'", regexString, cachePath]];
+    
+    [self runTaskWithCommand:command arguments:arguments currentDirectory:temporaryFolder environmentVariables:nil withReply:reply];
+} // copyExtractedResourcesToCache:regexString:temporaryFolder:withReply
+
 - (void)disableSpotlightOnVolume:(NSString *)volumePath
                        withReply:(void (^)(NSError *, int))reply {
+    
     NSString *command = @"/usr/bin/mdutil";
     NSArray *agruments = @[ @"-Edi", @"off", volumePath];
+    
     [self runTaskWithCommand:command arguments:agruments currentDirectory:nil environmentVariables:nil withReply:reply];
 } // disableSpotlightOnVolume:withReply
+
+- (void)extractResourcesFromPackageAtPath:(NSString *)packagePath
+                             minorVersion:(NSInteger)minorVersion
+                          temporaryFolder:(NSString *)temporaryFolder
+                   temporaryPackageFolder:(NSString *)temporaryPackageFolder
+                                withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *err = nil;
+    NSString *command = @"/bin/bash";
+    NSArray *arguments = nil;
+    
+    // ---------------------------------------------------------------------------------
+    //  Choose extract method depending on os version, new package archive in 10.10+
+    // ---------------------------------------------------------------------------------
+    if ( minorVersion <= 9 ) {
+        NSString *formatString = @"/usr/bin/xar -x -f \"%@\" Payload -C \"%@\"; /usr/bin/cd \"%@\"; /usr/bin/cpio -idmu -I \"%@/Payload\"";
+        arguments = @[ @"-c", [NSString stringWithFormat:formatString, packagePath, temporaryFolder, temporaryPackageFolder, temporaryFolder] ];
+    } else {
+        NSString *pbxPath = [[self remoteBundleResouresPath] stringByAppendingPathComponent:@"pbzx"];
+        
+        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx binary path: %@", pbxPath]];
+        if ( ! [[NSURL fileURLWithPath:pbxPath] checkResourceIsReachableAndReturnError:&err] ) {
+            return reply(err, -1) ;
+        }
+        arguments = @[ @"-c", [NSString stringWithFormat:@"%@ %@ | /usr/bin/cpio -idmu --quiet", pbxPath, packagePath]];
+    }
+    
+    [self runTaskWithCommand:command arguments:arguments currentDirectory:temporaryPackageFolder environmentVariables:@{} withReply:reply];
+} // extractResourcesFromPackageAtPath:minorVersion:temporaryFolder:temporaryPackageFolder:withReply
 
 - (void)getVersionWithReply:(void(^)(NSString *version))reply {
     reply([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
@@ -212,6 +276,94 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     [self runTaskWithCommand:command arguments:installerArguments currentDirectory:nil environmentVariables:nil withReply:reply];
 } // installPackage:targetVolume:choices:withReply
+
+- (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL
+               settingsDict:(NSDictionary *)settingsDict
+                  withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply {
+    
+    BOOL retval = YES;
+    NSError *err;
+    NSString *userName;
+    NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
+    
+    // -------------------------------------------------------------------------------
+    //  Screen Sharing - User login
+    // -------------------------------------------------------------------------------
+    NSURL *dsLocalUsersURL = [nbiVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
+    if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
+        NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
+        NSMutableArray *userFilesFiltered = [[userFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (self BEGINSWITH '_')"]] mutableCopy];
+        [userFilesFiltered removeObjectsInArray:@[ @"daemon.plist", @"nobody.plist", @"root.plist" ]];
+        if ( [userFilesFiltered count] != 0 ) {
+            NSString *firstUser = userFilesFiltered[0];
+            NSURL *firstUserPlistURL = [dsLocalUsersURL URLByAppendingPathComponent:firstUser];
+            NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
+            if ( firstUserDict ) {
+                NSArray *userNameArray = firstUserDict[@"name"];
+                userName = userNameArray[0];
+            }
+        }
+    } else {
+        [[[self connection] remoteObjectProxy] logWarn:[err localizedDescription]];
+    }
+    mutableSettingsDict[NBCSettingsARDLoginKey] = userName ?: @"";
+    
+    // -------------------------------------------------------------------------------
+    //  Screen Sharing - User password
+    // -------------------------------------------------------------------------------
+    NSString *vncPassword;
+    NSURL *vncPasswordFile = [nbiVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];
+    if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
+        NSTask *perlTask =  [[NSTask alloc] init];
+        [perlTask setLaunchPath:@"/bin/bash"];
+        NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }'", [vncPasswordFile path]]];
+        [perlTask setArguments:args];
+        [perlTask setStandardOutput:[NSPipe pipe]];
+        [perlTask setStandardError:[NSPipe pipe]];
+        [perlTask launch];
+        [perlTask waitUntilExit];
+        
+        NSData *stdOutData = [[[perlTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+        
+        NSData *stdErrData = [[[perlTask standardError] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+        
+        if ( [perlTask terminationStatus] == 0 ) {
+            if ( [stdOut length] != 0 ) {
+                vncPassword = stdOut;
+            }
+            retval = YES;
+        } else {
+            [[[self connection] remoteObjectProxy] logStdOut:stdOut];
+            [[[self connection] remoteObjectProxy] logStdErr:stdErr];
+            [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"perl command failed with exit status: %d", [perlTask terminationStatus]]];
+            retval = NO;
+        }
+    }
+    mutableSettingsDict[NBCSettingsARDPasswordKey] = vncPassword ?: @"";
+    
+    reply(nil, retval, [mutableSettingsDict copy] );
+} // readSettingsFromNBI:settingsDict:withReply
+
+- (void)removeItemsAtPaths:(NSArray *)itemPaths
+                 withReply:(void(^)(NSError *error, BOOL success))reply {
+    
+    NSError *error;
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    // ----------------------------------------------------------
+    // Loop through each path in array and remove it recursively
+    // ----------------------------------------------------------
+    for ( NSString *itemPath in itemPaths ) {
+        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Removing item at path: %@", itemPath]];
+        if ( ! [fm removeItemAtPath:itemPath error:&error] ) {
+            reply(error, NO);
+        }
+    }
+    
+    reply(error, YES);
+} // removeItemsAtPaths
 
 - (void)runTaskWithCommand:(NSString *)command
                  arguments:(NSArray *)arguments
@@ -792,104 +944,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark removeItemsAtPaths
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-- (void)removeItemsAtPaths:(NSArray *)itemPaths
-                 withReply:(void(^)(NSError *error, BOOL success))reply {
-    
-    NSError *error;
-    NSFileManager *fm = [[NSFileManager alloc] init];
-    
-    // ----------------------------------------------------------
-    // Loop through each path in array and remove it recursively
-    // ----------------------------------------------------------
-    for ( NSString *itemPath in itemPaths ) {
-        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Removing item at path: %@", itemPath]];
-        if ( ! [fm removeItemAtPath:itemPath error:&error] ) {
-            reply(error, NO);
-        }
-    }
-    
-    reply(error, YES);
-} // removeItemsAtURLs
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark readSettingsFromNBI
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-- (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL settingsDict:(NSDictionary *)settingsDict withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply {
-    
-    BOOL retval = YES;
-    NSError *err;
-    NSString *userName;
-    NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
-    
-    // -------------------------------------------------------------------------------
-    //  Screen Sharing - User login
-    // -------------------------------------------------------------------------------
-    NSURL *dsLocalUsersURL = [nbiVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
-    if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
-        NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
-        NSMutableArray *userFilesFiltered = [[userFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (self BEGINSWITH '_')"]] mutableCopy];
-        [userFilesFiltered removeObjectsInArray:@[ @"daemon.plist", @"nobody.plist", @"root.plist" ]];
-        if ( [userFilesFiltered count] != 0 ) {
-            NSString *firstUser = userFilesFiltered[0];
-            NSURL *firstUserPlistURL = [dsLocalUsersURL URLByAppendingPathComponent:firstUser];
-            NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
-            if ( firstUserDict ) {
-                NSArray *userNameArray = firstUserDict[@"name"];
-                userName = userNameArray[0];
-            }
-        }
-    } else {
-        [[[self connection] remoteObjectProxy] logWarn:[err localizedDescription]];
-    }
-    mutableSettingsDict[NBCSettingsARDLoginKey] = userName ?: @"";
-    
-    // -------------------------------------------------------------------------------
-    //  Screen Sharing - User password
-    // -------------------------------------------------------------------------------
-    NSString *vncPassword;
-    NSURL *vncPasswordFile = [nbiVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];
-    if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
-        NSTask *perlTask =  [[NSTask alloc] init];
-        [perlTask setLaunchPath:@"/bin/bash"];
-        NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }'", [vncPasswordFile path]]];
-        [perlTask setArguments:args];
-        [perlTask setStandardOutput:[NSPipe pipe]];
-        [perlTask setStandardError:[NSPipe pipe]];
-        [perlTask launch];
-        [perlTask waitUntilExit];
-        
-        NSData *stdOutData = [[[perlTask standardOutput] fileHandleForReading] readDataToEndOfFile];
-        NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
-        
-        NSData *stdErrData = [[[perlTask standardError] fileHandleForReading] readDataToEndOfFile];
-        NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
-        
-        if ( [perlTask terminationStatus] == 0 ) {
-            if ( [stdOut length] != 0 ) {
-                vncPassword = stdOut;
-            }
-            retval = YES;
-        } else {
-            [[[self connection] remoteObjectProxy] logStdOut:stdOut];
-            [[[self connection] remoteObjectProxy] logStdErr:stdErr];
-            [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"perl command failed with exit status: %d", [perlTask terminationStatus]]];
-            retval = NO;
-        }
-    }
-    mutableSettingsDict[NBCSettingsARDPasswordKey] = vncPassword ?: @"";
-    
-    reply(nil, retval, [mutableSettingsDict copy] );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
 #pragma mark OLD METHODS
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
@@ -998,32 +1052,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     } else {
         reply(nil, -1);
     }
-}
-
-- (void)testCommandWithReply:(NSURL *)commandURL withArguments:(NSArray *)arguments outputPipeFileHandle:(NSFileHandle *)outputPipeFileHandle withReply:(void(^)(int returnStatus))reply {
-    NSTask *newTask = [[NSTask alloc] init];
-    [newTask setLaunchPath:[commandURL path]];
-    [newTask setArguments:arguments];
-    [newTask setStandardOutput:outputPipeFileHandle];
-    
-    [newTask launch];
-    [newTask waitUntilExit];
-    
-    reply([newTask terminationStatus]);
-}
-
-- (void)removeItemAtURL:(NSURL *)itemURL
-              withReply:(void(^)(NSError *error, int terminationStatus))reply {
-    NSError *error;
-    int replyInt = 0;
-    
-    if ( [[NSFileManager defaultManager] removeItemAtURL:itemURL error:&error] ) {
-        replyInt = 0;
-    } else {
-        replyInt = 1;
-    }
-    
-    reply(error, replyInt);
 }
 
 - (void)copyResourcesToVolume:(NSURL *)volumeURL resourcesDict:(NSDictionary *)resourcesDict

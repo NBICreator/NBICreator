@@ -1796,7 +1796,7 @@ DDLogLevel ddLogLevel;
 
 - (void)readSettingsUsingHelperFromTarget:(NBCTarget *)target settingsDict:(NSMutableDictionary *)settingsDict {
     
-    DDLogDebug(@"[DEBUG] Reading settings using helper...");
+    DDLogDebug(@"[DEBUG] Reading settings from NBI using helper...");
     
     NSURL *nbiBaseSystemVolumeURL = [target baseSystemVolumeURL];
     

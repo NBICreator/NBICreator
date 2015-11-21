@@ -26,6 +26,7 @@
 #import "NBCController.h"
 #import "NBCUpdater.h"
 #import "NBCWorkflowManager.h"
+#import "NBCWorkflowProgressDelegate.h"
 
 DDLogLevel ddLogLevel;
 
@@ -180,20 +181,24 @@ DDLogLevel ddLogLevel;
         
         DDLogInfo(@"Cleaning cache folder...");
         
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-            dispatch_async(dispatch_get_main_queue(), ^{
+        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_async(taskQueue, ^{
+            
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [[helperConnector connection] setExportedObject:self];
+            [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+            [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
                 DDLogWarn(@"[WARN] %@", [proxyError localizedDescription]);
-            });
-        }] removeItemAtURL:cacheFolderURL withReply:^(NSError *error, int terminationStatus) {
-            if ( terminationStatus != 0 ) {
+            }] removeItemsAtPaths:@[ [cacheFolderURL path] ] withReply:^(NSError *error, BOOL success) {
+                if ( ! success ) {
+                    DDLogWarn(@"[WARN] %@", [error localizedDescription]);
+                }
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                    [self updateCacheFolderSize];
                 });
-            }
-            [self updateCacheFolderSize];
-        }];
+            }];
+        });
     }
 }
 
@@ -238,6 +243,37 @@ DDLogLevel ddLogLevel;
 - (IBAction)buttonCheckForUpdatesNow:(id)sender {
 #pragma unused(sender)
     [[NBCUpdater sharedUpdater] checkForUpdates];
+}
+
+- (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
+#pragma unused(statusMessage,workflow)
+}
+- (void)updateProgressStatus:(NSString *)statusMessage {
+#pragma unused(statusMessage)
+}
+- (void)updateProgressBar:(double)value {
+#pragma unused(value)
+}
+- (void)incrementProgressBar:(double)value {
+#pragma unused(value)
+}
+- (void)logDebug:(NSString *)logMessage {
+    DDLogDebug(@"[DEBUG] %@", logMessage);
+}
+- (void)logInfo:(NSString *)logMessage {
+    DDLogInfo(@"%@", logMessage);
+}
+- (void)logWarn:(NSString *)logMessage {
+    DDLogWarn(@"[WARN] %@", logMessage);
+}
+- (void)logError:(NSString *)logMessage {
+    DDLogError(@"[ERROR] %@", logMessage);
+}
+- (void)logStdOut:(NSString *)stdOutString {
+    DDLogDebug(@"[stdout] %@", stdOutString);
+}
+- (void)logStdErr:(NSString *)stdErrString {
+    DDLogDebug(@"[stderr] %@", stdErrString);
 }
 
 @end

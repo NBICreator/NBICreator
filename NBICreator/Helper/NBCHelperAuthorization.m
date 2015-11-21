@@ -33,12 +33,28 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     
     dispatch_once(&sOnceToken, ^{
         sCommandInfo = @{
-                         NSStringFromSelector(@selector(runTaskWithCommandAtPath:arguments:stdOutFileHandleForWriting:stdErrFileHandleForWriting:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.runTask",
+                         NSStringFromSelector(@selector(updateKernelCache:nbiVolumePath:minorVersion:withReply:)) : @{
+                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.updateKernelCache",
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
-                                                                                 @"NBICreator is trying to run a script.",
-                                                                                 @"prompt shown when user is required to authorize to run a script"
+                                                                                 @"NBICreator is trying update kernel cache.",
+                                                                                 @"prompt shown when user is required to authorize to update kernel cache"
+                                                                                 )
+                                 },
+                         NSStringFromSelector(@selector(addUsersToVolumeAtPath:userShortName:userPassword:withReply:)) : @{
+                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.addUsers",
+                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightDesc    : NSLocalizedString(
+                                                                                 @"NBICreator is trying to add a user.",
+                                                                                 @"prompt shown when user is required to authorize to add a user"
+                                                                                 )
+                                 },
+                         NSStringFromSelector(@selector(disableSpotlightOnVolume:withReply:)) : @{
+                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.disableSpotlight",
+                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightDesc    : NSLocalizedString(
+                                                                                 @"NBICreator is trying to disable spotlight.",
+                                                                                 @"prompt shown when user is required to authorize to disable spotlight on a volume"
                                                                                  )
                                  },
                          };

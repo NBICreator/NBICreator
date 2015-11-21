@@ -23,8 +23,24 @@
 
 @required
 
+- (void)addUsersToVolumeAtPath:(NSString *)nbiVolumePath
+                 userShortName:(NSString *)userShortName
+                  userPassword:(NSString *)userPassword
+                     withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
+- (void)copyExtractedResourcesToCache:(NSString *)cachePath
+                          regexString:(NSString *)regexString
+                      temporaryFolder:(NSString *)temporaryFolder
+                            withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
 - (void)disableSpotlightOnVolume:(NSString *)volumePath
                        withReply:(void (^)(NSError *, int))reply;
+
+- (void)extractResourcesFromPackageAtPath:(NSString *)packagePath
+                             minorVersion:(NSInteger)minorVersion
+                          temporaryFolder:(NSString *)temporaryFolder
+                   temporaryPackageFolder:(NSString *)temporaryPackageFolder
+                                withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)getVersionWithReply:(void(^)(NSString * version))reply;
 
@@ -32,6 +48,19 @@
           targetVolume:(NSString *)targetVolume
                choices:(NSDictionary *)choice
              withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
+- (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL
+               settingsDict:(NSDictionary *)settingsDict
+                  withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply;
+
+- (void)removeItemsAtPaths:(NSArray *)itemPaths
+                 withReply:(void(^)(NSError *error, BOOL success))reply;
+
+- (void)runTaskWithCommand:(NSString *)command
+                 arguments:(NSArray *)arguments
+          currentDirectory:(NSString *)currentDirectory
+      environmentVariables:(NSDictionary *)environmentVariables
+                 withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)updateKernelCache:(NSString *)targetVolumePath
             nbiVolumePath:(NSString *)nbiVolumePath
@@ -51,13 +80,6 @@
 
 
 // OLD METHODS
-
-
-- (void)runTaskWithCommand:(NSString *)command
-                 arguments:(NSArray *)arguments
-          currentDirectory:(NSString *)currentDirectory
-      environmentVariables:(NSDictionary *)environmentVariables
-                 withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)runTaskWithCommandAtPath:(NSURL *)taskCommandPath
                        arguments:(NSArray *)taskArguments
@@ -80,11 +102,6 @@
       stdErrFileHandleForWriting:(NSFileHandle *)stdErrFileHandleForWriting
                        withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
-- (void)testCommandWithReply:(NSURL *)commandURL
-               withArguments:(NSArray *)arguments
-        outputPipeFileHandle:(NSFileHandle *)outputPipeFileHandle
-                   withReply:(void(^)(int returnStatus))reply;
-
 - (void)copyResourcesToVolume:(NSURL *)volumeURL
                     copyArray:(NSArray *)copyArray
                     withReply:(void(^)(NSError *error, int terminationStatus))reply;
@@ -100,14 +117,5 @@
 - (void)modifyResourcesOnVolume:(NSURL *)volumeURL
              modificationsArray:(NSArray *)modificationsArray
                       withReply:(void(^)(NSError *error, int terminationStatus))reply;
-
-- (void)removeItemsAtPaths:(NSArray *)itemPaths
-                 withReply:(void(^)(NSError *error, BOOL success))reply;
-
-- (void)removeItemAtURL:(NSURL *)itemURL
-              withReply:(void(^)(NSError *error, int terminationStatus))reply;
-
-- (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL settingsDict:(NSDictionary *)settingsDict withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply;
-
 
 @end

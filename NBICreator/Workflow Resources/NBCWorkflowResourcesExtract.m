@@ -198,81 +198,54 @@ DDLogLevel ddLogLevel;
     if ( [resourcesToExtract count] != 0 ) {
         NSString *packagePath = [[resourcesToExtract allKeys] firstObject];
         
+        void (^errorNotification)(NSError *) = ^(NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:[NSString stringWithFormat:@"Extracting resources from %@ failed", [packagePath lastPathComponent]]]}];
+            });
+        };
+        
         if ( _progressDelegate && [_progressDelegate respondsToSelector:@selector(updateProgressStatus:)] ) {
-            [_progressDelegate updateProgressStatus:[NSString stringWithFormat:@"Extracting resources from %@...", [packagePath lastPathComponent]]];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self->_progressDelegate updateProgressStatus:[NSString stringWithFormat:@"Extracting resources from %@...", [packagePath lastPathComponent]]];
+            });
         }
         
         NSURL *temporaryFolderURL = [_workflowItem temporaryFolderURL];
         DDLogDebug(@"[DEBUG] Temporary folder path: %@", [temporaryFolderURL path]);
-        if ( [temporaryFolderURL checkResourceIsReachableAndReturnError:&err] ) {
-            
-            NSURL *temporaryPackageFolderURL = [NBCWorkflowResourcesController packageTemporaryFolderURL:_workflowItem];
-            DDLogDebug(@"[DEBUG] Temporary package folder path: %@", [temporaryPackageFolderURL path]);
-            if ( [temporaryPackageFolderURL checkResourceIsReachableAndReturnError:&err] ) {
-                
-                // ---------------------------------------------------------------------------------
-                //  Choose extract method depending on os version, new package archive in 10.10+
-                // ---------------------------------------------------------------------------------
-                
-                NSString *command = @"/bin/bash";
-                NSArray *arguments;
-                if ( _sourceVersionMinor <= 9 ) {
-                    arguments = @[ @"-c", [NSString stringWithFormat:@"/usr/bin/xar -x -f \"%@\" Payload -C \"%@\"; /usr/bin/cd \"%@\"; /usr/bin/cpio -idmu -I \"%@/Payload\"", packagePath, [temporaryFolderURL path], [temporaryPackageFolderURL path], [temporaryFolderURL path]] ];
-                } else {
-                    NSURL *pbzxURL = [[NSBundle mainBundle] URLForResource:@"pbzx" withExtension:@""];
-                    if ( [pbzxURL checkResourceIsReachableAndReturnError:&err] ) {
-                        arguments = @[ @"-c", [NSString stringWithFormat:@"%@ %@ | /usr/bin/cpio -idmu --quiet", [pbzxURL path], packagePath], ];
-                    } else {
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                            object:self
-                                                                          userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"Could not find binary pbzx!"] }];
-                        return;
-                    }
-                }
-                
-                // ---------------------------------------------------------------------------------
-                //  Run extract task from helper
-                // ---------------------------------------------------------------------------------
-                
-                dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-                dispatch_async(taskQueue, ^{
-                    
-                    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-                    [helperConnector connectToHelper];
-                    [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
-                    [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-                    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                                object:self
-                                                                              userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:[NSString stringWithFormat:@"Extracting resources from %@ failed", [packagePath lastPathComponent]]]}];
-                        });
-                        return;
-                    }] runTaskWithCommand:command arguments:arguments currentDirectory:[temporaryPackageFolderURL path] environmentVariables:@{} withReply:^(NSError *error, int terminationStatus) {
-                        if ( terminationStatus == 0 ) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                [self copyExtractedResourcesToCache:resourcesToExtract packagePath:packagePath temporaryPackagePath:[temporaryPackageFolderURL path]];
-                            });
-                        } else {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                                    object:self
-                                                                                  userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:[NSString stringWithFormat:@"Extracting resources from %@ failed", [packagePath lastPathComponent]]]}];
-                            });
-                            return;
-                        }
-                    }];
-                });
-            } else {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                    object:self
-                                                                  userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"Package temporary folder doesn't exist!"] }];
-            }
-        } else {
-            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                object:self
-                                                              userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"Temporary folder doesn't exist!"] }];
+        if ( ! [temporaryFolderURL checkResourceIsReachableAndReturnError:&err] ) {
+            return errorNotification( err ?: [NBCError errorWithDescription:@"Temporary folder doesn't exist!"]);
         }
+        
+        NSURL *temporaryPackageFolderURL = [NBCWorkflowResourcesController packageTemporaryFolderURL:_workflowItem];
+        DDLogDebug(@"[DEBUG] Temporary package folder path: %@", [temporaryPackageFolderURL path]);
+        if ( ! [temporaryPackageFolderURL checkResourceIsReachableAndReturnError:&err] ) {
+            return errorNotification( err ?: [NBCError errorWithDescription:@"Package temporary folder doesn't exist!"]);
+        }
+        
+        // ---------------------------------------------------------------------------------
+        //  Run extract task from helper
+        // ---------------------------------------------------------------------------------
+        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_async(taskQueue, ^{
+            
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
+            [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+            [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+                return errorNotification(proxyError);
+            }] extractResourcesFromPackageAtPath:packagePath minorVersion:self->_sourceVersionMinor temporaryFolder:[temporaryFolderURL path] temporaryPackageFolder:[temporaryPackageFolderURL path] withReply:^(NSError *error, int terminationStatus) {
+                if ( terminationStatus == 0 ) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self copyExtractedResourcesToCache:resourcesToExtract packagePath:packagePath temporaryPackagePath:[temporaryPackageFolderURL path]];
+                    });
+                } else {
+                    return errorNotification(error);
+                }
+            }];
+        });
     } else {
         DDLogInfo(@"No more resources need extracting");
         if ( _delegate && [_delegate respondsToSelector:@selector(resourceExtractionComplete:)] ) {
@@ -284,16 +257,26 @@ DDLogLevel ddLogLevel;
 - (void)copyExtractedResourcesToCache:(NSMutableDictionary *)resourcesToExtract packagePath:(NSString *)packagePath temporaryPackagePath:(NSString *)temporaryPackagePath  {
     
     if ( _progressDelegate && [_progressDelegate respondsToSelector:@selector(updateProgressStatus:)] ) {
-        [_progressDelegate updateProgressStatus:@"Copying extracted resources to cache folder..."];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_progressDelegate updateProgressStatus:@"Copying extracted resources to cache folder..."];
+        });
     }
     
-    NSError *err;
+    void (^errorNotification)(NSError *) = ^(NSError *error){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                object:self
+                                                              userInfo:@{ NBCUserInfoNSErrorKey : error }];
+        });
+    };
     
     // ---------------------------------------------------------------------------------
     //  Create single regex string for '/usr/bin/find' from array of regexes
     // ---------------------------------------------------------------------------------
     NSArray *regexArray = resourcesToExtract[packagePath][NBCSettingsSourceItemsRegexKey];
-    if ( [regexArray count] != 0 ) {
+    if ( [regexArray count] == 0 ) {
+        errorNotification( [NBCError errorWithDescription:@"No regexes passed to copy step!"] );
+    } else {
         __block NSMutableString *regexString = [[NSMutableString alloc] init];
         [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
 #pragma unused(stop)
@@ -304,32 +287,26 @@ DDLogLevel ddLogLevel;
             }
         }];
         
-        // ---------------------------------------------------------------------------------
-        //  Create package cache folder if it doesn't already exist
-        // ---------------------------------------------------------------------------------
         NSString *packageName = [[packagePath lastPathComponent] stringByDeletingPathExtension];
         NSString *resourceFolderPathComponent = [NSString stringWithFormat:@"%@/%@", _sourceOSBuild, packageName];
-        
         NSURL *resourcesCacheFolderURL = [NBCWorkflowResourcesController urlForResourceFolder:NBCFolderResourcesCacheSource];
         NSURL *resourcesCacheFolderPackageURL = [resourcesCacheFolderURL URLByAppendingPathComponent:resourceFolderPathComponent];
         DDLogDebug(@"[DEBUG] Cache folder for package path: %@", [resourcesCacheFolderPackageURL path]);
         
+        NSError *err = nil;
+        
+        // ---------------------------------------------------------------------------------
+        //  Create package cache folder if it doesn't already exist
+        // ---------------------------------------------------------------------------------
         if ( ! [resourcesCacheFolderPackageURL checkResourceIsReachableAndReturnError:&err] ) {
             if ( ! [[NSFileManager defaultManager] createDirectoryAtURL:resourcesCacheFolderPackageURL withIntermediateDirectories:YES attributes:nil error:&err] ) {
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                    object:self
-                                                                  userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"Creating temporary folder failed!"] }];
-                return;
+                return errorNotification(err ?: [NBCError errorWithDescription:@"Creating cache folder for package failed"]);
             }
         }
-        
-        NSString *command = @"/bin/bash";
-        NSArray *arguments = @[ @"-c", [NSString stringWithFormat:@"/usr/bin/find -E . -depth %@ | /usr/bin/cpio -admp --quiet '%@'", regexString, [resourcesCacheFolderPackageURL path]]];
         
         // ---------------------------------------------------------------------------------
         //  Run copy task from helper
         // ---------------------------------------------------------------------------------
-        
         dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(taskQueue, ^{
             
@@ -338,32 +315,19 @@ DDLogLevel ddLogLevel;
             [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
             [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
             [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                        object:self
-                                                                      userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:[NSString stringWithFormat:@"Copying resources to %@ cache failed", [packagePath lastPathComponent]]]}];
-                });
-                return;
-            }] runTaskWithCommand:command arguments:arguments currentDirectory:temporaryPackagePath environmentVariables:@{} withReply:^(NSError *error, int terminationStatus) {
+                return errorNotification(proxyError ?: [NBCError errorWithDescription:[NSString stringWithFormat:@"Copying resources to %@ cache failed", [packagePath lastPathComponent]]]);
+            }] copyExtractedResourcesToCache:resourcesCacheFolderPackageURL.path regexString:regexString temporaryFolder:temporaryPackagePath withReply:^(NSError *error, int terminationStatus) {
                 if ( terminationStatus == 0 ) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self copyExtractedResourcesComplete:resourcesToExtract resourcesRegexArray:regexArray packagePath:packagePath packageCacheFolderPath:[resourcesCacheFolderPackageURL path]];
                     });
                 } else {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                            object:self
-                                                                          userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:[NSString stringWithFormat:@"Copying resources to %@ cache failed", [packagePath lastPathComponent]]]}];
-                    });
+                    return errorNotification( error ?: [NBCError errorWithDescription:[NSString stringWithFormat:@"Copying resources to %@ cache failed", [packagePath lastPathComponent]]] );
                 }
+                
             }];
         });
-    } else {
-        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                            object:self
-                                                          userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"No regexes passed to copy step!"]}];
     }
-    
 } // copyExtractedResourcesToCache
 
 - (void)copyExtractedResourcesComplete:(NSMutableDictionary *)resourcesToExtract resourcesRegexArray:(NSArray *)resourcesRegexArray packagePath:(NSString *)packagePath packageCacheFolderPath:(NSString *)packageCacheFolderPath {

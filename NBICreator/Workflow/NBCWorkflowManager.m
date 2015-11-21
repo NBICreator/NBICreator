@@ -667,6 +667,7 @@ DDLogLevel ddLogLevel;
         });
     } else {
         DDLogInfo(@"Moving NBI to destination...");
+        DDLogDebug(@"[DEBUG] NBI destination path: %@", [destinationURL path]);
         if ( [fileManager moveItemAtURL:sourceURL toURL:destinationURL error:&err] ) {
             [self updateWorkflowStatusComplete];
         } else {

@@ -1452,27 +1452,21 @@ DDLogLevel ddLogLevel;
     [_delegate updateProgressStatus:@"Adding users..." workflow:self];
     [_delegate updateProgressBar:(( 45.0 * _progressPercentage ) + _progressOffset)];
     
-    NSError *err;
+    NSError *err = nil;
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     NSDictionary *userSettings = [_workflowItem userSettings];
     
     // --------------------------------------------------------------------------
-    //  Get path to createUser script
+    //  Verify path to createUser script
     // --------------------------------------------------------------------------
-    NSURL *createUserScriptURL = [[NSBundle mainBundle] URLForResource:@"createUser" withExtension:@"bash" subdirectory:@"Scripts"];
-    if ( ! [createUserScriptURL checkResourceIsReachableAndReturnError:&err] ) {
+    if ( ! [[[NSBundle mainBundle] URLForResource:@"createUser" withExtension:@"bash" subdirectory:@"Scripts"] checkResourceIsReachableAndReturnError:&err] ) {
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : err }];
         return;
     }
     
-    NSString *command = [createUserScriptURL path];
-    NSArray *arguments = @[
-                           [[[_workflowItem target] baseSystemVolumeURL] path] ?: @"",  // Variable ${1} - nbiVolumePath
-                           userSettings[NBCSettingsARDLoginKey] ?: @"nbicreator",       // Variable ${2} - userShortName
-                           userSettings[NBCSettingsARDPasswordKey] ?: @"nbicreator",    // Variable ${3} - userPassword
-                           @"501",                                                      // Variable ${4} - userUID
-                           @"admin"                                                     // Variable ${5} - userGroups
-                           ];
+    NSString *nbiVolumePath = [[[_workflowItem target] baseSystemVolumeURL] path] ?: @"";
+    NSString *userShortName = userSettings[NBCSettingsARDLoginKey] ?: @"nbicreator";
+    NSString *userPassword = userSettings[NBCSettingsARDPasswordKey] ?: @"nbicreator";
     
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
@@ -1485,17 +1479,15 @@ DDLogLevel ddLogLevel;
             dispatch_async(dispatch_get_main_queue(), ^{
                 [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
             });
-        }] runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:@{} withReply:^(NSError *error, int terminationStatus) {
-            if ( terminationStatus == 0 ) {
-                [self setAddedUsers:YES];
-                dispatch_async(dispatch_get_main_queue(), ^{
+        }] addUsersToVolumeAtPath:nbiVolumePath userShortName:userShortName userPassword:userPassword withReply:^(NSError *error, int terminationStatus) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ( terminationStatus == 0 ) {
+                    [self setAddedUsers:YES];
                     [self modifyComplete];
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                } else {
                     [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Creating user failed!"] }];
-                });
-            }
+                }
+            });
         }];
     });
 } // addUsers
