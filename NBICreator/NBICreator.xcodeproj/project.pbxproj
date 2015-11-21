@@ -11,7 +11,6 @@
 		5303EBBB1AF4268200F6120D /* NBCTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 5303EBBA1AF4268200F6120D /* NBCTarget.m */; };
 		5304B4AE1BA1E741007D7A9F /* ServerInformation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */; };
 		530BFF571B00F3160012D067 /* NBCWorkflowNBIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */; };
-		530D983D1BAB4728007FA973 /* sharedLibraryDependencyChecker.bash in Resources */ = {isa = PBXBuildFile; fileRef = 530D983C1BAB4728007FA973 /* sharedLibraryDependencyChecker.bash */; };
 		530E0C7B1B190C550025A9C3 /* NBCViewNoInternetConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 530E0C7A1B190C550025A9C3 /* NBCViewNoInternetConnection.m */; };
 		53116E521ADDAF7A00CF9378 /* NBCDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 53116E511ADDAF7A00CF9378 /* NBCDownloader.m */; };
 		53121E961AD5B805004515D6 /* IconNetBootNBI.icns in Resources */ = {isa = PBXBuildFile; fileRef = 53121E951AD5B805004515D6 /* IconNetBootNBI.icns */; };
@@ -51,12 +50,15 @@
 		53609D761B80F4D0007F874F /* NBCUpdater.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53609D741B80F4D0007F874F /* NBCUpdater.xib */; };
 		5360B9E21BC61F750076811E /* IconInternal.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5360B9E11BC61F750076811E /* IconInternal.icns */; };
 		5360B9EC1BC6203E0076811E /* IconElCapitan.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5360B9EB1BC6203E0076811E /* IconElCapitan.icns */; };
-		53695BB41B80A6510038F3DD /* generateKernelCache.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53695BB31B80A6510038F3DD /* generateKernelCache.bash */; };
 		536AA0151BB8649B00A2FF0D /* NBCOptionBuildPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 536AA0131BB8649B00A2FF0D /* NBCOptionBuildPanel.m */; };
 		536AA0161BB8649B00A2FF0D /* NBCOptionBuildPanel.xib in Resources */ = {isa = PBXBuildFile; fileRef = 536AA0141BB8649B00A2FF0D /* NBCOptionBuildPanel.xib */; };
 		536D1B6D1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m in Sources */ = {isa = PBXBuildFile; fileRef = 536D1B6C1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.m */; };
 		536E68121BB5242100B7E1A1 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 536E68111BB5242100B7E1A1 /* libz.tbd */; };
 		536E68291BB533C700B7E1A1 /* Main.m in Sources */ = {isa = PBXBuildFile; fileRef = 536E68281BB533C700B7E1A1 /* Main.m */; settings = {COMPILER_FLAGS = "-w"; }; };
+		53721AE01C010363000B46BF /* generateKernelCache.bash in Copy Scripts */ = {isa = PBXBuildFile; fileRef = 53695BB31B80A6510038F3DD /* generateKernelCache.bash */; };
+		53721AE11C010363000B46BF /* createUser.bash in Copy Scripts */ = {isa = PBXBuildFile; fileRef = 53A643411B1A5872003BFF71 /* createUser.bash */; };
+		53721AE21C010363000B46BF /* installCertificates.bash in Copy Scripts */ = {isa = PBXBuildFile; fileRef = 53D34D941B73F7E900F11CFF /* installCertificates.bash */; };
+		53721AE31C010363000B46BF /* sharedLibraryDependencyChecker.bash in Copy Scripts */ = {isa = PBXBuildFile; fileRef = 530D983C1BAB4728007FA973 /* sharedLibraryDependencyChecker.bash */; };
 		537499521BF0F4C200A49787 /* DeployStudio.plist in Resources */ = {isa = PBXBuildFile; fileRef = 537499511BF0F4C200A49787 /* DeployStudio.plist */; };
 		5374C28E1BB2CDCE008C8679 /* IconCasperImaging.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5374C28D1BB2CDCE008C8679 /* IconCasperImaging.icns */; };
 		5374C2991BB2E1BD008C8679 /* NBICreatorDesktopViewer.app in Resources */ = {isa = PBXBuildFile; fileRef = 5374C2981BB2E1BD008C8679 /* NBICreatorDesktopViewer.app */; };
@@ -92,7 +94,6 @@
 		539EA5041BB110ED007F1175 /* NBCDDReader.m in Sources */ = {isa = PBXBuildFile; fileRef = 539EA5031BB110ED007F1175 /* NBCDDReader.m */; };
 		53A195A81AD4F29500489CCF /* IconLion.icns in Resources */ = {isa = PBXBuildFile; fileRef = 53A195A71AD4F29500489CCF /* IconLion.icns */; };
 		53A24A2B1BF3AB5A00FA759D /* NBCImageDropViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A24A2A1BF3AB5A00FA759D /* NBCImageDropViewController.m */; };
-		53A643421B1A5872003BFF71 /* createUser.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53A643411B1A5872003BFF71 /* createUser.bash */; };
 		53A882681BED3F8A00F1F08C /* NBCWorkflowDeployStudioAssistant.m in Sources */ = {isa = PBXBuildFile; fileRef = 53A882671BED3F8A00F1F08C /* NBCWorkflowDeployStudioAssistant.m */; };
 		53ADBF6F1BDE73B000970B83 /* NBCSourceDropViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53ADBF6E1BDE73B000970B83 /* NBCSourceDropViewController.m */; };
 		53ADBF711BDE73DD00970B83 /* NBCSourceDropViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53ADBF701BDE73DD00970B83 /* NBCSourceDropViewController.xib */; };
@@ -126,7 +127,6 @@
 		53CD5C1C1BB5C5BA0047E879 /* NBCApplicationSourceXcode.m in Sources */ = {isa = PBXBuildFile; fileRef = 53CD5C1B1BB5C5BA0047E879 /* NBCApplicationSourceXcode.m */; };
 		53D1CDCB1BEA358E00208FCF /* NBCWorkflowResourcesExtract.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D1CDCA1BEA358E00208FCF /* NBCWorkflowResourcesExtract.m */; };
 		53D2B9BB1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D2B9BA1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m */; };
-		53D34D951B73F7E900F11CFF /* installCertificates.bash in Resources */ = {isa = PBXBuildFile; fileRef = 53D34D941B73F7E900F11CFF /* installCertificates.bash */; };
 		53D34DA01B740DA600F11CFF /* NBCPackageTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53D34D9F1B740DA600F11CFF /* NBCPackageTableCellView.m */; };
 		53DACFB21BEC777500375684 /* NBCWorkflowSystemImageUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 53DACFB11BEC777500375684 /* NBCWorkflowSystemImageUtility.m */; };
 		53DD632F1BCD9A1F005C460C /* NSString+SymlinksAndAliases.m in Sources */ = {isa = PBXBuildFile; fileRef = 53DD632E1BCD9A1F005C460C /* NSString+SymlinksAndAliases.m */; };
@@ -269,6 +269,20 @@
 				534DFB261B7C9E3B00C9CE0E /* CocoaLumberjack.framework in Copy CocoaLumberjack */,
 			);
 			name = "Copy CocoaLumberjack";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		53721AD31C01034B000B46BF /* Copy Scripts */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Scripts;
+			dstSubfolderSpec = 7;
+			files = (
+				53721AE01C010363000B46BF /* generateKernelCache.bash in Copy Scripts */,
+				53721AE11C010363000B46BF /* createUser.bash in Copy Scripts */,
+				53721AE21C010363000B46BF /* installCertificates.bash in Copy Scripts */,
+				53721AE31C010363000B46BF /* sharedLibraryDependencyChecker.bash in Copy Scripts */,
+			);
+			name = "Copy Scripts";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		53968C371A8E7CCB0079AA95 /* Copy Helper */ = {
@@ -1076,6 +1090,7 @@
 				53968C051A8E7A3E0079AA95 /* Resources */,
 				53968C371A8E7CCB0079AA95 /* Copy Helper */,
 				534DFB251B7C9E0600C9CE0E /* Copy CocoaLumberjack */,
+				53721AD31C01034B000B46BF /* Copy Scripts */,
 			);
 			buildRules = (
 			);
@@ -1249,10 +1264,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				539DAEFB1AF162A10037F06B /* NetInstallDefaults.plist in Resources */,
-				53D34D951B73F7E900F11CFF /* installCertificates.bash in Resources */,
 				531E7F4F1B0A5D88001573E7 /* ImagrDefaults.plist in Resources */,
 				53121E961AD5B805004515D6 /* IconNetBootNBI.icns in Resources */,
-				53A643421B1A5872003BFF71 /* createUser.bash in Resources */,
 				53A195A81AD4F29500489CCF /* IconLion.icns in Resources */,
 				53F3B28B1B7D1A88005BEAD3 /* WorkflowCancel.png in Resources */,
 				53CBB1BC1ACF1DF900B83089 /* NBCWorkflowProgressViewController.xib in Resources */,
@@ -1277,7 +1290,6 @@
 				53AF66611AF95E860093DD26 /* IconImagr.icns in Resources */,
 				53F3B2891B7D1A54005BEAD3 /* IconCertStandard.png in Resources */,
 				5374C28E1BB2CDCE008C8679 /* IconCasperImaging.icns in Resources */,
-				53695BB41B80A6510038F3DD /* generateKernelCache.bash in Resources */,
 				53ADBF711BDE73DD00970B83 /* NBCSourceDropViewController.xib in Resources */,
 				537499521BF0F4C200A49787 /* DeployStudio.plist in Resources */,
 				5381B76F1AD6F77A00CF5B54 /* NBCNetInstallSettingsViewController.xib in Resources */,
@@ -1289,7 +1301,6 @@
 				539DAEF31AF158150037F06B /* NBCImagrSettingsViewController.xib in Resources */,
 				53609D761B80F4D0007F874F /* NBCUpdater.xib in Resources */,
 				53FB3E971B975D3B00CCE413 /* NBCCasperSettingsViewController.xib in Resources */,
-				530D983D1BAB4728007FA973 /* sharedLibraryDependencyChecker.bash in Resources */,
 				5374C2991BB2E1BD008C8679 /* NBICreatorDesktopViewer.app in Resources */,
 				53121EA21AD5C24A004515D6 /* NBCPreferences.xib in Resources */,
 				535A898B1AD3247A00DC08F4 /* IconMavericks.icns in Resources */,
