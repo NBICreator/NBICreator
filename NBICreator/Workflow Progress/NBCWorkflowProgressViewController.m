@@ -105,8 +105,8 @@ DDLogLevel ddLogLevel;
         }];
     } else {
         [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationRemoveWorkflowItemUserInfoWorkflowItem
-                          object:self
-                        userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
+                                                            object:self
+                                                          userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
     }
 } // buttonCancel
 
@@ -278,28 +278,28 @@ DDLogLevel ddLogLevel;
         [self setWorkflowFailed:YES];
     }
     
-    [_layoutContraintStatusInfoLeading setConstant:1.0];
-    [_progressIndicator setHidden:YES];
-    [_progressIndicator stopAnimation:self];
-    [_buttonOpenLog setHidden:NO];
-    
-    if ( [[[NSUserDefaults standardUserDefaults] objectForKey:@"WorkflowReportIncludeLinkerWarnings"] boolValue] ) {
-        int warnings = (int)[[_linkerErrors allKeys] count];
-        [_textFieldStatusWarnings setStringValue:[NSString stringWithFormat:@"%d warnings:", warnings]];
-        
-        if ( warnings != 0 ) {
-            [_buttonWorkflowReport setHidden:NO];
-            [_textFieldStatusWarnings setHidden:NO];
-        }
-    }
-    
-    [self setIsRunning:NO];
-    if ( _timer ) {
-        [_timer invalidate];
-        [_textFieldTimer setHidden:YES];
-    }
-    
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_layoutContraintStatusInfoLeading setConstant:1.0];
+        [self->_progressIndicator setHidden:YES];
+        [self->_progressIndicator stopAnimation:self];
+        [self->_buttonOpenLog setHidden:NO];
+        
+        if ( [[[NSUserDefaults standardUserDefaults] objectForKey:@"WorkflowReportIncludeLinkerWarnings"] boolValue] ) {
+            int warnings = (int)[[self->_linkerErrors allKeys] count];
+            [self->_textFieldStatusWarnings setStringValue:[NSString stringWithFormat:@"%d warnings:", warnings]];
+            
+            if ( warnings != 0 ) {
+                [self->_buttonWorkflowReport setHidden:NO];
+                [self->_textFieldStatusWarnings setHidden:NO];
+            }
+        }
+        
+        [self setIsRunning:NO];
+        if ( self->_timer ) {
+            [self->_timer invalidate];
+            [self->_textFieldTimer setHidden:YES];
+        }
+        
         [self->_textFieldStatusTitle setStringValue:@"Workflow Failed"];
         [self->_textFieldStatusInfo setStringValue:errorMessage ?: @""];
     });
