@@ -136,8 +136,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSRunningApplication *)remoteApplication {
-    NSRunningApplication *mainApp = [NSRunningApplication runningApplicationWithProcessIdentifier:[[self connection] processIdentifier]];
-    return mainApp;
+    return [NSRunningApplication runningApplicationWithProcessIdentifier:[[self connection] processIdentifier]];
 } // remoteApplication
 
 - (NSString *)remoteBundlePath {
@@ -191,323 +190,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     [self runTaskWithCommand:command arguments:arguments currentDirectory:temporaryFolder environmentVariables:nil withReply:reply];
 } // copyExtractedResourcesToCache:regexString:temporaryFolder:withReply
 
-- (void)disableSpotlightOnVolume:(NSString *)volumePath
-                       withReply:(void (^)(NSError *, int))reply {
-    
-    NSString *command = @"/usr/bin/mdutil";
-    NSArray *agruments = @[ @"-Edi", @"off", volumePath];
-    
-    [self runTaskWithCommand:command arguments:agruments currentDirectory:nil environmentVariables:nil withReply:reply];
-} // disableSpotlightOnVolume:withReply
-
-- (void)extractResourcesFromPackageAtPath:(NSString *)packagePath
-                             minorVersion:(NSInteger)minorVersion
-                          temporaryFolder:(NSString *)temporaryFolder
-                   temporaryPackageFolder:(NSString *)temporaryPackageFolder
-                                withReply:(void(^)(NSError *error, int terminationStatus))reply {
-    
-    NSError *err = nil;
-    NSString *command = @"/bin/bash";
-    NSArray *arguments = nil;
-    
-    // ---------------------------------------------------------------------------------
-    //  Choose extract method depending on os version, new package archive in 10.10+
-    // ---------------------------------------------------------------------------------
-    if ( minorVersion <= 9 ) {
-        NSString *formatString = @"/usr/bin/xar -x -f \"%@\" Payload -C \"%@\"; /usr/bin/cd \"%@\"; /usr/bin/cpio -idmu -I \"%@/Payload\"";
-        arguments = @[ @"-c", [NSString stringWithFormat:formatString, packagePath, temporaryFolder, temporaryPackageFolder, temporaryFolder] ];
-    } else {
-        NSString *pbxPath = [[self remoteBundleResouresPath] stringByAppendingPathComponent:@"pbzx"];
-        
-        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx binary path: %@", pbxPath]];
-        if ( ! [[NSURL fileURLWithPath:pbxPath] checkResourceIsReachableAndReturnError:&err] ) {
-            return reply(err, -1) ;
-        }
-        arguments = @[ @"-c", [NSString stringWithFormat:@"%@ %@ | /usr/bin/cpio -idmu --quiet", pbxPath, packagePath]];
-    }
-    
-    [self runTaskWithCommand:command arguments:arguments currentDirectory:temporaryPackageFolder environmentVariables:@{} withReply:reply];
-} // extractResourcesFromPackageAtPath:minorVersion:temporaryFolder:temporaryPackageFolder:withReply
-
-- (void)getVersionWithReply:(void(^)(NSString *version))reply {
-    reply([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
-} // getVersionWithReply
-
-- (void)installPackage:(NSString *)packagePath
-          targetVolume:(NSString *)targetVolumePath
-               choices:(NSDictionary *)choices
-             withReply:(void (^)(NSError *, int))reply {
-    
-    NSError *err = nil;
-    
-    NSString *command = @"/usr/sbin/installer";
-    NSMutableArray *installerArguments = [[NSMutableArray alloc] initWithObjects:
-                                          @"-verboseR",
-                                          @"-allowUntrusted",
-                                          @"-plist",
-                                          nil];
-    
-    if ( [choices count] != 0 ) {
-        [installerArguments addObject:@"-applyChoiceChangesXML"];
-        [installerArguments addObject:choices];
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify package path
-    // -----------------------------------------------------------------------------------
-    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying package path: %@", packagePath]];
-    if ( [[NSURL fileURLWithPath:packagePath] checkResourceIsReachableAndReturnError:&err] ) {
-        [installerArguments addObject:@"-package"];
-        [installerArguments addObject:packagePath];
-    } else {
-        return reply(err, -1);
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify target volume path
-    // -----------------------------------------------------------------------------------
-    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying target volume path: %@", targetVolumePath]];
-    if ( [[NSURL fileURLWithPath:targetVolumePath] checkResourceIsReachableAndReturnError:&err] ) {
-        [installerArguments addObject:@"-target"];
-        [installerArguments addObject:targetVolumePath];
-    } else {
-        return reply(err, -1);
-    }
-    
-    [self runTaskWithCommand:command arguments:installerArguments currentDirectory:nil environmentVariables:nil withReply:reply];
-} // installPackage:targetVolume:choices:withReply
-
-- (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL
-               settingsDict:(NSDictionary *)settingsDict
-                  withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply {
-    
-    BOOL retval = YES;
-    NSError *err;
-    NSString *userName;
-    NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
-    
-    // -------------------------------------------------------------------------------
-    //  Screen Sharing - User login
-    // -------------------------------------------------------------------------------
-    NSURL *dsLocalUsersURL = [nbiVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
-    if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
-        NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
-        NSMutableArray *userFilesFiltered = [[userFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (self BEGINSWITH '_')"]] mutableCopy];
-        [userFilesFiltered removeObjectsInArray:@[ @"daemon.plist", @"nobody.plist", @"root.plist" ]];
-        if ( [userFilesFiltered count] != 0 ) {
-            NSString *firstUser = userFilesFiltered[0];
-            NSURL *firstUserPlistURL = [dsLocalUsersURL URLByAppendingPathComponent:firstUser];
-            NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
-            if ( firstUserDict ) {
-                NSArray *userNameArray = firstUserDict[@"name"];
-                userName = userNameArray[0];
-            }
-        }
-    } else {
-        [[[self connection] remoteObjectProxy] logWarn:[err localizedDescription]];
-    }
-    mutableSettingsDict[NBCSettingsARDLoginKey] = userName ?: @"";
-    
-    // -------------------------------------------------------------------------------
-    //  Screen Sharing - User password
-    // -------------------------------------------------------------------------------
-    NSString *vncPassword;
-    NSURL *vncPasswordFile = [nbiVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];
-    if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
-        NSTask *perlTask =  [[NSTask alloc] init];
-        [perlTask setLaunchPath:@"/bin/bash"];
-        NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }'", [vncPasswordFile path]]];
-        [perlTask setArguments:args];
-        [perlTask setStandardOutput:[NSPipe pipe]];
-        [perlTask setStandardError:[NSPipe pipe]];
-        [perlTask launch];
-        [perlTask waitUntilExit];
-        
-        NSData *stdOutData = [[[perlTask standardOutput] fileHandleForReading] readDataToEndOfFile];
-        NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
-        
-        NSData *stdErrData = [[[perlTask standardError] fileHandleForReading] readDataToEndOfFile];
-        NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
-        
-        if ( [perlTask terminationStatus] == 0 ) {
-            if ( [stdOut length] != 0 ) {
-                vncPassword = stdOut;
-            }
-            retval = YES;
-        } else {
-            [[[self connection] remoteObjectProxy] logStdOut:stdOut];
-            [[[self connection] remoteObjectProxy] logStdErr:stdErr];
-            [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"perl command failed with exit status: %d", [perlTask terminationStatus]]];
-            retval = NO;
-        }
-    }
-    mutableSettingsDict[NBCSettingsARDPasswordKey] = vncPassword ?: @"";
-    
-    reply(nil, retval, [mutableSettingsDict copy] );
-} // readSettingsFromNBI:settingsDict:withReply
-
-- (void)removeItemsAtPaths:(NSArray *)itemPaths
-                 withReply:(void(^)(NSError *error, BOOL success))reply {
-    
-    NSError *error;
-    NSFileManager *fm = [[NSFileManager alloc] init];
-    
-    // ----------------------------------------------------------
-    // Loop through each path in array and remove it recursively
-    // ----------------------------------------------------------
-    for ( NSString *itemPath in itemPaths ) {
-        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Removing item at path: %@", itemPath]];
-        if ( ! [fm removeItemAtPath:itemPath error:&error] ) {
-            reply(error, NO);
-        }
-    }
-    
-    reply(error, YES);
-} // removeItemsAtPaths
-
-- (void)runTaskWithCommand:(NSString *)command
-                 arguments:(NSArray *)arguments
-          currentDirectory:(NSString *)currentDirectory
-      environmentVariables:(NSDictionary *)environmentVariables
-                 withReply:(void(^)(NSError *error, int terminationStatus))reply {
-    
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    
-    // -----------------------------------------------------------------------------------
-    //  Create stdout and stderr file handles and send all output to remoteObjectProxy
-    // -----------------------------------------------------------------------------------
-    NSPipe *stdOut = [[NSPipe alloc] init];
-    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                        object:[stdOut fileHandleForReading]
-                                         queue:nil
-                                    usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                        NSData *stdOutData = [[stdOut fileHandleForReading] availableData];
-                                        NSString *stdOutString = [[[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                        if ( [stdOutString length] != 0 ) {
-                                            [[[self connection] remoteObjectProxy] logStdOut:stdOutString];
-                                        }
-                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                    }];
-    
-    NSPipe *stdErr = [[NSPipe alloc] init];
-    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                        object:[stdErr fileHandleForReading]
-                                         queue:nil
-                                    usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                        NSData *stdErrData = [[stdErr fileHandleForReading] availableData];
-                                        NSString *stdErrString = [[[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                        if ( [stdErrString length] != 0 ) {
-                                            [[[self connection] remoteObjectProxy] logStdErr:stdErrString];
-                                        }
-                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                    }];
-    
-    // ------------------------
-    //  Setup task
-    // ------------------------
-    NSTask *task = [[NSTask alloc] init];
-    [task setLaunchPath:command];
-    [task setArguments:arguments];
-    [task setStandardOutput:stdOut];
-    [task setStandardError:stdErr];
-    
-    if ( [currentDirectory length] != 0 ) {
-        [task setCurrentDirectoryPath:currentDirectory];
-    }
-    
-    if ( [environmentVariables count] != 0 ) {
-        [task setEnvironment:environmentVariables];
-    }
-    
-    // ------------------------
-    //  Launch task
-    // ------------------------
-    [task launch];
-    [task waitUntilExit];
-    
-    [nc removeObserver:stdOutObserver];
-    [nc removeObserver:stdErrObserver];
-    if ( ! [task isRunning] ) {
-        reply(nil, [task terminationStatus]);
-    } else {
-        reply(nil, -1);
-    }
-} // runTaskWithCommand:arguments:currentDirectory:environmentVariables:withReply
-
-- (void)updateKernelCache:(NSString *)targetVolumePath
-            nbiVolumePath:(NSString *)nbiVolumePath
-             minorVersion:(NSString *)minorVersion
-                withReply:(void(^)(NSError *error, int terminationStatus))reply {
-    
-    NSError *err = nil;
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify target volume path
-    // -----------------------------------------------------------------------------------
-    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying target volume path: %@", targetVolumePath]];
-    if ( ! [[NSURL fileURLWithPath:targetVolumePath] checkResourceIsReachableAndReturnError:&err] ) {
-        return reply(err, -1);
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify nbi volume path
-    // -----------------------------------------------------------------------------------
-    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying nbi volume path: %@", nbiVolumePath]];
-    if ( ! [[NSURL fileURLWithPath:nbiVolumePath] checkResourceIsReachableAndReturnError:&err] ) {
-        return reply(err, -1);
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify minorVersion is a number
-    // -----------------------------------------------------------------------------------
-    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying minor version: %@", minorVersion]];
-    NSCharacterSet* notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
-    if ( ! [minorVersion rangeOfCharacterFromSet:notDigits].location == NSNotFound ) {
-        return reply( [NSError errorWithDomain:NBCErrorDomain
-                                          code:-1
-                                      userInfo:@{ NSLocalizedDescriptionKey : @"Minor version is not a number" }], -1);
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify script
-    // -----------------------------------------------------------------------------------
-    NSString *scriptPath = [[self remoteBundleScriptsPath] stringByAppendingPathComponent:@"generateKernelCache.bash"];
-    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script path: %@", scriptPath]];
-    if ( ! [[NSURL fileURLWithPath:scriptPath] checkResourceIsReachableAndReturnError:&err] ) {
-        return reply(err, -1);
-    }
-    
-    NSString *command = @"/bin/bash";
-    NSArray *arguments = @[ scriptPath, targetVolumePath, nbiVolumePath, minorVersion ];
-    
-    [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
-} // updateKernelCache:tmpNBI:minorVersion:withReply
-
-- (void)quitHelper:(void (^)(BOOL success))reply {
-    for ( NSXPCConnection *connection in _connections ) {
-        [connection invalidate];
-    }
-    
-    if ( _resign ) {
-        _resign(YES);
-    }
-    
-    [_connections removeAllObjects];
-    [self setHelperToolShouldQuit:YES];
-    reply(YES);
-} // quitHelper
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark copyResourcesToVolume
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-- (void)copyResourcesToVolume:(NSURL *)volumeURL copyArray:(NSArray *)copyArray
+- (void)copyResourcesToVolume:(NSURL *)volumeURL
+                    copyArray:(NSArray *)copyArray
                     withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
     NSError *error;
@@ -612,11 +296,15 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     
     // ---------------------------------------------------------------------------------------------------------
-    //  If any regexes were added to array, loop through each ource folder and create a single regex from array
+    //  If any regexes were added to array, loop through each source folder and create a single regex from array
     //  Then copy all files using cpio
     // ---------------------------------------------------------------------------------------------------------
     double sourceCount = (double)[[regexDict allKeys] count];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Sources to copy: %f", sourceCount]];
+    
     double sourceProgressIncrementStep = ( 10.0 / ( sourceCount + 1.0 ));
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Source progress increment step: %f", sourceProgressIncrementStep]];
+    
     double sourceProgressIncrement = 0.0;
     
     if ( [regexDict count] != 0 ) {
@@ -704,15 +392,96 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     
     reply(nil, 0);
-}
+} // copyResourcesToVolume:copyArray:withReply
 
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark modifyResourcesOnVolume
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
+- (void)disableSpotlightOnVolume:(NSString *)volumePath
+                       withReply:(void (^)(NSError *, int))reply {
+    
+    NSString *command = @"/usr/bin/mdutil";
+    NSArray *agruments = @[ @"-Edi", @"off", volumePath];
+    
+    [self runTaskWithCommand:command arguments:agruments currentDirectory:nil environmentVariables:nil withReply:reply];
+} // disableSpotlightOnVolume:withReply
 
-- (void)modifyResourcesOnVolume:(NSURL *)volumeURL modificationsArray:(NSArray *)modificationsArray
+- (void)extractResourcesFromPackageAtPath:(NSString *)packagePath
+                             minorVersion:(NSInteger)minorVersion
+                          temporaryFolder:(NSString *)temporaryFolder
+                   temporaryPackageFolder:(NSString *)temporaryPackageFolder
+                                withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *err = nil;
+    NSString *command = @"/bin/bash";
+    NSArray *arguments = nil;
+    
+    // ---------------------------------------------------------------------------------
+    //  Choose extract method depending on os version, new package archive in 10.10+
+    // ---------------------------------------------------------------------------------
+    if ( minorVersion <= 9 ) {
+        NSString *formatString = @"/usr/bin/xar -x -f \"%@\" Payload -C \"%@\"; /usr/bin/cd \"%@\"; /usr/bin/cpio -idmu -I \"%@/Payload\"";
+        arguments = @[ @"-c", [NSString stringWithFormat:formatString, packagePath, temporaryFolder, temporaryPackageFolder, temporaryFolder] ];
+    } else {
+        NSString *pbxPath = [[self remoteBundleResouresPath] stringByAppendingPathComponent:@"pbzx"];
+        
+        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx binary path: %@", pbxPath]];
+        if ( ! [[NSURL fileURLWithPath:pbxPath] checkResourceIsReachableAndReturnError:&err] ) {
+            return reply(err, -1) ;
+        }
+        arguments = @[ @"-c", [NSString stringWithFormat:@"%@ %@ | /usr/bin/cpio -idmu --quiet", pbxPath, packagePath]];
+    }
+    
+    [self runTaskWithCommand:command arguments:arguments currentDirectory:temporaryPackageFolder environmentVariables:@{} withReply:reply];
+} // extractResourcesFromPackageAtPath:minorVersion:temporaryFolder:temporaryPackageFolder:withReply
+
+- (void)getVersionWithReply:(void(^)(NSString *version))reply {
+    reply([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
+} // getVersionWithReply
+
+- (void)installPackage:(NSString *)packagePath
+          targetVolume:(NSString *)targetVolumePath
+               choices:(NSDictionary *)choices
+             withReply:(void (^)(NSError *, int))reply {
+    
+    NSError *err = nil;
+    
+    NSString *command = @"/usr/sbin/installer";
+    NSMutableArray *installerArguments = [[NSMutableArray alloc] initWithObjects:
+                                          @"-verboseR",
+                                          @"-allowUntrusted",
+                                          @"-plist",
+                                          nil];
+    
+    if ( [choices count] != 0 ) {
+        [installerArguments addObject:@"-applyChoiceChangesXML"];
+        [installerArguments addObject:choices];
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify package path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying package path: %@", packagePath]];
+    if ( [[NSURL fileURLWithPath:packagePath] checkResourceIsReachableAndReturnError:&err] ) {
+        [installerArguments addObject:@"-package"];
+        [installerArguments addObject:packagePath];
+    } else {
+        return reply(err, -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify target volume path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying target volume path: %@", targetVolumePath]];
+    if ( [[NSURL fileURLWithPath:targetVolumePath] checkResourceIsReachableAndReturnError:&err] ) {
+        [installerArguments addObject:@"-target"];
+        [installerArguments addObject:targetVolumePath];
+    } else {
+        return reply(err, -1);
+    }
+    
+    [self runTaskWithCommand:command arguments:installerArguments currentDirectory:nil environmentVariables:nil withReply:reply];
+} // installPackage:targetVolume:choices:withReply
+
+- (void)modifyResourcesOnVolume:(NSURL *)volumeURL
+             modificationsArray:(NSArray *)modificationsArray
                       withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
     NSError *error;
@@ -940,380 +709,230 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     reply(nil, 0);
-}
+} // modifyResourcesOnVolume:modificationsArray:withReply
 
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark OLD METHODS
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
-
-- (void)runTaskWithCommandAtPath:(NSURL *)taskCommandPath
-                       arguments:(NSArray *)taskArguments
-      stdOutFileHandleForWriting:(NSFileHandle *)stdOutFileHandleForWriting
-      stdErrFileHandleForWriting:(NSFileHandle *)stdErrFileHandleForWriting
-                   authorization:(NSData *)authData
-                       withReply:(void(^)(NSError *error, int terminationStatus))reply {
-    NSError *error;
-    error = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-    if (error != nil) {
-        if (error.code == errAuthorizationCanceled) {
-            reply(nil, -1);
+- (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL
+               settingsDict:(NSDictionary *)settingsDict
+                  withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply {
+    
+    BOOL retval = YES;
+    NSError *err;
+    NSString *userName;
+    NSMutableDictionary *mutableSettingsDict = [settingsDict mutableCopy];
+    
+    // -------------------------------------------------------------------------------
+    //  Screen Sharing - User login
+    // -------------------------------------------------------------------------------
+    NSURL *dsLocalUsersURL = [nbiVolumeURL URLByAppendingPathComponent:@"var/db/dslocal/nodes/Default/users"];
+    if ( [dsLocalUsersURL checkResourceIsReachableAndReturnError:&err] ) {
+        NSArray *userFiles = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[dsLocalUsersURL path] error:nil];
+        NSMutableArray *userFilesFiltered = [[userFiles filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"NOT (self BEGINSWITH '_')"]] mutableCopy];
+        [userFilesFiltered removeObjectsInArray:@[ @"daemon.plist", @"nobody.plist", @"root.plist" ]];
+        if ( [userFilesFiltered count] != 0 ) {
+            NSString *firstUser = userFilesFiltered[0];
+            NSURL *firstUserPlistURL = [dsLocalUsersURL URLByAppendingPathComponent:firstUser];
+            NSDictionary *firstUserDict = [NSDictionary dictionaryWithContentsOfURL:firstUserPlistURL];
+            if ( firstUserDict ) {
+                NSArray *userNameArray = firstUserDict[@"name"];
+                userName = userNameArray[0];
+            }
+        }
+    } else {
+        [[[self connection] remoteObjectProxy] logWarn:[err localizedDescription]];
+    }
+    mutableSettingsDict[NBCSettingsARDLoginKey] = userName ?: @"";
+    
+    // -------------------------------------------------------------------------------
+    //  Screen Sharing - User password
+    // -------------------------------------------------------------------------------
+    NSString *vncPassword;
+    NSURL *vncPasswordFile = [nbiVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.VNCSettings.txt"];
+    if ( [vncPasswordFile checkResourceIsReachableAndReturnError:nil] ) {
+        NSTask *perlTask =  [[NSTask alloc] init];
+        [perlTask setLaunchPath:@"/bin/bash"];
+        NSArray *args = @[ @"-c", [NSString stringWithFormat:@"/bin/cat %@ | perl -wne 'BEGIN { @k = unpack \"C*\", pack \"H*\", \"1734516E8BA8C5E2FF1C39567390ADCA\"}; chomp; @p = unpack \"C*\", pack \"H*\", $_; foreach (@k) { printf \"%%c\", $_ ^ (shift @p || 0) }'", [vncPasswordFile path]]];
+        [perlTask setArguments:args];
+        [perlTask setStandardOutput:[NSPipe pipe]];
+        [perlTask setStandardError:[NSPipe pipe]];
+        [perlTask launch];
+        [perlTask waitUntilExit];
+        
+        NSData *stdOutData = [[[perlTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+        
+        NSData *stdErrData = [[[perlTask standardError] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+        
+        if ( [perlTask terminationStatus] == 0 ) {
+            if ( [stdOut length] != 0 ) {
+                vncPassword = stdOut;
+            }
+            retval = YES;
         } else {
-            reply(error, -1);
+            [[[self connection] remoteObjectProxy] logStdOut:stdOut];
+            [[[self connection] remoteObjectProxy] logStdErr:stdErr];
+            [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"perl command failed with exit status: %d", [perlTask terminationStatus]]];
+            retval = NO;
         }
-        return;
     }
+    mutableSettingsDict[NBCSettingsARDPasswordKey] = vncPassword ?: @"";
     
-    NSTask *newTask = [[NSTask alloc] init];
-    [newTask setLaunchPath:[taskCommandPath path]];
-    [newTask setArguments:taskArguments];
-    
-    if ( stdOutFileHandleForWriting != nil ) {
-        [newTask setStandardOutput:stdOutFileHandleForWriting];
-    }
-    
-    if ( stdErrFileHandleForWriting != nil ) {
-        [newTask setStandardError:stdErrFileHandleForWriting];
-    }
-    
-    [newTask launch];
-    [newTask waitUntilExit];
-    
-    if ( ! [newTask isRunning] ) {
-        reply(nil, [newTask terminationStatus]);
-    } else {
-        reply(nil, -1);
-    }
-}
+    reply(nil, retval, [mutableSettingsDict copy] );
+} // readSettingsFromNBI:settingsDict:withReply
 
-- (void)runTaskWithCommandAtPath:(NSURL *)taskCommandPath
-                       arguments:(NSArray *)taskArguments
-                currentDirectory:(NSString *)currentDirectory
-      stdOutFileHandleForWriting:(NSFileHandle *)stdOutFileHandleForWriting
-      stdErrFileHandleForWriting:(NSFileHandle *)stdErrFileHandleForWriting
-                       withReply:(void(^)(NSError *error, int terminationStatus))reply {
-    NSTask *newTask = [[NSTask alloc] init];
-    [newTask setLaunchPath:[taskCommandPath path]];
-    [newTask setArguments:taskArguments];
+- (void)removeItemsAtPaths:(NSArray *)itemPaths
+                 withReply:(void(^)(NSError *error, BOOL success))reply {
     
-    if ( currentDirectory != nil ) {
-        [newTask setCurrentDirectoryPath:currentDirectory];
-    }
-    
-    if ( stdOutFileHandleForWriting != nil ) {
-        [newTask setStandardOutput:stdOutFileHandleForWriting];
-    }
-    
-    if ( stdErrFileHandleForWriting != nil ) {
-        [newTask setStandardError:stdErrFileHandleForWriting];
-    }
-    
-    [newTask launch];
-    [newTask waitUntilExit];
-    
-    if ( ! [newTask isRunning] ) {
-        reply(nil, [newTask terminationStatus]);
-    } else {
-        reply(nil, -1);
-    }
-}
-
-- (void)runTaskWithCommandAtPath:(NSURL *)taskCommandPath
-                       arguments:(NSArray *)taskArguments
-            environmentVariables:(NSDictionary *)environmentVariables
-      stdOutFileHandleForWriting:(NSFileHandle *)stdOutFileHandleForWriting
-      stdErrFileHandleForWriting:(NSFileHandle *)stdErrFileHandleForWriting
-                       withReply:(void(^)(NSError *error, int terminationStatus))reply {
-    NSTask *newTask = [[NSTask alloc] init];
-    [newTask setLaunchPath:[taskCommandPath path]];
-    //if ([[[self connection] remoteObjectProxy] respondsToSelector:@selector(updateProgress:)]) {
-    //    [[[self connection] remoteObjectProxy] updateProgress:@"TESTSTSTSAKTLSJLKAJSLDKAJASD"];
-    //}
-    [newTask setArguments:taskArguments];
-    
-    if ( environmentVariables != nil ) {
-        [newTask setEnvironment:environmentVariables];
-    }
-    
-    if ( stdOutFileHandleForWriting != nil ) {
-        [newTask setStandardOutput:stdOutFileHandleForWriting];
-    }
-    
-    if ( stdErrFileHandleForWriting != nil ) {
-        [newTask setStandardError:stdErrFileHandleForWriting];
-    }
-    
-    [newTask launch];
-    [newTask waitUntilExit];
-    
-    if ( ! [newTask isRunning] ) {
-        reply(nil, [newTask terminationStatus]);
-    } else {
-        reply(nil, -1);
-    }
-}
-
-- (void)copyResourcesToVolume:(NSURL *)volumeURL resourcesDict:(NSDictionary *)resourcesDict
-                    withReply:(void(^)(NSError *error, int terminationStatus))reply {
     NSError *error;
-    BOOL verified = YES;
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSURL *blockVolumeURL = volumeURL;
-    NSArray *copyArray = resourcesDict[NBCWorkflowCopy];
-    NSMutableDictionary *regexDict = [[NSMutableDictionary alloc] init];
-    for ( NSDictionary *copyDict in copyArray ) {
-        NSString *copyType = copyDict[NBCWorkflowCopyType];
-        if ( [copyType isEqualToString:NBCWorkflowCopy] ) {
-            NSURL *targetURL;
-            NSString *targetURLString = copyDict[NBCWorkflowCopyTargetURL];
-            if ( [targetURLString length] != 0 ) {
-                targetURL = [blockVolumeURL URLByAppendingPathComponent:targetURLString];
-                if ( ! [[targetURL URLByDeletingLastPathComponent] checkResourceIsReachableAndReturnError:&error] ) {
-                    if ( ! [fileManager createDirectoryAtURL:[targetURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                        NSLog(@"Could not create target folder: %@", [targetURL URLByDeletingLastPathComponent]);
-                        continue;
-                    }
-                }
-            } else {
-                NSLog(@"Target URLString is empty!");
-                verified = NO;
-                break;
-            }
-            
-            NSString *sourceURLString = copyDict[NBCWorkflowCopySourceURL];
-            NSURL *sourceURL = [NSURL fileURLWithPath:sourceURLString];
-            
-            if ( [targetURL checkResourceIsReachableAndReturnError:nil] ) {
-                if ( ! [fileManager removeItemAtURL:targetURL error:&error] ) {
-                    NSLog(@"Removing existing item at %@ failed!", [targetURL path]);
-                    NSLog(@"[ERROR] %@", error);
-                    verified = NO;
-                    continue;
-                }
-            }
-            
-            if ( ! [fileManager copyItemAtURL:sourceURL toURL:targetURL error:&error] ) {
-                NSLog(@"Copy failed!");
-                NSLog(@"[ERROR] %@", error);
-                verified = NO;
-                continue;
-            }
-            
-            NSDictionary *attributes = copyDict[NBCWorkflowCopyAttributes];
-            
-            if ( ! [fileManager setAttributes:attributes ofItemAtPath:[targetURL path] error:&error] )
-            {
-                NSLog(@"Changing file permissions failed on file: %@", [targetURL path]);
-            }
-            
-        } else if ( [copyType isEqualToString:NBCWorkflowCopyRegex] ) {
-            NSString *sourceFolderPath = copyDict[NBCWorkflowCopyRegexSourceFolderURL];
-            NSString *regexString = copyDict[NBCWorkflowCopyRegex];
-            NSMutableArray *sourceFolderRegexes = [regexDict[sourceFolderPath] mutableCopy];
-            if ( [sourceFolderRegexes count] != 0 ) {
-                [sourceFolderRegexes addObject:regexString];
-            } else {
-                sourceFolderRegexes = [[NSMutableArray alloc] initWithObjects:regexString, nil];
-            }
-            
-            regexDict[sourceFolderPath] = [sourceFolderRegexes copy];
+    NSFileManager *fm = [[NSFileManager alloc] init];
+    
+    // ----------------------------------------------------------
+    // Loop through each path in array and remove it recursively
+    // ----------------------------------------------------------
+    for ( NSString *itemPath in itemPaths ) {
+        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Removing item at path: %@", itemPath]];
+        if ( ! [fm removeItemAtPath:itemPath error:&error] ) {
+            reply(error, NO);
         }
     }
     
-    if ( [regexDict count] != 0 ) {
-        for ( NSString *sourceFolderPath in [regexDict allKeys] ) {
-            NSArray *regexArray = regexDict[sourceFolderPath];
-            __block NSString *regexString = @"";
-            [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-#pragma unused(stop)
-                if ( idx == 0 )
-                {
-                    regexString = [regexString stringByAppendingString:[NSString stringWithFormat:@" -regex '%@'", obj]];
-                } else {
-                    regexString = [regexString stringByAppendingString:[NSString stringWithFormat:@" -o -regex '%@'", obj]];
-                }
-            }];
-            
-            // -----------------------------------------------------------------------------------
-            //  Create standard output file handle and register for data available notifications.
-            // -----------------------------------------------------------------------------------
-            NSPipe *stdOut = [[NSPipe alloc] init];
-            NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
-            [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-            
-            NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-            id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                                object:[stdOut fileHandleForReading]
-                                                 queue:nil
-                                            usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                                // ------------------------
-                                                //  Convert data to string
-                                                // ------------------------
-                                                NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
-                                                NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                                
-                                                // -----------------------------------------------------------------------
-                                                //  When output data becomes available, pass it to workflow status parser
-                                                // -----------------------------------------------------------------------
-                                                NSLog(@"outStr=%@", outStr);
-                                                
-                                                [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                            }];
-            
-            // -----------------------------------------------------------------------------------
-            //  Create standard error file handle and register for data available notifications.
-            // -----------------------------------------------------------------------------------
-            NSPipe *stdErr = [[NSPipe alloc] init];
-            NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
-            [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-            
-            id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                                object:[stdErr fileHandleForReading]
-                                                 queue:nil
-                                            usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                                // ------------------------
-                                                //  Convert data to string
-                                                // ------------------------
-                                                NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                                NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                                
-                                                // -----------------------------------------------------------------------
-                                                //  When error data becomes available, pass it to workflow status parser
-                                                // -----------------------------------------------------------------------
-                                                NSLog(@"errStr=%@", errStr);
-                                                
-                                                [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                            }];
-            
-            NSMutableArray *scriptArguments = [NSMutableArray arrayWithObjects:@"-c",
-                                               [NSString stringWithFormat:@"/usr/bin/find -E . -depth%@ | /usr/bin/cpio -admpu --quiet '%@'", regexString, [volumeURL path]],
-                                               nil];
-            
-            NSURL *commandURL = [NSURL fileURLWithPath:@"/bin/bash"];
-            //NSPipe *stdOut = [[NSPipe alloc] init];
-            //NSPipe *stdErr = [[NSPipe alloc] init];
-            NSTask *newTask = [[NSTask alloc] init];
-            
-            [newTask setLaunchPath:[commandURL path]];
-            [newTask setArguments:scriptArguments];
-            
-            if ( [sourceFolderPath length] != 0 ) {
-                [newTask setCurrentDirectoryPath:sourceFolderPath];
-            }
-            
-            if ( stdOutFileHandle != nil ) {
-                [newTask setStandardOutput:stdOutFileHandle];
-            }
-            
-            if ( stdErrFileHandle != nil ) {
-                [newTask setStandardError:stdErrFileHandle];
-            }
-            
-            [newTask launch];
-            [newTask waitUntilExit];
-            
-            [nc removeObserver:stdOutObserver];
-            [nc removeObserver:stdErrObserver];
-        }
-    }
-    
-    reply(nil, 0);
-}
+    reply(error, YES);
+} // removeItemsAtPaths
 
-- (void)modifyResourcesOnVolume:(NSURL *)volumeURL resourcesDictArray:(NSArray *)modifyDictArray withReply:(void(^)(NSError *error, int terminationStatus))reply {
-    NSError *error;
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSLog(@"modifyDictArray=%@", modifyDictArray);
-    for (NSDictionary *modifyDict in modifyDictArray ) {
-        NSLog(@"modifyDict=%@", modifyDict);
-        NSString *filePath = modifyDict[NBCWorkflowModifyTargetURL];
-        NSLog(@"filePath=%@", filePath);
-        NSString *sourceFilePath = modifyDict[NBCWorkflowModifySourceURL];
-        NSLog(@"sourceFilePath=%@", sourceFilePath);
-        NSString *fileType = modifyDict[NBCWorkflowModifyFileType];
-        NSLog(@"fileType=%@", fileType);
-        if ( [filePath length] != 0 ) {
-            if ( [fileType isEqualToString:NBCWorkflowModifyFileTypePlist] ) {
-                NSDictionary *fileContent = modifyDict[NBCWorkflowModifyContent];
-                
-                if ( [fileContent writeToFile:filePath atomically:NO] ) {
-                    NSDictionary *fileAttributes = modifyDict[NBCWorkflowModifyAttributes];
-                    
-                    if ( ! [fm setAttributes:fileAttributes ofItemAtPath:filePath error:&error] ) {
-                        NSLog(@"Changing file permissions failed on file: %@", filePath);
-                        NSLog(@"Error: %@", error);
-                    }
-                } else {
-                    NSLog(@"Error while writing property list to URL: %@", filePath);
-                }
-            } else if ( [fileType isEqualToString:NBCWorkflowModifyFileTypeGeneric] ) {
-                NSData *fileContent = modifyDict[NBCWorkflowModifyContent];
-                NSDictionary *fileAttributes = modifyDict[NBCWorkflowModifyAttributes];
-                
-                if ( ! [fm createFileAtPath:filePath contents:fileContent attributes:fileAttributes] ) {
-                    NSLog(@"Write FAILED!");
-                }
-            } else if ( [ fileType isEqualToString:NBCWorkflowModifyFileTypeFolder] ) {
-                NSDictionary *folderAttributes = modifyDict[NBCWorkflowModifyAttributes];
-                
-                if ( ! [fm createDirectoryAtPath:filePath withIntermediateDirectories:YES attributes:folderAttributes error:&error] ) {
-                    NSLog(@"Creating folder failed!");
-                }
-            } else if ( [fileType isEqualToString:NBCWorkflowModifyFileTypeDelete] ) {
-                if ( ! [fm removeItemAtPath:filePath error:&error] ) {
-                    NSLog(@"Error removing item!");
-                }
-            } else if ( [fileType isEqualToString:NBCWorkflowModifyFileTypeLink] ) {
-                NSURL *sourceFileURL = [NSURL fileURLWithPath:sourceFilePath];
-                if ( sourceFileURL ) {
-                    if ( [sourceFileURL checkResourceIsReachableAndReturnError:nil] ) {
-                        if ( ! [fm removeItemAtURL:sourceFileURL error:&error] ) {
-                            NSLog(@"Remove failed!");
-                            NSLog(@"%@", error);
-                            continue;
-                        }
-                        
-                        if ( ! [fm createSymbolicLinkAtPath:sourceFilePath withDestinationPath:filePath error:&error] ) {
-                            NSLog(@"Create symbolic link failed!");
-                            NSLog(@"%@", error);
-                        }
-                    }
-                    
-                } else {
-                    NSLog(@"sourceFileURL=%@", sourceFileURL);
-                }
-            } else if ( [fileType isEqualToString:NBCWorkflowModifyFileTypeMove] ) {
-                NSLog(@"[filePath stringByDeletingLastPathComponent]=%@", [filePath stringByDeletingLastPathComponent]);
-                NSURL *targetFolderURL = [NSURL fileURLWithPath:[filePath stringByDeletingLastPathComponent]];
-                NSLog(@"targetFolderURL=%@", targetFolderURL);
-                if ( ! [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
-                    NSDictionary *defaultAttributes = @{
-                                                        NSFileOwnerAccountName : @"root",
-                                                        NSFileGroupOwnerAccountName : @"wheel",
-                                                        NSFilePosixPermissions : @0755
-                                                        };
-                    NSLog(@"defaultAttributes=%@", defaultAttributes);
-                    if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES attributes:defaultAttributes error:&error] ) {
-                        NSLog(@"Creating target folder failed!");
-                        NSLog(@"%@", error);
-                        continue;
-                    }
-                }
-                
-                if ( ! [fm moveItemAtPath:sourceFilePath toPath:filePath error:&error] ) {
-                    NSLog(@"Failed to move file!");
-                    NSLog(@"[ERROR] %@", error);
-                }
-            }
-        } else {
-            NSLog(@"ERROR: filePath is nil!");
-        }
+- (void)runTaskWithCommand:(NSString *)command
+                 arguments:(NSArray *)arguments
+          currentDirectory:(NSString *)currentDirectory
+      environmentVariables:(NSDictionary *)environmentVariables
+                 withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    
+    // -----------------------------------------------------------------------------------
+    //  Create stdout and stderr file handles and send all output to remoteObjectProxy
+    // -----------------------------------------------------------------------------------
+    NSPipe *stdOut = [[NSPipe alloc] init];
+    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdOut fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        NSData *stdOutData = [[stdOut fileHandleForReading] availableData];
+                                        NSString *stdOutString = [[[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        if ( [stdOutString length] != 0 ) {
+                                            [[[self connection] remoteObjectProxy] logStdOut:stdOutString];
+                                        }
+                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    NSPipe *stdErr = [[NSPipe alloc] init];
+    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
+                                        object:[stdErr fileHandleForReading]
+                                         queue:nil
+                                    usingBlock:^(NSNotification *notification){
+#pragma unused(notification)
+                                        NSData *stdErrData = [[stdErr fileHandleForReading] availableData];
+                                        NSString *stdErrString = [[[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+                                        if ( [stdErrString length] != 0 ) {
+                                            [[[self connection] remoteObjectProxy] logStdErr:stdErrString];
+                                        }
+                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
+                                    }];
+    
+    // ------------------------
+    //  Setup task
+    // ------------------------
+    NSTask *task = [[NSTask alloc] init];
+    [task setLaunchPath:command];
+    [task setArguments:arguments];
+    [task setStandardOutput:stdOut];
+    [task setStandardError:stdErr];
+    
+    if ( [currentDirectory length] != 0 ) {
+        [task setCurrentDirectoryPath:currentDirectory];
     }
     
-    reply(nil, 0);
-}
+    if ( [environmentVariables count] != 0 ) {
+        [task setEnvironment:environmentVariables];
+    }
+    
+    // ------------------------
+    //  Launch task
+    // ------------------------
+    [task launch];
+    [task waitUntilExit];
+    
+    [nc removeObserver:stdOutObserver];
+    [nc removeObserver:stdErrObserver];
+    if ( ! [task isRunning] ) {
+        reply(nil, [task terminationStatus]);
+    } else {
+        reply(nil, -1);
+    }
+} // runTaskWithCommand:arguments:currentDirectory:environmentVariables:withReply
+
+- (void)updateKernelCache:(NSString *)targetVolumePath
+            nbiVolumePath:(NSString *)nbiVolumePath
+             minorVersion:(NSString *)minorVersion
+                withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *err = nil;
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify target volume path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying target volume path: %@", targetVolumePath]];
+    if ( ! [[NSURL fileURLWithPath:targetVolumePath] checkResourceIsReachableAndReturnError:&err] ) {
+        return reply(err, -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify nbi volume path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying nbi volume path: %@", nbiVolumePath]];
+    if ( ! [[NSURL fileURLWithPath:nbiVolumePath] checkResourceIsReachableAndReturnError:&err] ) {
+        return reply(err, -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify minorVersion is a number
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying minor version: %@", minorVersion]];
+    NSCharacterSet* notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    if ( ! [minorVersion rangeOfCharacterFromSet:notDigits].location == NSNotFound ) {
+        return reply( [NSError errorWithDomain:NBCErrorDomain
+                                          code:-1
+                                      userInfo:@{ NSLocalizedDescriptionKey : @"Minor version is not a number" }], -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify script
+    // -----------------------------------------------------------------------------------
+    NSString *scriptPath = [[self remoteBundleScriptsPath] stringByAppendingPathComponent:@"generateKernelCache.bash"];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script path: %@", scriptPath]];
+    if ( ! [[NSURL fileURLWithPath:scriptPath] checkResourceIsReachableAndReturnError:&err] ) {
+        return reply(err, -1);
+    }
+    
+    NSString *command = @"/bin/bash";
+    NSArray *arguments = @[ scriptPath, targetVolumePath, nbiVolumePath, minorVersion ];
+    
+    [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
+} // updateKernelCache:tmpNBI:minorVersion:withReply
+
+- (void)quitHelper:(void (^)(BOOL success))reply {
+    for ( NSXPCConnection *connection in _connections ) {
+        [connection invalidate];
+    }
+    
+    if ( _resign ) {
+        _resign(YES);
+    }
+    
+    [_connections removeAllObjects];
+    [self setHelperToolShouldQuit:YES];
+    reply(YES);
+} // quitHelper
 
 @end

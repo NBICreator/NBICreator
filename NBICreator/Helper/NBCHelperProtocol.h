@@ -33,6 +33,10 @@
                       temporaryFolder:(NSString *)temporaryFolder
                             withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
+- (void)copyResourcesToVolume:(NSURL *)volumeURL
+                    copyArray:(NSArray *)copyArray
+                    withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
 - (void)disableSpotlightOnVolume:(NSString *)volumePath
                        withReply:(void (^)(NSError *, int))reply;
 
@@ -48,6 +52,10 @@
           targetVolume:(NSString *)targetVolume
                choices:(NSDictionary *)choice
              withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
+- (void)modifyResourcesOnVolume:(NSURL *)volumeURL
+             modificationsArray:(NSArray *)modificationsArray
+                      withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL
                settingsDict:(NSDictionary *)settingsDict
@@ -68,54 +76,5 @@
                 withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)quitHelper:(void (^)(BOOL success))reply;
-
-
-
-
-
-
-
-
-
-
-
-// OLD METHODS
-
-- (void)runTaskWithCommandAtPath:(NSURL *)taskCommandPath
-                       arguments:(NSArray *)taskArguments
-      stdOutFileHandleForWriting:(NSFileHandle *)stdOutFileHandleForWriting
-      stdErrFileHandleForWriting:(NSFileHandle *)stdErrFileHandleForWriting
-                   authorization:(NSData *)authData
-                       withReply:(void(^)(NSError *error, int terminationStatus))reply;
-
-- (void)runTaskWithCommandAtPath:(NSURL *)taskCommandPath
-                       arguments:(NSArray *)taskArguments
-                currentDirectory:(NSString *)currentDirectory
-      stdOutFileHandleForWriting:(NSFileHandle *)stdOutFileHandleForWriting
-      stdErrFileHandleForWriting:(NSFileHandle *)stdErrFileHandleForWriting
-                       withReply:(void(^)(NSError *error, int terminationStatus))reply;
-
-- (void)runTaskWithCommandAtPath:(NSURL *)taskCommandPath
-                       arguments:(NSArray *)taskArguments
-            environmentVariables:(NSDictionary *)environmentVariables
-      stdOutFileHandleForWriting:(NSFileHandle *)stdOutFileHandleForWriting
-      stdErrFileHandleForWriting:(NSFileHandle *)stdErrFileHandleForWriting
-                       withReply:(void(^)(NSError *error, int terminationStatus))reply;
-
-- (void)copyResourcesToVolume:(NSURL *)volumeURL
-                    copyArray:(NSArray *)copyArray
-                    withReply:(void(^)(NSError *error, int terminationStatus))reply;
-
-- (void)copyResourcesToVolume:(NSURL *)volumeURL
-                resourcesDict:(NSDictionary *)resourcesDict
-                    withReply:(void(^)(NSError *error, int terminationStatus))reply;
-
-- (void)modifyResourcesOnVolume:(NSURL *)volumeURL
-             resourcesDictArray:(NSArray *)modifyDictArray
-                      withReply:(void(^)(NSError *error, int terminationStatus))reply;
-
-- (void)modifyResourcesOnVolume:(NSURL *)volumeURL
-             modificationsArray:(NSArray *)modificationsArray
-                      withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 @end
