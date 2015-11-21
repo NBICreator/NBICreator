@@ -23,7 +23,35 @@
 
 @required
 
+- (void)disableSpotlightOnVolume:(NSString *)volumePath
+                       withReply:(void (^)(NSError *, int))reply;
+
 - (void)getVersionWithReply:(void(^)(NSString * version))reply;
+
+- (void)installPackage:(NSString *)packagePath
+          targetVolume:(NSString *)targetVolume
+               choices:(NSDictionary *)choice
+             withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
+- (void)updateKernelCache:(NSString *)targetVolumePath
+            nbiVolumePath:(NSString *)nbiVolumePath
+             minorVersion:(NSString *)minorVersion
+                withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
+- (void)quitHelper:(void (^)(BOOL success))reply;
+
+
+
+
+
+
+
+
+
+
+
+// OLD METHODS
+
 
 - (void)runTaskWithCommand:(NSString *)command
                  arguments:(NSArray *)arguments
@@ -81,5 +109,5 @@
 
 - (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL settingsDict:(NSDictionary *)settingsDict withReply:(void(^)(NSError *error, BOOL success, NSDictionary *newSettingsDict))reply;
 
-- (void)quitHelper:(void (^)(BOOL success))reply;
+
 @end

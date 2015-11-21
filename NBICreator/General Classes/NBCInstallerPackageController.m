@@ -61,7 +61,6 @@ DDLogLevel ddLogLevel;
             if ( [packageSourcePath length] != 0 ) {
                 NSURL *packageURL = [NSURL fileURLWithPath:packageSourcePath];
                 NSDictionary *packageChoiceChangeXML = packageDict[NBCWorkflowInstallerChoiceChangeXML];
-                //[_delegate updateProgressStatus:[NSString stringWithFormat:@"Installing %@ to BaseSystem.dmg...", packageName] workflow:self];
                 [self installPackageOnTargetVolume:_volumeURL packageURL:packageURL choiceChangesXML:packageChoiceChangeXML];
             }
         }
@@ -72,102 +71,40 @@ DDLogLevel ddLogLevel;
 
 - (void)installPackageOnTargetVolume:(NSURL *)volumeURL packageURL:(NSURL *)packageURL choiceChangesXML:(NSDictionary *)choiceChangesXML {
     
-    NSError *err = nil;
-    
     DDLogInfo(@"Installing %@ on volume %@...", [packageURL lastPathComponent], [volumeURL path]);
     
-    NSURL *commandURL = [NSURL fileURLWithPath:@"/usr/sbin/installer"];
-    NSMutableArray *installerArguments = [[NSMutableArray alloc] initWithObjects:
-                                          @"-verboseR",
-                                          @"-allowUntrusted",
-                                          @"-plist",
-                                          nil];
+    NSError *err = nil;
     
-    if ( choiceChangesXML ) {
-        [installerArguments addObject:@"-applyChoiceChangesXML"];
-        [installerArguments addObject:choiceChangesXML];
-    }
-    
-    if ( [packageURL checkResourceIsReachableAndReturnError:&err] ) {
-        [installerArguments addObject:@"-package"];
-        [installerArguments addObject:[packageURL path]];
-    } else {
-        if ( [self->_delegate respondsToSelector:@selector(installFailedWithError:)] ) {
-            [self->_delegate installFailedWithError:err];
-        }
+    DDLogDebug(@"[DEBUG] Verifying package path...");
+    if ( ! [packageURL checkResourceIsReachableAndReturnError:&err] ) {
+        [self->_delegate installFailedWithError:err];
         return;
     }
     
-    if ( [volumeURL checkResourceIsReachableAndReturnError:&err] ) {
-        [installerArguments addObject:@"-target"];
-        [installerArguments addObject:[volumeURL path]];
-    } else {
-        if ( [self->_delegate respondsToSelector:@selector(installFailedWithError:)] ) {
-            [self->_delegate installFailedWithError:err];
-        }
+    DDLogDebug(@"[DEBUG] Verifying volume path...");
+    if ( ! [volumeURL checkResourceIsReachableAndReturnError:&err] ) {
+        [self->_delegate installFailedWithError:err];
         return;
     }
     
-    // -----------------------------------------------------------------------------------
-    //  Create standard output file handle and register for data available notifications.
-    // -----------------------------------------------------------------------------------
-    NSPipe *stdOut = [[NSPipe alloc] init];
-    NSFileHandle *stdOutFileHandle = [stdOut fileHandleForWriting];
-    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                        object:[stdOut fileHandleForReading]
-                                         queue:nil
-                                    usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                        NSData *stdOutdata = [[stdOut fileHandleForReading] availableData];
-                                        NSString *outStr = [[[NSString alloc] initWithData:stdOutdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                        
-                                        DDLogDebug(@"[installer][stdout] %@", outStr);
-                                        
-                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                    }];
-    
-    // -----------------------------------------------------------------------------------
-    //  Create standard error file handle and register for data available notifications.
-    // -----------------------------------------------------------------------------------
-    
-    NSPipe *stdErr = [[NSPipe alloc] init];
-    NSFileHandle *stdErrFileHandle = [stdErr fileHandleForWriting];
-    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                        object:[stdErr fileHandleForReading]
-                                         queue:nil
-                                    usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                        NSData *stdErrdata = [[stdErr fileHandleForReading] availableData];
-                                        NSString *errStr = [[[NSString alloc] initWithData:stdErrdata encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                        
-                                        DDLogError(@"[installer][stderr] %@", errStr);
-                                        
-                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                    }];
-    
-    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-    [helperConnector connectToHelper];
-    
-    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-        [nc removeObserver:stdOutObserver];
-        [nc removeObserver:stdErrObserver];
-        [self->_delegate installFailedWithError:proxyError];
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(taskQueue, ^{
         
-    }] runTaskWithCommandAtPath:commandURL arguments:installerArguments environmentVariables:nil stdOutFileHandleForWriting:stdOutFileHandle stdErrFileHandleForWriting:stdErrFileHandle withReply:^(NSError *error, int terminationStatus) {
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        [[helperConnector connection] setExportedObject:self->_progressDelegate];
+        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            [self->_delegate installFailedWithError:proxyError];
+        }] installPackage:[packageURL path] targetVolume:[volumeURL path] choices:choiceChangesXML withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
-        if ( terminationStatus == 0 ) {
-            [nc removeObserver:stdOutObserver];
-            [nc removeObserver:stdErrObserver];
-            [self installSuccessfulForPackage:packageURL];
-        } else {
-            [nc removeObserver:stdOutObserver];
-            [nc removeObserver:stdErrObserver];
-            [self->_delegate installFailedWithError:error];
-        }
-    }];
+            if ( terminationStatus == 0 ) {
+                [self installSuccessfulForPackage:packageURL];
+            } else {
+                [self->_delegate installFailedWithError:error];
+            }
+        }];
+    });
 }
 
 + (NSArray *)convertPackagesToProductArchivePackages:(NSArray *)packages {

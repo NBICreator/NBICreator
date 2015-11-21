@@ -68,16 +68,18 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 
 - (BOOL)listener:(NSXPCListener *)listener shouldAcceptNewConnection:(NSXPCConnection *)newConnection {
 #pragma unused(listener)
-
+    
+    // ----------------------------------------------------------------------------------------------------
+    //  Only accept new connections from applications using the same codesigning certificate as the helper
+    // ----------------------------------------------------------------------------------------------------
     if ( ! [self connectionIsValid:newConnection] ) {
         return NO;
     }
-
+    
     // This is called by the XPC listener when there is a new connection.
     [newConnection setRemoteObjectInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
     [newConnection setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCHelperProtocol)]];
     [newConnection setExportedObject:self];
-    
     
     __weak typeof(newConnection) weakConnection = newConnection;
     [newConnection setInvalidationHandler:^() {
@@ -107,7 +109,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     // --------------------------------------------
     //  Get PID of remote application (NBICreator)
     // --------------------------------------------
-    pid_t pid = connection.processIdentifier;
+    pid_t pid = [connection processIdentifier];
     
     // --------------------------------------------------------------
     //  Instantiate codesign check for helper and remote application
@@ -119,13 +121,36 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     //  Get remote application using it's PID
     // ---------------------------------------
     NSRunningApplication *remoteApp = [NSRunningApplication runningApplicationWithProcessIdentifier:pid];
-    syslog(0, "Remote App: %s", remoteApp.description.UTF8String);
+    //syslog(0, "Remote App: %s", remoteApp.description.UTF8String);
     
     // ------------------------------------------------------------------------
     //  Verify that helper and remote application has matching code signatures
     // ------------------------------------------------------------------------
     return remoteApp && [remoteCS signingInformationMatches:selfCS];
-} // newConnectionIsValid:
+} // connectionIsValid:
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Utility
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSRunningApplication *)remoteApplication {
+    NSRunningApplication *mainApp = [NSRunningApplication runningApplicationWithProcessIdentifier:[[self connection] processIdentifier]];
+    return mainApp;
+} // remoteApplication
+
+- (NSString *)remoteBundlePath {
+    return [[[self remoteApplication] bundleURL] path];
+} // remoteBundlePath
+
+- (NSString *)remoteBundleResouresPath {
+    return [[self remoteBundlePath] stringByAppendingPathComponent:@"Contents/Resources"];
+} // remoteBundleResouresPath
+
+- (NSString *)remoteBundleScriptsPath {
+    return [[self remoteBundleResouresPath] stringByAppendingPathComponent:@"Scripts"];
+} // remoteBundleScriptsPath
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -133,29 +158,60 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void)disableSpotlightOnVolume:(NSString *)volumePath
+                       withReply:(void (^)(NSError *, int))reply {
+    NSString *command = @"/usr/bin/mdutil";
+    NSArray *agruments = @[ @"-Edi", @"off", volumePath];
+    [self runTaskWithCommand:command arguments:agruments currentDirectory:nil environmentVariables:nil withReply:reply];
+} // disableSpotlightOnVolume:withReply
+
 - (void)getVersionWithReply:(void(^)(NSString *version))reply {
     reply([[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
 } // getVersionWithReply
 
-- (void)quitHelper:(void (^)(BOOL success))reply {
-    for ( NSXPCConnection *connection in _connections ) {
-        [connection invalidate];
+- (void)installPackage:(NSString *)packagePath
+          targetVolume:(NSString *)targetVolumePath
+               choices:(NSDictionary *)choices
+             withReply:(void (^)(NSError *, int))reply {
+    
+    NSError *err = nil;
+    
+    NSString *command = @"/usr/sbin/installer";
+    NSMutableArray *installerArguments = [[NSMutableArray alloc] initWithObjects:
+                                          @"-verboseR",
+                                          @"-allowUntrusted",
+                                          @"-plist",
+                                          nil];
+    
+    if ( [choices count] != 0 ) {
+        [installerArguments addObject:@"-applyChoiceChangesXML"];
+        [installerArguments addObject:choices];
     }
     
-    if ( _resign ) {
-        _resign(YES);
+    // -----------------------------------------------------------------------------------
+    //  Verify package path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying package path: %@", packagePath]];
+    if ( [[NSURL fileURLWithPath:packagePath] checkResourceIsReachableAndReturnError:&err] ) {
+        [installerArguments addObject:@"-package"];
+        [installerArguments addObject:packagePath];
+    } else {
+        return reply(err, -1);
     }
     
-    [_connections removeAllObjects];
-    [self setHelperToolShouldQuit:YES];
-    reply(YES);
-} // quitHelper
-
-////////////////////////////////////////////////////////////////////////////////
-#pragma mark -
-#pragma mark runTaskWithCommand
-#pragma mark -
-////////////////////////////////////////////////////////////////////////////////
+    // -----------------------------------------------------------------------------------
+    //  Verify target volume path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying target volume path: %@", targetVolumePath]];
+    if ( [[NSURL fileURLWithPath:targetVolumePath] checkResourceIsReachableAndReturnError:&err] ) {
+        [installerArguments addObject:@"-target"];
+        [installerArguments addObject:targetVolumePath];
+    } else {
+        return reply(err, -1);
+    }
+    
+    [self runTaskWithCommand:command arguments:installerArguments currentDirectory:nil environmentVariables:nil withReply:reply];
+} // installPackage:targetVolume:choices:withReply
 
 - (void)runTaskWithCommand:(NSString *)command
                  arguments:(NSArray *)arguments
@@ -229,6 +285,69 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         reply(nil, -1);
     }
 } // runTaskWithCommand:arguments:currentDirectory:environmentVariables:withReply
+
+- (void)updateKernelCache:(NSString *)targetVolumePath
+            nbiVolumePath:(NSString *)nbiVolumePath
+             minorVersion:(NSString *)minorVersion
+                withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *err = nil;
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify target volume path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying target volume path: %@", targetVolumePath]];
+    if ( ! [[NSURL fileURLWithPath:targetVolumePath] checkResourceIsReachableAndReturnError:&err] ) {
+        return reply(err, -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify nbi volume path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying nbi volume path: %@", nbiVolumePath]];
+    if ( ! [[NSURL fileURLWithPath:nbiVolumePath] checkResourceIsReachableAndReturnError:&err] ) {
+        return reply(err, -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify minorVersion is a number
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying minor version: %@", minorVersion]];
+    NSCharacterSet* notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
+    if ( ! [minorVersion rangeOfCharacterFromSet:notDigits].location == NSNotFound ) {
+        return reply( [NSError errorWithDomain:NBCErrorDomain
+                                          code:-1
+                                      userInfo:@{ NSLocalizedDescriptionKey : @"Minor version is not a number" }], -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify script
+    // -----------------------------------------------------------------------------------
+    NSString *scriptPath = [[self remoteBundleScriptsPath] stringByAppendingPathComponent:@"generateKernelCache.bash"];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script path: %@", scriptPath]];
+    if ( ! [[NSURL fileURLWithPath:scriptPath] checkResourceIsReachableAndReturnError:&err] ) {
+        return reply(err, -1);
+    }
+    
+    NSString *command = @"/bin/bash";
+    NSArray *arguments = @[ scriptPath, targetVolumePath, nbiVolumePath, minorVersion ];
+    
+    [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
+} // updateKernelCache:tmpNBI:minorVersion:withReply
+
+- (void)quitHelper:(void (^)(BOOL success))reply {
+    for ( NSXPCConnection *connection in _connections ) {
+        [connection invalidate];
+    }
+    
+    if ( _resign ) {
+        _resign(YES);
+    }
+    
+    [_connections removeAllObjects];
+    [self setHelperToolShouldQuit:YES];
+    reply(YES);
+} // quitHelper
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -678,8 +797,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)removeItemsAtPaths:(NSArray *)itemPaths
-                withReply:(void(^)(NSError *error, BOOL success))reply {
-
+                 withReply:(void(^)(NSError *error, BOOL success))reply {
+    
     NSError *error;
     NSFileManager *fm = [[NSFileManager alloc] init];
     
@@ -692,7 +811,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             reply(error, NO);
         }
     }
-
+    
     reply(error, YES);
 } // removeItemsAtURLs
 

@@ -788,7 +788,7 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Adding installCertificates.bash for copy...");
     
-    NSURL *certificateScriptURL = [[NSBundle mainBundle] URLForResource:@"installCertificates" withExtension:@"bash"];
+    NSURL *certificateScriptURL = [[NSBundle mainBundle] URLForResource:@"installCertificates" withExtension:@"bash" subdirectory:@"Scripts"];
     DDLogDebug(@"[DEBUG] installCertificates.bash path: %@", [certificateScriptURL path]);
     
     if ( [certificateScriptURL checkResourceIsReachableAndReturnError:error] ) {

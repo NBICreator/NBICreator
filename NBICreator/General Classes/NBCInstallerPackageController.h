@@ -18,6 +18,7 @@
 //  limitations under the License.
 
 #import <Foundation/Foundation.h>
+#import "NBCWorkflowProgressDelegate.h"
 
 @protocol NBCInstallerPackageDelegate
 - (void)installSuccessful;
@@ -27,6 +28,7 @@
 @interface NBCInstallerPackageController : NSObject
 
 @property (nonatomic, weak) id delegate;
+@property (nonatomic, weak) id<NBCWorkflowProgressDelegate>progressDelegate;
 
 @property NSURL *volumeURL;
 @property NSMutableArray *packagesQueue;

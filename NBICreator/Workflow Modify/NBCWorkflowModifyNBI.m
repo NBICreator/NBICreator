@@ -1108,6 +1108,7 @@ DDLogLevel ddLogLevel;
         [_delegate updateProgressStatus:@"Installing packages to volume..." workflow:self];
         
         NBCInstallerPackageController *installer = [[NBCInstallerPackageController alloc] initWithDelegate:self];
+        [installer setProgressDelegate:_delegate];
         [installer installPackagesToVolume:[[_workflowItem target] baseSystemVolumeURL] packages:packagesArray];
     } else {
         [self copyFilesToVolume];
@@ -1369,9 +1370,6 @@ DDLogLevel ddLogLevel;
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         
-        NSString *command = @"/usr/bin/mdutil";
-        NSArray *agruments = @[ @"-Edi", @"off", [self->_currentVolumeURL path] ];
-        
         NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
         [helperConnector connectToHelper];
         [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
@@ -1380,16 +1378,14 @@ DDLogLevel ddLogLevel;
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self modifyFailedWithError:proxyError];
             });
-        }] runTaskWithCommand:command arguments:agruments currentDirectory:nil environmentVariables:@{} withReply:^(NSError *error, int terminationStatus) {
-            if ( terminationStatus == 0 ) {
-                dispatch_async(dispatch_get_main_queue(), ^{
+        }] disableSpotlightOnVolume:[self->_currentVolumeURL path] withReply:^(NSError *error, int terminationStatus) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ( terminationStatus == 0 ) {
                     [self modifyComplete];
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                } else {
                     [self modifyFailedWithError:error];
-                });
-            }
+                }
+            });
         }];
     });
 } // disableSpotlightOnVolume
@@ -1410,20 +1406,16 @@ DDLogLevel ddLogLevel;
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     
     // --------------------------------------------------------------------------
-    //  Get path to generateKernelCache script
+    //  Verify path to generateKernelCache script
     // --------------------------------------------------------------------------
-    NSURL *generateKernelCacheScriptURL = [[NSBundle mainBundle] URLForResource:@"generateKernelCache" withExtension:@"bash"];
-    if ( ! [generateKernelCacheScriptURL checkResourceIsReachableAndReturnError:&err] ) {
+    if ( ! [[[NSBundle mainBundle] URLForResource:@"generateKernelCache" withExtension:@"bash" subdirectory:@"Scripts"] checkResourceIsReachableAndReturnError:&err] ) {
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : err }];
         return;
     }
     
-    NSString *command = [generateKernelCacheScriptURL path];
-    NSArray *arguments = @[
-                           [[[_workflowItem target] baseSystemVolumeURL] path],
-                           [[_workflowItem temporaryNBIURL] path],
-                           [[_workflowItem source] expandVariables:@"%OSMINOR%"]
-                           ];
+    NSString *targetVolumePath = [[[_workflowItem target] baseSystemVolumeURL] path];
+    NSString *nbiVolumePath = [[_workflowItem temporaryNBIURL] path];
+    NSString *minorVersion = [[_workflowItem source] expandVariables:@"%OSMINOR%"];
     
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
@@ -1436,16 +1428,14 @@ DDLogLevel ddLogLevel;
             dispatch_async(dispatch_get_main_queue(), ^{
                 [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
             });
-        }] runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:@{} withReply:^(NSError *error, int terminationStatus) {
-            if ( terminationStatus == 0 ) {
-                dispatch_async(dispatch_get_main_queue(), ^{
+        }] updateKernelCache:targetVolumePath nbiVolumePath:nbiVolumePath minorVersion:minorVersion withReply:^(NSError *error, int terminationStatus) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ( terminationStatus == 0 ) {
                     [self finalizeWorkflow];
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
+                } else {
                     [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : error }];
-                });
-            }
+                }
+            });
         }];
     });
 } // updateKernelCache
@@ -1469,7 +1459,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------------------
     //  Get path to createUser script
     // --------------------------------------------------------------------------
-    NSURL *createUserScriptURL = [[NSBundle mainBundle] URLForResource:@"createUser" withExtension:@"bash"];
+    NSURL *createUserScriptURL = [[NSBundle mainBundle] URLForResource:@"createUser" withExtension:@"bash" subdirectory:@"Scripts"];
     if ( ! [createUserScriptURL checkResourceIsReachableAndReturnError:&err] ) {
         [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : err }];
         return;
