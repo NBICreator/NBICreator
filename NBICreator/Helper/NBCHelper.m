@@ -939,6 +939,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     [_connections removeAllObjects];
     [self setHelperToolShouldQuit:YES];
+    
     reply(YES);
 } // quitHelper
 
