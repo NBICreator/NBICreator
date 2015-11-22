@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>createUser.bash</key>
+	<dict>
+		<key>md5</key>
+		<string>5ea20083667b925d6cc020260a75e427</string>
+	</dict>
+	<key>generateKernelCache.bash</key>
+	<dict>
+		<key>md5</key>
+		<string>2fe04cf912ffad1f17a2ff85a4880143</string>
+	</dict>
+	<key>installCertificates.bash</key>
+	<dict>
+		<key>md5</key>
+		<string>bea1c7b91392fa868450e21f744664c5</string>
+	</dict>
+	<key>pbzx</key>
+	<dict>
+		<key>md5</key>
+		<string>083c4470085083069c8d0bb3c5b4e6dc</string>
+	</dict>
+	<key>sharedLibraryDependencyChecker.bash</key>
+	<dict>
+		<key>md5</key>
+		<string>ba24a9e7e9eb061ef286fcc06857a3de</string>
+	</dict>
+</dict>
+</plist>

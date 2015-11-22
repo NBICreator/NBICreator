@@ -202,6 +202,20 @@
 			remoteGlobalIDString = 19EC14731B84D134000EC2E7;
 			remoteInfo = "watchOSSwiftTest Extension";
 		};
+		53E2A4A71C02512400B31717 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 53968BFF1A8E7A3E0079AA95 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53E2A49F1C02439200B31717;
+			remoteInfo = PreBuildTask;
+		};
+		53E2A4A91C02513400B31717 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 53968BFF1A8E7A3E0079AA95 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 53E2A49F1C02439200B31717;
+			remoteInfo = PreBuildTask;
+		};
 		53F229D81B6837E200CC0B09 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 53F229CC1B6837E200CC0B09 /* Lumberjack.xcodeproj */;
@@ -1085,6 +1099,23 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXLegacyTarget section */
+		53E2A49F1C02439200B31717 /* PreBuildTask */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "\"${PROJECT_DIR}/Supporting Files/PreBuildScripts/updateHashes.bash\" -f \"${PROJECT_DIR}\"";
+			buildConfigurationList = 53E2A4A01C02439200B31717 /* Build configuration list for PBXLegacyTarget "PreBuildTask" */;
+			buildPhases = (
+			);
+			buildToolPath = /bin/bash;
+			buildWorkingDirectory = "";
+			dependencies = (
+			);
+			name = PreBuildTask;
+			passBuildSettingsInEnvironment = 0;
+			productName = PreBuildTask;
+		};
+/* End PBXLegacyTarget section */
+
 /* Begin PBXNativeTarget section */
 		53968C061A8E7A3E0079AA95 /* NBICreator */ = {
 			isa = PBXNativeTarget;
@@ -1100,6 +1131,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				53E2A4AA1C02513400B31717 /* PBXTargetDependency */,
 				534DFB231B7C986400C9CE0E /* PBXTargetDependency */,
 				53968C361A8E7C910079AA95 /* PBXTargetDependency */,
 			);
@@ -1118,6 +1150,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				53E2A4A81C02512400B31717 /* PBXTargetDependency */,
 			);
 			name = com.github.NBICreatorHelper;
 			productName = NBICreatorHelper;
@@ -1142,6 +1175,9 @@
 						CreatedOnToolsVersion = 6.1.1;
 						DevelopmentTeam = Y7QFC8672N;
 					};
+					53E2A49F1C02439200B31717 = {
+						CreatedOnToolsVersion = 7.1.1;
+					};
 				};
 			};
 			buildConfigurationList = 53968C021A8E7A3E0079AA95 /* Build configuration list for PBXProject "NBICreator" */;
@@ -1165,6 +1201,7 @@
 			targets = (
 				53968C061A8E7A3E0079AA95 /* NBICreator */,
 				53968C2D1A8E7B8C0079AA95 /* com.github.NBICreatorHelper */,
+				53E2A49F1C02439200B31717 /* PreBuildTask */,
 			);
 		};
 /* End PBXProject section */
@@ -1433,6 +1470,16 @@
 			target = 53968C2D1A8E7B8C0079AA95 /* com.github.NBICreatorHelper */;
 			targetProxy = 53968C351A8E7C910079AA95 /* PBXContainerItemProxy */;
 		};
+		53E2A4A81C02512400B31717 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 53E2A49F1C02439200B31717 /* PreBuildTask */;
+			targetProxy = 53E2A4A71C02512400B31717 /* PBXContainerItemProxy */;
+		};
+		53E2A4AA1C02513400B31717 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 53E2A49F1C02439200B31717 /* PreBuildTask */;
+			targetProxy = 53E2A4A91C02513400B31717 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -1655,6 +1702,31 @@
 			};
 			name = Release;
 		};
+		53E2A4A11C02439200B31717 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		53E2A4A21C02439200B31717 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_NO_COMMON_BLOCKS = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1684,6 +1756,14 @@
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
+		};
+		53E2A4A01C02439200B31717 /* Build configuration list for PBXLegacyTarget "PreBuildTask" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				53E2A4A11C02439200B31717 /* Debug */,
+				53E2A4A21C02439200B31717 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
 		};
 /* End XCConfigurationList section */
 	};
