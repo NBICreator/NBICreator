@@ -199,7 +199,7 @@ DDLogLevel ddLogLevel;
         [self setWorkflowPanel:[[NBCWorkflowPanelController alloc] initWithWindowNibName:@"NBCWorkflowPanelController"]];
     }
     /* This needs to be here, otherwise the view doesn't show up... don't know why yet. */
-    [[_workflowPanel window] setTitle:@"NBICreator Workflow"];
+    [[_workflowPanel window] setTitle:@"NBICreator Workflow Queue"];
     /* -------------------------------------------------------------------------------- */
     
     [[_workflowPanel stackView] addView:[progressView view] inGravity:NSStackViewGravityLeading];
