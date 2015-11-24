@@ -29,7 +29,7 @@ DDLogLevel ddLogLevel;
 
 + (NSArray *)generateScriptArgumentsForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
     NSMutableArray *createRestoreFromSourcesArguments = [[NSMutableArray alloc] init];
-    
+    /*
     // -------------------------------------------------------------------
     //  Add non-optional values to createRestoreFromSourcesArguments
     // -------------------------------------------------------------------
@@ -40,7 +40,7 @@ DDLogLevel ddLogLevel;
         NSLog(@"Could not get createRestoreFromSourcesPath from workflow Item!");
         return nil;
     }
-    
+    */
     NSString *temporaryNBIPath = [[workflowItem temporaryNBIURL] path];
     if ( [temporaryNBIPath length] != 0 ) {
         [createRestoreFromSourcesArguments addObject:temporaryNBIPath];
@@ -61,6 +61,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------------
     //  Add non-optional values to createNetInstallArguments
     // -------------------------------------------------------------------
+    /*
     NSString *createNetInstallPath = [[[workflowItem applicationSource] createNetInstallURL] path];
     if ( [createNetInstallPath length] != 0 ) {
         [createNetInstallArguments addObject:createNetInstallPath];
@@ -68,7 +69,7 @@ DDLogLevel ddLogLevel;
         NSLog(@"Could not get createNetInstallPath from workflow Item!");
         return nil;
     }
-    
+    */
     NSString *temporaryNBIPath = [[workflowItem temporaryNBIURL] path];
     if ( [temporaryNBIPath length] != 0 ) {
         [createNetInstallArguments addObject:temporaryNBIPath];
@@ -245,22 +246,7 @@ DDLogLevel ddLogLevel;
         NSLog(@"Could not get userSettings from workflow Item!");
         return nil;
     }
-    // -------------------------------------------------------------------
-    //  Add sysBuilder.sh path
-    // -------------------------------------------------------------------
-    NSString *sysBuilderPath;
-    if ( 11 <= (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue] ) {
-        sysBuilderPath = [[[workflowItem applicationSource] sysBuilderScriptRp] path];
-    } else {
-        sysBuilderPath = [[[workflowItem applicationSource] sysBuilderScript] path];
-    }
     
-    if ( [sysBuilderPath length] != 0 ) {
-        [sysBuilderArguments addObject:sysBuilderPath];
-    } else {
-        NSLog(@"Could not get sysBuilderPath from deployStudioSource!");
-        return nil;
-    }
     // -------------------------------------------------------------------
     //  Add -basesystem
     // -------------------------------------------------------------------

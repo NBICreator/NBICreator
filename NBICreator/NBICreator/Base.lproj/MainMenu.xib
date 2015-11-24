@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9059" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <development version="6300" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9059"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9060"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -26,14 +26,17 @@
                 <outlet property="menuItemSaveAs" destination="Bw7-FT-i3A" id="aVX-Ol-xeJ"/>
                 <outlet property="menuItemShowInFinder" destination="mAb-EC-HgB" id="6lp-tt-SYA"/>
                 <outlet property="menuItemWindowWorkflows" destination="8AK-sN-Ec6" id="urP-Aj-Dc5"/>
+                <outlet property="progressIndicatorProgress" destination="6Vx-Ga-wgW" id="mlp-8V-B26"/>
                 <outlet property="segmentedControlNBI" destination="uL8-j3-eig" id="Hng-dP-54m"/>
                 <outlet property="textFieldInstallHelperText" destination="NTd-K4-Z9c" id="U0D-pp-u7P"/>
+                <outlet property="textFieldProgress" destination="4Q4-Rx-4SR" id="YqZ-oT-t9E"/>
                 <outlet property="viewDropView" destination="ajs-UB-tQp" id="Yuu-Ra-qxM"/>
                 <outlet property="viewInstallHelper" destination="pCh-R5-Ehc" id="b32-qg-s0S"/>
                 <outlet property="viewMainWindow" destination="EiT-Mj-1SZ" id="WnQ-6h-ghb"/>
                 <outlet property="viewNBISettings" destination="ngY-aB-lRp" id="mGh-H8-Sde"/>
                 <outlet property="viewNoInternetConnection" destination="Ek0-XK-LNg" id="fXn-fz-OJC"/>
                 <outlet property="window" destination="QvC-M9-y7g" id="dGo-CN-c7K"/>
+                <outlet property="windowProgress" destination="ZJk-bZ-vE3" id="v50-8S-PGs"/>
             </connections>
         </customObject>
         <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
@@ -384,7 +387,7 @@
                                     <action selector="menuItemMainWindow:" target="2ua-cd-ebo" id="BKR-j4-mGK"/>
                                 </connections>
                             </menuItem>
-                            <menuItem title="Workflows" id="8AK-sN-Ec6">
+                            <menuItem title="Workflow Queue" id="8AK-sN-Ec6">
                                 <modifierMask key="keyEquivalentModifierMask"/>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="YJ7-qS-v8f"/>
@@ -547,5 +550,54 @@
             <animations/>
             <point key="canvasLocation" x="-260" y="553.5"/>
         </customView>
+        <window title="Progress" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="ZJk-bZ-vE3">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="283" y="305" width="565" height="72"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <view key="contentView" id="joo-YY-yvM">
+                <rect key="frame" x="0.0" y="0.0" width="565" height="72"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="xpv-1e-CaG">
+                        <rect key="frame" x="62" y="35" width="103" height="19"/>
+                        <animations/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Cleaning up..." id="yWn-Tz-ips">
+                            <font key="font" metaFont="systemSemibold" size="15"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <progressIndicator wantsLayer="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="6Vx-Ga-wgW">
+                        <rect key="frame" x="20" y="20" width="32" height="32"/>
+                        <animations/>
+                    </progressIndicator>
+                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4Q4-Rx-4SR">
+                        <rect key="frame" x="62" y="17" width="485" height="14"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="481" id="w0d-5K-fy9"/>
+                        </constraints>
+                        <animations/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Unmounting disk: disk5s2" id="ge3-3N-X8T">
+                            <font key="font" metaFont="smallSystem"/>
+                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="xpv-1e-CaG" firstAttribute="top" secondItem="6Vx-Ga-wgW" secondAttribute="top" constant="-2" id="8mc-Yn-XG9"/>
+                    <constraint firstItem="4Q4-Rx-4SR" firstAttribute="top" secondItem="xpv-1e-CaG" secondAttribute="bottom" constant="4" id="OJj-YL-4mb"/>
+                    <constraint firstAttribute="bottom" secondItem="6Vx-Ga-wgW" secondAttribute="bottom" constant="20" symbolic="YES" id="alh-Rf-0gD"/>
+                    <constraint firstItem="xpv-1e-CaG" firstAttribute="leading" secondItem="6Vx-Ga-wgW" secondAttribute="trailing" constant="12" id="ddk-3d-ZOd"/>
+                    <constraint firstItem="6Vx-Ga-wgW" firstAttribute="top" secondItem="joo-YY-yvM" secondAttribute="top" constant="20" symbolic="YES" id="gJR-bn-Hob"/>
+                    <constraint firstItem="4Q4-Rx-4SR" firstAttribute="leading" secondItem="xpv-1e-CaG" secondAttribute="leading" id="gJx-LI-zDX"/>
+                    <constraint firstAttribute="trailing" secondItem="4Q4-Rx-4SR" secondAttribute="trailing" constant="20" symbolic="YES" id="gS9-4s-Dtc"/>
+                    <constraint firstItem="6Vx-Ga-wgW" firstAttribute="leading" secondItem="joo-YY-yvM" secondAttribute="leading" constant="20" symbolic="YES" id="rqw-Rl-UKn"/>
+                </constraints>
+                <animations/>
+            </view>
+            <point key="canvasLocation" x="-324.5" y="529"/>
+        </window>
     </objects>
 </document>

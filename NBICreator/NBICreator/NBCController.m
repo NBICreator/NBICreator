@@ -291,19 +291,43 @@ enum {
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
 #pragma unused(notification)
+    
     // --------------------------------------------------------------
     //  Unmount all disks and disk images mounted by NBICreator
     // --------------------------------------------------------------
     NSSet *mountedDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
-    for ( NBCDisk *disk in mountedDisks ) {
-        if ( [disk isMountedByNBICreator] && [disk isMounted] ) {
-            [disk unmountWithOptions:kDADiskUnmountOptionDefault];
-            if ( [[disk deviceModel] isEqualToString:NBCDiskDeviceModelDiskImage] ) {
-                [NBCDiskImageController detachDiskImageDevice:[disk BSDName]];
+    if ( [mountedDisks count] != 0 ) {
+        
+        // --------------------------------------------------------------
+        //  Show unmount progress after 2 seconds
+        // --------------------------------------------------------------
+        [_progressIndicatorProgress startAnimation:self];
+        [self performSelector:@selector(showTerminateProgress) withObject:self afterDelay:2.0];
+        
+        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+        dispatch_async(taskQueue, ^{
+            
+            for ( NBCDisk *disk in mountedDisks ) {
+                if ( [disk isMountedByNBICreator] && [disk isMounted] ) {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [self->_textFieldProgress setStringValue:[NSString stringWithFormat:@"Unmounting disk: %@", [disk BSDName]]];
+                    });
+                    [disk unmountWithOptions:kDADiskUnmountOptionDefault];
+                    if ( [[disk deviceModel] isEqualToString:NBCDiskDeviceModelDiskImage] ) {
+                        [NBCDiskImageController detachDiskImageDevice:[disk BSDName]];
+                    }
+                }
             }
-        }
+            
+            [[NSApp mainWindow] endSheet:self->_windowProgress];
+            
+        });
     }
 } // applicationWillTerminate
+
+- (void)showTerminateProgress {
+    [[NSApp mainWindow] beginSheet:_windowProgress completionHandler:nil];
+} // showTerminateProgress
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
 #pragma unused(notification)
@@ -463,7 +487,7 @@ enum {
         if ( [[_currentSettingsController selectedTemplate] isEqualToString:NBCMenuItemUntitled] ) {
             NBCAlerts *alerts = [[NBCAlerts alloc] initWithDelegate:self];
             [alerts showAlertSettingsUnsavedQuitNoSave:@"You have unsaved settings.\n\nTo save your changes in a template, select Save As... from the template popup menu and choose a name."
-                                       alertInfo:@{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedQuitNoSave }];
+                                             alertInfo:@{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedQuitNoSave }];
         } else {
             NBCAlerts *alerts = [[NBCAlerts alloc] initWithDelegate:self];
             [alerts showAlertSettingsUnsavedQuit:@"You have unsaved settings."
@@ -491,6 +515,8 @@ enum {
         [self terminateApp];
     }
 } // checkWorkflowRunningQuit
+
+
 
 - (void)terminateApp {
     

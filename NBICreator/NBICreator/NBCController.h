@@ -35,6 +35,7 @@
 //  Windows
 // --------------------------------------------------------------
 @property (weak) IBOutlet NSWindow *window;
+@property (weak) IBOutlet NSWindow *windowProgress;
 @property (strong) NBCOptionBuildPanel *optionBuildPanel;
 @property (strong) NBCPreferences *preferencesWindow;
 
@@ -120,5 +121,11 @@
 //  TextFields
 // --------------------------------------------------------------
 @property (weak) IBOutlet NSTextField *textFieldInstallHelperText;
+@property (weak) IBOutlet NSTextField *textFieldProgress;
+
+// --------------------------------------------------------------
+//  Progress Indicators
+// --------------------------------------------------------------
+@property (weak) IBOutlet NSProgressIndicator *progressIndicatorProgress;
 
 @end
