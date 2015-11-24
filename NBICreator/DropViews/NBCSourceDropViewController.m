@@ -489,7 +489,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             [_delegate updateSource:source target:nil];
         }
         
-        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source systemOSVersion], [source systemOSBuild]];
+        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source sourceVersion], [source sourceBuild]];
         sourceImage = [source productImageForOSVersion:[source systemOSVersion]];
         
         [_textFieldSourceField1Label setStringValue:@"Source:"];
@@ -518,8 +518,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             [_delegate updateSource:source target:nil];
         }
         
-        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source baseSystemOSVersion], [source baseSystemOSBuild]];
-        sourceImage = [source productImageForOSVersion:[source baseSystemOSVersion]];
+        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source sourceVersion], [source sourceBuild]];
+        sourceImage = [source productImageForOSVersion:[source sourceVersion]];
         
         [_textFieldSourceField1Label setStringValue:@"Source:"];
         [_textFieldSourceField1 setStringValue:@"Disk Image"];
@@ -541,8 +541,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             [_delegate updateSource:source target:nil];
         }
         
-        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source baseSystemOSVersion], [source baseSystemOSBuild]];
-        sourceImage = [source productImageForOSVersion:[source baseSystemOSVersion]];
+        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source sourceVersion], [source sourceBuild]];
+        sourceImage = [source productImageForOSVersion:[source sourceVersion]];
         
         [_textFieldSourceField1Label setStringValue:@"Source:"];
         [_textFieldSourceField1 setStringValue:@"InstallESD"];
@@ -564,12 +564,12 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             [_delegate updateSource:source target:nil];
         }
         
-        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source baseSystemOSVersion], [source baseSystemOSBuild]];
+        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source sourceVersion], [source sourceBuild]];
         NSURL *installerIconURL = [source osxInstallerIconURL];
         if ( [installerIconURL checkResourceIsReachableAndReturnError:nil] ) {
             sourceImage = [[NSImage alloc] initWithContentsOfURL:installerIconURL];
         } else {
-            sourceImage = [source productImageForOSVersion:[source baseSystemOSVersion]];
+            sourceImage = [source productImageForOSVersion:[source sourceVersion]];
         }
         
         [_textFieldSourceField1Label setStringValue:@"Source:"];
@@ -592,8 +592,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             [_delegate updateSource:source target:_targetNBI];
         }
         
-        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source baseSystemOSVersion], [source baseSystemOSBuild]];
-        sourceImage = [source productImageForOSVersion:[source baseSystemOSVersion]];
+        sourceVersionString = [NSString stringWithFormat:@"Mac OS X %@ (%@)", [source sourceVersion], [source sourceBuild]];
+        sourceImage = [source productImageForOSVersion:[source sourceVersion]];
         
         [_textFieldSourceField1Label setStringValue:@"Source:"];
         [_textFieldSourceField1 setStringValue:@"NetInstall Image"];
@@ -1141,7 +1141,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
                 if ( [NBCDiskImageController verifySystemDiskImage:sourceURL source:source requireRecoveryPartition:YES error:&error] ) {
                     verified = YES;
                     [source setSourceType:NBCSourceTypeSystemDiskImage];
-                    [source setSourceMenuName:[NSString stringWithFormat:@"%@ - %@ (%@)", [[source systemDisk] volumeName] , [source baseSystemOSVersion], [source baseSystemOSBuild]]];
+                    [source setSourceMenuName:[NSString stringWithFormat:@"%@ - %@ (%@)", [[source systemDisk] volumeName] , [source sourceVersion], [source sourceBuild]]];
                 }
             }
             
@@ -1149,7 +1149,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
                 if ( [NBCDiskImageController verifyInstallESDDiskImage:sourceURL source:source error:&error] ) {
                     verified = YES;
                     [source setSourceType:NBCSourceTypeInstallESDDiskImage];
-                    [source setSourceMenuName:[NSString stringWithFormat:@"%@ - %@ (%@)", [sourceURL path] , [source baseSystemOSVersion], [source baseSystemOSBuild]]];
+                    [source setSourceMenuName:[NSString stringWithFormat:@"%@ - %@ (%@)", [sourceURL path] , [source sourceVersion], [source sourceBuild]]];
                 }
             }
         } else if ( [sourceExtension isEqualToString:@"app"] ) {
@@ -1195,7 +1195,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
                     } else {
                         volumeName = [[source systemDisk] volumeName];
                     }
-                    [source setSourceMenuName:[NSString stringWithFormat:@"%@ - %@ (%@)", volumeName , [source systemOSVersion], [source systemOSBuild]]];
+                    [source setSourceMenuName:[NSString stringWithFormat:@"%@ - %@ (%@)", volumeName , [source sourceVersion], [source sourceBuild]]];
                 }
             }
         }
