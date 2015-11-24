@@ -322,7 +322,7 @@ DDLogLevel ddLogLevel;
         if ( [latestVersion length] != 0 ) {
             [self setDeployStudioLatestVersion:latestVersion];
             [self updateCachedDeployStudioLatestVersion:latestVersion];
-            NSString *currentVersion = [_dsSource deployStudioAdminVersion];
+            NSString *currentVersion = [_dsSource dsAdminVersion];
             if ( [currentVersion isEqualToString:latestVersion] ) {
                 [self hideUpdateAvailable];
             } else {
@@ -486,7 +486,7 @@ DDLogLevel ddLogLevel;
     }
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
-    NSURL *deployStudioBackgroundURL = [_dsSource deployStudioBackgroundURL];
+    NSURL *deployStudioBackgroundURL = [_dsSource dsBackgroundURL];
     if ( [currentBackgroundImageURL isEqualToString:NBCDeployStudioBackgroundDefaultPath] ) {
         [self setImageBackground:@""];
         [self setImageBackground:[deployStudioBackgroundURL path]];
@@ -503,7 +503,7 @@ DDLogLevel ddLogLevel;
     }
     
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
-    NSURL *deployStudioBackgroundURL = [_dsSource deployStudioBackgroundURL];
+    NSURL *deployStudioBackgroundURL = [_dsSource dsBackgroundURL];
     if ( [currentBackgroundImageURL isEqualToString:NBCDeployStudioBackgroundImageDefaultPath] ) {
         [self setImageBackground:@""];
         [self setImageBackground:[deployStudioBackgroundURL path]];
@@ -951,7 +951,7 @@ DDLogLevel ddLogLevel;
 } // getDeployStudioVersions
 
 - (void)updateDeployStudioVersion {
-    [self setDeployStudioVersion:[_dsSource deployStudioAdminVersion]];
+    [self setDeployStudioVersion:[_dsSource dsAdminVersion]];
     if ( [_deployStudioVersion length] != 0 ) {
         [_textFieldDeployStudioVersion setStringValue:_deployStudioVersion];
         if ( [_deployStudioVersion isEqualToString:_deployStudioLatestVersion] ) {
@@ -1071,7 +1071,7 @@ DDLogLevel ddLogLevel;
         NSString *latestVersion = cachedDownloadsDict[NBCResourcesDeployStudioLatestVersionKey];
         if ( [latestVersion length] != 0 ) {
             [self setDeployStudioLatestVersion:latestVersion];
-            NSString *currentVersion = [_dsSource deployStudioAdminVersion];
+            NSString *currentVersion = [_dsSource dsAdminVersion];
             if ( ! [currentVersion isEqualToString:latestVersion] ) {
                 [self showUpdateAvailableCached:latestVersion];
             }

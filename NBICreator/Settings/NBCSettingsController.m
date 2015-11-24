@@ -837,7 +837,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
-    NSString *deployStudioVersion = [[workflowItem applicationSource] deployStudioAssistantVersion];
+    NSString *deployStudioVersion = [[workflowItem applicationSource] dsAdminVersion];
     int deployStudioVersionInt = [[deployStudioVersion stringByReplacingOccurrencesOfString:@"." withString:@""] intValue];
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     

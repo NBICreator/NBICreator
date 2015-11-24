@@ -75,13 +75,10 @@ DDLogLevel ddLogLevel;
     NSURL *nbiNetInstallURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"NetInstall.dmg"];
     [[workflowItem target] setNbiNetInstallURL:nbiNetInstallURL];
     
-    // --------------------------------
-    //  Create NBI
-    // --------------------------------
-    [self runWorkflowScriptWithArguments:arguments];
-}
-
-- (void)runWorkflowScriptWithArguments:(NSArray *)arguments {
+    // -------------------------------------------------------------------
+    //  Add sysBuilder.sh path
+    // -------------------------------------------------------------------
+    int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
@@ -96,7 +93,7 @@ DDLogLevel ddLogLevel;
                                                                     object:self
                                                                   userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:@"Creating NBI failed"] }];
             });
-        }] runTaskWithCommand:@"/bin/sh" arguments:arguments currentDirectory:nil environmentVariables:@{} withReply:^(NSError *error, int terminationStatus) {
+        }] sysBuilderWithArguments:arguments sourceVersionMinor:sourceVersionMinor selectedVersion:@"" withReply:^(NSError *error, int terminationStatus) {
             if ( terminationStatus == 0 ) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self finalizeNBI];

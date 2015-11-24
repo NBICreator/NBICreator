@@ -849,7 +849,7 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    NSURL *installConfigurationProfilesScriptURL = [[_workflowItem applicationSource] installConfigurationProfiles];
+    NSURL *installConfigurationProfilesScriptURL = [[_workflowItem applicationSource] installConfigurationProfilesURL];
     DDLogDebug(@"[DEBUG] installConfigurationProfiles.sh path: %@", [installConfigurationProfilesScriptURL path]);
     
     if ( [installConfigurationProfilesScriptURL checkResourceIsReachableAndReturnError:error] ) {
@@ -880,7 +880,7 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------------------
     //  Determine source URL
     // ------------------------------------------------------
-    NSURL *deployStudioAdminSourceURL = [[_workflowItem applicationSource] urlForDSAdminResource:@"self" extension:nil];
+    NSURL *deployStudioAdminSourceURL = [[_workflowItem applicationSource] dsAdminURL];
     if ( [deployStudioAdminSourceURL checkResourceIsReachableAndReturnError:error] ) {
         
         // ------------------------------------------------------

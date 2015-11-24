@@ -21,36 +21,22 @@
 
 @interface NBCApplicationSourceDeployStudio : NSObject
 
-// Source Image
-@property NSString *sourceImageOSVersion;
-
-@property BOOL isSupported;
 @property BOOL isInstalled;
-
-@property NSBundle *deployStudioAdminBundle;
-@property NSBundle *deployStudioAssistantBundle;
-
-// DeployStudio
+@property NSString *sourceImageOSVersion;
 @property NSString *selectedVersion;
-@property NSURL *deployStudioAdminURL;
-@property NSURL *deployStudioAssistantURL;
-@property NSString *deployStudioAdminVersion;
-@property NSString *deployStudioAssistantVersion;
-@property NSArray *deployStudioVersionsSupported;
-@property NSArray *deployStudioAdminURLs;
+@property (readonly) NSArray *dsAdminURLs;
+@property NSURL *dsAdminURL;
+@property NSURL *dsAssistantURL;
 
-// SysBuilder
-@property NSURL *deployStudioBackgroundURL;
-@property NSURL *sysBuilderFolder;
-@property NSURL *sysBuilderScript;
-@property NSURL *sysBuilderScriptRp;
-@property NSURL *sysBuilderScriptFillVolume;
-@property NSURL *sysBuilderScriptBestRecoveryDevice;
+@property (readonly) NSString *dsAdminVersion;
+@property (readonly) NSString *dsAssistantVersion;
+@property (readonly) NSURL *dsBackgroundURL;
+@property (readonly) NSURL *sysBuilderFolderURL;
+@property (readonly) NSURL *sysBuilderURL;
+@property (readonly) NSURL *sysBuilderRpURL;
+@property (readonly) NSURL *sysBuilderFillVolumeURL;
+@property (readonly) NSURL *sysBuilderBestRecoveryDeviceURL;
 
-// Methods
 - (NSString *)expandVariables:(NSString *)string;
-+ (NSArray *)deployStudioAdminVersions;
-
-- (NSURL *)urlForDSAdminResource:(NSString *)resource extension:(NSString *)extension;
 
 @end

@@ -18,137 +18,167 @@
 //  limitations under the License.
 
 #import "NBCApplicationSourceDeployStudio.h"
-
 #import "NBCSource.h"
-#import "NBCLogging.h"
+//#import "NBCLogging.h"
 
-DDLogLevel ddLogLevel;
+//DDLogLevel ddLogLevel;
 
 @implementation NBCApplicationSourceDeployStudio
 
-- (id)init
-{
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Init / Dealloc
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (id)init {
     self = [super init];
     if (self) {
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(updateSource:)
-                                                     name:@"updateImageSource"
-                                                   object:nil];
-        
-        _deployStudioVersionsSupported = @[
-                                           @"1.6.12",
-                                           @"1.6.13",
-                                           ];
-        [self getDeployStudioURL];
+        [self selectLatestVersion];
     }
     return self;
 }
 
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Get Versions
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
-- (void)getDeployStudioURL {
-    NSError *error;
-    NSArray *deployStudioApplicationURLs = (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.deploystudio.admin"), NULL));
-    NSURL *dsAdminURL = [deployStudioApplicationURLs firstObject];
-    if ( [dsAdminURL checkResourceIsReachableAndReturnError:nil] ) {
-        [self setDeployStudioAdminBundle:[NSBundle bundleWithURL:dsAdminURL]];
-        [self setDeployStudioAdminURL:dsAdminURL];
-        if ( [_deployStudioAdminURL checkResourceIsReachableAndReturnError:&error] ) {
-            [self setIsInstalled:YES];
-            [self deployStudioResourcesFromAdminURL];
-        } else  {
-            [self setIsInstalled:NO];
-            NSLog(@"DSAssistant Doesn't exist! %@", error);
+- (void)selectLatestVersion {
+    
+    NSInteger latestVersionCleaned = 0;
+    NSURL *latestVersionURL;
+    for ( NSURL *dsAdminURL in [self dsAdminURLs] ) {
+        NSString *dsAdminVersion = [[NSBundle bundleWithURL:dsAdminURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+        NSString *dsAdminVersionCleaned = [dsAdminVersion stringByReplacingOccurrencesOfString:@"." withString:@""];
+        if ( latestVersionCleaned < [dsAdminVersionCleaned integerValue]) {
+            latestVersionCleaned = [dsAdminVersionCleaned integerValue];
+            latestVersionURL = dsAdminURL;
         }
     }
-}
-
-- (void)deployStudioResourcesFromAdminURL {
-    [self setDeployStudioAdminVersion:[[NSBundle bundleWithURL:_deployStudioAdminURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
-    if ( ! [_deployStudioVersionsSupported containsObject:_deployStudioAdminVersion] ) {
-        [self setIsSupported:NO];
-    } else {
-        [self setIsSupported:YES];
-    }
     
-    [self setDeployStudioAssistantURL:[_deployStudioAdminURL URLByAppendingPathComponent:@"Contents/Applications/DeployStudio Assistant.app"]];
-    NSError *error;
-    if ( [_deployStudioAssistantURL checkResourceIsReachableAndReturnError:&error] ) {
-        [self setDeployStudioAssistantVersion:[[NSBundle bundleWithURL:_deployStudioAssistantURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
-        
-        [self setSysBuilderFolder:[_deployStudioAssistantURL URLByAppendingPathComponent:@"Contents/Resources/sysBuilder"]];
-        [self setSysBuilderScript:[_sysBuilderFolder URLByAppendingPathComponent:@"sys_builder.sh"]];
-        [self setSysBuilderScriptRp:[_sysBuilderFolder URLByAppendingPathComponent:@"sys_builder_rp.sh"]];
-        [self setSysBuilderScriptFillVolume:[_sysBuilderFolder URLByAppendingPathComponent:[NSString stringWithFormat:@"%@/fill_volume.sh", _sourceImageOSVersion]]];
-        [self setSysBuilderScriptBestRecoveryDevice:[_sysBuilderFolder URLByAppendingPathComponent:@"netboot_helpers/ds_best_recovery_device_info.sh"]];
-        [self setDeployStudioBackgroundURL:[_sysBuilderFolder URLByAppendingPathComponent:@"common/DefaultDesktop.jpg"]];
+    NSError *error = nil;
+
+    if ( [latestVersionURL checkResourceIsReachableAndReturnError:&error] ) {
+        [self setIsInstalled:YES];
+        [self setDsAdminURL:latestVersionURL];
+        if ( [[latestVersionURL URLByAppendingPathComponent:@"Contents/Applications/DeployStudio Assistant.app"] checkResourceIsReachableAndReturnError:&error] ) {
+            [self setDsAssistantURL:[latestVersionURL URLByAppendingPathComponent:@"Contents/Applications/DeployStudio Assistant.app"]];
+        } else {
+            [self setDsAssistantURL:nil];
+            [self setDsAdminURL:nil];
+            [self setIsInstalled:NO];
+            //DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        }
     } else {
+        //DDLogError(@"[ERROR] %@", [error localizedDescription]);
         [self setIsInstalled:NO];
-        NSLog(@"DSAssistant Doesn't exist! %@", error);
     }
-    
 }
 
-- (void)updateSource:(NSNotification *)notification {
-    NBCSource *source = [notification userInfo][@"currentSource"];
-    NSString *variableString = @"%OSMAJOR%.%OSMINOR%";
-    if ( source != nil ) {
-        [self setSourceImageOSVersion:[source expandVariables:variableString]];
+- (NSString *)dsAdminVersion {
+    return [[self dsAdminBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+} // dsAdminVersion
+
+- (NSString *)dsAssistantVersion {
+    return [[self dsAssistantBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+} // dsAssistantVersion
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Get Resources
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSBundle *)dsAdminBundle {
+    return [NSBundle bundleWithURL:_dsAdminURL];
+} // dsAdminBundle
+
+- (NSBundle *)dsAssistantBundle {
+    return [NSBundle bundleWithURL:_dsAssistantURL];
+} // dsAssistantBundle
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Get URLs
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSURL *)urlForDSAdminResourceNamed:(NSString *)resourceName {
+    return [[self dsAdminBundle] URLForResource:[resourceName stringByDeletingPathExtension] withExtension:[resourceName pathExtension]];
+} // urlForDSAdminResourceNamed
+
+- (NSURL *)urlForDSAssistantResourceNamed:(NSString *)resourceName {
+    return [[self dsAssistantBundle] URLForResource:[resourceName stringByDeletingPathExtension] withExtension:[resourceName pathExtension]];
+} // urlForDSAssistantResourceNamed
+
+- (NSArray *)dsAdminURLs {
+    return (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.deploystudio.admin"), NULL));
+} // dsAdminURLs
+
+- (NSURL *)sysBuilderFolderURL {
+    return [_dsAssistantURL URLByAppendingPathComponent:@"Contents/Resources/sysBuilder"];
+} // sysBuilderFolderURL
+
+- (NSURL *)sysBuilderURL {
+    return [[self sysBuilderFolderURL] URLByAppendingPathComponent:@"sys_builder.sh"];
+} // sysBuilderURL
+
+- (NSURL *)sysBuilderRpURL {
+    return [[self sysBuilderFolderURL] URLByAppendingPathComponent:@"sys_builder_rp.sh"];
+} // sysBuilderRpURL
+
+- (NSURL *)sysBuilderBestRecoveryDeviceURL {
+    return [[self sysBuilderFolderURL] URLByAppendingPathComponent:@"netboot_helpers/ds_best_recovery_device_info.sh"];
+} // sysBuilderBestRecoveryDeviceURL
+
+- (NSURL *)sysBuilderFillVolumeURL {
+    if ( [_sourceImageOSVersion length] != 0 ) {
+        return [[self sysBuilderFolderURL] URLByAppendingPathComponent:[NSString stringWithFormat:@"%@/fill_volume.sh", _sourceImageOSVersion]];
+    } else {
+        return nil;
     }
-}
+} // sysBuilderFillVolumeURL
+
+- (NSURL *)dsBackgroundURL {
+    return [[self sysBuilderFolderURL] URLByAppendingPathComponent:@"common/DefaultDesktop.jpg"];
+} // dsBackgroundURL
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Verify Hashes
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Expand Variables
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (NSString *)expandVariables:(NSString *)string {
-    NSString *newString = string;
-    NSString *variableDSVersion = @"%DSVERSION%";
-    NSString *variableDSAdmin = @"%DSADMINURL%";
-    NSString *variableNBITool = @"%NBITOOL%";
     
     // --------------------------------------------------------------
     //  Expand %DSVERSION%
     // --------------------------------------------------------------
-    NSString *dsVersion;
-    dsVersion = _deployStudioAdminVersion;
-    if ( [dsVersion length] == 0 ) {
-        dsVersion = @"Unknown";
-    }
-    
-    newString = [newString stringByReplacingOccurrencesOfString:variableDSVersion
-                                                     withString:dsVersion];
+    string = [string stringByReplacingOccurrencesOfString:@"%DSVERSION%"
+                                               withString:[[self dsAdminBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"Unknown"];
     
     // --------------------------------------------------------------
-    //  Expand %DSVERSION%
+    //  Expand %DSADMINURL%
     // --------------------------------------------------------------
-    NSString *dsAdminPath;
-    dsAdminPath = [_deployStudioAdminURL path];
-    if ( [dsAdminPath length] == 0 ) {
-        dsAdminPath = @"Unknown";
-    }
-    
-    newString = [newString stringByReplacingOccurrencesOfString:variableDSAdmin
-                                                     withString:dsAdminPath];
+    string = [string stringByReplacingOccurrencesOfString:@"%DSADMINURL%"
+                                               withString:[_dsAdminURL path] ?: @"Unknown"];
     
     // --------------------------------------------------------------
     //  Expand %NBITOOL%
     // --------------------------------------------------------------
-    newString = [newString stringByReplacingOccurrencesOfString:variableNBITool
-                                                     withString:@"DSA"];
+    string = [string stringByReplacingOccurrencesOfString:@"%NBITOOL%"
+                                               withString:@"DSA"];
     
-    return newString;
-}
-
-+ (NSArray *)deployStudioAdminVersions {
-    NSArray *versions;
-    return versions;
-}
-
-- (NSURL *)urlForDSAdminResource:(NSString *)resource extension:(NSString *)extension {
-    if ( [resource isEqualToString:@"self"] ) {
-        return [_deployStudioAdminBundle bundleURL];
-    } else {
-        return [_deployStudioAdminBundle URLForResource:resource withExtension:extension];
-    }
+    return string;
 }
 
 @end
