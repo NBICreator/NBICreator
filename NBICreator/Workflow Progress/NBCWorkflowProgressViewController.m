@@ -279,6 +279,7 @@ DDLogLevel ddLogLevel;
     }
     
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_layoutConstraintButtonOpenLogLeading setConstant:100.0];
         [self->_layoutContraintStatusInfoLeading setConstant:1.0];
         [self->_progressIndicator setHidden:YES];
         [self->_progressIndicator stopAnimation:self];

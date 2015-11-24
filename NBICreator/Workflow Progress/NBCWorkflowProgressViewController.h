@@ -25,6 +25,7 @@
 @interface NBCWorkflowProgressViewController : NSViewController <NBCWorkflowProgressDelegate>
 
 @property (strong) IBOutlet NSLayoutConstraint *layoutContraintStatusInfoLeading;
+@property (strong) IBOutlet NSLayoutConstraint *layoutConstraintButtonOpenLogLeading;
 
 @property NBCWorkflowItem *workflowItem;
 @property NSURL *nbiURL;

@@ -8,8 +8,9 @@
             <connections>
                 <outlet property="buttonCancel" destination="OCM-Cq-6q3" id="kes-2D-vaq"/>
                 <outlet property="buttonOpenLog" destination="6s6-PX-ioV" id="Uw7-Te-SfN"/>
-                <outlet property="buttonShowInFinder" destination="x75-uz-1IE" id="asi-1D-g1r"/>
+                <outlet property="buttonShowInFinder" destination="Xto-uU-I0c" id="2MP-mg-9Gi"/>
                 <outlet property="buttonWorkflowReport" destination="9rK-Pj-9i4" id="baL-aT-5jj"/>
+                <outlet property="layoutConstraintButtonOpenLogLeading" destination="vas-ao-VQw" id="Ute-IY-zaI"/>
                 <outlet property="layoutContraintStatusInfoLeading" destination="JKg-Z3-V8G" id="NuI-LE-lm6"/>
                 <outlet property="nbiIcon" destination="dl5-Dn-LjZ" id="5Lp-F4-csm"/>
                 <outlet property="progressIndicator" destination="uBP-ur-nNv" id="Gbi-yA-V2n"/>
@@ -62,7 +63,7 @@
                     </textFieldCell>
                 </textField>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="60L-Th-Xvx">
-                    <rect key="frame" x="67" y="9" width="296" height="14"/>
+                    <rect key="frame" x="67" y="9" width="297" height="14"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="14" id="LKh-i0-4sg"/>
                     </constraints>
@@ -96,7 +97,7 @@
                     </connections>
                 </progressIndicator>
                 <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6s6-PX-ioV">
-                    <rect key="frame" x="126" y="26" width="67" height="16"/>
+                    <rect key="frame" x="67" y="26" width="67" height="16"/>
                     <animations/>
                     <buttonCell key="cell" type="push" title="Open Log" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="krQ-nt-GD6">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -106,24 +107,8 @@
                         <action selector="buttonOpenLog:" target="-2" id="mnz-Do-HJW"/>
                     </connections>
                 </button>
-                <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="x75-uz-1IE">
-                    <rect key="frame" x="67" y="26" width="53" height="16"/>
-                    <animations/>
-                    <buttonCell key="cell" type="push" title="Reveal" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="BXt-cn-WgP">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="miniSystem"/>
-                    </buttonCell>
-                    <connections>
-                        <action selector="buttonShowInFinder:" target="-2" id="5VK-VM-p22"/>
-                        <binding destination="-2" name="hidden" keyPath="self.workflowComplete" id="tey-Lp-LmN">
-                            <dictionary key="options">
-                                <string key="NSValueTransformerName">NSNegateBoolean</string>
-                            </dictionary>
-                        </binding>
-                    </connections>
-                </button>
                 <textField hidden="YES" horizontalHuggingPriority="252" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Svh-zL-y2Z">
-                    <rect key="frame" x="367" y="10" width="25" height="11"/>
+                    <rect key="frame" x="368" y="10" width="25" height="11"/>
                     <constraints>
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="21" id="49b-oJ-Kf0"/>
                     </constraints>
@@ -135,7 +120,7 @@
                     </textFieldCell>
                 </textField>
                 <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9rK-Pj-9i4">
-                    <rect key="frame" x="255" y="26" width="78" height="16"/>
+                    <rect key="frame" x="196" y="26" width="78" height="16"/>
                     <animations/>
                     <buttonCell key="cell" type="push" title="Save Report" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Udf-Ey-QNp">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -146,7 +131,7 @@
                     </connections>
                 </button>
                 <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rlx-cg-ns4">
-                    <rect key="frame" x="198" y="29" width="52" height="11"/>
+                    <rect key="frame" x="139" y="29" width="52" height="11"/>
                     <animations/>
                     <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="x warnings" id="Fg6-7X-omo">
                         <font key="font" metaFont="miniSystem"/>
@@ -154,6 +139,22 @@
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
+                <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xto-uU-I0c">
+                    <rect key="frame" x="103" y="46" width="13" height="13"/>
+                    <animations/>
+                    <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSRevealFreestandingTemplate" imagePosition="only" alignment="center" refusesFirstResponder="YES" imageScaling="proportionallyUpOrDown" inset="2" id="6Lf-DF-KDo">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="buttonShowInFinder:" target="-2" id="EcK-ar-tvj"/>
+                        <binding destination="-2" name="hidden" keyPath="self.workflowComplete" id="gox-pS-gxP">
+                            <dictionary key="options">
+                                <string key="NSValueTransformerName">NSNegateBoolean</string>
+                            </dictionary>
+                        </binding>
+                    </connections>
+                </button>
                 <progressIndicator wantsLayer="YES" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" maxValue="100" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="uBP-ur-nNv">
                     <rect key="frame" x="68" y="26" width="300" height="20"/>
                     <constraints>
@@ -172,30 +173,33 @@
             <constraints>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="12" id="09s-0i-FgE"/>
                 <constraint firstItem="Svh-zL-y2Z" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" id="2sX-HI-8AX"/>
-                <constraint firstItem="x75-uz-1IE" firstAttribute="top" secondItem="bI5-Ub-8db" secondAttribute="bottom" constant="3" id="5hh-dZ-Qoz"/>
+                <constraint firstItem="Xto-uU-I0c" firstAttribute="width" secondItem="OCM-Cq-6q3" secondAttribute="width" constant="-1" id="AoG-pc-6SA"/>
+                <constraint firstItem="Xto-uU-I0c" firstAttribute="centerY" secondItem="bI5-Ub-8db" secondAttribute="centerY" constant="1" id="ByC-wE-3qy"/>
                 <constraint firstItem="rlx-cg-ns4" firstAttribute="leading" secondItem="6s6-PX-ioV" secondAttribute="trailing" constant="8" symbolic="YES" id="CB6-tL-Xnf"/>
                 <constraint firstItem="nfc-W4-XIp" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" id="H3N-Pn-se5"/>
                 <constraint firstItem="McW-gO-jJv" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" constant="-1" id="HLP-Nm-lNb"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" constant="12" id="HiP-nI-gsi"/>
                 <constraint firstItem="60L-Th-Xvx" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" constant="1" id="JKg-Z3-V8G"/>
                 <constraint firstItem="9rK-Pj-9i4" firstAttribute="leading" secondItem="rlx-cg-ns4" secondAttribute="trailing" constant="8" symbolic="YES" id="Jf6-4A-5xo"/>
+                <constraint firstItem="6s6-PX-ioV" firstAttribute="centerY" secondItem="dl5-Dn-LjZ" secondAttribute="centerY" constant="2" id="JsT-0M-EkU"/>
                 <constraint firstAttribute="bottom" secondItem="dl5-Dn-LjZ" secondAttribute="bottom" constant="12" id="Keg-Jo-GnF"/>
                 <constraint firstItem="McW-gO-jJv" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="leading" id="MHP-vE-cBO"/>
-                <constraint firstItem="OCM-Cq-6q3" firstAttribute="trailing" secondItem="Svh-zL-y2Z" secondAttribute="trailing" id="MuY-3t-0KP"/>
+                <constraint firstItem="OCM-Cq-6q3" firstAttribute="trailing" secondItem="Svh-zL-y2Z" secondAttribute="trailing" constant="-1" id="MuY-3t-0KP"/>
                 <constraint firstItem="nfc-W4-XIp" firstAttribute="centerY" secondItem="uBP-ur-nNv" secondAttribute="centerY" constant="2" id="PaS-Qv-Y48"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="top" secondItem="bI5-Ub-8db" secondAttribute="top" constant="2" id="Qtw-Vu-vD0"/>
                 <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="trailing" constant="8" symbolic="YES" id="RVW-NN-8Ik"/>
-                <constraint firstItem="6s6-PX-ioV" firstAttribute="leading" secondItem="x75-uz-1IE" secondAttribute="trailing" constant="8" symbolic="YES" id="V7G-PJ-e1E"/>
-                <constraint firstItem="6s6-PX-ioV" firstAttribute="centerY" secondItem="x75-uz-1IE" secondAttribute="centerY" id="VQc-07-Vz7"/>
                 <constraint firstItem="uBP-ur-nNv" firstAttribute="leading" secondItem="dl5-Dn-LjZ" secondAttribute="trailing" constant="8" symbolic="YES" id="WT5-bj-RDA"/>
                 <constraint firstItem="9rK-Pj-9i4" firstAttribute="baseline" secondItem="6s6-PX-ioV" secondAttribute="baseline" id="Wj4-G1-EKC"/>
                 <constraint firstItem="9rK-Pj-9i4" firstAttribute="baseline" secondItem="rlx-cg-ns4" secondAttribute="baseline" id="Xga-OS-wix"/>
-                <constraint firstItem="x75-uz-1IE" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" id="ZNr-cX-GqQ"/>
+                <constraint firstItem="Xto-uU-I0c" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="trailing" constant="6" id="YWo-19-Whm"/>
                 <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="9rK-Pj-9i4" secondAttribute="trailing" constant="8" symbolic="YES" id="e3g-r3-yXs"/>
                 <constraint firstAttribute="bottom" secondItem="60L-Th-Xvx" secondAttribute="bottom" constant="9" id="eTe-zv-1J0"/>
+                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Xto-uU-I0c" secondAttribute="trailing" constant="20" symbolic="YES" id="fD3-3v-Wox"/>
                 <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" secondItem="nfc-W4-XIp" secondAttribute="trailing" constant="8" symbolic="YES" id="lZD-4r-k5x"/>
+                <constraint firstItem="Xto-uU-I0c" firstAttribute="height" secondItem="OCM-Cq-6q3" secondAttribute="height" constant="-1" id="nGc-4Q-KNZ"/>
                 <constraint firstAttribute="trailing" secondItem="OCM-Cq-6q3" secondAttribute="trailing" constant="20" symbolic="YES" id="srK-Bu-2aA"/>
                 <constraint firstItem="uBP-ur-nNv" firstAttribute="centerY" secondItem="OCM-Cq-6q3" secondAttribute="centerY" id="stM-Pk-aHt"/>
+                <constraint firstItem="6s6-PX-ioV" firstAttribute="leading" secondItem="dl5-Dn-LjZ" secondAttribute="trailing" constant="8" symbolic="YES" id="vas-ao-VQw"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="centerY" secondItem="uBP-ur-nNv" secondAttribute="centerY" id="vb8-aR-ww1"/>
                 <constraint firstItem="bI5-Ub-8db" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="leading" id="wJX-qP-5i8"/>
                 <constraint firstItem="Svh-zL-y2Z" firstAttribute="leading" secondItem="60L-Th-Xvx" secondAttribute="trailing" constant="8" symbolic="YES" id="zW2-Ka-Oaf"/>
@@ -206,6 +210,7 @@
     </objects>
     <resources>
         <image name="IconNetBootNBI" width="512" height="512"/>
+        <image name="NSRevealFreestandingTemplate" width="14" height="14"/>
         <image name="WorkflowCancel" width="14" height="14"/>
     </resources>
 </document>
