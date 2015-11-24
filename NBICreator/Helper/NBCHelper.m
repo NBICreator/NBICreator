@@ -27,6 +27,8 @@
 #import "NBCTarget.h"
 #import "NBCConstants.h"
 #import "FileHash.h"
+#import "NBCApplicationSourceSystemImageUtility.h"
+#import "NBCApplicationSourceDeployStudio.h"
 
 static const NSTimeInterval kHelperCheckInterval = 1.0;
 
@@ -166,7 +168,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     // -----------------------------------------------------------------------------------
-    //  Verify script
+    //  Verify script path
     // -----------------------------------------------------------------------------------
     NSString *scriptPath = [[self remoteBundleScriptsPath] stringByAppendingPathComponent:@"createUser.bash"];
     [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script path: %@", scriptPath]];
@@ -174,9 +176,22 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         return reply(err, -1);
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify script integrity
+    // -----------------------------------------------------------------------------------
     NSString *scriptMD5 = [FileHash md5HashOfFileAtPath:scriptPath];
     [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script md5: %@", scriptMD5]];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script cached md5: %@", NBCHashMD5CreateUser]];
+    [[[self connection] remoteObjectProxy] logDebug:@"Comparing script hashes..."];
+    if ( ! [scriptMD5 isEqualToString:NBCHashMD5CreateUser] ) {
+        return reply( [NSError errorWithDomain:NBCErrorDomain
+                                          code:-1
+                                      userInfo:@{ NSLocalizedDescriptionKey : @"Script hashes doesn't match! If you haven't modified generateKernelCache.bash yourself, someone might be trying to exploit this application!" }], -1);
+    }
     
+    // -----------------------------------------------------------------------------------
+    //  Run Script
+    // -----------------------------------------------------------------------------------
     NSString *command = @"/bin/bash";
     NSArray *arguments = @[ scriptPath, nbiVolumePath, userShortName, userPassword, @"501", @"admin" ];
     
@@ -228,15 +243,15 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                 
                 if ( [targetURL checkResourceIsReachableAndReturnError:nil] ) {
                     if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
-                        reply(error, 1);
+                        return reply(error, 1);
                     }
                 } else if ( ! [[targetURL URLByDeletingLastPathComponent] checkResourceIsReachableAndReturnError:nil] ) {
                     if ( ! [fm createDirectoryAtURL:[targetURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                        reply(error, 1);
+                        return reply(error, 1);
                     }
                 }
             } else {
-                reply(nil, 1);
+                return reply(nil, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -245,7 +260,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSURL *sourceURL = [NSURL fileURLWithPath:copyDict[NBCWorkflowCopySourceURL] ?: @""];
             [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying source path: %@", [sourceURL path]]];
             if ( ! [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
-                reply(error, 1);
+                return reply(error, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -253,7 +268,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ----------------------------------------------------------------------
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Copying %@...", [sourceURL lastPathComponent]]];
             if ( ! [fm copyItemAtURL:sourceURL toURL:targetURL error:&error] ) {
-                reply(error, 1);
+                return reply(error, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -263,7 +278,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             if ( [attributes count] != 0 ) {
                 [[[self connection] remoteObjectProxy] logDebug:@"Updating permissions and attributes..."];
                 if ( ! [fm setAttributes:attributes ofItemAtPath:[targetURL path] error:&error] ) {
-                    reply(error, 1);
+                    return reply(error, 1);
                 }
             }
             
@@ -275,7 +290,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSURL *sourceFolderURL = [NSURL fileURLWithPath:copyDict[NBCWorkflowCopyRegexSourceFolderURL] ?: @""];
             [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying source folder: %@", [sourceFolderURL path]]];
             if ( ! [sourceFolderURL checkResourceIsReachableAndReturnError:&error] ) {
-                reply(error, 1);
+                return reply(error, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -284,7 +299,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSString *regexString = copyDict[NBCWorkflowCopyRegex];
             [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying regex: %@", regexString]];
             if ( [regexString length] == 0 ) {
-                reply(nil, 1);
+                return reply(nil, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -295,7 +310,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             regexDict[[sourceFolderURL path]] = [sourceFolderRegexes copy];
         } else {
             [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"Unknown copy type: %@", copyType]];
-            reply(nil, 1);
+            return reply(nil, 1);
         }
     }
     
@@ -304,7 +319,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     //  Then copy all files using cpio
     // ---------------------------------------------------------------------------------------------------------
     double sourceCount = (double)[[regexDict allKeys] count];
-    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Sources to copy: %f", sourceCount]];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Sources to copy: %d", (int)sourceCount]];
     
     double sourceProgressIncrementStep = ( 10.0 / ( sourceCount + 1.0 ));
     [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Source progress increment step: %f", sourceProgressIncrementStep]];
@@ -390,7 +405,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             if ( [task terminationStatus] == 0 ) {
                 [[[self connection] remoteObjectProxy] logDebug:@"Copy items successful!"];
             } else {
-                reply(nil, -1);
+                return reply(nil, -1);
             }
         }
     }
@@ -398,13 +413,80 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     reply(nil, 0);
 } // copyResourcesToVolume:copyArray:withReply
 
+- (void)createRestoreFromSourcesWithArguments:(NSArray *)arguments
+                                    withReply:(void(^)(NSError *error, int terminationStatus))reply {
+
+    NSError *err = nil;
+    NSString *command = @"/bin/sh";
+    NSMutableArray *argumentsWithScript = [NSMutableArray arrayWithArray:arguments];
+    
+    // ---------------------------------------------------------------------------------
+    //  Get path to createRestoreFromSources.sh
+    // ---------------------------------------------------------------------------------
+    NBCApplicationSourceSystemImageUtility *siuSource = [[NBCApplicationSourceSystemImageUtility alloc] init];
+    NSString *createRestoreFromSourcesPath = [[siuSource createRestoreFromSourcesURL] path];
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify script path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script path: %@", createRestoreFromSourcesPath]];
+    if ( [[NSURL fileURLWithPath:createRestoreFromSourcesPath] checkResourceIsReachableAndReturnError:&err] ) {
+        [argumentsWithScript insertObject:createRestoreFromSourcesPath atIndex:0];
+    } else {
+        return reply(err, -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify script integrity
+    // -----------------------------------------------------------------------------------
+    //if ( ! [siuSource verifyCreateNetInstallHashes:&err] ) {
+    //    return reply(err, -1);
+    //}
+    
+    [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
+
+} // createRestoreFromSourcesWithArguments
+
+- (void)createNetInstallWithArguments:(NSArray *)arguments
+                            withReply:(void(^)(NSError *error, int terminationStatus))reply {
+
+    NSError *err = nil;
+    NSString *command = @"/bin/sh";
+    NSMutableArray *argumentsWithScript = [NSMutableArray arrayWithArray:arguments];
+    
+    // ---------------------------------------------------------------------------------
+    //  Get path to createNetInstall.sh
+    // ---------------------------------------------------------------------------------
+    NBCApplicationSourceSystemImageUtility *siuSource = [[NBCApplicationSourceSystemImageUtility alloc] init];
+    NSString *createNetInstallPath = [[siuSource createNetInstallURL] path];
+
+    // -----------------------------------------------------------------------------------
+    //  Verify script path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script path: %@", createNetInstallPath]];
+    if ( [[NSURL fileURLWithPath:createNetInstallPath] checkResourceIsReachableAndReturnError:&err] ) {
+        [argumentsWithScript insertObject:createNetInstallPath atIndex:0];
+    } else {
+        return reply(err, -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify script integrity
+    // -----------------------------------------------------------------------------------
+    //if ( ! [siuSource verifyCreateNetInstallHashes:&err] ) {
+    //    return reply(err, -1);
+    //}
+    
+    [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
+} // createNetInstallWithArguments
+
 - (void)disableSpotlightOnVolume:(NSString *)volumePath
                        withReply:(void (^)(NSError *, int))reply {
     
     NSString *command = @"/usr/bin/mdutil";
-    NSArray *agruments = @[ @"-Edi", @"off", volumePath];
+    NSArray *arguments = @[ @"-Edi", @"off", volumePath];
     
-    [self runTaskWithCommand:command arguments:agruments currentDirectory:nil environmentVariables:nil withReply:reply];
+    [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
 } // disableSpotlightOnVolume:withReply
 
 - (void)extractResourcesFromPackageAtPath:(NSString *)packagePath
@@ -421,16 +503,38 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     //  Choose extract method depending on os version, new package archive in 10.10+
     // ---------------------------------------------------------------------------------
     if ( minorVersion <= 9 ) {
+        
+        // -----------------------------------------------------------------------------------
+        //  Setup arguments
+        // -----------------------------------------------------------------------------------
         NSString *formatString = @"/usr/bin/xar -x -f \"%@\" Payload -C \"%@\"; /usr/bin/cd \"%@\"; /usr/bin/cpio -idmu -I \"%@/Payload\"";
         arguments = @[ @"-c", [NSString stringWithFormat:formatString, packagePath, temporaryFolder, temporaryPackageFolder, temporaryFolder] ];
     } else {
-        NSString *pbxPath = [[self remoteBundleResouresPath] stringByAppendingPathComponent:@"pbzx"];
+        NSString *pbzxPath = [[self remoteBundleResouresPath] stringByAppendingPathComponent:@"pbzx"];
         
-        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx binary path: %@", pbxPath]];
-        if ( ! [[NSURL fileURLWithPath:pbxPath] checkResourceIsReachableAndReturnError:&err] ) {
+        // ---------------------------------------------------------------------------------
+        //  Verify pbzx path
+        // ---------------------------------------------------------------------------------
+        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx binary path: %@", pbzxPath]];
+        if ( ! [[NSURL fileURLWithPath:pbzxPath] checkResourceIsReachableAndReturnError:&err] ) {
             return reply(err, -1) ;
         }
-        arguments = @[ @"-c", [NSString stringWithFormat:@"%@ %@ | /usr/bin/cpio -idmu --quiet", pbxPath, packagePath]];
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify pbzx integrity
+        // -----------------------------------------------------------------------------------
+        NSString *pbzxMD5 = [FileHash md5HashOfFileAtPath:pbzxPath];
+        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx current md5: %@", pbzxMD5]];
+        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx cached md5: %@", NBCHashMD5Pbzx]];
+        [[[self connection] remoteObjectProxy] logDebug:@"Comparing pbzx hashes..."];
+        if ( ! [pbzxMD5 isEqualToString:NBCHashMD5Pbzx] ) {
+            return reply(err, -1);
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Setup arguments
+        // -----------------------------------------------------------------------------------
+        arguments = @[ @"-c", [NSString stringWithFormat:@"%@ %@ | /usr/bin/cpio -idmu --quiet", pbzxPath, packagePath]];
     }
     
     [self runTaskWithCommand:command arguments:arguments currentDirectory:temporaryPackageFolder environmentVariables:@{} withReply:reply];
@@ -529,7 +633,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                   }
                                           error:&error] ) {
                     [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    reply(error, 1);
+                    return reply(error, 1);
                 }
             }
             
@@ -540,7 +644,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Writing plist %@...", [targetURL lastPathComponent]]];
             if ( ! [plistContent writeToURL:targetURL atomically:NO] ) {
                 [[[self connection] remoteObjectProxy] logError:@"Writing plist failed"];
-                reply(nil, 1);
+                return reply(nil, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -550,7 +654,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             if ( [attributes count] != 0 ) {
                 [[[self connection] remoteObjectProxy] logDebug:@"Updating permissions and attributes..."];
                 if ( ! [fm setAttributes:attributes ofItemAtPath:[targetURL path] error:&error] ) {
-                    reply(error, 1);
+                    return reply(error, 1);
                 }
             }
             
@@ -562,13 +666,13 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSData *fileContent = modificationsDict[NBCWorkflowModifyContent];
             if ( ! fileContent ) {
                 [[[self connection] remoteObjectProxy] logError:@"File contents were empty"];
-                reply(nil, 1);
+                return reply(nil, 1);
             }
             
             NSDictionary *attributes = modificationsDict[NBCWorkflowModifyAttributes];
             if ( [attributes count] == 0 ) {
                 [[[self connection] remoteObjectProxy] logError:@"File attributes were empty"];
-                reply(nil, 1);
+                return reply(nil, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -584,7 +688,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                   }
                                           error:&error] ) {
                     [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    reply(error, 1);
+                    return reply(error, 1);
                 }
             }
             
@@ -594,7 +698,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Writing file %@...", [targetURL lastPathComponent]]];
             if ( ! [fm createFileAtPath:[targetURL path] contents:fileContent attributes:attributes] ) {
                 [[[self connection] remoteObjectProxy] logError:@"Creating file failed"];
-                reply(nil, 1);
+                return reply(nil, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -605,7 +709,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSDictionary *attributes = modificationsDict[NBCWorkflowModifyAttributes];
             if ( [attributes count] == 0 ) {
                 [[[self connection] remoteObjectProxy] logError:@"File attributes were empty"];
-                reply(nil, 1);
+                return reply(nil, 1);
             }
             
             // ------------------------------------------------------------------------------------
@@ -614,7 +718,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Creating directory %@...", [targetURL path]]];
             if ( ! [fm createDirectoryAtURL:targetURL withIntermediateDirectories:YES attributes:attributes error:&error] ) {
                 [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                reply(error, 1);
+                return reply(error, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -628,7 +732,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Deleting item %@...", [targetURL lastPathComponent]]];
             if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
                 [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                reply(error, 1);
+                return reply(error, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -643,7 +747,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Item source path: %@", [sourceURL path]]];
             if ( ! [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
                 [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                reply(error, 1);
+                return reply(error, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -652,7 +756,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             if ( [targetURL checkResourceIsReachableAndReturnError:&error] ) {
                 if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
                     [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    reply(error, 1);
+                    return reply(error, 1);
                 }
             }
             
@@ -669,7 +773,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                   }
                                           error:&error] ) {
                     [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    reply(error, 1);
+                    return reply(error, 1);
                 }
             }
             
@@ -679,7 +783,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Moving %@ to %@", [sourceURL lastPathComponent], [[targetFolderURL path] lastPathComponent]]];
             if ( ! [fm moveItemAtURL:sourceURL toURL:targetURL error:&error] ) {
                 [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                reply(error, 1);
+                return reply(error, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -695,7 +799,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             if ( [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
                 if ( ! [fm removeItemAtURL:sourceURL error:&error] ) {
                     [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    reply(error, 1);
+                    return reply(error, 1);
                 }
             }
             
@@ -705,11 +809,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Creating symlink to %@", [targetURL path]]];
             if ( ! [fm createSymbolicLinkAtURL:sourceURL withDestinationURL:targetURL error:&error] ) {
                 [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                reply(error, 1);
+                return reply(error, 1);
             }
         } else {
             [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"Unknown modification type: %@", modificationType]];
-            reply(nil, 1);
+            return reply(nil, 1);
         }
     }
     reply(nil, 0);
@@ -796,7 +900,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     for ( NSString *itemPath in itemPaths ) {
         [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Removing item at path: %@", itemPath]];
         if ( ! [fm removeItemAtPath:itemPath error:&error] ) {
-            reply(error, NO);
+            return reply(error, NO);
         }
     }
     
@@ -876,6 +980,47 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
 } // runTaskWithCommand:arguments:currentDirectory:environmentVariables:withReply
 
+- (void)sysBuilderWithArguments:(NSArray *)arguments
+             sourceVersionMinor:(int)sourceVersionMinor
+                selectedVersion:(NSString *)selectedVersion
+                      withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *err = nil;
+    NSString *command = @"/bin/sh";
+    NSMutableArray *argumentsWithScript = [NSMutableArray arrayWithArray:arguments];
+    
+    // ---------------------------------------------------------------------------------
+    //  Get path to createNetInstall.sh
+    // ---------------------------------------------------------------------------------
+    NBCApplicationSourceDeployStudio *dsSource = [[NBCApplicationSourceDeployStudio alloc] init];
+    NSString *sysBuilderPath;
+    if ( 11 <= sourceVersionMinor ) {
+        sysBuilderPath = [[dsSource sysBuilderRpURL] path];
+    } else {
+        sysBuilderPath = [[dsSource sysBuilderURL] path];
+    }
+    NSLog(@"sourceVersionMinor=%d", sourceVersionMinor);
+    NSLog(@"sysBuilderPath=%@", sysBuilderPath);
+    // -----------------------------------------------------------------------------------
+    //  Verify script path
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script path: %@", sysBuilderPath]];
+    if ( [[NSURL fileURLWithPath:sysBuilderPath] checkResourceIsReachableAndReturnError:&err] ) {
+        [argumentsWithScript insertObject:sysBuilderPath atIndex:0];
+    } else {
+        return reply(err, -1);
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify script integrity
+    // -----------------------------------------------------------------------------------
+    //if ( ! [siuSource verifyCreateNetInstallHashes:&err] ) {
+    //    return reply(err, -1);
+    //}
+    
+    [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
+} // sysBuilderWithArguments:selectedVersion:withReply
+
 - (void)updateKernelCache:(NSString *)targetVolumePath
             nbiVolumePath:(NSString *)nbiVolumePath
              minorVersion:(NSString *)minorVersion
@@ -902,7 +1047,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     // -----------------------------------------------------------------------------------
     //  Verify minorVersion is a number
     // -----------------------------------------------------------------------------------
-    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying minor version: %@", minorVersion]];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying os version (minor): %@", minorVersion]];
     NSCharacterSet* notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
     if ( ! [minorVersion rangeOfCharacterFromSet:notDigits].location == NSNotFound ) {
         return reply( [NSError errorWithDomain:NBCErrorDomain
@@ -911,7 +1056,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     
     // -----------------------------------------------------------------------------------
-    //  Verify script
+    //  Verify script path
     // -----------------------------------------------------------------------------------
     NSString *scriptPath = [[self remoteBundleScriptsPath] stringByAppendingPathComponent:@"generateKernelCache.bash"];
     [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script path: %@", scriptPath]];
@@ -919,9 +1064,22 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         return reply(err, -1);
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify script integrity
+    // -----------------------------------------------------------------------------------
     NSString *scriptMD5 = [FileHash md5HashOfFileAtPath:scriptPath];
-    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script md5: %@", scriptMD5]];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script current md5: %@", scriptMD5]];
+    [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying script cached md5: %@", NBCHashMD5GenerateKernelCache]];
+    [[[self connection] remoteObjectProxy] logDebug:@"Comparing script hashes..."];
+    if ( ! [scriptMD5 isEqualToString:NBCHashMD5GenerateKernelCache] ) {
+        return reply( [NSError errorWithDomain:NBCErrorDomain
+                                         code:-1
+                                     userInfo:@{ NSLocalizedDescriptionKey : @"Script hash doesn't match! If you haven't modified generateKernelCache.bash yourself, someone might be trying to exploit this application!" }], -1);
+    }
     
+    // -----------------------------------------------------------------------------------
+    //  Run Script
+    // -----------------------------------------------------------------------------------
     NSString *command = @"/bin/bash";
     NSArray *arguments = @[ scriptPath, targetVolumePath, nbiVolumePath, minorVersion ];
     

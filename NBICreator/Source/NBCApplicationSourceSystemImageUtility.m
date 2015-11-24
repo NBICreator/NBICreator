@@ -19,103 +19,264 @@
 
 #import "NBCApplicationSourceSystemImageUtility.h"
 #import "NBCConstants.h"
-#import "NBCWorkflowItem.h"
-#import "NBCLogging.h"
+//#import "NBCLogging.h"
+#import "FileHash.h"
+#import "NBCError.h"
 
-DDLogLevel ddLogLevel;
+//DDLogLevel ddLogLevel;
 
 @implementation NBCApplicationSourceSystemImageUtility
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Init / Dealloc
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (id)init {
     self = [super init];
     if (self) {
-        [self setSystemImageUtilityURL];
+        _systemImageUtilityURL = [NSURL fileURLWithPath:@"/System/Library/CoreServices/Applications/System Image Utility.app"];
     }
     return self;
-}
+} // init
 
-- (void)setSystemImageUtilityURL {
-    NSError *error;
-    NSArray *systemImageUtilityURLs = (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.apple.SystemImageUtility"), NULL));
-    NSURL *systemImageUtilityURL = [systemImageUtilityURLs firstObject];
-    _systemImageUtilityURL = systemImageUtilityURL;
-    if ( [_systemImageUtilityURL checkResourceIsReachableAndReturnError:&error] ) {
-        [self systemImageUtilityResourcesFromURL:_systemImageUtilityURL];
-    } else {
-        NSLog(@"System Image Utility Doesn't exist!_ %@", error);
-    }
-}
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Get Versions
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
-- (void)systemImageUtilityResourcesFromURL:(NSURL *)systemImageUtilityURL {
-    [self setSystemImageUtilityVersion:[[NSBundle bundleWithURL:systemImageUtilityURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
-    [self setSelectedVersion:_systemImageUtilityVersion];
+- (NSString *)siuFoundationVersionString:(NSError **)error {
     
-    NSURL *siuFoundationFrameworkURL;
+    NSURL *siuFoundationVersionPlistURL = [[NSBundle bundleWithURL:[self siuFoundationURL]] URLForResource:@"version" withExtension:@"plist"];
+    //DDLogDebug(@"[DEBUG] SIUFoundation.framework version.plist path: %@", [siuFoundationVersionPlistURL path]);
+    if ( ! [siuFoundationVersionPlistURL checkResourceIsReachableAndReturnError:error] ) {
+        return nil;
+    }
+    
+    NSDictionary *siuFoundationVersionDict = [NSDictionary dictionaryWithContentsOfURL:siuFoundationVersionPlistURL];
+    if ( [siuFoundationVersionDict count] != 0 ) {
+        NSString *siuFoundationBundleVersion = siuFoundationVersionDict[@"CFBundleShortVersionString"];
+        //DDLogDebug(@"[DEBUG] SIUFoundation.framework bundle version: %@", siuFoundationBundleVersion);
+        
+        NSString *siuFoundationBuildVersion = siuFoundationVersionDict[@"BuildVersion"];
+        //DDLogDebug(@"[DEBUG] SIUFoundation.framework build version: %@", siuFoundationBuildVersion);
+        
+        if ( [siuFoundationBundleVersion length] != 0 && [siuFoundationBuildVersion length] != 0 ) {
+            return [NSString stringWithFormat:@"%@-%@", siuFoundationBundleVersion, siuFoundationBuildVersion];
+        } else {
+            *error = [NBCError errorWithDescription:@"SIUFoundation.framework version info not available"];
+        }
+    } else {
+        *error = [NBCError errorWithDescription:@"Unable to read SIUFoundation.framework version.plist"];
+    }
+    
+    return nil;
+} // siuFoundationVersionString
+
+- (NSString *)systemImageUtilityVersion {
+    return [[self siuBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
+} // systemImageUtilityVersion
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Get Resources
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSBundle *)siuBundle {
+    return [NSBundle bundleWithURL:_systemImageUtilityURL];
+} // siuBundle
+
+- (NSBundle *)siuFoundationBundle {
+    return [NSBundle bundleWithURL:[self siuFoundationURL]];
+} // siuFoundationBundle
+
+- (NSBundle *)siuAgentBundle {
+    return [NSBundle bundleWithURL:[self siuAgentURL]];
+} // siuAgentBundle
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Get URLs
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSURL *)urlForResourceNamed:(NSString *)resourceName {
+    return [[self siuAgentBundle] URLForResource:[resourceName stringByDeletingPathExtension] withExtension:[resourceName pathExtension]];
+} // urlForResourceNamed
+
+- (NSURL *)siuFoundationURL {
     NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
-    int osVersionMinor = (int)version.minorVersion;
-    if ( 11 <= osVersionMinor ) {
-        siuFoundationFrameworkURL = [NSURL fileURLWithPath:@"/System/Library/PrivateFrameworks/SIUFoundation.framework"];
+    if ( 11 <= (int)version.minorVersion ) {
+        return [NSURL fileURLWithPath:@"/System/Library/PrivateFrameworks/SIUFoundation.framework"];
     } else {
-        siuFoundationFrameworkURL = [[[NSBundle bundleWithURL:_systemImageUtilityURL] privateFrameworksURL] URLByAppendingPathComponent:@"SIUFoundation.framework"];
+        return [[[NSBundle bundleWithPath:@"/System/Library/CoreServices/Applications/System Image Utility.app"] privateFrameworksURL] URLByAppendingPathComponent:@"SIUFoundation.framework"];
     }
-    
-    [self siuFoundationResourcesFromURL:siuFoundationFrameworkURL];
-}
+} // siuFoundationURL
 
-- (void)siuFoundationResourcesFromURL:(NSURL *)siuFoundationFrameworkURL {
-    NSError *error;
-    if ( [siuFoundationFrameworkURL checkResourceIsReachableAndReturnError:&error] ) {
-        [self setSiuFoundationFrameworkURL:siuFoundationFrameworkURL];
-        [self setSiuFoundationVersion:[[NSBundle bundleWithURL:_siuFoundationFrameworkURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
-    } else {
-        NSLog(@"[ERROR] %@", [error localizedDescription]);
+- (NSURL *)siuAgentURL {
+    return [[self siuFoundationURL] URLByAppendingPathComponent:@"Versions/A/XPCServices/com.apple.SIUAgent.xpc"];
+} // siuAgentURL
+
+- (NSURL *)createCommonURL {
+    return [self urlForResourceNamed:@"createCommon.sh"];
+} // createCommonURL
+
+- (NSURL *)createNetBootURL {
+    return [self urlForResourceNamed:@"createNetBoot.sh"];
+} // createNetBootURL
+
+- (NSURL *)createNetInstallURL {
+    return [self urlForResourceNamed:@"createNetInstall.sh"];
+} // createNetInstallURL
+
+- (NSURL *)createRestoreFromSourcesURL {
+    return [self urlForResourceNamed:@"createRestoreFromSources.sh"];
+} // createRestoreFromSourcesURL
+
+- (NSURL *)addBSDPSourcesURL {
+    return [self urlForResourceNamed:@"addBSDPSources.sh"];
+} // addBSDPSourcesURL
+
+- (NSURL *)asrInstallPkgURL {
+    return [self urlForResourceNamed:@"ASRInstall.pkg"];
+} // asrInstallPkgURL
+
+- (NSURL *)asrFromVolumeURL {
+    return [self urlForResourceNamed:@"asrFromVolume.sh"];
+} // asrFromVolumeURL
+
+- (NSURL *)installConfigurationProfilesURL {
+    return [self urlForResourceNamed:@"installConfigurationProfiles.sh"];
+} // installConfigurationProfilesURL
+
+- (NSURL *)netInstallConfigurationProfiles {
+    return [self urlForResourceNamed:@"netInstallConfigurationProfiles.sh"];
+} // netInstallConfigurationProfiles
+
+- (NSURL *)postInstallPackages {
+    return [self urlForResourceNamed:@"postInstallPackages.sh"];
+} // postInstallPackages
+
+- (NSURL *)preserveInstallLog {
+    return [self urlForResourceNamed:@"preserveInstallLog.sh"];
+} // preserveInstallLog
+
+- (NSURL *)netBootClientHelper {
+    return [self urlForResourceNamed:@"NetBootClientHelper"];
+} // netBootClientHelper
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Verify Hashes
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (BOOL)verifyCreateNetInstallHashes:(NSError **)error {
+    
+    NSString *siuFoundationVersionString = [self siuFoundationVersionString:error];
+    if ( [siuFoundationVersionString length] == 0 ) {
+        return NO;
     }
     
-    [self setSiuAgentXPCURL:[_siuFoundationFrameworkURL URLByAppendingPathComponent:@"Versions/A/XPCServices/com.apple.SIUAgent.xpc"]];
-    if ( [_siuAgentXPCURL checkResourceIsReachableAndReturnError:&error] ) {
-        NSBundle *siuAgentBundle = [NSBundle bundleWithURL:_siuAgentXPCURL];
-        [self setSiuAgentVersion:[siuAgentBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"]];
-        [self setCreateNetInstallURL:[siuAgentBundle URLForResource:@"createNetInstall" withExtension:@"sh"]];
-        [self setCreateNetBootURL:[siuAgentBundle URLForResource:@"createNetBoot" withExtension:@"sh"]];
-        [self setCreateCommonURL:[siuAgentBundle URLForResource:@"createCommon" withExtension:@"sh"]];
-        [self setCreateRestoreFromSourcesURL:[siuAgentBundle URLForResource:@"createRestoreFromSources" withExtension:@"sh"]];
-        [self setAddBSDPSourcesURL:[siuAgentBundle URLForResource:@"addBSDPSources" withExtension:@"sh"]];
-        [self setAsrInstallPkgURL:[siuAgentBundle URLForResource:@"ASRInstall" withExtension:@"pkg"]];
-        [self setAsrFromVolumeURL:[siuAgentBundle URLForResource:@"asrFromVolume" withExtension:@"sh"]];
-        [self setInstallConfigurationProfiles:[siuAgentBundle URLForResource:@"installConfigurationProfiles" withExtension:@"sh"]];
-        [self setNetInstallConfigurationProfiles:[siuAgentBundle URLForResource:@"netInstallConfigurationProfiles" withExtension:@"sh"]];
-        [self setPostInstallPackages:[siuAgentBundle URLForResource:@"postInstallPackages" withExtension:@"sh"]];
-        [self setPreserveInstallLog:[siuAgentBundle URLForResource:@"preserveInstallLog" withExtension:@"sh"]];
-        [self setNetBootClientHelper:[siuAgentBundle URLForResource:@"NetBootClientHelper" withExtension:@""]];
-    } else {
-        NSLog(@"[ERROR] %@", [error localizedDescription]);
+    NSDictionary *cachedHashes = [self hashesForSIUFoundationVersion:siuFoundationVersionString error:error];
+    if ( [cachedHashes count] == 0 ) {
+        return NO;
     }
-}
+    
+    if ( ! [self verifyHashForResourceNamed:@"createNetInstall.sh" cachedHashes:cachedHashes error:error] ) {
+        return NO;
+    }
+    
+    if ( ! [self verifyHashForResourceNamed:@"createCommon.sh" cachedHashes:cachedHashes error:error] ) {
+        return NO;
+    }
+    
+    return YES;
+} // verifyCreateNetInstallHashes
+
+- (BOOL)verifyHashForResourceNamed:(NSString *)resourceName cachedHashes:(NSDictionary *)cachedHashes error:(NSError **)error {
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify resource path
+    // -----------------------------------------------------------------------------------
+    NSURL *resourceURL = [self urlForResourceNamed:resourceName];
+    if ( [resourceURL checkResourceIsReachableAndReturnError:error] ) {
+        return NO;
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify resource integrity
+    // -----------------------------------------------------------------------------------
+    NSString *resourceMD5 = [FileHash md5HashOfFileAtPath:[resourceURL path]];
+    //DDLogDebug(@"[DEBUG] %@", [NSString stringWithFormat:@"Verifying resource: %@ current md5: %@", resourceName, resourceMD5]);
+    
+    NSString *cachedResourceMD5 = cachedHashes[resourceName];
+    //DDLogDebug(@"[DEBUG] %@", [NSString stringWithFormat:@"Verifying resource: %@ script cached md5: %@", resourceName, cachedResourceMD5]);
+    if ( [cachedResourceMD5 length] == 0 ) {
+        *error = [NBCError errorWithDescription:@""];
+        return NO;
+    }
+    
+    //DDLogDebug(@"[DEBUG] Comparing resource hashes...");
+    if ( ! [resourceMD5 isEqualToString:cachedResourceMD5] ) {
+        *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"Resource hashes doesn't match! If you haven't modified %@ yourself, someone might be trying to exploit this application!", resourceName]];
+        return NO;
+    }
+    
+    return YES;
+} // verifyHashForResourceNamed:cachedHashes:error
+
+- (NSDictionary *)hashesForSIUFoundationVersion:(NSString *)siuFoundationVersion error:(NSError **)error {
+    NSLog(@"hashesForSIUFoundationVersion:%@", siuFoundationVersion);
+    NSLog(@"[NSBundle mainBundle]=%@", [[NSBundle mainBundle] bundlePath]);
+    NSURL *siuHashesPlistURL = [[NSBundle mainBundle] URLForResource:@"HashesSystemImageUtility" withExtension:@"plist"];
+    NSLog(@"siuHashesPlistURL=%@", siuHashesPlistURL);
+    //DDLogDebug(@"[DEBUG] HashesSystemImageUtility.plist path: %@", siuHashesPlistURL);
+    if ( ! [siuHashesPlistURL checkResourceIsReachableAndReturnError:error] ) {
+        return nil;
+    }
+    
+    NSDictionary *siuHashesDict = [NSDictionary dictionaryWithContentsOfURL:siuHashesPlistURL];
+    if ( [siuHashesDict count] != 0 ) {
+        NSOperatingSystemVersion version = [[NSProcessInfo processInfo] operatingSystemVersion];
+        NSString *osVersion = [NSString stringWithFormat:@"%ld.%ld", version.majorVersion, version.minorVersion];
+        NSDictionary *siuHashesOSVersionDict = siuHashesDict[osVersion];
+        if ( [siuHashesOSVersionDict count] != 0 ) {
+            return siuHashesOSVersionDict[siuFoundationVersion];
+        } else {
+            *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"No hashes found for os version: %@", osVersion]];
+        }
+    } else {
+        *error = [NBCError errorWithDescription:@"Unable to read System Image Utility hash plist"];
+    }
+    
+    return nil;
+} // hashesForSIUFoundationVersion:error
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Expand Variables
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (NSString *)expandVariables:(NSString *)string {
+    
     // --------------------------------------------------------------
     //  Expand %SIUVERSION%
     // --------------------------------------------------------------
-    NSString *siuVersion;
-    siuVersion = _systemImageUtilityVersion;
-    if ( [siuVersion length] == 0 ) {
-        siuVersion = @"Unknown";
-    }
+    string = [string stringByReplacingOccurrencesOfString:NBCVariableSystemImageUtilityVersion
+                                               withString:[[self siuBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"Unknown"];
     
     // --------------------------------------------------------------
     //  Expand %NBITOOL%
     // --------------------------------------------------------------
     string = [string stringByReplacingOccurrencesOfString:@"%NBITOOL%"
-                                                     withString:@"SIU"];
+                                               withString:@"SIU"];
     
-    return [string stringByReplacingOccurrencesOfString:NBCVariableSystemImageUtilityVersion
-                                                withString:siuVersion];
-}
-
-+ (NSArray *)systemImageUtilityVersions {
-    
-    NSArray *versions;
-    return versions;
-}
+    return string;
+} // expandVariables
 
 @end

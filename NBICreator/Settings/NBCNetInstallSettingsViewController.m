@@ -294,7 +294,10 @@ DDLogLevel ddLogLevel;
             for ( NSURL *packageURL in productArchivePackageURLs ) {
                 NSDictionary *packageDict = [self examinePackageAtURL:packageURL];
                 if ( [packageDict count] != 0 ) {
-                    if ( ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] || ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"] ) {
+                    if ( [packageDict[NBCDictionaryKeyPackageFormat] length] != 0 && (
+                                                                                      ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] ||
+                                                                                      ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"]
+                                                                                      ) ) {
                         [incorrectPackageTypes addObject:packageDict];
                     } else {
                         [self insertItemInPackagesNetInstallTableView:packageDict];
@@ -433,7 +436,10 @@ DDLogLevel ddLogLevel;
                     }
                 }
                 
-                if ( ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] || ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"] ) {
+                if ( [packageDict[NBCDictionaryKeyPackageFormat] length] != 0 && (
+                                                                                  ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] ||
+                                                                                  ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"]
+                                                                                  ) ) {
                     [incorrectPackageTypes addObject:packageDict];
                 } else {
                     [self insertItemInPackagesNetInstallTableView:packageDict];
@@ -797,7 +803,10 @@ DDLogLevel ddLogLevel;
                         }
                     }
                     
-                    if ( ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] || ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"] ) {
+                    if ( [packageDict[NBCDictionaryKeyPackageFormat] length] != 0 && (
+                                                                                      ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] ||
+                                                                                      ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"]
+                                                                                      ) ) {
                         [incorrectPackageTypes addObject:packageDict];
                     } else {
                         [self insertItemInPackagesNetInstallTableView:packageDict];
@@ -1235,55 +1244,6 @@ DDLogLevel ddLogLevel;
     
     NSError *error = nil;
     NSMutableDictionary *newPackageDict = [[NSMutableDictionary alloc] init];
-
-    // -------------------------------------------------------------
-    //  Package Format ( Bundle or Flat )
-    // -------------------------------------------------------------
-    NSNumber *isDirectory;
-    BOOL success = [url getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:&error];
-    if ( success ) {
-        if ( [isDirectory boolValue] ) {
-            newPackageDict[NBCDictionaryKeyPackageFormat] = @"Bundle";
-        } else {
-            newPackageDict[NBCDictionaryKeyPackageFormat] = @"Flat";
-        }
-    } else {
-        DDLogError(@"[ERROR] %@", [error localizedDescription]);
-        newPackageDict[NBCDictionaryKeyPackageFormat] = @"Unknown";
-    }
-    DDLogDebug(@"[DEBUG] Package format: %@", newPackageDict[NBCDictionaryKeyPackageFormat]);
-    
-    // -------------------------------------------------------------
-    //  Package Type ( Component or Product Archive )
-    // -------------------------------------------------------------
-    NSTask *hdiutilTask =  [[NSTask alloc] init];
-    [hdiutilTask setLaunchPath:@"/usr/bin/xar"];
-    NSArray *args = @[ @"-tf", [url path] ];
-    [hdiutilTask setArguments:args];
-    [hdiutilTask setStandardOutput:[NSPipe pipe]];
-    [hdiutilTask setStandardError:[NSPipe pipe]];
-    [hdiutilTask launch];
-    [hdiutilTask waitUntilExit];
-    
-    NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
-    NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
-    
-    NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
-    NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
-    
-    if ( [hdiutilTask terminationStatus] == 0 ) {
-        if ( [stdOut containsString:@"Distribution"] || [stdOut containsString:@"distribution"] ) {
-            newPackageDict[NBCDictionaryKeyPackageType] = @"Product Archive";
-        } else {
-            newPackageDict[NBCDictionaryKeyPackageType] = @"Component";
-        }
-    } else {
-        DDLogError(@"[xar][stdout] %@", stdOut);
-        DDLogError(@"[xar][stderr] %@", stdErr);
-        DDLogError(@"[ERROR] xar command failed with exit status: %d", [hdiutilTask terminationStatus]);
-        newPackageDict[NBCDictionaryKeyPackageType] = @"Unknown";
-    }
-    DDLogDebug(@"[DEBUG] Package type: %@", newPackageDict[NBCDictionaryKeyPackageType]);
     
     // -------------------------------------------------------------
     //  Package Path
@@ -1296,6 +1256,60 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------
     newPackageDict[NBCDictionaryKeyName] = [url lastPathComponent] ?: @"Unknown";
     DDLogDebug(@"[DEBUG] Package name: %@", newPackageDict[NBCDictionaryKeyName]);
+    
+    if ( [url checkResourceIsReachableAndReturnError:nil] ) {
+        
+        // -------------------------------------------------------------
+        //  Package Format ( Bundle or Flat )
+        // -------------------------------------------------------------
+        NSNumber *isDirectory;
+        BOOL success = [url getResourceValue:&isDirectory forKey:NSURLIsDirectoryKey error:&error];
+        if ( success ) {
+            if ( [isDirectory boolValue] ) {
+                newPackageDict[NBCDictionaryKeyPackageFormat] = @"Bundle";
+            } else {
+                newPackageDict[NBCDictionaryKeyPackageFormat] = @"Flat";
+            }
+        } else {
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
+            newPackageDict[NBCDictionaryKeyPackageFormat] = @"Unknown";
+        }
+        DDLogDebug(@"[DEBUG] Package format: %@", newPackageDict[NBCDictionaryKeyPackageFormat]);
+        
+        // -----------------------------------------------------------------------
+        //  Package Type ( Component or Product Archive ) (only if package exist)
+        // -----------------------------------------------------------------------
+        NSTask *hdiutilTask =  [[NSTask alloc] init];
+        [hdiutilTask setLaunchPath:@"/usr/bin/xar"];
+        NSArray *args = @[ @"-tf", [url path] ];
+        [hdiutilTask setArguments:args];
+        [hdiutilTask setStandardOutput:[NSPipe pipe]];
+        [hdiutilTask setStandardError:[NSPipe pipe]];
+        [hdiutilTask launch];
+        [hdiutilTask waitUntilExit];
+        
+        NSData *stdOutData = [[[hdiutilTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdOut = [[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding];
+        
+        NSData *stdErrData = [[[hdiutilTask standardError] fileHandleForReading] readDataToEndOfFile];
+        NSString *stdErr = [[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding];
+        
+        if ( [hdiutilTask terminationStatus] == 0 ) {
+            if ( [stdOut containsString:@"Distribution"] || [stdOut containsString:@"distribution"] ) {
+                newPackageDict[NBCDictionaryKeyPackageType] = @"Product Archive";
+            } else {
+                newPackageDict[NBCDictionaryKeyPackageType] = @"Component";
+            }
+        } else {
+            DDLogError(@"[xar][stdout] %@", stdOut);
+            DDLogError(@"[xar][stderr] %@", stdErr);
+            DDLogError(@"[ERROR] xar command failed with exit status: %d", [hdiutilTask terminationStatus]);
+            newPackageDict[NBCDictionaryKeyPackageType] = @"Unknown";
+        }
+        DDLogDebug(@"[DEBUG] Package type: %@", newPackageDict[NBCDictionaryKeyPackageType]);
+    } else {
+        DDLogWarn(@"[WARN] The package \"%@\" couldn’t be opened because there is no such file", newPackageDict[NBCDictionaryKeyName] );
+    }
     
     return newPackageDict;
 }
@@ -1727,7 +1741,10 @@ DDLogLevel ddLogLevel;
                                                      }
                                                  }
                                                  
-                                                 if ( ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] || ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"] ) {
+                                                 if ( [packageDict[NBCDictionaryKeyPackageFormat] length] != 0 && (
+                                                                                                                   ! [packageDict[NBCDictionaryKeyPackageFormat] isEqualToString:@"Flat"] ||
+                                                                                                                   ! [packageDict[NBCDictionaryKeyPackageType] isEqualToString:@"Product Archive"]
+                                                                                                                   ) ) {
                                                      [incorrectPackageTypes addObject:packageDict];
                                                  } else {
                                                      [self->_packagesNetInstallTableViewContents insertObject:packageDict atIndex:(NSUInteger)insertionIndex];

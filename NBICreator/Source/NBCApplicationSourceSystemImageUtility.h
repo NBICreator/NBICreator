@@ -21,31 +21,22 @@
 
 @interface NBCApplicationSourceSystemImageUtility : NSObject
 
-@property NSString *systemImageUtilityVersion;
-@property NSString *siuFoundationVersion;
-@property NSString *siuAgentVersion;
-
-@property NSString *selectedVersion;
-
 @property NSURL *systemImageUtilityURL;
-@property NSURL *siuFoundationFrameworkURL;
-@property NSURL *siuAgentXPCURL;
+@property (readonly) NSString *systemImageUtilityVersion;
+@property (readonly) NSURL *createCommonURL;
+@property (readonly) NSURL *createNetBootURL;
+@property (readonly) NSURL *createNetInstallURL;
+@property (readonly) NSURL *createRestoreFromSourcesURL;
+@property (readonly) NSURL *addBSDPSourcesURL;
+@property (readonly) NSURL *asrInstallPkgURL;
+@property (readonly) NSURL *asrFromVolumeURL;
+@property (readonly) NSURL *installConfigurationProfilesURL;
+@property (readonly) NSURL *netInstallConfigurationProfiles;
+@property (readonly) NSURL *postInstallPackages;
+@property (readonly) NSURL *preserveInstallLog;
+@property (readonly) NSURL *netBootClientHelper;
 
-@property NSURL *createCommonURL;
-@property NSURL *createNetBootURL;
-@property NSURL *createNetInstallURL;
-@property NSURL *createRestoreFromSourcesURL;
-@property NSURL *addBSDPSourcesURL;
-@property NSURL *asrInstallPkgURL;
-@property NSURL *asrFromVolumeURL;
-@property NSURL *installConfigurationProfiles;
-@property NSURL *netInstallConfigurationProfiles;
-@property NSURL *postInstallPackages;
-@property NSURL *preserveInstallLog;
-@property NSURL *netBootClientHelper;
-@property NSURL *netBootClientHelperPlist;
-
+- (BOOL)verifyCreateNetInstallHashes:(NSError **)error;
 - (NSString *)expandVariables:(NSString *)string;
-+ (NSArray *)systemImageUtilityVersions;
 
 @end

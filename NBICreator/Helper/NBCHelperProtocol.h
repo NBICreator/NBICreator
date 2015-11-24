@@ -37,6 +37,12 @@
                     copyArray:(NSArray *)copyArray
                     withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
+- (void)createNetInstallWithArguments:(NSArray *)arguments
+                            withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
+- (void)createRestoreFromSourcesWithArguments:(NSArray *)arguments
+                                    withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
 - (void)disableSpotlightOnVolume:(NSString *)volumePath
                        withReply:(void (^)(NSError *, int))reply;
 
@@ -64,11 +70,10 @@
 - (void)removeItemsAtPaths:(NSArray *)itemPaths
                  withReply:(void(^)(NSError *error, BOOL success))reply;
 
-- (void)runTaskWithCommand:(NSString *)command
-                 arguments:(NSArray *)arguments
-          currentDirectory:(NSString *)currentDirectory
-      environmentVariables:(NSDictionary *)environmentVariables
-                 withReply:(void(^)(NSError *error, int terminationStatus))reply;
+- (void)sysBuilderWithArguments:(NSArray *)arguments
+             sourceVersionMinor:(int)sourceVersionMinor
+                selectedVersion:(NSString *)selectedVersion
+                      withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)updateKernelCache:(NSString *)targetVolumePath
             nbiVolumePath:(NSString *)nbiVolumePath

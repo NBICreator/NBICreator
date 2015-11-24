@@ -90,7 +90,7 @@
     if ( _packageOnly ) {
         [self prepareWorkflowPackageOnly];
     } else {
-        [self prepareWorkflowNetInstall];
+        [self runWorkflowNetInstall];
     }
 }
 
@@ -164,7 +164,7 @@
             // -------------------------------------------
             //  installConfigurationProfiles.sh
             // -------------------------------------------
-            NSURL *installConfigurationProfilesScriptURL = [[_workflowItem applicationSource] installConfigurationProfiles];
+            NSURL *installConfigurationProfilesScriptURL = [[_workflowItem applicationSource] installConfigurationProfilesURL];
             DDLogDebug(@"[DEBUG] installConfigurationProfiles.sh path: %@", [installConfigurationProfilesScriptURL path]);
             
             NSURL *installConfigurationProfilesScriptTargetURL = [_temporaryNBIURL URLByAppendingPathComponent:[installConfigurationProfilesScriptURL lastPathComponent]];
@@ -315,7 +315,7 @@
 
 - (void)prepareWorkflowPackageOnly {
     
-    NSError *error;
+    NSError *err = nil;
     NSArray *arguments;
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -365,18 +365,18 @@
     NSURL *asrInstallPkgSourceURL = [[_workflowItem applicationSource] asrInstallPkgURL];
     DDLogDebug(@"[DEBUG] ASRInstall.pkg path: %@", [asrInstallPkgSourceURL path]);
     
-    if ( [asrInstallPkgSourceURL checkResourceIsReachableAndReturnError:&error] ) {
+    if ( [asrInstallPkgSourceURL checkResourceIsReachableAndReturnError:&err] ) {
         NSURL *asrInstallPkgTargetURL = [_temporaryNBIURL URLByAppendingPathComponent:[asrInstallPkgSourceURL lastPathComponent]];
-        if ( ! [fm copyItemAtURL:asrInstallPkgSourceURL toURL:asrInstallPkgTargetURL error:&error] ) {
+        if ( ! [fm copyItemAtURL:asrInstallPkgSourceURL toURL:asrInstallPkgTargetURL error:&err] ) {
             [nc postNotificationName:NBCNotificationWorkflowFailed
                               object:self
-                            userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Copying ASRInstall.pkg failed"] }];
+                            userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"Copying ASRInstall.pkg failed"] }];
             return;
         }
     } else {
         [nc postNotificationName:NBCNotificationWorkflowFailed
                           object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"ASRInstall.pkg doesn't exist"] }];
+                        userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"ASRInstall.pkg doesn't exist"] }];
         return;
     }
     
@@ -386,18 +386,18 @@
     NSURL *asrPostInstallPackagesURL = [[_workflowItem applicationSource] postInstallPackages];
     DDLogDebug(@"[DEBUG] postInstallPackages.sh path: %@", [asrPostInstallPackagesURL path]);
     
-    if ( [asrPostInstallPackagesURL checkResourceIsReachableAndReturnError:&error] ) {
+    if ( [asrPostInstallPackagesURL checkResourceIsReachableAndReturnError:&err] ) {
         NSURL *asrPostInstallPackagesTargetURL = [_temporaryNBIURL URLByAppendingPathComponent:[asrPostInstallPackagesURL lastPathComponent]];
-        if ( ! [fm copyItemAtURL:asrPostInstallPackagesURL toURL:asrPostInstallPackagesTargetURL error:&error] ) {
+        if ( ! [fm copyItemAtURL:asrPostInstallPackagesURL toURL:asrPostInstallPackagesTargetURL error:&err] ) {
             [nc postNotificationName:NBCNotificationWorkflowFailed
                               object:self
-                            userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Copying postInstallPackages.sh failed"] }];
+                            userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"Copying postInstallPackages.sh failed"] }];
             return;
         }
     } else {
         [nc postNotificationName:NBCNotificationWorkflowFailed
                           object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"postInstallPackages.sh doesn't exist"] }];
+                        userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"postInstallPackages.sh doesn't exist"] }];
         return;
     }
     
@@ -407,18 +407,18 @@
     NSURL *preserveInstallLogURL = [[_workflowItem applicationSource] preserveInstallLog];
     DDLogDebug(@"[DEBUG] reserveInstallLog.sh path: %@", [preserveInstallLogURL path]);
     
-    if ( [preserveInstallLogURL checkResourceIsReachableAndReturnError:&error] ) {
+    if ( [preserveInstallLogURL checkResourceIsReachableAndReturnError:&err] ) {
         NSURL *preserveInstallLogTargetURL = [_temporaryNBIURL URLByAppendingPathComponent:[preserveInstallLogURL lastPathComponent]];
-        if ( ! [fm copyItemAtURL:preserveInstallLogURL toURL:preserveInstallLogTargetURL error:&error] ) {
+        if ( ! [fm copyItemAtURL:preserveInstallLogURL toURL:preserveInstallLogTargetURL error:&err] ) {
             [nc postNotificationName:NBCNotificationWorkflowFailed
                               object:self
-                            userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Copying reserveInstallLog.sh failed"] }];
+                            userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"Copying reserveInstallLog.sh failed"] }];
             return;
         }
     } else {
         [nc postNotificationName:NBCNotificationWorkflowFailed
                           object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"reserveInstallLog.sh doesn't exist"] }];
+                        userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"reserveInstallLog.sh doesn't exist"] }];
         return;
     }
     
@@ -428,18 +428,18 @@
     NSURL *netBootClientHelperURL = [[_workflowItem applicationSource] netBootClientHelper];
     DDLogDebug(@"[DEBUG] NetBootClientHelper path: %@", [netBootClientHelperURL path]);
     
-    if ( [netBootClientHelperURL checkResourceIsReachableAndReturnError:&error] ) {
+    if ( [netBootClientHelperURL checkResourceIsReachableAndReturnError:&err] ) {
         NSURL *netBootClientHelperTargetURL = [_temporaryNBIURL URLByAppendingPathComponent:[netBootClientHelperURL lastPathComponent]];
-        if ( ! [fm copyItemAtURL:netBootClientHelperURL toURL:netBootClientHelperTargetURL error:&error] ) {
+        if ( ! [fm copyItemAtURL:netBootClientHelperURL toURL:netBootClientHelperTargetURL error:&err] ) {
             [nc postNotificationName:NBCNotificationWorkflowFailed
                               object:self
-                            userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Copying NetBootClientHelper failed"] }];
+                            userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"Copying NetBootClientHelper failed"] }];
             return;
         }
     } else {
         [nc postNotificationName:NBCNotificationWorkflowFailed
                           object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"NetBootClientHelper doesn't exist"] }];
+                        userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"NetBootClientHelper doesn't exist"] }];
         return;
     }
     
@@ -450,85 +450,20 @@
     DDLogDebug(@"[DEBUG] buildCommands.sh path: %@", [buildCommandsTargetURL path]);
     
     NSString *buildCommandsContent = [NSString stringWithFormat:@"'%@' \"%@\" \"/\" \"System\" || exit 1\n", [[[_workflowItem applicationSource] asrFromVolumeURL] path], [_temporaryNBIURL path]];
-    if ( ! [buildCommandsContent writeToURL:buildCommandsTargetURL atomically:YES encoding:NSUTF8StringEncoding error:&error] ) {
+    if ( ! [buildCommandsContent writeToURL:buildCommandsTargetURL atomically:YES encoding:NSUTF8StringEncoding error:&err] ) {
         [nc postNotificationName:NBCNotificationWorkflowFailed
                           object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"NetBootClientHelper doesn't exist"] }];
+                        userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"NetBootClientHelper doesn't exist"] }];
         return;
     }
     
     // --------------------------------
     //  Create NBI
     // --------------------------------
-    [self runWorkflowScriptWithArguments:arguments];
-}
+    [self runWorkflowPackageOnlyWithArguments:arguments];
+} // prepareWorkflowPackageOnly
 
-- (void)prepareWorkflowNetInstall {
-    
-    NSError *error;
-    NSArray *arguments;
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    
-    // ------------------------------------------------------------------
-    //  Check and set InstallESD disk image volume size for progress bar
-    // ------------------------------------------------------------------
-    DDLogInfo(@"Getting size of InstallESD disk image volume...");
-    
-    NSURL *installESDVolumeURL = [[_workflowItem source] installESDVolumeURL];
-    DDLogDebug(@"[DEBUG] InstallESD disk image volume path: %@", [installESDVolumeURL path]);
-    
-    if ( [installESDVolumeURL checkResourceIsReachableAndReturnError:&error] ) {
-        NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfFileSystemForPath:[installESDVolumeURL path] error:&error];
-        if ( [volumeAttributes count] != 0 ) {
-            double maxSize = [volumeAttributes[NSFileSystemSize] doubleValue];
-            DDLogDebug(@"[DEBUG] InstallESD disk image volume size: %f", maxSize);
-            
-            double freeSize = [volumeAttributes[NSFileSystemFreeSize] doubleValue];
-            DDLogDebug(@"[DEBUG] InstallESD disk image volume free size: %f", freeSize);
-            
-            [self setNetInstallVolumeSize:( maxSize - freeSize )];
-            DDLogDebug(@"[DEBUG] InstallESD disk image volume used size: %f", ( maxSize - freeSize ));
-        } else {
-            DDLogWarn(@"[WARN] %@", [error localizedDescription]);
-        }
-    } else {
-        [nc postNotificationName:NBCNotificationWorkflowFailed
-                          object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"InstallESD disk image is not mounted"] }];
-        return;
-    }
-    
-    // -------------------------------------------------------------
-    //  Create arguments array for createNetInstall.sh
-    // -------------------------------------------------------------
-    NSArray *createNetInstallArguments = [NBCWorkflowNBIController generateScriptArgumentsForCreateNetInstall:_workflowItem];
-    if ( [createNetInstallArguments count] != 0 ) {
-        [_workflowItem setScriptArguments:createNetInstallArguments];
-        arguments = createNetInstallArguments;
-    } else {
-        [nc postNotificationName:NBCNotificationWorkflowFailed
-                          object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Creating script arguments for createNetInstall.sh failed"] }];
-        return;
-    }
-    
-    // -------------------------------------------------------------
-    //  Create environment variables for createNetInstall.sh
-    // -------------------------------------------------------------
-    if ( ! [NBCWorkflowNBIController generateEnvironmentVariablesForCreateNetInstall:_workflowItem] ) {
-        [nc postNotificationName:NBCNotificationWorkflowFailed
-                          object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Creating environment variables for createNetInstall.sh failed"] }];
-        return;
-    }
-    
-    // --------------------------------
-    //  Create NBI
-    // --------------------------------
-    [self runWorkflowScriptWithArguments:arguments];
-}
-
-- (void)runWorkflowScriptWithArguments:(NSArray *)arguments {
+- (void)runWorkflowPackageOnlyWithArguments:(NSArray *)arguments {
     
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
@@ -543,17 +478,17 @@
                                                                     object:self
                                                                   userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:@"Creating NBI failed"] }];
             });
-        }] runTaskWithCommand:@"/bin/sh" arguments:arguments currentDirectory:nil environmentVariables:@{} withReply:^(NSError *error, int terminationStatus) {
+        }] createRestoreFromSourcesWithArguments:arguments withReply:^(NSError *error, int terminationStatus) {
             if ( terminationStatus == 0 ) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self finalizeNBI];
                 });
             } else {
-                if ( self->_packageOnly && ! self->_packageOnlyScriptRun ) {
+                if ( ! self->_packageOnlyScriptRun ) {
                     DDLogDebug(@"[DEBUG] createRestoreFromSources.sh failed on first try, trying again...");
                     [self setPackageOnlyScriptRun:YES];
                     dispatch_async(dispatch_get_main_queue(), ^{
-                        [self runWorkflowScriptWithArguments:arguments];
+                        [self runWorkflowPackageOnlyWithArguments:arguments];
                     });
                 } else {
                     dispatch_async(dispatch_get_main_queue(), ^{
@@ -565,7 +500,98 @@
             }
         }];
     });
-} // runWorkflowScriptWithArguments
+} // runWorkflowPackageOnlyWithArguments
+
+- (void)runWorkflowNetInstall {
+    
+    NSError *err = nil;
+    NSArray *arguments;
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    
+    // ------------------------------------------------------------------
+    //  Check and set InstallESD disk image volume size for progress bar
+    // ------------------------------------------------------------------
+    DDLogInfo(@"Getting size of InstallESD disk image volume...");
+    
+    NSURL *installESDVolumeURL = [[_workflowItem source] installESDVolumeURL];
+    DDLogDebug(@"[DEBUG] InstallESD disk image volume path: %@", [installESDVolumeURL path]);
+    
+    if ( [installESDVolumeURL checkResourceIsReachableAndReturnError:&err] ) {
+        NSDictionary *volumeAttributes = [[NSFileManager defaultManager] attributesOfFileSystemForPath:[installESDVolumeURL path] error:&err];
+        if ( [volumeAttributes count] != 0 ) {
+            double maxSize = [volumeAttributes[NSFileSystemSize] doubleValue];
+            DDLogDebug(@"[DEBUG] InstallESD disk image volume size: %f", maxSize);
+            
+            double freeSize = [volumeAttributes[NSFileSystemFreeSize] doubleValue];
+            DDLogDebug(@"[DEBUG] InstallESD disk image volume free size: %f", freeSize);
+            
+            [self setNetInstallVolumeSize:( maxSize - freeSize )];
+            DDLogDebug(@"[DEBUG] InstallESD disk image volume used size: %f", ( maxSize - freeSize ));
+        } else {
+            DDLogWarn(@"[WARN] %@", [err localizedDescription]);
+        }
+    } else {
+        [nc postNotificationName:NBCNotificationWorkflowFailed
+                          object:self
+                        userInfo:@{ NBCUserInfoNSErrorKey : err ?: [NBCError errorWithDescription:@"InstallESD disk image is not mounted"] }];
+        return;
+    }
+    
+    // -------------------------------------------------------------
+    //  Create arguments array for createNetInstall.sh
+    // -------------------------------------------------------------
+    NSArray *createNetInstallArguments = [NBCWorkflowNBIController generateScriptArgumentsForCreateNetInstall:_workflowItem];
+    if ( [createNetInstallArguments count] != 0 ) {
+        [_workflowItem setScriptArguments:createNetInstallArguments];
+        arguments = createNetInstallArguments;
+    } else {
+        [nc postNotificationName:NBCNotificationWorkflowFailed
+                          object:self
+                        userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"Creating script arguments for createNetInstall.sh failed"] }];
+        return;
+    }
+    
+    // -------------------------------------------------------------
+    //  Create environment variables for createNetInstall.sh
+    // -------------------------------------------------------------
+    if ( ! [NBCWorkflowNBIController generateEnvironmentVariablesForCreateNetInstall:_workflowItem] ) {
+        [nc postNotificationName:NBCNotificationWorkflowFailed
+                          object:self
+                        userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"Creating environment variables for createNetInstall.sh failed"] }];
+        return;
+    }
+    
+    // --------------------------------
+    //  Create NBI
+    // --------------------------------
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(taskQueue, ^{
+        
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        [[helperConnector connection] setExportedObject:self];
+        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                    object:self
+                                                                  userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:@"Creating NBI failed"] }];
+            });
+        }] createNetInstallWithArguments:arguments withReply:^(NSError *error, int terminationStatus) {
+            if ( terminationStatus == 0 ) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self finalizeNBI];
+                });
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                        object:self
+                                                                      userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Creating NBI failed"] }];
+                });
+            }
+        }];
+    });
+} // runWorkflowNetInstall
 
 - (void)finalizeNBI {
     
