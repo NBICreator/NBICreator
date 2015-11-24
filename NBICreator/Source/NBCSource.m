@@ -240,7 +240,7 @@ NSString *const NBCSourceTypeUnknown = @"Unknown";
     
     NSImage *productImage;
     if ([osVersion hasPrefix:@"10.6"]) {
-        productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconYosemite" withExtension:@"icns"]]; // Change when I have created a 10.6 round image
+        productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconSnowLeopard" withExtension:@"icns"]];
     } else if ([osVersion hasPrefix:@"10.7"]) {
         productImage = [[NSImage alloc] initWithContentsOfURL:[[NSBundle mainBundle] URLForResource:@"IconLion" withExtension:@"icns"]];
     } else if ([osVersion hasPrefix:@"10.8"]) {
