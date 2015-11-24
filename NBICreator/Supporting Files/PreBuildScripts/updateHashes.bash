@@ -10,7 +10,8 @@
 ###
 #//////////////////////////////////////////////////////////////////////////////////////////////////
 
-# This script is designed to create an md5 hash of each internal resource that will be executed with administrative privileges and update a Hashes.plist
+# This script is designed to create an md5 hash of each internal resource that will be executed with administrative privileges.
+# Then it will update the NSString constants for each of the defined resources before the project is built.
 
 #//////////////////////////////////////////////////////////////////////////////////////////////////
 ###
@@ -29,7 +30,7 @@
 ###
 #//////////////////////////////////////////////////////////////////////////////////////////////////
 
-relativePath_hashPlist="Supporting Files/Property Lists/Hashes.plist"
+relativePath_NBCConstants="General Classes/NBCConstants.m"
 relativePath_scripts="Supporting Files/Scripts"
 relativePath_tools="Supporting Files/Binaries"
 
@@ -59,7 +60,7 @@ updateVariables() {
 	
 	# Verify that passed project root folder exists and is a folder
 	if [[ -d ${path_projectRoot} ]]; then
-		path_hashPlist="${path_projectRoot}/${relativePath_hashPlist}"
+		path_NBCConstants="${path_projectRoot}/${relativePath_NBCConstants}"
 		path_scripts="${path_projectRoot}/${relativePath_scripts}"
 		path_tools="${path_projectRoot}/${relativePath_tools}"
 	else
@@ -75,7 +76,7 @@ md5HashOfFileAtPath() {
 	if [[ -f ${1} ]]; then
 		local path_fileToHash="${1}"
 	else
-		printError "File doesn't exist: ${1}"
+		printError "No such file or directory: ${1}"
 		exit 1
 	fi
 
@@ -84,53 +85,35 @@ md5HashOfFileAtPath() {
 	echo $( /sbin/md5 -q "${path_fileToHash}" )
 }
 
-updateHashForTool() {
+updateHashesInConstantsForTool() {
 	unset OPTIND;
 	while getopts "n:5:" opt; do
 		case ${opt} in
 			5)	local _md5="${OPTARG}" ;;
-			n)	local _name="${OPTARG}" ;;
+			n)	case "${OPTARG}" in
+					'createUser.bash') 						local _constantVariableName="NBCHashMD5CreateUser" ;;
+					'generateKernelCache.bash') 			local _constantVariableName="NBCHashMD5GenerateKernelCache" ;;
+					'installCertificates.bash') 			local _constantVariableName="NBCHashMD5InstallCertificates" ;;
+					'pbzx') 								local _constantVariableName="NBCHashMD5Pbzx" ;;
+					'sharedLibraryDependencyChecker.bash') 	local _constantVariableName="NBCHashMD5SharedLibraryDependencyChecker" ;;
+					*) printError "Unknown tool: ${OPTARG}"; exit 1;;
+				esac ;;
 			\?)	exit 1 ;;
 			:) exit 1 ;;
 		esac
 	done
 	
 	# Verify a name was passed
-	if [[ -z ${_name} ]]; then
+	if [[ -z ${_constantVariableName} ]]; then
 		printError "No name passed to ${FUNCNAME}"
 		exit 1
 	fi
-		
-	# Create entry for executable in hashPlist if it doesn't exist
-	if ! /usr/libexec/PlistBuddy -c "Print :${_name}" "${path_hashPlist}" >/dev/null 2>&1; then
-		printf "%s\n" "Adding hash dict for: ${_name}"
-		local plistBuddyOutput=$( /usr/libexec/PlistBuddy -c "Add :${_name} dict" "${path_hashPlist}" 2>&1 )
-		if (( ${?} != 0 )); then
-			printError "${plistBuddyOutput}"
-			exit 1
-		fi
-	fi
 	
-	# Check if an entry already exist for md5
-	if [[ -n ${_md5} ]]; then
-		local currentmd5=$( /usr/libexec/PlistBuddy -c "Print :${_name}:md5" "${path_hashPlist}" 2>&1 )
-		
-		# If no current md5 hash exist, set it. Else only update if it has changed.
-		if [[ ${currentmd5} =~ "Does Not Exist" ]]; then
-			printf "%s\n" "Adding md5 hash for: ${_name} -> ${_md5}"
-			local plistBuddyOutput=$( /usr/libexec/PlistBuddy -c "Add :${_name}:md5 string ${_md5}" "${path_hashPlist}" 2>&1 )
-			if (( ${?} != 0 )); then
-				printError "${plistBuddyOutput}"
-				exit 1
-			fi
-		elif [[ ${currentmd5} != ${_md5} ]]; then
-			printf "%s\n" "Updating md5 hash for: ${_name} -> ${_md5}"
-			local plistBuddyOutput=$( /usr/libexec/PlistBuddy -c "Set :${_name}:md5 ${_md5}" "${path_hashPlist}" 2>&1 )
-			if (( ${?} != 0 )); then
-				printError "${plistBuddyOutput}"
-				exit 1
-			fi
-		fi
+	# Update hash in NBCConstants.m
+	sedOutput=$( /usr/bin/sed -i '' -E "s/^(.*${_constantVariableName} = @\").*/\1${_md5}\"\;/" "${path_NBCConstants}" 2>&1 )
+	if (( ${?} != 0 )); then
+		printError "${sedOutput}"
+		exit 1	
 	fi
 }
 
@@ -164,9 +147,16 @@ for directoryPath in "${directoriesToScan[@]}"; do
 			
 			# Calculate item's md5 hash
 			item_md5=$( md5HashOfFileAtPath "${item}" )
-			
-			# Update hashesPlist with item's hashes
-			updateHashForTool -n "${item_name}" -5 "${item_md5}"
+						
+			# Verify NBCConstants.m exists
+			if [[ -f ${path_NBCConstants} ]]; then
+
+				# Update NBCConstants.m with the item's hashes
+				updateHashesInConstantsForTool -n "${item_name}" -5 "${item_md5}"
+			else
+				printError "No such file or directory: ${path_NBCConstants}"
+				exit 1
+			fi
 		fi
 	done
 done

@@ -396,6 +396,14 @@ extern NSString *const NBCSystemImageUtilityNetBootImageSize;
 //  Buttons
 // --------------------------------------------------------------
 
+// --------------------------------------------------------------
+//  Hashes
+// --------------------------------------------------------------
+extern NSString *const NBCHashMD5CreateUser;
+extern NSString *const NBCHashMD5GenerateKernelCache;
+extern NSString *const NBCHashMD5InstallCertificates;
+extern NSString *const NBCHashMD5Pbzx;
+extern NSString *const NBCHashMD5SharedLibraryDependencyChecker;
 
 // --------------------------------------------------------------
 //  Alerts
