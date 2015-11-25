@@ -32,7 +32,9 @@
 
 static const NSTimeInterval kHelperCheckInterval = 1.0;
 
-@interface NBCHelper () <NSXPCListenerDelegate, NBCHelperProtocol>
+@interface NBCHelper () <NSXPCListenerDelegate, NBCHelperProtocol> {
+    AuthorizationRef _authRef;
+}
 
 @property (atomic, strong, readwrite) NSXPCListener *listener;
 @property (readonly) NSXPCConnection *connection;
@@ -156,6 +158,16 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
+#pragma mark NBCHelperProtocol Workflow Authorization
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)authorizeWorkflowImagr:(NSData *)authData withReply:(void(^)(NSError *error))reply {
+    reply([NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef]);
+} // authorizeWorkflowImagr:withReply
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark NBCHelperProtocol methods
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
@@ -163,9 +175,15 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 - (void)addUsersToVolumeAtPath:(NSString *)nbiVolumePath
                  userShortName:(NSString *)userShortName
                   userPassword:(NSString *)userPassword
+                 authorization:(NSData *)authData
                      withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
     NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
     
     // -----------------------------------------------------------------------------------
     //  Verify script path
@@ -199,10 +217,18 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 } // addUsersToVolumeAtPath:userShortName:userPassword:withReply
 
 - (void)copyExtractedResourcesToCache:(NSString *)cachePath
-                         regexString:(NSString *)regexString
-                     temporaryFolder:(NSString *)temporaryFolder
-                           withReply:(void(^)(NSError *error, int terminationStatus))reply {
-        
+                          regexString:(NSString *)regexString
+                      temporaryFolder:(NSString *)temporaryFolder
+                        authorization:(NSData *)authData
+                            withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
+    
     NSString *command = @"/bin/bash";
     NSArray *arguments = @[ @"-c", [NSString stringWithFormat:@"/usr/bin/find -E . -depth %@ | /usr/bin/cpio -admp --quiet '%@'", regexString, cachePath]];
     
@@ -211,9 +237,16 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 
 - (void)copyResourcesToVolume:(NSURL *)volumeURL
                     copyArray:(NSArray *)copyArray
+                authorization:(NSData *)authData
                     withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
-    NSError *error;
+    NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
+    
     NSFileManager *fm = [NSFileManager defaultManager];
     NSMutableDictionary *regexDict = [[NSMutableDictionary alloc] init];
     
@@ -242,12 +275,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                 [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying target path: %@", [targetURL path]]];
                 
                 if ( [targetURL checkResourceIsReachableAndReturnError:nil] ) {
-                    if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
-                        return reply(error, 1);
+                    if ( ! [fm removeItemAtURL:targetURL error:&err] ) {
+                        return reply(err, 1);
                     }
                 } else if ( ! [[targetURL URLByDeletingLastPathComponent] checkResourceIsReachableAndReturnError:nil] ) {
-                    if ( ! [fm createDirectoryAtURL:[targetURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                        return reply(error, 1);
+                    if ( ! [fm createDirectoryAtURL:[targetURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&err] ) {
+                        return reply(err, 1);
                     }
                 }
             } else {
@@ -259,16 +292,16 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ----------------------------------------------------------------------
             NSURL *sourceURL = [NSURL fileURLWithPath:copyDict[NBCWorkflowCopySourceURL] ?: @""];
             [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying source path: %@", [sourceURL path]]];
-            if ( ! [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
-                return reply(error, 1);
+            if ( ! [sourceURL checkResourceIsReachableAndReturnError:&err] ) {
+                return reply(err, 1);
             }
             
             // ----------------------------------------------------------------------
             //  Copy item
             // ----------------------------------------------------------------------
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Copying %@...", [sourceURL lastPathComponent]]];
-            if ( ! [fm copyItemAtURL:sourceURL toURL:targetURL error:&error] ) {
-                return reply(error, 1);
+            if ( ! [fm copyItemAtURL:sourceURL toURL:targetURL error:&err] ) {
+                return reply(err, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -277,8 +310,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSDictionary *attributes = copyDict[NBCWorkflowCopyAttributes];
             if ( [attributes count] != 0 ) {
                 [[[self connection] remoteObjectProxy] logDebug:@"Updating permissions and attributes..."];
-                if ( ! [fm setAttributes:attributes ofItemAtPath:[targetURL path] error:&error] ) {
-                    return reply(error, 1);
+                if ( ! [fm setAttributes:attributes ofItemAtPath:[targetURL path] error:&err] ) {
+                    return reply(err, 1);
                 }
             }
             
@@ -289,8 +322,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ----------------------------------------------------------------------
             NSURL *sourceFolderURL = [NSURL fileURLWithPath:copyDict[NBCWorkflowCopyRegexSourceFolderURL] ?: @""];
             [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying source folder: %@", [sourceFolderURL path]]];
-            if ( ! [sourceFolderURL checkResourceIsReachableAndReturnError:&error] ) {
-                return reply(error, 1);
+            if ( ! [sourceFolderURL checkResourceIsReachableAndReturnError:&err] ) {
+                return reply(err, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -414,9 +447,16 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 } // copyResourcesToVolume:copyArray:withReply
 
 - (void)createRestoreFromSourcesWithArguments:(NSArray *)arguments
-                                    withReply:(void(^)(NSError *error, int terminationStatus))reply {
-
+                                authorization:(NSData *)authData
+                                    withReply:(void (^)(NSError *, int))reply {
+    
     NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
+    
     NSString *command = @"/bin/sh";
     NSMutableArray *argumentsWithScript = [NSMutableArray arrayWithArray:arguments];
     
@@ -444,13 +484,20 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     //}
     
     [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
-
+    
 } // createRestoreFromSourcesWithArguments
 
 - (void)createNetInstallWithArguments:(NSArray *)arguments
+                        authorization:(NSData *)authData
                             withReply:(void(^)(NSError *error, int terminationStatus))reply {
-
+    
     NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
+    
     NSString *command = @"/bin/sh";
     NSMutableArray *argumentsWithScript = [NSMutableArray arrayWithArray:arguments];
     
@@ -459,7 +506,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     // ---------------------------------------------------------------------------------
     NBCApplicationSourceSystemImageUtility *siuSource = [[NBCApplicationSourceSystemImageUtility alloc] init];
     NSString *createNetInstallPath = [[siuSource createNetInstallURL] path];
-
+    
     // -----------------------------------------------------------------------------------
     //  Verify script path
     // -----------------------------------------------------------------------------------
@@ -481,7 +528,15 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 } // createNetInstallWithArguments
 
 - (void)disableSpotlightOnVolume:(NSString *)volumePath
+                   authorization:(NSData *)authData
                        withReply:(void (^)(NSError *, int))reply {
+    
+    NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
     
     NSString *command = @"/usr/bin/mdutil";
     NSArray *arguments = @[ @"-Edi", @"off", volumePath];
@@ -493,9 +548,16 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                              minorVersion:(NSInteger)minorVersion
                           temporaryFolder:(NSString *)temporaryFolder
                    temporaryPackageFolder:(NSString *)temporaryPackageFolder
+                            authorization:(NSData *)authData
                                 withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
     NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
+    
     NSString *command = @"/bin/bash";
     NSArray *arguments = nil;
     
@@ -528,7 +590,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx cached md5: %@", NBCHashMD5Pbzx]];
         [[[self connection] remoteObjectProxy] logDebug:@"Comparing pbzx hashes..."];
         if ( ! [pbzxMD5 isEqualToString:NBCHashMD5Pbzx] ) {
-            return reply(err, -1);
+            return reply([NSError errorWithDomain:NBCErrorDomain
+                                             code:-1
+                                         userInfo:@{ NSLocalizedDescriptionKey : @"pbzx hashes doesn't match! If you haven't modified pbzx yourself, someone might be trying to exploit this application!" }], -1);
         }
         
         // -----------------------------------------------------------------------------------
@@ -545,11 +609,17 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 } // getVersionWithReply
 
 - (void)installPackage:(NSString *)packagePath
-          targetVolume:(NSString *)targetVolumePath
+      targetVolumePath:(NSString *)targetVolumePath
                choices:(NSDictionary *)choices
-             withReply:(void (^)(NSError *, int))reply {
+         authorization:(NSData *)authData
+             withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
     NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
     
     NSString *command = @"/usr/sbin/installer";
     NSMutableArray *installerArguments = [[NSMutableArray alloc] initWithObjects:
@@ -590,9 +660,16 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 
 - (void)modifyResourcesOnVolume:(NSURL *)volumeURL
              modificationsArray:(NSArray *)modificationsArray
+                  authorization:(NSData *)authData
                       withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
-    NSError *error;
+    NSError *err = nil;
+
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
+    
     NSFileManager *fm = [NSFileManager defaultManager];
     
     for ( NSDictionary *modificationsDict in modificationsArray ) {
@@ -631,9 +708,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                   NSFileGroupOwnerAccountName : @"wheel",
                                                   NSFilePosixPermissions : @0755
                                                   }
-                                          error:&error] ) {
-                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    return reply(error, 1);
+                                          error:&err] ) {
+                    [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                    return reply(err, 1);
                 }
             }
             
@@ -653,8 +730,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             NSDictionary *attributes = modificationsDict[NBCWorkflowModifyAttributes];
             if ( [attributes count] != 0 ) {
                 [[[self connection] remoteObjectProxy] logDebug:@"Updating permissions and attributes..."];
-                if ( ! [fm setAttributes:attributes ofItemAtPath:[targetURL path] error:&error] ) {
-                    return reply(error, 1);
+                if ( ! [fm setAttributes:attributes ofItemAtPath:[targetURL path] error:&err] ) {
+                    return reply(err, 1);
                 }
             }
             
@@ -686,9 +763,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                   NSFileGroupOwnerAccountName : @"wheel",
                                                   NSFilePosixPermissions : @0755
                                                   }
-                                          error:&error] ) {
-                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    return reply(error, 1);
+                                          error:&err] ) {
+                    [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                    return reply(err, 1);
                 }
             }
             
@@ -716,9 +793,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             //  Create directory (and intermediate directories) at target URL (and set attributes)
             // ------------------------------------------------------------------------------------
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Creating directory %@...", [targetURL path]]];
-            if ( ! [fm createDirectoryAtURL:targetURL withIntermediateDirectories:YES attributes:attributes error:&error] ) {
-                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                return reply(error, 1);
+            if ( ! [fm createDirectoryAtURL:targetURL withIntermediateDirectories:YES attributes:attributes error:&err] ) {
+                [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                return reply(err, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -730,9 +807,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             //  Delete item at target URL
             // ------------------------------------------------------------------------------------
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Deleting item %@...", [targetURL lastPathComponent]]];
-            if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
-                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                return reply(error, 1);
+            if ( ! [fm removeItemAtURL:targetURL error:&err] ) {
+                [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                return reply(err, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -745,18 +822,18 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ----------------------------------------------------------------------
             NSURL *sourceURL = [NSURL fileURLWithPath:modificationsDict[NBCWorkflowModifySourceURL] ?: @""];
             [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Item source path: %@", [sourceURL path]]];
-            if ( ! [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
-                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                return reply(error, 1);
+            if ( ! [sourceURL checkResourceIsReachableAndReturnError:&err] ) {
+                [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                return reply(err, 1);
             }
             
             // ----------------------------------------------------------------------
             //  Remove target item if it already exists
             // ----------------------------------------------------------------------
-            if ( [targetURL checkResourceIsReachableAndReturnError:&error] ) {
-                if ( ! [fm removeItemAtURL:targetURL error:&error] ) {
-                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    return reply(error, 1);
+            if ( [targetURL checkResourceIsReachableAndReturnError:&err] ) {
+                if ( ! [fm removeItemAtURL:targetURL error:&err] ) {
+                    [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                    return reply(err, 1);
                 }
             }
             
@@ -771,9 +848,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                                   NSFileGroupOwnerAccountName : @"wheel",
                                                   NSFilePosixPermissions : @0755
                                                   }
-                                          error:&error] ) {
-                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    return reply(error, 1);
+                                          error:&err] ) {
+                    [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                    return reply(err, 1);
                 }
             }
             
@@ -781,9 +858,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             //  Move item
             // ----------------------------------------------------------------------
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Moving %@ to %@", [sourceURL lastPathComponent], [[targetFolderURL path] lastPathComponent]]];
-            if ( ! [fm moveItemAtURL:sourceURL toURL:targetURL error:&error] ) {
-                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                return reply(error, 1);
+            if ( ! [fm moveItemAtURL:sourceURL toURL:targetURL error:&err] ) {
+                [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                return reply(err, 1);
             }
             
             // ----------------------------------------------------------------------
@@ -796,10 +873,10 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ----------------------------------------------------------------------
             NSURL *sourceURL = [NSURL fileURLWithPath:modificationsDict[NBCWorkflowModifySourceURL] ?: @""];
             [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Item source path: %@", [targetURL path]]];
-            if ( [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
-                if ( ! [fm removeItemAtURL:sourceURL error:&error] ) {
-                    [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                    return reply(error, 1);
+            if ( [sourceURL checkResourceIsReachableAndReturnError:&err] ) {
+                if ( ! [fm removeItemAtURL:sourceURL error:&err] ) {
+                    [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                    return reply(err, 1);
                 }
             }
             
@@ -807,9 +884,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             //  Create symbolic link
             // ----------------------------------------------------------------------
             [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Creating symlink to %@", [targetURL path]]];
-            if ( ! [fm createSymbolicLinkAtURL:sourceURL withDestinationURL:targetURL error:&error] ) {
-                [[[self connection] remoteObjectProxy] logError:[error localizedDescription]];
-                return reply(error, 1);
+            if ( ! [fm createSymbolicLinkAtURL:sourceURL withDestinationURL:targetURL error:&err] ) {
+                [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
+                return reply(err, 1);
             }
         } else {
             [[[self connection] remoteObjectProxy] logError:[NSString stringWithFormat:@"Unknown modification type: %@", modificationType]];
@@ -983,9 +1060,16 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 - (void)sysBuilderWithArguments:(NSArray *)arguments
              sourceVersionMinor:(int)sourceVersionMinor
                 selectedVersion:(NSString *)selectedVersion
+                  authorization:(NSData *)authData
                       withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
     NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
+    
     NSString *command = @"/bin/sh";
     NSMutableArray *argumentsWithScript = [NSMutableArray arrayWithArray:arguments];
     
@@ -1024,9 +1108,15 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 - (void)updateKernelCache:(NSString *)targetVolumePath
             nbiVolumePath:(NSString *)nbiVolumePath
              minorVersion:(NSString *)minorVersion
+            authorization:(NSData *)authData
                 withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
     NSError *err = nil;
+    
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
     
     // -----------------------------------------------------------------------------------
     //  Verify target volume path
@@ -1073,8 +1163,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     [[[self connection] remoteObjectProxy] logDebug:@"Comparing script hashes..."];
     if ( ! [scriptMD5 isEqualToString:NBCHashMD5GenerateKernelCache] ) {
         return reply( [NSError errorWithDomain:NBCErrorDomain
-                                         code:-1
-                                     userInfo:@{ NSLocalizedDescriptionKey : @"Script hash doesn't match! If you haven't modified generateKernelCache.bash yourself, someone might be trying to exploit this application!" }], -1);
+                                          code:-1
+                                      userInfo:@{ NSLocalizedDescriptionKey : @"Script hash doesn't match! If you haven't modified generateKernelCache.bash yourself, someone might be trying to exploit this application!" }], -1);
     }
     
     // -----------------------------------------------------------------------------------

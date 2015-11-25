@@ -87,6 +87,7 @@
 		53968C121A8E7A3E0079AA95 /* NBICreatorImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 53968C111A8E7A3E0079AA95 /* NBICreatorImages.xcassets */; };
 		53968C151A8E7A3E0079AA95 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53968C131A8E7A3E0079AA95 /* MainMenu.xib */; };
 		53968C381A8E7CFD0079AA95 /* com.github.NBICreatorHelper in Copy Helper */ = {isa = PBXBuildFile; fileRef = 53968C2E1A8E7B8C0079AA95 /* com.github.NBICreatorHelper */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		53988C741C06603B00DF8076 /* CocoaLumberjack.framework in Copy CocoaLumberjack */ = {isa = PBXBuildFile; fileRef = 537E8C591C061CD700057795 /* CocoaLumberjack.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		539BE69F1B009A0000825C78 /* NBCInstallerPackageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 539BE69E1B009A0000825C78 /* NBCInstallerPackageController.m */; };
 		539DAEF21AF158150037F06B /* NBCImagrSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 539DAEF01AF158150037F06B /* NBCImagrSettingsViewController.m */; };
 		539DAEF31AF158150037F06B /* NBCImagrSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 539DAEF11AF158150037F06B /* NBCImagrSettingsViewController.xib */; };
@@ -290,6 +291,13 @@
 			remoteGlobalIDString = 53E2A49F1C02439200B31717;
 			remoteInfo = PreBuildTask;
 		};
+		53F6DAFD1C065F8900A6E6F0 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 537E8C451C061CD700057795 /* Lumberjack.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = DCB3185014EB418E001CFBEE;
+			remoteInfo = CocoaLumberjack;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -299,6 +307,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				53988C741C06603B00DF8076 /* CocoaLumberjack.framework in Copy CocoaLumberjack */,
 			);
 			name = "Copy CocoaLumberjack";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -734,7 +743,7 @@
 				53ADBF6D1BDE738700970B83 /* DropViews */,
 				53EFC5191A9E00E8005A68E6 /* Target */,
 				53F229CA1B68336C00CC0B09 /* Source */,
-				53968C2F1A8E7B8C0079AA95 /* Helper */,
+				53968C2F1A8E7B8C0079AA95 /* Privileged Helper */,
 				531F1D191A99A43C00C8B6A8 /* Supporting Files */,
 				53968C081A8E7A3E0079AA95 /* Products */,
 			);
@@ -768,24 +777,24 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		53968C2F1A8E7B8C0079AA95 /* Helper */ = {
+		53968C2F1A8E7B8C0079AA95 /* Privileged Helper */ = {
 			isa = PBXGroup;
 			children = (
 				538D6BB41BF3E77500E58468 /* main.m */,
 				538D6BB51BF3E77500E58468 /* NBCHelper.h */,
 				538D6BB61BF3E77500E58468 /* NBCHelper.m */,
+				538D6BBB1BF3E77500E58468 /* NBCHelperProtocol.h */,
 				538D6BB71BF3E77500E58468 /* NBCHelperAuthorization.h */,
 				538D6BB81BF3E77500E58468 /* NBCHelperAuthorization.m */,
 				538D6BB91BF3E77500E58468 /* NBCHelperConnection.h */,
 				538D6BBA1BF3E77500E58468 /* NBCHelperConnection.m */,
-				538D6BBB1BF3E77500E58468 /* NBCHelperProtocol.h */,
 				5319A5281BFFD5EA002014EE /* SNTCertificate.h */,
 				5319A5291BFFD5EA002014EE /* SNTCertificate.m */,
 				5319A52A1BFFD5EA002014EE /* SNTCodesignChecker.h */,
 				5319A52B1BFFD5EA002014EE /* SNTCodesignChecker.m */,
 				53950AD31A93D7C500E9EF39 /* Supporting Files */,
 			);
-			name = Helper;
+			name = "Privileged Helper";
 			path = NBICreatorHelper;
 			sourceTree = "<group>";
 		};
@@ -1154,6 +1163,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				53F6DAFE1C065F8900A6E6F0 /* PBXTargetDependency */,
 				53E2A4AA1C02513400B31717 /* PBXTargetDependency */,
 				53968C361A8E7C910079AA95 /* PBXTargetDependency */,
 			);
@@ -1523,6 +1533,11 @@
 			isa = PBXTargetDependency;
 			target = 53E2A49F1C02439200B31717 /* PreBuildTask */;
 			targetProxy = 53E2A4A91C02513400B31717 /* PBXContainerItemProxy */;
+		};
+		53F6DAFE1C065F8900A6E6F0 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = CocoaLumberjack;
+			targetProxy = 53F6DAFD1C065F8900A6E6F0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

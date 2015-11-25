@@ -19,13 +19,12 @@
 
 #import "NBCWorkflowSystemImageUtility.h"
 #import "NBCWorkflowItem.h"
-
 #import "NBCError.h"
 #import "NBCConstants.h"
 #import "NBCLogging.h"
-
 #import "NBCHelperProtocol.h"
 #import "NBCHelperConnection.h"
+#import "NBCHelperAuthorization.h"
 #import "NBCWorkflowNBIController.h"
 
 @implementation NBCWorkflowSystemImageUtility
@@ -465,20 +464,33 @@
 
 - (void)runWorkflowPackageOnlyWithArguments:(NSArray *)arguments {
     
+    // --------------------------------
+    //  Get Authorization
+    // --------------------------------
+    NSData *authData = [_workflowItem authData];
+    if ( ! authData ) {
+        authData = [NBCHelperAuthorization authorizeHelper];
+        [_workflowItem setAuthData:authData];
+    }
+    
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        [[helperConnector connection] setExportedObject:self];
-        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+        if ( ! helperConnection ) {
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [self->_workflowItem setHelperConnection:[helperConnector connection]];
+        }
+        [[self->_workflowItem helperConnection] setExportedObject:self];
+        [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                     object:self
                                                                   userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:@"Creating NBI failed"] }];
             });
-        }] createRestoreFromSourcesWithArguments:arguments withReply:^(NSError *error, int terminationStatus) {
+        }] createRestoreFromSourcesWithArguments:arguments authorization:authData withReply:^(NSError *error, int terminationStatus) {
             if ( terminationStatus == 0 ) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self finalizeNBI];
@@ -562,22 +574,35 @@
     }
     
     // --------------------------------
+    //  Get Authorization
+    // --------------------------------
+    NSData *authData = [_workflowItem authData];
+    if ( ! authData ) {
+        authData = [NBCHelperAuthorization authorizeHelper];
+        [_workflowItem setAuthData:authData];
+    }
+    
+    // --------------------------------
     //  Create NBI
     // --------------------------------
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        [[helperConnector connection] setExportedObject:self];
-        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+        if ( ! helperConnection ) {
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [self->_workflowItem setHelperConnection:[helperConnector connection]];
+        }
+        [[self->_workflowItem helperConnection] setExportedObject:self];
+        [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                     object:self
                                                                   userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:@"Creating NBI failed"] }];
             });
-        }] createNetInstallWithArguments:arguments withReply:^(NSError *error, int terminationStatus) {
+        }] createNetInstallWithArguments:arguments authorization:authData withReply:^(NSError *error, int terminationStatus) {
             if ( terminationStatus == 0 ) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self finalizeNBI];

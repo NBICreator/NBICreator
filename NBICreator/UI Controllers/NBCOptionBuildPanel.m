@@ -24,8 +24,6 @@
 #import "NBCDeployStudioSettingsViewController.h"
 #import "NBCImagrSettingsViewController.h"
 #import "NBCCasperSettingsViewController.h"
-#import "NBCHelperConnection.h"
-#import "NBCHelperProtocol.h"
 
 DDLogLevel ddLogLevel;
 

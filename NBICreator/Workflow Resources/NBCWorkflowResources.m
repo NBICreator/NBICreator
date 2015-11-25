@@ -25,8 +25,6 @@
 #import "NBCSource.h"
 #import "NBCWorkflowResourcesController.h"
 #import "NBCError.h"
-#import "NBCHelperConnection.h"
-#import "NBCHelperProtocol.h"
 
 DDLogLevel ddLogLevel;
 

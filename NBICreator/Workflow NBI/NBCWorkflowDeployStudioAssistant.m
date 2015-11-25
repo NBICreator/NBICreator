@@ -25,6 +25,7 @@
 #import "NBCConstants.h"
 #import "NBCHelperProtocol.h"
 #import "NBCHelperConnection.h"
+#import "NBCHelperAuthorization.h"
 
 DDLogLevel ddLogLevel;
 
@@ -80,20 +81,33 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------------
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
     
+    // --------------------------------
+    //  Get Authorization
+    // --------------------------------
+    NSData *authData = [_workflowItem authData];
+    if ( ! authData ) {
+        authData = [NBCHelperAuthorization authorizeHelper];
+        [_workflowItem setAuthData:authData];
+    }
+    
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        [[helperConnector connection] setExportedObject:self];
-        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+        if ( ! helperConnection ) {
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [self->_workflowItem setHelperConnection:[helperConnector connection]];
+        }
+        [[self->_workflowItem helperConnection] setExportedObject:self];
+        [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                     object:self
                                                                   userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:@"Creating NBI failed"] }];
             });
-        }] sysBuilderWithArguments:arguments sourceVersionMinor:sourceVersionMinor selectedVersion:@"" withReply:^(NSError *error, int terminationStatus) {
+        }] sysBuilderWithArguments:arguments sourceVersionMinor:sourceVersionMinor selectedVersion:@"" authorization:authData withReply:^(NSError *error, int terminationStatus) {
             if ( terminationStatus == 0 ) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self finalizeNBI];

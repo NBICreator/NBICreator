@@ -28,6 +28,7 @@
 #import "ServerInformationComputerModelInfo.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
+#import "NBCHelperAuthorization.h"
 #import "NBCDiskImageController.h"
 #import "NBCWorkflowResourcesModify.h"
 #import "NBCDiskArbitrationPrivateFunctions.h"
@@ -1109,7 +1110,7 @@ DDLogLevel ddLogLevel;
         
         NBCInstallerPackageController *installer = [[NBCInstallerPackageController alloc] initWithDelegate:self];
         [installer setProgressDelegate:_delegate];
-        [installer installPackagesToVolume:[[_workflowItem target] baseSystemVolumeURL] packages:packagesArray];
+        [installer installPackagesToVolume:[[_workflowItem target] baseSystemVolumeURL] packages:packagesArray workflowItem:_workflowItem];
     } else {
         [self copyFilesToVolume];
     }
@@ -1142,18 +1143,31 @@ DDLogLevel ddLogLevel;
         DDLogInfo(@"Copying files to volume...");
         [_delegate updateProgressStatus:@"Copying files to volume..." workflow:self];
         
+        // --------------------------------
+        //  Get Authorization
+        // --------------------------------
+        NSData *authData = [_workflowItem authData];
+        if ( ! authData ) {
+            authData = [NBCHelperAuthorization authorizeHelper];
+            [_workflowItem setAuthData:authData];
+        }
+        
         dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(taskQueue, ^{
             
-            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-            [helperConnector connectToHelper];
-            [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
-            [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-            [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+            if ( ! helperConnection ) {
+                NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+                [helperConnector connectToHelper];
+                [self->_workflowItem setHelperConnection:[helperConnector connection]];
+            }
+            [[self->_workflowItem helperConnection] setExportedObject:[self->_workflowItem progressView]];
+            [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+            [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self copyFailedWithError:proxyError];
                 });
-            }] copyResourcesToVolume:self->_currentVolumeURL copyArray:copyArray withReply:^(NSError *error, int terminationStatus) {
+            }] copyResourcesToVolume:self->_currentVolumeURL copyArray:copyArray authorization:authData withReply:^(NSError *error, int terminationStatus) {
                 if ( terminationStatus == 0 ) {
                     if ( ! self->_isNBI ) {
                         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1279,18 +1293,31 @@ DDLogLevel ddLogLevel;
             DDLogInfo(@"Applying modifications to volume...");
             [_delegate updateProgressStatus:@"Applying modifications to volume..." workflow:self];
             
+            // --------------------------------
+            //  Get Authorization
+            // --------------------------------
+            NSData *authData = [_workflowItem authData];
+            if ( ! authData ) {
+                [NBCHelperAuthorization authorizeHelper];
+                [_workflowItem setAuthData:authData];
+            }
+            
             dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
             dispatch_async(taskQueue, ^{
                 
-                NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-                [helperConnector connectToHelper];
-                [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
-                [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-                [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+                NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+                if ( ! helperConnection ) {
+                    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+                    [helperConnector connectToHelper];
+                    [self->_workflowItem setHelperConnection:[helperConnector connection]];
+                }
+                [[self->_workflowItem helperConnection] setExportedObject:[self->_workflowItem progressView]];
+                [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+                [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self modifyFailedWithError:proxyError];
                     });
-                }] modifyResourcesOnVolume:self->_currentVolumeURL modificationsArray:modificationsArray withReply:^(NSError *error, int terminationStatus) {
+                }] modifyResourcesOnVolume:self->_currentVolumeURL modificationsArray:modificationsArray authorization:authData withReply:^(NSError *error, int terminationStatus) {
                     [self setModificationsApplied:YES];
                     if ( terminationStatus == 0 ) {
                         dispatch_async(dispatch_get_main_queue(), ^{
@@ -1367,18 +1394,28 @@ DDLogLevel ddLogLevel;
     [_delegate updateProgressStatus:@"Disabling spotlight on volume..." workflow:self];
     [_delegate updateProgressBar:(( 35.0 * _progressPercentage ) + _progressOffset)];
     
+    NSData *authData = [_workflowItem authData];
+    if ( ! authData ) {
+        authData = [NBCHelperAuthorization authorizeHelper];
+        [_workflowItem setAuthData:authData];
+    }
+    
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
-        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+        if ( ! helperConnection ) {
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [self->_workflowItem setHelperConnection:[helperConnector connection]];
+        }
+        [[self->_workflowItem helperConnection] setExportedObject:[self->_workflowItem progressView]];
+        [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self modifyFailedWithError:proxyError];
             });
-        }] disableSpotlightOnVolume:[self->_currentVolumeURL path] withReply:^(NSError *error, int terminationStatus) {
+        }] disableSpotlightOnVolume:[self->_currentVolumeURL path] authorization:authData withReply:^(NSError *error, int terminationStatus) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if ( terminationStatus == 0 ) {
                     [self modifyComplete];
@@ -1417,18 +1454,31 @@ DDLogLevel ddLogLevel;
     NSString *nbiVolumePath = [[_workflowItem temporaryNBIURL] path];
     NSString *minorVersion = [[_workflowItem source] expandVariables:@"%OSMINOR%"];
     
+    // --------------------------------
+    //  Get Authorization
+    // --------------------------------
+    NSData *authData = [_workflowItem authData];
+    if ( ! authData ) {
+        authData = [NBCHelperAuthorization authorizeHelper];
+        [_workflowItem setAuthData:authData];
+    }
+    
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
-        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+        if ( ! helperConnection ) {
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [self->_workflowItem setHelperConnection:[helperConnector connection]];
+        }
+        [[self->_workflowItem helperConnection] setExportedObject:[self->_workflowItem progressView]];
+        [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
             });
-        }] updateKernelCache:targetVolumePath nbiVolumePath:nbiVolumePath minorVersion:minorVersion withReply:^(NSError *error, int terminationStatus) {
+        }] updateKernelCache:targetVolumePath nbiVolumePath:nbiVolumePath minorVersion:minorVersion authorization:authData withReply:^(NSError *error, int terminationStatus) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if ( terminationStatus == 0 ) {
                     [self finalizeWorkflow];
@@ -1468,18 +1518,31 @@ DDLogLevel ddLogLevel;
     NSString *userShortName = userSettings[NBCSettingsARDLoginKey] ?: @"nbicreator";
     NSString *userPassword = userSettings[NBCSettingsARDPasswordKey] ?: @"nbicreator";
     
+    // --------------------------------
+    //  Get Authorization
+    // --------------------------------
+    NSData *authData = [_workflowItem authData];
+    if ( ! authData ) {
+        authData = [NBCHelperAuthorization authorizeHelper];
+        [_workflowItem setAuthData:authData];
+    }
+    
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
-        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+        if ( ! helperConnection ) {
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [self->_workflowItem setHelperConnection:[helperConnector connection]];
+        }
+        [[self->_workflowItem helperConnection] setExportedObject:[self->_workflowItem progressView]];
+        [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [nc postNotificationName:NBCNotificationWorkflowFailed object:self userInfo:@{ NBCUserInfoNSErrorKey : proxyError }];
             });
-        }] addUsersToVolumeAtPath:nbiVolumePath userShortName:userShortName userPassword:userPassword withReply:^(NSError *error, int terminationStatus) {
+        }] addUsersToVolumeAtPath:nbiVolumePath userShortName:userShortName userPassword:userPassword authorization:authData withReply:^(NSError *error, int terminationStatus) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 if ( terminationStatus == 0 ) {
                     [self setAddedUsers:YES];

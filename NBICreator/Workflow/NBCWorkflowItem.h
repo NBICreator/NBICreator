@@ -52,6 +52,9 @@ enum {
 
 @property int workflowSessionType;
 
+@property (atomic, strong) NSXPCConnection *helperConnection;
+@property (readwrite) NSData *authData;
+
 @property NSDictionary *preWorkflowTasks;
 
 @property NSImage *nbiIcon;

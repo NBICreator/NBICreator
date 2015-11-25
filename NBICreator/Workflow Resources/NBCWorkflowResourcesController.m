@@ -21,9 +21,6 @@
 #import "NBCConstants.h"
 #import "NBCDiskImageController.h"
 #import "NBCWorkflowItem.h"
-
-#import "NBCHelperProtocol.h"
-#import "NBCHelperConnection.h"
 #import "NBCLogging.h"
 #import "NSString+randomString.h"
 

@@ -183,12 +183,12 @@ enum {
         } else {
             DDLogError(@"[ERROR] Creating empty authorization reference failed!");
             error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-            DDLogError(@"[ERROR] %@", error);
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
     } else {
         DDLogError(@"[ERROR] Creating empty authorization reference failed!");
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-        DDLogError(@"[ERROR] %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
 } // createEmptyAuthorizationRef
 
@@ -644,7 +644,7 @@ enum {
     
     AuthorizationItem authItem		= { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
     AuthorizationRights authRights	= { 1, &authItem };
-    AuthorizationFlags flags		= kAuthorizationFlagDefaults |
+    AuthorizationFlags flags		=   kAuthorizationFlagDefaults |
     kAuthorizationFlagInteractionAllowed |
     kAuthorizationFlagPreAuthorize |
     kAuthorizationFlagExtendRights;
@@ -657,9 +657,9 @@ enum {
     OSStatus status = AuthorizationCopyRights(_authRef, &authRights, kAuthorizationEmptyEnvironment, flags, NULL);
     if ( status != errAuthorizationSuccess ) {
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-        DDLogError(@"[ERROR] %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     } else {
-        CFErrorRef  cfError;
+        CFErrorRef cfError;
         DDLogDebug(@"[DEBUG] Authorization successful!");
         
         // --------------------------------------------------------------
@@ -672,7 +672,7 @@ enum {
             DDLogError(@"[ERROR] Could not install helper tool!");
             DDLogError(@"[ERROR] SMJobBless failed!");
             error = CFBridgingRelease(cfError);
-            DDLogError(@"[ERROR] %@", error);
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
     }
     
@@ -724,10 +724,10 @@ enum {
     // --------------------------------------------------------------
     //  Get version of helper within our bundle
     // --------------------------------------------------------------
-    NSString*       currentHelperToolBundlePath     = [NSString stringWithFormat:@"Contents/Library/LaunchServices/%@", NBCBundleIdentifierHelper];
-    NSURL*          currentHelperToolURL            = [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:currentHelperToolBundlePath];
-    NSDictionary*   currentHelperToolInfoPlist      = (NSDictionary*)CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL ));
-    NSString*       currentHelperToolBundleVersion  = [currentHelperToolInfoPlist objectForKey:@"CFBundleVersion"];
+    NSString * currentHelperToolBundlePath = [NSString stringWithFormat:@"Contents/Library/LaunchServices/%@", NBCBundleIdentifierHelper];
+    NSURL * currentHelperToolURL = [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:currentHelperToolBundlePath];
+    NSDictionary * currentHelperToolInfoPlist = (NSDictionary*)CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL ));
+    NSString * currentHelperToolBundleVersion = [currentHelperToolInfoPlist objectForKey:@"CFBundleVersion"];
     
     // --------------------------------------------------------------
     //  Connect to helper and get installed helper's version

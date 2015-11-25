@@ -20,17 +20,15 @@
 #import "NBCDeployStudioSettingsViewController.h"
 #import "NBCConstants.h"
 #import "NBCVariables.h"
-
 #import "NBCWorkflowItem.h"
 #import "NBCSettingsController.h"
-
 #import "Reachability.h"
 #import "NBCWorkflowResourcesController.h"
-
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 #import "NBCLogging.h"
 #import "NBCWorkflowModifyNBI.h"
+#import "NBCHelperAuthorization.h"
 
 DDLogLevel ddLogLevel;
 
@@ -1389,6 +1387,9 @@ DDLogLevel ddLogLevel;
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
     
     DDLogInfo(@"Preparing workflow item...");
+    
+    NSData *authData = [NBCHelperAuthorization authorizeHelper];
+    [workflowItem setAuthData:authData];
     
     // -------------------------------------------------------------
     //  Post notification to add workflow item to queue

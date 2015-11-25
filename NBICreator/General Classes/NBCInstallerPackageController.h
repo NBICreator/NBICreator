@@ -19,6 +19,7 @@
 
 #import <Foundation/Foundation.h>
 #import "NBCWorkflowProgressDelegate.h"
+@class NBCWorkflowItem;
 
 @protocol NBCInstallerPackageDelegate
 - (void)installSuccessful;
@@ -27,6 +28,7 @@
 
 @interface NBCInstallerPackageController : NSObject
 
+@property NBCWorkflowItem *workflowItem;
 @property (nonatomic, weak) id delegate;
 @property (nonatomic, weak) id<NBCWorkflowProgressDelegate>progressDelegate;
 
@@ -37,7 +39,7 @@
 //  Public Methods
 // -------------------------------------------------------------
 - (id)initWithDelegate:(id<NBCInstallerPackageDelegate>)delegate;
-- (void)installPackagesToVolume:(NSURL *)volumeURL packages:(NSArray *)packages;
+- (void)installPackagesToVolume:(NSURL *)volumeURL packages:(NSArray *)packages workflowItem:(NBCWorkflowItem *)workflowItem;
 + (NSArray *)convertPackagesToProductArchivePackages:(NSArray *)packages;
 
 @end

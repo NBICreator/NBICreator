@@ -23,44 +23,56 @@
 
 @required
 
+- (void)authorizeWorkflowImagr:(NSData *)authData
+                     withReply:(void(^)(NSError *error))reply;
+
 - (void)addUsersToVolumeAtPath:(NSString *)nbiVolumePath
                  userShortName:(NSString *)userShortName
                   userPassword:(NSString *)userPassword
+                 authorization:(NSData *)authData
                      withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)copyExtractedResourcesToCache:(NSString *)cachePath
                           regexString:(NSString *)regexString
                       temporaryFolder:(NSString *)temporaryFolder
+                        authorization:(NSData *)authData
                             withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)copyResourcesToVolume:(NSURL *)volumeURL
                     copyArray:(NSArray *)copyArray
+                authorization:(NSData *)authData
                     withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)createNetInstallWithArguments:(NSArray *)arguments
+                        authorization:(NSData *)authData
                             withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)createRestoreFromSourcesWithArguments:(NSArray *)arguments
+                                authorization:(NSData *)authData
                                     withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)disableSpotlightOnVolume:(NSString *)volumePath
+                   authorization:(NSData *)authData
                        withReply:(void (^)(NSError *, int))reply;
 
 - (void)extractResourcesFromPackageAtPath:(NSString *)packagePath
                              minorVersion:(NSInteger)minorVersion
                           temporaryFolder:(NSString *)temporaryFolder
                    temporaryPackageFolder:(NSString *)temporaryPackageFolder
+                            authorization:(NSData *)authData
                                 withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)getVersionWithReply:(void(^)(NSString * version))reply;
 
 - (void)installPackage:(NSString *)packagePath
-          targetVolume:(NSString *)targetVolume
-               choices:(NSDictionary *)choice
+          targetVolumePath:(NSString *)targetVolumePath
+               choices:(NSDictionary *)choices
+         authorization:(NSData *)authData
              withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)modifyResourcesOnVolume:(NSURL *)volumeURL
              modificationsArray:(NSArray *)modificationsArray
+                  authorization:(NSData *)authData
                       withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL
@@ -73,11 +85,13 @@
 - (void)sysBuilderWithArguments:(NSArray *)arguments
              sourceVersionMinor:(int)sourceVersionMinor
                 selectedVersion:(NSString *)selectedVersion
+                  authorization:(NSData *)authData
                       withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)updateKernelCache:(NSString *)targetVolumePath
             nbiVolumePath:(NSString *)nbiVolumePath
              minorVersion:(NSString *)minorVersion
+            authorization:(NSData *)authData
                 withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)quitHelper:(void (^)(BOOL success))reply;

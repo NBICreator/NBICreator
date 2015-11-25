@@ -24,8 +24,6 @@
 #import "NBCWorkflowItem.h"
 #import "NBCSettingsController.h"
 #import "NBCController.h"
-#import "NBCHelperConnection.h"
-#import "NBCHelperProtocol.h"
 #import "Reachability.h"
 #import "NBCLogging.h"
 #import "NBCCertificateTableCellView.h"

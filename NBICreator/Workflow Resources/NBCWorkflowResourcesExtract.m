@@ -25,6 +25,7 @@
 #import "NBCWorkflowResourcesController.h"
 #import "NBCWorkflowItem.h"
 #import "NBCError.h"
+#import "NBCHelperAuthorization.h"
 
 DDLogLevel ddLogLevel;
 
@@ -224,19 +225,32 @@ DDLogLevel ddLogLevel;
             return errorNotification( err ?: [NBCError errorWithDescription:@"Package temporary folder doesn't exist!"]);
         }
         
+        // --------------------------------
+        //  Get Authorization
+        // --------------------------------
+        NSData *authData = [_workflowItem authData];
+        if ( ! authData ) {
+            authData = [NBCHelperAuthorization authorizeHelper];
+            [_workflowItem setAuthData:authData];
+        }
+        
         // ---------------------------------------------------------------------------------
         //  Run extract task from helper
         // ---------------------------------------------------------------------------------
         dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(taskQueue, ^{
             
-            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-            [helperConnector connectToHelper];
-            [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
-            [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-            [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+            if ( ! helperConnection ) {
+                NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+                [helperConnector connectToHelper];
+                [self->_workflowItem setHelperConnection:[helperConnector connection]];
+            }
+            [[self->_workflowItem helperConnection] setExportedObject:[self->_workflowItem progressView]];
+            [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+            [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
                 return errorNotification(proxyError);
-            }] extractResourcesFromPackageAtPath:packagePath minorVersion:self->_sourceVersionMinor temporaryFolder:[temporaryFolderURL path] temporaryPackageFolder:[temporaryPackageFolderURL path] withReply:^(NSError *error, int terminationStatus) {
+            }] extractResourcesFromPackageAtPath:packagePath minorVersion:self->_sourceVersionMinor temporaryFolder:[temporaryFolderURL path] temporaryPackageFolder:[temporaryPackageFolderURL path] authorization:authData withReply:^(NSError *error, int terminationStatus) {
                 if ( terminationStatus == 0 ) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self copyExtractedResourcesToCache:resourcesToExtract packagePath:packagePath temporaryPackagePath:[temporaryPackageFolderURL path]];
@@ -304,19 +318,32 @@ DDLogLevel ddLogLevel;
             }
         }
         
+        // --------------------------------
+        //  Get Authorization
+        // --------------------------------
+        NSData *authData = [_workflowItem authData];
+        if ( ! authData ) {
+            authData = [NBCHelperAuthorization authorizeHelper];
+            [_workflowItem setAuthData:authData];
+        }
+        
         // ---------------------------------------------------------------------------------
         //  Run copy task from helper
         // ---------------------------------------------------------------------------------
         dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(taskQueue, ^{
             
-            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-            [helperConnector connectToHelper];
-            [[helperConnector connection] setExportedObject:[self->_workflowItem progressView]];
-            [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-            [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
+            if ( ! helperConnection ) {
+                NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+                [helperConnector connectToHelper];
+                [self->_workflowItem setHelperConnection:[helperConnector connection]];
+            }
+            [[self->_workflowItem helperConnection] setExportedObject:[self->_workflowItem progressView]];
+            [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+            [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
                 return errorNotification(proxyError ?: [NBCError errorWithDescription:[NSString stringWithFormat:@"Copying resources to %@ cache failed", [packagePath lastPathComponent]]]);
-            }] copyExtractedResourcesToCache:resourcesCacheFolderPackageURL.path regexString:regexString temporaryFolder:temporaryPackagePath withReply:^(NSError *error, int terminationStatus) {
+            }] copyExtractedResourcesToCache:resourcesCacheFolderPackageURL.path regexString:regexString temporaryFolder:temporaryPackagePath authorization:authData withReply:^(NSError *error, int terminationStatus) {
                 if ( terminationStatus == 0 ) {
                     dispatch_async(dispatch_get_main_queue(), ^{
                         [self copyExtractedResourcesComplete:resourcesToExtract resourcesRegexArray:regexArray packagePath:packagePath packageCacheFolderPath:[resourcesCacheFolderPackageURL path]];
