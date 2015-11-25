@@ -1,0 +1,3 @@
+[submodule "NBICreator/CocoaLumberjack"]
+	path = NBICreator/CocoaLumberjack
+	url = https://github.com/CocoaLumberjack/CocoaLumberjack.git
