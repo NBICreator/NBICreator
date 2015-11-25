@@ -210,13 +210,12 @@ enum {
     // --------------------------------------------------------------
     //  Register user defaults
     // --------------------------------------------------------------
-    NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
-    NSURL *defaultSettingsPath = [[NSBundle mainBundle] URLForResource:@"Defaults" withExtension:@"plist"];
     NSError *error;
+    NSURL *defaultSettingsPath = [[NSBundle mainBundle] URLForResource:@"Defaults" withExtension:@"plist"];
     if ( [defaultSettingsPath checkResourceIsReachableAndReturnError:&error] ) {
-        NSDictionary *defaultSettingsDict=[NSDictionary dictionaryWithContentsOfURL:defaultSettingsPath];
-        if ( defaultSettingsDict ) {
-            [ud registerDefaults:defaultSettingsDict];
+        NSDictionary *defaultSettingsDict = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsPath];
+        if ( [defaultSettingsDict count] != 0 ) {
+            [[NSUserDefaults standardUserDefaults] registerDefaults:defaultSettingsDict];
         }
     } else {
         // Use NSLog as CocoaLumberjack isn't available yet
