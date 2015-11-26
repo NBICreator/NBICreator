@@ -2885,6 +2885,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------
     NSData *authData = [workflowItem authData];
     if ( ! authData ) {
+        
         authData = [NBCHelperAuthorization authorizeHelper];
         [workflowItem setAuthData:authData];
     }

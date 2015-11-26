@@ -195,26 +195,6 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     }];
 }
 
-+ (void)createEmptyAuthorizationRef:(AuthorizationRef)authRef {
-    NSLog(@"Creating empty authorization reference...");
-    OSStatus                    status;
-    
-    // --------------------------------------------------------------
-    //  Connect to the authorization system and create an authorization reference.
-    // --------------------------------------------------------------
-    status = AuthorizationCreate(NULL,
-                                 kAuthorizationEmptyEnvironment,
-                                 kAuthorizationFlagDefaults,
-                                 &authRef);
-    
-    if ( status != errAuthorizationSuccess ) {
-        NSLog(@"Creating empty authorization reference successful!");
-    } else {
-        NSLog(@"[ERROR] Creating empty authorization reference failed!");
-        NSLog(@"[ERROR] %@", [[NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil] localizedDescription]);
-    }
-} // createEmptyAuthorizationRef
-
 + (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command authRef:(AuthorizationRef)authRef {
 #pragma unused(authData)
     NSError *           error;
@@ -238,15 +218,15 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     if ( error == nil ) {
         
         // If authRef is empty, create one from authData
+        /*
         if ( authRef == NULL ) {
-            [self createEmptyAuthorizationRef:authRef];
             err = AuthorizationCreateFromExternalForm([authData bytes], &authRef);
             if ( err != errAuthorizationSuccess ) {
                 NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
                 return [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
             }
         }
-        
+        */
         // Authorize the right associated with the command.
         
         AuthorizationItem   oneRight = { NULL, 0, NULL, 0 };
