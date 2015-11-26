@@ -157,6 +157,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 } // remoteBundleScriptsPath
 
 - (BOOL)authorizationCreateFromExternalForm:(NSData *)authData error:(NSError **)error {
+    
+    if ( ( authData == nil ) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
+        *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
+        return NO;
+    }
+
     OSStatus err = AuthorizationCreateFromExternalForm( [authData bytes], &_authRef );
     if ( err != errAuthorizationSuccess ) {
         NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
@@ -1312,6 +1318,10 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 - (void)quitHelper:(void (^)(BOOL success))reply {
     for ( NSXPCConnection *connection in _connections ) {
         [connection invalidate];
+    }
+    
+    if ( _authRef ) {
+        AuthorizationFree(_authRef, 0);
     }
     
     if ( _resign ) {

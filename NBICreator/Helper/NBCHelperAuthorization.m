@@ -201,60 +201,35 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     OSStatus            err = 0;
     //OSStatus            junk;
     //AuthorizationRef    authRef;
-
+    
     assert(command != nil);
     
-    //authRef = NULL;
+    // Authorize the right associated with the command.
     
-    // First check that authData looks reasonable.
+    AuthorizationItem   oneRight = { NULL, 0, NULL, 0 };
+    AuthorizationRights rights   = { 1, &oneRight };
     
-    error = nil;
-    if ( ( authData == nil ) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
-        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
-    }
+    oneRight.name = [[[self class] authorizationRightForCommand:command] UTF8String];
+    assert(oneRight.name != NULL);
     
-    // Create an authorization ref from that the external form data contained within.
+    err = AuthorizationCopyRights(
+                                  authRef,
+                                  &rights,
+                                  NULL,
+                                  kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
+                                  NULL
+                                  );
     
-    if ( error == nil ) {
-        
-        // If authRef is empty, create one from authData
-        /* I've moved this to the helper to retain the _authRef, could possibly do this here but unsure if that worked as I wanted?
-         
-        if ( authRef == NULL ) {
-            err = AuthorizationCreateFromExternalForm([authData bytes], &authRef);
-            if ( err != errAuthorizationSuccess ) {
-                NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
-                return [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
-            }
-        }
-        */
-        // Authorize the right associated with the command.
-        
-        AuthorizationItem   oneRight = { NULL, 0, NULL, 0 };
-        AuthorizationRights rights   = { 1, &oneRight };
-        
-        oneRight.name = [[[self class] authorizationRightForCommand:command] UTF8String];
-        assert(oneRight.name != NULL);
-        
-        err = AuthorizationCopyRights(
-                                      authRef,
-                                      &rights,
-                                      NULL,
-                                      kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
-                                      NULL
-                                      );
-        
-        if ( err != errAuthorizationSuccess ) {
-            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
-            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
-        }
+    if ( err != errAuthorizationSuccess ) {
+        NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
+        error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
     }
     
     //if ( authRef != NULL ) {
     //    junk = AuthorizationFree(authRef, 0);
     //   assert(junk == errAuthorizationSuccess);
     //}
-
+    
     return error;
 }
 
