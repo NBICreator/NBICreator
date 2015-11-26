@@ -209,7 +209,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     // First check that authData looks reasonable.
     
     error = nil;
-    if ( (authData == nil) || ([authData length] != sizeof(AuthorizationExternalForm)) ) {
+    if ( ( authData == nil ) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
     }
     
@@ -218,7 +218,8 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     if ( error == nil ) {
         
         // If authRef is empty, create one from authData
-        /*
+        /* I've moved this to the helper to retain the _authRef, could possibly do this here but unsure if that worked as I wanted?
+         
         if ( authRef == NULL ) {
             err = AuthorizationCreateFromExternalForm([authData bytes], &authRef);
             if ( err != errAuthorizationSuccess ) {
@@ -263,17 +264,28 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     AuthorizationRef authRef;
     NSData *authorization;
     
+    // -----------------------------------------------------------------------------------
+    //  Create a empty AuthorizationRef
+    // -----------------------------------------------------------------------------------
     err = AuthorizationCreate(NULL, NULL, 0, &authRef);
     
-    if (err == errAuthorizationSuccess) {
+    if ( err == errAuthorizationSuccess ) {
+        
+        // -----------------------------------------------------------------------------------
+        //  Create an external representation of the AuthorizationRef
+        // -----------------------------------------------------------------------------------
         err = AuthorizationMakeExternalForm(authRef, &extForm);
     }
     
-    if (err == errAuthorizationSuccess) {
+    if ( err == errAuthorizationSuccess ) {
+        
+        // -----------------------------------------------------------------------------------------
+        //  Capture the external representation of the AuthorizationRef in NSData to send to helper
+        // -----------------------------------------------------------------------------------------
         authorization = [[NSData alloc] initWithBytes:&extForm length:sizeof(extForm)];
     }
     
-    assert(err == errAuthorizationSuccess);
+    assert( err == errAuthorizationSuccess );
     
     if ( authRef ) {
         [[self class] setupAuthorizationRights:authRef];

@@ -183,6 +183,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     reply([NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef]);
 } // authorizeWorkflowImagr:withReply
 
@@ -207,6 +210,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -258,6 +264,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -283,6 +292,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -500,6 +512,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -548,6 +563,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -595,6 +613,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -622,6 +643,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -692,6 +716,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -748,6 +775,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -1155,6 +1185,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
@@ -1210,6 +1243,9 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         }
     }
     
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
     err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
     if ( err != nil ) {
         return reply(err, -1);
