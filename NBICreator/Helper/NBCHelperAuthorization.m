@@ -209,7 +209,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     AuthorizationItem   oneRight = { NULL, 0, NULL, 0 };
     AuthorizationRights rights   = { 1, &oneRight };
     
-    oneRight.name = [[[self class] authorizationRightForCommand:command] UTF8String];
+    oneRight.name = [@"com.github.NBICreator.workflowImagr" UTF8String]; //[[[self class] authorizationRightForCommand:command] UTF8String];
     assert(oneRight.name != NULL);
     
     err = AuthorizationCopyRights(

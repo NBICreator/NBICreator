@@ -170,7 +170,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         return NO;
     }
     return YES;
-}
+} // authorizationCreateFromExternalForm:error
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -295,6 +295,20 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         NSLog(@"AuthRef is NULL");
         if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
             return reply(err, -1);
+        }
+    }
+    
+    AuthorizationItemSet* info = NULL;
+    OSStatus result = AuthorizationCopyInfo(_authRef, NULL, &info);	// get the results of the copy rights call.
+    if ( result == noErr && info->count ) {
+        NSLog(@"Count: %u", (unsigned int)info->count);
+        // Grab the password from the auth context (info) and create the keychain...
+        //
+        AuthorizationItem* currItem = info->items;
+        for (UInt32 index = 1; index <= info->count; index++) //@@@plugin bug won't return a specific context.
+        {
+            NSLog(@"Name: %s", currItem->name);
+            currItem++;
         }
     }
     
@@ -1212,8 +1226,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     } else {
         sysBuilderPath = [[dsSource sysBuilderURL] path];
     }
-    NSLog(@"sourceVersionMinor=%d", sourceVersionMinor);
-    NSLog(@"sysBuilderPath=%@", sysBuilderPath);
+
     // -----------------------------------------------------------------------------------
     //  Verify script path
     // -----------------------------------------------------------------------------------
