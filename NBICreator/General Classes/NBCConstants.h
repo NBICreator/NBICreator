@@ -630,3 +630,10 @@ extern NSString *const NBCCLIArgumentNoPrompt;
 extern NSString *const NBCCLIArgumentQuiet;
 extern NSString *const NBCCLIArgumentVersion;
 
+// --------------------------------------------------------------
+//  Authorization Rights
+// --------------------------------------------------------------
+extern NSString *const NBCAuthorizationRightWorkflowCasper;
+extern NSString *const NBCAuthorizationRightWorkflowDeployStudio;
+extern NSString *const NBCAuthorizationRightWorkflowImagr;
+extern NSString *const NBCAuthorizationRightWorkflowNetInstall;

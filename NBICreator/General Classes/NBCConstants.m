@@ -655,3 +655,10 @@ NSString *const NBCCLIArgumentNoPrompt = @"-noprompt";
 NSString *const NBCCLIArgumentQuiet = @"-quiet";
 NSString *const NBCCLIArgumentVersion = @"-version";
 
+// --------------------------------------------------------------
+//  Authorization Rights
+// --------------------------------------------------------------
+NSString *const NBCAuthorizationRightWorkflowCasper = @"com.github.NBICreator.workflowCasper";
+NSString *const NBCAuthorizationRightWorkflowDeployStudio = @"com.github.NBICreator.workflowDeployStudio";
+NSString *const NBCAuthorizationRightWorkflowImagr = @"com.github.NBICreator.workflowImagr";
+NSString *const NBCAuthorizationRightWorkflowNetInstall = @"com.github.NBICreator.workflowNetInstall";

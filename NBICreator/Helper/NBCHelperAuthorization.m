@@ -18,7 +18,7 @@
 //  limitations under the License.
 
 #import "NBCHelperAuthorization.h"
-
+#import "NBCConstants.h"
 #import "NBCHelperProtocol.h"
 
 @implementation NBCHelperAuthorization
@@ -34,7 +34,31 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     dispatch_once(&sOnceToken, ^{
         sCommandInfo = @{
                          NSStringFromSelector(@selector(authorizeWorkflowImagr:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.workflowImagr",
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightWorkflowImagr,
+                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightDesc    : NSLocalizedString(
+                                                                                 @"NBICreator is trying to start an Imagr workflow.",
+                                                                                 @"prompt shown when user is required to authorize to add a user"
+                                                                                 )
+                                 },
+                         NSStringFromSelector(@selector(authorizeWorkflowCasper:withReply:)) : @{
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightWorkflowCasper,
+                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightDesc    : NSLocalizedString(
+                                                                                 @"NBICreator is trying to start an Casper workflow.",
+                                                                                 @"prompt shown when user is required to authorize to add a user"
+                                                                                 )
+                                 },
+                         NSStringFromSelector(@selector(authorizeWorkflowDeployStudio:withReply:)) : @{
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightWorkflowDeployStudio,
+                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightDesc    : NSLocalizedString(
+                                                                                 @"NBICreator is trying to start an DeployStudio workflow.",
+                                                                                 @"prompt shown when user is required to authorize to add a user"
+                                                                                 )
+                                 },
+                         NSStringFromSelector(@selector(authorizeWorkflowNetInstall:withReply:)) : @{
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightWorkflowNetInstall,
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to start an Imagr workflow.",
@@ -195,41 +219,36 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     }];
 }
 
-+ (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command authRef:(AuthorizationRef)authRef {
-#pragma unused(authData)
++ (NSError *)checkAuthorizationForCommand:(SEL)command authRef:(AuthorizationRef)authRef {
     NSError *           error;
     OSStatus            err = 0;
-    //OSStatus            junk;
-    //AuthorizationRef    authRef;
     
     assert(command != nil);
-    
-    // Authorize the right associated with the command.
     
     AuthorizationItem   oneRight = { NULL, 0, NULL, 0 };
     AuthorizationRights rights   = { 1, &oneRight };
     
-    oneRight.name = [@"com.github.NBICreator.workflowImagr" UTF8String]; //[[[self class] authorizationRightForCommand:command] UTF8String];
+    //oneRight.name = [NBCAuthorizationRightWorkflowImagr UTF8String];
+    oneRight.name = [[[self class] authorizationRightForCommand:command] UTF8String];
     assert(oneRight.name != NULL);
     
     err = AuthorizationCopyRights(
                                   authRef,
                                   &rights,
                                   NULL,
-                                  kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
+                                  kAuthorizationFlagDefaults | kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
                                   NULL
                                   );
     
     if ( err != errAuthorizationSuccess ) {
+        if ( authRef != NULL ) {
+            AuthorizationFree(authRef, 0);
+        }
+        
         NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
         error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
     }
-    
-    //if ( authRef != NULL ) {
-    //    junk = AuthorizationFree(authRef, 0);
-    //   assert(junk == errAuthorizationSuccess);
-    //}
-    
+
     return error;
 }
 

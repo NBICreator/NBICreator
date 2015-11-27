@@ -34,6 +34,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 
 @interface NBCHelper () <NSXPCListenerDelegate, NBCHelperProtocol> {
     AuthorizationRef _authRef;
+    AuthorizationRights _authRights;
 }
 
 @property (atomic, strong, readwrite) NSXPCListener *listener;
@@ -41,6 +42,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 @property (weak) NSXPCConnection *relayConnection;
 @property (strong, nonatomic) NSMutableArray *connections;
 @property (nonatomic, assign) BOOL helperToolShouldQuit;
+@property (nonatomic, assign) BOOL authenticateAll; // Temporary until I figure out authentication
 
 @end
 
@@ -54,6 +56,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         self->_listener = [[NSXPCListener alloc] initWithMachServiceName:NBCBundleIdentifierHelper];
         self->_listener.delegate = self;
         self->_connections = [[NSMutableArray alloc] init];
+        self->_authenticateAll = NO;
     }
     return self;
 }
@@ -162,7 +165,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
         return NO;
     }
-
+    
     OSStatus err = AuthorizationCreateFromExternalForm( [authData bytes], &_authRef );
     if ( err != errAuthorizationSuccess ) {
         NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
@@ -172,11 +175,57 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     return YES;
 } // authorizationCreateFromExternalForm:error
 
+- (void)checkRight {
+    
+    CFDictionaryRef rightDict;
+    OSStatus blockErr = AuthorizationRightGet([NBCAuthorizationRightWorkflowImagr UTF8String], &rightDict);
+    if ( blockErr == errAuthorizationDenied ) {
+        
+    } else {
+        NSLog(@"%@", rightDict);
+    }
+    
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark NBCHelperProtocol Workflow Authorization
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
+
+- (void)authorizeWorkflowCasper:(NSData *)authData withReply:(void(^)(NSError *error))reply {
+    
+    NSError *err = nil;
+    
+    if ( _authRef == NULL ) {
+        NSLog(@"AuthRef is NULL");
+        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+            return reply(err);
+        }
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    reply([NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef]);
+} // authorizeWorkflowCasper:withReply
+
+- (void)authorizeWorkflowDeployStudio:(NSData *)authData withReply:(void(^)(NSError *error))reply {
+    
+    NSError *err = nil;
+    
+    if ( _authRef == NULL ) {
+        NSLog(@"AuthRef is NULL");
+        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+            return reply(err);
+        }
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    reply([NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef]);
+} // authorizeWorkflowDeployStudio:withReply
 
 - (void)authorizeWorkflowImagr:(NSData *)authData withReply:(void(^)(NSError *error))reply {
     
@@ -192,12 +241,29 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     // -----------------------------------------------------------------------------------
     //  Verify authorization
     // -----------------------------------------------------------------------------------
-    reply([NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef]);
+    reply([NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef]);
 } // authorizeWorkflowImagr:withReply
+
+- (void)authorizeWorkflowNetInstall:(NSData *)authData withReply:(void(^)(NSError *error))reply {
+    
+    NSError *err = nil;
+    
+    if ( _authRef == NULL ) {
+        NSLog(@"AuthRef is NULL");
+        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+            return reply(err);
+        }
+    }
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    reply([NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef]);
+} // authorizeWorkflowNetInstall:withReply
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
-#pragma mark NBCHelperProtocol methods
+#pragma mark NBCHelperProtocol Methods
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -209,19 +275,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     // -----------------------------------------------------------------------------------
@@ -263,19 +331,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     NSString *command = @"/bin/bash";
@@ -291,33 +361,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    AuthorizationItemSet* info = NULL;
-    OSStatus result = AuthorizationCopyInfo(_authRef, NULL, &info);	// get the results of the copy rights call.
-    if ( result == noErr && info->count ) {
-        NSLog(@"Count: %u", (unsigned int)info->count);
-        // Grab the password from the auth context (info) and create the keychain...
-        //
-        AuthorizationItem* currItem = info->items;
-        for (UInt32 index = 1; index <= info->count; index++) //@@@plugin bug won't return a specific context.
-        {
-            NSLog(@"Name: %s", currItem->name);
-            currItem++;
-        }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -525,19 +583,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     NSString *command = @"/bin/sh";
@@ -576,19 +636,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     NSString *command = @"/bin/sh";
@@ -626,19 +688,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     NSString *command = @"/usr/bin/mdutil";
@@ -656,19 +720,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     NSString *command = @"/bin/bash";
@@ -729,19 +795,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     NSString *command = @"/usr/sbin/installer";
@@ -787,20 +855,22 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                       withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
     NSError *err = nil;
-
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1198,19 +1268,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     NSString *command = @"/bin/sh";
@@ -1226,7 +1298,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     } else {
         sysBuilderPath = [[dsSource sysBuilderURL] path];
     }
-
+    
     // -----------------------------------------------------------------------------------
     //  Verify script path
     // -----------------------------------------------------------------------------------
@@ -1255,19 +1327,21 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+    if ( _authenticateAll ) {
+        if ( _authRef == NULL ) {
+            NSLog(@"AuthRef is NULL");
+            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
+                return reply(err, -1);
+            }
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify authorization
+        // -----------------------------------------------------------------------------------
+        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        if ( err != nil ) {
             return reply(err, -1);
         }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd authRef:self->_authRef];
-    if ( err != nil ) {
-        return reply(err, -1);
     }
     
     // -----------------------------------------------------------------------------------

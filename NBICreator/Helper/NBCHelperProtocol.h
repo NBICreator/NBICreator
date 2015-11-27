@@ -23,8 +23,29 @@
 
 @required
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark NBCHelperProtocol Workflow Authorization
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)authorizeWorkflowCasper:(NSData *)authData
+                      withReply:(void(^)(NSError *error))reply;
+
+- (void)authorizeWorkflowDeployStudio:(NSData *)authData
+                            withReply:(void(^)(NSError *error))reply;
+
 - (void)authorizeWorkflowImagr:(NSData *)authData
                      withReply:(void(^)(NSError *error))reply;
+
+- (void)authorizeWorkflowNetInstall:(NSData *)authData
+                          withReply:(void(^)(NSError *error))reply;
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark NBCHelperProtocol Methods
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)addUsersToVolumeAtPath:(NSString *)nbiVolumePath
                  userShortName:(NSString *)userShortName
