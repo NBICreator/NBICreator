@@ -198,7 +198,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
         if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
             return reply(err);
         }
@@ -215,7 +214,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
         if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
             return reply(err);
         }
@@ -232,7 +230,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
         if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
             return reply(err);
         }
@@ -249,7 +246,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authRef == NULL ) {
-        NSLog(@"AuthRef is NULL");
         if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
             return reply(err);
         }
@@ -277,7 +273,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -333,7 +328,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -363,7 +357,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -585,7 +578,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -638,7 +630,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -690,7 +681,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -722,7 +712,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -797,7 +786,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -858,7 +846,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -1270,7 +1257,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
@@ -1329,7 +1315,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     if ( _authenticateAll ) {
         if ( _authRef == NULL ) {
-            NSLog(@"AuthRef is NULL");
             if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
                 return reply(err, -1);
             }
