@@ -32,6 +32,9 @@
 #import "NSString+validIP.h"
 #import "NBCNetInstallTrustedNetBootServerCellView.h"
 #import "NBCInstallerPackageController.h"
+#import "NBCHelperConnection.h"
+#import "NBCHelperAuthorization.h"
+#import "NBCHelperProtocol.h"
 
 DDLogLevel ddLogLevel;
 
@@ -1174,13 +1177,48 @@ DDLogLevel ddLogLevel;
     
     [workflowItem setResourcesSettings:[resourcesSettings copy]];
     
-    // -------------------------------------------------------------
-    //  Post notification to add workflow item to queue
-    // -------------------------------------------------------------
-    NSDictionary *userInfo = @{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : workflowItem };
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    [nc postNotificationName:NBCNotificationAddWorkflowItemToQueue object:self userInfo:userInfo];
+    // --------------------------------
+    //  Get Authorization
+    // --------------------------------
+    NSData *authData = [workflowItem authData];
+    if ( ! authData ) {
+        authData = [NBCHelperAuthorization authorizeHelper];
+        [workflowItem setAuthData:authData];
+    }
     
+    // ------------------------------------------------------
+    //  Authorize the workflow before adding it to the queue
+    // ------------------------------------------------------
+    dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_async(taskQueue, ^{
+        
+        NSXPCConnection *helperConnection = [workflowItem helperConnection];
+        if ( ! helperConnection ) {
+            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+            [helperConnector connectToHelper];
+            [workflowItem setHelperConnection:[helperConnector connection]];
+        }
+        [[[workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
+            });
+        }] authorizeWorkflowNetInstall:authData withReply:^(NSError *error) {
+            if ( ! error ) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    // -------------------------------------------------------------
+                    //  Post notification to add workflow item to queue
+                    // -------------------------------------------------------------
+                    NSDictionary *userInfo = @{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : workflowItem };
+                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationAddWorkflowItemToQueue object:self userInfo:userInfo];
+                });
+            } else {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                });
+            }
+        }];
+    });
 } // prepareWorkflow
 
 ////////////////////////////////////////////////////////////////////////////////
