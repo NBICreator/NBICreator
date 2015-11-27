@@ -427,7 +427,7 @@ extern NSString *const NBCAlertUserInfoPreWorkflowTasks;
 
 extern NSString *const NBCErrorDomain;
 
-extern NSString *const NBCWorkflowNetInstallLogPrefix;
+extern NSString *const NBCWorkflowLogPrefix;
 
 extern NSString *const NBCDeployStudioRepository;
 

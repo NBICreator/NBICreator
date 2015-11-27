@@ -595,7 +595,7 @@ NSString *const NBCScriptsTargetPath = @"Packages/Scripts";
 NSString *const NBCApplicationsTargetPath = @"Applications";
 
 NSString *const NBCErrorDomain = @"com.gihub.NBICreator.ErrorDomain";
-NSString *const NBCWorkflowNetInstallLogPrefix = @"_progress";
+NSString *const NBCWorkflowLogPrefix = @"_progress";
 
 NSString *const NBCTargetFolderMinFreeSizeInGB = @"10";
 
@@ -639,7 +639,7 @@ NSString *const NBCTabViewItemDebug = @"Debug";
 //  Hashes
 // --------------------------------------------------------------
 NSString *const NBCHashMD5CreateUser = @"5ea20083667b925d6cc020260a75e427";
-NSString *const NBCHashMD5GenerateKernelCache = @"2fe04cf912ffad1f17a2ff85a4880143";
+NSString *const NBCHashMD5GenerateKernelCache = @"76203c0bcafb1cc5499b69e5fd2a6947";
 NSString *const NBCHashMD5InstallCertificates = @"bea1c7b91392fa868450e21f744664c5";
 NSString *const NBCHashMD5Pbzx = @"083c4470085083069c8d0bb3c5b4e6dc";
 NSString *const NBCHashMD5SharedLibraryDependencyChecker = @"ba24a9e7e9eb061ef286fcc06857a3de";

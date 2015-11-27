@@ -218,7 +218,7 @@ DDLogLevel ddLogLevel;
         [panel setTitle:@"Save Workflow Report"];
         [panel setPrompt:@"Save"];
         [panel setNameFieldStringValue:[NSString stringWithFormat:@"%@.plist", [[_textFieldTitle stringValue] stringByDeletingPathExtension] ?: @""]];
-        [panel beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger result) {
+        [panel beginSheetModalForWindow:[[[NBCWorkflowManager sharedManager] workflowPanel] window] completionHandler:^(NSInteger result) {
             if ( result == NSFileHandlingPanelOKButton ) {
                 NSURL *saveURL = [panel URL];
                 if ( ! [self->_linkerErrors writeToURL:saveURL atomically:YES] ) {
@@ -227,7 +227,7 @@ DDLogLevel ddLogLevel;
             }
         }];
     }
-}
+} // buttonWorkflowReport
 
 - (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem {
     [self setWorkflowItem:workflowItem];
@@ -356,7 +356,7 @@ DDLogLevel ddLogLevel;
     dispatch_async(dispatch_get_main_queue(), ^{
         [self updateProgressStatus:[NSString stringWithFormat:@"NBI created successfully in %@!", workflowTime] workflow:self];
     });
-}
+} // workflowCompleted
 
 - (void)parseDyldError:(NSString *)stdErrStr {
     
@@ -378,33 +378,85 @@ DDLogLevel ddLogLevel;
             _linkerErrors[enumerationTmpArray[0]] = [sourceArray copy];
         }
     }
-}
+} // parseDyldError
+
+- (void)parseLogProgress:(NSString *)stdOutString {
+    
+    // ----------------------------------------------------------------------------------------------
+    //  Check for build steps in output, then try to update UI with a meaningful message or progress
+    // ----------------------------------------------------------------------------------------------
+    NSString *buildStep = [stdOutString componentsSeparatedByString:@"_"][2];
+    
+    // -------------------------------------------------------------
+    //  "creatingKernelCachex86"
+    // -------------------------------------------------------------
+    if ( [buildStep isEqualToString:@"creatingKernelCachex86"] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:@"Creating new kernelcache..."];
+        });
+        
+        // --------------------------------------------------------------------------------------
+        //  "creatingKernelCachei386"
+        // --------------------------------------------------------------------------------------
+    } else if ( [buildStep isEqualToString:@"creatingKernelCachei386"] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:@"Creating new kernelcache for arch i386..."];
+        });
+        
+        // --------------------------------------------------------------------------------------
+        //  "updatingDyldCachex86"
+        // --------------------------------------------------------------------------------------
+    } else if ( [buildStep isEqualToString:@"updatingDyldCachex86"] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:@"Updating dyld cache..."];
+        });
+        
+        // --------------------------------------------------------------------------------------
+        //  "updatingDyldCachei386"
+        // --------------------------------------------------------------------------------------
+    } else if ( [buildStep isEqualToString:@"updatingDyldCachei386"] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:@"Updating dyld cache for arch i386..."];
+        });
+    }
+} //parseLogProgress
 
 - (void)logDebug:(NSString *)logMessage {
     DDLogDebug(@"[DEBUG] %@", logMessage);
-}
+} // logDebug
 
 - (void)logInfo:(NSString *)logMessage {
     DDLogInfo(@"%@", logMessage);
-}
+} // logInfo
 
 - (void)logWarn:(NSString *)logMessage {
     DDLogWarn(@"[WARN] %@", logMessage);
-}
+} // logWarn
 
 - (void)logError:(NSString *)logMessage {
     DDLogError(@"[ERROR] %@", logMessage);
-}
+} // logError
 
 - (void)logStdOut:(NSString *)stdOutString {
     DDLogDebug(@"[stdout] %@", stdOutString);
-}
+    
+    // -------------------------------------------------------------------------------------------------------------
+    //  If output has prefix NBCWorkflowLogPrefix means it's a script running which means it's the current progress
+    // -------------------------------------------------------------------------------------------------------------
+    if ( [stdOutString hasPrefix:NBCWorkflowLogPrefix] ) {
+        [self parseLogProgress:stdOutString];
+    }
+} // logStdOut
 
 - (void)logStdErr:(NSString *)stdErrString {
     DDLogDebug(@"[stderr] %@", stdErrString);
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    //  If output has prefix 'warning, could not bind' means it's a missing dyld link which needs to be added to report
+    // -----------------------------------------------------------------------------------------------------------------
     if ( [stdErrString hasPrefix:@"warning, could not bind"] ) {
         [self parseDyldError:stdErrString];
     }
-}
+} // logStdErr
 
 @end
