@@ -37,7 +37,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightWorkflowImagr,
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
-                                                                                 @"NBICreator is trying to start an Imagr workflow.",
+                                                                                 @"NBICreator is trying to start a Imagr workflow.",
                                                                                  @"prompt shown when user is required to authorize to add a user"
                                                                                  )
                                  },
@@ -45,7 +45,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightWorkflowCasper,
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
-                                                                                 @"NBICreator is trying to start an Casper workflow.",
+                                                                                 @"NBICreator is trying to start a Casper workflow.",
                                                                                  @"prompt shown when user is required to authorize to add a user"
                                                                                  )
                                  },
@@ -53,7 +53,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightWorkflowDeployStudio,
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
-                                                                                 @"NBICreator is trying to start an DeployStudio workflow.",
+                                                                                 @"NBICreator is trying to start a DeployStudio workflow.",
                                                                                  @"prompt shown when user is required to authorize to add a user"
                                                                                  )
                                  },
@@ -61,7 +61,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightWorkflowNetInstall,
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
-                                                                                 @"NBICreator is trying to start an Imagr workflow.",
+                                                                                 @"NBICreator is trying to start a NetInstall workflow.",
                                                                                  @"prompt shown when user is required to authorize to add a user"
                                                                                  )
                                  },

@@ -100,7 +100,7 @@ DDLogLevel ddLogLevel;
     NSURL *createVariablesURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"createVariables.sh"];
     
     [environmentVariablesContent appendString:@"#!/bin/sh -p\n\nset +xv\n"];
-    [environmentVariablesContent appendString:[NSString stringWithFormat:@"progressPrefix=\"%@\"\n", NBCWorkflowNetInstallLogPrefix]];
+    [environmentVariablesContent appendString:[NSString stringWithFormat:@"progressPrefix=\"%@\"\n", NBCWorkflowLogPrefix]];
     [environmentVariablesContent appendString:@"scriptsDebugKey=\"DEBUG\"\n"];
     [environmentVariablesContent appendString:@"imageIsUDIFKey=\"1\"\n"];
     [environmentVariablesContent appendString:@"imageFormatKey=\"UDZO\"\n"];
@@ -174,7 +174,7 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] Enabling script debug logging...");
         envVariablesContent = [NSString stringWithFormat:@"%@\nset -xv", envVariablesContent];
     }
-    envVariablesContent = [NSString stringWithFormat:@"%@\nprogressPrefix=\"%@\"", envVariablesContent, NBCWorkflowNetInstallLogPrefix];
+    envVariablesContent = [NSString stringWithFormat:@"%@\nprogressPrefix=\"%@\"", envVariablesContent, NBCWorkflowLogPrefix];
     envVariablesContent = [NSString stringWithFormat:@"%@\ndestVolFSType=\"HFS+\"", envVariablesContent];
     envVariablesContent = [NSString stringWithFormat:@"%@\ndmgTarget=\"NetInstall\"", envVariablesContent];
     envVariablesContent = [NSString stringWithFormat:@"%@\nscriptsDebugKey=\"DEBUG\"", envVariablesContent];

@@ -677,7 +677,7 @@
     // -------------------------------------------------------------
     //  Check if string begins with chosen prefix or with PERCENT:
     // -------------------------------------------------------------
-    if ( [outStr hasPrefix:NBCWorkflowNetInstallLogPrefix] ) {
+    if ( [outStr hasPrefix:NBCWorkflowLogPrefix] ) {
         
         // ----------------------------------------------------------------------------------------------
         //  Check for build steps in output, then try to update UI with a meaningful message or progress
