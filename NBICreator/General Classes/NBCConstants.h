@@ -637,3 +637,15 @@ extern NSString *const NBCAuthorizationRightWorkflowCasper;
 extern NSString *const NBCAuthorizationRightWorkflowDeployStudio;
 extern NSString *const NBCAuthorizationRightWorkflowImagr;
 extern NSString *const NBCAuthorizationRightWorkflowNetInstall;
+
+extern NSString *const NBCAuthorizationRightAddUsers;
+extern NSString *const NBCAuthorizationRightCopyExtractedResourcesToCache;
+extern NSString *const NBCAuthorizationRightCopyResourcesToVolume;
+extern NSString *const NBCAuthorizationRightCreateNetInstall;
+extern NSString *const NBCAuthorizationRightCreateRestoreFromSources;
+extern NSString *const NBCAuthorizationRightDisableSpotlight;
+extern NSString *const NBCAuthorizationRightExtractResourcesFromPackage;
+extern NSString *const NBCAuthorizationRightInstallPackages;
+extern NSString *const NBCAuthorizationRightModifyResourcesOnVolume;
+extern NSString *const NBCAuthorizationRightSysBuilderWithArguments;
+extern NSString *const NBCAuthorizationRightUpdateKernelCache;
