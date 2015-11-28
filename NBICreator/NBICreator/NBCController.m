@@ -297,12 +297,6 @@ enum {
     NSSet *mountedDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
     if ( [mountedDisks count] != 0 ) {
         
-        // --------------------------------------------------------------
-        //  Show unmount progress after 2 seconds
-        // --------------------------------------------------------------
-        [_progressIndicatorProgress startAnimation:self];
-        [self performSelector:@selector(showTerminateProgress) withObject:self afterDelay:2.0];
-        
         dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(taskQueue, ^{
             
@@ -520,6 +514,15 @@ enum {
 - (void)terminateApp {
     
     DDLogDebug(@"[DEBUG] Terminating application...");
+    
+    // --------------------------------------------------------------
+    //  Show termination progress after 2 seconds
+    // --------------------------------------------------------------
+    [_progressIndicatorProgress startAnimation:self];
+    [self performSelector:@selector(showTerminateProgress) withObject:self afterDelay:2.0];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_textFieldProgress setStringValue:@"Removing temporary items..."];
+    });
     
     NSString *applicationTemporaryFolderPath = [NSTemporaryDirectory() stringByAppendingPathComponent:NBCBundleIdentifier];
     DDLogDebug(@"[DEBUG] Application temporary folder path: %@", applicationTemporaryFolderPath);
