@@ -32,10 +32,7 @@
 
 static const NSTimeInterval kHelperCheckInterval = 1.0;
 
-@interface NBCHelper () <NSXPCListenerDelegate, NBCHelperProtocol> {
-    AuthorizationRef _authRef;
-    AuthorizationRights _authRights;
-}
+@interface NBCHelper () <NSXPCListenerDelegate, NBCHelperProtocol>
 
 @property (atomic, strong, readwrite) NSXPCListener *listener;
 @property (readonly) NSXPCConnection *connection;
@@ -56,7 +53,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         self->_listener = [[NSXPCListener alloc] initWithMachServiceName:NBCBundleIdentifierHelper];
         self->_listener.delegate = self;
         self->_connections = [[NSMutableArray alloc] init];
-        self->_authenticateAll = NO;
+        self->_authenticateAll = YES;
     }
     return self;
 }
@@ -159,34 +156,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     return [[self remoteBundleResouresPath] stringByAppendingPathComponent:@"Scripts"];
 } // remoteBundleScriptsPath
 
-- (BOOL)authorizationCreateFromExternalForm:(NSData *)authData error:(NSError **)error {
-    
-    if ( ( authData == nil ) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
-        *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
-        return NO;
-    }
-    
-    OSStatus err = AuthorizationCreateFromExternalForm( [authData bytes], &_authRef );
-    if ( err != errAuthorizationSuccess ) {
-        NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
-        *error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
-        return NO;
-    }
-    return YES;
-} // authorizationCreateFromExternalForm:error
-
-- (void)checkRight {
-    
-    CFDictionaryRef rightDict;
-    OSStatus blockErr = AuthorizationRightGet([NBCAuthorizationRightWorkflowImagr UTF8String], &rightDict);
-    if ( blockErr == errAuthorizationDenied ) {
-        
-    } else {
-        NSLog(@"%@", rightDict);
-    }
-    
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark NBCHelperProtocol Workflow Authorization
@@ -194,67 +163,19 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)authorizeWorkflowCasper:(NSData *)authData withReply:(void(^)(NSError *error))reply {
-    
-    NSError *err = nil;
-    
-    if ( _authRef == NULL ) {
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-            return reply(err);
-        }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    reply([NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef]);
+    reply([NBCHelperAuthorization authorizeWorkflowCasper:authData]);
 } // authorizeWorkflowCasper:withReply
 
 - (void)authorizeWorkflowDeployStudio:(NSData *)authData withReply:(void(^)(NSError *error))reply {
-    
-    NSError *err = nil;
-    
-    if ( _authRef == NULL ) {
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-            return reply(err);
-        }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    reply([NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef]);
+    reply([NBCHelperAuthorization authorizeWorkflowDeployStudio:authData]);
 } // authorizeWorkflowDeployStudio:withReply
 
 - (void)authorizeWorkflowImagr:(NSData *)authData withReply:(void(^)(NSError *error))reply {
-    
-    NSError *err = nil;
-    
-    if ( _authRef == NULL ) {
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-            return reply(err);
-        }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    reply([NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef]);
+    reply([NBCHelperAuthorization authorizeWorkflowImagr:authData]);
 } // authorizeWorkflowImagr:withReply
 
 - (void)authorizeWorkflowNetInstall:(NSData *)authData withReply:(void(^)(NSError *error))reply {
-    
-    NSError *err = nil;
-    
-    if ( _authRef == NULL ) {
-        if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-            return reply(err);
-        }
-    }
-    
-    // -----------------------------------------------------------------------------------
-    //  Verify authorization
-    // -----------------------------------------------------------------------------------
-    reply([NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef]);
+    reply([NBCHelperAuthorization authorizeWorkflowNetInstall:authData]);
 } // authorizeWorkflowNetInstall:withReply
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,16 +193,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -327,16 +243,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -356,16 +267,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -577,16 +483,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -629,16 +530,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -680,16 +576,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -711,16 +602,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -785,16 +671,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -845,16 +726,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -1256,16 +1132,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -1314,16 +1185,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     NSError *err = nil;
     
     if ( _authenticateAll ) {
-        if ( _authRef == NULL ) {
-            if ( ! [self authorizationCreateFromExternalForm:authData error:&err] ) {
-                return reply(err, -1);
-            }
-        }
         
         // -----------------------------------------------------------------------------------
         //  Verify authorization
         // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorizationForCommand:_cmd authRef:self->_authRef];
+        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
         if ( err != nil ) {
             return reply(err, -1);
         }
@@ -1390,10 +1256,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 - (void)quitHelper:(void (^)(BOOL success))reply {
     for ( NSXPCConnection *connection in _connections ) {
         [connection invalidate];
-    }
-    
-    if ( _authRef ) {
-        AuthorizationFree(_authRef, 0);
     }
     
     if ( _resign ) {

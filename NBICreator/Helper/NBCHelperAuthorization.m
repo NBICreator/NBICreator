@@ -66,88 +66,143 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(addUsersToVolumeAtPath:userShortName:userPassword:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.addUsers",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightAddUsers,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to add a user.",
                                                                                  @"prompt shown when user is required to authorize to add a user"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(copyExtractedResourcesToCache:regexString:temporaryFolder:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.copyExtractedResourcesToCache",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightCopyExtractedResourcesToCache,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying copy the extracted resources to cache.",
                                                                                  @"prompt shown when user is required to authorize to update kernel cache"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(copyResourcesToVolume:copyArray:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.copyResourcesToVolume",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightCopyResourcesToVolume,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying copy resources to the NBI.",
                                                                                  @"prompt shown when user is required to authorize to update kernel cache"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(createNetInstallWithArguments:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.createNetInstall",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightCreateNetInstall,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to create a NetInstall NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(createRestoreFromSourcesWithArguments:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.createRestoreFromSources",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightCreateRestoreFromSources,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to create a NetInstall NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(disableSpotlightOnVolume:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.disableSpotlight",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightDisableSpotlight,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to disable spotlight.",
                                                                                  @"prompt shown when user is required to authorize to disable spotlight on a volume"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(extractResourcesFromPackageAtPath:minorVersion:temporaryFolder:temporaryPackageFolder:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.extractResourcesFromPackage",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightExtractResourcesFromPackage,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying extract resources from an installer package.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(installPackage:targetVolumePath:choices:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.installPackages",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightInstallPackages,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying install packages on the NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(modifyResourcesOnVolume:modificationsArray:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.modifyResourcesOnVolume",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightModifyResourcesOnVolume,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying modify the NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(sysBuilderWithArguments:sourceVersionMinor:selectedVersion:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.sysBuilderWithArguments",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightSysBuilderWithArguments,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to create a DeployStudio NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(updateKernelCache:nbiVolumePath:minorVersion:authorization:withReply:)) : @{
-                                 kCommandKeyAuthRightName    : @"com.github.NBICreator.updateKernelCache",
-                                 kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightUpdateKernelCache,
+                                 kCommandKeyAuthRightDefault : @{
+                                         @"class": @"user",
+                                         @"group": @"admin",
+                                         @"timeout": @(300),
+                                         @"version": @(1),
+                                         },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying update the prelinked kernel in the NBI.",
                                                                                  @"prompt shown when user is required to authorize to update the NBI prelinked kernel"
@@ -219,36 +274,347 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     }];
 }
 
-+ (NSError *)checkAuthorizationForCommand:(SEL)command authRef:(AuthorizationRef)authRef {
-    NSError *           error;
-    OSStatus            err = 0;
++ (NSError *)authorizeWorkflowCasper:(NSData *)authData {
+
+    NSError *error = nil;
+    OSStatus err;
+    AuthorizationRef authRef = NULL;
+    
+    if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
+        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
+    }
+    
+    if ( error == nil ) {
+        err = AuthorizationCreateFromExternalForm( [authData bytes], &authRef );
+        
+        if ( err == errAuthorizationSuccess ) {
+            AuthorizationItem authItems[10];
+            
+            authItems[0].name = [NBCAuthorizationRightWorkflowCasper UTF8String];
+            authItems[0].valueLength = 0;
+            authItems[0].value = NULL;
+            authItems[0].flags = 0;
+            
+            authItems[1].name = [NBCAuthorizationRightAddUsers UTF8String];
+            authItems[1].valueLength = 0;
+            authItems[1].value = NULL;
+            authItems[1].flags = 0;
+            
+            authItems[2].name = [NBCAuthorizationRightCopyExtractedResourcesToCache UTF8String];
+            authItems[2].valueLength = 0;
+            authItems[2].value = NULL;
+            authItems[2].flags = 0;
+            
+            authItems[3].name = [NBCAuthorizationRightCopyResourcesToVolume UTF8String];
+            authItems[3].valueLength = 0;
+            authItems[3].value = NULL;
+            authItems[3].flags = 0;
+            
+            authItems[4].name = [NBCAuthorizationRightCreateNetInstall UTF8String];
+            authItems[4].valueLength = 0;
+            authItems[4].value = NULL;
+            authItems[4].flags = 0;
+            
+            authItems[5].name = [NBCAuthorizationRightDisableSpotlight UTF8String];
+            authItems[5].valueLength = 0;
+            authItems[5].value = NULL;
+            authItems[5].flags = 0;
+            
+            authItems[6].name = [NBCAuthorizationRightExtractResourcesFromPackage UTF8String];
+            authItems[6].valueLength = 0;
+            authItems[6].value = NULL;
+            authItems[6].flags = 0;
+            
+            authItems[7].name = [NBCAuthorizationRightInstallPackages UTF8String];
+            authItems[7].valueLength = 0;
+            authItems[7].value = NULL;
+            authItems[7].flags = 0;
+            
+            authItems[8].name = [NBCAuthorizationRightModifyResourcesOnVolume UTF8String];
+            authItems[8].valueLength = 0;
+            authItems[8].value = NULL;
+            authItems[8].flags = 0;
+            
+            authItems[9].name = [NBCAuthorizationRightUpdateKernelCache UTF8String];
+            authItems[9].valueLength = 0;
+            authItems[9].value = NULL;
+            authItems[9].flags = 0;
+            
+            AuthorizationRights authRights;
+            authRights.count = sizeof (authItems) / sizeof (authItems[0]);
+            authRights.items = authItems;
+            
+            err = AuthorizationCopyRights(
+                                          authRef,
+                                          &authRights,
+                                          NULL,
+                                          kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
+                                          NULL);
+        }
+        
+        if ( err != errAuthorizationSuccess ) {
+            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
+            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
+        }
+    }
+    
+    return error;
+}
+
++ (NSError *)authorizeWorkflowDeployStudio:(NSData *)authData {
+    
+    NSError *error = nil;
+    OSStatus err;
+    AuthorizationRef authRef = NULL;
+    
+    if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
+        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
+    }
+    
+    if ( error == nil ) {
+        err = AuthorizationCreateFromExternalForm( [authData bytes], &authRef );
+        
+        if ( err == errAuthorizationSuccess ) {
+            AuthorizationItem authItems[5];
+            
+            authItems[0].name = [NBCAuthorizationRightWorkflowDeployStudio UTF8String];
+            authItems[0].valueLength = 0;
+            authItems[0].value = NULL;
+            authItems[0].flags = 0;
+            
+            authItems[1].name = [NBCAuthorizationRightCopyResourcesToVolume UTF8String];
+            authItems[1].valueLength = 0;
+            authItems[1].value = NULL;
+            authItems[1].flags = 0;
+            
+            authItems[2].name = [NBCAuthorizationRightDisableSpotlight UTF8String];
+            authItems[2].valueLength = 0;
+            authItems[2].value = NULL;
+            authItems[2].flags = 0;
+            
+            authItems[3].name = [NBCAuthorizationRightModifyResourcesOnVolume UTF8String];
+            authItems[3].valueLength = 0;
+            authItems[3].value = NULL;
+            authItems[3].flags = 0;
+            
+            authItems[4].name = [NBCAuthorizationRightSysBuilderWithArguments UTF8String];
+            authItems[4].valueLength = 0;
+            authItems[4].value = NULL;
+            authItems[4].flags = 0;
+            
+            AuthorizationRights authRights;
+            authRights.count = sizeof (authItems) / sizeof (authItems[0]);
+            authRights.items = authItems;
+            
+            err = AuthorizationCopyRights(
+                                          authRef,
+                                          &authRights,
+                                          NULL,
+                                          kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
+                                          NULL);
+        }
+        
+        if ( err != errAuthorizationSuccess ) {
+            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
+            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
+        }
+    }
+    
+    return error;
+}
+
++ (NSError *)authorizeWorkflowImagr:(NSData *)authData {
+    
+    NSError *error = nil;
+    OSStatus err;
+    AuthorizationRef authRef = NULL;
+    
+    if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
+        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
+    }
+    
+    if ( error == nil ) {
+        err = AuthorizationCreateFromExternalForm( [authData bytes], &authRef );
+        
+        if ( err == errAuthorizationSuccess ) {
+            AuthorizationItem authItems[10];
+            
+            authItems[0].name = [NBCAuthorizationRightWorkflowImagr UTF8String];
+            authItems[0].valueLength = 0;
+            authItems[0].value = NULL;
+            authItems[0].flags = 0;
+            
+            authItems[1].name = [NBCAuthorizationRightAddUsers UTF8String];
+            authItems[1].valueLength = 0;
+            authItems[1].value = NULL;
+            authItems[1].flags = 0;
+            
+            authItems[2].name = [NBCAuthorizationRightCopyExtractedResourcesToCache UTF8String];
+            authItems[2].valueLength = 0;
+            authItems[2].value = NULL;
+            authItems[2].flags = 0;
+            
+            authItems[3].name = [NBCAuthorizationRightCopyResourcesToVolume UTF8String];
+            authItems[3].valueLength = 0;
+            authItems[3].value = NULL;
+            authItems[3].flags = 0;
+            
+            authItems[4].name = [NBCAuthorizationRightCreateNetInstall UTF8String];
+            authItems[4].valueLength = 0;
+            authItems[4].value = NULL;
+            authItems[4].flags = 0;
+            
+            authItems[5].name = [NBCAuthorizationRightDisableSpotlight UTF8String];
+            authItems[5].valueLength = 0;
+            authItems[5].value = NULL;
+            authItems[5].flags = 0;
+            
+            authItems[6].name = [NBCAuthorizationRightExtractResourcesFromPackage UTF8String];
+            authItems[6].valueLength = 0;
+            authItems[6].value = NULL;
+            authItems[6].flags = 0;
+            
+            authItems[7].name = [NBCAuthorizationRightInstallPackages UTF8String];
+            authItems[7].valueLength = 0;
+            authItems[7].value = NULL;
+            authItems[7].flags = 0;
+            
+            authItems[8].name = [NBCAuthorizationRightModifyResourcesOnVolume UTF8String];
+            authItems[8].valueLength = 0;
+            authItems[8].value = NULL;
+            authItems[8].flags = 0;
+            
+            authItems[9].name = [NBCAuthorizationRightUpdateKernelCache UTF8String];
+            authItems[9].valueLength = 0;
+            authItems[9].value = NULL;
+            authItems[9].flags = 0;
+            
+            AuthorizationRights authRights;
+            authRights.count = sizeof (authItems) / sizeof (authItems[0]);
+            authRights.items = authItems;
+            
+            err = AuthorizationCopyRights(
+                                          authRef,
+                                          &authRights,
+                                          NULL,
+                                          kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
+                                          NULL);
+        }
+        
+        if ( err != errAuthorizationSuccess ) {
+            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
+            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
+        }
+    }
+    
+    return error;
+}
+
++ (NSError *)authorizeWorkflowNetInstall:(NSData *)authData {
+    
+    NSError *error = nil;
+    OSStatus err;
+    AuthorizationRef authRef = NULL;
+    
+    if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
+        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
+    }
+    
+    if ( error == nil ) {
+        err = AuthorizationCreateFromExternalForm( [authData bytes], &authRef );
+        
+        if ( err == errAuthorizationSuccess ) {
+            AuthorizationItem authItems[6];
+            
+            authItems[0].name = [NBCAuthorizationRightWorkflowNetInstall UTF8String];
+            authItems[0].valueLength = 0;
+            authItems[0].value = NULL;
+            authItems[0].flags = 0;
+            
+            authItems[1].name = [NBCAuthorizationRightCopyResourcesToVolume UTF8String];
+            authItems[1].valueLength = 0;
+            authItems[1].value = NULL;
+            authItems[1].flags = 0;
+            
+            authItems[2].name = [NBCAuthorizationRightCreateNetInstall UTF8String];
+            authItems[2].valueLength = 0;
+            authItems[2].value = NULL;
+            authItems[2].flags = 0;
+            
+            authItems[3].name = [NBCAuthorizationRightCreateRestoreFromSources UTF8String];
+            authItems[3].valueLength = 0;
+            authItems[3].value = NULL;
+            authItems[3].flags = 0;
+            
+            authItems[4].name = [NBCAuthorizationRightDisableSpotlight UTF8String];
+            authItems[4].valueLength = 0;
+            authItems[4].value = NULL;
+            authItems[4].flags = 0;
+            
+            authItems[5].name = [NBCAuthorizationRightModifyResourcesOnVolume UTF8String];
+            authItems[5].valueLength = 0;
+            authItems[5].value = NULL;
+            authItems[5].flags = 0;
+            
+            AuthorizationRights authRights;
+            authRights.count = sizeof (authItems) / sizeof (authItems[0]);
+            authRights.items = authItems;
+            
+            err = AuthorizationCopyRights(
+                                          authRef,
+                                          &authRights,
+                                          NULL,
+                                          kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
+                                          NULL);
+        }
+        
+        if ( err != errAuthorizationSuccess ) {
+            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
+            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
+        }
+    }
+    
+    return error;
+}
+
++ (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command {
+    
+    NSError *error;
+    OSStatus err;
+    AuthorizationRef authRef;
     
     assert(command != nil);
     
-    AuthorizationItem   oneRight = { NULL, 0, NULL, 0 };
-    AuthorizationRights rights   = { 1, &oneRight };
+    authRef = NULL;
     
-    //oneRight.name = [NBCAuthorizationRightWorkflowImagr UTF8String];
-    oneRight.name = [[[self class] authorizationRightForCommand:command] UTF8String];
-    assert(oneRight.name != NULL);
-    
-    err = AuthorizationCopyRights(
-                                  authRef,
-                                  &rights,
-                                  NULL,
-                                  kAuthorizationFlagDefaults | kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
-                                  NULL
-                                  );
-    
-    if ( err != errAuthorizationSuccess ) {
-        if ( authRef != NULL ) {
-            AuthorizationFree(authRef, 0);
-        }
-        
-        NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
-        error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
+    error = nil;
+    if ((authData == nil) || ([authData length] != sizeof(AuthorizationExternalForm))) {
+        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
     }
-
+    
+    if (error == nil) {
+        err = AuthorizationCreateFromExternalForm([authData bytes], &authRef);
+        
+        if (err == errAuthorizationSuccess) {
+            AuthorizationItem oneRight = { NULL, 0, NULL, 0 };
+            AuthorizationRights rights = { 1, &oneRight };
+            
+            oneRight.name = [[[self class] authorizationRightForCommand:command] UTF8String];
+            assert(oneRight.name != NULL);
+            
+            err = AuthorizationCopyRights(
+                                          authRef,
+                                          &rights,
+                                          NULL,
+                                          kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
+                                          NULL);
+        }
+        if (err != errAuthorizationSuccess) {
+            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
+            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
+        }
+    }
+    
     return error;
 }
 
