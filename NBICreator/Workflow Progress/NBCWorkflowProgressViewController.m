@@ -51,12 +51,47 @@ DDLogLevel ddLogLevel;
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self setWorkflowComplete:NO];
+    [self setWorkflowFailed:NO];
     [self updateProgressStatus:@"Waiting..." workflow:self];
 } // viewDidLoad
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NBCNotificationWorkflowCompleteNBI object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NBCNotificationWorkflowCompleteResources object:nil];
+    
+    // -------------------------------------------------------------
+    //  Destroy the privileged session reference
+    // -------------------------------------------------------------
+    NSData *authData = [_workflowItem authData];
+    if ( authData != nil ) {
+        DDLogInfo(@"Destroying authorized session...");
+        AuthorizationRef authRef;
+        OSStatus err = AuthorizationCreateFromExternalForm([authData bytes], &authRef);
+        
+        if ( err == errAuthorizationSuccess ) {
+            AuthorizationFree(authRef, 0);
+        } else {
+            DDLogError(@"[ERROR] %@", CFBridgingRelease(SecCopyErrorMessageString(err, NULL)));
+        }
+    }
 } // dealloc
+
+- (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem {
+    [self setWorkflowItem:workflowItem];
+    [self setNbiURL:[_workflowItem nbiURL]];
+    [self setIsRunning:YES];
+    if ( [[[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsWorkflowTimerEnabled] boolValue] ) {
+        [self setTimer:[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerTick) userInfo:nil repeats:YES]];
+        [_textFieldTimer setHidden:NO];
+    }
+    [_layoutContraintStatusInfoLeading setConstant:24.0];
+} // workflowStartedForItem
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Notification Methods
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (void)workflowCompleteNBI:(NSNotification *)notification {
 #pragma unused(notification)
@@ -79,6 +114,12 @@ DDLogLevel ddLogLevel;
 #pragma unused(notification)
     [self setWorkflowNBIResourcesComplete:YES];
 } // workflowCompleteResources
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark IBActions
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
 
 - (IBAction)buttonCancel:(id)sender {
 #pragma unused(sender)
@@ -109,48 +150,6 @@ DDLogLevel ddLogLevel;
                                                           userInfo:@{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : _workflowItem }];
     }
 } // buttonCancel
-
-- (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
-    if ( [workflow isEqualTo:[_workflowItem workflowNBI]] && ! _workflowNBIComplete ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_textFieldStatusInfo setStringValue:statusMessage];
-        });
-    } else if ( [workflow isEqualTo:[_workflowItem workflowResources]] && _workflowNBIComplete ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_textFieldStatusInfo setStringValue:statusMessage];
-        });
-    } else if ( [workflow isEqualTo:[_workflowItem workflowResources]] && ! _workflowNBIComplete ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self setWorkflowNBIResourcesLastStatus:statusMessage];
-        });
-    } else if ( [workflow isEqualTo:[_workflowItem workflowModifyNBI]] ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_textFieldStatusInfo setStringValue:statusMessage];
-        });
-    } else if ( ! [workflow isEqualTo:[_workflowItem workflowNBI]] ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_textFieldStatusInfo setStringValue:statusMessage];
-        });
-    }
-} // updateProgressStatus
-
-- (void)updateProgressBar:(double)value {
-    if ( _progressIndicator ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_progressIndicator setDoubleValue:value];
-            [self->_progressIndicator setNeedsDisplay:YES];
-        });
-    }
-} // updateProgressBar
-
-- (void)incrementProgressBar:(double)value {
-    if ( _progressIndicator ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_progressIndicator setDoubleValue:( [self->_progressIndicator doubleValue] + value )];
-            [self->_progressIndicator setNeedsDisplay:YES];
-        });
-    }
-} // incrementProgressBar
 
 - (IBAction)buttonShowInFinder:(id)sender {
 #pragma unused(sender)
@@ -210,8 +209,9 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Saving workflow report...");
     
-    if ( [[_linkerErrors allKeys] count] != 0 ) {
-        
+    NSDictionary *workflowReport = [self workflowReport];
+    
+    if ( [workflowReport count] != 0 ) {
         NSSavePanel *panel = [NSSavePanel savePanel];
         
         [panel setCanCreateDirectories:YES];
@@ -221,7 +221,7 @@ DDLogLevel ddLogLevel;
         [panel beginSheetModalForWindow:[[[NBCWorkflowManager sharedManager] workflowPanel] window] completionHandler:^(NSInteger result) {
             if ( result == NSFileHandlingPanelOKButton ) {
                 NSURL *saveURL = [panel URL];
-                if ( ! [self->_linkerErrors writeToURL:saveURL atomically:YES] ) {
+                if ( ! [workflowReport writeToURL:saveURL atomically:YES] ) {
                     DDLogError(@"[ERROR] Saving workflow report failed!");
                 }
             }
@@ -229,16 +229,61 @@ DDLogLevel ddLogLevel;
     }
 } // buttonWorkflowReport
 
-- (void)workflowStartedForItem:(NBCWorkflowItem *)workflowItem {
-    [self setWorkflowItem:workflowItem];
-    [self setNbiURL:[_workflowItem nbiURL]];
-    [self setIsRunning:YES];
-    if ( [[[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsWorkflowTimerEnabled] boolValue] ) {
-        [self setTimer:[NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(timerTick) userInfo:nil repeats:YES]];
-        [_textFieldTimer setHidden:NO];
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark UI Updates
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
+    if ( [workflow isEqualTo:[_workflowItem workflowNBI]] && ! _workflowNBIComplete ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:statusMessage];
+        });
+    } else if ( [workflow isEqualTo:[_workflowItem workflowResources]] && _workflowNBIComplete ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:statusMessage];
+        });
+    } else if ( [workflow isEqualTo:[_workflowItem workflowResources]] && ! _workflowNBIComplete ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self setWorkflowNBIResourcesLastStatus:statusMessage];
+        });
+    } else if ( [workflow isEqualTo:[_workflowItem workflowModifyNBI]] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:statusMessage];
+        });
+    } else if ( ! [workflow isEqualTo:[_workflowItem workflowNBI]] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:statusMessage];
+        });
     }
-    [_layoutContraintStatusInfoLeading setConstant:24.0];
-} // workflowStartedForItem
+} // updateProgressStatus
+
+- (void)updateProgressStatus:(NSString *)statusMessage {
+    if ( ! [statusMessage hasPrefix:@"update_dyld_shared_cache: Omitting development cache"] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:statusMessage];
+        });
+    }
+} // updateProgressStatus
+
+- (void)updateProgressBar:(double)value {
+    if ( _progressIndicator ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_progressIndicator setDoubleValue:value];
+            [self->_progressIndicator setNeedsDisplay:YES];
+        });
+    }
+} // updateProgressBar
+
+- (void)incrementProgressBar:(double)value {
+    if ( _progressIndicator ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_progressIndicator setDoubleValue:( [self->_progressIndicator doubleValue] + value )];
+            [self->_progressIndicator setNeedsDisplay:YES];
+        });
+    }
+} // incrementProgressBar
 
 - (void)timerTick {
     static NSDateComponentsFormatter *dateComponentsFormatter;
@@ -266,7 +311,184 @@ DDLogLevel ddLogLevel;
     }
 } // timerTick
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Workflow Report
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (NSDictionary *)workflowReport {
+    
+    DDLogInfo(@"Generating workflow report...");
+    
+    NSMutableDictionary *workflowReport = [[NSMutableDictionary alloc] init];
+    
+    // --------------------------------------------------------------
+    //  Add NBI info
+    // --------------------------------------------------------------
+    workflowReport[@"NBI"] = @{
+                               @"Name" : [_workflowItem nbiName] ?: @"Unknown"
+                               };
+    
+    // --------------------------------------------------------------
+    //  Add source info
+    // --------------------------------------------------------------
+    workflowReport[@"Source"] = @{
+                                  @"Version" : [[_workflowItem source] sourceVersion] ?: @"Unknown",
+                                  @"Build" : [[_workflowItem source] sourceBuild] ?: @"Unknown",
+                                  @"Type" : [[_workflowItem source] sourceType] ?: @"Unknown",
+                                  };
+    
+    // --------------------------------------------------------------
+    //  Add build info
+    // --------------------------------------------------------------
+    workflowReport[@"Build Info"] = @{
+                                      @"Status" : ( _workflowComplete && ! _workflowFailed ) ? @"Success" : @"Failed",
+                                      @"Time" : [self timeElapsed] ?: @""
+                                      };
+    
+    // --------------------------------------------------------------
+    //  Add build warnings
+    // --------------------------------------------------------------
+    workflowReport[@"Build Warnings"] = @{
+                                          @"Linker Errors" : _linkerErrors ?: @[]
+                                          };
+    return workflowReport;
+} // workflowReport
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Helper Logging
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)logDebug:(NSString *)logMessage {
+    DDLogDebug(@"[DEBUG] %@", logMessage);
+} // logDebug
+
+- (void)logInfo:(NSString *)logMessage {
+    DDLogInfo(@"%@", logMessage);
+} // logInfo
+
+- (void)logWarn:(NSString *)logMessage {
+    DDLogWarn(@"[WARN] %@", logMessage);
+} // logWarn
+
+- (void)logError:(NSString *)logMessage {
+    DDLogError(@"[ERROR] %@", logMessage);
+} // logError
+
+- (void)logStdOut:(NSString *)stdOutString {
+    DDLogDebug(@"[stdout] %@", stdOutString);
+    
+    // -------------------------------------------------------------------------------------------------------------
+    //  If output has prefix NBCWorkflowLogPrefix means it's a script running which means it's the current progress
+    // -------------------------------------------------------------------------------------------------------------
+    if ( [stdOutString hasPrefix:NBCWorkflowLogPrefix] ) {
+        [self parseLogProgress:stdOutString];
+    }
+} // logStdOut
+
+- (void)logStdErr:(NSString *)stdErrString {
+    DDLogDebug(@"[stderr] %@", stdErrString);
+    
+    // -----------------------------------------------------------------------------------------------------------------
+    //  If output has prefix 'warning, could not bind' means it's a missing dyld link which needs to be added to report
+    // -----------------------------------------------------------------------------------------------------------------
+    if ( [stdErrString hasPrefix:@"warning, could not bind"] ) {
+        [self parseDyldError:stdErrString];
+    }
+} // logStdErr
+
+- (void)parseDyldError:(NSString *)stdErrStr {
+    
+    NSString *enumerationTmpString;
+    NSArray *enumerationTmpArray;
+    if ( ! _linkerErrors ) {
+        [self setLinkerErrors:[[NSMutableDictionary alloc] init]];
+    }
+    
+    // Here comes some ugly parsing, could simplify this a bit:
+    NSArray *stdErrArray = [stdErrStr componentsSeparatedByString:@", "];
+    for ( NSString *line in stdErrArray ) {
+        if ( [line hasPrefix:@"could not bind"] ) {
+            enumerationTmpString = [line stringByReplacingOccurrencesOfString:@"could not bind " withString:@""];
+            enumerationTmpString = [enumerationTmpString stringByReplacingOccurrencesOfString:@" because realpath() failed on " withString:@"\n"];
+            enumerationTmpArray = [enumerationTmpString componentsSeparatedByString:@"\n"];
+            NSMutableArray *sourceArray = [_linkerErrors[enumerationTmpArray[0]] mutableCopy] ?: [[NSMutableArray alloc] init];
+            [sourceArray addObject:enumerationTmpArray[1]];
+            _linkerErrors[enumerationTmpArray[0]] = [sourceArray copy];
+        }
+    }
+} // parseDyldError
+
+- (void)parseLogProgress:(NSString *)stdOutString {
+    
+    // ----------------------------------------------------------------------------------------------
+    //  Check for build steps in output, then try to update UI with a meaningful message or progress
+    // ----------------------------------------------------------------------------------------------
+    NSString *buildStep = [stdOutString componentsSeparatedByString:@"_"][2];
+    
+    // -------------------------------------------------------------
+    //  "creatingKernelCachex86"
+    // -------------------------------------------------------------
+    if ( [buildStep isEqualToString:@"creatingKernelCachex86"] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:@"Creating pre-linked kernel..."];
+        });
+        
+        // --------------------------------------------------------------------------------------
+        //  "creatingKernelCachei386"
+        // --------------------------------------------------------------------------------------
+    } else if ( [buildStep isEqualToString:@"creatingKernelCachei386"] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:@"Creating pre-linked kernel for arch i386..."];
+        });
+        
+        // --------------------------------------------------------------------------------------
+        //  "updatingDyldCachex86"
+        // --------------------------------------------------------------------------------------
+    } else if ( [buildStep isEqualToString:@"updatingDyldCachex86"] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:@"Updating dyld cache..."];
+        });
+        
+        // --------------------------------------------------------------------------------------
+        //  "updatingDyldCachei386"
+        // --------------------------------------------------------------------------------------
+    } else if ( [buildStep isEqualToString:@"updatingDyldCachei386"] ) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_textFieldStatusInfo setStringValue:@"Updating dyld cache for arch i386..."];
+        });
+    }
+} //parseLogProgress
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Workflow Ended
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 - (void)workflowFailedWithError:(NSString *)errorMessage {
+    
+    // -------------------------------------------------------------
+    //  Destroy the privileged session reference
+    // -------------------------------------------------------------
+    DDLogInfo(@"Destroying authorized session...");
+    NSData *authData = [_workflowItem authData];
+    if ( ( authData == nil ) || ( [authData length] != sizeof(AuthorizationExternalForm)) ) {
+        DDLogError(@"[ERROR] %@", [[NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil] localizedDescription]);
+    } else {
+        AuthorizationRef authRef;
+        OSStatus err = AuthorizationCreateFromExternalForm([authData bytes], &authRef);
+        
+        if ( err == errAuthorizationSuccess ) {
+            AuthorizationFree(authRef, 0);
+        } else {
+            DDLogError(@"[ERROR] %@", CFBridgingRelease(SecCopyErrorMessageString(err, NULL)));
+        }
+    }
+    [_workflowItem setAuthData:nil];
     
     // -------------------------------------------------------------
     //  Make sure the first error encoutered is the one displayed
@@ -306,15 +528,26 @@ DDLogLevel ddLogLevel;
     });
 } // workflowFailedWithError
 
-- (void)updateProgressStatus:(NSString *)statusMessage {
-    if ( ! [statusMessage hasPrefix:@"update_dyld_shared_cache: Omitting development cache"] ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_textFieldStatusInfo setStringValue:statusMessage];
-        });
-    }
-} // updateProgressStatus
-
 - (void)workflowCompleted {
+    
+    // -------------------------------------------------------------
+    //  Destroy the privileged session reference
+    // -------------------------------------------------------------
+    NSData *authData = [_workflowItem authData];
+    if ( ( authData == nil ) || ( [authData length] != sizeof(AuthorizationExternalForm)) ) {
+        DDLogError(@"[ERROR] %@", [[NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil] localizedDescription]);
+    } else {
+        AuthorizationRef authRef;
+        OSStatus err = AuthorizationCreateFromExternalForm([authData bytes], &authRef);
+        
+        if ( err == errAuthorizationSuccess ) {
+            AuthorizationFree(authRef, 0);
+        } else {
+            DDLogError(@"[ERROR] %@", CFBridgingRelease(SecCopyErrorMessageString(err, NULL)));
+        }
+    }
+    [_workflowItem setAuthData:nil];
+    
     [_layoutContraintStatusInfoLeading setConstant:1.0];
     
     NSCalendar *calendarUS = [NSCalendar calendarWithIdentifier: NSCalendarIdentifierGregorian];
@@ -330,6 +563,7 @@ DDLogLevel ddLogLevel;
     
     NSString *workflowTime = [dateComponentsFormatter stringFromTimeInterval:secondsBetween];
     if ( [workflowTime length] != 0 ) {
+        [self setTimeElapsed:workflowTime];
         [_workflowItem setWorkflowTime:workflowTime];
     }
     
@@ -357,106 +591,5 @@ DDLogLevel ddLogLevel;
         [self updateProgressStatus:[NSString stringWithFormat:@"NBI created successfully in %@!", workflowTime] workflow:self];
     });
 } // workflowCompleted
-
-- (void)parseDyldError:(NSString *)stdErrStr {
-    
-    NSString *enumerationTmpString;
-    NSArray *enumerationTmpArray;
-    if ( ! _linkerErrors ) {
-        [self setLinkerErrors:[[NSMutableDictionary alloc] init]];
-    }
-    
-    // Here comes some ugly parsing, could simplify this a bit:
-    NSArray *stdErrArray = [stdErrStr componentsSeparatedByString:@", "];
-    for ( NSString *line in stdErrArray ) {
-        if ( [line hasPrefix:@"could not bind"] ) {
-            enumerationTmpString = [line stringByReplacingOccurrencesOfString:@"could not bind " withString:@""];
-            enumerationTmpString = [enumerationTmpString stringByReplacingOccurrencesOfString:@" because realpath() failed on " withString:@"\n"];
-            enumerationTmpArray = [enumerationTmpString componentsSeparatedByString:@"\n"];
-            NSMutableArray *sourceArray = [_linkerErrors[enumerationTmpArray[0]] mutableCopy] ?: [[NSMutableArray alloc] init];
-            [sourceArray addObject:enumerationTmpArray[1]];
-            _linkerErrors[enumerationTmpArray[0]] = [sourceArray copy];
-        }
-    }
-} // parseDyldError
-
-- (void)parseLogProgress:(NSString *)stdOutString {
-    
-    // ----------------------------------------------------------------------------------------------
-    //  Check for build steps in output, then try to update UI with a meaningful message or progress
-    // ----------------------------------------------------------------------------------------------
-    NSString *buildStep = [stdOutString componentsSeparatedByString:@"_"][2];
-    
-    // -------------------------------------------------------------
-    //  "creatingKernelCachex86"
-    // -------------------------------------------------------------
-    if ( [buildStep isEqualToString:@"creatingKernelCachex86"] ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_textFieldStatusInfo setStringValue:@"Creating new kernelcache..."];
-        });
-        
-        // --------------------------------------------------------------------------------------
-        //  "creatingKernelCachei386"
-        // --------------------------------------------------------------------------------------
-    } else if ( [buildStep isEqualToString:@"creatingKernelCachei386"] ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_textFieldStatusInfo setStringValue:@"Creating new kernelcache for arch i386..."];
-        });
-        
-        // --------------------------------------------------------------------------------------
-        //  "updatingDyldCachex86"
-        // --------------------------------------------------------------------------------------
-    } else if ( [buildStep isEqualToString:@"updatingDyldCachex86"] ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_textFieldStatusInfo setStringValue:@"Updating dyld cache..."];
-        });
-        
-        // --------------------------------------------------------------------------------------
-        //  "updatingDyldCachei386"
-        // --------------------------------------------------------------------------------------
-    } else if ( [buildStep isEqualToString:@"updatingDyldCachei386"] ) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self->_textFieldStatusInfo setStringValue:@"Updating dyld cache for arch i386..."];
-        });
-    }
-} //parseLogProgress
-
-- (void)logDebug:(NSString *)logMessage {
-    DDLogDebug(@"[DEBUG] %@", logMessage);
-} // logDebug
-
-- (void)logInfo:(NSString *)logMessage {
-    DDLogInfo(@"%@", logMessage);
-} // logInfo
-
-- (void)logWarn:(NSString *)logMessage {
-    DDLogWarn(@"[WARN] %@", logMessage);
-} // logWarn
-
-- (void)logError:(NSString *)logMessage {
-    DDLogError(@"[ERROR] %@", logMessage);
-} // logError
-
-- (void)logStdOut:(NSString *)stdOutString {
-    DDLogDebug(@"[stdout] %@", stdOutString);
-    
-    // -------------------------------------------------------------------------------------------------------------
-    //  If output has prefix NBCWorkflowLogPrefix means it's a script running which means it's the current progress
-    // -------------------------------------------------------------------------------------------------------------
-    if ( [stdOutString hasPrefix:NBCWorkflowLogPrefix] ) {
-        [self parseLogProgress:stdOutString];
-    }
-} // logStdOut
-
-- (void)logStdErr:(NSString *)stdErrString {
-    DDLogDebug(@"[stderr] %@", stdErrString);
-    
-    // -----------------------------------------------------------------------------------------------------------------
-    //  If output has prefix 'warning, could not bind' means it's a missing dyld link which needs to be added to report
-    // -----------------------------------------------------------------------------------------------------------------
-    if ( [stdErrString hasPrefix:@"warning, could not bind"] ) {
-        [self parseDyldError:stdErrString];
-    }
-} // logStdErr
 
 @end

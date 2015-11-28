@@ -41,6 +41,7 @@
 @property (weak) IBOutlet NSTextField *textFieldStatusWarnings;
 
 @property NSTimer *timer;
+@property NSString *timeElapsed;
 @property BOOL isRunning;
 @property BOOL workflowNBIComplete;
 @property BOOL workflowNBIResourcesComplete;
