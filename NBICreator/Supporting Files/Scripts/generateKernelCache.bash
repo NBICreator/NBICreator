@@ -89,6 +89,7 @@ case ${osVersionMinor} in
 #/bin/rm -f "${targetVolumePath}/usr/standalone/bootcaches.plist"
         fi
 
+#printf "%s\n" "${progressPrefix}_!_"
 #/usr/sbin/kextcache -update-volume "${targetVolumePath}"
 
         printf "%s\n" "${progressPrefix}_creatingKernelCachex86_"
@@ -119,10 +120,11 @@ case ${osVersionMinor} in
         if [[ -d ${targetVolumePath} ]]; then
             /bin/rm -f "${targetVolumePath}/var/db/dyld/dyld_"*
             /bin/rm -f "${targetVolumePath}/System/Library/Caches/com.apple.kext.caches/Startup/kernelcache"
-#/bin/rm -f "${nbiVolumePath}/i386/x86_64/kernelcache"
+            /bin/rm -f "${nbiVolumePath}/i386/x86_64/kernelcache"
 #/bin/rm -f "${targetVolumePath}/usr/standalone/bootcaches.plist"
         fi
 
+#printf "%s\n" "${progressPrefix}_!_"
 #/usr/sbin/kextcache -update-volume "${targetVolumePath}" -verbose 2
 
         printf "%s\n" "${progressPrefix}_creatingKernelCachex86_"
