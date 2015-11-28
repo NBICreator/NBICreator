@@ -2896,13 +2896,9 @@ DDLogLevel ddLogLevel;
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         
-        NSXPCConnection *helperConnection = [workflowItem helperConnection];
-        if ( ! helperConnection ) {
-            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-            [helperConnector connectToHelper];
-            [workflowItem setHelperConnection:[helperConnector connection]];
-        }
-        [[[workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
             });

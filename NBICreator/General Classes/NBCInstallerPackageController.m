@@ -102,15 +102,11 @@ DDLogLevel ddLogLevel;
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         
-        NSXPCConnection *helperConnection = [self->_workflowItem helperConnection];
-        if ( ! helperConnection ) {
-            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-            [helperConnector connectToHelper];
-            [self->_workflowItem setHelperConnection:[helperConnector connection]];
-        }
-        [[self->_workflowItem helperConnection] setExportedObject:self->_progressDelegate];
-        [[self->_workflowItem helperConnection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-        [[[self->_workflowItem helperConnection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+        [helperConnector connectToHelper];
+        [[helperConnector connection] setExportedObject:self->_progressDelegate];
+        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             [self->_delegate installFailedWithError:proxyError];
         }] installPackage:[packageURL path] targetVolumePath:[volumeURL path] choices:choiceChangesXML authorization:authData withReply:^(NSError *error, int terminationStatus) {
 #pragma unused(error)
