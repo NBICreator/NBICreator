@@ -163,22 +163,22 @@
     // --------------------------------------------------------------
     //  Expand %DSVERSION%
     // --------------------------------------------------------------
-    string = [string stringByReplacingOccurrencesOfString:@"%DSVERSION%"
+    NSString *expandedString = [string stringByReplacingOccurrencesOfString:@"%DSVERSION%"
                                                withString:[[self dsAdminBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"Unknown"];
     
     // --------------------------------------------------------------
     //  Expand %DSADMINURL%
     // --------------------------------------------------------------
-    string = [string stringByReplacingOccurrencesOfString:@"%DSADMINURL%"
+    expandedString = [expandedString stringByReplacingOccurrencesOfString:@"%DSADMINURL%"
                                                withString:[_dsAdminURL path] ?: @"Unknown"];
     
     // --------------------------------------------------------------
     //  Expand %NBITOOL%
     // --------------------------------------------------------------
-    string = [string stringByReplacingOccurrencesOfString:@"%NBITOOL%"
+    expandedString = [expandedString stringByReplacingOccurrencesOfString:@"%NBITOOL%"
                                                withString:@"DSA"];
     
-    return string;
+    return expandedString;
 }
 
 @end

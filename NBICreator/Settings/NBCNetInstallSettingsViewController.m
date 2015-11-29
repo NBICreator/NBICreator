@@ -88,11 +88,10 @@ DDLogLevel ddLogLevel;
     NSError *error;
     NSFileManager *fm = [[NSFileManager alloc] init];
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
-    if ( userApplicationSupport ) {
+    if ( [userApplicationSupport checkResourceIsReachableAndReturnError:&error] ) {
         _templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesNetInstall isDirectory:YES];
     } else {
-        NSLog(@"Could not get user Application Support Folder");
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     [_imageViewIcon setDelegate:self];
@@ -498,17 +497,16 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromDict
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
-    
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
-    if ( mainDict ) {
+    if ( [mainDict count] != 0 ) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
-        if ( settingsDict ) {
+        if ( [settingsDict count] != 0 ) {
             [self updateUISettingsFromDict:settingsDict];
         } else {
-            NSLog(@"No key named Settings i plist at URL: %@", url);
+            DDLogError(@"[ERROR] No key named Settings i plist at path: %@", [url path]);
         }
     } else {
-        NSLog(@"Could not read plist at URL: %@", url);
+        DDLogError(@"[ERROR] Could not read plist at path: %@", [url path]);
     }
 } // updateUISettingsFromURL
 
@@ -981,6 +979,8 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
+#pragma unused(templateInfo)
+    DDLogInfo(@"Importing template at path: %@", [url path]);
     
     BOOL settingsChanged = [self haveSettingsChanged];
     
@@ -994,9 +994,6 @@ DDLogLevel ddLogLevel;
         [alert showAlertSettingsUnsaved:@"You have unsaved settings, do you want to discard changes and continue?"
                               alertInfo:alertInfo];
     }
-    
-    NSLog(@"Importing %@", url);
-    NSLog(@"templateInfo=%@", templateInfo);
 } // importTemplateAtURL
 
 - (void)updatePopUpButtonTemplates {

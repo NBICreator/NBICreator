@@ -182,7 +182,8 @@ DDLogLevel ddLogLevel;
     NSURL *resourceFolderVersion = [resouresFolder URLByAppendingPathComponent:version];
     if ( ! [resourceFolderVersion checkResourceIsReachableAndReturnError:nil] ) {
         if ( ! [fileManager createDirectoryAtURL:resourceFolderVersion withIntermediateDirectories:YES attributes:nil error:&error] ) {
-            NSLog(@"Creating version resource folder failed: %@", error);
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
+            return nil;
         }
     }
     
@@ -191,7 +192,8 @@ DDLogLevel ddLogLevel;
     NSURL *targetFileURL = [resourceFolderVersion URLByAppendingPathComponent:fileName];
     if ( [targetFileURL checkResourceIsReachableAndReturnError:nil] ) {
         if ( ! [fileManager removeItemAtURL:targetFileURL error:&error] ) {
-            NSLog(@"Could not delete file: %@", error);
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
+            return nil;
         }
     }
     
@@ -215,10 +217,10 @@ DDLogLevel ddLogLevel;
                 }
             }
         } else {
-            NSLog(@"Could Not Write Resource Dict at: %@", resourcesDictURL);
+            DDLogError(@"[ERROR] Writing resource dict at: %@ failed", resourcesDictURL);
         }
     } else {
-        NSLog(@"Copy to resource folder failed: %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     return destinationURL;
@@ -371,27 +373,27 @@ DDLogLevel ddLogLevel;
                                                               dmgPath:diskImageURL
                                                               options:hdiutilOptions
                                                                 error:&error] ) {
-        if ( diskImageDict ) {
+        if ( [diskImageDict count] != 0 ) {
             volumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:diskImageDict];
             NSURL *imagrApplicationURL = [volumeURL URLByAppendingPathComponent:filePath];
             destinationURL = [self copyFileToResources:imagrApplicationURL resourcesFolder:resourcesFolder version:version];
-            if ( ! destinationURL ) {
-                NSLog(@"Copy Failed!");
+            if ( [destinationURL checkResourceIsReachableAndReturnError:&error] ) {
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
             }
             
             if ( [NBCDiskImageController detachDiskImageAtPath:[volumeURL path]] ) {
                 NSFileManager *fileManager = [NSFileManager defaultManager];
                 if ( ! [fileManager removeItemAtURL:diskImageURL error:&error] ) {
-                    NSLog(@"Removing Disk Image Failed! = %@", error);
+                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
                 }
             } else {
-                NSLog(@"Detaching Disk Image Failed!");
+                DDLogError(@"[ERROR] Detaching disk image failed!");
             }
         } else {
-            NSLog(@"Got no DiskImageDict!");
+            DDLogError(@"[ERROR] Disk image dict was empty!");
         }
     } else {
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     return destinationURL;

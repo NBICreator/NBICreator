@@ -77,11 +77,10 @@ DDLogLevel ddLogLevel;
     NSError *error;
     NSFileManager *fm = [[NSFileManager alloc] init];
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
-    if ( userApplicationSupport ) {
+    if ( [userApplicationSupport checkResourceIsReachableAndReturnError:&error] ) {
         _templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesDeployStudio isDirectory:YES];
     } else {
-        NSLog(@"Could not get Application Support folder for current User");
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     [_imageViewIcon setDelegate:self];
@@ -1036,7 +1035,7 @@ DDLogLevel ddLogLevel;
                                                 downloadInfo:downloadInfo];
                 [self showDeployStudioDownloadProgess:_deployStudioLatestVersion];
             } else {
-                NSLog(@"Could not get download url for latest DeployStudio Version!");
+                DDLogError(@"[ERROR] Could not get download url for latest DeployStudio Version!");
             }
         }
     }
@@ -1088,7 +1087,7 @@ DDLogLevel ddLogLevel;
             NSMutableDictionary *deployStudioDownloadsDict = [[NSDictionary dictionaryWithContentsOfURL:deployStudioDownloadsDictURL] mutableCopy];
             deployStudioDownloadsDict[NBCResourcesDeployStudioLatestVersionKey] = deployStudioLatestVersion;
             if ( ! [deployStudioDownloadsDict writeToURL:deployStudioDownloadsDictURL atomically:YES] ) {
-                NSLog(@"Error writing DeployStudio downloads dict to caches");
+                DDLogError(@"[ERROR] Writing DeployStudio downloads dict to caches failed");
             }
         } else {
             NSError *error;
@@ -1096,11 +1095,10 @@ DDLogLevel ddLogLevel;
             if ( [fm createDirectoryAtURL:[deployStudioDownloadsDictURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error] ) {
                 NSDictionary *deployStudioDownloadsDict = @{ NBCResourcesDeployStudioLatestVersionKey : deployStudioLatestVersion };
                 if ( ! [deployStudioDownloadsDict writeToURL:deployStudioDownloadsDictURL atomically:YES] ) {
-                    NSLog(@"Error writing DeployStudio downloads dict to caches");
+                    DDLogError(@"[ERROR] Writing DeployStudio downloads dict to caches failed");
                 }
             } else {
-                NSLog(@"Could not create Cache Folder for DeployStudio");
-                NSLog(@"Error: %@", error);
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
             }
         }
     }
@@ -1125,8 +1123,8 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
-    NSLog(@"Importing %@", url);
-    NSLog(@"templateInfo=%@", templateInfo);
+#pragma unused(templateInfo)
+    DDLogInfo(@"Importing template at path: %@", [url path]);
 } // importTemplateAtURL
 
 - (void)updatePopUpButtonTemplates {
@@ -1470,7 +1468,7 @@ DDLogLevel ddLogLevel;
                                             downloadInfo:downloadInfo];
         }
     } else {
-        NSLog(@"Could not get download url for latest DeployStudio Version!");
+        DDLogError(@"[ERROR] Could not get download url for latest DeployStudio Version!");
     }
     [[NSApp mainWindow] endSheet:_windowDeployStudioDownload];
     [self showDeployStudioDownloadProgess:selectedVersion];

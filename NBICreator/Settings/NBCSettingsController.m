@@ -961,8 +961,7 @@ DDLogLevel ddLogLevel;
             freeDiskSpace = (int)[freeDiskSpaceDecimal integerValue];
         }
     } else {
-        NSLog(@"Could not get fileAttributes");
-        NSLog(@"Error: %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     return freeDiskSpace;

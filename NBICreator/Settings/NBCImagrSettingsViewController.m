@@ -101,7 +101,7 @@ DDLogLevel ddLogLevel;
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
-    if ( userApplicationSupport ) {
+    if ( [userApplicationSupport checkResourceIsReachableAndReturnError:&error] ) {
         _templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesImagr isDirectory:YES];
     } else {
         DDLogError(@"[ERROR]: %@", [error localizedDescription]);
@@ -1944,8 +1944,8 @@ DDLogLevel ddLogLevel;
 } // updatePopOver
 
 - (void)importTemplateAtURL:(NSURL *)url templateInfo:(NSDictionary *)templateInfo {
-    NSLog(@"Importing %@", url);
-    NSLog(@"templateInfo=%@", templateInfo);
+#pragma unused(templateInfo)
+    DDLogInfo(@"Importing template at path: %@", [url path]);
 } // importTemplateAtURL
 
 - (void)checkIfXcodeIsInstalled {

@@ -801,7 +801,7 @@ DDLogLevel ddLogLevel;
                                                                               options:NSPropertyListImmutable
                                                                                format:&format
                                                                                 error:&error];
-        if ( hdiutilDict ) {
+        if ( [hdiutilDict count] != 0 ) {
             NSDictionary *partitions = hdiutilDict[@"partitions"];
             NSArray *partitionsArray = partitions[@"partitions"];
             
@@ -814,8 +814,7 @@ DDLogLevel ddLogLevel;
                 }
             }
         } else {
-            NSLog(@"Error getting propertyList from hdiutil");
-            NSLog(@"Error: %@", error);
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
     }
     

@@ -143,10 +143,7 @@ DDLogLevel ddLogLevel;
 
 - (void)download:(NSURLDownload *)download didFailWithError:(NSError *)error {
     #pragma unused(download)
-    
-    NSLog(@"Download failed! Error - %@ %@",
-          [error localizedDescription],
-          [error userInfo][NSURLErrorFailingURLStringErrorKey]);
+    DDLogError(@"[ERROR] %@ %@", [error localizedDescription], [error userInfo][NSURLErrorFailingURLStringErrorKey]);
 }
 
 - (void)setDownloadResponse:(NSURLResponse *)aDownloadResponse {

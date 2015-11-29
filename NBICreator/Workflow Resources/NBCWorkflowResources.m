@@ -1122,7 +1122,7 @@ DDLogLevel ddLogLevel;
     //  ~/Library/Application Support
     // ---------------------------------------------------------------------------------
     NSURL *userApplicationSupportURL = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
-    if ( ! [userApplicationSupportURL checkResourceIsReachableAndReturnError:nil] ) {
+    if ( ! [userApplicationSupportURL checkResourceIsReachableAndReturnError:&error] ) {
         DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     

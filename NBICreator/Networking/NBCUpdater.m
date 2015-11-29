@@ -344,9 +344,8 @@
     NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
-    if ( ! userApplicationSupport ) {
-        DDLogError(@"Could not get Application Support folder for current User");
-        DDLogError(@"Error: %@", error);
+    if ( ! [userApplicationSupport checkResourceIsReachableAndReturnError:&error] ) {
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     return [userApplicationSupport URLByAppendingPathComponent:resourcesFolder isDirectory:YES];

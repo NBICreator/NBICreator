@@ -76,7 +76,7 @@ DDLogLevel ddLogLevel;
     
     if ( ! nodes ) {
         NSString *downloadString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        NSLog(@"downloadString=%@", downloadString);
+        DDLogDebug(@"[DEBUG] Download String: %@", downloadString);
     }
     
     for ( TFHppleElement *element in nodes ) {

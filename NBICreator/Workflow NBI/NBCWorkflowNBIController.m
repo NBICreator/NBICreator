@@ -29,23 +29,12 @@ DDLogLevel ddLogLevel;
 
 + (NSArray *)generateScriptArgumentsForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
     NSMutableArray *createRestoreFromSourcesArguments = [[NSMutableArray alloc] init];
-    /*
-    // -------------------------------------------------------------------
-    //  Add non-optional values to createRestoreFromSourcesArguments
-    // -------------------------------------------------------------------
-    NSString *createRestoreFromSourcesPath = [[[workflowItem applicationSource] createRestoreFromSourcesURL] path];
-    if ( [createRestoreFromSourcesPath length] != 0 ) {
-        [createRestoreFromSourcesArguments addObject:createRestoreFromSourcesPath];
-    } else {
-        NSLog(@"Could not get createRestoreFromSourcesPath from workflow Item!");
-        return nil;
-    }
-    */
+
     NSString *temporaryNBIPath = [[workflowItem temporaryNBIURL] path];
     if ( [temporaryNBIPath length] != 0 ) {
         [createRestoreFromSourcesArguments addObject:temporaryNBIPath];
     } else {
-        NSLog(@"Could not get temporaryNBIURL from workflow Item!");
+        DDLogError(@"[ERROR] Path to temporary NBI folder was empty");
         return nil;
     }
     
@@ -58,23 +47,11 @@ DDLogLevel ddLogLevel;
 + (NSArray *)generateScriptArgumentsForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
     NSMutableArray *createNetInstallArguments = [[NSMutableArray alloc] init];
     
-    // -------------------------------------------------------------------
-    //  Add non-optional values to createNetInstallArguments
-    // -------------------------------------------------------------------
-    /*
-    NSString *createNetInstallPath = [[[workflowItem applicationSource] createNetInstallURL] path];
-    if ( [createNetInstallPath length] != 0 ) {
-        [createNetInstallArguments addObject:createNetInstallPath];
-    } else {
-        NSLog(@"Could not get createNetInstallPath from workflow Item!");
-        return nil;
-    }
-    */
     NSString *temporaryNBIPath = [[workflowItem temporaryNBIURL] path];
     if ( [temporaryNBIPath length] != 0 ) {
         [createNetInstallArguments addObject:temporaryNBIPath];
     } else {
-        NSLog(@"Could not get temporaryNBIURL from workflow Item!");
+        DDLogError(@"[ERROR] Path to temporary NBI folder was empty");
         return nil;
     }
     
@@ -85,7 +62,9 @@ DDLogLevel ddLogLevel;
 } // generateSysBuilderArgumentsFromSettingsDict
 
 + (BOOL)generateEnvironmentVariablesForCreateRestoreFromSources:(NBCWorkflowItem *)workflowItem {
+    
     BOOL retval = YES;
+    NSError *error = nil;
     NSMutableString *environmentVariablesContent = [[NSMutableString alloc] init];
     
     // --------------------------------------------------------------
@@ -117,7 +96,7 @@ DDLogLevel ddLogLevel;
     if ( [destinationPath length] != 0 ) {
         [environmentVariablesContent appendString:[NSString stringWithFormat:@"destPath=\"%@\"\n", destinationPath]];
     } else {
-        NSLog(@"Could not get destinationPath from workflowItem");
+        DDLogError(@"[ERROR] Setting 'destPath' failed, path to temporary nbi folder was empty");
         return NO;
     }
     
@@ -129,14 +108,14 @@ DDLogLevel ddLogLevel;
     if ( [potentialRecoveryDevice length] != 0 ) {
         [environmentVariablesContent appendString:[NSString stringWithFormat:@"potentialRecoveryDevice=\"%@\"\n", potentialRecoveryDevice]];
     } else {
-        NSLog(@"Could not get potentialRecoveryDevice from source");
+        DDLogError(@"[ERROR] Setting 'potentialRecoveryDevice' failed, bsd identifier for recovery device was empty");
         return NO;
     }
     
     // -------------------------------------------------------------------
     //  Write createVariables.sh to temporary nbi folder
     // -------------------------------------------------------------------
-    if ( [environmentVariablesContent writeToURL:createVariablesURL atomically:NO encoding:NSUTF8StringEncoding error:nil] ) {
+    if ( [environmentVariablesContent writeToURL:createVariablesURL atomically:NO encoding:NSUTF8StringEncoding error:&error] ) {
         NSMutableArray *temporaryItemsNBI = [[workflowItem temporaryItemsNBI] mutableCopy];
         if ( ! temporaryItemsNBI ) {
             temporaryItemsNBI = [NSMutableArray arrayWithObject:createVariablesURL];
@@ -146,7 +125,7 @@ DDLogLevel ddLogLevel;
         
         [workflowItem setTemporaryItemsNBI:temporaryItemsNBI];
     } else {
-        NSLog(@"Could not create createVariables.sh at: %@", [createVariablesURL path]);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
         retval = NO;
     }
     
@@ -155,6 +134,7 @@ DDLogLevel ddLogLevel;
 
 + (NSDictionary *)generateEnvironmentVariablesForCreateNetInstall:(NBCWorkflowItem *)workflowItem {
     
+    NSError *error = nil;
     NSMutableDictionary *environmentVariables = [[NSMutableDictionary alloc] init];
     NSString *envVariablesContent;
     
@@ -189,7 +169,7 @@ DDLogLevel ddLogLevel;
     if ( [destinationPath length] != 0 ) {
         envVariablesContent = [NSString stringWithFormat:@"%@\ndestPath=\"%@\"", envVariablesContent, destinationPath];
     } else {
-        NSLog(@"Could not get destinationPath from workflowItem");
+        DDLogError(@"[ERROR] Setting 'destPath' failed, path to temporary nbi folder was empty");
         return nil;
     }
     
@@ -200,25 +180,25 @@ DDLogLevel ddLogLevel;
     if ( [nbiName length] != 0 ) {
         envVariablesContent = [NSString stringWithFormat:@"%@\ndmgVolName=\"%@\"", envVariablesContent, nbiName];
     } else {
-        NSLog(@"Could not get nbiName from workflowItem");
+        DDLogError(@"[ERROR] Setting 'dmgVolName' failed, nbi name was empty");
         return nil;
     }
     
     // -------------------------------------------------------------------
     //  Add installSource
     // -------------------------------------------------------------------
-    NSString *installESDVolumePath = [[[workflowItem source] installESDVolumeURL] path];
-    if ( [installESDVolumePath length] != 0 ) {
-        envVariablesContent = [NSString stringWithFormat:@"%@\ninstallSource=\"%@\"", envVariablesContent, installESDVolumePath];
+    NSURL *installESDVolumeURL = [[workflowItem source] installESDVolumeURL];
+    if ( [installESDVolumeURL checkResourceIsReachableAndReturnError:&error] ) {
+        envVariablesContent = [NSString stringWithFormat:@"%@\ninstallSource=\"%@\"", envVariablesContent, [installESDVolumeURL path]];
     } else {
-        NSLog(@"Could not get installESDVolumePath from source");
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
         return nil;
     }
     
     // -------------------------------------------------------------------
     //  Write createVariables.sh to temporary nbi folder
     // -------------------------------------------------------------------
-    if ( [envVariablesContent writeToURL:createVariablesURL atomically:NO encoding:NSUTF8StringEncoding error:nil] ) {
+    if ( [envVariablesContent writeToURL:createVariablesURL atomically:NO encoding:NSUTF8StringEncoding error:&error] ) {
         NSMutableArray *temporaryItemsNBI = [[workflowItem temporaryItemsNBI] mutableCopy];
         if ( ! temporaryItemsNBI ) {
             temporaryItemsNBI = [NSMutableArray arrayWithObject:createVariablesURL];
@@ -228,7 +208,7 @@ DDLogLevel ddLogLevel;
         
         [workflowItem setTemporaryItemsNBI:temporaryItemsNBI];
     } else {
-        NSLog(@"Could not create createVariables.sh at: %@", [createVariablesURL path]);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
         return nil;
     }
     
@@ -237,25 +217,27 @@ DDLogLevel ddLogLevel;
 
 + (NSArray *)generateScriptArgumentsForSysBuilder:(NBCWorkflowItem *)workflowItem {
     
+    NSError *error = nil;
     NSMutableArray *sysBuilderArguments = [[NSMutableArray alloc] init];
+    
     // -------------------------------------------------------------------
     //  Retrieve user settings from workflowItem
     // -------------------------------------------------------------------
     NSDictionary *userSettings = [workflowItem userSettings];
     if ( [userSettings count] == 0 ) {
-        NSLog(@"Could not get userSettings from workflow Item!");
+        DDLogError(@"[ERROR] Could not get userSettings from workflow Item!");
         return nil;
     }
     
     // -------------------------------------------------------------------
     //  Add -basesystem
     // -------------------------------------------------------------------
-    NSString *systemVolumePath = [[[workflowItem source] systemVolumeURL] path];
-    if ( [systemVolumePath length] != 0 ) {
+    NSURL *systemVolumeURL = [[workflowItem source] systemVolumeURL];
+    if ( [systemVolumeURL checkResourceIsReachableAndReturnError:&error] ) {
         [sysBuilderArguments addObject:@"-basesystem"];
-        [sysBuilderArguments addObject:[systemVolumePath lastPathComponent]];
+        [sysBuilderArguments addObject:[[systemVolumeURL path] lastPathComponent]];
     } else {
-        NSLog(@"Could not get systemVolumePath from source!");
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
     
     // -------------------------------------------------------------------
@@ -275,7 +257,7 @@ DDLogLevel ddLogLevel;
         [sysBuilderArguments addObject:@"-id"];
         [sysBuilderArguments addObject:nbiIndex];
     } else {
-        NSLog(@"Could not get nbiIndex from userSettings!");
+        DDLogError(@"[ERROR] Could not get index from userSettings!");
         return nil;
     }
     
@@ -289,7 +271,7 @@ DDLogLevel ddLogLevel;
         [sysBuilderArguments addObject:@"-name"];
         [sysBuilderArguments addObject:[nbiName stringByDeletingPathExtension]];
     } else {
-        NSLog(@"Could not get nbiName form workflowItem!");
+        DDLogError(@"[ERROR] Could not get nbi name form workflowItem!");
         return nil;
     }
     
@@ -301,7 +283,7 @@ DDLogLevel ddLogLevel;
         [sysBuilderArguments addObject:@"-dest"];
         [sysBuilderArguments addObject:temporaryFolderPath];
     } else {
-        NSLog(@"Could not get temporaryFolderURL from workflowItem");
+        DDLogError(@"[ERROR] Could not get temporaryFolderURL from workflowItem");
         return nil;
     }
     
@@ -313,7 +295,7 @@ DDLogLevel ddLogLevel;
         [sysBuilderArguments addObject:@"-protocol"];
         [sysBuilderArguments addObject:nbiProtocol];
     } else {
-        NSLog(@"Could not get nbiProtocol from userSettings");
+        DDLogError(@"[ERROR] Could not get nbiProtocol from userSettings");
         return nil;
     }
     
@@ -325,7 +307,7 @@ DDLogLevel ddLogLevel;
         [sysBuilderArguments addObject:@"-loc"];
         [sysBuilderArguments addObject:nbiLanguage];
     } else {
-        NSLog(@"Could not get nbiLanguage from userSettings");
+        DDLogError(@"[ERROR] Could not get nbiLanguage from userSettings");
         return nil;
     }
     
@@ -358,7 +340,7 @@ DDLogLevel ddLogLevel;
         }
         
         if ( serverAdded == NO ) {
-            NSLog(@"Could not get any serverURL from userSettings!");
+            DDLogError(@"[ERROR] Could not get any serverURL from userSettings!");
             return nil;
         }
     }
@@ -375,7 +357,7 @@ DDLogLevel ddLogLevel;
             [sysBuilderArguments addObject:@"-customtitle"];
             [sysBuilderArguments addObject:customRuntimeTitle];
         } else {
-            NSLog(@"Could not get customRuntimeTitle from userSettings!");
+            DDLogError(@"[ERROR] Could not get customRuntimeTitle from userSettings!");
             return nil;
         }
     }
@@ -406,7 +388,7 @@ DDLogLevel ddLogLevel;
             [sysBuilderArguments addObject:@"-displaysleep"];
             [sysBuilderArguments addObject:sleepDisplayDelay];
         } else {
-            NSLog(@"Could not get sleepDelay from userSettings!");
+            DDLogError(@"[ERROR] Could not get sleepDelay from userSettings!");
             return nil;
         }
     }
@@ -421,7 +403,7 @@ DDLogLevel ddLogLevel;
             [sysBuilderArguments addObject:@"-timeout"];
             [sysBuilderArguments addObject:rebootDelay];
         } else {
-            NSLog(@"Could not get rebootDelay from userSettings!");
+            DDLogError(@"[ERROR] Could not get rebootDelay from userSettings!");
             return nil;
         }
     }
@@ -523,7 +505,7 @@ DDLogLevel ddLogLevel;
             [sysBuilderArguments addObject:@"-custombackground"];
             [sysBuilderArguments addObject:customBackgroundPath];
         } else {
-            NSLog(@"Could not get customBackgroundPath from userSettings!");
+            DDLogError(@"[ERROR] Setting -custombackground failed, no image URL returned from settings!");
             return nil;
         }
     }

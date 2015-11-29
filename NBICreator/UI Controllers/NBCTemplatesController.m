@@ -194,11 +194,10 @@ enum {
     
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
     NSURL *templatesDisabledFolderURL;
-    if ( userApplicationSupport ) {
+    if ( [userApplicationSupport checkResourceIsReachableAndReturnError:&error] ) {
         templatesDisabledFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesDisabled isDirectory:YES];
     } else {
-        DDLogError(@"[ERROR] No Application Support Folder returned!");
-        DDLogError(@"[ERROR] %@", error);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
         return;
     }
     
@@ -419,7 +418,7 @@ enum {
     
     NSURL *templatesFolderURL;
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
-    if ( ! userApplicationSupport ) {
+    if ( ! [userApplicationSupport checkResourceIsReachableAndReturnError:&error] ) {
         DDLogError(@"[ERROR] %@", [error localizedDescription]);
         return NO;
     }
