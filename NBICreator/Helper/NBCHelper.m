@@ -1112,15 +1112,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     //  Launch task
     // ------------------------
     [task launch];
-    [task waitUntilExit];
-    
-    [nc removeObserver:stdOutObserver];
-    [nc removeObserver:stdErrObserver];
-    if ( ! [task isRunning] ) {
-        reply(nil, [task terminationStatus]);
-    } else {
-        reply(nil, -1);
-    }
+    [task setTerminationHandler:^(NSTask *aTask) {
+        [nc removeObserver:stdOutObserver];
+        [nc removeObserver:stdErrObserver];
+        
+        reply(nil, [aTask terminationStatus]);
+    }];
 } // runTaskWithCommand:arguments:currentDirectory:environmentVariables:withReply
 
 - (void)sysBuilderWithArguments:(NSArray *)arguments
