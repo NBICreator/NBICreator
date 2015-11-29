@@ -268,13 +268,13 @@
     //  Expand %SIUVERSION%
     // --------------------------------------------------------------
     NSString *expandedString = [string stringByReplacingOccurrencesOfString:NBCVariableSystemImageUtilityVersion
-                                               withString:[[self siuBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"Unknown"];
+                                                                 withString:[[self siuBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"Unknown"];
     
     // --------------------------------------------------------------
     //  Expand %NBITOOL%
     // --------------------------------------------------------------
     expandedString = [expandedString stringByReplacingOccurrencesOfString:@"%NBITOOL%"
-                                               withString:@"SIU"];
+                                                               withString:@"SIU"];
     
     return expandedString;
 } // expandVariables

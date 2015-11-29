@@ -280,46 +280,49 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     static NSDictionary *authRightsDictionary;
     dispatch_once(&dOnceToken, ^{
         authRightsDictionary = @{
-             // Casper
-             NBCAuthorizationRightWorkflowCasper: @[
-                     NBCAuthorizationRightAddUsers,
-                     NBCAuthorizationRightCopyExtractedResourcesToCache,
-                     NBCAuthorizationRightCopyResourcesToVolume,
-                     NBCAuthorizationRightCreateNetInstall,
-                     NBCAuthorizationRightDisableSpotlight,
-                     NBCAuthorizationRightExtractResourcesFromPackage,
-                     NBCAuthorizationRightInstallPackages,
-                     NBCAuthorizationRightModifyResourcesOnVolume,
-                     NBCAuthorizationRightUpdateKernelCache
-                    ],
-             // DeployStudio
-             NBCAuthorizationRightWorkflowDeployStudio: @[
-                     NBCAuthorizationRightCopyResourcesToVolume,
-                     NBCAuthorizationRightDisableSpotlight,
-                     NBCAuthorizationRightModifyResourcesOnVolume,
-                     NBCAuthorizationRightSysBuilderWithArguments
-                    ],
-             // Imagr
-             NBCAuthorizationRightWorkflowImagr: @[
-                     NBCAuthorizationRightWorkflowImagr,
-                     NBCAuthorizationRightAddUsers,
-                     NBCAuthorizationRightCopyExtractedResourcesToCache,
-                     NBCAuthorizationRightCopyResourcesToVolume,
-                     NBCAuthorizationRightCreateNetInstall,
-                     NBCAuthorizationRightDisableSpotlight,
-                     NBCAuthorizationRightExtractResourcesFromPackage,
-                     NBCAuthorizationRightInstallPackages,
-                     NBCAuthorizationRightModifyResourcesOnVolume,
-                     NBCAuthorizationRightUpdateKernelCache
-                   ],
-              // NetInstall
-              NBCAuthorizationRightWorkflowNetInstall: @[
-                    NBCAuthorizationRightCopyResourcesToVolume,
-                    NBCAuthorizationRightDisableSpotlight,
-                    NBCAuthorizationRightModifyResourcesOnVolume,
-                    NBCAuthorizationRightCreateNetInstall ]
-              };
-
+                                 // Casper
+                                 NBCAuthorizationRightWorkflowCasper: @[
+                                         NBCAuthorizationRightWorkflowCasper,
+                                         NBCAuthorizationRightAddUsers,
+                                         NBCAuthorizationRightCopyExtractedResourcesToCache,
+                                         NBCAuthorizationRightCopyResourcesToVolume,
+                                         NBCAuthorizationRightCreateNetInstall,
+                                         NBCAuthorizationRightDisableSpotlight,
+                                         NBCAuthorizationRightExtractResourcesFromPackage,
+                                         NBCAuthorizationRightInstallPackages,
+                                         NBCAuthorizationRightModifyResourcesOnVolume,
+                                         NBCAuthorizationRightUpdateKernelCache
+                                         ],
+                                 // DeployStudio
+                                 NBCAuthorizationRightWorkflowDeployStudio: @[
+                                         NBCAuthorizationRightWorkflowDeployStudio,
+                                         NBCAuthorizationRightCopyResourcesToVolume,
+                                         NBCAuthorizationRightDisableSpotlight,
+                                         NBCAuthorizationRightModifyResourcesOnVolume,
+                                         NBCAuthorizationRightSysBuilderWithArguments
+                                         ],
+                                 // Imagr
+                                 NBCAuthorizationRightWorkflowImagr: @[
+                                         NBCAuthorizationRightWorkflowImagr,
+                                         NBCAuthorizationRightAddUsers,
+                                         NBCAuthorizationRightCopyExtractedResourcesToCache,
+                                         NBCAuthorizationRightCopyResourcesToVolume,
+                                         NBCAuthorizationRightCreateNetInstall,
+                                         NBCAuthorizationRightDisableSpotlight,
+                                         NBCAuthorizationRightExtractResourcesFromPackage,
+                                         NBCAuthorizationRightInstallPackages,
+                                         NBCAuthorizationRightModifyResourcesOnVolume,
+                                         NBCAuthorizationRightUpdateKernelCache
+                                         ],
+                                 // NetInstall
+                                 NBCAuthorizationRightWorkflowNetInstall: @[
+                                         NBCAuthorizationRightWorkflowNetInstall,
+                                         NBCAuthorizationRightCopyResourcesToVolume,
+                                         NBCAuthorizationRightDisableSpotlight,
+                                         NBCAuthorizationRightModifyResourcesOnVolume,
+                                         NBCAuthorizationRightCreateNetInstall ]
+                                 };
+        
     });
     return authRightsDictionary;
 }
@@ -336,7 +339,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     NSError *error = nil;
     OSStatus err;
     AuthorizationRef authRef = NULL;
-
+    
     if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
     }
@@ -349,12 +352,12 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
             if (!authRightsArray.count){
                 return [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : @"Invalid workflow process name. No rights returned." }];
             }
-
+            
             AuthorizationItemSet * set = NULL;
             set = (AuthorizationItemSet*)calloc(1u, sizeof(AuthorizationItemSet));
             set->count = (UInt32)authRightsArray.count;
             set->items = (AuthorizationItem*)calloc(set->count, sizeof(AuthorizationItem));
-
+            
             [authRightsArray enumerateObjectsUsingBlock:^(NSString *rightName, NSUInteger idx, BOOL * _Nonnull stop) {
 #pragma unused(stop)
                 set->items[idx].name = [rightName UTF8String];
@@ -362,10 +365,10 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                 set->items[idx].value = NULL;
                 set->items[idx].flags = 0;
             }];
-
+            
             AuthorizationRights authRights = { set->count, set->items };
             AuthorizationFlags flags = kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed;
-
+            
             err = AuthorizationCopyRights(
                                           authRef,
                                           &authRights,

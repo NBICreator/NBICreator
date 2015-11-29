@@ -59,7 +59,7 @@
     }
     
     //NSError *error = nil;
-
+    
     if ( [latestVersionURL checkResourceIsReachableAndReturnError:nil] ) {
         [self setIsInstalled:YES];
         [self setDsAdminURL:latestVersionURL];
@@ -164,19 +164,19 @@
     //  Expand %DSVERSION%
     // --------------------------------------------------------------
     NSString *expandedString = [string stringByReplacingOccurrencesOfString:@"%DSVERSION%"
-                                               withString:[[self dsAdminBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"Unknown"];
+                                                                 withString:[[self dsAdminBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"Unknown"];
     
     // --------------------------------------------------------------
     //  Expand %DSADMINURL%
     // --------------------------------------------------------------
     expandedString = [expandedString stringByReplacingOccurrencesOfString:@"%DSADMINURL%"
-                                               withString:[_dsAdminURL path] ?: @"Unknown"];
+                                                               withString:[_dsAdminURL path] ?: @"Unknown"];
     
     // --------------------------------------------------------------
     //  Expand %NBITOOL%
     // --------------------------------------------------------------
     expandedString = [expandedString stringByReplacingOccurrencesOfString:@"%NBITOOL%"
-                                               withString:@"DSA"];
+                                                               withString:@"DSA"];
     
     return expandedString;
 }
