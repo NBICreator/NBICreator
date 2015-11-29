@@ -21,13 +21,8 @@
 
 @interface NBCHelperAuthorization : NSObject
 
-+ (NSError *)authorizeWorkflowCasper:(NSData *)authData;
-+ (NSError *)authorizeWorkflowDeployStudio:(NSData *)authData;
-+ (NSError *)authorizeWorkflowImagr:(NSData *)authData;
-+ (NSError *)authorizeWorkflowNetInstall:(NSData *)authData;
-
++ (NSError *)authorizeWorkflow:(NSString *)workflowId authData:(NSData *)authData;
 + (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command;
-
 + (NSData *)authorizeHelper;
 
 @end

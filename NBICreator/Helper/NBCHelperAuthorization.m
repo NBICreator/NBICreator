@@ -274,248 +274,69 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     }];
 }
 
-+ (NSError *)authorizeWorkflowCasper:(NSData *)authData {
++ (NSDictionary *)authRightsDictionary {
+    // Define the group of rights that should be authorized for each workflow's execution.
+    static dispatch_once_t dOnceToken;
+    static NSDictionary *authRightsDictionary;
+    dispatch_once(&dOnceToken, ^{
+        authRightsDictionary = @{
+             // Casper
+             NBCAuthorizationRightWorkflowCasper: @[
+                     NBCAuthorizationRightAddUsers,
+                     NBCAuthorizationRightCopyExtractedResourcesToCache,
+                     NBCAuthorizationRightCopyResourcesToVolume,
+                     NBCAuthorizationRightCreateNetInstall,
+                     NBCAuthorizationRightDisableSpotlight,
+                     NBCAuthorizationRightExtractResourcesFromPackage,
+                     NBCAuthorizationRightInstallPackages,
+                     NBCAuthorizationRightModifyResourcesOnVolume,
+                     NBCAuthorizationRightUpdateKernelCache
+                    ],
+             // DeployStudio
+             NBCAuthorizationRightWorkflowDeployStudio: @[
+                     NBCAuthorizationRightCopyResourcesToVolume,
+                     NBCAuthorizationRightDisableSpotlight,
+                     NBCAuthorizationRightModifyResourcesOnVolume,
+                     NBCAuthorizationRightSysBuilderWithArguments
+                    ],
+             // Imagr
+             NBCAuthorizationRightWorkflowImagr: @[
+                     NBCAuthorizationRightWorkflowImagr,
+                     NBCAuthorizationRightAddUsers,
+                     NBCAuthorizationRightCopyExtractedResourcesToCache,
+                     NBCAuthorizationRightCopyResourcesToVolume,
+                     NBCAuthorizationRightCreateNetInstall,
+                     NBCAuthorizationRightDisableSpotlight,
+                     NBCAuthorizationRightExtractResourcesFromPackage,
+                     NBCAuthorizationRightInstallPackages,
+                     NBCAuthorizationRightModifyResourcesOnVolume,
+                     NBCAuthorizationRightUpdateKernelCache
+                   ],
+              // NetInstall
+              NBCAuthorizationRightWorkflowNetInstall: @[
+                    NBCAuthorizationRightCopyResourcesToVolume,
+                    NBCAuthorizationRightDisableSpotlight,
+                    NBCAuthorizationRightModifyResourcesOnVolume,
+                    NBCAuthorizationRightCreateNetInstall ]
+              };
 
-    NSError *error = nil;
-    OSStatus err;
-    AuthorizationRef authRef = NULL;
-    
-    if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
-        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
-    }
-    
-    if ( error == nil ) {
-        err = AuthorizationCreateFromExternalForm( [authData bytes], &authRef );
-        
-        if ( err == errAuthorizationSuccess ) {
-            AuthorizationItem authItems[10];
-            
-            authItems[0].name = [NBCAuthorizationRightWorkflowCasper UTF8String];
-            authItems[0].valueLength = 0;
-            authItems[0].value = NULL;
-            authItems[0].flags = 0;
-            
-            authItems[1].name = [NBCAuthorizationRightAddUsers UTF8String];
-            authItems[1].valueLength = 0;
-            authItems[1].value = NULL;
-            authItems[1].flags = 0;
-            
-            authItems[2].name = [NBCAuthorizationRightCopyExtractedResourcesToCache UTF8String];
-            authItems[2].valueLength = 0;
-            authItems[2].value = NULL;
-            authItems[2].flags = 0;
-            
-            authItems[3].name = [NBCAuthorizationRightCopyResourcesToVolume UTF8String];
-            authItems[3].valueLength = 0;
-            authItems[3].value = NULL;
-            authItems[3].flags = 0;
-            
-            authItems[4].name = [NBCAuthorizationRightCreateNetInstall UTF8String];
-            authItems[4].valueLength = 0;
-            authItems[4].value = NULL;
-            authItems[4].flags = 0;
-            
-            authItems[5].name = [NBCAuthorizationRightDisableSpotlight UTF8String];
-            authItems[5].valueLength = 0;
-            authItems[5].value = NULL;
-            authItems[5].flags = 0;
-            
-            authItems[6].name = [NBCAuthorizationRightExtractResourcesFromPackage UTF8String];
-            authItems[6].valueLength = 0;
-            authItems[6].value = NULL;
-            authItems[6].flags = 0;
-            
-            authItems[7].name = [NBCAuthorizationRightInstallPackages UTF8String];
-            authItems[7].valueLength = 0;
-            authItems[7].value = NULL;
-            authItems[7].flags = 0;
-            
-            authItems[8].name = [NBCAuthorizationRightModifyResourcesOnVolume UTF8String];
-            authItems[8].valueLength = 0;
-            authItems[8].value = NULL;
-            authItems[8].flags = 0;
-            
-            authItems[9].name = [NBCAuthorizationRightUpdateKernelCache UTF8String];
-            authItems[9].valueLength = 0;
-            authItems[9].value = NULL;
-            authItems[9].flags = 0;
-            
-            AuthorizationRights authRights;
-            authRights.count = sizeof (authItems) / sizeof (authItems[0]);
-            authRights.items = authItems;
-            
-            err = AuthorizationCopyRights(
-                                          authRef,
-                                          &authRights,
-                                          NULL,
-                                          kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
-                                          NULL);
-        }
-        
-        if ( err != errAuthorizationSuccess ) {
-            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
-            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
-        }
-    }
-    
-    return error;
+    });
+    return authRightsDictionary;
 }
 
-+ (NSError *)authorizeWorkflowDeployStudio:(NSData *)authData {
-    
-    NSError *error = nil;
-    OSStatus err;
-    AuthorizationRef authRef = NULL;
-    
-    if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
-        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
++ (NSArray *)authorizationRightsForWorkflow:(NSString *)workflow {
+    NSArray *array = [[self class] authRightsDictionary][workflow];
+    if (array.count){
+        return [array arrayByAddingObject:workflow];
     }
-    
-    if ( error == nil ) {
-        err = AuthorizationCreateFromExternalForm( [authData bytes], &authRef );
-        
-        if ( err == errAuthorizationSuccess ) {
-            AuthorizationItem authItems[5];
-            
-            authItems[0].name = [NBCAuthorizationRightWorkflowDeployStudio UTF8String];
-            authItems[0].valueLength = 0;
-            authItems[0].value = NULL;
-            authItems[0].flags = 0;
-            
-            authItems[1].name = [NBCAuthorizationRightCopyResourcesToVolume UTF8String];
-            authItems[1].valueLength = 0;
-            authItems[1].value = NULL;
-            authItems[1].flags = 0;
-            
-            authItems[2].name = [NBCAuthorizationRightDisableSpotlight UTF8String];
-            authItems[2].valueLength = 0;
-            authItems[2].value = NULL;
-            authItems[2].flags = 0;
-            
-            authItems[3].name = [NBCAuthorizationRightModifyResourcesOnVolume UTF8String];
-            authItems[3].valueLength = 0;
-            authItems[3].value = NULL;
-            authItems[3].flags = 0;
-            
-            authItems[4].name = [NBCAuthorizationRightSysBuilderWithArguments UTF8String];
-            authItems[4].valueLength = 0;
-            authItems[4].value = NULL;
-            authItems[4].flags = 0;
-            
-            AuthorizationRights authRights;
-            authRights.count = sizeof (authItems) / sizeof (authItems[0]);
-            authRights.items = authItems;
-            
-            err = AuthorizationCopyRights(
-                                          authRef,
-                                          &authRights,
-                                          NULL,
-                                          kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
-                                          NULL);
-        }
-        
-        if ( err != errAuthorizationSuccess ) {
-            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
-            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
-        }
-    }
-    
-    return error;
+    return nil;
 }
 
-+ (NSError *)authorizeWorkflowImagr:(NSData *)authData {
-    
++ (NSError *)authorizeWorkflow:(NSString *)workflowId authData:(NSData *)authData {
     NSError *error = nil;
     OSStatus err;
     AuthorizationRef authRef = NULL;
-    
-    if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
-        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
-    }
-    
-    if ( error == nil ) {
-        err = AuthorizationCreateFromExternalForm( [authData bytes], &authRef );
-        
-        if ( err == errAuthorizationSuccess ) {
-            AuthorizationItem authItems[10];
-            
-            authItems[0].name = [NBCAuthorizationRightWorkflowImagr UTF8String];
-            authItems[0].valueLength = 0;
-            authItems[0].value = NULL;
-            authItems[0].flags = 0;
-            
-            authItems[1].name = [NBCAuthorizationRightAddUsers UTF8String];
-            authItems[1].valueLength = 0;
-            authItems[1].value = NULL;
-            authItems[1].flags = 0;
-            
-            authItems[2].name = [NBCAuthorizationRightCopyExtractedResourcesToCache UTF8String];
-            authItems[2].valueLength = 0;
-            authItems[2].value = NULL;
-            authItems[2].flags = 0;
-            
-            authItems[3].name = [NBCAuthorizationRightCopyResourcesToVolume UTF8String];
-            authItems[3].valueLength = 0;
-            authItems[3].value = NULL;
-            authItems[3].flags = 0;
-            
-            authItems[4].name = [NBCAuthorizationRightCreateNetInstall UTF8String];
-            authItems[4].valueLength = 0;
-            authItems[4].value = NULL;
-            authItems[4].flags = 0;
-            
-            authItems[5].name = [NBCAuthorizationRightDisableSpotlight UTF8String];
-            authItems[5].valueLength = 0;
-            authItems[5].value = NULL;
-            authItems[5].flags = 0;
-            
-            authItems[6].name = [NBCAuthorizationRightExtractResourcesFromPackage UTF8String];
-            authItems[6].valueLength = 0;
-            authItems[6].value = NULL;
-            authItems[6].flags = 0;
-            
-            authItems[7].name = [NBCAuthorizationRightInstallPackages UTF8String];
-            authItems[7].valueLength = 0;
-            authItems[7].value = NULL;
-            authItems[7].flags = 0;
-            
-            authItems[8].name = [NBCAuthorizationRightModifyResourcesOnVolume UTF8String];
-            authItems[8].valueLength = 0;
-            authItems[8].value = NULL;
-            authItems[8].flags = 0;
-            
-            authItems[9].name = [NBCAuthorizationRightUpdateKernelCache UTF8String];
-            authItems[9].valueLength = 0;
-            authItems[9].value = NULL;
-            authItems[9].flags = 0;
-            
-            AuthorizationRights authRights;
-            authRights.count = sizeof (authItems) / sizeof (authItems[0]);
-            authRights.items = authItems;
-            
-            err = AuthorizationCopyRights(
-                                          authRef,
-                                          &authRights,
-                                          NULL,
-                                          kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
-                                          NULL);
-        }
-        
-        if ( err != errAuthorizationSuccess ) {
-            NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
-            error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
-        }
-    }
-    
-    return error;
-}
 
-+ (NSError *)authorizeWorkflowNetInstall:(NSData *)authData {
-    
-    NSError *error = nil;
-    OSStatus err;
-    AuthorizationRef authRef = NULL;
-    
     if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
     }
@@ -524,47 +345,32 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
         err = AuthorizationCreateFromExternalForm( [authData bytes], &authRef );
         
         if ( err == errAuthorizationSuccess ) {
-            AuthorizationItem authItems[6];
-            
-            authItems[0].name = [NBCAuthorizationRightWorkflowNetInstall UTF8String];
-            authItems[0].valueLength = 0;
-            authItems[0].value = NULL;
-            authItems[0].flags = 0;
-            
-            authItems[1].name = [NBCAuthorizationRightCopyResourcesToVolume UTF8String];
-            authItems[1].valueLength = 0;
-            authItems[1].value = NULL;
-            authItems[1].flags = 0;
-            
-            authItems[2].name = [NBCAuthorizationRightCreateNetInstall UTF8String];
-            authItems[2].valueLength = 0;
-            authItems[2].value = NULL;
-            authItems[2].flags = 0;
-            
-            authItems[3].name = [NBCAuthorizationRightCreateRestoreFromSources UTF8String];
-            authItems[3].valueLength = 0;
-            authItems[3].value = NULL;
-            authItems[3].flags = 0;
-            
-            authItems[4].name = [NBCAuthorizationRightDisableSpotlight UTF8String];
-            authItems[4].valueLength = 0;
-            authItems[4].value = NULL;
-            authItems[4].flags = 0;
-            
-            authItems[5].name = [NBCAuthorizationRightModifyResourcesOnVolume UTF8String];
-            authItems[5].valueLength = 0;
-            authItems[5].value = NULL;
-            authItems[5].flags = 0;
-            
-            AuthorizationRights authRights;
-            authRights.count = sizeof (authItems) / sizeof (authItems[0]);
-            authRights.items = authItems;
-            
+            NSArray *authRightsArray = [[self class] authorizationRightsForWorkflow:workflowId];
+            if (!authRightsArray.count){
+                return [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : @"Invalid workflow process name. No rights returned." }];
+            }
+
+            AuthorizationItemSet * set = NULL;
+            set = (AuthorizationItemSet*)calloc(1u, sizeof(AuthorizationItemSet));
+            set->count = (UInt32)authRightsArray.count;
+            set->items = (AuthorizationItem*)calloc(set->count, sizeof(AuthorizationItem));
+
+            [authRightsArray enumerateObjectsUsingBlock:^(NSString *rightName, NSUInteger idx, BOOL * _Nonnull stop) {
+#pragma unused(stop)
+                set->items[idx].name = [rightName UTF8String];
+                set->items[idx].valueLength = 0;
+                set->items[idx].value = NULL;
+                set->items[idx].flags = 0;
+            }];
+
+            AuthorizationRights authRights = { set->count, set->items };
+            AuthorizationFlags flags = kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed;
+
             err = AuthorizationCopyRights(
                                           authRef,
                                           &authRights,
                                           NULL,
-                                          kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
+                                          flags,
                                           NULL);
         }
         

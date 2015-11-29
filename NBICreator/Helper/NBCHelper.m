@@ -163,19 +163,19 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)authorizeWorkflowCasper:(NSData *)authData withReply:(void(^)(NSError *error))reply {
-    reply([NBCHelperAuthorization authorizeWorkflowCasper:authData]);
+    reply([NBCHelperAuthorization authorizeWorkflow:NBCAuthorizationRightWorkflowCasper authData:authData]);
 } // authorizeWorkflowCasper:withReply
 
 - (void)authorizeWorkflowDeployStudio:(NSData *)authData withReply:(void(^)(NSError *error))reply {
-    reply([NBCHelperAuthorization authorizeWorkflowDeployStudio:authData]);
+    reply([NBCHelperAuthorization authorizeWorkflow:NBCAuthorizationRightWorkflowDeployStudio authData:authData]);
 } // authorizeWorkflowDeployStudio:withReply
 
 - (void)authorizeWorkflowImagr:(NSData *)authData withReply:(void(^)(NSError *error))reply {
-    reply([NBCHelperAuthorization authorizeWorkflowImagr:authData]);
+    reply([NBCHelperAuthorization authorizeWorkflow:NBCAuthorizationRightWorkflowImagr authData:authData]);
 } // authorizeWorkflowImagr:withReply
 
 - (void)authorizeWorkflowNetInstall:(NSData *)authData withReply:(void(^)(NSError *error))reply {
-    reply([NBCHelperAuthorization authorizeWorkflowNetInstall:authData]);
+    reply([NBCHelperAuthorization authorizeWorkflow:NBCAuthorizationRightWorkflowNetInstall authData:authData]);
 } // authorizeWorkflowNetInstall:withReply
 
 ////////////////////////////////////////////////////////////////////////////////
