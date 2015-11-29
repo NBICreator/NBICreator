@@ -60,8 +60,8 @@ DDLogLevel ddLogLevel;
 } // awakeFromNib
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSControlTextDidEndEditingNotification object:nil];
+} // dealloc
 
 - (void)viewDidLoad {
     [super viewDidLoad];
