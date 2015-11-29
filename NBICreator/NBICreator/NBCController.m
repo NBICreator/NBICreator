@@ -281,6 +281,7 @@ enum {
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
 #pragma unused(sender)
+    DDLogDebug(@"[DEBUG] %s", __PRETTY_FUNCTION__);
     // --------------------------------------------------------------
     //  Run some checks before terminating application
     // --------------------------------------------------------------
@@ -290,36 +291,32 @@ enum {
 
 - (void)applicationWillTerminate:(NSNotification *)notification {
 #pragma unused(notification)
-    
+    DDLogDebug(@"[DEBUG] %s", __PRETTY_FUNCTION__);
     // --------------------------------------------------------------
     //  Unmount all disks and disk images mounted by NBICreator
     // --------------------------------------------------------------
     NSSet *mountedDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
     if ( [mountedDisks count] != 0 ) {
-        
-        dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        dispatch_async(taskQueue, ^{
-            
-            for ( NBCDisk *disk in mountedDisks ) {
-                if ( [disk isMountedByNBICreator] && [disk isMounted] ) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self->_textFieldProgress setStringValue:[NSString stringWithFormat:@"Unmounting disk: %@", [disk BSDName]]];
-                    });
-                    [disk unmountWithOptions:kDADiskUnmountOptionDefault];
-                    if ( [[disk deviceModel] isEqualToString:NBCDiskDeviceModelDiskImage] ) {
-                        [NBCDiskImageController detachDiskImageDevice:[disk BSDName]];
-                    }
+        for ( NBCDisk *disk in mountedDisks ) {
+            if ( [disk isMountedByNBICreator] && [disk isMounted] ) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self->_textFieldProgress setStringValue:[NSString stringWithFormat:@"Unmounting disk: %@", [disk BSDName]]];
+                });
+                [disk unmountWithOptions:kDADiskUnmountOptionDefault];
+                if ( [[disk deviceModel] isEqualToString:NBCDiskDeviceModelDiskImage] ) {
+                    [NBCDiskImageController detachDiskImageDevice:[disk BSDName]];
                 }
             }
-            
-            [[NSApp mainWindow] endSheet:self->_windowProgress];
-            
-        });
+        }
+        
+        [[NSApp mainWindow] endSheet:self->_windowProgress];
     }
 } // applicationWillTerminate
 
 - (void)showTerminateProgress {
-    [[NSApp mainWindow] beginSheet:_windowProgress completionHandler:nil];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSApp mainWindow] beginSheet:self->_windowProgress completionHandler:nil];
+    });
 } // showTerminateProgress
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
@@ -509,8 +506,6 @@ enum {
     }
 } // checkWorkflowRunningQuit
 
-
-
 - (void)terminateApp {
     
     DDLogDebug(@"[DEBUG] Terminating application...");
@@ -518,9 +513,9 @@ enum {
     // --------------------------------------------------------------
     //  Show termination progress after 2 seconds
     // --------------------------------------------------------------
-    [_progressIndicatorProgress startAnimation:self];
-    [self performSelector:@selector(showTerminateProgress) withObject:self afterDelay:2.0];
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self->_progressIndicatorProgress startAnimation:self];
+        [self performSelector:@selector(showTerminateProgress) withObject:self afterDelay:2.0];
         [self->_textFieldProgress setStringValue:@"Removing temporary items..."];
     });
     
