@@ -70,7 +70,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -83,7 +83,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -96,7 +96,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -109,7 +109,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -122,7 +122,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -135,7 +135,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -148,7 +148,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -161,7 +161,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -174,7 +174,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -187,7 +187,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
@@ -200,7 +200,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @{
                                          @"class": @"user",
                                          @"group": @"admin",
-                                         @"timeout": @(300),
+                                         //@"timeout": @(300),
                                          @"version": @(1),
                                          },
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
