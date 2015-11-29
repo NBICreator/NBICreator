@@ -58,12 +58,12 @@
         }
     }
     
-    NSError *error = nil;
+    //NSError *error = nil;
 
-    if ( [latestVersionURL checkResourceIsReachableAndReturnError:&error] ) {
+    if ( [latestVersionURL checkResourceIsReachableAndReturnError:nil] ) {
         [self setIsInstalled:YES];
         [self setDsAdminURL:latestVersionURL];
-        if ( [[latestVersionURL URLByAppendingPathComponent:@"Contents/Applications/DeployStudio Assistant.app"] checkResourceIsReachableAndReturnError:&error] ) {
+        if ( [[latestVersionURL URLByAppendingPathComponent:@"Contents/Applications/DeployStudio Assistant.app"] checkResourceIsReachableAndReturnError:nil] ) {
             [self setDsAssistantURL:[latestVersionURL URLByAppendingPathComponent:@"Contents/Applications/DeployStudio Assistant.app"]];
         } else {
             [self setDsAssistantURL:nil];
