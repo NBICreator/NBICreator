@@ -281,7 +281,7 @@ enum {
 
 - (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
 #pragma unused(sender)
-    DDLogDebug(@"[DEBUG] %s", __PRETTY_FUNCTION__);
+    
     // --------------------------------------------------------------
     //  Run some checks before terminating application
     // --------------------------------------------------------------

@@ -39,7 +39,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
 @property (weak) NSXPCConnection *relayConnection;
 @property (strong, nonatomic) NSMutableArray *connections;
 @property (nonatomic, assign) BOOL helperToolShouldQuit;
-@property (nonatomic, assign) BOOL authenticateAll; // Temporary until I figure out authentication
 
 @end
 
@@ -53,7 +52,6 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         self->_listener = [[NSXPCListener alloc] initWithMachServiceName:NBCBundleIdentifierHelper];
         self->_listener.delegate = self;
         self->_connections = [[NSMutableArray alloc] init];
-        self->_authenticateAll = YES;
     }
     return self;
 }
@@ -192,15 +190,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     // -----------------------------------------------------------------------------------
@@ -242,15 +237,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     NSString *command = @"/bin/bash";
@@ -266,15 +258,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -482,15 +471,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     NSString *command = @"/bin/sh";
@@ -529,15 +515,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     NSString *command = @"/bin/sh";
@@ -575,15 +558,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     NSString *command = @"/usr/bin/mdutil";
@@ -601,15 +581,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     NSString *command = @"/bin/bash";
@@ -670,15 +647,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     NSString *command = @"/usr/sbin/installer";
@@ -725,15 +699,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     NSFileManager *fm = [NSFileManager defaultManager];
@@ -1115,10 +1086,10 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     [task waitUntilExit];
     
     //[task setTerminationHandler:^(NSTask *aTask) {
-        [nc removeObserver:stdOutObserver];
-        [nc removeObserver:stdErrObserver];
-        
-        reply(nil, [task terminationStatus]);
+    [nc removeObserver:stdOutObserver];
+    [nc removeObserver:stdErrObserver];
+    
+    reply(nil, [task terminationStatus]);
     //}];
 } // runTaskWithCommand:arguments:currentDirectory:environmentVariables:withReply
 
@@ -1130,15 +1101,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     NSString *command = @"/bin/sh";
@@ -1183,15 +1151,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     
     NSError *err = nil;
     
-    if ( _authenticateAll ) {
-        
-        // -----------------------------------------------------------------------------------
-        //  Verify authorization
-        // -----------------------------------------------------------------------------------
-        err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
-        if ( err != nil ) {
-            return reply(err, -1);
-        }
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
     }
     
     // -----------------------------------------------------------------------------------
