@@ -23,6 +23,6 @@
 
 + (NSError *)authorizeWorkflow:(NSString *)workflowId authData:(NSData *)authData;
 + (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command;
-+ (NSData *)authorizeHelper;
++ (NSData *)authorizeHelper:(NSError **)error;
 
 @end

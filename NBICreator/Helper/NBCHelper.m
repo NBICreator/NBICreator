@@ -1027,40 +1027,28 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
       environmentVariables:(NSDictionary *)environmentVariables
                  withReply:(void(^)(NSError *error, int terminationStatus))reply {
     
-    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    //NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     
     // -----------------------------------------------------------------------------------
     //  Create stdout and stderr file handles and send all output to remoteObjectProxy
     // -----------------------------------------------------------------------------------
     NSPipe *stdOut = [[NSPipe alloc] init];
-    [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-    id stdOutObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                        object:[stdOut fileHandleForReading]
-                                         queue:nil
-                                    usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                        NSData *stdOutData = [[stdOut fileHandleForReading] availableData];
-                                        NSString *stdOutString = [[[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                        if ( [stdOutString length] != 0 ) {
-                                            [[[self connection] remoteObjectProxy] logStdOut:stdOutString];
-                                        }
-                                        [[stdOut fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                    }];
+    [stdOut.fileHandleForReading setReadabilityHandler:^(NSFileHandle *fh) {
+        NSData *stdOutData = [fh availableData];
+        NSString *stdOutString = [[[NSString alloc] initWithData:stdOutData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+        if ( [stdOutString length] != 0 ) {
+            [[[self connection] remoteObjectProxy] logStdOut:stdOutString];
+        }
+    }];
     
     NSPipe *stdErr = [[NSPipe alloc] init];
-    [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-    id stdErrObserver = [nc addObserverForName:NSFileHandleDataAvailableNotification
-                                        object:[stdErr fileHandleForReading]
-                                         queue:nil
-                                    usingBlock:^(NSNotification *notification){
-#pragma unused(notification)
-                                        NSData *stdErrData = [[stdErr fileHandleForReading] availableData];
-                                        NSString *stdErrString = [[[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
-                                        if ( [stdErrString length] != 0 ) {
-                                            [[[self connection] remoteObjectProxy] logStdErr:stdErrString];
-                                        }
-                                        [[stdErr fileHandleForReading] waitForDataInBackgroundAndNotify];
-                                    }];
+    [stdErr.fileHandleForReading setReadabilityHandler:^(NSFileHandle *fh) {
+        NSData *stdErrData = [fh availableData];
+        NSString *stdErrString = [[[NSString alloc] initWithData:stdErrData encoding:NSUTF8StringEncoding] stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+        if ( [stdErrString length] != 0 ) {
+            [[[self connection] remoteObjectProxy] logStdErr:stdErrString];
+        }
+    }];
     
     // ------------------------
     //  Setup task
@@ -1075,22 +1063,26 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         [task setCurrentDirectoryPath:currentDirectory];
     }
     
-    if ( [environmentVariables count] != 0 ) {
-        [task setEnvironment:environmentVariables];
-    }
+    NSMutableDictionary *environment = [[[NSProcessInfo processInfo] environment] mutableCopy];
+    [environment addEntriesFromDictionary:environmentVariables];
+    environment[@"NSUnbufferedIO"] = @"YES";
+    [task setEnvironment:environment];
+    
+    [task setTerminationHandler:^(NSTask *aTask) {
+        
+        // nil out readabilityHandler so the NSPipe isn't retained.
+        [aTask.standardOutput fileHandleForReading].readabilityHandler = nil;
+        [aTask.standardError fileHandleForReading].readabilityHandler = nil;
+        
+        reply(nil, [aTask terminationStatus]);
+    }];
     
     // ------------------------
     //  Launch task
     // ------------------------
     [task launch];
-    [task waitUntilExit];
     
-    //[task setTerminationHandler:^(NSTask *aTask) {
-    [nc removeObserver:stdOutObserver];
-    [nc removeObserver:stdErrObserver];
     
-    reply(nil, [task terminationStatus]);
-    //}];
 } // runTaskWithCommand:arguments:currentDirectory:environmentVariables:withReply
 
 - (void)sysBuilderWithArguments:(NSArray *)arguments

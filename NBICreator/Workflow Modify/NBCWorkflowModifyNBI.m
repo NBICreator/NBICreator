@@ -1146,9 +1146,13 @@ DDLogLevel ddLogLevel;
         // --------------------------------
         //  Get Authorization
         // --------------------------------
+        NSError *err = nil;
         NSData *authData = [_workflowItem authData];
         if ( ! authData ) {
-            authData = [NBCHelperAuthorization authorizeHelper];
+            authData = [NBCHelperAuthorization authorizeHelper:&err];
+            if ( err ) {
+                DDLogError(@"[ERROR] %@", [err localizedDescription]);
+            }
             [_workflowItem setAuthData:authData];
         }
         
@@ -1294,7 +1298,10 @@ DDLogLevel ddLogLevel;
             // --------------------------------
             NSData *authData = [_workflowItem authData];
             if ( ! authData ) {
-                [NBCHelperAuthorization authorizeHelper];
+                authData = [NBCHelperAuthorization authorizeHelper:&err];
+                if ( err ) {
+                    DDLogError(@"[ERROR] %@", [err localizedDescription]);
+                }
                 [_workflowItem setAuthData:authData];
             }
             
@@ -1386,9 +1393,16 @@ DDLogLevel ddLogLevel;
     [_delegate updateProgressStatus:@"Disabling spotlight on volume..." workflow:self];
     [_delegate updateProgressBar:(( 35.0 * _progressPercentage ) + _progressOffset)];
     
+    // --------------------------------
+    //  Get Authorization
+    // --------------------------------
+    NSError *err = nil;
     NSData *authData = [_workflowItem authData];
     if ( ! authData ) {
-        authData = [NBCHelperAuthorization authorizeHelper];
+        authData = [NBCHelperAuthorization authorizeHelper:&err];
+        if ( err ) {
+            DDLogError(@"[ERROR] %@", [err localizedDescription]);
+        }
         [_workflowItem setAuthData:authData];
     }
     
@@ -1447,7 +1461,10 @@ DDLogLevel ddLogLevel;
     // --------------------------------
     NSData *authData = [_workflowItem authData];
     if ( ! authData ) {
-        authData = [NBCHelperAuthorization authorizeHelper];
+        authData = [NBCHelperAuthorization authorizeHelper:&err];
+        if ( err ) {
+            DDLogError(@"[ERROR] %@", [err localizedDescription]);
+        }
         [_workflowItem setAuthData:authData];
     }
     
@@ -1507,7 +1524,10 @@ DDLogLevel ddLogLevel;
     // --------------------------------
     NSData *authData = [_workflowItem authData];
     if ( ! authData ) {
-        authData = [NBCHelperAuthorization authorizeHelper];
+        authData = [NBCHelperAuthorization authorizeHelper:&err];
+        if ( err ) {
+            DDLogError(@"[ERROR] %@", [err localizedDescription]);
+        }
         [_workflowItem setAuthData:authData];
     }
     

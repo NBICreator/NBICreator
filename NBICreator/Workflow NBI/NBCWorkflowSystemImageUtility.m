@@ -467,9 +467,13 @@
     // --------------------------------
     //  Get Authorization
     // --------------------------------
+    NSError *err = nil;
     NSData *authData = [_workflowItem authData];
     if ( ! authData ) {
-        authData = [NBCHelperAuthorization authorizeHelper];
+        authData = [NBCHelperAuthorization authorizeHelper:&err];
+        if ( err ) {
+            DDLogError(@"[ERROR] %@", [err localizedDescription]);
+        }
         [_workflowItem setAuthData:authData];
     }
     
@@ -574,7 +578,10 @@
     // --------------------------------
     NSData *authData = [_workflowItem authData];
     if ( ! authData ) {
-        authData = [NBCHelperAuthorization authorizeHelper];
+        authData = [NBCHelperAuthorization authorizeHelper:&err];
+        if ( err ) {
+            DDLogError(@"[ERROR] %@", [err localizedDescription]);
+        }
         [_workflowItem setAuthData:authData];
     }
     

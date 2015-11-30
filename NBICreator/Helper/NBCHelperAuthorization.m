@@ -211,12 +211,11 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                          };
     });
     return sCommandInfo;
-}
+} // commandInfo
 
 + (NSString *)authorizationRightForCommand:(SEL)command {
     return [self commandInfo][NSStringFromSelector(command)][kCommandKeyAuthRightName];
-}
-
+} // authorizationRightForCommand
 
 + (void)enumerateRightsUsingBlock:( void (^)(NSString * authRightName, id authRightDefault, NSString * authRightDesc))block {
     [self.commandInfo enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
@@ -244,18 +243,31 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
         
         block(authRightName, authRightDefault, authRightDesc);
     }];
-}
+} // enumerateRightsUsingBlock
 
-+ (void)setupAuthorizationRights:(AuthorizationRef)authRef {
-    assert(authRef != NULL);
++ (NSError *)setupAuthorizationRights:(AuthorizationRef)authRef {
+    
+    __block NSError *error = nil;
+    
+    // ------------------------------------------------
+    //  Loop through all rights defined in commandInfo
+    // ------------------------------------------------
     [[self class] enumerateRightsUsingBlock:^(NSString * authRightName, id authRightDefault, NSString * authRightDesc) {
-        OSStatus blockErr;
         
-        // First get the right.  If we get back errAuthorizationDenied that means there's
-        // no current definition, so we add our default one.
+        OSStatus blockErr;
         CFDictionaryRef currentRight = NULL;
+        
+        // -----------------------------------------------------------------
+        //  Check if right already exist in policy database.
+        //  errAuthorizationDenied means that it doesn't exit.
+        //  If the versions mismatch, it needs to be updated.
+        // -----------------------------------------------------------------
         blockErr = AuthorizationRightGet([authRightName UTF8String], &currentRight);
         if ( blockErr == errAuthorizationDenied || ( [authRightDefault isKindOfClass:[NSDictionary class]] && ! [authRightDefault[@"version"] isEqualTo:[(__bridge NSDictionary *)currentRight objectForKey:@"version"]] ) ) {
+            
+            // ---------------------------------------
+            //  Add the right to the policy database
+            // ---------------------------------------
             blockErr = AuthorizationRightSet(
                                              authRef,                                    // authRef
                                              [authRightName UTF8String],                 // rightName
@@ -264,10 +276,16 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                              NULL,                                       // bundle (NULL implies main bundle)
                                              CFSTR("Common")                             // localeTableName
                                              );
-            assert( blockErr == errAuthorizationSuccess );
+            
+            if ( blockErr != errAuthorizationSuccess ) {
+                NSString *message = CFBridgingRelease(SecCopyErrorMessageString(blockErr, NULL));
+                error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:blockErr userInfo:@{ NSLocalizedDescriptionKey : message }];
+            }
         }
     }];
-}
+    
+    return error;
+} // setupAuthorizationRights:error
 
 + (NSDictionary *)authRightsDictionary {
     // Define the group of rights that should be authorized for each workflow's execution.
@@ -275,7 +293,10 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     static NSDictionary *authRightsDictionary;
     dispatch_once(&dOnceToken, ^{
         authRightsDictionary = @{
-                                 // Casper
+                                 
+                                 // -----------------------------------------------------------------------------------
+                                 //  Casper
+                                 // -----------------------------------------------------------------------------------
                                  NBCAuthorizationRightWorkflowCasper: @[
                                          NBCAuthorizationRightWorkflowCasper,
                                          NBCAuthorizationRightAddUsers,
@@ -288,7 +309,10 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                          NBCAuthorizationRightModifyResourcesOnVolume,
                                          NBCAuthorizationRightUpdateKernelCache
                                          ],
-                                 // DeployStudio
+                                 
+                                 // -----------------------------------------------------------------------------------
+                                 //  DeployStudio
+                                 // -----------------------------------------------------------------------------------
                                  NBCAuthorizationRightWorkflowDeployStudio: @[
                                          NBCAuthorizationRightWorkflowDeployStudio,
                                          NBCAuthorizationRightCopyResourcesToVolume,
@@ -296,7 +320,10 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                          NBCAuthorizationRightModifyResourcesOnVolume,
                                          NBCAuthorizationRightSysBuilderWithArguments
                                          ],
-                                 // Imagr
+                                 
+                                 // -----------------------------------------------------------------------------------
+                                 //  Imagr
+                                 // -----------------------------------------------------------------------------------
                                  NBCAuthorizationRightWorkflowImagr: @[
                                          NBCAuthorizationRightWorkflowImagr,
                                          NBCAuthorizationRightAddUsers,
@@ -309,7 +336,10 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                          NBCAuthorizationRightModifyResourcesOnVolume,
                                          NBCAuthorizationRightUpdateKernelCache
                                          ],
-                                 // NetInstall
+                                 
+                                 // -----------------------------------------------------------------------------------
+                                 //  NetInstall
+                                 // -----------------------------------------------------------------------------------
                                  NBCAuthorizationRightWorkflowNetInstall: @[
                                          NBCAuthorizationRightWorkflowNetInstall,
                                          NBCAuthorizationRightCopyResourcesToVolume,
@@ -324,18 +354,18 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
 
 + (NSArray *)authorizationRightsForWorkflow:(NSString *)workflow {
     NSArray *array = [[self class] authRightsDictionary][workflow];
-    if (array.count){
+    if ( [array count] ){
         return [array arrayByAddingObject:workflow];
     }
     return nil;
 }
 
 + (NSError *)authorizeWorkflow:(NSString *)workflowId authData:(NSData *)authData {
+    OSStatus err = 0;
     NSError *error = nil;
-    OSStatus err;
     AuthorizationRef authRef = NULL;
     
-    if ( (authData == nil) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
+    if ( ( authData == nil ) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
     }
     
@@ -343,8 +373,9 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
         err = AuthorizationCreateFromExternalForm( [authData bytes], &authRef );
         
         if ( err == errAuthorizationSuccess ) {
+            
             NSArray *authRightsArray = [[self class] authorizationRightsForWorkflow:workflowId];
-            if (!authRightsArray.count){
+            if ( ! [authRightsArray count] ) {
                 return [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : @"Invalid workflow process name. No rights returned." }];
             }
             
@@ -364,6 +395,9 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
             AuthorizationRights authRights = { set->count, set->items };
             AuthorizationFlags flags = kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed;
             
+            // -----------------------------------------------------------------------------------
+            //  Try to obtain the right from the authorization server, might ask the user
+            // -----------------------------------------------------------------------------------
             err = AuthorizationCopyRights(
                                           authRef,
                                           &authRights,
@@ -382,30 +416,40 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
 }
 
 + (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command {
-    
-    NSError *error;
-    OSStatus err;
-    AuthorizationRef authRef;
+    OSStatus err = 0;
+    NSError *error = nil;
+    AuthorizationRef authRef = NULL;
     
     assert(command != nil);
     
-    authRef = NULL;
-    
-    error = nil;
-    if ((authData == nil) || ([authData length] != sizeof(AuthorizationExternalForm))) {
+    // -----------------------------------------------------------------------------------
+    //  Verify that authData is reasonable
+    // -----------------------------------------------------------------------------------
+    if ( ( authData == nil ) || ( [authData length] != sizeof(AuthorizationExternalForm) ) ) {
         error = [NSError errorWithDomain:NSOSStatusErrorDomain code:paramErr userInfo:nil];
     }
     
-    if (error == nil) {
+    if ( error == nil ) {
+        
+        // -----------------------------------------------------------------------------------
+        //  Extract authRef from it's data representation 'authData'
+        // -----------------------------------------------------------------------------------
         err = AuthorizationCreateFromExternalForm([authData bytes], &authRef);
         
         if (err == errAuthorizationSuccess) {
+            
+            // -----------------------------------------------------------------------------------
+            //  Create right to obtain by returning a string representation of 'command'
+            // -----------------------------------------------------------------------------------
             AuthorizationItem oneRight = { NULL, 0, NULL, 0 };
             AuthorizationRights rights = { 1, &oneRight };
             
             oneRight.name = [[[self class] authorizationRightForCommand:command] UTF8String];
             assert(oneRight.name != NULL);
             
+            // -----------------------------------------------------------------------------------
+            //  Try to obtain the right from the authorization server, might ask the user
+            // -----------------------------------------------------------------------------------
             err = AuthorizationCopyRights(
                                           authRef,
                                           &rights,
@@ -413,7 +457,8 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                           kAuthorizationFlagExtendRights | kAuthorizationFlagInteractionAllowed,
                                           NULL);
         }
-        if (err != errAuthorizationSuccess) {
+        
+        if ( err != errAuthorizationSuccess ) {
             NSString *message = CFBridgingRelease(SecCopyErrorMessageString(err, NULL));
             error = [NSError errorWithDomain:[[NSProcessInfo processInfo] processName] code:err userInfo:@{ NSLocalizedDescriptionKey : message }];
         }
@@ -422,8 +467,8 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     return error;
 }
 
-+ (NSData *)authorizeHelper {
-    OSStatus err;
++ (NSData *)authorizeHelper:(NSError **)error {
+    OSStatus err = 0;
     AuthorizationExternalForm extForm;
     AuthorizationRef authRef;
     NSData *authorization;
@@ -452,7 +497,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     assert( err == errAuthorizationSuccess );
     
     if ( authRef ) {
-        [[self class] setupAuthorizationRights:authRef];
+        *error = [[self class] setupAuthorizationRights:authRef];
     }
     
     return authorization;

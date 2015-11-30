@@ -230,7 +230,10 @@ DDLogLevel ddLogLevel;
         // --------------------------------
         NSData *authData = [_workflowItem authData];
         if ( ! authData ) {
-            authData = [NBCHelperAuthorization authorizeHelper];
+            authData = [NBCHelperAuthorization authorizeHelper:&err];
+            if ( err ) {
+                DDLogError(@"[ERROR] %@", [err localizedDescription]);
+            }
             [_workflowItem setAuthData:authData];
         }
         
@@ -319,7 +322,10 @@ DDLogLevel ddLogLevel;
         // --------------------------------
         NSData *authData = [_workflowItem authData];
         if ( ! authData ) {
-            authData = [NBCHelperAuthorization authorizeHelper];
+            authData = [NBCHelperAuthorization authorizeHelper:&err];
+            if ( err ) {
+                DDLogError(@"[ERROR] %@", [err localizedDescription]);
+            }
             [_workflowItem setAuthData:authData];
         }
         

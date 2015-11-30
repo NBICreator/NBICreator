@@ -292,6 +292,15 @@ enum {
 - (void)applicationWillTerminate:(NSNotification *)notification {
 #pragma unused(notification)
     DDLogDebug(@"[DEBUG] %s", __PRETTY_FUNCTION__);
+    
+    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+    [helperConnector connectToHelper];
+    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
+    }] quitHelper:^(BOOL success) {
+#pragma unused(success)
+    }];
+    
     // --------------------------------------------------------------
     //  Unmount all disks and disk images mounted by NBICreator
     // --------------------------------------------------------------
