@@ -249,13 +249,13 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
 + (void)setupAuthorizationRights:(AuthorizationRef)authRef {
     assert(authRef != NULL);
     [[self class] enumerateRightsUsingBlock:^(NSString * authRightName, id authRightDefault, NSString * authRightDesc) {
-        OSStatus    blockErr;
+        OSStatus blockErr;
         
         // First get the right.  If we get back errAuthorizationDenied that means there's
         // no current definition, so we add our default one.
-        
-        blockErr = AuthorizationRightGet([authRightName UTF8String], NULL);
-        if (blockErr == errAuthorizationDenied) {
+        CFDictionaryRef currentRight = NULL;
+        blockErr = AuthorizationRightGet([authRightName UTF8String], &currentRight);
+        if ( blockErr == errAuthorizationDenied || ( [authRightDefault isKindOfClass:[NSDictionary class]] && ! [authRightDefault[@"version"] isEqualTo:[(__bridge NSDictionary *)currentRight objectForKey:@"version"]] ) ) {
             blockErr = AuthorizationRightSet(
                                              authRef,                                    // authRef
                                              [authRightName UTF8String],                 // rightName
@@ -264,12 +264,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                              NULL,                                       // bundle (NULL implies main bundle)
                                              CFSTR("Common")                             // localeTableName
                                              );
-            assert(blockErr == errAuthorizationSuccess);
-        } else {
-            // A right already exists (err == noErr) or any other error occurs, we
-            // assume that it has been set up in advance by the system administrator or
-            // this is the second time we've run.  Either way, there's nothing more for
-            // us to do.
+            assert( blockErr == errAuthorizationSuccess );
         }
     }];
 }
