@@ -32,6 +32,13 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     static NSDictionary *  sCommandInfo;
     
     dispatch_once(&sOnceToken, ^{
+        NSDictionary *sessionExtendedRights = @{
+                                                @"class": @"user",
+                                                @"group": @"admin",
+                                                //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
+                                                @"version": @(1),
+                                                };
+
         sCommandInfo = @{
                          NSStringFromSelector(@selector(authorizeWorkflowImagr:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightWorkflowImagr,
@@ -67,12 +74,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(addUsersToVolumeAtPath:userShortName:userPassword:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightAddUsers,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to add a user.",
                                                                                  @"prompt shown when user is required to authorize to add a user"
@@ -80,12 +82,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(copyExtractedResourcesToCache:regexString:temporaryFolder:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightCopyExtractedResourcesToCache,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying copy the extracted resources to cache.",
                                                                                  @"prompt shown when user is required to authorize to update kernel cache"
@@ -93,12 +90,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(copyResourcesToVolume:copyArray:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightCopyResourcesToVolume,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying copy resources to the NBI.",
                                                                                  @"prompt shown when user is required to authorize to update kernel cache"
@@ -106,12 +98,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(createNetInstallWithArguments:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightCreateNetInstall,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to create a NetInstall NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
@@ -119,12 +106,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(createRestoreFromSourcesWithArguments:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightCreateRestoreFromSources,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to create a NetInstall NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
@@ -132,12 +114,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(disableSpotlightOnVolume:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightDisableSpotlight,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to disable spotlight.",
                                                                                  @"prompt shown when user is required to authorize to disable spotlight on a volume"
@@ -145,12 +122,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(extractResourcesFromPackageAtPath:minorVersion:temporaryFolder:temporaryPackageFolder:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightExtractResourcesFromPackage,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying extract resources from an installer package.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
@@ -158,12 +130,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(installPackage:targetVolumePath:choices:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightInstallPackages,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying install packages on the NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
@@ -171,12 +138,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(modifyResourcesOnVolume:modificationsArray:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightModifyResourcesOnVolume,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying modify the NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
@@ -184,12 +146,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(sysBuilderWithArguments:sourceVersionMinor:selectedVersion:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightSysBuilderWithArguments,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to create a DeployStudio NBI.",
                                                                                  @"prompt shown when user is required to authorize to start a NetInstall workflow"
@@ -197,12 +154,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  },
                          NSStringFromSelector(@selector(updateKernelCache:nbiVolumePath:minorVersion:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightUpdateKernelCache,
-                                 kCommandKeyAuthRightDefault : @{
-                                         @"class": @"user",
-                                         @"group": @"admin",
-                                         //@"timeout": @(300), // Removed timeout to have the right authorized until the auth session ends
-                                         @"version": @(1),
-                                         },
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying update the prelinked kernel in the NBI.",
                                                                                  @"prompt shown when user is required to authorize to update the NBI prelinked kernel"
