@@ -358,7 +358,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
         return [array arrayByAddingObject:workflow];
     }
     return nil;
-}
+} // authorizationRightsForWorkflow
 
 + (NSError *)authorizeWorkflow:(NSString *)workflowId authData:(NSData *)authData {
     OSStatus err = 0;
@@ -413,14 +413,15 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     }
     
     return error;
-}
+} // authorizeWorkflow:authData
 
 + (NSError *)checkAuthorization:(NSData *)authData command:(SEL)command {
+    assert(command != nil);
+    assert(authData != nil);
+    
     OSStatus err = 0;
     NSError *error = nil;
     AuthorizationRef authRef = NULL;
-    
-    assert(command != nil);
     
     // -----------------------------------------------------------------------------------
     //  Verify that authData is reasonable
@@ -438,18 +439,18 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
         
         if (err == errAuthorizationSuccess) {
             
-            // -----------------------------------------------------------------------------------
-            //  Create right to obtain by returning a string representation of 'command'
-            // -----------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------------------
+            //  Assemble right to obtain by returning a string representation of 'command' as the right name
+            // ----------------------------------------------------------------------------------------------
             AuthorizationItem oneRight = { NULL, 0, NULL, 0 };
             AuthorizationRights rights = { 1, &oneRight };
             
             oneRight.name = [[[self class] authorizationRightForCommand:command] UTF8String];
             assert(oneRight.name != NULL);
             
-            // -----------------------------------------------------------------------------------
-            //  Try to obtain the right from the authorization server, might ask the user
-            // -----------------------------------------------------------------------------------
+            // --------------------------------------------------------------------------------------------------
+            //  Try to obtain the right from the authorization server for session in authRef, might ask the user
+            // --------------------------------------------------------------------------------------------------
             err = AuthorizationCopyRights(
                                           authRef,
                                           &rights,
@@ -465,7 +466,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
     }
     
     return error;
-}
+} // checkAuthorization
 
 + (NSData *)authorizeHelper:(NSError **)error {
     OSStatus err = 0;
