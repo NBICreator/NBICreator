@@ -78,11 +78,8 @@ enum {
 ////////////////////////////////////////////////////////////////////////////////
 
 @interface NBCController() {
-    AuthorizationRef _authRef;
     Reachability *_internetReachableFoo;
 } // NBCController
-
-@property (atomic, copy, readwrite) NSData *authorization;
 
 @end
 
@@ -146,7 +143,7 @@ enum {
 } // init
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:NBCNotificationUpdateButtonBuild object:nil];
 } // dealloc
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -155,11 +152,10 @@ enum {
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)createEmptyAuthorizationRef {
+- (AuthorizationRef)createEmptyAuthorizationRef:(NSError **)error {
     DDLogDebug(@"Creating empty authorization reference...");
-    NSError                     *error;
-    OSStatus                    status;
-    AuthorizationExternalForm   extForm;
+    AuthorizationRef            authRef;
+    OSStatus                    status = 0;
     
     // --------------------------------------------------------------
     //  Connect to the authorization system and create an authorization reference.
@@ -167,29 +163,18 @@ enum {
     status = AuthorizationCreate(NULL,
                                  kAuthorizationEmptyEnvironment,
                                  kAuthorizationFlagDefaults,
-                                 &_authRef);
+                                 &authRef);
     
     if ( status == errAuthorizationSuccess ) {
         DDLogDebug(@"Creating empty authorization reference successful!");
-        
-        // --------------------------------------------------------------
-        //  If creating the authorization reference was successful, try to make it interprocess compatible.
-        // --------------------------------------------------------------
-        DDLogDebug(@"Making authorization references interprocess compatible...");
-        status = AuthorizationMakeExternalForm(_authRef, &extForm);
-        if ( error == errAuthorizationSuccess ) {
-            DDLogDebug(@"Making authorization references interprocess compatible successful!");
-            _authorization = [[NSData alloc] initWithBytes:&extForm length:sizeof(extForm)];
-        } else {
-            DDLogError(@"[ERROR] Creating empty authorization reference failed!");
-            error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-            DDLogError(@"[ERROR] %@", [error localizedDescription]);
-        }
+        return authRef;
     } else {
         DDLogError(@"[ERROR] Creating empty authorization reference failed!");
-        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-        DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+        DDLogError(@"[ERROR] %@", [*error localizedDescription]);
     }
+    
+    return nil;
 } // createEmptyAuthorizationRef
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -245,12 +230,6 @@ enum {
     [NBCDiskArbitrator sharedArbitrator];
     
     // --------------------------------------------------------------
-    // Create an empty AuthorizationRef and make it interprocess compatible
-    // It will be used whith tasks that require authentication to helper
-    // --------------------------------------------------------------
-    [self createEmptyAuthorizationRef];
-    
-    // --------------------------------------------------------------
     //  Check that helper tool is updated
     // --------------------------------------------------------------
     [self checkHelperVersion];
@@ -293,14 +272,6 @@ enum {
 #pragma unused(notification)
     DDLogDebug(@"[DEBUG] %s", __PRETTY_FUNCTION__);
     
-    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-    [helperConnector connectToHelper];
-    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-        DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
-    }] quitHelper:^(BOOL success) {
-#pragma unused(success)
-    }];
-    
     // --------------------------------------------------------------
     //  Unmount all disks and disk images mounted by NBICreator
     // --------------------------------------------------------------
@@ -320,6 +291,14 @@ enum {
         
         [[NSApp mainWindow] endSheet:self->_windowProgress];
     }
+    
+    NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+    [helperConnector connectToHelper];
+    [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
+        DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
+    }] quitHelper:^(BOOL success) {
+#pragma unused(success)
+    }];
 } // applicationWillTerminate
 
 - (void)showTerminateProgress {
@@ -637,54 +616,124 @@ enum {
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (BOOL)blessHelperWithLabel:(NSString *)label {
+- (BOOL)installHelper:(NSError **)error {
     
-    DDLogInfo(@"Installing helper tool...");
-    
-    BOOL result = NO;
-    NSError *error = nil;
-    
-    // --------------------------------------------------------------
-    //  Create an Authorization Right for installing helper tool
-    // --------------------------------------------------------------
+    // -----------------------------------------------------------------------
+    //  Create an Authorization Right for removing AND installing helper tool
+    // -----------------------------------------------------------------------
     DDLogDebug(@"[DEBUG] Creating authorization right...");
     
-    AuthorizationItem authItem		= { kSMRightBlessPrivilegedHelper, 0, NULL, 0 };
-    AuthorizationRights authRights	= { 1, &authItem };
-    AuthorizationFlags flags		=   kAuthorizationFlagDefaults |
-    kAuthorizationFlagInteractionAllowed |
-    kAuthorizationFlagPreAuthorize |
-    kAuthorizationFlagExtendRights;
+    AuthorizationRef authRef = [self createEmptyAuthorizationRef:error];
+    if ( ! authRef ) {
+        return NO;
+    }
+    
+    AuthorizationItem authItems[2]  = {
+        {kSMRightBlessPrivilegedHelper, 0, NULL, 0},
+        {kSMRightModifySystemDaemons, 0, NULL, 0}
+    };
+    AuthorizationRights authRights	= { 2, authItems };
+    AuthorizationFlags flags = kAuthorizationFlagDefaults | kAuthorizationFlagInteractionAllowed | kAuthorizationFlagPreAuthorize | kAuthorizationFlagExtendRights;
     
     // --------------------------------------------------------------
     //  Try to obtain the right from authorization system (Ask User)
     // --------------------------------------------------------------
     DDLogDebug(@"[DEBUG] Asking authorization system to grant right...");
     
-    OSStatus status = AuthorizationCopyRights(_authRef, &authRights, kAuthorizationEmptyEnvironment, flags, NULL);
+    OSStatus status = AuthorizationCopyRights(authRef, &authRights, kAuthorizationEmptyEnvironment, flags, NULL);
     if ( status != errAuthorizationSuccess ) {
-        error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
-        DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        *error = [NSError errorWithDomain:NSOSStatusErrorDomain code:status userInfo:nil];
+        DDLogError(@"[ERROR] %@", [*error localizedDescription]);
+        return NO;
     } else {
-        CFErrorRef cfError;
-        DDLogDebug(@"[DEBUG] Authorization successful!");
         
         // --------------------------------------------------------------
-        //  Install helper tool using SMJobBless
+        //  Try to remove helper from laucnhd and files from disk
         // --------------------------------------------------------------
-        DDLogDebug(@"[DEBUG] Running SMJobBless..");
-        
-        result = (BOOL) SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)label, _authRef, &cfError);
-        if ( ! result ) {
-            DDLogError(@"[ERROR] Could not install helper tool!");
-            DDLogError(@"[ERROR] SMJobBless failed!");
-            error = CFBridgingRelease(cfError);
-            DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        if ( ! [self removeHelperWithLabel:NBCBundleIdentifierHelper authRef:authRef error:error] ) {
+            return NO;
         }
+        
+        // --------------------------------------------------------------
+        //  Try to install helper tool
+        // --------------------------------------------------------------
+        return [self blessHelperWithLabel:NBCBundleIdentifierHelper authRef:authRef error:error];
+    }
+} // installHelper
+
+- (BOOL)removeHelperWithLabel:(NSString *)label authRef:(AuthorizationRef)authRef error:(NSError **)error {
+    
+    DDLogInfo(@"Removing helper tool...");
+    
+    BOOL result = NO;
+    CFErrorRef cfError;
+    
+    // --------------------------------------------------------------
+    //  Unload helper tool using SMJobRemove
+    // --------------------------------------------------------------
+    DDLogDebug(@"[DEBUG] Running SMJobRemove..");
+#pragma clang diagnostic push
+#pragma clang diagnostic warning "-Wdeprecated-declarations"
+    result = (BOOL) SMJobRemove(kSMDomainSystemLaunchd, (__bridge CFStringRef)label, authRef, true, &cfError);
+    if ( ! result ) {
+        DDLogError(@"[ERROR] Could not remove helper tool!");
+        DDLogError(@"[ERROR] SMJobRemove failed!");
+        *error = CFBridgingRelease(cfError);
+        DDLogError(@"[ERROR] %@", [*error localizedDescription]);
+    } else {
+
+        // --------------------------------------------------------------
+        //  Remove helper tool files on disk
+        // --------------------------------------------------------------
+        NSDictionary *removeHelperFilesLaunchdJob = @{
+                                                      @"Label": [NSString stringWithFormat:@"%@.remove", NBCBundleIdentifierHelper],
+                                                      @"ProgramArguments": @[ @"/bin/rm", NBCFilePathHelperLaunchd, NBCFilePathHelperTool ],
+                                                      @"RunAtLoad": @YES,
+                                                      @"LaunchOnlyOnce" : @YES
+                                                      };
+        
+        if ( ( result = (BOOL) SMJobSubmit(kSMDomainSystemLaunchd, (__bridge CFDictionaryRef)removeHelperFilesLaunchdJob, authRef, &cfError) ) ) {
+            [NSThread sleepForTimeInterval:0.5];
+        } else {
+            DDLogError(@"[ERROR] Could not remove helper tool files on disk");
+            DDLogError(@"[ERROR] SMJobSubmit failed!");
+            *error = CFBridgingRelease(cfError);
+            DDLogError(@"[ERROR] %@", [*error localizedDescription]);
+        }
+            
+        if ( ! ( result = (BOOL) SMJobRemove(kSMDomainSystemLaunchd, (__bridge CFStringRef)removeHelperFilesLaunchdJob[@"Label"], authRef, true, &cfError) ) ) {
+            DDLogError(@"[ERROR] Could not remove launchd job");
+            DDLogError(@"[ERROR] SMJobRemove failed!");
+            *error = CFBridgingRelease(cfError);
+            DDLogError(@"[ERROR] %@", [*error localizedDescription]);
+        }
+    }
+#pragma clang diagnostic pop
+    return result;
+} // removeHelperWithLabel:authRef:error
+
+- (BOOL)blessHelperWithLabel:(NSString *)label authRef:(AuthorizationRef)authRef error:(NSError **)error {
+    
+    DDLogInfo(@"Installing helper tool...");
+    
+    BOOL result = NO;
+    CFErrorRef cfError;
+    
+    // --------------------------------------------------------------
+    //  Install helper tool using SMJobBless
+    // --------------------------------------------------------------
+    DDLogDebug(@"[DEBUG] Running SMJobBless..");
+    
+    result = (BOOL) SMJobBless(kSMDomainSystemLaunchd, (__bridge CFStringRef)label, authRef, &cfError);
+    if ( ! result ) {
+        DDLogError(@"[ERROR] Could not install helper tool!");
+        DDLogError(@"[ERROR] SMJobBless failed!");
+        *error = CFBridgingRelease(cfError);
+        DDLogError(@"[ERROR] %@", [*error localizedDescription]);
     }
     
     return result;
-} // blessHelperWithLabel
+} // blessHelperWithLabel:authRef:error
 
 - (void)showHelperToolInstallBox {
     
@@ -1059,10 +1108,13 @@ enum {
 
 - (IBAction)buttonInstallHelper:(id)sender {
 #pragma unused(sender)
-    if ( [self blessHelperWithLabel:NBCBundleIdentifierHelper] ) {
+    NSError *error = nil;
+    if ( [self installHelper:&error] ) {
         [self setHelperAvailable:YES];
         [_currentSettingsController verifyBuildButton];
         [self hideHelperToolInstallBox];
+    } else {
+        NSLog(@"[ERROR] %@", [error localizedDescription]);
     }
 } // buttonInstallHelper
 
