@@ -86,15 +86,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSBundle *)siuBundle {
-    return [NSBundle bundleWithURL:_systemImageUtilityURL];
+    if ( [_systemImageUtilityURL checkResourceIsReachableAndReturnError:nil] ) {
+        return [NSBundle bundleWithURL:_systemImageUtilityURL];
+    } else {
+        return nil;
+    }
 } // siuBundle
 
 - (NSBundle *)siuFoundationBundle {
-    return [NSBundle bundleWithURL:[self siuFoundationURL]];
+    NSURL *siuFoundationURL = [self siuFoundationURL];
+    if ( [siuFoundationURL checkResourceIsReachableAndReturnError:nil] ) {
+        return [NSBundle bundleWithURL:siuFoundationURL];
+    } else {
+        return nil;
+    }
 } // siuFoundationBundle
 
 - (NSBundle *)siuAgentBundle {
-    return [NSBundle bundleWithURL:[self siuAgentURL]];
+    NSURL *siuAgentURL = [self siuAgentURL];
+    if ( [siuAgentURL checkResourceIsReachableAndReturnError:nil] ) {
+        return [NSBundle bundleWithURL:siuAgentURL];
+    } else {
+        return nil;
+    }
 } // siuAgentBundle
 
 ////////////////////////////////////////////////////////////////////////////////
