@@ -691,7 +691,7 @@ enum {
         // --------------------------------------------------------------
         NSDictionary *removeHelperFilesLaunchdJob = @{
                                                       @"Label": [NSString stringWithFormat:@"%@.remove", NBCBundleIdentifierHelper],
-                                                      @"ProgramArguments": @[ @"/bin/rm -f", NBCFilePathHelperLaunchd, NBCFilePathHelperTool ],
+                                                      @"ProgramArguments": @[ @"/bin/rm", NBCFilePathHelperLaunchd, NBCFilePathHelperTool ],
                                                       @"RunAtLoad": @YES,
                                                       @"LaunchOnlyOnce" : @YES
                                                       };
