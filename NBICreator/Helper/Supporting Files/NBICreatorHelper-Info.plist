@@ -9,7 +9,7 @@
 	<key>CFBundleName</key>
 	<string>com.github.NBICreatorHelper</string>
 	<key>CFBundleVersion</key>
-	<string>1.1.0</string>
+	<string>1.1.1</string>
 	<key>SMAuthorizedClients</key>
 	<array>
 		<string>identifier "com.github.NBICreator" and anchor apple generic and certificate leaf[subject.CN] = "Mac Developer: Erik Berglund (BXUF2UUW7E)" and certificate 1[field.1.2.840.113635.100.6.2.1] /* exists */</string>

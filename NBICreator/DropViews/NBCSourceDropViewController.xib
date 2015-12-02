@@ -279,7 +279,7 @@
                 <constraint firstItem="i0Z-R2-aHj" firstAttribute="leading" secondItem="Dyc-Em-p4a" secondAttribute="leading" id="y3R-wa-6ph"/>
             </constraints>
             <animations/>
-            <point key="canvasLocation" x="-1023" y="406"/>
+            <point key="canvasLocation" x="-1017" y="371"/>
         </customView>
         <customView id="XzL-0b-00O">
             <rect key="frame" x="0.0" y="0.0" width="540" height="98"/>
