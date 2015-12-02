@@ -673,8 +673,12 @@ enum {
     // --------------------------------------------------------------
     DDLogDebug(@"[DEBUG] Running SMJobRemove..");
 #pragma clang diagnostic push
-#pragma clang diagnostic warning "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    ///////////////////////////////////////////////////////////////////////////////
+    /// THIS IS DEPRECATED AS OF 10.10                                          ///
+    ///////////////////////////////////////////////////////////////////////////////
     result = (BOOL) SMJobRemove(kSMDomainSystemLaunchd, (__bridge CFStringRef)label, authRef, true, &cfError);
+    /* ------------------------------------------------------------------------- */
     if ( ! result ) {
         DDLogError(@"[ERROR] Could not remove helper tool!");
         DDLogError(@"[ERROR] SMJobRemove failed!");
@@ -692,16 +696,24 @@ enum {
                                                       @"LaunchOnlyOnce" : @YES
                                                       };
         
-        if ( ( result = (BOOL) SMJobSubmit(kSMDomainSystemLaunchd, (__bridge CFDictionaryRef)removeHelperFilesLaunchdJob, authRef, &cfError) ) ) {
-            [NSThread sleepForTimeInterval:0.5];
-        } else {
+        DDLogDebug(@"[DEBUG] Running SMJobSubmit..");
+        ///////////////////////////////////////////////////////////////////////////////
+        /// THIS IS DEPRECATED AS OF 10.10                                          ///
+        ///////////////////////////////////////////////////////////////////////////////
+        if ( ! ( result = (BOOL) SMJobSubmit(kSMDomainSystemLaunchd, (__bridge CFDictionaryRef)removeHelperFilesLaunchdJob, authRef, &cfError) ) ) {
+        /* ------------------------------------------------------------------------- */
             DDLogError(@"[ERROR] Could not remove helper tool files on disk");
             DDLogError(@"[ERROR] SMJobSubmit failed!");
             *error = CFBridgingRelease(cfError);
             DDLogError(@"[ERROR] %@", [*error localizedDescription]);
         }
-            
+        
+        DDLogDebug(@"[DEBUG] Running SMJobRemove..");
+        ///////////////////////////////////////////////////////////////////////////////
+        /// THIS IS DEPRECATED AS OF 10.10                                          ///
+        ///////////////////////////////////////////////////////////////////////////////
         if ( ! ( result = (BOOL) SMJobRemove(kSMDomainSystemLaunchd, (__bridge CFStringRef)removeHelperFilesLaunchdJob[@"Label"], authRef, true, &cfError) ) ) {
+        /* ------------------------------------------------------------------------- */
             DDLogError(@"[ERROR] Could not remove launchd job");
             DDLogError(@"[ERROR] SMJobRemove failed!");
             *error = CFBridgingRelease(cfError);

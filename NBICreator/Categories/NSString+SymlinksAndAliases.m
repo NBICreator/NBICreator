@@ -211,18 +211,27 @@
 	if (url != NULL)
 	{
 #pragma clang diagnostic push
-#pragma clang diagnostic warning "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 		FSRef fsRef;
+        ///////////////////////////////////////////////////////////////////////////////
+        /// THIS IS DEPRECATED AS OF 10.9                                          ///
+        ///////////////////////////////////////////////////////////////////////////////
 		if (CFURLGetFSRef(url, &fsRef))
+        /* ------------------------------------------------------------------------- */
 		{
 			Boolean targetIsFolder, wasAliased;
-			OSErr err = FSResolveAliasFileWithMountFlags(
-				&fsRef, false, &targetIsFolder, &wasAliased, kResolveAliasFileNoUI);
-			if ((err == noErr) && wasAliased)
-			{
+            ///////////////////////////////////////////////////////////////////////////////
+            /// THIS IS DEPRECATED AS OF 10.8                                          ///
+            ///////////////////////////////////////////////////////////////////////////////
+			OSErr err = FSResolveAliasFileWithMountFlags(&fsRef, false, &targetIsFolder, &wasAliased, kResolveAliasFileNoUI);
+            /* ------------------------------------------------------------------------- */
+			if ((err == noErr) && wasAliased) {
+                ///////////////////////////////////////////////////////////////////////////////
+                /// THIS IS DEPRECATED AS OF 10.9                                          ///
+                ///////////////////////////////////////////////////////////////////////////////
 				CFURLRef resolvedUrl = CFURLCreateFromFSRef(kCFAllocatorDefault, &fsRef);
-				if (resolvedUrl != NULL)
-				{
+                /* ------------------------------------------------------------------------- */
+				if (resolvedUrl != NULL) {
 					resolvedPath =
 						(id)CFBridgingRelease(CFURLCopyFileSystemPath(resolvedUrl, kCFURLPOSIXPathStyle));
 					CFRelease(resolvedUrl);

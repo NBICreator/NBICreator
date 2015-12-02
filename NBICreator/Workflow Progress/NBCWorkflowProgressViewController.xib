@@ -36,7 +36,7 @@
                     </constraints>
                     <animations/>
                     <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="left" id="5l7-Ju-KEU">
-                        <font key="font" metaFont="systemSemibold" size="11"/>
+                        <font key="font" metaFont="systemBold" size="11"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
@@ -74,21 +74,6 @@
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                     </textFieldCell>
                 </textField>
-                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OCM-Cq-6q3">
-                    <rect key="frame" x="376" y="29" width="14" height="14"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="14" id="9fD-0u-vbu"/>
-                        <constraint firstAttribute="width" constant="14" id="Iew-08-2Kn"/>
-                    </constraints>
-                    <animations/>
-                    <buttonCell key="cell" type="bevel" bezelStyle="circular" image="WorkflowCancel" imagePosition="above" alignment="left" controlSize="small" refusesFirstResponder="YES" imageScaling="proportionallyDown" id="v9l-hb-mOe">
-                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                        <font key="font" metaFont="smallSystem"/>
-                    </buttonCell>
-                    <connections>
-                        <action selector="buttonCancel:" target="-2" id="KNF-Lu-TKN"/>
-                    </connections>
-                </button>
                 <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="McW-gO-jJv">
                     <rect key="frame" x="68" y="9" width="16" height="16"/>
                     <animations/>
@@ -140,7 +125,11 @@
                     </textFieldCell>
                 </textField>
                 <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xto-uU-I0c">
-                    <rect key="frame" x="103" y="46" width="13" height="13"/>
+                    <rect key="frame" x="103" y="46" width="14" height="14"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="14" id="YkH-Fk-3de"/>
+                        <constraint firstAttribute="height" constant="14" id="yhO-Fh-eIv"/>
+                    </constraints>
                     <animations/>
                     <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSRevealFreestandingTemplate" imagePosition="only" alignment="center" refusesFirstResponder="YES" imageScaling="proportionallyUpOrDown" inset="2" id="6Lf-DF-KDo">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -169,11 +158,25 @@
                         </binding>
                     </connections>
                 </progressIndicator>
+                <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="OCM-Cq-6q3">
+                    <rect key="frame" x="376" y="29" width="14" height="14"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="14" id="9fD-0u-vbu"/>
+                        <constraint firstAttribute="width" constant="14" id="Iew-08-2Kn"/>
+                    </constraints>
+                    <animations/>
+                    <buttonCell key="cell" type="bevel" bezelStyle="circular" image="WorkflowCancel" imagePosition="only" alignment="center" controlSize="small" refusesFirstResponder="YES" imageScaling="proportionallyDown" id="v9l-hb-mOe">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="smallSystem"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="buttonCancel:" target="-2" id="KNF-Lu-TKN"/>
+                    </connections>
+                </button>
             </subviews>
             <constraints>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="12" id="09s-0i-FgE"/>
                 <constraint firstItem="Svh-zL-y2Z" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" id="2sX-HI-8AX"/>
-                <constraint firstItem="Xto-uU-I0c" firstAttribute="width" secondItem="OCM-Cq-6q3" secondAttribute="width" constant="-1" id="AoG-pc-6SA"/>
                 <constraint firstItem="Xto-uU-I0c" firstAttribute="centerY" secondItem="bI5-Ub-8db" secondAttribute="centerY" constant="1" id="ByC-wE-3qy"/>
                 <constraint firstItem="rlx-cg-ns4" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6s6-PX-ioV" secondAttribute="trailing" constant="8" symbolic="YES" id="CB6-tL-Xnf"/>
                 <constraint firstItem="nfc-W4-XIp" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" id="H3N-Pn-se5"/>
@@ -196,7 +199,6 @@
                 <constraint firstAttribute="bottom" secondItem="60L-Th-Xvx" secondAttribute="bottom" constant="9" id="eTe-zv-1J0"/>
                 <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Xto-uU-I0c" secondAttribute="trailing" constant="20" symbolic="YES" id="fD3-3v-Wox"/>
                 <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" secondItem="nfc-W4-XIp" secondAttribute="trailing" constant="8" symbolic="YES" id="lZD-4r-k5x"/>
-                <constraint firstItem="Xto-uU-I0c" firstAttribute="height" secondItem="OCM-Cq-6q3" secondAttribute="height" constant="-1" id="nGc-4Q-KNZ"/>
                 <constraint firstAttribute="trailing" secondItem="OCM-Cq-6q3" secondAttribute="trailing" constant="20" symbolic="YES" id="srK-Bu-2aA"/>
                 <constraint firstItem="uBP-ur-nNv" firstAttribute="centerY" secondItem="OCM-Cq-6q3" secondAttribute="centerY" id="stM-Pk-aHt"/>
                 <constraint firstItem="6s6-PX-ioV" firstAttribute="leading" secondItem="dl5-Dn-LjZ" secondAttribute="trailing" constant="8" symbolic="YES" id="vas-ao-VQw"/>
@@ -205,7 +207,7 @@
                 <constraint firstItem="Svh-zL-y2Z" firstAttribute="leading" secondItem="60L-Th-Xvx" secondAttribute="trailing" constant="8" symbolic="YES" id="zW2-Ka-Oaf"/>
             </constraints>
             <animations/>
-            <point key="canvasLocation" x="-214" y="163"/>
+            <point key="canvasLocation" x="-214.5" y="163"/>
         </customView>
     </objects>
     <resources>
