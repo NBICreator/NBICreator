@@ -950,7 +950,7 @@ DDLogLevel ddLogLevel;
 } // getDeployStudioVersions
 
 - (void)updateDeployStudioVersion {
-    [self setDeployStudioVersion:[_dsSource dsAdminVersion]];
+    [self setDeployStudioVersion:[_dsSource dsAdminVersion] ?: @""];
     if ( [_deployStudioVersion length] != 0 ) {
         [_textFieldDeployStudioVersion setStringValue:_deployStudioVersion];
         if ( [_deployStudioVersion isEqualToString:_deployStudioLatestVersion] ) {

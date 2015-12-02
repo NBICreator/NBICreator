@@ -92,11 +92,19 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSBundle *)dsAdminBundle {
-    return [NSBundle bundleWithURL:_dsAdminURL];
+    if ( [_dsAdminURL checkResourceIsReachableAndReturnError:nil] ) {
+        return [NSBundle bundleWithURL:_dsAdminURL];
+    } else {
+        return nil;
+    }
 } // dsAdminBundle
 
 - (NSBundle *)dsAssistantBundle {
-    return [NSBundle bundleWithURL:_dsAssistantURL];
+    if ( [_dsAssistantURL checkResourceIsReachableAndReturnError:nil] ) {
+        return [NSBundle bundleWithURL:_dsAssistantURL];
+    } else {
+        return nil;
+    }
 } // dsAssistantBundle
 
 ////////////////////////////////////////////////////////////////////////////////
