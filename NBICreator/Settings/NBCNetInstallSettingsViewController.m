@@ -1197,6 +1197,7 @@ DDLogLevel ddLogLevel;
         [helperConnector connectToHelper];
         [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
             dispatch_async(dispatch_get_main_queue(), ^{
+                [NBCAlerts showAlertErrorWithTitle:@"Helper Connection Error" informativeText:[NSString stringWithFormat:@"%@\n\nPlease try re-launching NBICreator and try installing the helper again.\n\nIf that doesn't work, consult the FAQ on the NBICreator GitHub wiki page under the title:\n\n\"Can't connect to helper\".", [proxyError localizedDescription]]];
                 DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
             });
         }] authorizeWorkflowNetInstall:authData withReply:^(NSError *error) {
