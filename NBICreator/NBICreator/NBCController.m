@@ -691,7 +691,7 @@ enum {
         // --------------------------------------------------------------
         NSDictionary *removeHelperFilesLaunchdJob = @{
                                                       @"Label": [NSString stringWithFormat:@"%@.remove", NBCBundleIdentifierHelper],
-                                                      @"ProgramArguments": @[ @"/bin/rm", NBCFilePathHelperLaunchd, NBCFilePathHelperTool ],
+                                                      @"ProgramArguments": @[ @"/bin/rm -f", NBCFilePathHelperLaunchd, NBCFilePathHelperTool ],
                                                       @"RunAtLoad": @YES,
                                                       @"LaunchOnlyOnce" : @YES
                                                       };
@@ -700,8 +700,10 @@ enum {
         ///////////////////////////////////////////////////////////////////////////////
         /// THIS IS DEPRECATED AS OF 10.10                                          ///
         ///////////////////////////////////////////////////////////////////////////////
-        if ( ! ( result = (BOOL) SMJobSubmit(kSMDomainSystemLaunchd, (__bridge CFDictionaryRef)removeHelperFilesLaunchdJob, authRef, &cfError) ) ) {
+        if ( ( result = (BOOL) SMJobSubmit(kSMDomainSystemLaunchd, (__bridge CFDictionaryRef)removeHelperFilesLaunchdJob, authRef, &cfError) ) ) {
         /* ------------------------------------------------------------------------- */
+            [NSThread sleepForTimeInterval:0.5];
+        } else {
             DDLogError(@"[ERROR] Could not remove helper tool files on disk");
             DDLogError(@"[ERROR] SMJobSubmit failed!");
             *error = CFBridgingRelease(cfError);
