@@ -27,6 +27,7 @@
 #import "NBCLogging.h"
 #import "NBCWorkflowItem.h"
 #import "NBCCustomSettingsViewController.h"
+#import "NBCApplicationSourceDeployStudio.h"
 
 DDLogLevel ddLogLevel;
 
@@ -459,14 +460,26 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             return;
         }
     }
-    
-    // -----------------------------------------------------------------
-    //  If source os/build and baseSystem os/build mismatch, show error
-    // -----------------------------------------------------------------
+
     if ( [_creationTool isEqualToString:NBCMenuItemDeployStudioAssistant] ) {
+        
+        // -----------------------------------------------------------------
+        //  If source os/build and baseSystem os/build mismatch, show error
+        // -----------------------------------------------------------------
         if ( ! [[source systemOSVersion] hasPrefix:@"10.6"] && ( ! [[source systemOSVersion] isEqualToString:[source baseSystemOSVersion]] || ! [[source systemOSBuild] isEqualToString:[source baseSystemOSBuild]] ) ) {
             [self updateSourceInfoRecoveryMismatch:source];
             [self showRecoveryVersionMismatch];
+            return;
+        }
+        
+        // -----------------------------------------------------------------
+        //  If sources is 10.6 and ds version is 1.7 +, show source error
+        // -----------------------------------------------------------------
+        NBCApplicationSourceDeployStudio *dsSource = [[NBCApplicationSourceDeployStudio alloc] init];
+        int deployStudioVersionInt = [[[[dsSource dsAdminVersion] stringByReplacingOccurrencesOfString:@"." withString:@""] stringByPaddingToLength:4 withString:@"0" startingAtIndex:0] intValue];
+        if ( [[source systemOSVersion] hasPrefix:@"10.6"] && ( 1700 <= deployStudioVersionInt ) ) {
+            [NBCAlerts showAlertErrorWithTitle:@"Unsupported Source Version" informativeText:[NSString stringWithFormat:@"The installed version of DeployStudio Assistant (%@) doesn't support creating NBIs from OS X 10.6.\n\nInstall DeployStudio Assistant version 1.6.18 or lower.", [dsSource dsAdminVersion]]];
+            [self restoreDropView];
             return;
         }
     }
