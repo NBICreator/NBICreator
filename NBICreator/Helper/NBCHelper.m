@@ -616,6 +616,8 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         // -----------------------------------------------------------------------------------
         //  Verify pbzx integrity
         // -----------------------------------------------------------------------------------
+        // FIXME - pbzx is codesigned, so the hashes changes after the code is compiled, have to figure out a solution
+        /*
         NSString *pbzxMD5 = [FileHash md5HashOfFileAtPath:pbzxPath];
         [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx current md5: %@", pbzxMD5]];
         [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx cached md5: %@", NBCHashMD5Pbzx]];
@@ -625,11 +627,11 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
                                              code:-1
                                          userInfo:@{ NSLocalizedDescriptionKey : @"pbzx hashes doesn't match! If you haven't modified pbzx yourself, someone might be trying to exploit this application!" }], -1);
         }
-        
+        */
         // -----------------------------------------------------------------------------------
         //  Setup arguments
         // -----------------------------------------------------------------------------------
-        arguments = @[ @"-c", [NSString stringWithFormat:@"%@ %@ | /usr/bin/cpio -idmu --quiet", pbzxPath, packagePath]];
+        arguments = @[ @"-c", [NSString stringWithFormat:@"\"%@\" \"%@\" | /usr/bin/cpio -idmu --quiet", pbzxPath, packagePath]];
     }
     
     [self runTaskWithCommand:command arguments:arguments currentDirectory:temporaryPackageFolder environmentVariables:@{} withReply:reply];
