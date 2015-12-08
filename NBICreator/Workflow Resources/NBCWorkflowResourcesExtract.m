@@ -193,7 +193,7 @@ DDLogLevel ddLogLevel;
 } // checkExtractedItems
 
 - (void)extractResources:(NSMutableDictionary *)resourcesToExtract {
-    
+    NSLog(@"resourcesToExtract=%@", resourcesToExtract);
     NSError *err = nil;
     
     if ( [resourcesToExtract count] != 0 ) {

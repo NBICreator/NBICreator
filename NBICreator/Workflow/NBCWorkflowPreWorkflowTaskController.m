@@ -101,17 +101,22 @@
         DDLogDebug(@"[DEBUG] Source cache dict path: %@", [sourcesDictURL path]);
         
         if ( [sourcesDictURL checkResourceIsReachableAndReturnError:&err] ) {
-            NSMutableDictionary *sourcesDict = [NSMutableDictionary dictionaryWithContentsOfURL:sourcesDictURL];
-            if ( [sourcesDict count] != 0 ) {
+            NSMutableDictionary *sourcesDict = [[NSDictionary dictionaryWithContentsOfURL:sourcesDictURL] mutableCopy];
+            if ( [sourcesDict objectForKey:sourceBuild] ) {
                 [sourcesDict removeObjectForKey:sourceBuild];
-                if ( [sourcesDict writeToURL:sourcesDictURL atomically:YES] ) {
-                    DDLogInfo(@"Source cache dict updated!");
+                if ( ! [sourcesDict objectForKey:sourceBuild] ) {
+                    if ( [sourcesDict writeToURL:sourcesDictURL atomically:YES] ) {
+                        DDLogInfo(@"Source cache dict updated!");
+                    } else {
+                        DDLogError(@"[ERROR] Could not write source cache dict to disk!");
+                        return;
+                    }
                 } else {
-                    DDLogError(@"[ERROR] Could not write source cache dict to disk!");
+                    DDLogError(@"[ERROR] Could not remove key: %@!", sourceBuild);
                     return;
                 }
             } else {
-                DDLogWarn(@"[WARN] Source cache dict was empty!");
+                DDLogWarn(@"[WARN] Source cache dict has no entry for %@!", sourceBuild);
             }
         } else {
             DDLogWarn(@"[WARN] %@", [err localizedDescription]);

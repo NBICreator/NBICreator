@@ -19,6 +19,7 @@
 		53121EA21AD5C24A004515D6 /* NBCPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53121EA01AD5C24A004515D6 /* NBCPreferences.xib */; };
 		5318EF6E1B729B3400F818FC /* NBCCertificateTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */; };
 		531C23DF1C0453BA0041CB1A /* IconSnowLeopard.icns in Resources */ = {isa = PBXBuildFile; fileRef = 531C23DE1C0453BA0041CB1A /* IconSnowLeopard.icns */; };
+		531CED221C16CE57005C310B /* pbzx in Resources */ = {isa = PBXBuildFile; fileRef = 53C97F9F1B07DEEF00034B60 /* pbzx */; };
 		531E7F4F1B0A5D88001573E7 /* ImagrDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */; };
 		5324335A1B0E691300152DC6 /* NBCConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = 53383D141AFA9D3000C041F9 /* NBCConstants.m */; };
 		532A67901B18D98C007528AE /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 532A678F1B18D98C007528AE /* SystemConfiguration.framework */; };
@@ -114,7 +115,6 @@
 		53BD1F881B80A72C004391D6 /* IconDeployStudioNBI.icns in Resources */ = {isa = PBXBuildFile; fileRef = 53BD1F871B80A72C004391D6 /* IconDeployStudioNBI.icns */; };
 		53C417C81BFFDCB300FCDD9E /* SNTCertificate.m in Sources */ = {isa = PBXBuildFile; fileRef = 5319A5291BFFD5EA002014EE /* SNTCertificate.m */; };
 		53C417D51BFFDCB700FCDD9E /* SNTCodesignChecker.m in Sources */ = {isa = PBXBuildFile; fileRef = 5319A52B1BFFD5EA002014EE /* SNTCodesignChecker.m */; };
-		53C97FA01B07DEEF00034B60 /* pbzx in Resources */ = {isa = PBXBuildFile; fileRef = 53C97F9F1B07DEEF00034B60 /* pbzx */; };
 		53CA4EC81B9236C1000DB6A1 /* NBICreatorBundle.iconset in Resources */ = {isa = PBXBuildFile; fileRef = 53CA4EC71B9236C1000DB6A1 /* NBICreatorBundle.iconset */; };
 		53CB049B1BE20EFC002F1426 /* NBCDiskController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53CB049A1BE20EFC002F1426 /* NBCDiskController.m */; };
 		53CBA96B1ADE556600385C89 /* TFHpple.m in Sources */ = {isa = PBXBuildFile; fileRef = 53CBA9661ADE556600385C89 /* TFHpple.m */; };
@@ -1368,13 +1368,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				531CED221C16CE57005C310B /* pbzx in Resources */,
 				539DAEFB1AF162A10037F06B /* NetInstallDefaults.plist in Resources */,
 				531E7F4F1B0A5D88001573E7 /* ImagrDefaults.plist in Resources */,
 				53121E961AD5B805004515D6 /* IconNetBootNBI.icns in Resources */,
 				53A195A81AD4F29500489CCF /* IconLion.icns in Resources */,
 				53F3B28B1B7D1A88005BEAD3 /* WorkflowCancel.png in Resources */,
 				53CBB1BC1ACF1DF900B83089 /* NBCWorkflowProgressViewController.xib in Resources */,
-				53C97FA01B07DEEF00034B60 /* pbzx in Resources */,
 				535A898C1AD3247A00DC08F4 /* IconMountainLion.icns in Resources */,
 				53DF9CF21AA36DC8004B68D8 /* Defaults.plist in Resources */,
 				535A898D1AD3247A00DC08F4 /* IconYosemite.icns in Resources */,
@@ -1703,8 +1703,8 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = NBICreator;
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				COMBINE_HIDPI_IMAGES = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1767,8 +1767,8 @@
 		53968C341A8E7B8C0079AA95 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_IDENTITY = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				INFOPLIST_FILE = "\"$(SRCROOT)/Helper/Supporting Files/NBICreatorHelper-Info.plist\"";
 				OTHER_LDFLAGS = (
 					"-sectcreate",

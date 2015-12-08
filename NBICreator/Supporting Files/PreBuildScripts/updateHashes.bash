@@ -32,7 +32,7 @@
 
 relativePath_NBCConstants="General Classes/NBCConstants.m"
 relativePath_scripts="Supporting Files/Scripts"
-relativePath_tools="Supporting Files/Binaries"
+#relativePath_tools="Supporting Files/Binaries"
 
 #//////////////////////////////////////////////////////////////////////////////////////////////////
 ###
@@ -62,7 +62,7 @@ updateVariables() {
 	if [[ -d ${path_projectRoot} ]]; then
 		path_NBCConstants="${path_projectRoot}/${relativePath_NBCConstants}"
 		path_scripts="${path_projectRoot}/${relativePath_scripts}"
-		path_tools="${path_projectRoot}/${relativePath_tools}"
+		#path_tools="${path_projectRoot}/${relativePath_tools}"
 	else
 		printError "No such file or directory: ${path_projectRoot}"
 		exit 1
@@ -128,7 +128,7 @@ parse_command_line_options "${@}"
 
 # Add directories to scan for executables ( binaries or scripts for example).
 # This script will include EVERY item in that directory.
-declare -a directoriesToScan=( "${path_scripts}" "${path_tools}" )
+declare -a directoriesToScan=( "${path_scripts}" )
 
 for directoryPath in "${directoriesToScan[@]}"; do
 	
