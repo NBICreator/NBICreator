@@ -153,7 +153,7 @@ DDLogLevel ddLogLevel;
     __unsafe_unretained typeof(self) weakSelf = self;
     
     // Internet is reachable
-    _internetReachableFoo.reachableBlock = ^(Reachability*reach) {
+    _internetReachableFoo.reachableBlock = ^(Reachability *reach) {
 #pragma unused(reach)
         // Update the UI on the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -162,7 +162,7 @@ DDLogLevel ddLogLevel;
     };
     
     // Internet is not reachable
-    _internetReachableFoo.unreachableBlock = ^(Reachability*reach) {
+    _internetReachableFoo.unreachableBlock = ^(Reachability *reach) {
 #pragma unused(reach)
         // Update the UI on the main thread
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -300,7 +300,6 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)fileDownloadCompleted:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
-    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
         [_progressIndicatorDeployStudioDownloadProgress setIndeterminate:YES];
@@ -332,7 +331,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)downloadCanceled:(NSDictionary *)downloadInfo {
-    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
         [_progressIndicatorDeployStudioDownloadProgress setIndeterminate:YES];
@@ -344,7 +342,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateProgressBytesRecieved:(float)bytesRecieved expectedLength:(long long)expectedLength downloadInfo:(NSDictionary *)downloadInfo {
-    
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
     if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
         if ( _windowDeployStudioDownloadProgress ) {
@@ -1105,13 +1102,11 @@ DDLogLevel ddLogLevel;
 } // updateCachedDeployStudioLatestVersion
 
 - (void)showPopUpButtonDeployStudioVersion {
-    
     [_textFieldDeployStudioVersion setHidden:YES];
     [_popUpButtonDeployStudioVersion setHidden:NO];
 } // showPopUpButtonDeployStudioVersion
 
 - (void)hidePopUpButtonDeployStudioVersion {
-    
     [_popUpButtonDeployStudioVersion setHidden:YES];
     [_textFieldDeployStudioVersion setHidden:NO];
 } // hidePopUpButtonDeployStudioVersion
@@ -1433,9 +1428,7 @@ DDLogLevel ddLogLevel;
     });
 } // prepareWorkflow
 
-- (IBAction)buttonDeployStudioDownloadDownload:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonDeployStudioDownloadDownload:(id) __unused sender {
     NSString *selectedVersion = [_popUpButtonDeployStudioDownload titleOfSelectedItem];
     if ( [selectedVersion isEqualToString:NBCMenuItemDeployStudioVersionLatest] ) {
         selectedVersion = _deployStudioLatestVersion;
@@ -1479,7 +1472,6 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)showDeployStudioDownloadProgess:(NSString *)version {
-    
     [_textFieldDeployStudioDownloadProgressTitle setStringValue:[NSString stringWithFormat:@"Downloading DeployStudio v.%@", version]];
     [_progressIndicatorDeployStudioDownloadProgress setIndeterminate:NO];
     [_progressIndicatorDeployStudioDownloadProgress setMinValue:0];
@@ -1487,18 +1479,15 @@ DDLogLevel ddLogLevel;
     [[NSApp mainWindow] beginSheet:_windowDeployStudioDownloadProgress completionHandler:nil];
 }
 
-- (IBAction)buttonDeployStudioDownloadCancel:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonDeployStudioDownloadCancel:(id) __unused sender {
     [[NSApp mainWindow] endSheet:_windowDeployStudioDownload];
 }
 
-- (IBAction)buttonDeployStudioDownloadProgressCancel:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonDeployStudioDownloadProgressCancel:(id) __unused sender {
     if ( _deployStudioDownloader ) {
         [_deployStudioDownloader cancelDownload];
     }
+    [[NSApp mainWindow] endSheet:_windowDeployStudioDownload];
 }
 
 @end
