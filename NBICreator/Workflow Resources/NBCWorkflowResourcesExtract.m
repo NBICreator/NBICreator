@@ -173,6 +173,7 @@ DDLogLevel ddLogLevel;
             //  If any item was added to resourcesToExtract, pass it along for extraction
             // ------------------------------------------------------------------------------------
             if ( [resourcesToExtract count] != 0 ) {
+                DDLogInfo(@"Some resources need to be extracted for os build: %@", _sourceOSBuild);
                 [self extractResources:resourcesToExtract];
             } else {
                 DDLogDebug(@"[DEBUG] No resource need extraction");
@@ -193,7 +194,7 @@ DDLogLevel ddLogLevel;
 } // checkExtractedItems
 
 - (void)extractResources:(NSMutableDictionary *)resourcesToExtract {
-    NSLog(@"resourcesToExtract=%@", resourcesToExtract);
+
     NSError *err = nil;
     
     if ( [resourcesToExtract count] != 0 ) {
@@ -207,6 +208,7 @@ DDLogLevel ddLogLevel;
             });
         };
         
+        DDLogInfo(@"Extracting resources from %@...", [packagePath lastPathComponent]);
         if ( _progressDelegate && [_progressDelegate respondsToSelector:@selector(updateProgressStatus:)] ) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 [self->_progressDelegate updateProgressStatus:[NSString stringWithFormat:@"Extracting resources from %@...", [packagePath lastPathComponent]]];
@@ -269,6 +271,7 @@ DDLogLevel ddLogLevel;
 
 - (void)copyExtractedResourcesToCache:(NSMutableDictionary *)resourcesToExtract packagePath:(NSString *)packagePath temporaryPackagePath:(NSString *)temporaryPackagePath  {
     
+    DDLogInfo(@"Copying extracted resources to cache folder...");
     if ( _progressDelegate && [_progressDelegate respondsToSelector:@selector(updateProgressStatus:)] ) {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self->_progressDelegate updateProgressStatus:@"Copying extracted resources to cache folder..."];
@@ -291,8 +294,7 @@ DDLogLevel ddLogLevel;
         errorNotification( [NBCError errorWithDescription:@"No regexes passed to copy step!"] );
     } else {
         __block NSMutableString *regexString = [[NSMutableString alloc] init];
-        [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-#pragma unused(stop)
+        [regexArray enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, __unused BOOL *stop) {
             if ( idx == 0 ) {
                 [regexString appendString:[NSString stringWithFormat:@"-regex '%@'", obj]];
             } else {

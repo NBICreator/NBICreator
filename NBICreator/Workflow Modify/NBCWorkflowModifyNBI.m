@@ -423,7 +423,6 @@ DDLogLevel ddLogLevel;
                 //  Attach and mount NetInstall if shadow path is not set in target
                 // ------------------------------------------------------------------
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    DDLogInfo(@"Attaching NetInstall disk image with shadow...");
                     [self->_delegate updateProgressStatus:@"Attaching NetInstall disk image with shadow..." workflow:self];
                     [self->_delegate updateProgressBar:(( 20.0 * self->_progressPercentage ) + self->_progressOffset )];
                 });
@@ -560,7 +559,6 @@ DDLogLevel ddLogLevel;
             dispatch_async(taskQueue, ^{
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    DDLogInfo(@"Attaching NetInstall disk image with shadow...");
                     [self->_delegate updateProgressStatus:@"Attaching NetInstall disk image with shadow..." workflow:self];
                     [self->_delegate updateProgressBar:(( 55.0 * self->_progressPercentage ) + self->_progressOffset )];
                 });
