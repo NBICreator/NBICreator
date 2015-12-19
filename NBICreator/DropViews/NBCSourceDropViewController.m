@@ -363,25 +363,42 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 } // addInstallerToPopUpButton
 
 - (void)showSourceInFinder {
-    if ( _currentSource && _currentSelectedSource ) {
-        id sourceItem = _sourceDictLinks[_currentSelectedSource];
-        NSURL *sourceURL;
-        if ( [sourceItem isKindOfClass:[NBCDisk class]] ) {
-            sourceURL = [(NBCDisk *)sourceItem volumeURL];
-            if ( ! [(NBCDisk *)sourceItem isInternal] ) {
-                sourceURL = [NBCDiskImageController getDiskImageURLFromMountURL:sourceURL];
+    NSError *error = nil;
+    if ( _currentSource && ! [[_currentSource sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+        if ( _currentSelectedSource ) {
+            NSURL *sourceURL;
+            id sourceItem = _sourceDictLinks[_currentSelectedSource];
+            if ( [sourceItem isKindOfClass:[NBCDisk class]] ) {
+                sourceURL = [(NBCDisk *)sourceItem volumeURL];
+                if ( ! [(NBCDisk *)sourceItem isInternal] ) {
+                    sourceURL = [NBCDiskImageController getDiskImageURLFromMountURL:sourceURL];
+                }
+            } else if ( [sourceItem isKindOfClass:[NSURL class]] ) {
+                sourceURL = (NSURL *)sourceItem;
+            } else {
+                DDLogError(@"[ERROR] Unknown source class: %@", [sourceItem class]);
+                return;
             }
-        } else if ( [sourceItem isKindOfClass:[NSURL class]] ) {
-            sourceURL = (NSURL *)sourceItem;
+            
+            if ( [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
+                NSArray *fileURLs = @[ sourceURL ];
+                [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+            } else {
+                DDLogError(@"[ERROR] %@", [error localizedDescription]);
+            }
         } else {
-            DDLogError(@"[ERROR] Unknown source class: %@", [sourceItem class]);
-            return;
+            DDLogError(@"[ERROR] No source selected");
         }
-        
-        if ( [sourceURL checkResourceIsReachableAndReturnError:nil] ) {
+    } else if ( [[_currentSource sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+        NSURL *sourceURL = [_currentSource sourceURL];
+        if ( [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
             NSArray *fileURLs = @[ sourceURL ];
             [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+        } else {
+            DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
+    } else {
+        DDLogError(@"[ERROR] No source available");
     }
 } // showSourceInFinder
 
@@ -460,7 +477,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             return;
         }
     }
-
+    
     if ( [_creationTool isEqualToString:NBCMenuItemDeployStudioAssistant] ) {
         
         // -----------------------------------------------------------------
