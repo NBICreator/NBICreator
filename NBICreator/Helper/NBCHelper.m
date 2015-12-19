@@ -741,6 +741,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ----------------------------------------------------------------------
             NSURL *targetFolderURL = [targetURL URLByDeletingLastPathComponent];
             if ( ! [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+                [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Creating directory: %@", [targetFolderURL path]]];
                 if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES
                                      attributes:@{
                                                   NSFileOwnerAccountName : @"root",
@@ -796,11 +797,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ----------------------------------------------------------------------
             NSURL *targetFolderURL = [targetURL URLByDeletingLastPathComponent];
             if ( ! [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+                [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Creating directory: %@", [targetFolderURL path]]];
                 if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES
                                      attributes:@{
-                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileOwnerAccountName :      @"root",
                                                   NSFileGroupOwnerAccountName : @"wheel",
-                                                  NSFilePosixPermissions : @0755
+                                                  NSFilePosixPermissions :      @0755
                                                   }
                                           error:&err] ) {
                     [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
@@ -870,6 +872,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             //  Remove target item if it already exists
             // ----------------------------------------------------------------------
             if ( [targetURL checkResourceIsReachableAndReturnError:&err] ) {
+                [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Removing item at target path %@...", [targetURL path]]];
                 if ( ! [fm removeItemAtURL:targetURL error:&err] ) {
                     [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
                     return reply(err, 1);
@@ -881,11 +884,12 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
             // ----------------------------------------------------------------------
             NSURL *targetFolderURL = [targetURL URLByDeletingLastPathComponent];
             if ( ! [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+                [[[self connection] remoteObjectProxy] updateProgressStatus:[NSString stringWithFormat:@"Creating directory %@...", [targetURL path]]];
                 if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES
                                      attributes:@{
-                                                  NSFileOwnerAccountName : @"root",
+                                                  NSFileOwnerAccountName :      @"root",
                                                   NSFileGroupOwnerAccountName : @"wheel",
-                                                  NSFilePosixPermissions : @0755
+                                                  NSFilePosixPermissions :      @0755
                                                   }
                                           error:&err] ) {
                     [[[self connection] remoteObjectProxy] logError:[err localizedDescription]];
