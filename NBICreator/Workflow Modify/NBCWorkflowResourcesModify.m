@@ -379,13 +379,13 @@ DDLogLevel ddLogLevel;
             
             NSArray *ntpServerArray = [digOutput componentsSeparatedByString:@"\n"];
             ntpServer = [NSString stringWithFormat:@"server %@", ntpServer];
-            for ( NSString *ip in ntpServerArray ) {
-                if ( [ip length] != 0 ) {
-                    if ( [ip isValidIPAddress] ) {
-                        DDLogDebug(@"[DEBUG] NTP server ip address: %@", ip);
-                        ntpServer = [ntpServer stringByAppendingString:[NSString stringWithFormat:@"\nserver %@", ip]];
+            for ( NSString *host in ntpServerArray ) {
+                if ( [host length] != 0 ) {
+                    if ( [host isValidIPAddress] ) {
+                        DDLogDebug(@"[DEBUG] NTP server host: %@", host);
+                        ntpServer = [ntpServer stringByAppendingString:[NSString stringWithFormat:@"\nserver %@", host]];
                     } else {
-                        *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"NTP server ip address invalid: %@", ip]];
+                        *error = [NBCError errorWithDescription:[NSString stringWithFormat:@"NTP server host is invalid: %@", host]];
                         return NO;
                     }
                 }
@@ -1096,7 +1096,7 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"[DEBUG] CDIS.custom path: %@", [csdisURL path]);
     
     NSString *canonicalLanguage = [NSLocale canonicalLanguageIdentifierFromString:selectedLanguage];
-    DDLogDebug(@"[DEBUG] Canonical langiage identifier for %@: %@", selectedLanguage, canonicalLanguage);
+    DDLogDebug(@"[DEBUG] Canonical language identifier for %@: %@", selectedLanguage, canonicalLanguage);
     
     if ( [canonicalLanguage length] != 0 ) {
         
@@ -1181,14 +1181,64 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  /etc/ntp.conf
     // --------------------------------------------------------------
-    NSString *ntpServer = [_workflowItem userSettings][NBCSettingsNetworkTimeServerKey] ?: NBCNetworkTimeServerDefault;
+    NSString *ntpServerString = [_workflowItem userSettings][NBCSettingsNetworkTimeServerKey] ?: NBCNetworkTimeServerDefault;
     
-    // Verify that server resolves
-    if ( [self verifyNTPServer:ntpServer error:error] ) {
+    if ( [ntpServerString length] != 0 ) {
+        
+        // --------------------------------------------------------------
+        //  Split string into array
+        // --------------------------------------------------------------
+        NSArray *ntpHostArray = [ntpServerString componentsSeparatedByString:@","];
+        NSMutableString *ntpHostContentString = [[NSMutableString alloc] init];
+        
+        for ( NSString *ntpHostString in ntpHostArray ) {
+            
+            // --------------------------------------------------------------
+            //  Remove leading and trailing whitespace from host string
+            // --------------------------------------------------------------
+            NSString *ntpHost = [ntpHostString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            
+            DDLogDebug(@"[DEBUG] Verifying ntp host: %@", ntpHost);
+            
+            // --------------------------------------------------------------
+            //  Easy check if host string can be initialized by NSURL
+            // --------------------------------------------------------------
+            NSURL *ntpHostURL = [NSURL URLWithString:ntpHost];
+            if ( ! ntpHostURL ) {
+                DDLogWarn(@"[WARN] NTP host: %@ is invalid!", ntpHost);
+            } else {
+                
+                // --------------------------------------------------------------
+                //  If host string can be resolved, continue
+                // --------------------------------------------------------------
+                if ( [ntpHost isValidHostname] ) {
+                    [ntpHostContentString appendString:[NSString stringWithFormat:@"%@\n", ntpHost]];
+                    continue;
+                }
+                
+                // --------------------------------------------------------------
+                //  If host string is a valid IP address, continue
+                // --------------------------------------------------------------
+                if ( [ntpHost isValidIPAddress] ) {
+                    [ntpHostContentString appendString:[NSString stringWithFormat:@"%@\n", ntpHost]];
+                    continue;
+                }
+                
+                // -----------------------------------------------------------------------
+                //  If both of the above checks fail, add warning
+                // -----------------------------------------------------------------------
+                DDLogWarn(@"[WARN] NTP host: %@ could not be verified!", ntpHost);
+            }
+        }
+        
+        if ( [ntpHostContentString length] == 0 ) {
+            DDLogWarn(@"[WARN] No ntp server was verified!");
+        }
+        
         NSURL *ntpConfURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/ntp.conf"];
         
         // Convert string to data
-        NSData *ntpConfContentData = [ntpServer dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *ntpConfContentData = [ntpHostContentString dataUsingEncoding:NSUTF8StringEncoding];
         NSDictionary *ntpConfAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[ntpConfURL path] error:nil] ?: @{
                                                                                                                                    NSFileOwnerAccountName :       @"root",
                                                                                                                                    NSFileGroupOwnerAccountName :  @"wheel",
@@ -1204,6 +1254,7 @@ DDLogLevel ddLogLevel;
                                      }];
         return YES;
     } else {
+        *error = [NBCError errorWithDescription:@"NTP server info was empty"];
         return NO;
     }
 } // modifyNTP

@@ -551,30 +551,45 @@ DDLogLevel ddLogLevel;
     NSString *nbiNTP = userSettings[NBCSettingsNetworkTimeServerKey];
     
     if ( [nbiNTP length] != 0 ) {
-        NSURL *nbiNTPURL = [NSURL URLWithString:nbiNTP];
-        if ( ! nbiNTPURL ) {
-            [settingsErrors addObject:@"\"Network Time Server\" invalid hostname"];
-        } else {
-            NSTask *newTask =  [[NSTask alloc] init];
-            [newTask setLaunchPath:@"/usr/bin/dig"];
-            NSMutableArray *args = [NSMutableArray arrayWithObjects:
-                                    @"+short",
-                                    nbiNTP,
-                                    nil];
-            [newTask setArguments:args];
-            [newTask setStandardOutput:[NSPipe pipe]];
-            [newTask launch];
-            [newTask waitUntilExit];
+        
+        // --------------------------------------------------------------
+        //  Split string into array
+        // --------------------------------------------------------------
+        NSArray *ntpHostArray = [nbiNTP componentsSeparatedByString:@","];
+        
+        for ( NSString *ntpHostString in ntpHostArray ) {
             
-            NSData *newTaskStandardOutputData = [[newTask.standardOutput fileHandleForReading] readDataToEndOfFile];
+            // --------------------------------------------------------------
+            //  Remove leading and trailing whitespace from host string
+            // --------------------------------------------------------------
+            NSString *ntpHost = [ntpHostString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
             
-            if ( [newTask terminationStatus] == 0 ) {
-                NSString *digOutput = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
-                if ( [digOutput length] == 0 ) {
-                    [settingsWarnings addObject:@"\"Network Time Server\" did not resolve"];
-                }
+            // --------------------------------------------------------------
+            //  Easy check if host string can be initialized by NSURL
+            // --------------------------------------------------------------
+            NSURL *ntpHostURL = [NSURL URLWithString:ntpHost];
+            if ( ! ntpHostURL ) {
+                [settingsErrors addObject:@"\"Network Time Server\" invalid hostname"];
             } else {
-                [settingsWarnings addObject:@"\"Network Time Server\" did not resolve"];
+                
+                // --------------------------------------------------------------
+                //  If host string can be resolved, continue
+                // --------------------------------------------------------------
+                if ( [ntpHost isValidHostname] ) {
+                    continue;
+                }
+                
+                // --------------------------------------------------------------
+                //  If host string is a valid IP address, continue
+                // --------------------------------------------------------------
+                if ( [ntpHost isValidIPAddress] ) {
+                    continue;
+                }
+                
+                // -----------------------------------------------------------------------
+                //  If both of the above checks fail, add warning before running workflow
+                // -----------------------------------------------------------------------
+                [settingsWarnings addObject:[NSString stringWithFormat:@"\"Network Time Server\" %@ could not be verified", ntpHost]];
             }
         }
     }

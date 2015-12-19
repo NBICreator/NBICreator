@@ -10,5 +10,6 @@
 @interface NSString (NBCvalidIP)
 
 - (BOOL)isValidIPAddress;
+- (BOOL)isValidHostname;
 
 @end

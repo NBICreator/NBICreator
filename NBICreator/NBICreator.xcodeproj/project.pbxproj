@@ -10,6 +10,7 @@
 		5302CB981BF389880022CE68 /* NBCWorkflowUpdateNBI.m in Sources */ = {isa = PBXBuildFile; fileRef = 5302CB971BF389880022CE68 /* NBCWorkflowUpdateNBI.m */; };
 		5303EBBB1AF4268200F6120D /* NBCTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 5303EBBA1AF4268200F6120D /* NBCTarget.m */; };
 		5304B4AE1BA1E741007D7A9F /* ServerInformation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */; };
+		5305AF011C249CAB00DBECEE /* NBCResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = 5305AF001C249CAB00DBECEE /* NBCResolver.m */; };
 		530BFF571B00F3160012D067 /* NBCWorkflowNBIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */; };
 		530E0C7B1B190C550025A9C3 /* NBCViewNoInternetConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 530E0C7A1B190C550025A9C3 /* NBCViewNoInternetConnection.m */; };
 		53116E521ADDAF7A00CF9378 /* NBCDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 53116E511ADDAF7A00CF9378 /* NBCDownloader.m */; };
@@ -346,6 +347,8 @@
 		5303EBBA1AF4268200F6120D /* NBCTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCTarget.m; path = Target/NBCTarget.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		5304B4A41BA1E601007D7A9F /* ServerInformationComputerModelInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ServerInformationComputerModelInfo.h; path = "Supporting Files/Frameworks/ServerInformationComputerModelInfo.h"; sourceTree = "<group>"; };
 		5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServerInformation.framework; path = /System/Library/PrivateFrameworks/ServerInformation.framework; sourceTree = "<absolute>"; };
+		5305AEFF1C249CAB00DBECEE /* NBCResolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCResolver.h; path = Networking/NBCResolver.h; sourceTree = "<group>"; };
+		5305AF001C249CAB00DBECEE /* NBCResolver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCResolver.m; path = Networking/NBCResolver.m; sourceTree = "<group>"; };
 		530BFF551B00F3160012D067 /* NBCWorkflowNBIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowNBIController.h; path = "Workflow NBI/NBCWorkflowNBIController.h"; sourceTree = "<group>"; };
 		530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowNBIController.m; path = "Workflow NBI/NBCWorkflowNBIController.m"; sourceTree = "<group>"; };
 		530D983C1BAB4728007FA973 /* sharedLibraryDependencyChecker.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = sharedLibraryDependencyChecker.bash; path = "Supporting Files/Scripts/sharedLibraryDependencyChecker.bash"; sourceTree = "<group>"; };
@@ -962,6 +965,8 @@
 			children = (
 				532A67941B18EBC9007528AE /* Reachability.h */,
 				532A67951B18EBC9007528AE /* Reachability.m */,
+				5305AEFF1C249CAB00DBECEE /* NBCResolver.h */,
+				5305AF001C249CAB00DBECEE /* NBCResolver.m */,
 				535EA1511ADFBAAB0092136C /* NBCBonjourBrowser.h */,
 				535EA1521ADFBAAB0092136C /* NBCBonjourBrowser.m */,
 				53609D721B80F4D0007F874F /* NBCUpdater.h */,
@@ -1496,6 +1501,7 @@
 				539DAEF21AF158150037F06B /* NBCImagrSettingsViewController.m in Sources */,
 				53CB049B1BE20EFC002F1426 /* NBCDiskController.m in Sources */,
 				53DACFB21BEC777500375684 /* NBCWorkflowSystemImageUtility.m in Sources */,
+				5305AF011C249CAB00DBECEE /* NBCResolver.m in Sources */,
 				53909A8F1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m in Sources */,
 				53383D121AFA9CA100C041F9 /* NBCDownloaderGitHub.m in Sources */,
 				5386EA8E1AFFB0EA0091D57A /* NBCDownloaderPython.m in Sources */,

@@ -7,6 +7,7 @@
 
 #import "NSString+validIP.h"
 #import "NBCLogging.h"
+#import "NBCResolver.h"
 #include <arpa/inet.h>
 
 DDLogLevel ddLogLevel;
@@ -25,6 +26,11 @@ DDLogLevel ddLogLevel;
     }
     
     return success == 1;
+}
+
+- (BOOL)isValidHostname {
+    NBCResolver *resolver = [[NBCResolver alloc] initWithHostname:self];
+    return [resolver lookup];
 }
 
 @end
