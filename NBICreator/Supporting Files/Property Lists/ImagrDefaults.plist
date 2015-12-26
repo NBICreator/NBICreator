@@ -86,6 +86,8 @@
 	<false/>
 	<key>KeyboardLayout</key>
 	<string>Current</string>
+	<key>BaseSystemDiskImageSize</key>
+	<integer>10</integer>
 	<key>ImagrUseGitBranch</key>
 	<false/>
 	<key>ImagrGitBranch</key>

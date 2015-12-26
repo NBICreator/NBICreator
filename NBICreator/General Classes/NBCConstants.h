@@ -183,6 +183,7 @@ extern NSString *const NBCSettingsAddTrustedNetBootServersKey;
 extern NSString *const NBCSettingsTrustedNetBootServersKey;
 extern NSString *const NBCSettingsAddCustomRAMDisksKey;
 extern NSString *const NBCSettingsRAMDisksKey;
+extern NSString *const NBCSettingsBaseSystemDiskImageSizeKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug

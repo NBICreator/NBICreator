@@ -474,6 +474,7 @@ DDLogLevel ddLogLevel;
     //  Instantiate workflow target if it doesn't exist.
     // -------------------------------------------------------------
     NBCTarget *target = [_currentWorkflowItem target] ?: [[NBCTarget alloc] init];
+    [target setBaseSystemDiskImageSize:[_currentWorkflowItem userSettings][NBCSettingsBaseSystemDiskImageSizeKey] ?: @10];
     [_currentWorkflowItem setTarget:target];
     
     // -------------------------------------------------------------

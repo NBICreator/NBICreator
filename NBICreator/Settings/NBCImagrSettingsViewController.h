@@ -136,6 +136,8 @@
 @property (weak) IBOutlet NSTextField *textFieldRAMDiskCount;
 @property (weak) IBOutlet NSTextField *textFieldRAMDiskSize;
 
+@property NSNumber *baseSystemDiskImageSize;
+
 // ------------------------------------------------------
 //  TabView Imagr Settings
 // ------------------------------------------------------

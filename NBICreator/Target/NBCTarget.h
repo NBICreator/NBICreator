@@ -49,6 +49,7 @@
 // Soruce NBI BaseSystem
 @property NBCDisk *baseSystemDisk;
 @property NSURL *baseSystemURL;
+@property NSNumber *baseSystemDiskImageSize;
 @property NSString *baseSystemShadowPath;
 @property NSURL *baseSystemVolumeURL;
 @property NSDictionary *baseSystemDiskImageDict;

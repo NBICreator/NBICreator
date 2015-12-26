@@ -84,6 +84,8 @@
 	<false/>
 	<key>AddTrustedNetBootServers</key>
 	<false/>
+	<key>BaseSystemDiskImageSize</key>
+	<integer>10</integer>
 	<key>RAMDisks</key>
 	<array/>
 	<key>TrustedNetBootServers</key>

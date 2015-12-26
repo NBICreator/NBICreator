@@ -57,7 +57,7 @@
 + (BOOL)unmountVolumeAtPath:(NSString *)mountPath;
 
 // Resizing
-+ (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath error:(NSError **)error;
++ (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL diskImageSize:(NSNumber *)size shadowImagePath:(NSString *)shadowImagePath error:(NSError **)error;
 + (BOOL)resizeAndMountBaseSystemWithShadow:(NSURL *)baseSystemURL target:(NBCTarget *)target error:(NSError **)error;
 
 // Converting

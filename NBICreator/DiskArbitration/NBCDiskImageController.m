@@ -490,7 +490,7 @@ DDLogLevel ddLogLevel;
     }
 } // convertDiskImageAtPath:shadowImagePath
 
-+ (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL shadowImagePath:(NSString *)shadowImagePath error:(NSError **)error {
++ (BOOL)resizeDiskImageAtURL:(NSURL *)diskImageURL diskImageSize:(NSNumber *)size shadowImagePath:(NSString *)shadowImagePath error:(NSError **)error {
     DDLogInfo(@"Resizing disk image using shadow file...");
     DDLogDebug(@"[DEBUG] Disk image path: %@", [diskImageURL path]);
     DDLogDebug(@"[DEBUG] Disk image shadow path: %@", shadowImagePath);
@@ -499,7 +499,7 @@ DDLogLevel ddLogLevel;
     [hdiutilTask setLaunchPath:@"/usr/bin/hdiutil"];
     NSArray *args = @[
                       @"resize",
-                      @"-size", @"10G",
+                      @"-size", [NSString stringWithFormat:@"%dG", [size intValue] ?: [@10 intValue]],
                       @"-shadow", shadowImagePath,
                       [diskImageURL path],
                       ];
@@ -852,7 +852,7 @@ DDLogLevel ddLogLevel;
         //  Resize BaseSystem to fit extra content
         // ----------------------------------------
         //[_delegate updateProgressStatus:@"Resizing disk image using shadow file..." workflow:self];
-        if ( [NBCDiskImageController resizeDiskImageAtURL:baseSystemURL shadowImagePath:shadowFilePath error:error] ) {
+        if ( [NBCDiskImageController resizeDiskImageAtURL:baseSystemURL diskImageSize:[target baseSystemDiskImageSize] shadowImagePath:shadowFilePath error:error] ) {
             
             // -------------------------------------------------------
             //  Attach BaseSystem and add volume url to target object

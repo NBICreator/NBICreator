@@ -183,6 +183,7 @@ NSString *const NBCSettingsAddTrustedNetBootServersKey = @"AddTrustedNetBootServ
 NSString *const NBCSettingsTrustedNetBootServersKey = @"TrustedNetBootServers";
 NSString *const NBCSettingsAddCustomRAMDisksKey = @"AddRAMDisks";
 NSString *const NBCSettingsRAMDisksKey = @"RAMDisks";
+NSString *const NBCSettingsBaseSystemDiskImageSizeKey = @"BaseSystemDiskImageSize";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug
