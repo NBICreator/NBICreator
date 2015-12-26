@@ -503,10 +503,23 @@ DDLogLevel ddLogLevel;
         }
     }
     
-    // --------------------------------------------------------------------------------
-    // Extract added regexes from installer packages
-    // --------------------------------------------------------------------------------
     if ( [sourceItemsDict count] != 0 ) {
+
+        // -------------------------------------------------------------------------------------
+        // CTPresetFallbacks.plist (10.11+) (Only add if anything else was added for extraction
+        // -------------------------------------------------------------------------------------
+        if (
+            _workflowType == kWorkflowTypeImagr ||
+            _workflowType == kWorkflowTypeCasper
+            ) {
+            if ( 11 <= _sourceVersionMinor ) {
+                [self addExtractCTPresetFallbacks:sourceItemsDict];
+            }
+        }
+        
+        // --------------------------------------------------------------------------------
+        // Extract added regexes from installer packages
+        // --------------------------------------------------------------------------------
         NBCWorkflowResourcesExtract *workflowResourcesExtract = [[NBCWorkflowResourcesExtract alloc] initWithDelegate:self];
         [workflowResourcesExtract setProgressDelegate:_delegate];
         [workflowResourcesExtract extractResources:[sourceItemsDict copy] workflowItem:_workflowItem];
@@ -1307,6 +1320,21 @@ DDLogLevel ddLogLevel;
     // Update extraction array
     [self addItemsToExtractFromEssentials:essentials sourceItemsDict:sourceItemsDict];
 } // addConsole
+
+- (void)addExtractCTPresetFallbacks:(NSMutableDictionary *)sourceItemsDict {
+    
+    DDLogInfo(@"Adding regexes to extract CTPresetFallbacks.plist...");
+    
+    // ---------------------------------------------------------------------------------
+    //  Essentials.pkg
+    // ---------------------------------------------------------------------------------
+    NSMutableArray *essentials = [NSMutableArray arrayWithArray:@[
+                                                                  @".*CoreText.framework.*CTPresetFallbacks.plist",
+                                                                  ]];
+
+    // Update extraction array
+    [self addItemsToExtractFromEssentials:essentials sourceItemsDict:sourceItemsDict];
+} // addExtractCTPresetFallbacks
 
 - (void)addExtractDesktopPictureDefault:(NSMutableDictionary *)sourceItemsDict {
     
