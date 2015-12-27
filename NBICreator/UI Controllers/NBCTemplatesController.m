@@ -670,6 +670,7 @@ enum {
 
 - (void)showSheetRenameImportTemplateWithName:(NSString *)name url:(NSURL *)templateURL {
     [self setImportTemplateURL:templateURL];
+    [_titleSheetRenameImportTemplate setStringValue:[NSString stringWithFormat:@"Template name \"%@\" already exist", name]];
     [_textFieldSheetRenameImportTemplate setStringValue:name];
     [[NSApp mainWindow] beginSheet:_sheetRenameImportTemplate completionHandler:^(NSModalResponse returnCode) {
         if ( returnCode == NSModalResponseOK ) {
