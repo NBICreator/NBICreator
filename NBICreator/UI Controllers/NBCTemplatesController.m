@@ -41,6 +41,14 @@ enum {
 
 @implementation NBCTemplatesController
 
+- (id)init {
+    self = [super initWithWindowNibName:@"NBCTemplatesController"];
+    if (self != nil) {
+        [self window]; // Loads the nib
+    }
+    return self;
+} // init
+
 - (id)initWithSettingsViewController:(id)settingsViewController templateType:(NSString *)templateType delegate:(id<NBCTemplatesDelegate>)delegate {
     self = [super initWithWindowNibName:@"NBCTemplatesController"];
     if (self != nil) {
@@ -62,11 +70,11 @@ enum {
         _delegate = delegate;
     }
     return self;
-}
+} // initWithSettingsViewController:templateType:delegate
 
 - (void)windowDidLoad {
     [super windowDidLoad];
-}
+} // windowDidLoad
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -98,7 +106,7 @@ enum {
             }
         }
     }
-}
+} // alertReturnCode:alertInfo
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
     
@@ -142,7 +150,7 @@ enum {
     }
     
     return retval;
-}
+} // validateMenuItem
 
 - (void)deleteTemplateAtURL:(NSURL *)templateURL updateTemplateList:(BOOL)update {
     DDLogInfo(@"Deleting template: %@", [templateURL lastPathComponent]);
@@ -155,35 +163,25 @@ enum {
         DDLogError(@"[ERROR] Could not move %@ to the trash", templateURL);
         DDLogError(@"[ERROR] %@", error);
     }
-}
+} // deleteTemplateAtURL:updateTemplateList
 
 - (void)controlTextDidChange:(NSNotification *)sender {
+    
+    BOOL enableButton = YES;
+    NSString *inputText = [[[sender userInfo] valueForKey:@"NSFieldEditor"] string];
     
     // -----------------------------------------------------------------------
     //  Don't allow empty template names or names that are already being used
     // -----------------------------------------------------------------------
-    if ( [sender object] == _textFieldSheetSaveAsName ) {
-        if ( [[_textFieldSheetSaveAsName stringValue] length] == 0 || [[_popUpButton itemTitles] containsObject:[_textFieldSheetSaveAsName stringValue]] ) {
-            [_buttonSheetSaveAsSaveAs setEnabled:NO];
-        } else {
-            [_buttonSheetSaveAsSaveAs setEnabled:YES];
-        }
-    } else if ( [sender object] == _textFieldSheetRenameName ) {
-        if ( [[_textFieldSheetRenameName stringValue] length] == 0 || [[_popUpButton itemTitles] containsObject:[_textFieldSheetRenameName stringValue]] ) {
-            [_buttonSheetRenameRename setEnabled:NO];
-        } else {
-            [_buttonSheetRenameRename setEnabled:YES];
-        }
+    if ( [inputText length] == 0 || [[_popUpButton itemTitles] containsObject:inputText] || [inputText isEqualToString:@"Untitled"] ) {
+        enableButton = NO;
     }
     
-    else if ( [sender object] == _textFieldSheetSaveUntitledName ) {
-        if ( [[_textFieldSheetSaveUntitledName stringValue] length] == 0 ) {
-            [_buttonSheetSaveUntitledSaveAs setEnabled:NO];
-        } else {
-            [_buttonSheetSaveUntitledSaveAs setEnabled:YES];
-        }
-    }
-}
+    if ( [sender object] == _textFieldSheetSaveAsName )             { [_buttonSheetSaveAsSaveAs setEnabled:enableButton]; };
+    if ( [sender object] == _textFieldSheetRenameName )             { [_buttonSheetRenameRename setEnabled:enableButton]; };
+    if ( [sender object] == _textFieldSheetRenameImportTemplate )   { [_buttonSheetRenameImportTemplateImport setEnabled:enableButton]; };
+    if ( [sender object] == _textFieldSheetSaveUntitledName )       { [_buttonSheetSaveUntitledSaveAs setEnabled:enableButton]; };
+} // controlTextDidChange
 
 - (void)disableTemplateAtURL:(NSURL *)templateURL {
     
@@ -212,7 +210,7 @@ enum {
     if ( ! [fm moveItemAtURL:templateURL toURL:templateTargetURL error:&error] ) {
         DDLogError(@"[ERROR] Could not move template to disabled directory!");
     }
-}
+} // disableTemplateAtURL
 
 - (void)updateTemplateListForPopUpButton:(NSPopUpButton *)popUpButton title:(NSString *)title {
     
@@ -400,15 +398,36 @@ enum {
             DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
     }
-}
+} //updateTemplateListForPopUpButton:title
 
-+ (BOOL)templateIsDuplicate:(NSURL *)templateURL {
++ (NSURL *)templatesFolderForType:(NSString *)type {
+    
+    NSError *error = nil;
+    NSURL *userApplicationSupport = [[NSFileManager defaultManager] URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
+    if ( ! [userApplicationSupport checkResourceIsReachableAndReturnError:&error] ) {
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        return nil;
+    }
+    
+    if ( [type isEqualToString:NBCSettingsTypeNetInstall] ) {
+        return [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesNetInstall isDirectory:YES];
+    } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
+        return [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesDeployStudio isDirectory:YES];
+    } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
+        return [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesImagr isDirectory:YES];
+    } else if ( [type isEqualToString:NBCSettingsTypeCasper] ) {
+        return [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesCasper isDirectory:YES];
+    } else {
+        DDLogError(@"[ERROR] Unknown template type: %@", type);
+        return nil;
+    }
+} // templatesFolderForType
+
++ (BOOL)templateNameAlreadyExist:(NSURL *)templateURL {
     
     DDLogDebug(@"[DEBUG] Checking if template is a duplicate...");
     
     BOOL retval = NO;
-    NSFileManager *fm = [NSFileManager defaultManager];
-    NSError *error;
     
     NSDictionary *templateDict = [NSDictionary dictionaryWithContentsOfURL:templateURL];
     if ( [templateDict count] == 0 ) {
@@ -416,42 +435,53 @@ enum {
         return NO;
     }
     
-    NSURL *templatesFolderURL;
-    NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
-    if ( ! [userApplicationSupport checkResourceIsReachableAndReturnError:&error] ) {
-        DDLogError(@"[ERROR] %@", [error localizedDescription]);
-        return NO;
-    }
-    
-    NSString *type = templateDict[NBCSettingsTypeKey];
-    
-    if ( [type isEqualToString:NBCSettingsTypeNetInstall] ) {
-        templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesNetInstall isDirectory:YES];
-        if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
-            return NO;
-        }
-    } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
-        templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesDeployStudio isDirectory:YES];
-        if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
-            return NO;
-        }
-    } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
-        templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesImagr isDirectory:YES];
-        if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
-            return NO;
-        }
-    } else if ( [type isEqualToString:NBCSettingsTypeCasper] ) {
-        templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesCasper isDirectory:YES];
-        if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
-            return NO;
-        }
-    } else {
-        DDLogError(@"[ERROR] Unknown template type: %@", type);
-        return NO;
-    }
+    NSURL *templatesFolderURL = [self templatesFolderForType:templateDict[NBCSettingsTypeKey]];
     DDLogDebug(@"[DEBUG] Template folder path: %@", [templatesFolderURL path]);
+    if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+        return NO;
+    }
     
-    NSArray *contents = [fm contentsOfDirectoryAtURL:templatesFolderURL
+    NSString *templateName = templateDict[NBCSettingsTitleKey];
+    
+    NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:templatesFolderURL
+                                                      includingPropertiesForKeys:@[]
+                                                                         options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                           error:nil];
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension == 'nbictemplate'"];
+    for ( NSURL *fileURL in [contents filteredArrayUsingPredicate:predicate] ) {
+        NSDictionary *currentTemplateDict = [[NSDictionary alloc] initWithContentsOfURL:fileURL];
+        if ( [currentTemplateDict count] != 0 ) {
+            if ( [templateName isEqualToString:currentTemplateDict[NBCSettingsTitleKey]] ) {
+                retval = YES;
+                break;
+            }
+        }
+    }
+    
+    return retval;
+    
+} // templateNameAlreadyExist
+
++ (BOOL)templateIsDuplicate:(NSURL *)templateURL {
+    
+    DDLogDebug(@"[DEBUG] Checking if template is a duplicate...");
+    
+    BOOL retval = NO;
+    
+    NSDictionary *templateDict = [NSDictionary dictionaryWithContentsOfURL:templateURL];
+    if ( [templateDict count] == 0 ) {
+        DDLogError(@"[ERROR] Could not read template: %@", [templateURL path]);
+        return NO;
+    }
+    
+    NSURL *templatesFolderURL = [self templatesFolderForType:templateDict[NBCSettingsTypeKey]];
+    DDLogDebug(@"[DEBUG] Template folder path: %@", [templatesFolderURL path]);
+    if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+        return NO;
+    }
+    
+    NSArray *contents = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:templatesFolderURL
                           includingPropertiesForKeys:@[]
                                              options:NSDirectoryEnumerationSkipsHiddenFiles
                                                error:nil];
@@ -468,10 +498,9 @@ enum {
     }
     
     return retval;
-}
+} // templateIsDuplicate
 
 - (void)addUntitledTemplate {
-    
     [_popUpButton insertItemWithTitle:NBCMenuItemUntitled atIndex:0];
     [_popUpButton selectItemWithTitle:NBCMenuItemUntitled];
     [_settingsViewController setSelectedTemplate:NBCMenuItemUntitled];
@@ -489,12 +518,10 @@ enum {
     } else {
         DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
-}
+} // addUntitledTemplate
 
-+ (NSDictionary *)templateInfoFromTemplateAtURL:(NSURL *)templateURL error:(NSError **)error {
-#pragma unused(error)
++ (NSDictionary *)templateInfoFromTemplateAtURL:(NSURL *)templateURL error:(NSError **) __unused error {
     NSMutableDictionary *templateInfoDict = [[NSMutableDictionary alloc] init];
-    
     NSDictionary *templateDict = [NSDictionary dictionaryWithContentsOfURL:templateURL];
     if ( [templateDict count] != 0 ) {
         NSString *name = templateDict[NBCSettingsTitleKey];
@@ -514,7 +541,7 @@ enum {
         DDLogError(@"[ERROR] Template at path: %@ could not be opened", [templateURL path]);
         return nil;
     }
-}
+} // templateInfoFromTemplateAtURL
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -522,9 +549,7 @@ enum {
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)menuItemNew:(NSNotification *)notification {
-#pragma unused(notification)
-    
+- (void)menuItemNew:(NSNotification *) __unused notification {
     BOOL settingsChanged = [_settingsViewController haveSettingsChanged];
     
     // -----------------------------------------------------------------------
@@ -574,35 +599,25 @@ enum {
     }
 } // menuItemNew
 
-- (void)menuItemSave:(NSNotification *)notification {
-#pragma unused(notification)
-    
+- (void)menuItemSave:(NSNotification *) __unused notification {
     NSURL *currentTemplateURL = [_settingsViewController templatesDict][[_settingsViewController selectedTemplate]];
     [_settingsViewController saveUISettingsWithName:[_settingsViewController selectedTemplate] atUrl:currentTemplateURL];
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
 } // menuItemSave
 
-- (void)menuItemSaveAs:(NSNotification *)notification {
-#pragma unused(notification)
-    
+- (void)menuItemSaveAs:(NSNotification *) __unused notification {
     [self showSheetSaveAs];
 } // menuItemSaveAs
 
-- (void)menuItemRename:(NSNotification *)notification {
-#pragma unused(notification)
-    
+- (void)menuItemRename:(NSNotification *) __unused notification {
     [self showSheetRename];
 } // menuItemRename
 
-- (void)menuItemExport:(NSNotification *)notification {
-#pragma unused(notification)
-    
+- (void)menuItemExport:(NSNotification *) __unused notification {
     [self showSheetExport];
 } // menuItemExport
 
-- (void)menuItemShowInFinder:(NSNotification *)notification {
-#pragma unused(notification)
-    
+- (void)menuItemShowInFinder:(NSNotification *) __unused notification {
     NSURL *currentTemplateURL = [_settingsViewController templatesDict][[_settingsViewController selectedTemplate]];
     if ( currentTemplateURL ) {
         NSArray *currentTemplateURLArray = @[ currentTemplateURL ];
@@ -613,9 +628,7 @@ enum {
     }
 } // menuItemShowInFinder
 
-- (void)menuItemDelete:(NSNotification *)notification {
-#pragma unused(notification)
-    
+- (void)menuItemDelete:(NSNotification *) __unused notification {
     NSString *currentTemplateName = [_settingsViewController selectedTemplate];
     NSURL *currentTemplateURL = [_settingsViewController templatesDict][currentTemplateName];
     if ( [currentTemplateURL checkResourceIsReachableAndReturnError:nil] ) {
@@ -628,7 +641,7 @@ enum {
         [alert showAlertDeleteTemplate:[NSString stringWithFormat:@"Are you sure you want to delete the template %@?", currentTemplateName] templateName:currentTemplateName alertInfo:alertInfo];
     }
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
-}
+} // menuItemDelete
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -655,8 +668,17 @@ enum {
     }];
 } // showSheetSaveUntitled
 
+- (void)showSheetRenameImportTemplateWithName:(NSString *)name url:(NSURL *)templateURL {
+    [self setImportTemplateURL:templateURL];
+    [_textFieldSheetRenameImportTemplate setStringValue:name];
+    [[NSApp mainWindow] beginSheet:_sheetRenameImportTemplate completionHandler:^(NSModalResponse returnCode) {
+        if ( returnCode == NSModalResponseOK ) {
+
+        }
+    }];
+} // showSheetSaveUntitled
+
 - (void)showSheetSaveAs {
-    
     [_textFieldSheetSaveAsName setStringValue:@""];
     [[NSApp mainWindow] beginSheet:_sheetSaveAs completionHandler:^(NSModalResponse returnCode) {
         if ( returnCode == NSModalResponseOK ) {
@@ -666,15 +688,13 @@ enum {
 } // showSheetSaveAs
 
 - (void)showSheetRename {
-    
     [_textFieldSheetRenameName setStringValue:@""];
-    [[NSApp mainWindow] beginSheet:_sheetRename completionHandler:^(NSModalResponse returnCode) {
-#pragma unused(returnCode)
+    [[NSApp mainWindow] beginSheet:_sheetRename completionHandler:^(NSModalResponse __unused returnCode) {
+
     }];
 } // showSheetSaveAs
 
 - (void)showSheetExport {
-    
     
     __block NSError *error;
     NSURL *selectedTemplateURL;
@@ -723,16 +743,12 @@ enum {
     }
 } // showSheetExport
 
-- (IBAction)buttonSheetSaveAsCancel:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonSheetSaveAsCancel:(id) __unused sender {
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     [[NSApp mainWindow] endSheet:_sheetSaveAs returnCode:NSModalResponseCancel];
 } // buttonSheetCancel
 
-- (IBAction)buttonSheetSaveAsSaveAs:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonSheetSaveAsSaveAs:(id) __unused sender {
     NSString *newName = [_textFieldSheetSaveAsName stringValue];
     [_popUpButton insertItemWithTitle:newName atIndex:0];
     [_popUpButton selectItemWithTitle:newName];
@@ -747,16 +763,12 @@ enum {
     [[NSApp mainWindow] endSheet:_sheetSaveAs returnCode:NSModalResponseOK];
 } // buttonSheetSave
 
-- (IBAction)buttonSheetSaveUntitledCancel:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonSheetSaveUntitledCancel:(id) __unused sender {
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     [[NSApp mainWindow] endSheet:_sheetSaveUntitled returnCode:NSModalResponseCancel];
 } // buttonSaveUntitledCancel
 
-- (IBAction)buttonSheetSaveUntitledSaveAs:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonSheetSaveUntitledSaveAs:(id) __unused sender {
     NSString *newName = [_textFieldSheetSaveUntitledName stringValue];
     [_popUpButton insertItemWithTitle:newName atIndex:0];
     [_popUpButton selectItemWithTitle:newName];
@@ -771,16 +783,12 @@ enum {
     [[NSApp mainWindow] endSheet:_sheetSaveUntitled returnCode:NSModalResponseOK];
 } // buttonSaveUntitledSave
 
-- (IBAction)buttonSheetSaveUntitledDelete:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonSheetSaveUntitledDelete:(id) __unused sender {
     [_popUpButton removeItemWithTitle:NBCMenuItemUntitled];
     [[NSApp mainWindow] endSheet:_sheetSaveUntitled returnCode:NSModalResponseContinue];
 } // buttonSaveUntitledDelete
 
-- (IBAction)buttonSheetRenameRename:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonSheetRenameRename:(id) __unused sender {
     NSString *newName = [_textFieldSheetRenameName stringValue];
     NSString *selectedTemplate = [_settingsViewController selectedTemplate];
     if ( [selectedTemplate length] != 0 ) {
@@ -807,11 +815,52 @@ enum {
     [[NSApp mainWindow] endSheet:_sheetRename returnCode:NSModalResponseOK];
 } // buttonSheetRenameRename
 
-- (IBAction)buttonSheetRenameCancel:(id)sender {
-#pragma unused(sender)
-    
+- (IBAction)buttonSheetRenameCancel:(id) __unused sender {
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     [[NSApp mainWindow] endSheet:_sheetRename returnCode:NSModalResponseCancel];
 } // buttonSheetRenameCancel
+
+- (IBAction)buttonSheetRenameImportTemplateCancel:(id) __unused sender {
+    [[NSApp mainWindow] endSheet:_sheetRenameImportTemplate returnCode:NSModalResponseCancel];
+} // buttonSheetRenameImportTemplateCancel
+
+- (IBAction)buttonSheetRenameImportTemplateImport:(id) __unused sender {
+
+    NSString *newName = [_textFieldSheetRenameImportTemplate stringValue];
+    NSError *error = nil;
+    if ( ! [self importTemplateFromURL:_importTemplateURL newName:newName error:&error] ) {
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:[error localizedDescription]];
+    }
+    
+    [[NSApp mainWindow] endSheet:_sheetRenameImportTemplate returnCode:NSModalResponseOK];
+} // buttonSheetRenameImportTemplateImport
+
+- (BOOL)importTemplateFromURL:(NSURL *)templateURL newName:(NSString *)newName error:(NSError **)error {
+    
+    NSURL *templatesFolderURL = [_settingsViewController templatesFolderURL];
+    if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+        if ( ! [[NSFileManager defaultManager] createDirectoryAtURL:templatesFolderURL withIntermediateDirectories:YES attributes:nil error:error] ) {
+            return NO;
+        }
+    }
+    
+    if ( [templateURL checkResourceIsReachableAndReturnError:error] ) {
+        NSMutableDictionary *importTemplate = [[NSMutableDictionary alloc] initWithContentsOfURL:templateURL];
+        if ( [newName length] != 0 ) {
+            importTemplate[NBCSettingsTitleKey] = newName;
+        }
+        
+        NSURL *templateSaveURL = [templatesFolderURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.nbictemplate", [[NSUUID UUID] UUIDString]]];
+        if ( [importTemplate writeToURL:templateSaveURL atomically:YES] ) {
+            [self updateTemplateListForPopUpButton:_popUpButton title:newName];
+            return YES;
+        } else {
+            return NO;
+        }
+    } else {
+        return NO;
+    }
+} // importTemplateFromURL:newName:error
 
 @end

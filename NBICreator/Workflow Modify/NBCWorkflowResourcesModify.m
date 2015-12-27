@@ -417,6 +417,58 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
+- (void)modifyAppleInstaller:(NSMutableArray *)modifyDictArray {
+    
+    DDLogInfo(@"Preparing modifications for AppleInstaller...");
+    
+    // --------------------------------------------------------------
+    //  /Install OS X ... .app
+    // --------------------------------------------------------------
+    NSError * error = nil;
+    NSArray *rootItems = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:_baseSystemVolumeURL includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];
+    
+    if ( [rootItems count] == 0 && error ) {
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
+    } else {
+        NSArray *itemsFiltered = [rootItems filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pathExtension == 'app'"]];
+        [itemsFiltered enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger __unused idx, BOOL * _Nonnull stop) {
+            NSString *itemName = [obj lastPathComponent];
+            if ( [itemName hasPrefix:@"Install OS X"] && [itemName hasSuffix:@".app"] ) {
+                DDLogDebug(@"[DEBUG] Installer path: %@", [obj path]);
+                [modifyDictArray insertObject:@{
+                                                NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
+                                                NBCWorkflowModifyTargetURL :  [obj path]
+                                                } atIndex:0];
+                *stop = YES;;
+            }
+        }];
+    }
+
+    // --------------------------------------------------------------
+    //  /Applications/Safari.app
+    // --------------------------------------------------------------
+    NSURL *safariURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Safari.app"];
+    DDLogDebug(@"[DEBUG] Safari.app path: %@", [safariURL path]);
+    if ( [safariURL checkResourceIsReachableAndReturnError:nil] ) {
+        [modifyDictArray insertObject:@{
+                                        NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
+                                        NBCWorkflowModifyTargetURL :  [safariURL path]
+                                        } atIndex:0];
+    }
+    
+    // --------------------------------------------------------------
+    //  /System/Installation/CDIS
+    // --------------------------------------------------------------
+    NSURL *cdisURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Installation/CDIS"];
+    DDLogDebug(@"[DEBUG] CDIS folder path: %@", [cdisURL path]);
+    if ( [cdisURL checkResourceIsReachableAndReturnError:nil] ) {
+        [modifyDictArray insertObject:@{
+                                        NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
+                                        NBCWorkflowModifyTargetURL :  [cdisURL path]
+                                        } atIndex:0];
+    }
+}
+
 - (void)modifyBluetooth:(NSMutableArray *)modifyDictArray {
     
     DDLogInfo(@"Preparing modifications for Bluetooth...");
@@ -985,6 +1037,91 @@ DDLogLevel ddLogLevel;
     }
 } // modifyKextd
 
+- (void)modifyLaunchDaemons:(NSMutableArray *)modifyDictArray {
+    
+    DDLogInfo(@"Preparing modifications for launch daemons...");
+    
+    // ------------------------------------------------------------------
+    //  /System/Library/LaunchDaemons
+    // ------------------------------------------------------------------
+    NSURL *launchDaemonsURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons" isDirectory:YES];
+    
+    // ------------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.locationd.plist
+    // ------------------------------------------------------------------
+    NSURL *locationdPlistURL = [launchDaemonsURL URLByAppendingPathComponent:@"com.apple.locationd.plist"];
+    if ( [locationdPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *locationdPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.locationd.plist"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [locationdPlistURL path],
+                                     NBCWorkflowModifyTargetURL : [locationdPlistTargetURL path]
+                                     }];
+    }
+    
+    // ------------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.lsd.plist
+    // ------------------------------------------------------------------
+    NSURL *lsdPlistURL = [launchDaemonsURL URLByAppendingPathComponent:@"com.apple.lsd.plist"];
+    if ( [lsdPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *lsdPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.lsd.plist"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [lsdPlistURL path],
+                                     NBCWorkflowModifyTargetURL : [lsdPlistTargetURL path]
+                                     }];
+    }
+    
+    // ------------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.ocspd.plist
+    // ------------------------------------------------------------------
+    NSURL *ocspdPlistURL = [launchDaemonsURL URLByAppendingPathComponent:@"com.apple.ocspd.plist"];
+    if ( [ocspdPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *ocspdPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.ocspd.plist"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [ocspdPlistURL path],
+                                     NBCWorkflowModifyTargetURL : [ocspdPlistTargetURL path]
+                                     }];
+    }
+    
+    // ------------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.tccd.system.plist
+    // ------------------------------------------------------------------
+    NSURL *tccdPlistURL = [launchDaemonsURL URLByAppendingPathComponent:@"com.apple.tccd.system.plist"];
+    if ( [tccdPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *tccdPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.tccd.system.plist"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [tccdPlistURL path],
+                                     NBCWorkflowModifyTargetURL : [tccdPlistTargetURL path]
+                                     }];
+    }
+    
+    // ------------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/org.ntp.sntp.plist
+    // ------------------------------------------------------------------
+    NSURL *sntpPlistURL = [launchDaemonsURL URLByAppendingPathComponent:@"org.ntp.sntp.plist"];
+    if ( [sntpPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *sntpPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/org.ntp.sntp.plist"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [sntpPlistURL path],
+                                     NBCWorkflowModifyTargetURL : [sntpPlistTargetURL path]
+                                     }];
+    }
+}
+
 - (BOOL)modifyLocalization:(NSMutableArray *)modifyDictArray error:(NSError **)error {
     
     DDLogInfo(@"Preparing modifications for localization...");
@@ -1212,7 +1349,7 @@ DDLogLevel ddLogLevel;
                 //  If host string can be resolved, continue
                 // --------------------------------------------------------------
                 if ( [ntpHost isValidHostname] ) {
-                    [ntpHostContentString appendString:[NSString stringWithFormat:@"%@\n", ntpHost]];
+                    [ntpHostContentString appendString:[NSString stringWithFormat:@"server %@\n", ntpHost]];
                     continue;
                 }
                 
@@ -1220,7 +1357,7 @@ DDLogLevel ddLogLevel;
                 //  If host string is a valid IP address, continue
                 // --------------------------------------------------------------
                 if ( [ntpHost isValidIPAddress] ) {
-                    [ntpHostContentString appendString:[NSString stringWithFormat:@"%@\n", ntpHost]];
+                    [ntpHostContentString appendString:[NSString stringWithFormat:@"server %@\n", ntpHost]];
                     continue;
                 }
                 
@@ -1383,24 +1520,24 @@ DDLogLevel ddLogLevel;
                     NSString *path = lineArray[1];
                     
                     if ( [path isEqualToString:@"/Volumes"] ) {
-                        lineArray[2] = @"2048";
+                        lineArray[2] = @"1024";
                     } else if ( [path isEqualToString:@"/var/tmp"] ) {
                         if ( [self->_workflowItem workflowType] == kWorkflowTypeCasper ) {
                             lineArray[1] = @"/tmp";
                         }
                         lineArray[2] = @"32768";
                     } else if ( [path isEqualToString:@"/var/run"] ) {
-                        lineArray[2] = @"4096";
+                        lineArray[2] = @"1024";
                     } else if ( [path isEqualToString:@"/var/db"] ) {
                         lineArray[2] = @"4096";
                     } else if ( [path isEqualToString:@"/var/root/Library"] ) {
-                        lineArray[2] = @"32768";
+                        lineArray[2] = @"4096";
                     } else if ( [path isEqualToString:@"/Library/ColorSync/Profiles/Displays"] ) {
                         lineArray[2] = @"4096";
                     } else if ( [path isEqualToString:@"/Library/Preferences"] ) {
-                        lineArray[2] = @"4096";
+                        lineArray[2] = @"1024";
                     } else if ( [path isEqualToString:@"/Library/Preferences/SystemConfiguration"] ) {
-                        lineArray[2] = @"4096";
+                        lineArray[2] = @"1024";
                     }
                     
                     line = [lineArray componentsJoinedByString:@" "];
@@ -1997,7 +2134,7 @@ DDLogLevel ddLogLevel;
                                          NBCWorkflowModifyAttributes :  screensharingMessagesAgentLaunchAgentAttributes
                                          }];
         } else if ( 7 < _sourceVersionMinor ) {
-            /*
+            /* FIXME - Why is this uncommented, isn't it needed? And why is the if statement checking the same thing twice?
              screensharingMessagesAgentLaunchAgentDict = [[NSMutableDictionary alloc] init];
              screensharingMessagesAgentLaunchAgentDict[@"EnableTransactions"] = @YES;
              screensharingMessagesAgentLaunchAgentDict[@"Label"] = @"com.apple.screensharing.MessagesAgent";
@@ -2077,9 +2214,9 @@ DDLogLevel ddLogLevel;
         
         // Update modification array
         [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                                     NBCWorkflowModifyContent : remoteDesktopLaunchAgentDict,
-                                     NBCWorkflowModifyTargetURL : [remoteDesktopLaunchAgentURL path],
+                                     NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypePlist,
+                                     NBCWorkflowModifyContent :    remoteDesktopLaunchAgentDict,
+                                     NBCWorkflowModifyTargetURL :  [remoteDesktopLaunchAgentURL path],
                                      NBCWorkflowModifyAttributes : remoteDesktopLaunchAgentAttributes
                                      }];
     }
@@ -2093,9 +2230,9 @@ DDLogLevel ddLogLevel;
     NSMutableDictionary *remoteDesktopDict = [NSMutableDictionary dictionaryWithContentsOfURL:remoteDesktopURL] ?: [[NSMutableDictionary alloc] init];
     NSDictionary *remoteDesktopAttributes = [fm attributesOfItemAtPath:[remoteDesktopURL path]
                                                                  error:nil] ?: @{
-                                                                                 NSFileOwnerAccountName : @"root",
+                                                                                 NSFileOwnerAccountName :      @"root",
                                                                                  NSFileGroupOwnerAccountName : @"wheel",
-                                                                                 NSFilePosixPermissions : @0644
+                                                                                 NSFilePosixPermissions :      @0644
                                                                                  };
     
     // Configure remote desktop to allow full access to all users
@@ -2158,9 +2295,9 @@ DDLogLevel ddLogLevel;
     NSMutableDictionary *spotlightIndexingSettingsDict = [NSMutableDictionary dictionaryWithContentsOfURL:spotlightIndexingSettingsURL] ?: [[NSMutableDictionary alloc] init];
     NSDictionary *spotlightIndexingSettingsAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[spotlightIndexingSettingsURL path]
                                                                                                          error:nil] ?: @{
-                                                                                                                         NSFileOwnerAccountName : @"root",
+                                                                                                                         NSFileOwnerAccountName :      @"root",
                                                                                                                          NSFileGroupOwnerAccountName : @"wheel",
-                                                                                                                         NSFilePosixPermissions : @0600
+                                                                                                                         NSFilePosixPermissions :      @0600
                                                                                                                          };
     
     // Set policy to '3' (Disabled)

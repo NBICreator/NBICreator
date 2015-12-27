@@ -334,8 +334,7 @@ DDLogLevel ddLogLevel;
     }
 }
 
-- (void)updateSource:(NBCSource *)source target:(NBCTarget *)target {
-#pragma unused(target)
+- (void)updateSource:(NBCSource *)source target:(NBCTarget *) __unused target {
     if ( source != nil ) {
         [self setSource:source];
     }
@@ -362,9 +361,7 @@ DDLogLevel ddLogLevel;
     [self setNbiType:_nbiType ?: @"NetInstall"];
 } // refreshCreationTool
 
-- (void)restoreNBIIcon:(NSNotification *)notification {
-#pragma unused(notification)
-    
+- (void)restoreNBIIcon:(NSNotification *) __unused notification {
     [self setNbiIconPath:NBCFilePathNBIIconNetInstall];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
@@ -384,10 +381,8 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-#pragma unused(object, change, context)
-    
-    if ([keyPath isEqualToString:NBCUserDefaultsIndexCounter]) {
+- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id) __unused object change:(NSDictionary *) __unused change context:(void *) __unused context {
+    if ( [keyPath isEqualToString:NBCUserDefaultsIndexCounter] ) {
         NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_siuSource];
         [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
         [self setPopOverIndexCounter:nbiIndex];

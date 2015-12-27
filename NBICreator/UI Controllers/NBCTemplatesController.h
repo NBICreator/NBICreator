@@ -55,7 +55,14 @@
 @property (strong) IBOutlet NSView *viewExportPanel;
 @property (weak) IBOutlet NSButton *checkboxExportPanelIncludeResources;
 
+@property (weak) IBOutlet NSTextField *textFieldSheetRenameImportTemplate;
+@property (weak) IBOutlet NSTextField *titleSheetRenameImportTemplate;
 
+@property NSURL *importTemplateURL;
+@property (strong) IBOutlet NSWindow *sheetRenameImportTemplate;
+- (IBAction)buttonSheetRenameImportTemplateCancel:(id)sender;
+@property (weak) IBOutlet NSButton *buttonSheetRenameImportTemplateImport;
+- (IBAction)buttonSheetRenameImportTemplateImport:(id)sender;
 
 // ------------------------------------------------------
 //  IBOutlets/Actions Sheet Save Untitled
@@ -76,11 +83,14 @@
 - (void)menuItemExport:(NSNotification *)notification;
 - (void)menuItemDelete:(NSNotification *)notification;
 - (void)menuItemShowInFinder:(NSNotification *)notification;
++ (BOOL)templateNameAlreadyExist:(NSURL *)templateURL;
 + (BOOL)templateIsDuplicate:(NSURL *)templateURL;
 - (void)deleteTemplateAtURL:(NSURL *)templateURL updateTemplateList:(BOOL)update;
 - (void)showSheetSaveUntitled:(NSString *)senderTitle buildNBI:(BOOL)buildNBI preWorkflowTasks:(NSDictionary *)preWorkflowTasks;
+- (void)showSheetRenameImportTemplateWithName:(NSString *)name url:(NSURL *)templateURL;
 - (id)initWithSettingsViewController:(id)settingsViewController templateType:(NSString *)templateType delegate:(id<NBCTemplatesDelegate>)delegate;
 - (void)updateTemplateListForPopUpButton:(NSPopUpButton *)popUpButton title:(NSString *)title;
+- (BOOL)importTemplateFromURL:(NSURL *)templateURL newName:(NSString *)newName error:(NSError **)error;
 + (NSDictionary *)templateInfoFromTemplateAtURL:(NSURL *)templateURL error:(NSError **)error;
 
 @end

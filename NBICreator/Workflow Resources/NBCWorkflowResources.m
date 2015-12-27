@@ -506,7 +506,7 @@ DDLogLevel ddLogLevel;
     if ( [sourceItemsDict count] != 0 ) {
 
         // -------------------------------------------------------------------------------------
-        // CTPresetFallbacks.plist (10.11+) (Only add if anything else was added for extraction
+        // CTPresetFallbacks.plist (10.11+) Only add if anything else was added for extraction
         // -------------------------------------------------------------------------------------
         if (
             _workflowType == kWorkflowTypeImagr ||

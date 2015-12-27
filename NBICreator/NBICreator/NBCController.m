@@ -253,14 +253,11 @@ enum {
     [_window makeKeyAndOrderFront:self];
 } // applicationDidFinishLaunching
 
-- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
-#pragma unused(sender)
+- (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *) __unused sender {
     return YES;
 } // applicationShouldTerminateAfterLastWindowClosed
 
-- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *)sender {
-#pragma unused(sender)
-    
+- (NSApplicationTerminateReply)applicationShouldTerminate:(NSApplication *) __unused sender {
     // --------------------------------------------------------------
     //  Run some checks before terminating application
     // --------------------------------------------------------------
@@ -268,8 +265,8 @@ enum {
     return NSTerminateLater;
 } // applicationShouldTerminate
 
-- (void)applicationWillTerminate:(NSNotification *)notification {
-#pragma unused(notification)
+- (void)applicationWillTerminate:(NSNotification *) __unused notification {
+
     DDLogDebug(@"[DEBUG] %s", __PRETTY_FUNCTION__);
     
     // --------------------------------------------------------------
@@ -296,8 +293,8 @@ enum {
     [helperConnector connectToHelper];
     [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
         DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
-    }] quitHelper:^(BOOL success) {
-#pragma unused(success)
+    }] quitHelper:^(BOOL __unused success) {
+    
     }];
 } // applicationWillTerminate
 
@@ -307,22 +304,17 @@ enum {
     });
 } // showTerminateProgress
 
-- (void)applicationDidBecomeActive:(NSNotification *)notification {
-#pragma unused(notification)
+- (void)applicationDidBecomeActive:(NSNotification *) __unused notification {
     NSDockTile *dockTile = [NSApp dockTile];
     [dockTile setBadgeLabel:@""];
     [dockTile display];
 }
 
-/*//////////////////////////////////////////////////////////////////////////////
- /// FUTURE FUNCTIONALITY - OPEN/IMPORT TEMPLATES                             ///
- //////////////////////////////////////////////////////////////////////////////*/
-- (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename {
-#pragma unused(theApplication)
+- (BOOL)application:(NSApplication *) __unused theApplication openFile:(NSString *)filename {
     
     DDLogInfo(@"Recieved file to open: %@", filename);
     
-    NSError *error;
+    __block NSError *error = nil;
     NSURL *fileURL = [NSURL fileURLWithPath:filename];
     
     // --------------------------------------------------------------
@@ -344,62 +336,61 @@ enum {
             return NO;
         }
         
-        NSString *importTitle = [NSString stringWithFormat:@"Import %@ Template?", type];
-        NSString *importMessage = [NSString stringWithFormat:@"Do you want to import the %@ template \"%@\"?", type, title];
+        if ( [type isEqualToString:NBCSettingsTypeNetInstall] ) {
+            [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlNetInstall];
+            [self selectSegmentedControl:kSegmentedControlNetInstall];
+        } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
+            [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlDeployStudio];
+            [self selectSegmentedControl:kSegmentedControlDeployStudio];
+        } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
+            [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlImagr];
+            [self selectSegmentedControl:kSegmentedControlImagr];
+        } else if ( [type isEqualToString:NBCSettingsTypeCasper] ) {
+            [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlCasper];
+            [self selectSegmentedControl:kSegmentedControlCasper];
+        } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Unknown template type."];
+            return NO;
+        }
         
-        NSAlert *alert = [[NSAlert alloc] init];
-        [alert addButtonWithTitle:@"Import"];
-        [alert addButtonWithTitle:NBCButtonTitleCancel];
-        [alert setMessageText:importTitle];
-        [alert setInformativeText:importMessage];
-        [alert setAlertStyle:NSInformationalAlertStyle];
-        [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-#pragma unused(returnCode)
-            if ( returnCode == NSAlertFirstButtonReturn ) {
-                if ( [type isEqualToString:NBCSettingsTypeNetInstall] ) {
-                    [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlNetInstall];
-                    [self selectSegmentedControl:kSegmentedControlNetInstall];
-                    if ( self->_currentSettingsController ) {
-                        [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
-                    } else {
-                        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
-                    }
-                } else if ( [type isEqualToString:NBCSettingsTypeDeployStudio] ) {
-                    [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlDeployStudio];
-                    [self selectSegmentedControl:kSegmentedControlDeployStudio];
-                    if ( self->_currentSettingsController ) {
-                        [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
-                    } else {
-                        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
-                    }
-                } else if ( [type isEqualToString:NBCSettingsTypeImagr] ) {
-                    [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlImagr];
-                    [self selectSegmentedControl:kSegmentedControlImagr];
-                    if ( self->_currentSettingsController ) {
-                        [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
-                    } else {
-                        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
-                    }
-                } else if ( [type isEqualToString:NBCSettingsTypeCasper] ) {
-                    [self->_segmentedControlNBI selectSegmentWithTag:kSegmentedControlCasper];
-                    [self selectSegmentedControl:kSegmentedControlCasper];
-                    if ( self->_currentSettingsController ) {
-                        [self->_currentSettingsController importTemplateAtURL:fileURL templateInfo:templateInfo];
-                    } else {
-                        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
-                    }
-                } else {
-                    [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Unknown template type."];
-                }
+        // --------------------------------------------------------------
+        //  Check if template title already is used in an existing template
+        // --------------------------------------------------------------
+        if ( [NBCTemplatesController templateNameAlreadyExist:fileURL] ) {
+            if ( self->_currentSettingsController ) {
+                [[_currentSettingsController templates] showSheetRenameImportTemplateWithName:title url:fileURL];
+            } else {
+                [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
             }
-        }];
+        } else {
+            NSString *importTitle = [NSString stringWithFormat:@"Import %@ Template?", type];
+            NSString *importMessage = [NSString stringWithFormat:@"Do you want to import the %@ template \"%@\"?", type, title];
+            
+            NSAlert *alert = [[NSAlert alloc] init];
+            [alert addButtonWithTitle:@"Import"];
+            [alert addButtonWithTitle:NBCButtonTitleCancel];
+            [alert setMessageText:importTitle];
+            [alert setInformativeText:importMessage];
+            [alert setAlertStyle:NSInformationalAlertStyle];
+            [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+                if ( returnCode == NSAlertFirstButtonReturn ) {
+                    if ( self->_currentSettingsController ) {
+                        if ( ! [[self->_currentSettingsController templates] importTemplateFromURL:fileURL newName:nil error:&error] ) {
+                            DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                            [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:[error localizedDescription]];
+                        }
+                    } else {
+                        [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:@"Internal Error, settings controller not instantiated."];
+                    }
+                }
+            }];
+        }
         return YES;
     } else {
         [NBCAlerts showAlertErrorWithTitle:@"Import Error" informativeText:[error localizedDescription]];
         return NO;
     }
 } // application:openFile
-/* -------------------------------------------------------------------------- */
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -685,7 +676,7 @@ enum {
         *error = CFBridgingRelease(cfError);
         DDLogError(@"[ERROR] %@", [*error localizedDescription]);
     } else {
-
+        
         // --------------------------------------------------------------
         //  Remove helper tool files on disk
         // --------------------------------------------------------------
@@ -701,7 +692,7 @@ enum {
         /// THIS IS DEPRECATED AS OF 10.10                                          ///
         ///////////////////////////////////////////////////////////////////////////////
         if ( ( result = (BOOL) SMJobSubmit(kSMDomainSystemLaunchd, (__bridge CFDictionaryRef)removeHelperFilesLaunchdJob, authRef, &cfError) ) ) {
-        /* ------------------------------------------------------------------------- */
+            /* ------------------------------------------------------------------------- */
             [NSThread sleepForTimeInterval:0.5];
         } else {
             DDLogError(@"[ERROR] Could not remove helper tool files on disk");
@@ -715,7 +706,7 @@ enum {
         /// THIS IS DEPRECATED AS OF 10.10                                          ///
         ///////////////////////////////////////////////////////////////////////////////
         if ( ! ( result = (BOOL) SMJobRemove(kSMDomainSystemLaunchd, (__bridge CFStringRef)removeHelperFilesLaunchdJob[@"Label"], authRef, true, &cfError) ) ) {
-        /* ------------------------------------------------------------------------- */
+            /* ------------------------------------------------------------------------- */
             DDLogError(@"[ERROR] Could not remove launchd job");
             DDLogError(@"[ERROR] SMJobRemove failed!");
             *error = CFBridgingRelease(cfError);
