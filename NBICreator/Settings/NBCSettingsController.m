@@ -33,6 +33,7 @@
 #import "NBCHelperConnection.h"
 #import "NBCDiskImageController.h"
 #import "NBCTarget.h"
+#import "NBCDiskController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -327,6 +328,9 @@ DDLogLevel ddLogLevel;
         NSDictionary *settingsTrustedNetBootServers = [self verifySettingsTrustedNetBootServers:workflowItem];
         [settings addObject:settingsTrustedNetBootServers];
     }
+    
+    NSDictionary *createUSBDevice = [self verifySettingsCreateUSBDevice:workflowItem];
+    [settings addObject:createUSBDevice];
     
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
@@ -648,6 +652,43 @@ DDLogLevel ddLogLevel;
     } else {
         [settingsErrors addObject:[NSString stringWithFormat:@"\"Add Trusted NetBoot Servers\" is enabled but you have not entered any IP addresses"]];
     }
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsCreateUSBDevice:(NBCWorkflowItem *)workflowItem {
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *userSettings = [workflowItem userSettings];
+    BOOL createUSBDevice = [userSettings[NBCSettingsCreateUSBDeviceKey] boolValue];
+    
+    if ( createUSBDevice ) {
+        
+        NSString *usbDeviceBSDName = userSettings[NBCSettingsUSBBSDNameKey] ?: @"";
+        if ( [usbDeviceBSDName length] == 0 ) {
+            [settingsErrors addObject:@"\"Create USB Device\" is enabled, but no USB device is selected"];
+        } else {
+            
+            NSMutableString *volumeNames = [[NSMutableString alloc] init];
+            NBCDisk *usbDisk = [[NBCDiskController diskFromBSDName:usbDeviceBSDName] parent];
+            if ( ! usbDisk ) {
+                [settingsErrors addObject:@"\"Create USB Device\" is enabled, but the selected USB device could be found"];
+            } else {
+                
+                NSMutableDictionary *postWorkflowTasks = [[workflowItem postWorkflowTasks] mutableCopy] ?: [NSMutableDictionary dictionary];
+                postWorkflowTasks[@"CreateUSBDevice"] = @YES;
+                [workflowItem setPostWorkflowTasks:[postWorkflowTasks copy]];
+                
+                for ( NBCDisk *disk in [usbDisk children] ) {
+                    [volumeNames appendString:[NSString stringWithFormat:@"\t%@\n", [disk volumeName] ?: @""]];
+                }
+                
+                [settingsWarnings addObject:[NSString stringWithFormat:@"\"Create USB Device\" is enabled, the entire USB device and all of it's volumes will be erased:\n\n%@\nAre you sure you want to continue?", volumeNames]];
+            }
+        }
+    }
+    
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 

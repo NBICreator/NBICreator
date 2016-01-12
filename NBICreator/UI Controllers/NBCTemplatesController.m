@@ -669,10 +669,16 @@ enum {
 } // showSheetSaveUntitled
 
 - (void)showSheetRenameImportTemplateWithName:(NSString *)name url:(NSURL *)templateURL {
+    DDLogInfo(@"showSheetRenameImportTemplateWithName");
+    NSLog(@"_sheetRenameImportTemplate=%@", _sheetRenameImportTemplate);
     [self setImportTemplateURL:templateURL];
     [_titleSheetRenameImportTemplate setStringValue:[NSString stringWithFormat:@"Template name \"%@\" already exist", name]];
+    NSLog(@"_titleSheetRenameImportTemplate=%@", [_titleSheetRenameImportTemplate stringValue]);
     [_textFieldSheetRenameImportTemplate setStringValue:name];
+    NSLog(@"_textFieldSheetRenameImportTemplate=%@", [_textFieldSheetRenameImportTemplate stringValue]);
+    NSLog(@"presenting_sheet");
     [[NSApp mainWindow] beginSheet:_sheetRenameImportTemplate completionHandler:^(NSModalResponse returnCode) {
+        NSLog(@"returnCode=%ld", (long)returnCode);
         if ( returnCode == NSModalResponseOK ) {
 
         }
@@ -747,6 +753,7 @@ enum {
 - (IBAction)buttonSheetSaveAsCancel:(id) __unused sender {
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     [[NSApp mainWindow] endSheet:_sheetSaveAs returnCode:NSModalResponseCancel];
+    [_sheetSaveAs orderOut:self];
 } // buttonSheetCancel
 
 - (IBAction)buttonSheetSaveAsSaveAs:(id) __unused sender {
@@ -762,11 +769,13 @@ enum {
     }
     [_settingsViewController setSelectedTemplate:newName];
     [[NSApp mainWindow] endSheet:_sheetSaveAs returnCode:NSModalResponseOK];
+    [_sheetSaveAs orderOut:self];
 } // buttonSheetSave
 
 - (IBAction)buttonSheetSaveUntitledCancel:(id) __unused sender {
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     [[NSApp mainWindow] endSheet:_sheetSaveUntitled returnCode:NSModalResponseCancel];
+    [_sheetSaveUntitled orderOut:self];
 } // buttonSaveUntitledCancel
 
 - (IBAction)buttonSheetSaveUntitledSaveAs:(id) __unused sender {
@@ -782,11 +791,13 @@ enum {
     }
     [_settingsViewController setSelectedTemplate:newName];
     [[NSApp mainWindow] endSheet:_sheetSaveUntitled returnCode:NSModalResponseOK];
+    [_sheetSaveUntitled orderOut:self];
 } // buttonSaveUntitledSave
 
 - (IBAction)buttonSheetSaveUntitledDelete:(id) __unused sender {
     [_popUpButton removeItemWithTitle:NBCMenuItemUntitled];
     [[NSApp mainWindow] endSheet:_sheetSaveUntitled returnCode:NSModalResponseContinue];
+    [_sheetSaveUntitled orderOut:self];
 } // buttonSaveUntitledDelete
 
 - (IBAction)buttonSheetRenameRename:(id) __unused sender {
@@ -814,19 +825,21 @@ enum {
     }
     [_settingsViewController setSelectedTemplate:newName];
     [[NSApp mainWindow] endSheet:_sheetRename returnCode:NSModalResponseOK];
+    [_sheetRename orderOut:self];
 } // buttonSheetRenameRename
 
 - (IBAction)buttonSheetRenameCancel:(id) __unused sender {
     [_popUpButton selectItemWithTitle:[_settingsViewController selectedTemplate]];
     [[NSApp mainWindow] endSheet:_sheetRename returnCode:NSModalResponseCancel];
+    [_sheetRename orderOut:self];
 } // buttonSheetRenameCancel
 
 - (IBAction)buttonSheetRenameImportTemplateCancel:(id) __unused sender {
     [[NSApp mainWindow] endSheet:_sheetRenameImportTemplate returnCode:NSModalResponseCancel];
+    [_sheetRenameImportTemplate orderOut:self];
 } // buttonSheetRenameImportTemplateCancel
 
 - (IBAction)buttonSheetRenameImportTemplateImport:(id) __unused sender {
-
     NSString *newName = [_textFieldSheetRenameImportTemplate stringValue];
     NSError *error = nil;
     if ( ! [self importTemplateFromURL:_importTemplateURL newName:newName error:&error] ) {
@@ -835,10 +848,10 @@ enum {
     }
     
     [[NSApp mainWindow] endSheet:_sheetRenameImportTemplate returnCode:NSModalResponseOK];
+    [_sheetRenameImportTemplate orderOut:self];
 } // buttonSheetRenameImportTemplateImport
 
 - (BOOL)importTemplateFromURL:(NSURL *)templateURL newName:(NSString *)newName error:(NSError **)error {
-    
     NSURL *templatesFolderURL = [_settingsViewController templatesFolderURL];
     if ( ! [templatesFolderURL checkResourceIsReachableAndReturnError:nil] ) {
         if ( ! [[NSFileManager defaultManager] createDirectoryAtURL:templatesFolderURL withIntermediateDirectories:YES attributes:nil error:error] ) {

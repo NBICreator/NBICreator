@@ -53,6 +53,11 @@
                  authorization:(NSData *)authData
                      withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
+- (void)blessUSBVolumeAtURL:(NSURL *)usbVolumeURL
+                      label:(NSString *)label
+              authorization:(NSData *)authData
+                  withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
 - (void)copyExtractedResourcesToCache:(NSString *)cachePath
                           regexString:(NSString *)regexString
                       temporaryFolder:(NSString *)temporaryFolder
@@ -95,6 +100,11 @@
              modificationsArray:(NSArray *)modificationsArray
                   authorization:(NSData *)authData
                       withReply:(void(^)(NSError *error, int terminationStatus))reply;
+
+- (void)partitionDiskWithBSDName:(NSString *)bsdName
+                      volumeName:(NSString *)volumeName
+                   authorization:(NSData *)authData
+                       withReply:(void(^)(NSError *error, int terminationStatus))reply;
 
 - (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL
                settingsDict:(NSDictionary *)settingsDict

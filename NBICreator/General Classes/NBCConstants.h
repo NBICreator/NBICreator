@@ -184,6 +184,8 @@ extern NSString *const NBCSettingsTrustedNetBootServersKey;
 extern NSString *const NBCSettingsAddCustomRAMDisksKey;
 extern NSString *const NBCSettingsRAMDisksKey;
 extern NSString *const NBCSettingsBaseSystemDiskImageSizeKey;
+extern NSString *const NBCSettingsCreateUSBDeviceKey;
+extern NSString *const NBCSettingsUSBBSDNameKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug
@@ -652,3 +654,5 @@ extern NSString *const NBCAuthorizationRightInstallPackages;
 extern NSString *const NBCAuthorizationRightModifyResourcesOnVolume;
 extern NSString *const NBCAuthorizationRightSysBuilderWithArguments;
 extern NSString *const NBCAuthorizationRightUpdateKernelCache;
+extern NSString *const NBCAuthorizationRightPartitionDiskWithBSDName;
+extern NSString *const NBCAuthorizationRightBlessUSBVolume;

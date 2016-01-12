@@ -24,6 +24,7 @@
                 <outlet property="checkboxAvailabilityDefault" destination="hXV-gE-Z5m" id="Se0-Cv-T8c"/>
                 <outlet property="checkboxAvailabilityEnabled" destination="Afi-kT-98c" id="rZX-of-kKW"/>
                 <outlet property="checkboxConsoleLaunchBehindApp" destination="8F4-3w-TVQ" id="KT7-3Q-kgB"/>
+                <outlet property="checkboxCreateUSBDevice" destination="aso-4N-307" id="t8s-BL-XqA"/>
                 <outlet property="checkboxDisableBluetooth" destination="AKh-5N-jNQ" id="dVS-ls-Ve8"/>
                 <outlet property="checkboxDisableWiFi" destination="IKx-1c-tDW" id="njz-HZ-7Qx"/>
                 <outlet property="checkboxIncludeConsole" destination="nh2-4x-jFj" id="CUG-eM-znx"/>
@@ -49,6 +50,7 @@
                 <outlet property="popUpButtonTemplates" destination="xyr-NJ-OJ4" id="dP4-zt-DWY"/>
                 <outlet property="popUpButtonTimeZone" destination="RLC-Xb-IqI" id="9Dl-RR-Lhj"/>
                 <outlet property="popUpButtonTool" destination="QBP-92-out" id="iOx-8j-NEJ"/>
+                <outlet property="popUpButtonUSBDevices" destination="A6b-cC-k3h" id="tgy-hQ-zMn"/>
                 <outlet property="scrollViewCertificates" destination="Lwz-tM-fIQ" id="te1-7o-ing"/>
                 <outlet property="scrollViewPackages" destination="797-0L-l1A" id="tYf-tb-Quf"/>
                 <outlet property="secureTextFieldARDPassword" destination="R4V-bE-WQo" id="sdq-40-XCy"/>
@@ -1397,12 +1399,34 @@ asdasd</string>
                                             </binding>
                                         </connections>
                                     </textField>
+                                    <button horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="aso-4N-307">
+                                        <rect key="frame" x="18" y="139" width="338" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Create a bootable USB drive from the resulting NBI: " bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="YE4-9x-6yd">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.createUSBDevice" id="9ps-fw-dk7"/>
+                                        </connections>
+                                    </button>
+                                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="A6b-cC-k3h">
+                                        <rect key="frame" x="360" y="133" width="157" height="26"/>
+                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="5f9-5c-f50">
+                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="menu"/>
+                                            <menu key="menu" id="LKe-aH-XuL"/>
+                                        </popUpButtonCell>
+                                        <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.createUSBDevice" id="DIf-jH-QZc"/>
+                                        </connections>
+                                    </popUpButton>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="TWj-U1-esl" firstAttribute="leading" secondItem="y25-0f-Y2M" secondAttribute="trailing" constant="5" id="3IP-SL-StQ"/>
                                     <constraint firstItem="GAl-2c-Esi" firstAttribute="baseline" secondItem="vww-wA-F6x" secondAttribute="baseline" id="3KO-E6-HkD"/>
                                     <constraint firstItem="yR8-RB-vSs" firstAttribute="baseline" secondItem="hFr-M8-SoL" secondAttribute="baseline" id="5Rx-Jt-Ibc"/>
                                     <constraint firstAttribute="bottom" secondItem="Y8c-MD-vdM" secondAttribute="bottom" constant="20" symbolic="YES" id="5q3-sF-bMT"/>
+                                    <constraint firstItem="aso-4N-307" firstAttribute="leading" secondItem="vww-wA-F6x" secondAttribute="leading" id="98o-2i-3bb"/>
                                     <constraint firstItem="tU0-xT-OWO" firstAttribute="baseline" secondItem="qsT-rq-zbq" secondAttribute="baseline" id="9fB-3g-C9n"/>
                                     <constraint firstItem="GAl-2c-Esi" firstAttribute="baseline" secondItem="x9C-80-aEQ" secondAttribute="baseline" id="CAN-1M-m9D"/>
                                     <constraint firstItem="63y-jf-OUg" firstAttribute="top" secondItem="SPY-n8-g0d" secondAttribute="bottom" constant="18" id="Cek-rx-KIF"/>
@@ -1414,8 +1438,10 @@ asdasd</string>
                                     <constraint firstItem="GAl-2c-Esi" firstAttribute="leading" secondItem="vww-wA-F6x" secondAttribute="trailing" constant="8" symbolic="YES" id="H4B-qS-Csc"/>
                                     <constraint firstItem="63y-jf-OUg" firstAttribute="leading" secondItem="3ww-3o-gZx" secondAttribute="leading" constant="20" symbolic="YES" id="JO9-Si-TqD"/>
                                     <constraint firstAttribute="trailing" secondItem="63y-jf-OUg" secondAttribute="trailing" constant="20" symbolic="YES" id="JyO-gY-ctA"/>
+                                    <constraint firstItem="zhW-7Q-rYr" firstAttribute="trailing" secondItem="A6b-cC-k3h" secondAttribute="trailing" id="MAi-0i-QlZ"/>
                                     <constraint firstAttribute="trailing" secondItem="tU0-xT-OWO" secondAttribute="trailing" constant="20" symbolic="YES" id="N0I-hc-6om"/>
                                     <constraint firstItem="Y8c-MD-vdM" firstAttribute="top" secondItem="LDr-J1-Sdx" secondAttribute="top" id="NqE-qq-dMB"/>
+                                    <constraint firstItem="A6b-cC-k3h" firstAttribute="baseline" secondItem="aso-4N-307" secondAttribute="baseline" id="QsJ-I2-igZ"/>
                                     <constraint firstItem="hFr-M8-SoL" firstAttribute="top" secondItem="GAl-2c-Esi" secondAttribute="bottom" constant="13" id="R13-PC-xer"/>
                                     <constraint firstItem="lMb-x3-PKP" firstAttribute="leading" secondItem="3ww-3o-gZx" secondAttribute="leading" constant="20" symbolic="YES" id="UXg-FG-p6z"/>
                                     <constraint firstItem="yR8-RB-vSs" firstAttribute="leading" secondItem="hFr-M8-SoL" secondAttribute="trailing" constant="8" symbolic="YES" id="Y3M-kn-ySW"/>
@@ -1425,6 +1451,7 @@ asdasd</string>
                                     <constraint firstItem="SOy-bw-Kj0" firstAttribute="top" secondItem="63y-jf-OUg" secondAttribute="bottom" constant="8" symbolic="YES" id="j1E-b7-cOp"/>
                                     <constraint firstAttribute="trailing" secondItem="zhW-7Q-rYr" secondAttribute="trailing" constant="20" symbolic="YES" id="lFb-fY-T2N"/>
                                     <constraint firstItem="LFw-o5-dWY" firstAttribute="leading" secondItem="GAl-2c-Esi" secondAttribute="trailing" constant="8" symbolic="YES" id="lkQ-SG-0yQ"/>
+                                    <constraint firstItem="aso-4N-307" firstAttribute="top" secondItem="yR8-RB-vSs" secondAttribute="bottom" constant="8" symbolic="YES" id="lxy-Ol-Wu4"/>
                                     <constraint firstItem="SPY-n8-g0d" firstAttribute="leading" secondItem="3ww-3o-gZx" secondAttribute="leading" constant="20" symbolic="YES" id="mLC-kW-9DR"/>
                                     <constraint firstItem="vww-wA-F6x" firstAttribute="leading" secondItem="SOy-bw-Kj0" secondAttribute="leading" id="mhT-4e-wwu"/>
                                     <constraint firstItem="TWj-U1-esl" firstAttribute="baseline" secondItem="yR8-RB-vSs" secondAttribute="baseline" id="oQ9-v5-wLH"/>
@@ -1436,6 +1463,7 @@ asdasd</string>
                                     <constraint firstItem="SPY-n8-g0d" firstAttribute="leading" secondItem="LDr-J1-Sdx" secondAttribute="leading" id="x2c-Dk-f7S"/>
                                     <constraint firstItem="y25-0f-Y2M" firstAttribute="centerY" secondItem="yR8-RB-vSs" secondAttribute="centerY" id="xMv-Oe-bOy"/>
                                     <constraint firstItem="x9C-80-aEQ" firstAttribute="leading" secondItem="LFw-o5-dWY" secondAttribute="trailing" constant="8" symbolic="YES" id="ytd-0g-26u"/>
+                                    <constraint firstItem="A6b-cC-k3h" firstAttribute="leading" secondItem="aso-4N-307" secondAttribute="trailing" constant="8" symbolic="YES" id="zEI-Il-iGz"/>
                                 </constraints>
                             </view>
                         </tabViewItem>
@@ -1603,14 +1631,10 @@ asdasd</string>
                                     </textField>
                                     <popUpButton horizontalHuggingPriority="252" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6FP-um-KYE">
                                         <rect key="frame" x="142" y="280" width="37" height="26"/>
-                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" refusesFirstResponder="YES" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="DKt-pK-qAj" id="hPb-4v-kiK">
+                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" refusesFirstResponder="YES" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="hPb-4v-kiK">
                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="menu"/>
-                                            <menu key="menu" id="Vd0-Dr-KBX">
-                                                <items>
-                                                    <menuItem state="on" id="DKt-pK-qAj"/>
-                                                </items>
-                                            </menu>
+                                            <menu key="menu" id="Vd0-Dr-KBX"/>
                                         </popUpButtonCell>
                                         <connections>
                                             <action selector="popUpButtonImagrVersion:" target="-2" id="70q-TZ-1fO"/>

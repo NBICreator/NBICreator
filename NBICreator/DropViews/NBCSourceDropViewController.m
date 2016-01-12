@@ -392,8 +392,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     } else if ( [[_currentSource sourceType] isEqualToString:NBCSourceTypeNBI] ) {
         NSURL *sourceURL = [_currentSource sourceURL];
         if ( [sourceURL checkResourceIsReachableAndReturnError:&error] ) {
-            NSArray *fileURLs = @[ sourceURL ];
-            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:fileURLs];
+            [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ sourceURL ]];
         } else {
             DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }

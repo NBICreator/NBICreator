@@ -138,6 +138,12 @@
 
 @property NSNumber *baseSystemDiskImageSize;
 
+
+@property (weak) IBOutlet NSPopUpButton *popUpButtonUSBDevices;
+@property (weak) IBOutlet NSButton *checkboxCreateUSBDevice;
+@property BOOL createUSBDevice;
+@property NSMutableDictionary *usbDevicesDict;
+
 // ------------------------------------------------------
 //  TabView Imagr Settings
 // ------------------------------------------------------

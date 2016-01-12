@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9060" systemVersion="15B42" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9060"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NBCWorkflowProgressViewController">
@@ -34,7 +34,6 @@
                     <constraints>
                         <constraint firstAttribute="height" constant="14" id="1bU-P7-JRP"/>
                     </constraints>
-                    <animations/>
                     <textFieldCell key="cell" controlSize="small" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="left" id="5l7-Ju-KEU">
                         <font key="font" metaFont="smallSystemBold"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -47,7 +46,6 @@
                         <constraint firstAttribute="height" constant="48" id="Mzf-le-gSn"/>
                         <constraint firstAttribute="width" constant="48" id="w50-Op-Pcs"/>
                     </constraints>
-                    <animations/>
                     <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="IconNetBootNBI" id="vzl-Dt-ils"/>
                 </imageView>
                 <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bI5-Ub-8db">
@@ -55,7 +53,6 @@
                     <constraints>
                         <constraint firstAttribute="height" constant="17" id="6f1-0D-yGZ"/>
                     </constraints>
-                    <animations/>
                     <textFieldCell key="cell" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="left" title="Title" id="zdO-GO-mp9">
                         <font key="font" metaFont="systemBold"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -67,7 +64,6 @@
                     <constraints>
                         <constraint firstAttribute="height" constant="14" id="LKh-i0-4sg"/>
                     </constraints>
-                    <animations/>
                     <textFieldCell key="cell" controlSize="mini" lineBreakMode="truncatingTail" truncatesLastVisibleLine="YES" sendsActionOnEndEditing="YES" alignment="left" title="Status Info" id="W1t-r5-Yuf">
                         <font key="font" metaFont="miniSystem"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -76,14 +72,12 @@
                 </textField>
                 <progressIndicator horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" indeterminate="YES" controlSize="small" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="McW-gO-jJv">
                     <rect key="frame" x="68" y="9" width="16" height="16"/>
-                    <animations/>
                     <connections>
                         <binding destination="-2" name="animate" keyPath="self.isRunning" id="xB8-vz-Uif"/>
                     </connections>
                 </progressIndicator>
                 <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6s6-PX-ioV">
                     <rect key="frame" x="67" y="26" width="67" height="16"/>
-                    <animations/>
                     <buttonCell key="cell" type="push" title="Open Log" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="krQ-nt-GD6">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="miniSystem"/>
@@ -97,7 +91,6 @@
                     <constraints>
                         <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="21" id="49b-oJ-Kf0"/>
                     </constraints>
-                    <animations/>
                     <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="0:00" id="j72-TA-JPr">
                         <font key="font" metaFont="miniSystem"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -106,7 +99,6 @@
                 </textField>
                 <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9rK-Pj-9i4">
                     <rect key="frame" x="291" y="26" width="78" height="16"/>
-                    <animations/>
                     <buttonCell key="cell" type="push" title="Save Report" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Udf-Ey-QNp">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="miniSystem"/>
@@ -117,7 +109,6 @@
                 </button>
                 <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rlx-cg-ns4">
                     <rect key="frame" x="234" y="29" width="52" height="11"/>
-                    <animations/>
                     <textFieldCell key="cell" controlSize="mini" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="x warnings" id="Fg6-7X-omo">
                         <font key="font" metaFont="miniSystem"/>
                         <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -130,7 +121,6 @@
                         <constraint firstAttribute="width" constant="14" id="YkH-Fk-3de"/>
                         <constraint firstAttribute="height" constant="14" id="yhO-Fh-eIv"/>
                     </constraints>
-                    <animations/>
                     <buttonCell key="cell" type="square" bezelStyle="shadowlessSquare" image="NSRevealFreestandingTemplate" imagePosition="only" alignment="center" refusesFirstResponder="YES" imageScaling="proportionallyUpOrDown" inset="2" id="6Lf-DF-KDo">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
@@ -149,7 +139,6 @@
                     <constraints>
                         <constraint firstAttribute="width" constant="300" id="55I-jk-Hbv"/>
                     </constraints>
-                    <animations/>
                     <connections>
                         <binding destination="-2" name="isIndeterminate" keyPath="self.isRunning" id="ZW4-rK-zNi">
                             <dictionary key="options">
@@ -164,7 +153,6 @@
                         <constraint firstAttribute="height" constant="14" id="9fD-0u-vbu"/>
                         <constraint firstAttribute="width" constant="14" id="Iew-08-2Kn"/>
                     </constraints>
-                    <animations/>
                     <buttonCell key="cell" type="bevel" bezelStyle="circular" image="WorkflowCancel" imagePosition="only" alignment="center" controlSize="small" refusesFirstResponder="YES" imageScaling="proportionallyDown" id="v9l-hb-mOe">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="smallSystem"/>
@@ -206,7 +194,6 @@
                 <constraint firstItem="bI5-Ub-8db" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="leading" id="wJX-qP-5i8"/>
                 <constraint firstItem="Svh-zL-y2Z" firstAttribute="leading" secondItem="60L-Th-Xvx" secondAttribute="trailing" constant="8" symbolic="YES" id="zW2-Ka-Oaf"/>
             </constraints>
-            <animations/>
             <point key="canvasLocation" x="-214.5" y="163"/>
         </customView>
     </objects>

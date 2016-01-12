@@ -184,6 +184,8 @@ NSString *const NBCSettingsTrustedNetBootServersKey = @"TrustedNetBootServers";
 NSString *const NBCSettingsAddCustomRAMDisksKey = @"AddRAMDisks";
 NSString *const NBCSettingsRAMDisksKey = @"RAMDisks";
 NSString *const NBCSettingsBaseSystemDiskImageSizeKey = @"BaseSystemDiskImageSize";
+NSString *const NBCSettingsCreateUSBDeviceKey = @"CreateUSBDevice";
+NSString *const NBCSettingsUSBBSDNameKey = @"USBBSDName";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug
@@ -677,3 +679,5 @@ NSString *const NBCAuthorizationRightInstallPackages = @"com.github.NBICreator.i
 NSString *const NBCAuthorizationRightModifyResourcesOnVolume = @"com.github.NBICreator.modifyResourcesOnVolume";
 NSString *const NBCAuthorizationRightSysBuilderWithArguments = @"com.github.NBICreator.sysBuilderWithArguments";
 NSString *const NBCAuthorizationRightUpdateKernelCache = @"com.github.NBICreator.updateKernelCache";
+NSString *const NBCAuthorizationRightPartitionDiskWithBSDName = @"com.github.NBICreator.partitionDiskWithBSDName";
+NSString *const NBCAuthorizationRightBlessUSBVolume = @"com.github.NBICreator.blessUSBVolume";

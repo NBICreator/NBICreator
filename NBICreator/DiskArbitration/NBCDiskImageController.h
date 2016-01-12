@@ -38,7 +38,7 @@
 + (BOOL)attachDiskImageVolumeByOffsetAndReturnPropertyList:(id *)propertyList dmgPath:(NSURL *)dmgPath options:(NSArray *)options offset:(NSString *)offset error:(NSError **)error;
 + (BOOL)attachNetInstallDiskImageWithShadowFile:(NSURL *)netInstallDiskImageURL target:(NBCTarget *)target error:(NSError **)error;
 + (BOOL)attachBaseSystemDiskImageWithShadowFile:(NSURL *)baseSystemDiskImageURL target:(NBCTarget *)target error:(NSError **)error;
-
++ (BOOL)attachDiskImageAtURL:(NSURL *)diskImageURL shadowPath:(NSString *)shadowPath error:(NSError **)error;
 
 // Verifying
 + (BOOL)verifyInstallESDDiskImage:(NSURL *)diskImageURL source:(NBCSource *)source error:(NSError **)error;

@@ -528,6 +528,22 @@ DDLogLevel ddLogLevel;
     }
 } // prepareResourcesToExtract
 
+- (NSArray *)prepareResourcesToUSBFromNBI:(NSURL *)nbiURL {
+    
+    [self setResourcesUSBCopy:[[NSMutableArray alloc] init]];
+    
+    NSError *error = nil;
+    
+    if ( ! [self addCopyUSBResourcesFromNBI:nbiURL error:&error] ) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                            object:self
+                                                          userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Preparing USB resources failed"]}];
+        return nil;
+    }
+    
+    return [_resourcesUSBCopy copy];
+}
+
 - (void)prepareResourcesComplete {
     
     if ( [_resourcesNetInstallCopy count] != 0 || [_resourcesNetInstallInstall count] != 0 ) {
@@ -673,6 +689,10 @@ DDLogLevel ddLogLevel;
 - (void)addItemToCopyToNetInstall:(NSDictionary *)itemDict {
     [_resourcesNetInstallCopy addObject:itemDict];
 } // addItemToCopyToNetInstall
+
+- (void)addItemToCopyToUSB:(NSDictionary *)itemDict {
+    [_resourcesUSBCopy addObject:itemDict];
+} // addItemToCopyToUSB
 
 - (void)imagrCopyDict:(NSDictionary *)copyDict {
     DDLogDebug(@"[DEBUG] Imagr.app copy added!");
@@ -990,6 +1010,171 @@ DDLogLevel ddLogLevel;
         return NO;
     }
 } // addCopyDesktopViewer
+
+- (BOOL)addCopyUSBResourcesFromNBI:(NSURL *)nbiURL error:(NSError **)error {
+    
+    DDLogInfo(@"Adding copy USB resources...");
+    
+    NSString *netInstallRootPath = [NSDictionary dictionaryWithContentsOfURL:[nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"]][@"RootPath"] ?: @"";
+    DDLogDebug(@"[DEBUG] NBImageInfo RootPath: %@", netInstallRootPath);
+    if ( [netInstallRootPath length] == 0 ) {
+        *error = [NBCError errorWithDescription:@"Could not get the root path from NBImageInfo.plist"];
+        return NO;
+    }
+
+    NSString *netInstallDMGPath = [[[nbiURL URLByAppendingPathComponent:netInstallRootPath] path] stringByResolvingSymlinksInPath];
+    DDLogDebug(@"[DEBUG] NetInstall DMG path: %@", netInstallDMGPath);
+    NSURL *netInstallDMGURL = [NSURL fileURLWithPath:netInstallDMGPath];
+    if ( ! [netInstallDMGURL checkResourceIsReachableAndReturnError:error] ) {
+        return NO;
+    }
+    
+    // Update copy array
+    [self addItemToCopyToUSB:@{
+                                      NBCWorkflowCopyType :        NBCWorkflowCopy,
+                                      NBCWorkflowCopySourceURL :   netInstallDMGPath,
+                                      NBCWorkflowCopyTargetURL :   [netInstallDMGPath lastPathComponent],
+                                      NBCWorkflowCopyAttributes :  @{
+                                              NSFileOwnerAccountName :      @"root",
+                                              NSFileGroupOwnerAccountName : @"wheel",
+                                              NSFilePosixPermissions :      @0755
+                                              }
+                                      }];
+    
+    NSURL *platformSupportURL = [nbiURL URLByAppendingPathComponent:@"i386/PlatformSupport.plist"];
+    if ( ! [platformSupportURL checkResourceIsReachableAndReturnError:error] ) {
+        return NO;
+    }
+    
+    NSString *platformSupportTargetPathBootFiles = @".NBIBootFiles/PlatformSupport.plist";
+    
+    // Update copy array
+    [self addItemToCopyToUSB:@{
+                               NBCWorkflowCopyType :        NBCWorkflowCopy,
+                               NBCWorkflowCopySourceURL :   [platformSupportURL path],
+                               NBCWorkflowCopyTargetURL :   platformSupportTargetPathBootFiles,
+                               NBCWorkflowCopyAttributes :  @{
+                                       NSFileOwnerAccountName :      @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions :      @0755
+                                       }
+                               }];
+    
+    NSString *platformSupportTargetPath = @"System/Library/CoreServices/PlatformSupport.plist";
+    
+    // Update copy array
+    [self addItemToCopyToUSB:@{
+                               NBCWorkflowCopyType :        NBCWorkflowCopy,
+                               NBCWorkflowCopySourceURL :   [platformSupportURL path],
+                               NBCWorkflowCopyTargetURL :   platformSupportTargetPath,
+                               NBCWorkflowCopyAttributes :  @{
+                                       NSFileOwnerAccountName :      @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions :      @0755
+                                       }
+                               }];
+    
+    NSURL *comAppleBootPlistURL = [nbiURL URLByAppendingPathComponent:@"i386/com.apple.Boot.plist"];
+    if ( ! [comAppleBootPlistURL checkResourceIsReachableAndReturnError:error] ) {
+        return NO;
+    }
+    
+    NSString *comAppleBootPlistTargetPath = @".NBIBootFiles/com.apple.Boot.plist";
+    
+    // Update copy array
+    [self addItemToCopyToUSB:@{
+                               NBCWorkflowCopyType :        NBCWorkflowCopy,
+                               NBCWorkflowCopySourceURL :   [comAppleBootPlistURL path],
+                               NBCWorkflowCopyTargetURL :   comAppleBootPlistTargetPath,
+                               NBCWorkflowCopyAttributes :  @{
+                                       NSFileOwnerAccountName :      @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions :      @0755
+                                       }
+                               }];
+    
+    NSURL *prelinkedKernelURL = [nbiURL URLByAppendingPathComponent:@"i386/x86_64/kernelcache"];
+    if ( ! [prelinkedKernelURL checkResourceIsReachableAndReturnError:error] ) {
+        return NO;
+    }
+    
+    NSString *prelinkedKernelTargetPathBootFiles = @".NBIBootFiles/prelinkedkernel";
+    
+    // Update copy array
+    [self addItemToCopyToUSB:@{
+                               NBCWorkflowCopyType :        NBCWorkflowCopy,
+                               NBCWorkflowCopySourceURL :   [prelinkedKernelURL path],
+                               NBCWorkflowCopyTargetURL :   prelinkedKernelTargetPathBootFiles,
+                               NBCWorkflowCopyAttributes :  @{
+                                       NSFileOwnerAccountName :      @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions :      @0755
+                                       }
+                               }];
+    
+    NSString *prelinkedKernelTargetPath = @"System/Library/Caches/com.apple.kext.caches/Startup/prelinkedkernel";
+    
+    // Update copy array
+    [self addItemToCopyToUSB:@{
+                               NBCWorkflowCopyType :        NBCWorkflowCopy,
+                               NBCWorkflowCopySourceURL :   [prelinkedKernelURL path],
+                               NBCWorkflowCopyTargetURL :   prelinkedKernelTargetPath,
+                               NBCWorkflowCopyAttributes :  @{
+                                       NSFileOwnerAccountName :      @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions :      @0755
+                                       }
+                               }];
+    
+    NSURL *bootEfiURL = [nbiURL URLByAppendingPathComponent:@"i386/booter"];
+    if ( ! [bootEfiURL checkResourceIsReachableAndReturnError:error] ) {
+        return NO;
+    }
+    
+    NSString *bootEfiTargetPathBootFiles = @".NBIBootFiles/boot.efi";
+    
+    // Update copy array
+    [self addItemToCopyToUSB:@{
+                               NBCWorkflowCopyType :        NBCWorkflowCopy,
+                               NBCWorkflowCopySourceURL :   [bootEfiURL path],
+                               NBCWorkflowCopyTargetURL :   bootEfiTargetPathBootFiles,
+                               NBCWorkflowCopyAttributes :  @{
+                                       NSFileOwnerAccountName :      @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions :      @0755
+                                       }
+                               }];
+    
+    NSString *bootEfiTargetPathStandalone = @"usr/standalone/i386/boot.efi";
+    
+    // Update copy array
+    [self addItemToCopyToUSB:@{
+                               NBCWorkflowCopyType :        NBCWorkflowCopy,
+                               NBCWorkflowCopySourceURL :   [bootEfiURL path],
+                               NBCWorkflowCopyTargetURL :   bootEfiTargetPathStandalone,
+                               NBCWorkflowCopyAttributes :  @{
+                                       NSFileOwnerAccountName :      @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions :      @0755
+                                       }
+                               }];
+    
+    NSString *bootEfiTargetPath = @"System/Library/CoreServices/boot.efi";
+    
+    // Update copy array
+    [self addItemToCopyToUSB:@{
+                               NBCWorkflowCopyType :        NBCWorkflowCopy,
+                               NBCWorkflowCopySourceURL :   [bootEfiURL path],
+                               NBCWorkflowCopyTargetURL :   bootEfiTargetPath,
+                               NBCWorkflowCopyAttributes :  @{
+                                       NSFileOwnerAccountName :      @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions :      @0755
+                                       }
+                               }];
+    
+    return YES;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -

@@ -110,6 +110,7 @@
 		53B9CEB81A95D68700C8015E /* NBCDeployStudioSettingsViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B9CEB61A95D68700C8015E /* NBCDeployStudioSettingsViewController.m */; };
 		53B9CEB91A95D68700C8015E /* NBCDeployStudioSettingsViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53B9CEB71A95D68700C8015E /* NBCDeployStudioSettingsViewController.xib */; };
 		53B9CEBC1A95DFD600C8015E /* NBCController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53B9CEBB1A95DFD600C8015E /* NBCController.m */; };
+		53BB08C11C444DED00BEC97D /* NBCWorkflowPostWorkflowTaskController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BB08C01C444DED00BEC97D /* NBCWorkflowPostWorkflowTaskController.m */; };
 		53BC03FF1AD1D5BF0037DCBA /* NBCDisk.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BC03FE1AD1D5BF0037DCBA /* NBCDisk.m */; };
 		53BC04021AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BC04011AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.m */; };
 		53BC04061AD278230037DCBA /* NBCDiskArbitrator.m in Sources */ = {isa = PBXBuildFile; fileRef = 53BC04051AD278230037DCBA /* NBCDiskArbitrator.m */; };
@@ -508,6 +509,8 @@
 		53B9CEB71A95D68700C8015E /* NBCDeployStudioSettingsViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = NBCDeployStudioSettingsViewController.xib; path = Settings/NBCDeployStudioSettingsViewController.xib; sourceTree = "<group>"; };
 		53B9CEBA1A95DFD600C8015E /* NBCController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = NBCController.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53B9CEBB1A95DFD600C8015E /* NBCController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = NBCController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		53BB08BF1C444DED00BEC97D /* NBCWorkflowPostWorkflowTaskController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowPostWorkflowTaskController.h; path = Workflow/NBCWorkflowPostWorkflowTaskController.h; sourceTree = "<group>"; };
+		53BB08C01C444DED00BEC97D /* NBCWorkflowPostWorkflowTaskController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowPostWorkflowTaskController.m; path = Workflow/NBCWorkflowPostWorkflowTaskController.m; sourceTree = "<group>"; };
 		53BC03FD1AD1D5BF0037DCBA /* NBCDisk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCDisk.h; path = DiskArbitration/NBCDisk.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53BC03FE1AD1D5BF0037DCBA /* NBCDisk.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCDisk.m; path = DiskArbitration/NBCDisk.m; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53BC04001AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCDiskArbitrationPrivateFunctions.h; path = DiskArbitration/NBCDiskArbitrationPrivateFunctions.h; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
@@ -1022,6 +1025,8 @@
 				53CBB1CB1ACF288000B83089 /* NBCWorkflowItem.m */,
 				53CBB1C71ACF27B400B83089 /* NBCWorkflowManager.h */,
 				53CBB1C81ACF27B400B83089 /* NBCWorkflowManager.m */,
+				53BB08BF1C444DED00BEC97D /* NBCWorkflowPostWorkflowTaskController.h */,
+				53BB08C01C444DED00BEC97D /* NBCWorkflowPostWorkflowTaskController.m */,
 				53B85C4E1BD796FF0024EF14 /* NBCWorkflowPreWorkflowTaskController.h */,
 				53B85C4F1BD796FF0024EF14 /* NBCWorkflowPreWorkflowTaskController.m */,
 			);
@@ -1502,6 +1507,7 @@
 				53CB049B1BE20EFC002F1426 /* NBCDiskController.m in Sources */,
 				53DACFB21BEC777500375684 /* NBCWorkflowSystemImageUtility.m in Sources */,
 				5305AF011C249CAB00DBECEE /* NBCResolver.m in Sources */,
+				53BB08C11C444DED00BEC97D /* NBCWorkflowPostWorkflowTaskController.m in Sources */,
 				53909A8F1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m in Sources */,
 				53383D121AFA9CA100C041F9 /* NBCDownloaderGitHub.m in Sources */,
 				5386EA8E1AFFB0EA0091D57A /* NBCDownloaderPython.m in Sources */,

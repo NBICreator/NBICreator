@@ -252,7 +252,13 @@ DDLogLevel ddLogLevel;
 - (void)workflowCompleteModifyNBI:(NSNotification *)notification {
 #pragma unused(notification)
     DDLogInfo(@"NBI modifications complete!");
-    if ( ! [[[_currentWorkflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+    
+    NSDictionary *postWorkflowTasks = [_currentWorkflowItem postWorkflowTasks];
+    if ( [postWorkflowTasks count] != 0 ) {
+        NBCWorkflowPostWorkflowTaskController *postWorkflowTaskController = [[NBCWorkflowPostWorkflowTaskController alloc] initWithDelegate:self];
+        [postWorkflowTaskController setProgressDelegate:_currentWorkflowProgressView];
+        [postWorkflowTaskController runPostWorkflowTasks:postWorkflowTasks workflowItem:_currentWorkflowItem];
+    } else if ( ! [[[_currentWorkflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) {
         [self moveNBIToDestination:[_currentWorkflowItem temporaryNBIURL] destinationURL:[_currentWorkflowItem nbiURL]];
     } else {
         [self updateWorkflowStatusComplete];
@@ -467,6 +473,20 @@ DDLogLevel ddLogLevel;
     DDLogError(@"[ERROR] %@", [error localizedDescription]);
     [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
 } // preWorkflowTasksFailedWithError
+
+- (void)postWorkflowTasksCompleted {
+    DDLogDebug(@"[DEBUG] Pre-workflow tasks completed");
+    if ( ! [[[_currentWorkflowItem source] sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+        [self moveNBIToDestination:[_currentWorkflowItem temporaryNBIURL] destinationURL:[_currentWorkflowItem nbiURL]];
+    } else {
+        [self updateWorkflowStatusComplete];
+    }
+} // postWorkflowTasksCompleted
+
+- (void)postWorkflowTasksFailedWithError:(NSError *)error {
+    DDLogError(@"[ERROR] %@", [error localizedDescription]);
+    [self updateWorkflowStatusErrorWithMessage:[error localizedDescription]];
+} // postWorkflowTasksFailedWithError
 
 - (void)prepareSource {
     

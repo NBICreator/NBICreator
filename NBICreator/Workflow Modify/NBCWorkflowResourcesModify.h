@@ -36,5 +36,6 @@
 
 - (id)initWithWorkflowItem:(NBCWorkflowItem *)workflowItem;
 - (NSArray *)prepareResourcesToModify:(NSError **)error;
++ (void)modifyBootPlistForUSB:(NSMutableArray *)modifyDictArray netInstallDiskImageURL:(NSURL *)netInstallDiskImageURL netInstallIsBaseSystem:(BOOL)netInstallIsBaseSystem usbVolumeURL:(NSURL *)usbVolumeURL;
 
 @end

@@ -357,6 +357,7 @@ enum {
         //  Check if template title already is used in an existing template
         // --------------------------------------------------------------
         if ( [NBCTemplatesController templateNameAlreadyExist:fileURL] ) {
+            DDLogInfo(@"Template name: \"%@\" already exist!", title);
             if ( self->_currentSettingsController ) {
                 [[_currentSettingsController templates] showSheetRenameImportTemplateWithName:title url:fileURL];
             } else {

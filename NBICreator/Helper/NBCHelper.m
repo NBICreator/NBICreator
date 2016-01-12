@@ -229,6 +229,37 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
 } // addUsersToVolumeAtPath:userShortName:userPassword:withReply
 
+- (void)blessUSBVolumeAtURL:(NSURL *)usbVolumeURL
+                      label:(NSString *)label
+              authorization:(NSData *)authData
+                  withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *err = nil;
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
+    
+    NSURL *usbBootFilesFolderURL = [usbVolumeURL URLByAppendingPathComponent:@".NBIBootFiles"];
+    if ( ! [usbBootFilesFolderURL checkResourceIsReachableAndReturnError:&err] ) {
+        return reply(err, -1);
+    }
+    
+    NSURL *usbBootFilesBootEFIURL = [usbVolumeURL URLByAppendingPathComponent:@".NBIBootFiles/boot.efi"];
+    if ( ! [usbBootFilesBootEFIURL checkResourceIsReachableAndReturnError:&err] ) {
+        return reply(err, -1);
+    }
+    
+    NSString *command = @"/usr/sbin/bless";
+    NSArray *arguments = @[ @"--folder", [usbBootFilesFolderURL path], @"--file", [usbBootFilesBootEFIURL path], @"--label", label ];
+    
+    [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
+}
+
 - (void)copyExtractedResourcesToCache:(NSString *)cachePath
                           regexString:(NSString *)regexString
                       temporaryFolder:(NSString *)temporaryFolder
@@ -618,16 +649,16 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
         // -----------------------------------------------------------------------------------
         // FIXME - pbzx is codesigned, so the hashes changes after the code is compiled, have to figure out a solution
         /*
-        NSString *pbzxMD5 = [FileHash md5HashOfFileAtPath:pbzxPath];
-        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx current md5: %@", pbzxMD5]];
-        [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx cached md5: %@", NBCHashMD5Pbzx]];
-        [[[self connection] remoteObjectProxy] logDebug:@"Comparing pbzx hashes..."];
-        if ( ! [pbzxMD5 isEqualToString:NBCHashMD5Pbzx] ) {
-            return reply([NSError errorWithDomain:NBCErrorDomain
-                                             code:-1
-                                         userInfo:@{ NSLocalizedDescriptionKey : @"pbzx hashes doesn't match! If you haven't modified pbzx yourself, someone might be trying to exploit this application!" }], -1);
-        }
-        */
+         NSString *pbzxMD5 = [FileHash md5HashOfFileAtPath:pbzxPath];
+         [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx current md5: %@", pbzxMD5]];
+         [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying pbzx cached md5: %@", NBCHashMD5Pbzx]];
+         [[[self connection] remoteObjectProxy] logDebug:@"Comparing pbzx hashes..."];
+         if ( ! [pbzxMD5 isEqualToString:NBCHashMD5Pbzx] ) {
+         return reply([NSError errorWithDomain:NBCErrorDomain
+         code:-1
+         userInfo:@{ NSLocalizedDescriptionKey : @"pbzx hashes doesn't match! If you haven't modified pbzx yourself, someone might be trying to exploit this application!" }], -1);
+         }
+         */
         // -----------------------------------------------------------------------------------
         //  Setup arguments
         // -----------------------------------------------------------------------------------
@@ -938,6 +969,27 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     reply(nil, 0);
 } // modifyResourcesOnVolume:modificationsArray:withReply
+
+- (void)partitionDiskWithBSDName:(NSString *)bsdName
+                      volumeName:(NSString *)volumeName
+                   authorization:(NSData *)authData
+                       withReply:(void(^)(NSError *error, int terminationStatus))reply {
+    
+    NSError *err = nil;
+    
+    // -----------------------------------------------------------------------------------
+    //  Verify authorization
+    // -----------------------------------------------------------------------------------
+    err = [NBCHelperAuthorization checkAuthorization:authData command:_cmd];
+    if ( err != nil ) {
+        return reply(err, -1);
+    }
+    
+    NSString *command = @"/usr/sbin/diskutil";
+    NSArray *arguments = @[ @"partitionDisk", bsdName, @"gpt", @"jhfs+", volumeName, @"r"];
+    
+    [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
+} // partitionDiskWithBSDName:volumeName:authorization:withReply
 
 - (void)readSettingsFromNBI:(NSURL *)nbiVolumeURL
                settingsDict:(NSDictionary *)settingsDict

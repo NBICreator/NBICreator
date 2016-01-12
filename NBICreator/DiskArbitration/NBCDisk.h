@@ -64,6 +64,7 @@ enum {
 @property (readonly) NSURL *volumeURL;
 @property (readonly) NSString *volumeName;
 @property (readonly) NSString *deviceModel;
+@property (readonly) NSString *deviceProtocol;
 @property (readonly) NSString *kind;
 @property (readonly) NSString *type;
 

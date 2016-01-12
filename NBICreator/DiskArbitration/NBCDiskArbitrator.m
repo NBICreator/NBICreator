@@ -111,7 +111,7 @@
 #pragma mark Disks KVC Methods
 
 - (NSUInteger)countOfDisks {
-    return disks.count;
+    return [disks count];
 }
 
 - (NSEnumerator *)enumeratorOfDisks {

@@ -579,6 +579,53 @@ DDLogLevel ddLogLevel;
     }
 }
 
++ (void)modifyBootPlistForUSB:(NSMutableArray *)modifyDictArray netInstallDiskImageURL:(NSURL *)netInstallDiskImageURL netInstallIsBaseSystem:(BOOL)netInstallIsBaseSystem usbVolumeURL:(NSURL *)usbVolumeURL {
+    
+    DDLogInfo(@"Preparing modifications for com.apple.Boot.plist...");
+    
+    NSURL *comAppleBootPlistURLBootFiles = [usbVolumeURL URLByAppendingPathComponent:@".NBIBootFiles/com.apple.Boot.plist"];
+    NSURL *comAppleBootPlistURL = [usbVolumeURL URLByAppendingPathComponent:@"Library/Preferences/SystemConfiguration/com.apple.Boot.plist"];
+    NSMutableDictionary *comAppleBootPlistDict = [NSMutableDictionary dictionaryWithContentsOfURL:comAppleBootPlistURL] ?: [[NSMutableDictionary alloc] init];
+    NSDictionary *comAppleBootPlistAttributes = [[NSFileManager defaultManager] attributesOfItemAtPath:[comAppleBootPlistURL path] error:nil] ?: @{
+                                                                                                                                                   NSFileOwnerAccountName :         @"root",
+                                                                                                                                                   NSFileGroupOwnerAccountName :    @"wheel",
+                                                                                                                                                   NSFilePosixPermissions :         @0644
+                                                                                                                                                   };
+    // Kernel Flags
+    NSString *kernelFlagsRootDMG;
+    if ( netInstallIsBaseSystem ) {
+        kernelFlagsRootDMG = [NSString stringWithFormat:@"root-dmg=file:///%@", [netInstallDiskImageURL lastPathComponent]];
+    } else {
+        kernelFlagsRootDMG = [NSString stringWithFormat:@"container-dmg=file:///%@ root-dmg=file:///BaseSystem.dmg", [netInstallDiskImageURL lastPathComponent]];
+    }
+    
+    if ( [comAppleBootPlistDict[@"Kernel Flags"] length] != 0 ) {
+        NSString *kernelFlags = comAppleBootPlistDict[@"Kernel Flags"];
+        comAppleBootPlistDict[@"Kernel Flags"] = [NSString stringWithFormat:@"%@ %@", kernelFlagsRootDMG, kernelFlags];
+    } else {
+        comAppleBootPlistDict[@"Kernel Flags"] = kernelFlagsRootDMG;
+    }
+    
+    // Kernel Cache
+    comAppleBootPlistDict[@"Kernel Cache"] = @"/.NBIBootFiles/prelinkedkernel";
+    
+    // Update modification array
+    [modifyDictArray addObject:@{
+                                 NBCWorkflowModifyFileType :    NBCWorkflowModifyFileTypePlist,
+                                 NBCWorkflowModifyContent :     comAppleBootPlistDict,
+                                 NBCWorkflowModifyAttributes :  comAppleBootPlistAttributes,
+                                 NBCWorkflowModifyTargetURL :   [comAppleBootPlistURLBootFiles path]
+                                 }];
+    
+    // Update modification array
+    [modifyDictArray addObject:@{
+                                 NBCWorkflowModifyFileType :    NBCWorkflowModifyFileTypePlist,
+                                 NBCWorkflowModifyContent :     comAppleBootPlistDict,
+                                 NBCWorkflowModifyAttributes :  comAppleBootPlistAttributes,
+                                 NBCWorkflowModifyTargetURL :   [comAppleBootPlistURL path]
+                                 }];
+}
+
 - (void)modifyBootPlist:(NSMutableArray *)modifyDictArray {
     
     DDLogInfo(@"Preparing modifications for com.apple.Boot.plist...");

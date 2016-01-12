@@ -288,7 +288,7 @@ Gw
                     <constraint firstAttribute="trailing" secondItem="GnA-20-HEe" secondAttribute="trailing" constant="20" symbolic="YES" id="jPD-yO-Dg5"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="-2680" y="509.5"/>
+            <point key="canvasLocation" x="-2795" y="508.5"/>
         </window>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" visibleAtLaunch="NO" animationBehavior="default" id="kRF-Pa-bSG">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
@@ -381,7 +381,7 @@ Choose a new name to import the template.</string>
                     <constraint firstItem="IJu-zo-Djb" firstAttribute="leading" secondItem="eLz-b3-MVK" secondAttribute="leading" constant="20" symbolic="YES" id="yA5-ev-OXY"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="-2811.5" y="293"/>
+            <point key="canvasLocation" x="-2812.5" y="253"/>
         </window>
     </objects>
 </document>

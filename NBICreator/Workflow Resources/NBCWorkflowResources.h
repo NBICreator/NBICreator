@@ -31,8 +31,10 @@
 
 @property NSMutableArray *resourcesNetInstallCopy;
 @property NSMutableArray *resourcesBaseSystemCopy;
+@property NSMutableArray *resourcesUSBCopy;
 @property NSMutableArray *resourcesNetInstallInstall;
 @property NSMutableArray *resourcesBaseSystemInstall;
+
 @property NSURL *installESDVolumeURL;
 @property NSString *sourceOSBuild;
 @property NBCSource *source;
@@ -48,5 +50,6 @@
 
 - (id)initWithDelegate:(id<NBCWorkflowProgressDelegate>)delegate;
 - (void)prepareResources:(NBCWorkflowItem *)workflowItem;
+- (NSArray *)prepareResourcesToUSBFromNBI:(NSURL *)nbiURL;
 
 @end

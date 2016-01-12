@@ -23,8 +23,9 @@
 #import "NBCWorkflowProgressViewController.h"
 #import "NBCWorkflowPanelController.h"
 #import "NBCWorkflowPreWorkflowTaskController.h"
+#import "NBCWorkflowPostWorkflowTaskController.h"
 
-@interface NBCWorkflowManager : NSObject <NSUserNotificationCenterDelegate, NBCWorkflowPreWorkflowTaskControllerDelegate, NBCSourceMountDelegate>
+@interface NBCWorkflowManager : NSObject <NSUserNotificationCenterDelegate, NBCWorkflowPreWorkflowTaskControllerDelegate, NBCWorkflowPostWorkflowTaskControllerDelegate, NBCSourceMountDelegate>
 
 // -------------------------------------------------------------
 //  Unsorted

@@ -45,7 +45,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to start a Imagr workflow.",
-                                                                                 @"prompt shown when user is required to authorize to add a user"
+                                                                                 @"prompt shown when user is required to authorize to start a Imagr workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(authorizeWorkflowCasper:withReply:)) : @{
@@ -53,7 +53,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to start a Casper workflow.",
-                                                                                 @"prompt shown when user is required to authorize to add a user"
+                                                                                 @"prompt shown when user is required to authorize to start a Casper workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(authorizeWorkflowDeployStudio:withReply:)) : @{
@@ -61,7 +61,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to start a DeployStudio workflow.",
-                                                                                 @"prompt shown when user is required to authorize to add a user"
+                                                                                 @"prompt shown when user is required to authorize to start a DeployStudio workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(authorizeWorkflowNetInstall:withReply:)) : @{
@@ -69,7 +69,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : @kAuthorizationRuleAuthenticateAsAdmin,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to start a NetInstall workflow.",
-                                                                                 @"prompt shown when user is required to authorize to add a user"
+                                                                                 @"prompt shown when user is required to authorize to start a NetInstall workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(addUsersToVolumeAtPath:userShortName:userPassword:authorization:withReply:)) : @{
@@ -80,12 +80,20 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                                                                  @"prompt shown when user is required to authorize to add a user"
                                                                                  )
                                  },
+                         NSStringFromSelector(@selector(blessUSBVolumeAtURL:label:authorization:withReply:)) : @{
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightBlessUSBVolume,
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
+                                 kCommandKeyAuthRightDesc    : NSLocalizedString(
+                                                                                 @"NBICreator is trying to bless a USB volume.",
+                                                                                 @"prompt shown when user is required to authorize to bless a USB volume"
+                                                                                 )
+                                 },
                          NSStringFromSelector(@selector(copyExtractedResourcesToCache:regexString:temporaryFolder:authorization:withReply:)) : @{
                                  kCommandKeyAuthRightName    : NBCAuthorizationRightCopyExtractedResourcesToCache,
                                  kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying copy the extracted resources to cache.",
-                                                                                 @"prompt shown when user is required to authorize to update kernel cache"
+                                                                                 @"prompt shown when user is required to authorize to copy extracted resources to cache folder"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(copyResourcesToVolume:copyArray:authorization:withReply:)) : @{
@@ -93,7 +101,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying copy resources to the NBI.",
-                                                                                 @"prompt shown when user is required to authorize to update kernel cache"
+                                                                                 @"prompt shown when user is required to authorize to copy resources to NBI"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(createNetInstallWithArguments:authorization:withReply:)) : @{
@@ -125,7 +133,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying extract resources from an installer package.",
-                                                                                 @"prompt shown when user is required to authorize to start a NetInstall workflow"
+                                                                                 @"prompt shown when user is required to authorize to extract resources form a installer package"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(installPackage:targetVolumePath:choices:authorization:withReply:)) : @{
@@ -133,7 +141,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying install packages on the NBI.",
-                                                                                 @"prompt shown when user is required to authorize to start a NetInstall workflow"
+                                                                                 @"prompt shown when user is required to authorize to start a package install"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(modifyResourcesOnVolume:modificationsArray:authorization:withReply:)) : @{
@@ -141,7 +149,15 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying modify the NBI.",
-                                                                                 @"prompt shown when user is required to authorize to start a NetInstall workflow"
+                                                                                 @"prompt shown when user is required to authorize to modify resources on a NBI"
+                                                                                 )
+                                 },
+                         NSStringFromSelector(@selector(partitionDiskWithBSDName:volumeName:authorization:withReply:)) : @{
+                                 kCommandKeyAuthRightName    : NBCAuthorizationRightPartitionDiskWithBSDName,
+                                 kCommandKeyAuthRightDefault : sessionExtendedRights,
+                                 kCommandKeyAuthRightDesc    : NSLocalizedString(
+                                                                                 @"NBICreator is trying partitioning disk.",
+                                                                                 @"prompt shown when user is required to authorize to partition a disk"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(sysBuilderWithArguments:sourceVersionMinor:selectedVersion:authorization:withReply:)) : @{
@@ -149,7 +165,7 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                  kCommandKeyAuthRightDefault : sessionExtendedRights,
                                  kCommandKeyAuthRightDesc    : NSLocalizedString(
                                                                                  @"NBICreator is trying to create a DeployStudio NBI.",
-                                                                                 @"prompt shown when user is required to authorize to start a NetInstall workflow"
+                                                                                 @"prompt shown when user is required to authorize to start a DeployStudio workflow"
                                                                                  )
                                  },
                          NSStringFromSelector(@selector(updateKernelCache:nbiVolumePath:minorVersion:authorization:withReply:)) : @{
@@ -263,7 +279,9 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                          NBCAuthorizationRightExtractResourcesFromPackage,
                                          NBCAuthorizationRightInstallPackages,
                                          NBCAuthorizationRightModifyResourcesOnVolume,
-                                         NBCAuthorizationRightUpdateKernelCache
+                                         NBCAuthorizationRightUpdateKernelCache,
+                                         NBCAuthorizationRightPartitionDiskWithBSDName,
+                                         NBCAuthorizationRightBlessUSBVolume
                                          ],
                                  
                                  // -----------------------------------------------------------------------------------
@@ -274,7 +292,9 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                          NBCAuthorizationRightCopyResourcesToVolume,
                                          NBCAuthorizationRightDisableSpotlight,
                                          NBCAuthorizationRightModifyResourcesOnVolume,
-                                         NBCAuthorizationRightSysBuilderWithArguments
+                                         NBCAuthorizationRightSysBuilderWithArguments,
+                                         NBCAuthorizationRightPartitionDiskWithBSDName,
+                                         NBCAuthorizationRightBlessUSBVolume
                                          ],
                                  
                                  // -----------------------------------------------------------------------------------
@@ -290,7 +310,9 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                          NBCAuthorizationRightExtractResourcesFromPackage,
                                          NBCAuthorizationRightInstallPackages,
                                          NBCAuthorizationRightModifyResourcesOnVolume,
-                                         NBCAuthorizationRightUpdateKernelCache
+                                         NBCAuthorizationRightUpdateKernelCache,
+                                         NBCAuthorizationRightPartitionDiskWithBSDName,
+                                         NBCAuthorizationRightBlessUSBVolume
                                          ],
                                  
                                  // -----------------------------------------------------------------------------------
@@ -301,7 +323,10 @@ static NSString * kCommandKeyAuthRightDesc    = @"authRightDescription";
                                          NBCAuthorizationRightCopyResourcesToVolume,
                                          NBCAuthorizationRightDisableSpotlight,
                                          NBCAuthorizationRightModifyResourcesOnVolume,
-                                         NBCAuthorizationRightCreateNetInstall ]
+                                         NBCAuthorizationRightCreateNetInstall,
+                                         NBCAuthorizationRightPartitionDiskWithBSDName,
+                                         NBCAuthorizationRightBlessUSBVolume
+                                         ]
                                  };
         
     });

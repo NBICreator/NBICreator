@@ -41,6 +41,7 @@
 #import "NBCWorkflowModifyNBI.h"
 #import "NBCWorkflowResources.h"
 #import "NBCHelperAuthorization.h"
+#import "NBCDiskArbitrator.h"
 
 DDLogLevel ddLogLevel;
 
@@ -72,7 +73,12 @@ DDLogLevel ddLogLevel;
 } // awakeFromNib
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self name:NSControlTextDidEndEditingNotification object:nil];
+    [nc removeObserver:self name:DADiskDidAppearNotification object:nil];
+    [nc removeObserver:self name:DADiskDidDisappearNotification object:nil];
+    [nc removeObserver:self name:DADiskDidChangeNotification object:nil];
+    
 } // dealloc
 
 - (void)viewDidLoad {
@@ -89,6 +95,9 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc addObserver:self selector:@selector(editingDidEnd:) name:NSControlTextDidEndEditingNotification object:nil];
+    [nc addObserver:self selector:@selector(updatePopUpButtonUSBDevices) name:DADiskDidAppearNotification object:nil];
+    [nc addObserver:self selector:@selector(updatePopUpButtonUSBDevices) name:DADiskDidDisappearNotification object:nil];
+    [nc addObserver:self selector:@selector(updatePopUpButtonUSBDevices) name:DADiskDidChangeNotification object:nil];
     
     // --------------------------------------------------------------
     //  Add KVO Observers
@@ -1516,7 +1525,7 @@ DDLogLevel ddLogLevel;
         }
     }
     settingsDict[NBCSettingsCertificatesKey] = certificateArray ?: @[];
-
+    
     NSMutableArray *packageArray = [[NSMutableArray alloc] init];
     for ( NSDictionary *packageDict in _packagesTableViewContents ) {
         NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
@@ -2528,6 +2537,63 @@ DDLogLevel ddLogLevel;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
+#pragma mark PopUpButton USB Devices
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updatePopUpButtonUSBDevices {
+    
+    NSString *currentSelection = [_popUpButtonUSBDevices titleOfSelectedItem];
+    
+    [_popUpButtonUSBDevices removeAllItems];
+    _usbDevicesDict = [NSMutableDictionary dictionary];
+    [_popUpButtonUSBDevices addItemWithTitle:NBCMenuItemNoSelection];
+    [[_popUpButtonUSBDevices menu] setAutoenablesItems:NO];
+    
+    // ------------------------------------------------------
+    //  Add menu title: System Volumes
+    // ------------------------------------------------------
+    [[_popUpButtonUSBDevices menu] addItem:[NSMenuItem separatorItem]];
+    NSMenuItem *titleMenuItem = [[NSMenuItem alloc] initWithTitle:@"USB Volumes" action:nil keyEquivalent:@""];
+    [titleMenuItem setTarget:nil];
+    [titleMenuItem setEnabled:NO];
+    [[_popUpButtonUSBDevices menu] addItem:titleMenuItem];
+    [[_popUpButtonUSBDevices menu] addItem:[NSMenuItem separatorItem]];
+    
+    // --------------------------------------------------------------
+    //  Add all mounted OS X disks to source popUpButton
+    // --------------------------------------------------------------
+    NSSet *currentDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
+    for ( NBCDisk *disk in currentDisks ) {
+        if ( ! disk ) {
+            continue;
+        }
+        
+        NSString *deviceProtocol = [disk deviceProtocol];
+        if ( [deviceProtocol isEqualToString:@"USB"] ) {
+            NSURL *volumeURL = [disk volumeURL];
+            if ( volumeURL ) {
+                NSString *menuItemTitle = [volumeURL lastPathComponent] ?: @"Unknown";
+                NSImage *icon = [[disk icon] copy];
+                NSMenuItem *newMenuItem = [[NSMenuItem alloc] initWithTitle:menuItemTitle action:nil keyEquivalent:@""];
+                [icon setSize:NSMakeSize(16, 16)];
+                [newMenuItem setImage:icon];
+                [[_popUpButtonUSBDevices menu] addItem:newMenuItem];
+                
+                _usbDevicesDict[menuItemTitle] = [disk BSDName];
+            }
+        }
+    }
+    
+    if ( [[_popUpButtonUSBDevices itemTitles] containsObject:currentSelection] ) {
+        [_popUpButtonUSBDevices selectItemWithTitle:currentSelection ?: NBCMenuItemNoSelection];
+    } else {
+        [_popUpButtonUSBDevices selectItemWithTitle:NBCMenuItemNoSelection];
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
 #pragma mark Verify Build Button
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
@@ -2617,9 +2683,14 @@ DDLogLevel ddLogLevel;
     // ----------------------------------------------------------------
     //  Collect current UI settings and pass them through verification
     // ----------------------------------------------------------------
-    NSDictionary *userSettings = [self returnSettingsFromUI];
+    NSMutableDictionary *userSettings = [[self returnSettingsFromUI] mutableCopy];
     if ( [userSettings count] != 0 ) {
-        [workflowItem setUserSettings:userSettings];
+
+        // Add create usb device here as this settings only is avalable to this session
+        userSettings[NBCSettingsCreateUSBDeviceKey] = @(_createUSBDevice);
+        userSettings[NBCSettingsUSBBSDNameKey] = _usbDevicesDict[[_popUpButtonUSBDevices titleOfSelectedItem]] ?: @"";
+        
+        [workflowItem setUserSettings:[userSettings copy]];
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
         
         // ----------------------------------------------------

@@ -208,6 +208,13 @@
     return (__bridge NSString *)(value);
 }
 
+- (NSString *)deviceProtocol
+{
+    CFStringRef value = _diskDescription ? CFDictionaryGetValue(_diskDescription, kDADiskDescriptionDeviceProtocolKey) : NULL;
+    
+    return (__bridge NSString *)(value);
+}
+
 - (NSString *)volumeName
 {
     CFStringRef value = _diskDescription ? CFDictionaryGetValue(_diskDescription, kDADiskDescriptionVolumeNameKey) : NULL;

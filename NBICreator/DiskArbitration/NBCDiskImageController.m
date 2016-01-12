@@ -931,19 +931,30 @@ DDLogLevel ddLogLevel;
 
 + (BOOL)attachDiskImageAtURL:(NSURL *)diskImageURL shadowPath:(NSString *)shadowPath error:(NSError **)error {
     
-    DDLogDebug(@"[DEBUG] Attaching disk image with shadow file...");
+    NSArray *hdiutilOptions;
+    if ( [shadowPath length] != 0 ) {
+        DDLogDebug(@"[DEBUG] Attaching disk image with shadow file...");
+        hdiutilOptions = @[
+                           @"-mountRandom", @"/Volumes",
+                           @"-shadow", shadowPath,
+                           @"-owners", @"on",
+                           @"-nobrowse",
+                           @"-noverify",
+                           @"-plist",
+                           ];
+    } else {
+        DDLogDebug(@"[DEBUG] Attaching disk image...");
+        hdiutilOptions = @[
+                           @"-mountRandom", @"/Volumes",
+                           @"-owners", @"on",
+                           @"-nobrowse",
+                           @"-noverify",
+                           @"-plist",
+                           ];
+    }
     
     NSURL *volumeURL;
     NSDictionary *diskImageDict;
-    
-    NSArray *hdiutilOptions = @[
-                                @"-mountRandom", @"/Volumes",
-                                @"-shadow", shadowPath,
-                                @"-owners", @"on",
-                                @"-nobrowse",
-                                @"-noverify",
-                                @"-plist",
-                                ];
     
     if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&diskImageDict
                                                               dmgPath:diskImageURL

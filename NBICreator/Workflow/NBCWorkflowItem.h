@@ -55,6 +55,7 @@ enum {
 @property (readwrite) NSData *authData;
 
 @property NSDictionary *preWorkflowTasks;
+@property NSDictionary *postWorkflowTasks;
 
 @property NSImage *nbiIcon;
 @property NSURL *nbiIconURL;
