@@ -10,6 +10,7 @@
             <connections>
                 <outlet property="buttonAddCertificate" destination="Tgx-L5-Slf" id="chw-F8-QfH"/>
                 <outlet property="buttonAddPackage" destination="KtS-VU-eCP" id="nJA-vy-eAz"/>
+                <outlet property="buttonAddPostWorkflowScript" destination="rU4-aa-ThF" id="9kh-PW-IbW"/>
                 <outlet property="buttonAddRAMDisk" destination="xTZ-ww-BFG" id="yZq-bw-IKj"/>
                 <outlet property="buttonAddTrustedServer" destination="9DU-om-QjW" id="BRx-53-VKK"/>
                 <outlet property="buttonChooseCasperImagingPath" destination="iQs-Wj-T70" id="x7E-p0-gnb"/>
@@ -17,6 +18,7 @@
                 <outlet property="buttonDownloadJSSCertificate" destination="pV3-r2-4Z8" id="gxx-x3-kXR"/>
                 <outlet property="buttonRemoveCertificate" destination="QEH-me-ehO" id="JoZ-p3-5tT"/>
                 <outlet property="buttonRemovePackage" destination="9WL-Is-6hA" id="TAC-Ui-8wl"/>
+                <outlet property="buttonRemovePostWorkflowScript" destination="DOO-1y-x1g" id="M5Q-56-80C"/>
                 <outlet property="buttonRemoveRAMDisk" destination="Xgm-p6-3hj" id="M7e-Hn-ihQ"/>
                 <outlet property="buttonRemoveTrustedServer" destination="dpX-Xe-pyE" id="41U-i5-R6z"/>
                 <outlet property="buttonShowJSSCertificate" destination="1Af-er-Pow" id="ZsZ-5c-noQ"/>
@@ -27,6 +29,7 @@
                 <outlet property="checkboxAvailabilityDefault" destination="VW3-gv-sX6" id="xht-Co-vHy"/>
                 <outlet property="checkboxAvailabilityEnabled" destination="Xz7-FM-R8p" id="VpE-1b-eID"/>
                 <outlet property="checkboxConsoleLaunchBehindApp" destination="weA-wb-Ce2" id="gA5-KO-08k"/>
+                <outlet property="checkboxCreateUSBDevice" destination="MmL-zc-w2t" id="xOb-WC-9OB"/>
                 <outlet property="checkboxDisableBluetooth" destination="QWT-wK-0EX" id="QjD-ad-Tmg"/>
                 <outlet property="checkboxDisableWiFi" destination="JV6-sF-KVi" id="A4U-hO-iwE"/>
                 <outlet property="checkboxIncludeConsole" destination="jct-vi-yLB" id="Uxl-uO-06b"/>
@@ -49,6 +52,7 @@
                 <outlet property="popUpButtonTemplates" destination="0C6-1D-c0n" id="IL1-qq-8vi"/>
                 <outlet property="popUpButtonTimeZone" destination="9mi-zY-JOd" id="WdQ-WJ-G8M"/>
                 <outlet property="popUpButtonTool" destination="CNk-hy-xlt" id="Wck-Qj-NcK"/>
+                <outlet property="popUpButtonUSBDevices" destination="1uh-IZ-ZnK" id="KEE-Cs-FXO"/>
                 <outlet property="progressIndicatorDownloadJSSCertificate" destination="hH6-kB-Qcd" id="9Yc-Hf-ln9"/>
                 <outlet property="progressIndicatorVerifyJSS" destination="aSw-BG-wJj" id="gFS-ru-dS0"/>
                 <outlet property="scrollViewCertificates" destination="M5c-RG-cZu" id="9Vj-8e-VEd"/>
@@ -57,9 +61,11 @@
                 <outlet property="sliderDisplaySleep" destination="eVo-A6-QFc" id="LGY-SD-mBv"/>
                 <outlet property="superViewCertificates" destination="Uon-mp-pY0" id="XMo-y4-LbL"/>
                 <outlet property="superViewPackages" destination="ReY-aP-6de" id="JtI-3U-4JD"/>
+                <outlet property="superViewPostWorkflowScripts" destination="IYN-pD-LCe" id="twW-bJ-Q4r"/>
                 <outlet property="tabViewCasperSettings" destination="SRE-K3-jP0" id="tvM-zu-g3R"/>
                 <outlet property="tableViewCertificates" destination="FEB-uC-7eO" id="FMR-NM-Mak"/>
                 <outlet property="tableViewPackages" destination="Qcj-Kn-Yvr" id="p2G-mh-aVC"/>
+                <outlet property="tableViewPostWorkflowScripts" destination="aOp-L0-Mtr" id="zDG-K8-ceG"/>
                 <outlet property="tableViewRAMDisks" destination="G1H-W0-WfX" id="lq0-fp-hQf"/>
                 <outlet property="tableViewTrustedServers" destination="vZE-5j-sKg" id="DFZ-4b-X1B"/>
                 <outlet property="textFieldARDLogin" destination="bra-6W-hae" id="kgx-Li-TKJ"/>
@@ -81,6 +87,7 @@
                 <outlet property="textFieldSIUVersionLabel" destination="07H-Hx-CG6" id="Ne3-KX-J97"/>
                 <outlet property="textFieldSIUVersionString" destination="Nf4-h5-EoY" id="EVt-V0-6Br"/>
                 <outlet property="textFieldTrustedServersCount" destination="8IO-9N-LoC" id="gQw-vx-AvK"/>
+                <outlet property="textFieldUSBDeviceLabel" destination="RZa-11-QQG" id="3hi-Dh-bgE"/>
                 <outlet property="textFieldVerifyJSSStatus" destination="sRA-xX-MRd" id="E0R-QK-5OT"/>
                 <outlet property="view" destination="jlT-bA-Uc7" id="aRk-Vm-rYX"/>
             </connections>
@@ -1855,6 +1862,199 @@ asdasd</string>
                                 </constraints>
                             </view>
                         </tabViewItem>
+                        <tabViewItem label="Post-Workflow" identifier="" id="KZA-TS-NT0">
+                            <view key="view" id="Tsd-8p-NL3">
+                                <rect key="frame" x="10" y="33" width="534" height="324"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <button horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="MmL-zc-w2t">
+                                        <rect key="frame" x="18" y="288" width="338" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Create a bootable USB drive from the resulting NBI: " bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="ak0-g0-22O">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.createUSBDevice" id="v4y-E6-UBA"/>
+                                        </connections>
+                                    </button>
+                                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1uh-IZ-ZnK">
+                                        <rect key="frame" x="360" y="282" width="157" height="26"/>
+                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="nh9-0n-wdi">
+                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="menu"/>
+                                            <menu key="menu" id="WpP-95-udz"/>
+                                        </popUpButtonCell>
+                                        <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.createUSBDevice" id="srr-Vx-VNh"/>
+                                        </connections>
+                                    </popUpButton>
+                                    <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Nyh-Nf-Y75">
+                                        <rect key="frame" x="18" y="205" width="323" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Post-workflow scripts to run after the NBI is created:" id="DHl-jh-Lor">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rU4-aa-ThF">
+                                        <rect key="frame" x="19" y="89" width="59" height="16"/>
+                                        <buttonCell key="cell" type="push" title="Add" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="NrS-iD-T4A">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="miniSystem"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="buttonAddPostWorkflowScript:" target="-2" id="3ub-hh-ATo"/>
+                                        </connections>
+                                    </button>
+                                    <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DOO-1y-x1g">
+                                        <rect key="frame" x="81" y="89" width="59" height="16"/>
+                                        <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="kGh-no-tWJ">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="miniSystem"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="buttonRemovePostWorkflowScript:" target="-2" id="Gn0-Pm-Ixy"/>
+                                        </connections>
+                                    </button>
+                                    <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IYN-pD-LCe" userLabel="Holding View Packages">
+                                        <rect key="frame" x="20" y="110" width="494" height="87"/>
+                                        <subviews>
+                                            <scrollView autohidesScrollers="YES" horizontalLineScroll="21" horizontalPageScroll="10" verticalLineScroll="21" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OR3-5f-ggN">
+                                                <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
+                                                <clipView key="contentView" id="U1U-he-Axz">
+                                                    <rect key="frame" x="1.5" y="0.5" width="492" height="85"/>
+                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                    <subviews>
+                                                        <tableView identifier="TableViewPostWorkflowScripts" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowHeight="19" rowSizeStyle="automatic" viewBased="YES" id="aOp-L0-Mtr">
+                                                            <rect key="frame" x="0.0" y="0.0" width="492" height="85"/>
+                                                            <autoresizingMask key="autoresizingMask"/>
+                                                            <size key="intercellSpacing" width="3" height="2"/>
+                                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                                            <tableColumns>
+                                                                <tableColumn identifier="ScriptTableColumn" width="489" minWidth="40" maxWidth="1000" id="mlY-nN-UvR">
+                                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
+                                                                        <font key="font" metaFont="smallSystem"/>
+                                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                                    </tableHeaderCell>
+                                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="miZ-me-JqC">
+                                                                        <font key="font" metaFont="system"/>
+                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                    </textFieldCell>
+                                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                                    <prototypeCellViews>
+                                                                        <tableCellView identifier="CellViewPostWorkflowScript" id="LOQ-Ay-8XJ" customClass="NBCCellViewPostWorkflowScript">
+                                                                            <rect key="frame" x="1" y="1" width="489" height="19"/>
+                                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                            <subviews>
+                                                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Qda-u8-g8y">
+                                                                                    <rect key="frame" x="3" y="2" width="17" height="17"/>
+                                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="uy7-re-AGF"/>
+                                                                                </imageView>
+                                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="94h-WS-nfO">
+                                                                                    <rect key="frame" x="25" y="2" width="105" height="17"/>
+                                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="QId-wj-BPh">
+                                                                                        <font key="font" metaFont="cellTitle"/>
+                                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                                    </textFieldCell>
+                                                                                </textField>
+                                                                            </subviews>
+                                                                            <connections>
+                                                                                <outlet property="imageView" destination="Qda-u8-g8y" id="0ap-9Y-FBX"/>
+                                                                                <outlet property="textField" destination="94h-WS-nfO" id="Opj-v2-FeV"/>
+                                                                            </connections>
+                                                                        </tableCellView>
+                                                                    </prototypeCellViews>
+                                                                </tableColumn>
+                                                            </tableColumns>
+                                                            <connections>
+                                                                <outlet property="dataSource" destination="-2" id="9P4-C8-vud"/>
+                                                                <outlet property="delegate" destination="-2" id="gJe-Ua-ZlS"/>
+                                                            </connections>
+                                                        </tableView>
+                                                    </subviews>
+                                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                </clipView>
+                                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="Fqs-qt-mzU">
+                                                    <rect key="frame" x="1" y="71" width="492" height="15"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                </scroller>
+                                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="V5D-9O-37R">
+                                                    <rect key="frame" x="224" y="17" width="15" height="102"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                </scroller>
+                                            </scrollView>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstItem="OR3-5f-ggN" firstAttribute="top" secondItem="IYN-pD-LCe" secondAttribute="top" id="9Xn-YM-Jgk"/>
+                                            <constraint firstAttribute="height" constant="87" id="fCK-5v-Oi9"/>
+                                            <constraint firstAttribute="bottom" secondItem="OR3-5f-ggN" secondAttribute="bottom" id="gCG-Lj-y2P"/>
+                                            <constraint firstItem="OR3-5f-ggN" firstAttribute="leading" secondItem="IYN-pD-LCe" secondAttribute="leading" id="h5o-bm-d10"/>
+                                            <constraint firstAttribute="trailing" secondItem="OR3-5f-ggN" secondAttribute="trailing" id="l8S-xy-CvW"/>
+                                        </constraints>
+                                    </customView>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DQj-yR-7y3">
+                                        <rect key="frame" x="41" y="259" width="152" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="USB volume name/label:" id="lT0-V1-z2F">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RZa-11-QQG">
+                                        <rect key="frame" x="199" y="256" width="315" height="22"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="BMS-ad-9iN">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                        <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.createUSBDevice" id="HQ9-Vc-4Kb"/>
+                                            <binding destination="-2" name="value" keyPath="self.usbLabel" id="zyE-La-Tze">
+                                                <dictionary key="options">
+                                                    <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                                </dictionary>
+                                            </binding>
+                                            <outlet property="delegate" destination="-2" id="KXf-Xs-r9o"/>
+                                        </connections>
+                                    </textField>
+                                    <box hidden="YES" verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="KlY-8V-2Nb">
+                                        <rect key="frame" x="20" y="228" width="494" height="5"/>
+                                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        <font key="titleFont" metaFont="system"/>
+                                    </box>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="rU4-aa-ThF" firstAttribute="top" secondItem="IYN-pD-LCe" secondAttribute="bottom" constant="5" id="45f-Wf-xHP"/>
+                                    <constraint firstAttribute="trailing" secondItem="KlY-8V-2Nb" secondAttribute="trailing" constant="20" symbolic="YES" id="8ro-L1-NZM"/>
+                                    <constraint firstItem="IYN-pD-LCe" firstAttribute="top" secondItem="Nyh-Nf-Y75" secondAttribute="bottom" constant="8" symbolic="YES" id="Fdg-qW-bqO"/>
+                                    <constraint firstItem="DOO-1y-x1g" firstAttribute="leading" secondItem="rU4-aa-ThF" secondAttribute="trailing" constant="5" id="NaB-dT-v0A"/>
+                                    <constraint firstAttribute="trailing" secondItem="IYN-pD-LCe" secondAttribute="trailing" constant="20" symbolic="YES" id="OHm-Gv-SEW"/>
+                                    <constraint firstAttribute="trailing" secondItem="1uh-IZ-ZnK" secondAttribute="trailing" constant="20" symbolic="YES" id="QML-lW-x0j"/>
+                                    <constraint firstItem="rU4-aa-ThF" firstAttribute="width" secondItem="DOO-1y-x1g" secondAttribute="width" id="SI6-aX-clf"/>
+                                    <constraint firstItem="1uh-IZ-ZnK" firstAttribute="baseline" secondItem="MmL-zc-w2t" secondAttribute="baseline" id="Vsy-YG-94i"/>
+                                    <constraint firstAttribute="trailing" secondItem="RZa-11-QQG" secondAttribute="trailing" constant="20" symbolic="YES" id="aZa-J9-0dm"/>
+                                    <constraint firstItem="RZa-11-QQG" firstAttribute="baseline" secondItem="DQj-yR-7y3" secondAttribute="baseline" id="bCv-kO-eAr"/>
+                                    <constraint firstItem="MmL-zc-w2t" firstAttribute="top" secondItem="Tsd-8p-NL3" secondAttribute="top" constant="20" symbolic="YES" id="bie-ss-fVD"/>
+                                    <constraint firstItem="Nyh-Nf-Y75" firstAttribute="top" secondItem="KlY-8V-2Nb" secondAttribute="bottom" constant="8" symbolic="YES" id="dGN-5L-OKt"/>
+                                    <constraint firstItem="KlY-8V-2Nb" firstAttribute="top" secondItem="RZa-11-QQG" secondAttribute="bottom" constant="25" id="fXD-96-jnR"/>
+                                    <constraint firstItem="1uh-IZ-ZnK" firstAttribute="leading" secondItem="MmL-zc-w2t" secondAttribute="trailing" constant="8" symbolic="YES" id="h7x-Bb-L25"/>
+                                    <constraint firstItem="DQj-yR-7y3" firstAttribute="top" secondItem="MmL-zc-w2t" secondAttribute="bottom" constant="14" id="ldQ-8O-ZEr"/>
+                                    <constraint firstItem="MmL-zc-w2t" firstAttribute="leading" secondItem="Tsd-8p-NL3" secondAttribute="leading" constant="20" symbolic="YES" id="lmc-V8-CSB"/>
+                                    <constraint firstItem="rU4-aa-ThF" firstAttribute="leading" secondItem="IYN-pD-LCe" secondAttribute="leading" id="rDD-71-hpC"/>
+                                    <constraint firstItem="IYN-pD-LCe" firstAttribute="leading" secondItem="Nyh-Nf-Y75" secondAttribute="leading" id="tZ3-vC-uG3"/>
+                                    <constraint firstItem="RZa-11-QQG" firstAttribute="leading" secondItem="DQj-yR-7y3" secondAttribute="trailing" constant="8" symbolic="YES" id="teM-bS-KSd"/>
+                                    <constraint firstItem="DOO-1y-x1g" firstAttribute="centerY" secondItem="rU4-aa-ThF" secondAttribute="centerY" id="udP-iq-GoX"/>
+                                    <constraint firstItem="KlY-8V-2Nb" firstAttribute="leading" secondItem="Tsd-8p-NL3" secondAttribute="leading" constant="20" symbolic="YES" id="xcT-eu-yf1"/>
+                                    <constraint firstItem="DQj-yR-7y3" firstAttribute="leading" secondItem="MmL-zc-w2t" secondAttribute="leading" constant="23" id="yCu-75-a7U"/>
+                                    <constraint firstItem="Nyh-Nf-Y75" firstAttribute="leading" secondItem="MmL-zc-w2t" secondAttribute="leading" id="zZX-f4-04y"/>
+                                </constraints>
+                            </view>
+                        </tabViewItem>
                     </tabViewItems>
                 </tabView>
             </subviews>
@@ -1867,7 +2067,7 @@ asdasd</string>
                 <constraint firstAttribute="bottom" secondItem="SRE-K3-jP0" secondAttribute="bottom" id="mVn-CS-HQE"/>
                 <constraint firstAttribute="trailing" secondItem="oDC-qX-tLY" secondAttribute="trailing" id="qxg-9C-dCM"/>
             </constraints>
-            <point key="canvasLocation" x="-1309" y="191"/>
+            <point key="canvasLocation" x="-1190" y="144"/>
         </customView>
         <customView id="ecP-mQ-mUC">
             <rect key="frame" x="0.0" y="0.0" width="427" height="334"/>
@@ -2653,6 +2853,7 @@ asdasd</string>
     </objects>
     <resources>
         <image name="IconCasperImaging" width="512" height="512"/>
+        <image name="NSActionTemplate" width="14" height="14"/>
         <image name="NSAddTemplate" width="11" height="11"/>
         <image name="NSCaution" width="32" height="32"/>
         <image name="NSRemoveTemplate" width="11" height="11"/>

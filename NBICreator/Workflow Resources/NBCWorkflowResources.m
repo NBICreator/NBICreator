@@ -504,7 +504,7 @@ DDLogLevel ddLogLevel;
     }
     
     if ( [sourceItemsDict count] != 0 ) {
-
+        
         // -------------------------------------------------------------------------------------
         // CTPresetFallbacks.plist (10.11+) Only add if anything else was added for extraction
         // -------------------------------------------------------------------------------------
@@ -1013,7 +1013,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)addCopyUSBResourcesFromNBI:(NSURL *)nbiURL error:(NSError **)error {
     
-    DDLogInfo(@"Adding copy USB resources...");
+    DDLogInfo(@"Adding USB resources for copy...");
     
     NSString *netInstallRootPath = [NSDictionary dictionaryWithContentsOfURL:[nbiURL URLByAppendingPathComponent:@"NBImageInfo.plist"]][@"RootPath"] ?: @"";
     DDLogDebug(@"[DEBUG] NBImageInfo RootPath: %@", netInstallRootPath);
@@ -1021,7 +1021,7 @@ DDLogLevel ddLogLevel;
         *error = [NBCError errorWithDescription:@"Could not get the root path from NBImageInfo.plist"];
         return NO;
     }
-
+    
     NSString *netInstallDMGPath = [[[nbiURL URLByAppendingPathComponent:netInstallRootPath] path] stringByResolvingSymlinksInPath];
     DDLogDebug(@"[DEBUG] NetInstall DMG path: %@", netInstallDMGPath);
     NSURL *netInstallDMGURL = [NSURL fileURLWithPath:netInstallDMGPath];
@@ -1031,15 +1031,15 @@ DDLogLevel ddLogLevel;
     
     // Update copy array
     [self addItemToCopyToUSB:@{
-                                      NBCWorkflowCopyType :        NBCWorkflowCopy,
-                                      NBCWorkflowCopySourceURL :   netInstallDMGPath,
-                                      NBCWorkflowCopyTargetURL :   [netInstallDMGPath lastPathComponent],
-                                      NBCWorkflowCopyAttributes :  @{
-                                              NSFileOwnerAccountName :      @"root",
-                                              NSFileGroupOwnerAccountName : @"wheel",
-                                              NSFilePosixPermissions :      @0755
-                                              }
-                                      }];
+                               NBCWorkflowCopyType :        NBCWorkflowCopy,
+                               NBCWorkflowCopySourceURL :   netInstallDMGPath,
+                               NBCWorkflowCopyTargetURL :   [netInstallDMGPath lastPathComponent],
+                               NBCWorkflowCopyAttributes :  @{
+                                       NSFileOwnerAccountName :      @"root",
+                                       NSFileGroupOwnerAccountName : @"wheel",
+                                       NSFilePosixPermissions :      @0755
+                                       }
+                               }];
     
     NSURL *platformSupportURL = [nbiURL URLByAppendingPathComponent:@"i386/PlatformSupport.plist"];
     if ( ! [platformSupportURL checkResourceIsReachableAndReturnError:error] ) {
@@ -1075,23 +1075,22 @@ DDLogLevel ddLogLevel;
                                }];
     
     NSURL *comAppleBootPlistURL = [nbiURL URLByAppendingPathComponent:@"i386/com.apple.Boot.plist"];
-    if ( ! [comAppleBootPlistURL checkResourceIsReachableAndReturnError:error] ) {
-        return NO;
+    if ( [comAppleBootPlistURL checkResourceIsReachableAndReturnError:error] ) {
+        
+        NSString *comAppleBootPlistTargetPath = @".NBIBootFiles/com.apple.Boot.plist";
+        
+        // Update copy array
+        [self addItemToCopyToUSB:@{
+                                   NBCWorkflowCopyType :        NBCWorkflowCopy,
+                                   NBCWorkflowCopySourceURL :   [comAppleBootPlistURL path],
+                                   NBCWorkflowCopyTargetURL :   comAppleBootPlistTargetPath,
+                                   NBCWorkflowCopyAttributes :  @{
+                                           NSFileOwnerAccountName :      @"root",
+                                           NSFileGroupOwnerAccountName : @"wheel",
+                                           NSFilePosixPermissions :      @0755
+                                           }
+                                   }];
     }
-    
-    NSString *comAppleBootPlistTargetPath = @".NBIBootFiles/com.apple.Boot.plist";
-    
-    // Update copy array
-    [self addItemToCopyToUSB:@{
-                               NBCWorkflowCopyType :        NBCWorkflowCopy,
-                               NBCWorkflowCopySourceURL :   [comAppleBootPlistURL path],
-                               NBCWorkflowCopyTargetURL :   comAppleBootPlistTargetPath,
-                               NBCWorkflowCopyAttributes :  @{
-                                       NSFileOwnerAccountName :      @"root",
-                                       NSFileGroupOwnerAccountName : @"wheel",
-                                       NSFilePosixPermissions :      @0755
-                                       }
-                               }];
     
     NSURL *prelinkedKernelURL = [nbiURL URLByAppendingPathComponent:@"i386/x86_64/kernelcache"];
     if ( ! [prelinkedKernelURL checkResourceIsReachableAndReturnError:error] ) {
@@ -1516,7 +1515,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *essentials = [NSMutableArray arrayWithArray:@[
                                                                   @".*CoreText.framework.*CTPresetFallbacks.plist",
                                                                   ]];
-
+    
     // Update extraction array
     [self addItemsToExtractFromEssentials:essentials sourceItemsDict:sourceItemsDict];
 } // addExtractCTPresetFallbacks
@@ -1531,7 +1530,7 @@ DDLogLevel ddLogLevel;
     if ( 11 <= _sourceVersionMinor ) {
         NSArray *essentials;
         switch (_sourceVersionMinor) {
-                case 11:
+            case 11:
                 essentials = @[ @".*Library/Desktop\\ Pictures/El\\ Capitan.jpg.*"];
                 break;
             default:
@@ -1551,16 +1550,16 @@ DDLogLevel ddLogLevel;
         
         NSArray *mediaFiles;
         switch (_sourceVersionMinor) {
-                case 10:
+            case 10:
                 mediaFiles = @[ @".*Library/Desktop\\ Pictures/Yosemite.jpg.*"];
                 break;
-                case 9:
+            case 9:
                 mediaFiles = @[ @".*Library/Desktop\\ Pictures/Wave.jpg.*"];
                 break;
-                case 8:
+            case 8:
                 mediaFiles = @[ @".*Library/Desktop\\ Pictures/Galaxy.jpg.*"];
                 break;
-                case 7:
+            case 7:
                 mediaFiles = @[ @".*Library/Desktop\\ Pictures/Lion.jpg.*"];
                 break;
             default:

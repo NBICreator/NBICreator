@@ -67,6 +67,12 @@ DDLogLevel ddLogLevel;
     NSDictionary *settingsTabGeneral = [self verifySettingsTabGeneral:workflowItem];
     [settings addObject:settingsTabGeneral];
     
+    // ------------------------------------------------------------------------
+    //  Check all settings in the tab "Post-Workflow"
+    // ------------------------------------------------------------------------
+    NSDictionary *settingsTabPostWorkflow = [self verifySettingsTabPostWorkflow:workflowItem];
+    [settings addObject:settingsTabPostWorkflow];
+    
     switch ( [workflowItem workflowType] ) {
         case kWorkflowTypeNetInstall:
         {
@@ -329,9 +335,6 @@ DDLogLevel ddLogLevel;
         [settings addObject:settingsTrustedNetBootServers];
     }
     
-    NSDictionary *createUSBDevice = [self verifySettingsCreateUSBDevice:workflowItem];
-    [settings addObject:createUSBDevice];
-    
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
@@ -373,7 +376,37 @@ DDLogLevel ddLogLevel;
     }
     
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
-} // verifySettingsTabExtra
+} // verifySettingsTabPostInstall
+
+- (NSDictionary *)verifySettingsTabPostWorkflow:(NBCWorkflowItem *)workflowItem {
+    
+    NSMutableArray *settings = [[NSMutableArray alloc] init];
+    
+    NSDictionary *createUSBDevice = [self verifySettingsCreateUSBDevice:workflowItem];
+    [settings addObject:createUSBDevice];
+    
+    if ( [[workflowItem userSettings][NBCSettingsCreateUSBDeviceKey] boolValue] ) {
+        NSDictionary *USBLabel = [self verifySettingsUSBLabel:workflowItem];
+        [settings addObject:USBLabel];
+    }
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    for ( NSDictionary *dict in settings ) {
+        NSArray *errorArr = dict[NBCSettingsError];
+        if ( [errorArr count] != 0 ) {
+            [settingsErrors addObjectsFromArray:errorArr];
+        }
+        
+        NSArray *warningArr = dict[NBCSettingsWarning];
+        if ( [warningArr count] != 0 ) {
+            [settingsWarnings addObjectsFromArray:warningArr];
+        }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+} // verifySettingsTabPostInstall
 
 /*
  - (NSDictionary *)verifySettingsTabDebug:(NBCWorkflowItem *)workflowItem {
@@ -655,6 +688,12 @@ DDLogLevel ddLogLevel;
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
 }
 
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Settings Tab Post-Workflow
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
 - (NSDictionary *)verifySettingsCreateUSBDevice:(NBCWorkflowItem *)workflowItem {
     
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
@@ -687,6 +726,30 @@ DDLogLevel ddLogLevel;
                 [settingsWarnings addObject:[NSString stringWithFormat:@"\"Create USB Device\" is enabled, the entire USB device and all of it's volumes will be erased:\n\n%@\nAre you sure you want to continue?", volumeNames]];
             }
         }
+    }
+    
+    return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];
+}
+
+- (NSDictionary *)verifySettingsUSBLabel:(NBCWorkflowItem *)workflowItem {
+    
+    NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
+    NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
+    
+    NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
+    NSString *usbLabel = [NBCVariables expandVariables:userSettings[NBCSettingsUSBLabelKey] ?: @""
+                                               source:[workflowItem source]
+                                    applicationSource:[workflowItem applicationSource]];
+    
+    if ( [usbLabel length] != 0 ) {
+        if ( [usbLabel containsString:@"%"] ) {
+            [settingsWarnings addObject:@"\"USB volume name/label\" might contain an uncomplete variable"];
+        }
+        
+        userSettings[NBCSettingsUSBLabelKey] = usbLabel;
+        [workflowItem setUserSettings:[userSettings copy]];
+    } else {
+        [settingsErrors addObject:@"\"USB volume name/label\" cannot be empty"];
     }
     
     return [self createErrorInfoDictFromError:settingsErrors warning:settingsWarnings];

@@ -42,6 +42,8 @@
 #import "NBCWorkflowResources.h"
 #import "NBCHelperAuthorization.h"
 #import "NBCDiskArbitrator.h"
+#import "NBCDDReader.h"
+#import "NBCTableViewCells.h"
 
 DDLogLevel ddLogLevel;
 
@@ -84,11 +86,13 @@ DDLogLevel ddLogLevel;
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [self setTemplatesDict:[[NSMutableDictionary alloc] init]];
     [self setKeyboardLayoutDict:[[NSMutableDictionary alloc] init]];
     [self setCertificateTableViewContents:[[NSMutableArray alloc] init]];
     [self setPackagesTableViewContents:[[NSMutableArray alloc] init]];
     [self setTrustedServers:[[NSMutableArray alloc] init]];
     [self setRamDisks:[[NSMutableArray alloc] init]];
+    [self setPostWorkflowScripts:[[NSMutableArray alloc] init]];
     
     // --------------------------------------------------------------
     //  Add Notification Observers
@@ -120,7 +124,6 @@ DDLogLevel ddLogLevel;
     [_imageViewIcon setDelegate:self];
     [_imageViewBackgroundImage setDelegate:self];
     [self setSiuSource:[[NBCApplicationSourceSystemImageUtility alloc] init]];
-    [self setTemplatesDict:[[NSMutableDictionary alloc] init]];
     [self setShowARDPassword:NO];
     [self initializeTableViewOverlays];
     [self checkIfXcodeIsInstalled];
@@ -133,6 +136,7 @@ DDLogLevel ddLogLevel;
     [self populatePopUpButtonTimeZone];
     [self populatePopUpButtonLanguage];
     [self populatePopUpButtonKeyboardLayout];
+    [self updatePopUpButtonUSBDevices];
     
     // ------------------------------------------------------------------------------
     //  Add contextual menu to NBI Icon image view to allow to restore original icon.
@@ -180,6 +184,13 @@ DDLogLevel ddLogLevel;
         _viewOverlayCertificates = [vc view];
     }
     [self addOverlayViewToView:_superViewCertificates overlayView:_viewOverlayCertificates];
+    /* Will be added next release
+    if ( ! _viewOverlayPostWorkflowScripts ) {
+        NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypeScripts];
+        _viewOverlayPostWorkflowScripts = [vc view];
+    }
+    [self addOverlayViewToView:_superViewPostWorkflowScripts overlayView:_viewOverlayPostWorkflowScripts];
+     */
 } // initializeTableViewOverlays
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -197,6 +208,8 @@ DDLogLevel ddLogLevel;
         return (NSInteger)[_trustedServers count];
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierImagrRAMDisks] ) {
         return (NSInteger)[_ramDisks count];
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPostWorkflowScripts] ) {
+        return (NSInteger)[_postWorkflowScripts count];
     } else {
         return 0;
     }
@@ -470,6 +483,23 @@ DDLogLevel ddLogLevel;
     return cellView;
 }
 
+- (NBCCellViewPostWorkflowScript *)populateCellViewPostWorkflowScript:(NBCCellViewPostWorkflowScript *)cellView packageDict:(NSDictionary *)packageDict {
+    NSMutableAttributedString *packageName;
+    NSImage *packageIcon;
+    NSURL *packageURL = [NSURL fileURLWithPath:packageDict[NBCDictionaryKeyPath]];
+    if ( [packageURL checkResourceIsReachableAndReturnError:nil] ) {
+        [[cellView textField] setStringValue:packageDict[NBCDictionaryKeyName] ?: @"Unknown"];
+        packageIcon = [[NSWorkspace sharedWorkspace] iconForFile:[packageURL path]];
+        [[cellView imageView] setImage:packageIcon];
+    } else {
+        packageName = [[NSMutableAttributedString alloc] initWithString:packageDict[NBCDictionaryKeyName]];
+        [packageName addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[packageName length])];
+        [[cellView textField] setAttributedStringValue:packageName];
+    }
+    
+    return cellView;
+}
+
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
     if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierCertificates] ) {
         NSDictionary *certificateDict = _certificateTableViewContents[(NSUInteger)row];
@@ -499,6 +529,12 @@ DDLogLevel ddLogLevel;
         } else if ( [[tableColumn identifier] isEqualToString:@"ImagrRAMDiskSizeTableColumn"] ) {
             NBCImagrRAMDiskSizeCellView *cellView = [tableView makeViewWithIdentifier:@"ImagrRAMDiskSizeCellView" owner:self];
             return [self populateRAMDiskSizeCellView:cellView ramDiskDict:ramDiskDict row:row];
+        }
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPostWorkflowScripts] ) {
+        NSDictionary *scriptDict = _postWorkflowScripts[(NSUInteger)row];
+        if ( [[tableColumn identifier] isEqualToString:@"ScriptTableColumn"] ) {
+            NBCCellViewPostWorkflowScript *cellView = [tableView makeViewWithIdentifier:@"CellViewPostWorkflowScript" owner:self];
+            return [self populateCellViewPostWorkflowScript:cellView packageDict:scriptDict];
         }
     }
     return nil;
@@ -1220,6 +1256,7 @@ DDLogLevel ddLogLevel;
     [self setImagrUseGitBranch:[settingsDict[NBCSettingsImagrUseGitBranch] boolValue]];
     [self setImagrGitBranch:settingsDict[NBCSettingsImagrGitBranch]];
     [self setImagrBuildTarget:settingsDict[NBCSettingsImagrBuildTarget]];
+    [self setUsbLabel:settingsDict[NBCSettingsUSBLabelKey] ?: @"%OSVERSION%_%OSBUILD%_Imagr"];
     
     if ( [_imagrVersion isEqualToString:NBCMenuItemImagrVersionLocal] ) {
         [self showImagrLocalVersionInput];
@@ -1247,7 +1284,7 @@ DDLogLevel ddLogLevel;
         [self setDisplaySleep:YES];
     }
     
-    [self uppdatePopUpButtonTool];
+    [self updatePopUpButtonTool];
     
     if ( _nbiCreationTool == nil || [_nbiCreationTool isEqualToString:NBCMenuItemNBICreator] ) {
         [self hideSystemImageUtilityVersion];
@@ -1502,6 +1539,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsImagrUseGitBranch] = @(_imagrUseGitBranch) ?: @NO;
     settingsDict[NBCSettingsImagrGitBranch] = _imagrGitBranch ?: @"";
     settingsDict[NBCSettingsImagrBuildTarget] = _imagrBuildTarget ?: @"";
+    settingsDict[NBCSettingsUSBLabelKey] = _usbLabel ?: @"";
     
     NSString *selectedGitBranch = [_popUpButtonImagrGitBranch titleOfSelectedItem];
     if ( [selectedGitBranch length] != 0 && [_imagrGitBranch length] != 0 ) {
@@ -2102,7 +2140,7 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)uppdatePopUpButtonTool {
+- (void)updatePopUpButtonTool {
     NSString *systemUtilityVersion = [_siuSource systemImageUtilityVersion];
     if ( [systemUtilityVersion length] != 0 ) {
         [_textFieldSIUVersionString setStringValue:systemUtilityVersion];
@@ -3219,4 +3257,93 @@ DDLogLevel ddLogLevel;
     return retval;
 }
 
+- (IBAction)buttonAddPostWorkflowScript:(id) __unused sender {
+    
+    NSOpenPanel* addPackages = [NSOpenPanel openPanel];
+    
+    // --------------------------------------------------------------
+    //  Setup open dialog to only allow one folder to be chosen.
+    // --------------------------------------------------------------
+    [addPackages setTitle:@"Add Scripts"];
+    [addPackages setPrompt:@"Add"];
+    [addPackages setCanChooseFiles:YES];
+    [addPackages setAllowedFileTypes:@[ @"public.shell-script" ]];
+    [addPackages setCanChooseDirectories:NO];
+    [addPackages setCanCreateDirectories:YES];
+    [addPackages setAllowsMultipleSelection:YES];
+    
+    if ( [addPackages runModal] == NSModalResponseOK ) {
+        NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+        NSArray* selectedURLs = [addPackages URLs];
+        for ( NSURL *url in selectedURLs ) {
+            NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:[url path] error:nil];
+            if ( [workspace type:fileType conformsToType:@"public.shell-script"] ) {
+                NSDictionary *scriptDict = [self examineScriptAtURL:url];
+                if ( [scriptDict count] != 0 ) {
+                    [self insertItemInPostWorkflowScriptsTableView:scriptDict];
+                    return;
+                }
+            }
+        }
+    }
+}
+
+- (void)insertItemInPostWorkflowScriptsTableView:(NSDictionary *)itemDict {
+    NSString *packagePath = itemDict[NBCDictionaryKeyPath];
+    for ( NSDictionary *scriptDict in _postWorkflowScripts ) {
+        if ( [packagePath isEqualToString:scriptDict[NBCDictionaryKeyPath]] ) {
+            DDLogWarn(@"Script %@ is already added!", [packagePath lastPathComponent]);
+            return;
+        }
+    }
+    
+    NSInteger index = [_tableViewPostWorkflowScripts selectedRow];
+    index++;
+    [_tableViewPostWorkflowScripts beginUpdates];
+    [_tableViewPostWorkflowScripts insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewPostWorkflowScripts scrollRowToVisible:index];
+    [_postWorkflowScripts insertObject:itemDict atIndex:(NSUInteger)index];
+    [_tableViewPostWorkflowScripts endUpdates];
+    [_viewOverlayPostWorkflowScripts setHidden:YES];
+}
+
+- (NSDictionary *)examineScriptAtURL:(NSURL *)url {
+    
+    DDLogDebug(@"[DEBUG] Examine script...");
+    
+    NSMutableDictionary *newScriptDict = [[NSMutableDictionary alloc] init];
+    NBCDDReader *reader = [[NBCDDReader alloc] initWithFilePath:[url path]];
+    [reader enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
+        if (
+            [line hasPrefix:@"#!/bin/bash"] |
+            [line hasPrefix:@"#!/bin/sh"]
+            ) {
+            newScriptDict[NBCDictionaryKeyScriptType] = @"Shell Script";
+            *stop = YES;
+        }
+    }];
+    
+    DDLogDebug(@"[DEBUG] Script type: %@", newScriptDict[NBCDictionaryKeyScriptType] ?: @"Unknown");
+    
+    if ( [newScriptDict[NBCDictionaryKeyScriptType] length] != 0 ) {
+        newScriptDict[NBCDictionaryKeyPath] = [url path] ?: @"Unknown";
+        DDLogDebug(@"[DEBUG] Script path: %@", newScriptDict[NBCDictionaryKeyPath]);
+        
+        newScriptDict[NBCDictionaryKeyName] = [url lastPathComponent] ?: @"Unknown";
+        DDLogDebug(@"[DEBUG] Script name: %@", newScriptDict[NBCDictionaryKeyName]);
+        
+        return newScriptDict;
+    } else {
+        return nil;
+    }
+}
+
+- (IBAction)buttonRemovePostWorkflowScript:(id) __unused sender {
+    NSIndexSet *indexes = [_tableViewPostWorkflowScripts selectedRowIndexes];
+    [_postWorkflowScripts removeObjectsAtIndexes:indexes];
+    [_tableViewPostWorkflowScripts removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    if ( [_postWorkflowScripts count] == 0 ) {
+        [_viewOverlayPostWorkflowScripts setHidden:NO];
+    }
+}
 @end

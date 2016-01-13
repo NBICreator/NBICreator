@@ -186,6 +186,7 @@ extern NSString *const NBCSettingsRAMDisksKey;
 extern NSString *const NBCSettingsBaseSystemDiskImageSizeKey;
 extern NSString *const NBCSettingsCreateUSBDeviceKey;
 extern NSString *const NBCSettingsUSBBSDNameKey;
+extern NSString *const NBCSettingsUSBLabelKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug
@@ -616,6 +617,7 @@ extern NSString *const NBCTableViewIdentifierCasperTrustedServers;
 extern NSString *const NBCTableViewIdentifierImagrRAMDisks;
 extern NSString *const NBCTableViewIdentifierCasperRAMDisks;
 extern NSString *const NBCTableViewIdentifierConfigurationProfiles;
+extern NSString *const NBCTableViewIdentifierPostWorkflowScripts;
 
 extern NSString *const NBCDiskImageFormatReadOnly;
 extern NSString *const NBCDiskImageFormatReadWrite;

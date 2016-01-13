@@ -35,6 +35,8 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperAuthorization.h"
 #import "NBCHelperProtocol.h"
+#import "NBCTableViewCells.h"
+#import "NBCDiskArbitrator.h"
 
 DDLogLevel ddLogLevel;
 
@@ -60,21 +62,32 @@ DDLogLevel ddLogLevel;
 } // awakeFromNib
 
 - (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSControlTextDidEndEditingNotification object:nil];
+    NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
+    [nc removeObserver:self name:NSControlTextDidEndEditingNotification object:nil];
+    //[nc removeObserver:self name:DADiskDidAppearNotification object:nil];
+    //[nc removeObserver:self name:DADiskDidDisappearNotification object:nil];
+    //[nc removeObserver:self name:DADiskDidChangeNotification object:nil];
 } // dealloc
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    _packagesNetInstallTableViewContents = [[NSMutableArray alloc] init];
-    _configurationProfilesTableViewContents = [[NSMutableArray alloc] init];
-    _trustedServers = [[NSMutableArray alloc] init];
+    [self setPackagesNetInstallTableViewContents:[[NSMutableArray alloc] init]];
+    [self setConfigurationProfilesTableViewContents:[[NSMutableArray alloc] init]];
+    [self setTrustedServers:[[NSMutableArray alloc] init]];
+    [self setPostWorkflowScripts:[[NSMutableArray alloc] init]];
+    NSTabViewItem *tabViewPostWorkflow = [[self tabViewSettings] tabViewItemAtIndex:3];
+    [[self tabViewSettings] removeTabViewItem:tabViewPostWorkflow];
+    //[self updatePopUpButtonUSBDevices];
     
     // --------------------------------------------------------------
     //  Add Notification Observers
     // --------------------------------------------------------------
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
     [nc addObserver:self selector:@selector(editingDidEnd:) name:NSControlTextDidEndEditingNotification object:nil];
+    //[nc addObserver:self selector:@selector(updatePopUpButtonUSBDevices) name:DADiskDidAppearNotification object:nil];
+    //[nc addObserver:self selector:@selector(updatePopUpButtonUSBDevices) name:DADiskDidDisappearNotification object:nil];
+    //[nc addObserver:self selector:@selector(updatePopUpButtonUSBDevices) name:DADiskDidChangeNotification object:nil];
     
     // --------------------------------------------------------------
     //  Add KVO Observers
@@ -103,6 +116,8 @@ DDLogLevel ddLogLevel;
     //  Load saved templates and create the template menu
     // --------------------------------------------------------------
     [self updatePopUpButtonTemplates];
+    
+    
     
     // --------------------------------------------------------------
     //  Update default System Image Utility Version in UI.
@@ -143,6 +158,13 @@ DDLogLevel ddLogLevel;
         _viewOverlayConfigurationProfiles = [vc view];
     }
     [self addOverlayViewToView:_superViewConfigurationProfiles overlayView:_viewOverlayConfigurationProfiles];
+    /* Will be added next release
+    if ( ! _viewOverlayPostWorkflowScripts ) {
+        NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypeScripts];
+        _viewOverlayPostWorkflowScripts = [vc view];
+    }
+    [self addOverlayViewToView:_superViewPostWorkflowScripts overlayView:_viewOverlayPostWorkflowScripts];
+     */
 } // initializeTableViewOverlays
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -407,6 +429,7 @@ DDLogLevel ddLogLevel;
     [self setNbiIconPath:settingsDict[NBCSettingsIconKey]];
     [self setAddTrustedNetBootServers:[settingsDict[NBCSettingsAddTrustedNetBootServersKey] boolValue]];
     [self setNetInstallPackageOnly:[settingsDict[NBCSettingsNetInstallPackageOnlyKey] boolValue]];
+    [self setUsbLabel:settingsDict[NBCSettingsUSBLabelKey] ?: @"%OSVERSION%_%OSBUILD%_NetInstall"];
     
     [_packagesNetInstallTableViewContents removeAllObjects];
     [_tableViewPackagesNetInstall reloadData];
@@ -517,6 +540,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
     settingsDict[NBCSettingsAddTrustedNetBootServersKey] = @(_addTrustedNetBootServers) ?: @NO;
     settingsDict[NBCSettingsNetInstallPackageOnlyKey] = @(_netInstallPackageOnly) ?: @NO;
+    settingsDict[NBCSettingsUSBLabelKey] = _usbLabel ?: @"";
     
     if ( _destinationFolder != nil ) {
         NSString *currentUserHome = NSHomeDirectory();
@@ -1086,6 +1110,11 @@ DDLogLevel ddLogLevel;
     // ----------------------------------------------------------------
     NSMutableDictionary *userSettings = [[self returnSettingsFromUI] mutableCopy];
     if ( [userSettings count] != 0 ) {
+        
+        // Add create usb device here as this settings only is avalable to this session
+        userSettings[NBCSettingsCreateUSBDeviceKey] = @(_createUSBDevice);
+        userSettings[NBCSettingsUSBBSDNameKey] = _usbDevicesDict[[_popUpButtonUSBDevices titleOfSelectedItem]] ?: @"";
+        
         userSettings[NBCSettingsNBICreationToolKey] = NBCMenuItemSystemImageUtility;
         [workflowItem setUserSettings:[userSettings copy]];
         
@@ -1468,6 +1497,12 @@ DDLogLevel ddLogLevel;
             NBCNetInstallTrustedNetBootServerCellView *cellView = [tableView makeViewWithIdentifier:@"NetInstallNetBootServerCellView" owner:self];
             return [self populateTrustedNetBootServerCellView:cellView netBootServerIP:trustedServer row:row];
         }
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPostWorkflowScripts] ) {
+        NSDictionary *scriptDict = _postWorkflowScripts[(NSUInteger)row];
+        if ( [[tableColumn identifier] isEqualToString:@"ScriptTableColumn"] ) {
+            NBCCellViewPostWorkflowScript *cellView = [tableView makeViewWithIdentifier:@"CellViewPostWorkflowScript" owner:self];
+            return [self populateCellViewPostWorkflowScript:cellView packageDict:scriptDict];
+        }
     }
     
     return nil;
@@ -1638,7 +1673,9 @@ DDLogLevel ddLogLevel;
         return (NSInteger)[_configurationProfilesTableViewContents count];
     } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierNetInstallTrustedServers] ) {
         return (NSInteger)[_trustedServers count];
-    } else {
+    } else if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPostWorkflowScripts] ) {
+        return (NSInteger)[_postWorkflowScripts count];
+    }  else {
         return 0;
     }
 }
@@ -1692,6 +1729,23 @@ DDLogLevel ddLogLevel;
         netBootServerIPMutable = [[NSMutableAttributedString alloc] initWithString:netBootServerIP];
         [netBootServerIPMutable addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[netBootServerIPMutable length])];
         [[cellView textFieldTrustedNetBootServer] setAttributedStringValue:netBootServerIPMutable];
+    }
+    
+    return cellView;
+}
+
+- (NBCCellViewPostWorkflowScript *)populateCellViewPostWorkflowScript:(NBCCellViewPostWorkflowScript *)cellView packageDict:(NSDictionary *)packageDict {
+    NSMutableAttributedString *packageName;
+    NSImage *packageIcon;
+    NSURL *packageURL = [NSURL fileURLWithPath:packageDict[NBCDictionaryKeyPath]];
+    if ( [packageURL checkResourceIsReachableAndReturnError:nil] ) {
+        [[cellView textField] setStringValue:packageDict[NBCDictionaryKeyName] ?: @"Unknown"];
+        packageIcon = [[NSWorkspace sharedWorkspace] iconForFile:[packageURL path]];
+        [[cellView imageView] setImage:packageIcon];
+    } else {
+        packageName = [[NSMutableAttributedString alloc] initWithString:packageDict[NBCDictionaryKeyName]];
+        [packageName addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[packageName length])];
+        [[cellView textField] setAttributedStringValue:packageName];
     }
     
     return cellView;
@@ -1819,6 +1873,122 @@ DDLogLevel ddLogLevel;
                                                                                NBCAlertTagKey : NBCAlertTagIncorrectPackageType,
                                                                                NBCAlertResourceKey : incorrectPackageTypes
                                                                                }];
+    }
+}
+
+- (IBAction)buttonAddPostWorkflowScript:(id) __unused sender {
+    
+    NSOpenPanel* addPackages = [NSOpenPanel openPanel];
+    
+    // --------------------------------------------------------------
+    //  Setup open dialog to only allow one folder to be chosen.
+    // --------------------------------------------------------------
+    [addPackages setTitle:@"Add Scripts"];
+    [addPackages setPrompt:@"Add"];
+    [addPackages setCanChooseFiles:YES];
+    [addPackages setAllowedFileTypes:@[ @"public.shell-script" ]];
+    [addPackages setCanChooseDirectories:NO];
+    [addPackages setCanCreateDirectories:YES];
+    [addPackages setAllowsMultipleSelection:YES];
+    
+    if ( [addPackages runModal] == NSModalResponseOK ) {
+        NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
+        NSArray* selectedURLs = [addPackages URLs];
+        for ( NSURL *url in selectedURLs ) {
+            NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:[url path] error:nil];
+            if ( [workspace type:fileType conformsToType:@"public.shell-script"] ) {
+                NSDictionary *scriptDict = [self examineScriptAtURL:url];
+                if ( [scriptDict count] != 0 ) {
+                    [self insertItemInPostWorkflowScriptsTableView:scriptDict];
+                    return;
+                }
+            }
+        }
+    }
+}
+
+- (void)insertItemInPostWorkflowScriptsTableView:(NSDictionary *)itemDict {
+    NSString *packagePath = itemDict[NBCDictionaryKeyPath];
+    for ( NSDictionary *scriptDict in _postWorkflowScripts ) {
+        if ( [packagePath isEqualToString:scriptDict[NBCDictionaryKeyPath]] ) {
+            DDLogWarn(@"Script %@ is already added!", [packagePath lastPathComponent]);
+            return;
+        }
+    }
+    
+    NSInteger index = [_tableViewPostWorkflowScripts selectedRow];
+    index++;
+    [_tableViewPostWorkflowScripts beginUpdates];
+    [_tableViewPostWorkflowScripts insertRowsAtIndexes:[NSIndexSet indexSetWithIndex:(NSUInteger)index] withAnimation:NSTableViewAnimationSlideDown];
+    [_tableViewPostWorkflowScripts scrollRowToVisible:index];
+    [_postWorkflowScripts insertObject:itemDict atIndex:(NSUInteger)index];
+    [_tableViewPostWorkflowScripts endUpdates];
+    [_viewOverlayPostWorkflowScripts setHidden:YES];
+}
+
+- (IBAction)buttonRemovePostWorkflowScript:(id) __unused sender {
+    NSIndexSet *indexes = [_tableViewPostWorkflowScripts selectedRowIndexes];
+    [_postWorkflowScripts removeObjectsAtIndexes:indexes];
+    [_tableViewPostWorkflowScripts removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
+    if ( [_postWorkflowScripts count] == 0 ) {
+        [_viewOverlayPostWorkflowScripts setHidden:NO];
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark PopUpButton USB Devices
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)updatePopUpButtonUSBDevices {
+    
+    NSString *currentSelection = [_popUpButtonUSBDevices titleOfSelectedItem];
+    
+    [_popUpButtonUSBDevices removeAllItems];
+    _usbDevicesDict = [NSMutableDictionary dictionary];
+    [_popUpButtonUSBDevices addItemWithTitle:NBCMenuItemNoSelection];
+    [[_popUpButtonUSBDevices menu] setAutoenablesItems:NO];
+    
+    // ------------------------------------------------------
+    //  Add menu title: System Volumes
+    // ------------------------------------------------------
+    [[_popUpButtonUSBDevices menu] addItem:[NSMenuItem separatorItem]];
+    NSMenuItem *titleMenuItem = [[NSMenuItem alloc] initWithTitle:@"USB Volumes" action:nil keyEquivalent:@""];
+    [titleMenuItem setTarget:nil];
+    [titleMenuItem setEnabled:NO];
+    [[_popUpButtonUSBDevices menu] addItem:titleMenuItem];
+    [[_popUpButtonUSBDevices menu] addItem:[NSMenuItem separatorItem]];
+    
+    // --------------------------------------------------------------
+    //  Add all mounted OS X disks to source popUpButton
+    // --------------------------------------------------------------
+    NSSet *currentDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
+    for ( NBCDisk *disk in currentDisks ) {
+        if ( ! disk ) {
+            continue;
+        }
+        
+        NSString *deviceProtocol = [disk deviceProtocol];
+        if ( [deviceProtocol isEqualToString:@"USB"] ) {
+            NSURL *volumeURL = [disk volumeURL];
+            if ( volumeURL ) {
+                NSString *menuItemTitle = [volumeURL lastPathComponent] ?: @"Unknown";
+                NSImage *icon = [[disk icon] copy];
+                NSMenuItem *newMenuItem = [[NSMenuItem alloc] initWithTitle:menuItemTitle action:nil keyEquivalent:@""];
+                [icon setSize:NSMakeSize(16, 16)];
+                [newMenuItem setImage:icon];
+                [[_popUpButtonUSBDevices menu] addItem:newMenuItem];
+                
+                _usbDevicesDict[menuItemTitle] = [disk BSDName];
+            }
+        }
+    }
+    
+    if ( [[_popUpButtonUSBDevices itemTitles] containsObject:currentSelection] ) {
+        [_popUpButtonUSBDevices selectItemWithTitle:currentSelection ?: NBCMenuItemNoSelection];
+    } else {
+        [_popUpButtonUSBDevices selectItemWithTitle:NBCMenuItemNoSelection];
     }
 }
 

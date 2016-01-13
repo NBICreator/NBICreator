@@ -24,6 +24,10 @@
 	<false/>
 	<key>NetInstallPackageOnly</key>
 	<false/>
+	<key>USBLabel</key>
+	<string>%OSVERSION%_%OSBUILD%_NetInstall</string>
+	<key>PostWorkflowScripts</key>
+	<array/>
 	<key>TrustedNetBootServers</key>
 	<array/>
 	<key>NetInstallPackages</key>

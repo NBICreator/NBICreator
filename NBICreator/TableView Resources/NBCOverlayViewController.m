@@ -70,6 +70,11 @@
             [[view textField] setStringValue:@"Drop Packages and Scripts Here"];
             [_constraintImageLeft setConstant:195.0];
             break;
+        case kContentTypeScripts:
+            image = [[NSWorkspace sharedWorkspace] iconForFileType:@"public.shell-script"];
+            [[view imageView] setImage:image];
+            [[view textField] setStringValue:@"Drop Scripts Here"];
+            break;
         default:
             break;
     }

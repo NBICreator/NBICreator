@@ -68,5 +68,9 @@
 	<string>%COUNTER%</string>
 	<key>Name</key>
 	<string>%OSVERSION%_%OSBUILD%_DS</string>
+	<key>USBLabel</key>
+	<string>%OSVERSION%_%OSBUILD%_DS</string>
+	<key>PostWorkflowScripts</key>
+	<array/>
 </dict>
 </plist>

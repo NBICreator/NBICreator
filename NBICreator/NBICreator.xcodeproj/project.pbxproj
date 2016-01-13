@@ -82,6 +82,7 @@
 		538D6BC21BF3E7CF00E58468 /* NBCHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 538D6BB61BF3E77500E58468 /* NBCHelper.m */; };
 		538D6BC31BF3E83900E58468 /* NBCHelperAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = 538D6BB81BF3E77500E58468 /* NBCHelperAuthorization.m */; };
 		538DAF341AD7179600F2A3DD /* DeployStudioDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 538DAF331AD7179600F2A3DD /* DeployStudioDefaults.plist */; };
+		538FD64A1C4654C2000BA887 /* NBCTableViewCells.m in Sources */ = {isa = PBXBuildFile; fileRef = 538FD6491C4654C2000BA887 /* NBCTableViewCells.m */; };
 		53909A8F1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53909A8E1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m */; };
 		53909A9A1BA35E1C00AD7F51 /* NBCImagrRAMDiskSizeCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 53909A991BA35E1C00AD7F51 /* NBCImagrRAMDiskSizeCellView.m */; };
 		53931B9D1AED511B0076C1CC /* NBCVariables.m in Sources */ = {isa = PBXBuildFile; fileRef = 53931B9C1AED511B0076C1CC /* NBCVariables.m */; };
@@ -461,6 +462,8 @@
 		538D6BBA1BF3E77500E58468 /* NBCHelperConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCHelperConnection.m; path = Helper/NBCHelperConnection.m; sourceTree = SOURCE_ROOT; };
 		538D6BBB1BF3E77500E58468 /* NBCHelperProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCHelperProtocol.h; path = Helper/NBCHelperProtocol.h; sourceTree = SOURCE_ROOT; };
 		538DAF331AD7179600F2A3DD /* DeployStudioDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = DeployStudioDefaults.plist; path = "Supporting Files/Property Lists/DeployStudioDefaults.plist"; sourceTree = "<group>"; };
+		538FD6481C4654C2000BA887 /* NBCTableViewCells.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCTableViewCells.h; path = "TableView Resources/NBCTableViewCells.h"; sourceTree = SOURCE_ROOT; };
+		538FD6491C4654C2000BA887 /* NBCTableViewCells.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCTableViewCells.m; path = "TableView Resources/NBCTableViewCells.m"; sourceTree = SOURCE_ROOT; };
 		53909A8D1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCImagrRAMDiskPathCellView.h; path = "TableView Resources/NBCImagrRAMDiskPathCellView.h"; sourceTree = SOURCE_ROOT; };
 		53909A8E1BA343DD00AD7F51 /* NBCImagrRAMDiskPathCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCImagrRAMDiskPathCellView.m; path = "TableView Resources/NBCImagrRAMDiskPathCellView.m"; sourceTree = SOURCE_ROOT; };
 		53909A981BA35E1C00AD7F51 /* NBCImagrRAMDiskSizeCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCImagrRAMDiskSizeCellView.h; path = "TableView Resources/NBCImagrRAMDiskSizeCellView.h"; sourceTree = SOURCE_ROOT; };
@@ -1095,6 +1098,8 @@
 		53F797E11BDC9CF4000E3460 /* TableView Resources */ = {
 			isa = PBXGroup;
 			children = (
+				538FD6481C4654C2000BA887 /* NBCTableViewCells.h */,
+				538FD6491C4654C2000BA887 /* NBCTableViewCells.m */,
 				5332628E1B794A9E00BA7EC9 /* NBCDesktopEntity.h */,
 				5332628F1B794A9E00BA7EC9 /* NBCDesktopEntity.m */,
 				536D1B6B1B98D9CE009ABBE6 /* NBCBackgroundViewWhite.h */,
@@ -1481,6 +1486,7 @@
 				53DFA2521BA153620009EFEC /* NBCImagrTrustedNetBootServerCellView.m in Sources */,
 				53A24A2B1BF3AB5A00FA759D /* NBCImageDropViewController.m in Sources */,
 				53FB849A1BDE579D000152DA /* NBCWorkflowNBICreator.m in Sources */,
+				538FD64A1C4654C2000BA887 /* NBCTableViewCells.m in Sources */,
 				5386BA5A1BE5E50400C0EDDA /* NBCWorkflowResources.m in Sources */,
 				53D2B9BB1BA0B87D000ACD23 /* NBCCasperTrustedNetBootServerCellView.m in Sources */,
 				53968C101A8E7A3E0079AA95 /* main.m in Sources */,

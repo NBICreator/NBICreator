@@ -94,6 +94,10 @@
 	<string>Master</string>
 	<key>ImagrBuildTarget</key>
 	<string>Release</string>
+	<key>USBLabel</key>
+	<string>%OSVERSION%_%OSBUILD%_Imagr</string>
+	<key>PostWorkflowScripts</key>
+	<array/>
 	<key>RAMDisks</key>
 	<array/>
 	<key>TrustedNetBootServers</key>

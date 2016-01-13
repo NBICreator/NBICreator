@@ -63,6 +63,11 @@
 - (IBAction)popUpButtonTemplates:(id)sender;
 
 // ------------------------------------------------------
+//  TabView
+// ------------------------------------------------------
+@property (weak) IBOutlet NSTabView *tabViewSettings;
+
+// ------------------------------------------------------
 //  TabView General
 // ------------------------------------------------------
 @property (weak) IBOutlet NBCImageDropViewIcon *imageViewIcon;
@@ -114,6 +119,24 @@
 @property (weak) IBOutlet NSTableView *tableViewPackagesNetInstall;
 - (IBAction)buttonAddPackageNetInstall:(id)sender;
 - (IBAction)buttonRemovePackageNetInstall:(id)sender;
+
+// ------------------------------------------------------
+//  TabView Post-Workflow
+// ------------------------------------------------------
+@property (weak) IBOutlet NSPopUpButton *popUpButtonUSBDevices;
+@property (weak) IBOutlet NSButton *checkboxCreateUSBDevice;
+@property BOOL createUSBDevice;
+@property NSMutableDictionary *usbDevicesDict;
+@property (weak) IBOutlet NSView *superViewPostWorkflowScripts;
+@property NSMutableArray *postWorkflowScripts;
+@property (strong) NSView *viewOverlayPostWorkflowScripts;
+@property (weak) IBOutlet NSTableView *tableViewPostWorkflowScripts;
+@property (weak) IBOutlet NSButton *buttonAddPostWorkflowScript;
+- (IBAction)buttonAddPostWorkflowScript:(id)sender;
+@property (weak) IBOutlet NSButton *buttonRemovePostWorkflowScript;
+- (IBAction)buttonRemovePostWorkflowScript:(id)sender;
+@property (weak) IBOutlet NSTextField *textFieldUSBDeviceLabel;
+@property NSString *usbLabel;
 
 // ------------------------------------------------------
 //  PopOver

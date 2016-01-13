@@ -138,11 +138,23 @@
 
 @property NSNumber *baseSystemDiskImageSize;
 
-
+// ------------------------------------------------------
+//  TabView Post-Workflow
+// ------------------------------------------------------
 @property (weak) IBOutlet NSPopUpButton *popUpButtonUSBDevices;
 @property (weak) IBOutlet NSButton *checkboxCreateUSBDevice;
 @property BOOL createUSBDevice;
 @property NSMutableDictionary *usbDevicesDict;
+@property (weak) IBOutlet NSView *superViewPostWorkflowScripts;
+@property NSMutableArray *postWorkflowScripts;
+@property (strong) NSView *viewOverlayPostWorkflowScripts;
+@property (weak) IBOutlet NSTableView *tableViewPostWorkflowScripts;
+@property (weak) IBOutlet NSButton *buttonAddPostWorkflowScript;
+- (IBAction)buttonAddPostWorkflowScript:(id)sender;
+@property (weak) IBOutlet NSButton *buttonRemovePostWorkflowScript;
+- (IBAction)buttonRemovePostWorkflowScript:(id)sender;
+@property (weak) IBOutlet NSTextField *textFieldUSBDeviceLabel;
+@property NSString *usbLabel;
 
 // ------------------------------------------------------
 //  TabView Imagr Settings

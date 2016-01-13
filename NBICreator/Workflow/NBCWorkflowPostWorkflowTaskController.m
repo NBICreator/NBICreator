@@ -59,7 +59,7 @@
                 NSString *usbDeviceBSDName = [usbDisk BSDName];
                 DDLogDebug(@"[DEBUG] Selected USB device BSD Name: %@", usbDeviceBSDName);
                 
-                [self partitionUSBDiskWithBSDName:usbDeviceBSDName volumeName:@"ImagrUSB" workflowItem:workflowItem];
+                [self partitionUSBDiskWithBSDName:usbDeviceBSDName workflowItem:workflowItem];
             }
         }
     } else {
@@ -67,10 +67,12 @@
     }
 }
 
-- (void)partitionUSBDiskWithBSDName:(NSString *)bsdName volumeName:(NSString *)volumeName workflowItem:(NBCWorkflowItem *)workflowItem {
+- (void)partitionUSBDiskWithBSDName:(NSString *)bsdName workflowItem:(NBCWorkflowItem *)workflowItem {
     
     DDLogInfo(@"Erasing USB device...");
     [_progressDelegate updateProgressStatus:@"Erasing USB device..." workflow:self];
+    
+    NSString *volumeName = [workflowItem userSettings][NBCSettingsUSBLabelKey] ?: @"NBICreatorUSB";
     
     // --------------------------------
     //  Get Authorization
@@ -272,7 +274,7 @@
     
     NSError *err = nil;
     
-    NSString *label = @"ImagrUSB";
+    NSString *label = [workflowItem userSettings][NBCSettingsUSBLabelKey] ?: @"NBICreatorUSB";
     
     // --------------------------------
     //  Get Authorization

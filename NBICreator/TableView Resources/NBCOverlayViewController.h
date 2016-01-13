@@ -23,7 +23,8 @@ enum {
     kContentTypePackages = 0,
     kContentTypeCertificates,
     kContentTypeConfigurationProfiles,
-    kContentTypeNetInstallPackages
+    kContentTypeNetInstallPackages,
+    kContentTypeScripts
 };
 
 @class NBCOverlayView;

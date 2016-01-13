@@ -186,6 +186,7 @@ NSString *const NBCSettingsRAMDisksKey = @"RAMDisks";
 NSString *const NBCSettingsBaseSystemDiskImageSizeKey = @"BaseSystemDiskImageSize";
 NSString *const NBCSettingsCreateUSBDeviceKey = @"CreateUSBDevice";
 NSString *const NBCSettingsUSBBSDNameKey = @"USBBSDName";
+NSString *const NBCSettingsUSBLabelKey = @"USBLabel";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug
@@ -633,6 +634,7 @@ NSString *const NBCTableViewIdentifierCasperTrustedServers = @"CasperTableViewTr
 NSString *const NBCTableViewIdentifierImagrRAMDisks = @"ImagrTableViewRAMDisk";
 NSString *const NBCTableViewIdentifierCasperRAMDisks = @"CasperTableViewRAMDisk";
 NSString *const NBCTableViewIdentifierConfigurationProfiles = @"TableViewConfigurationProfiles";
+NSString *const NBCTableViewIdentifierPostWorkflowScripts = @"TableViewPostWorkflowScripts";
 
 NSString *const NBCTabViewItemGeneral = @"General";
 NSString *const NBCTabViewItemOptions = @"Options";

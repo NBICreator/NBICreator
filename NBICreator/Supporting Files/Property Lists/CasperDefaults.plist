@@ -86,6 +86,10 @@
 	<false/>
 	<key>BaseSystemDiskImageSize</key>
 	<integer>10</integer>
+	<key>USBLabel</key>
+	<string>%OSVERSION%_%OSBUILD%_Casper</string>
+	<key>PostWorkflowScripts</key>
+	<array/>
 	<key>RAMDisks</key>
 	<array/>
 	<key>TrustedNetBootServers</key>

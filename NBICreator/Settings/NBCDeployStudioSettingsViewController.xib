@@ -7,13 +7,16 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NBCDeployStudioSettingsViewController">
             <connections>
+                <outlet property="buttonAddPostWorkflowScript" destination="aWG-kQ-Qvb" id="jV9-bP-zth"/>
                 <outlet property="buttonDeployStudioDownloadCancel" destination="Oyn-lC-Wqe" id="2OD-my-eKf"/>
                 <outlet property="buttonDeployStudioDownloadDownload" destination="JTE-bS-w76" id="r3n-yV-J1n"/>
                 <outlet property="buttonDeployStudioDownloadProgressCancel" destination="unO-Mg-ffW" id="QqP-eS-C5V"/>
                 <outlet property="buttonDownloadDeployStudio" destination="hJp-Ee-iw7" id="XUq-dg-g6d"/>
+                <outlet property="buttonRemovePostWorkflowScript" destination="DOS-E6-1ZY" id="760-7I-Knm"/>
                 <outlet property="checboxSleep" destination="WcW-xE-Vz6" id="Kki-aU-q9K"/>
                 <outlet property="checkboxAvailabilityDefault" destination="gvJ-ek-cHA" id="X66-8t-uzh"/>
                 <outlet property="checkboxAvailabilityEnabled" destination="bda-MT-CJV" id="HDD-h1-qI6"/>
+                <outlet property="checkboxCreateUSBDevice" destination="pYQ-9u-C83" id="mW9-m5-Dah"/>
                 <outlet property="checkboxCustomTCPStack" destination="WG5-tX-SG1" id="SYG-di-8hG"/>
                 <outlet property="checkboxDisableVersionMismatchAlerts" destination="FvT-JH-yyt" id="8UP-e8-xNv"/>
                 <outlet property="checkboxDisableWirelessSupport" destination="RpM-YT-V0g" id="UrZ-XP-cpa"/>
@@ -36,10 +39,13 @@
                 <outlet property="popUpButtonProtocol" destination="qro-50-2zK" id="g2l-R4-4ZA"/>
                 <outlet property="popUpButtonTemplates" destination="Re9-tr-S3E" id="IK0-zS-jVH"/>
                 <outlet property="popUpButtonTool" destination="JFV-Pj-HzQ" id="Eef-YE-igg"/>
+                <outlet property="popUpButtonUSBDevices" destination="QKY-xf-JvJ" id="vq0-Q4-TVj"/>
                 <outlet property="progressIndicatorDeployStudioDownloadProgress" destination="2y7-8a-prF" id="Srg-vY-IoQ"/>
                 <outlet property="secureTextFieldARDPassword" destination="psU-pC-87v" id="Phf-8N-wHC"/>
                 <outlet property="secureTextFieldRuntimePassword" destination="aZh-Nr-mBx" id="iLr-2w-bpu"/>
+                <outlet property="superViewPostWorkflowScripts" destination="ZhS-Jw-kFE" id="fsr-AY-PKC"/>
                 <outlet property="tabViewSettings" destination="FJj-NQ-5jc" id="nu3-0B-kOq"/>
+                <outlet property="tableViewPostWorkflowScripts" destination="YTL-zK-Wwt" id="0dd-IN-at6"/>
                 <outlet property="textFieldARDLogin" destination="bw5-LB-eCJ" id="wyP-ac-jzN"/>
                 <outlet property="textFieldARDPassword" destination="Eiu-La-HJi" id="7Yq-LB-OHG"/>
                 <outlet property="textFieldCustomRuntimeTitle" destination="icw-Xu-ucS" id="h95-M3-d1M"/>
@@ -58,6 +64,7 @@
                 <outlet property="textFieldRuntimeLogin" destination="HLA-gT-f6X" id="uff-OH-bdD"/>
                 <outlet property="textFieldRuntimePassword" destination="I1K-Ct-quT" id="qnX-TT-eHe"/>
                 <outlet property="textFieldSleepDelayMinutes" destination="JNl-Yc-3ZY" id="xJl-WK-ICr"/>
+                <outlet property="textFieldUSBDeviceLabel" destination="kjm-wp-pLR" id="2cA-2O-4tx"/>
                 <outlet property="textFieldUpdateAvailable" destination="scz-8c-c6i" id="RnP-n8-N96"/>
                 <outlet property="view" destination="Hz6-mo-xeY" id="0bl-1N-x8E"/>
                 <outlet property="windowDeployStudioDownload" destination="KWg-Mr-gua" id="aFy-4U-kq5"/>
@@ -1195,6 +1202,199 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
                                 </constraints>
                             </view>
                         </tabViewItem>
+                        <tabViewItem label="Post-Workflow" identifier="" id="Gw8-W6-UQR">
+                            <view key="view" id="mCO-Tw-LqC">
+                                <rect key="frame" x="10" y="33" width="534" height="324"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <button horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="pYQ-9u-C83">
+                                        <rect key="frame" x="18" y="288" width="338" height="18"/>
+                                        <buttonCell key="cell" type="check" title="Create a bootable USB drive from the resulting NBI: " bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="pYS-84-3Q6">
+                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                            <font key="font" metaFont="system"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <binding destination="-2" name="value" keyPath="self.createUSBDevice" id="jeP-WA-KwQ"/>
+                                        </connections>
+                                    </button>
+                                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="QKY-xf-JvJ">
+                                        <rect key="frame" x="360" y="282" width="157" height="26"/>
+                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="WkX-3Z-WPu">
+                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="menu"/>
+                                            <menu key="menu" id="J7g-z1-YyI"/>
+                                        </popUpButtonCell>
+                                        <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.createUSBDevice" id="KLD-6H-pd8"/>
+                                        </connections>
+                                    </popUpButton>
+                                    <textField hidden="YES" horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="RYy-0m-IgA">
+                                        <rect key="frame" x="18" y="205" width="323" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Post-workflow scripts to run after the NBI is created:" id="wbF-fw-uDo">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aWG-kQ-Qvb">
+                                        <rect key="frame" x="19" y="89" width="59" height="16"/>
+                                        <buttonCell key="cell" type="push" title="Add" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Fzd-ej-qOC">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="miniSystem"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="buttonAddPostWorkflowScript:" target="-2" id="VSH-5H-iCa"/>
+                                        </connections>
+                                    </button>
+                                    <button hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="DOS-E6-1ZY">
+                                        <rect key="frame" x="81" y="89" width="59" height="16"/>
+                                        <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Vpw-rm-XYy">
+                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                            <font key="font" metaFont="miniSystem"/>
+                                        </buttonCell>
+                                        <connections>
+                                            <action selector="buttonRemovePostWorkflowScript:" target="-2" id="p0l-kD-87A"/>
+                                        </connections>
+                                    </button>
+                                    <customView hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ZhS-Jw-kFE" userLabel="Holding View Packages">
+                                        <rect key="frame" x="20" y="110" width="494" height="87"/>
+                                        <subviews>
+                                            <scrollView autohidesScrollers="YES" horizontalLineScroll="21" horizontalPageScroll="10" verticalLineScroll="21" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="O80-7F-rOx">
+                                                <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
+                                                <clipView key="contentView" id="kEs-UB-tGz">
+                                                    <rect key="frame" x="1.5" y="0.5" width="492" height="85"/>
+                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                    <subviews>
+                                                        <tableView identifier="TableViewPostWorkflowScripts" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowHeight="19" rowSizeStyle="automatic" viewBased="YES" id="YTL-zK-Wwt">
+                                                            <rect key="frame" x="0.0" y="0.0" width="492" height="85"/>
+                                                            <autoresizingMask key="autoresizingMask"/>
+                                                            <size key="intercellSpacing" width="3" height="2"/>
+                                                            <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                            <color key="gridColor" name="gridColor" catalog="System" colorSpace="catalog"/>
+                                                            <tableColumns>
+                                                                <tableColumn identifier="ScriptTableColumn" width="489" minWidth="40" maxWidth="1000" id="j8e-dO-OxG">
+                                                                    <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" alignment="left">
+                                                                        <font key="font" metaFont="smallSystem"/>
+                                                                        <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
+                                                                    </tableHeaderCell>
+                                                                    <textFieldCell key="dataCell" lineBreakMode="truncatingTail" selectable="YES" editable="YES" alignment="left" title="Text Cell" id="vtU-hN-bzf">
+                                                                        <font key="font" metaFont="system"/>
+                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                        <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                    </textFieldCell>
+                                                                    <tableColumnResizingMask key="resizingMask" resizeWithTable="YES" userResizable="YES"/>
+                                                                    <prototypeCellViews>
+                                                                        <tableCellView identifier="CellViewPostWorkflowScript" id="WJL-yz-Bho" customClass="NBCCellViewPostWorkflowScript">
+                                                                            <rect key="frame" x="1" y="1" width="489" height="19"/>
+                                                                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                                            <subviews>
+                                                                                <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="5Og-Yo-aMH">
+                                                                                    <rect key="frame" x="3" y="2" width="17" height="17"/>
+                                                                                    <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSActionTemplate" id="DGF-R6-P0j"/>
+                                                                                </imageView>
+                                                                                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" fixedFrame="YES" allowsExpansionToolTips="YES" translatesAutoresizingMaskIntoConstraints="NO" id="3KO-Oc-GkM">
+                                                                                    <rect key="frame" x="25" y="2" width="105" height="17"/>
+                                                                                    <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Table View Cell" id="Tga-xO-fHF">
+                                                                                        <font key="font" metaFont="cellTitle"/>
+                                                                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                                                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                                                                    </textFieldCell>
+                                                                                </textField>
+                                                                            </subviews>
+                                                                            <connections>
+                                                                                <outlet property="imageView" destination="5Og-Yo-aMH" id="jcn-5X-iws"/>
+                                                                                <outlet property="textField" destination="3KO-Oc-GkM" id="MBC-Jl-NiX"/>
+                                                                            </connections>
+                                                                        </tableCellView>
+                                                                    </prototypeCellViews>
+                                                                </tableColumn>
+                                                            </tableColumns>
+                                                            <connections>
+                                                                <outlet property="dataSource" destination="-2" id="lcn-zH-wi6"/>
+                                                                <outlet property="delegate" destination="-2" id="VZ1-zh-1MN"/>
+                                                            </connections>
+                                                        </tableView>
+                                                    </subviews>
+                                                    <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                </clipView>
+                                                <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.5" horizontal="YES" id="yhW-ms-rKk">
+                                                    <rect key="frame" x="1" y="71" width="492" height="15"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                </scroller>
+                                                <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="gzb-iJ-cVU">
+                                                    <rect key="frame" x="224" y="17" width="15" height="102"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
+                                                </scroller>
+                                            </scrollView>
+                                        </subviews>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="87" id="AI9-68-ZA6"/>
+                                            <constraint firstItem="O80-7F-rOx" firstAttribute="top" secondItem="ZhS-Jw-kFE" secondAttribute="top" id="Pu3-tn-rBa"/>
+                                            <constraint firstAttribute="trailing" secondItem="O80-7F-rOx" secondAttribute="trailing" id="qSX-Yk-JWn"/>
+                                            <constraint firstItem="O80-7F-rOx" firstAttribute="leading" secondItem="ZhS-Jw-kFE" secondAttribute="leading" id="tDY-ow-Vvu"/>
+                                            <constraint firstAttribute="bottom" secondItem="O80-7F-rOx" secondAttribute="bottom" id="tfF-K5-ik7"/>
+                                        </constraints>
+                                    </customView>
+                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wDd-fH-nm4">
+                                        <rect key="frame" x="41" y="259" width="152" height="17"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="USB volume name/label:" id="1tE-Uo-Prg">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                    </textField>
+                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kjm-wp-pLR">
+                                        <rect key="frame" x="199" y="256" width="315" height="22"/>
+                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="YOP-9H-ock">
+                                            <font key="font" metaFont="system"/>
+                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                        </textFieldCell>
+                                        <connections>
+                                            <binding destination="-2" name="enabled" keyPath="self.createUSBDevice" id="oJ3-2l-AlR"/>
+                                            <binding destination="-2" name="value" keyPath="self.usbLabel" id="2Sx-1c-MJK">
+                                                <dictionary key="options">
+                                                    <bool key="NSContinuouslyUpdatesValue" value="YES"/>
+                                                </dictionary>
+                                            </binding>
+                                            <outlet property="delegate" destination="-2" id="PRu-Hy-HnT"/>
+                                        </connections>
+                                    </textField>
+                                    <box hidden="YES" verticalHuggingPriority="750" title="Box" boxType="separator" titlePosition="noTitle" translatesAutoresizingMaskIntoConstraints="NO" id="SUy-ia-d8H">
+                                        <rect key="frame" x="20" y="228" width="494" height="5"/>
+                                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                        <font key="titleFont" metaFont="system"/>
+                                    </box>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="aWG-kQ-Qvb" firstAttribute="top" secondItem="ZhS-Jw-kFE" secondAttribute="bottom" constant="5" id="1B1-jC-7EG"/>
+                                    <constraint firstItem="ZhS-Jw-kFE" firstAttribute="leading" secondItem="RYy-0m-IgA" secondAttribute="leading" id="3JC-Lf-Nio"/>
+                                    <constraint firstItem="kjm-wp-pLR" firstAttribute="baseline" secondItem="wDd-fH-nm4" secondAttribute="baseline" id="6rk-E9-DHP"/>
+                                    <constraint firstItem="aWG-kQ-Qvb" firstAttribute="width" secondItem="DOS-E6-1ZY" secondAttribute="width" id="7iw-BG-LpV"/>
+                                    <constraint firstItem="kjm-wp-pLR" firstAttribute="leading" secondItem="wDd-fH-nm4" secondAttribute="trailing" constant="8" symbolic="YES" id="9Du-mF-sqW"/>
+                                    <constraint firstAttribute="trailing" secondItem="QKY-xf-JvJ" secondAttribute="trailing" constant="20" symbolic="YES" id="9a0-Ys-joc"/>
+                                    <constraint firstItem="QKY-xf-JvJ" firstAttribute="leading" secondItem="pYQ-9u-C83" secondAttribute="trailing" constant="8" symbolic="YES" id="9iO-X4-5gb"/>
+                                    <constraint firstItem="SUy-ia-d8H" firstAttribute="leading" secondItem="mCO-Tw-LqC" secondAttribute="leading" constant="20" symbolic="YES" id="D9c-Ig-ZBs"/>
+                                    <constraint firstItem="DOS-E6-1ZY" firstAttribute="leading" secondItem="aWG-kQ-Qvb" secondAttribute="trailing" constant="5" id="EL4-bc-q7Z"/>
+                                    <constraint firstItem="aWG-kQ-Qvb" firstAttribute="leading" secondItem="ZhS-Jw-kFE" secondAttribute="leading" id="ME3-1M-jO8"/>
+                                    <constraint firstItem="wDd-fH-nm4" firstAttribute="leading" secondItem="pYQ-9u-C83" secondAttribute="leading" constant="23" id="Ok8-es-TbI"/>
+                                    <constraint firstAttribute="trailing" secondItem="SUy-ia-d8H" secondAttribute="trailing" constant="20" symbolic="YES" id="QV7-U9-uXg"/>
+                                    <constraint firstItem="ZhS-Jw-kFE" firstAttribute="top" secondItem="RYy-0m-IgA" secondAttribute="bottom" constant="8" symbolic="YES" id="Qd5-Hy-gBB"/>
+                                    <constraint firstItem="RYy-0m-IgA" firstAttribute="top" secondItem="SUy-ia-d8H" secondAttribute="bottom" constant="8" symbolic="YES" id="RK1-11-YQX"/>
+                                    <constraint firstItem="SUy-ia-d8H" firstAttribute="top" secondItem="kjm-wp-pLR" secondAttribute="bottom" constant="25" id="Rex-85-2wC"/>
+                                    <constraint firstItem="wDd-fH-nm4" firstAttribute="top" secondItem="pYQ-9u-C83" secondAttribute="bottom" constant="14" id="WOT-2l-rwC"/>
+                                    <constraint firstItem="pYQ-9u-C83" firstAttribute="top" secondItem="mCO-Tw-LqC" secondAttribute="top" constant="20" symbolic="YES" id="XtE-JI-TB5"/>
+                                    <constraint firstAttribute="trailing" secondItem="ZhS-Jw-kFE" secondAttribute="trailing" constant="20" symbolic="YES" id="Yf4-cz-6fa"/>
+                                    <constraint firstItem="RYy-0m-IgA" firstAttribute="leading" secondItem="pYQ-9u-C83" secondAttribute="leading" id="fUk-U0-b5n"/>
+                                    <constraint firstAttribute="trailing" secondItem="kjm-wp-pLR" secondAttribute="trailing" constant="20" symbolic="YES" id="hfq-cW-MFo"/>
+                                    <constraint firstItem="DOS-E6-1ZY" firstAttribute="centerY" secondItem="aWG-kQ-Qvb" secondAttribute="centerY" id="jBe-KB-daE"/>
+                                    <constraint firstItem="pYQ-9u-C83" firstAttribute="leading" secondItem="mCO-Tw-LqC" secondAttribute="leading" constant="20" symbolic="YES" id="tdh-3g-B1h"/>
+                                    <constraint firstItem="QKY-xf-JvJ" firstAttribute="baseline" secondItem="pYQ-9u-C83" secondAttribute="baseline" id="uEJ-CQ-KmZ"/>
+                                </constraints>
+                            </view>
+                        </tabViewItem>
                     </tabViewItems>
                     <connections>
                         <outlet property="delegate" destination="-2" id="gqW-df-PPN"/>
@@ -1818,5 +2018,6 @@ Gw
     </objects>
     <resources>
         <image name="IconDeployStudioNBI" width="512" height="512"/>
+        <image name="NSActionTemplate" width="14" height="14"/>
     </resources>
 </document>
