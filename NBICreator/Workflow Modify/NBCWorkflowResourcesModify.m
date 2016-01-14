@@ -2239,9 +2239,9 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     NSURL *etcRemoteManagementLaunchdURL;
     if ( 11 <= _sourceVersionMinor ) {
-        etcRemoteManagementLaunchdURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/RemoteManagement.launchd"];
-    } else {
         etcRemoteManagementLaunchdURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Library/Application Support/Apple/Remote Desktop/RemoteManagement.launchd"];
+    } else {
+        etcRemoteManagementLaunchdURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/RemoteManagement.launchd"];
     }
     DDLogDebug(@"[DEBUG] RemoteManagement.launchd path: %@", [etcRemoteManagementLaunchdURL path]);
     
