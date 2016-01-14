@@ -2242,6 +2242,7 @@ DDLogLevel ddLogLevel;
         if ( [currentLanguageID length] != 0 ) {
             resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current language ID"];
             DDLogError(@"[ERROR] Could not get current language ID!");
             return;
         }
@@ -2262,6 +2263,7 @@ DDLogLevel ddLogLevel;
             if ( [languageID length] != 0 ) {
                 resourcesSettings[NBCSettingsLanguageKey] = languageID;
             } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get language ID"];
                 DDLogError(@"[ERROR] Could not get language ID!");
                 return;
             }
@@ -2279,8 +2281,9 @@ DDLogLevel ddLogLevel;
                 }
             }
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:[NSString stringWithFormat:@"No objects in language dict for %@", selectedLanguage]];
             DDLogError(@"[ERROR] No objects in language dict for %@", selectedLanguage);
-            return; // Show error
+            return;
         }
     }
     
@@ -2292,6 +2295,7 @@ DDLogLevel ddLogLevel;
         if ( [selectedKeyboardLayoutName length] != 0 ) {
             resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout name"];
             DDLogError(@"[ERROR] Could not get current keyboard layout name!");
             return;
         }
@@ -2305,6 +2309,7 @@ DDLogLevel ddLogLevel;
         if ( [currentKeyboardLayout length] != 0 ) {
             resourcesSettings[NBCSettingsKeyboardLayoutID] = currentKeyboardLayout;
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout"];
             DDLogError(@"[ERROR] Could not get current keyboard layout!");
             return;
         }
@@ -2322,7 +2327,8 @@ DDLogLevel ddLogLevel;
             resourcesSettings[NBCSettingsTimeZoneKey] = selectedTimeZone;
         }
     } else {
-        DDLogError(@"[ERROR] selectedTimeZone is nil!");
+        [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Selected TimeZone was empty"];
+        DDLogError(@"[ERROR] Selected TimeZone was empty!");
         return;
     }
     

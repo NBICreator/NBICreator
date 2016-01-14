@@ -2828,6 +2828,7 @@ DDLogLevel ddLogLevel;
         if ( [imagrGitDownloadURL length] != 0 ) {
             resourcesSettings[NBCSettingsImagrDownloadURL] = imagrGitDownloadURL;
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get Imagr Git Branch download URL"];
             DDLogError(@"[ERROR] Could not get Imagr Git Branch download URL!");
             return;
         }
@@ -2836,6 +2837,7 @@ DDLogLevel ddLogLevel;
         if ( [imagrGitBranchSHA length] != 0 ) {
             resourcesSettings[NBCSettingsImagrGitBranchSHA] = imagrGitBranchSHA;
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get Imagr Git Branch SHA"];
             DDLogError(@"[ERROR] Could not get Imagr Git Branch SHA");
             return;
         }
@@ -2844,6 +2846,7 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] Selected Imagr.app version: %@", selectedImagrVersion);
         if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
             if ( [_imagrVersions count] == 0 ) {
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Imagr versions array is empty, please verify your internet connection and try again"];
                 DDLogError(@"[ERROR] Imagr versions array is empty!");
                 return;
             }
@@ -2853,6 +2856,7 @@ DDLogLevel ddLogLevel;
         NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
         DDLogDebug(@"[DEBUG] Selected Imagr.app download url: %@", imagrDownloadURL);
         if ( [imagrDownloadURL length] == 0 ) {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Imagr download link is empty"];
             DDLogError(@"[ERROR] Imagr download link is empty!");
             return;
         }
@@ -2867,6 +2871,7 @@ DDLogLevel ddLogLevel;
         if ( [currentLanguageID length] != 0 ) {
             resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current language ID"];
             DDLogError(@"[ERROR] Could not get current language ID!");
             return;
         }
@@ -2887,7 +2892,8 @@ DDLogLevel ddLogLevel;
             if ( [languageID length] != 0 ) {
                 resourcesSettings[NBCSettingsLanguageKey] = languageID;
             } else {
-                DDLogError(@"[ERROR] Could not get language ID!");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get selected language ID"];
+                DDLogError(@"[ERROR] Could not get selected language ID!");
                 return;
             }
             
@@ -2904,6 +2910,7 @@ DDLogLevel ddLogLevel;
                 }
             }
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:[NSString stringWithFormat:@"No objects in language dict for %@", selectedLanguage]];
             DDLogError(@"[ERROR] No objects in language dict for %@", selectedLanguage);
             return; // Show error
         }
@@ -2917,6 +2924,7 @@ DDLogLevel ddLogLevel;
         if ( [selectedKeyboardLayoutName length] != 0 ) {
             resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout name"];
             DDLogError(@"[ERROR] Could not get current keyboard layout name!");
             return;
         }
@@ -2930,6 +2938,7 @@ DDLogLevel ddLogLevel;
         if ( [currentKeyboardLayout length] != 0 ) {
             resourcesSettings[NBCSettingsKeyboardLayoutID] = currentKeyboardLayout;
         } else {
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout"];
             DDLogError(@"[ERROR] Could not get current keyboard layout!");
             return;
         }
@@ -2947,7 +2956,8 @@ DDLogLevel ddLogLevel;
             resourcesSettings[NBCSettingsTimeZoneKey] = selectedTimeZone;
         }
     } else {
-        DDLogError(@"[ERROR] selectedTimeZone is nil!");
+        [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Selected TimeZone was empty"];
+        DDLogError(@"[ERROR] Selected TimeZone was empty!");
         return;
     }
     
