@@ -609,51 +609,21 @@ DDLogLevel ddLogLevel;
     // Kernel Cache
     comAppleBootPlistDict[@"Kernel Cache"] = @"/.NBIBootFiles/prelinkedkernel";
     
-    if ( [comAppleBootPlistURLBootFiles checkResourceIsReachableAndReturnError:nil] ) {
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType :    NBCWorkflowModifyFileTypePlist,
-                                     NBCWorkflowModifyContent :     comAppleBootPlistDict,
-                                     NBCWorkflowModifyAttributes :  comAppleBootPlistAttributes,
-                                     NBCWorkflowModifyTargetURL :   [comAppleBootPlistURLBootFiles path]
-                                     }];
-    } else {
-        NSData *comAppleBootPlistDictData = [NSKeyedArchiver archivedDataWithRootObject:comAppleBootPlistDict];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType :    NBCWorkflowModifyFileTypeGeneric,
-                                     NBCWorkflowModifyContent :     comAppleBootPlistDictData,
-                                     NBCWorkflowModifyTargetURL :   [comAppleBootPlistURLBootFiles path],
-                                     NBCWorkflowModifyAttributes :  @{
-                                             NSFileOwnerAccountName :        @"root",
-                                             NSFileGroupOwnerAccountName :   @"wheel",
-                                             NSFilePosixPermissions :        @0644
-                                             }}];
-    }
+    // Update modification array
+    [modifyDictArray addObject:@{
+                                 NBCWorkflowModifyFileType :    NBCWorkflowModifyFileTypePlist,
+                                 NBCWorkflowModifyContent :     comAppleBootPlistDict,
+                                 NBCWorkflowModifyAttributes :  comAppleBootPlistAttributes,
+                                 NBCWorkflowModifyTargetURL :   [comAppleBootPlistURLBootFiles path]
+                                 }];
     
-    if ( [comAppleBootPlistURL checkResourceIsReachableAndReturnError:nil] ) {
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType :    NBCWorkflowModifyFileTypePlist,
-                                     NBCWorkflowModifyContent :     comAppleBootPlistDict,
-                                     NBCWorkflowModifyAttributes :  comAppleBootPlistAttributes,
-                                     NBCWorkflowModifyTargetURL :   [comAppleBootPlistURL path]
-                                     }];
-    } else {
-        NSData *comAppleBootPlistDictData = [NSKeyedArchiver archivedDataWithRootObject:comAppleBootPlistDict];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType :    NBCWorkflowModifyFileTypeGeneric,
-                                     NBCWorkflowModifyContent :     comAppleBootPlistDictData,
-                                     NBCWorkflowModifyTargetURL :   [comAppleBootPlistURL path],
-                                     NBCWorkflowModifyAttributes :  @{
-                                             NSFileOwnerAccountName :        @"root",
-                                             NSFileGroupOwnerAccountName :   @"wheel",
-                                             NSFilePosixPermissions :        @0644
-                                             }}];
-    }
+    // Update modification array
+    [modifyDictArray addObject:@{
+                                 NBCWorkflowModifyFileType :    NBCWorkflowModifyFileTypePlist,
+                                 NBCWorkflowModifyContent :     comAppleBootPlistDict,
+                                 NBCWorkflowModifyAttributes :  comAppleBootPlistAttributes,
+                                 NBCWorkflowModifyTargetURL :   [comAppleBootPlistURL path]
+                                 }];
 }
 
 - (void)modifyBootPlist:(NSMutableArray *)modifyDictArray {
