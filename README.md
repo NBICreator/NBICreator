@@ -8,7 +8,9 @@ The following NetInstall images are currently supported:
 * [NetInstall](https://github.com/NBICreator/NBICreator/wiki/NetInstall)
 * [DeployStudio](https://github.com/NBICreator/NBICreator/wiki/DeployStudio)
 * [Imagr](https://github.com/NBICreator/NBICreator/wiki/Imagr)
-* [Casper](https://github.com/NBICreator/NBICreator/wiki/Casper) (Alpha)
+ 
+The following NetInstall images are being openly developed and are not suitable for production:
+* [Casper](https://github.com/NBICreator/NBICreator/wiki/Casper)
 
 The design and idea of the application is to be able to create different types of NetInstall images in one single application, and to save the configuration in a template to be reused when the NetInstall image need to be updated for newer versions of the OS.
 
@@ -18,9 +20,7 @@ You can download the latest version from the [Releases](https://github.com/NBICr
 
 # Important
 
-This project is currently considered to be in beta, so major changes will occur between builds that may require manual action or reinstall.
-
-The code will also see major changes as some parts are being restructured.
+This project is currently considered to be in beta, so major changes may occur between builds that might require manual action or reinstall.
 
 Passwords are currently saved in clear text in the template file, so if you need to keep the passwords secure you have to enter them each time you select a template, and remember not to save when prompted! Later they will most likely be stored in an application keychain, but that code isn't implemented yet.
 
@@ -43,8 +43,7 @@ Documentation is available in the [Wiki](https://github.com/NBICreator/NBICreato
 # Acknowledgements
 * Application and file icons created by T-Short
 
-# Included Frameworks and Resources
-This application includes code from the following Open Source projects:
+NBICreator makes use of the following open source components:
 * [CocoaLumberjack] (https://github.com/CocoaLumberjack/CocoaLumberjack)
 * [DiskArbitrator] (https://github.com/aburgh/Disk-Arbitrator)
 * [Hpple] (https://github.com/topfunky/hpple)
@@ -53,7 +52,7 @@ This application includes code from the following Open Source projects:
 * [ZipArchive] (https://github.com/ZipArchive/ZipArchive)
 
 # License
-    Copyright 2015 Erik Berglund. All rights reserved.
+    Copyright 2015-2016 Erik Berglund. All rights reserved.
     
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
