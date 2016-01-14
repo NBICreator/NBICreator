@@ -929,6 +929,22 @@ DDLogLevel ddLogLevel;
                                             }
                                     } atIndex:0];
     
+    if ( 11 <= _sourceVersionMinor ) {
+        // --------------------------------------------------------------
+        //  /Library/Application Support/Apple/Remote Desktop
+        // --------------------------------------------------------------
+        NSURL *folderLibraryApplicationSupportRemoteDesktop = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Library/Application Support/Apple/Remote Desktop" isDirectory:YES];
+        [modifyDictArray insertObject:@{
+                                        NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeFolder,
+                                        NBCWorkflowModifyTargetURL :  [folderLibraryApplicationSupportRemoteDesktop path],
+                                        NBCWorkflowModifyAttributes : @{
+                                                NSFileOwnerAccountName :      @"root",
+                                                NSFileGroupOwnerAccountName : @"wheel",
+                                                NSFilePosixPermissions :      @0755
+                                                }
+                                        } atIndex:0];
+    }
+    
     // ------------------------------------------------------------------------------------
     //  /System/Library/Caches/com.apple.kext.caches/Directories/System/Library/Extensions
     // ------------------------------------------------------------------------------------
@@ -2221,7 +2237,12 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  /etc/RemoteManagement.launchd
     // --------------------------------------------------------------
-    NSURL *etcRemoteManagementLaunchdURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/RemoteManagement.launchd"];
+    NSURL *etcRemoteManagementLaunchdURL;
+    if ( 11 <= _sourceVersionMinor ) {
+        etcRemoteManagementLaunchdURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/RemoteManagement.launchd"];
+    } else {
+        etcRemoteManagementLaunchdURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Library/Application Support/Apple/Remote Desktop/RemoteManagement.launchd"];
+    }
     DDLogDebug(@"[DEBUG] RemoteManagement.launchd path: %@", [etcRemoteManagementLaunchdURL path]);
     
     
