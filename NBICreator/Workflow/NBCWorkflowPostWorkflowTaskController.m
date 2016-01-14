@@ -37,14 +37,20 @@
     
     if ( [postWorkflowTasks[@"CreateUSBDevice"] boolValue] ) {
         NSDictionary *userSettings = [workflowItem userSettings];
-        NSString *usbVolumeBSDName = userSettings[NBCSettingsUSBBSDNameKey] ?: @"";
-        DDLogDebug(@"[DEBUG] Selected USB volume BSD Name: %@", usbVolumeBSDName);
+        NSString *usbDeviceBSDName = userSettings[NBCSettingsUSBBSDNameKey] ?: @"";
+        DDLogDebug(@"[DEBUG] Selected USB device BSD Name: %@", usbDeviceBSDName);
         
-        if ( [usbVolumeBSDName length] == 0 ) {
+        if ( [usbDeviceBSDName length] == 0 ) {
             [_delegate postWorkflowTasksFailedWithError:[NBCError errorWithDescription:@"USB device could not be found!"]];
             return;
         } else {
-            NBCDisk *usbDisk = [[NBCDiskController diskFromBSDName:usbVolumeBSDName] parent];
+            NBCDisk *usbDisk;
+            if ( [[NBCDiskController diskFromBSDName:usbDeviceBSDName] isWholeDisk] ) {
+                usbDisk = [NBCDiskController diskFromBSDName:usbDeviceBSDName];
+            } else {
+                usbDisk = [[NBCDiskController diskFromBSDName:usbDeviceBSDName] parent];
+            }
+
             if ( ! usbDisk ) {
                 [_delegate postWorkflowTasksFailedWithError:[NBCError errorWithDescription:@"USB device could not be found!"]];
                 return;
@@ -54,11 +60,7 @@
                 [_progressDelegate updateProgressStatus:@"Unmounting USB device..." workflow:self];
                 
                 // Unmount USB Disk
-                [usbDisk unmountWithOptions:kDiskUnmountOptionWhole];
-                
-                NSString *usbDeviceBSDName = [usbDisk BSDName];
-                DDLogDebug(@"[DEBUG] Selected USB device BSD Name: %@", usbDeviceBSDName);
-                
+                [usbDisk unmountWithOptions:kDiskUnmountOptionWhole];                
                 [self partitionUSBDiskWithBSDName:usbDeviceBSDName workflowItem:workflowItem];
             }
         }

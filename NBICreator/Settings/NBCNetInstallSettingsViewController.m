@@ -1954,7 +1954,7 @@ DDLogLevel ddLogLevel;
     //  Add menu title: System Volumes
     // ------------------------------------------------------
     [[_popUpButtonUSBDevices menu] addItem:[NSMenuItem separatorItem]];
-    NSMenuItem *titleMenuItem = [[NSMenuItem alloc] initWithTitle:@"USB Volumes" action:nil keyEquivalent:@""];
+    NSMenuItem *titleMenuItem = [[NSMenuItem alloc] initWithTitle:@"USB Devices" action:nil keyEquivalent:@""];
     [titleMenuItem setTarget:nil];
     [titleMenuItem setEnabled:NO];
     [[_popUpButtonUSBDevices menu] addItem:titleMenuItem];
@@ -1963,6 +1963,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  Add all mounted OS X disks to source popUpButton
     // --------------------------------------------------------------
+    NSMutableArray *addedDisks = [[NSMutableArray alloc] init];
     NSSet *currentDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
     for ( NBCDisk *disk in currentDisks ) {
         if ( ! disk ) {
@@ -1971,16 +1972,30 @@ DDLogLevel ddLogLevel;
         
         NSString *deviceProtocol = [disk deviceProtocol];
         if ( [deviceProtocol isEqualToString:@"USB"] ) {
-            NSURL *volumeURL = [disk volumeURL];
-            if ( volumeURL ) {
-                NSString *menuItemTitle = [volumeURL lastPathComponent] ?: @"Unknown";
-                NSImage *icon = [[disk icon] copy];
-                NSMenuItem *newMenuItem = [[NSMenuItem alloc] initWithTitle:menuItemTitle action:nil keyEquivalent:@""];
+            NBCDisk *usbDisk = [disk parent];
+            
+            if ( usbDisk != nil && ! [addedDisks containsObject:[usbDisk BSDName]] ) {
+                NSString *diskMenuItemTitle = [usbDisk mediaName] ?: @"Unknown";
+                NSImage *icon = [[usbDisk icon] copy];
+                NSMenuItem *diskMenuItem = [[NSMenuItem alloc] initWithTitle:diskMenuItemTitle action:nil keyEquivalent:@""];
                 [icon setSize:NSMakeSize(16, 16)];
-                [newMenuItem setImage:icon];
-                [[_popUpButtonUSBDevices menu] addItem:newMenuItem];
+                [diskMenuItem setImage:icon];
+                [diskMenuItem setEnabled:YES];
+                [[_popUpButtonUSBDevices menu] addItem:diskMenuItem];
                 
-                _usbDevicesDict[menuItemTitle] = [disk BSDName];
+                _usbDevicesDict[diskMenuItemTitle] = [usbDisk BSDName];
+                [addedDisks addObject:[usbDisk BSDName]];
+                
+                for ( NBCDisk *childDisk in [usbDisk children] ) {
+                    NSString *childDiskItemTitle = [childDisk volumeName] ?: @"Unknown";
+                    NSImage *childIcon = [[childDisk icon] copy];
+                    NSMenuItem *childDiskMenuItem = [[NSMenuItem alloc] initWithTitle:childDiskItemTitle action:nil keyEquivalent:@""];
+                    [childIcon setSize:NSMakeSize(16, 16)];
+                    [childDiskMenuItem setImage:childIcon];
+                    [childDiskMenuItem setIndentationLevel:1];
+                    [childDiskMenuItem setEnabled:NO];
+                    [[_popUpButtonUSBDevices menu] addItem:childDiskMenuItem];
+                }
             }
         }
     }

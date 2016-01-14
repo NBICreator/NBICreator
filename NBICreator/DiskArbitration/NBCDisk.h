@@ -63,6 +63,8 @@ enum {
 @property (strong) NSMutableSet *children;
 @property (readonly) NSURL *volumeURL;
 @property (readonly) NSString *volumeName;
+@property (readonly) NSString *mediaName;
+@property (readonly) NSNumber *mediaSize;
 @property (readonly) NSString *deviceModel;
 @property (readonly) NSString *deviceProtocol;
 @property (readonly) NSString *kind;

@@ -710,11 +710,41 @@ DDLogLevel ddLogLevel;
         } else {
             
             NSMutableString *volumeNames = [[NSMutableString alloc] init];
-            NBCDisk *usbDisk = [[NBCDiskController diskFromBSDName:usbDeviceBSDName] parent];
+            NBCDisk *usbDisk;
+            if ( [[NBCDiskController diskFromBSDName:usbDeviceBSDName] isWholeDisk] ) {
+                usbDisk = [NBCDiskController diskFromBSDName:usbDeviceBSDName];
+            } else {
+                usbDisk = [[NBCDiskController diskFromBSDName:usbDeviceBSDName] parent];
+            }
+            
             if ( ! usbDisk ) {
                 [settingsErrors addObject:@"\"Create USB Device\" is enabled, but the selected USB device could be found"];
             } else {
                 
+                NSNumber *usbDeviceBytes = [usbDisk mediaSize];
+                if ( usbDeviceBytes == nil ) {
+                    [settingsWarnings addObject:@"\"Create USB Device\" is enabled, but could not verify it's size. Only continue if you are certain the finished NBI will fit."];
+                } else {
+                    NSByteCountFormatter *bcf = [[NSByteCountFormatter alloc] init];
+                    [bcf setAllowedUnits:NSByteCountFormatterUseGB];
+                    [bcf setCountStyle:NSByteCountFormatterCountStyleFile];
+                    [bcf setAllowsNonnumericFormatting:NO];
+                    [bcf setIncludesCount:YES];
+                    [bcf setIncludesUnit:NO];
+                    NSString *usbDiskSizeGB = [bcf stringFromByteCount:[usbDeviceBytes longLongValue]];
+                    
+                    NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
+                    [nf setNumberStyle:NSNumberFormatterDecimalStyle];
+                    NSNumber *usbDiskSizeGBDecimal = [nf numberFromString:usbDiskSizeGB];
+                    int usbDiskSizeGBRoundedDown = (int)[usbDiskSizeGBDecimal intValue];
+                    
+                    if ( usbDiskSizeGBRoundedDown < 2 ) {
+                        [settingsErrors addObject:@"\"Create USB Device\" is enabled, but the selected USB device doesn't have enough available space. Please select another device."];
+                    } else if ( 2<= usbDiskSizeGBRoundedDown && usbDiskSizeGBRoundedDown < 4 ) {
+                        [settingsWarnings addObject:[NSString stringWithFormat:@"\"Create USB Device\" is enabled, but the selected USB device only has %@ GB available space. Only continue if you are sure the finished NBI will fit.", [bcf stringFromByteCount:[usbDeviceBytes longLongValue]]]];
+                    }
+                }
+                    
                 NSMutableDictionary *postWorkflowTasks = [[workflowItem postWorkflowTasks] mutableCopy] ?: [NSMutableDictionary dictionary];
                 postWorkflowTasks[@"CreateUSBDevice"] = @YES;
                 [workflowItem setPostWorkflowTasks:[postWorkflowTasks copy]];
@@ -738,8 +768,8 @@ DDLogLevel ddLogLevel;
     
     NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
     NSString *usbLabel = [NBCVariables expandVariables:userSettings[NBCSettingsUSBLabelKey] ?: @""
-                                               source:[workflowItem source]
-                                    applicationSource:[workflowItem applicationSource]];
+                                                source:[workflowItem source]
+                                     applicationSource:[workflowItem applicationSource]];
     
     if ( [usbLabel length] != 0 ) {
         if ( [usbLabel containsString:@"%"] ) {

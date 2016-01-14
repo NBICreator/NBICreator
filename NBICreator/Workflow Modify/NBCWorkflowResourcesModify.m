@@ -181,7 +181,17 @@ DDLogLevel ddLogLevel;
                                             ) ) ) {
         [self modifyKextdPlist:modifyDictArray];
     }
-    
+    /* TESTING CODE TO REMOVE UNECESSARY LAUNCHD
+    // ----------------------------------------------------------------
+    //  LaunchDaemons
+    // ----------------------------------------------------------------
+    if ( ! _isNBI && (
+                      _workflowType == kWorkflowTypeImagr ||
+                      _workflowType == kWorkflowTypeCasper
+                      ) ) {
+        [self modifyLaunchDaemons:modifyDictArray];
+    }
+    */
     // ----------------------------------------------------------------
     //  Localization
     // ----------------------------------------------------------------
@@ -581,7 +591,7 @@ DDLogLevel ddLogLevel;
 
 + (void)modifyBootPlistForUSB:(NSMutableArray *)modifyDictArray netInstallDiskImageURL:(NSURL *)netInstallDiskImageURL netInstallIsBaseSystem:(BOOL)netInstallIsBaseSystem usbVolumeURL:(NSURL *)usbVolumeURL {
     
-    DDLogInfo(@"Preparing modifications for com.apple.Boot.plist...");
+    DDLogInfo(@"Preparing modifications for USB com.apple.Boot.plist...");
     
     NSURL *comAppleBootPlistURLBootFiles = [usbVolumeURL URLByAppendingPathComponent:@".NBIBootFiles/com.apple.Boot.plist"];
     NSURL *comAppleBootPlistURL = [usbVolumeURL URLByAppendingPathComponent:@"Library/Preferences/SystemConfiguration/com.apple.Boot.plist"];

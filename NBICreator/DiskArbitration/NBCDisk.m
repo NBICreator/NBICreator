@@ -222,6 +222,20 @@
     return (__bridge NSString *)(value);
 }
 
+- (NSString *)mediaName
+{
+    CFStringRef value = _diskDescription ? CFDictionaryGetValue(_diskDescription, kDADiskDescriptionMediaNameKey) : NULL;
+    
+    return (__bridge NSString *)(value);
+}
+
+- (NSNumber *)mediaSize
+{
+    CFNumberRef value = _diskDescription ? CFDictionaryGetValue(_diskDescription, kDADiskDescriptionMediaSizeKey) : NULL;
+    
+    return (__bridge NSNumber *)(value);
+}
+
 - (BOOL)isMountable
 {
     CFBooleanRef value = _diskDescription ? CFDictionaryGetValue(_diskDescription, kDADiskDescriptionVolumeMountableKey) : NULL;
