@@ -187,6 +187,7 @@ NSString *const NBCSettingsBaseSystemDiskImageSizeKey = @"BaseSystemDiskImageSiz
 NSString *const NBCSettingsCreateUSBDeviceKey = @"CreateUSBDevice";
 NSString *const NBCSettingsUSBBSDNameKey = @"USBBSDName";
 NSString *const NBCSettingsUSBLabelKey = @"USBLabel";
+NSString *const NBCSettingsUSBDevicePathKey = @"USBDevicePath";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug

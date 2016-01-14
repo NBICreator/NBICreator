@@ -41,7 +41,7 @@
         DDLogDebug(@"[DEBUG] Selected USB device BSD Name: %@", usbDeviceBSDName);
         
         if ( [usbDeviceBSDName length] == 0 ) {
-            [_delegate postWorkflowTasksFailedWithError:[NBCError errorWithDescription:@"USB device could not be found!"]];
+            [_delegate postWorkflowTasksFailedWithError:[NBCError errorWithDescription:@"USB device could not be found"]];
             return;
         } else {
             NBCDisk *usbDisk;
@@ -52,9 +52,23 @@
             }
 
             if ( ! usbDisk ) {
-                [_delegate postWorkflowTasksFailedWithError:[NBCError errorWithDescription:@"USB device could not be found!"]];
+                [_delegate postWorkflowTasksFailedWithError:[NBCError errorWithDescription:@"USB device could not be found"]];
                 return;
             } else {
+                
+                // Verify this disk is the same as when selected
+                NSString *usbDevicePath = userSettings[NBCSettingsUSBDevicePathKey];
+                DDLogDebug(@"[DEBUG] Saved USB device path: %@", usbDevicePath);
+                
+                NSString *currentUSBDevicePath = [usbDisk devicePath] ?: @"";
+                DDLogDebug(@"[DEBUG] Current USB device path: %@", currentUSBDevicePath);
+                if ( [usbDevicePath length] == 0 ) {
+                    [_delegate postWorkflowTasksFailedWithError:[NBCError errorWithDescription:@"USB device could not be verified"]];
+                    return;
+                } else if ( ! [usbDevicePath isEqualToString:currentUSBDevicePath] ) {
+                    [_delegate postWorkflowTasksFailedWithError:[NBCError errorWithDescription:@"USB device has been replaced by an unknown disk"]];
+                    return;
+                }
                 
                 DDLogInfo(@"Unmounting USB device...");
                 [_progressDelegate updateProgressStatus:@"Unmounting USB device..." workflow:self];

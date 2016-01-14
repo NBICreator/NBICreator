@@ -67,6 +67,7 @@ enum {
 @property (readonly) NSNumber *mediaSize;
 @property (readonly) NSString *deviceModel;
 @property (readonly) NSString *deviceProtocol;
+@property (readonly) NSString *devicePath;
 @property (readonly) NSString *kind;
 @property (readonly) NSString *type;
 

@@ -699,7 +699,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *settingsErrors = [[NSMutableArray alloc] init];
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
     
-    NSDictionary *userSettings = [workflowItem userSettings];
+    NSMutableDictionary *userSettings = [[workflowItem userSettings] mutableCopy];
     BOOL createUSBDevice = [userSettings[NBCSettingsCreateUSBDeviceKey] boolValue];
     
     if ( createUSBDevice ) {
@@ -732,6 +732,7 @@ DDLogLevel ddLogLevel;
                     [bcf setIncludesCount:YES];
                     [bcf setIncludesUnit:NO];
                     NSString *usbDiskSizeGB = [bcf stringFromByteCount:[usbDeviceBytes longLongValue]];
+                    DDLogDebug(@"[DEBUG] USB size: %@ GB", usbDiskSizeGB);
                     
                     NSNumberFormatter *nf = [[NSNumberFormatter alloc] init];
                     [nf setNumberStyle:NSNumberFormatterDecimalStyle];
@@ -744,16 +745,27 @@ DDLogLevel ddLogLevel;
                         [settingsWarnings addObject:[NSString stringWithFormat:@"\"Create USB Device\" is enabled, but the selected USB device only has %@ GB available space. Only continue if you are sure the finished NBI will fit.", [bcf stringFromByteCount:[usbDeviceBytes longLongValue]]]];
                     }
                 }
+                
+                // This is a sanity check if device is removed while building nbi and another disk4 is inserted, to verify it's the same device that will be erased
+                NSString *usbDevicePath = [usbDisk devicePath];
+                DDLogDebug(@"[DEBUG] USB device path: %@", usbDevicePath);
+                if ( [usbDevicePath length] == 0 ) {
+                    [settingsErrors addObject:@"\"Create USB Device\" is enabled, but NBICreator could not get the device path of the selected USB device."];
+                } else {
                     
-                NSMutableDictionary *postWorkflowTasks = [[workflowItem postWorkflowTasks] mutableCopy] ?: [NSMutableDictionary dictionary];
-                postWorkflowTasks[@"CreateUSBDevice"] = @YES;
-                [workflowItem setPostWorkflowTasks:[postWorkflowTasks copy]];
-                
-                for ( NBCDisk *disk in [usbDisk children] ) {
-                    [volumeNames appendString:[NSString stringWithFormat:@"\t%@\n", [disk volumeName] ?: @""]];
+                    userSettings[NBCSettingsUSBDevicePathKey] = usbDevicePath;
+                    [workflowItem setUserSettings:[userSettings copy]];
+                    
+                    NSMutableDictionary *postWorkflowTasks = [[workflowItem postWorkflowTasks] mutableCopy] ?: [NSMutableDictionary dictionary];
+                    postWorkflowTasks[@"CreateUSBDevice"] = @YES;
+                    [workflowItem setPostWorkflowTasks:[postWorkflowTasks copy]];
+                    
+                    for ( NBCDisk *disk in [usbDisk children] ) {
+                        [volumeNames appendString:[NSString stringWithFormat:@"\t%@\n", [disk volumeName] ?: @""]];
+                    }
+                    
+                    [settingsWarnings addObject:[NSString stringWithFormat:@"\"Create USB Device\" is enabled, the entire USB device and all of it's volumes will be erased:\n\n%@\nAre you sure you want to continue?", volumeNames]];
                 }
-                
-                [settingsWarnings addObject:[NSString stringWithFormat:@"\"Create USB Device\" is enabled, the entire USB device and all of it's volumes will be erased:\n\n%@\nAre you sure you want to continue?", volumeNames]];
             }
         }
     }

@@ -187,6 +187,7 @@ extern NSString *const NBCSettingsBaseSystemDiskImageSizeKey;
 extern NSString *const NBCSettingsCreateUSBDeviceKey;
 extern NSString *const NBCSettingsUSBBSDNameKey;
 extern NSString *const NBCSettingsUSBLabelKey;
+extern NSString *const NBCSettingsUSBDevicePathKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - Debug
