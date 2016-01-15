@@ -14,9 +14,7 @@
         <customObject id="-3" userLabel="Application" customClass="NSObject"/>
         <customObject id="2ua-cd-ebo" userLabel="NBCController" customClass="NBCController">
             <connections>
-                <outlet property="buttonBuild" destination="6Ox-EY-Fwk" id="dRF-76-QcJ"/>
-                <outlet property="buttonInstallHelper" destination="Zzw-YM-boj" id="RGO-CF-fqr"/>
-                <outlet property="constraintBetweenButtonBuildAndViewOutput" destination="giT-kZ-uUz" id="g7l-72-vZN"/>
+                <outlet property="buttonBuild" destination="Fkq-ph-lLr" id="wGx-3S-H0i"/>
                 <outlet property="menuItemDelete" destination="QPd-cq-nOn" id="eiN-tH-X1O"/>
                 <outlet property="menuItemExport" destination="yHB-KI-iwB" id="P4b-e6-Eia"/>
                 <outlet property="menuItemHelp" destination="FKE-Sm-Kum" id="nz2-KE-HFo"/>
@@ -28,10 +26,10 @@
                 <outlet property="menuItemWindowWorkflows" destination="8AK-sN-Ec6" id="urP-Aj-Dc5"/>
                 <outlet property="progressIndicatorProgress" destination="6Vx-Ga-wgW" id="mlp-8V-B26"/>
                 <outlet property="segmentedControlNBI" destination="uL8-j3-eig" id="Hng-dP-54m"/>
-                <outlet property="textFieldInstallHelperText" destination="NTd-K4-Z9c" id="U0D-pp-u7P"/>
                 <outlet property="textFieldProgress" destination="4Q4-Rx-4SR" id="YqZ-oT-t9E"/>
+                <outlet property="viewBuildInfo" destination="c6K-zT-8xU" id="ZhM-kQ-ph5"/>
                 <outlet property="viewDropView" destination="ajs-UB-tQp" id="Yuu-Ra-qxM"/>
-                <outlet property="viewInstallHelper" destination="pCh-R5-Ehc" id="b32-qg-s0S"/>
+                <outlet property="viewInstallHelper" destination="ASH-0V-yC1" id="QqZ-z2-i06"/>
                 <outlet property="viewMainWindow" destination="EiT-Mj-1SZ" id="WnQ-6h-ghb"/>
                 <outlet property="viewNBISettings" destination="ngY-aB-lRp" id="mGh-H8-Sde"/>
                 <outlet property="viewNoInternetConnection" destination="Ek0-XK-LNg" id="fXn-fz-OJC"/>
@@ -417,26 +415,16 @@
         <window title="NBICreator" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <rect key="contentRect" x="335" y="558" width="600" height="434"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" verticalCompressionResistancePriority="250" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="600" height="434"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="6Ox-EY-Fwk">
-                        <rect key="frame" x="265" y="13" width="71" height="32"/>
-                        <buttonCell key="cell" type="push" title="Build" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="WVV-Pw-0TK">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="buttonBuild:" target="2ua-cd-ebo" id="D6Y-V2-E0e"/>
-                        </connections>
-                    </button>
                     <customView horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="1000" verticalCompressionResistancePriority="1000" placeholderIntrinsicWidth="560" placeholderIntrinsicHeight="137" translatesAutoresizingMaskIntoConstraints="NO" id="ajs-UB-tQp">
                         <rect key="frame" x="20" y="277" width="560" height="137"/>
                     </customView>
                     <customView horizontalHuggingPriority="1" verticalHuggingPriority="1" horizontalCompressionResistancePriority="1" verticalCompressionResistancePriority="1" placeholderIntrinsicWidth="560" placeholderIntrinsicHeight="157" translatesAutoresizingMaskIntoConstraints="NO" id="ngY-aB-lRp">
-                        <rect key="frame" x="20" y="53" width="560" height="179"/>
+                        <rect key="frame" x="20" y="58" width="560" height="174"/>
                     </customView>
                     <segmentedControl verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="uL8-j3-eig">
                         <rect key="frame" x="146" y="242" width="308" height="24"/>
@@ -454,19 +442,40 @@
                             <binding destination="j6s-BB-2Ug" name="selectedTag" keyPath="values.NetBootSelection" id="Ie0-6j-5zX"/>
                         </connections>
                     </segmentedControl>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="c6K-zT-8xU">
+                        <rect key="frame" x="20" y="7" width="560" height="48"/>
+                        <subviews>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Fkq-ph-lLr">
+                                <rect key="frame" x="245" y="6" width="71" height="32"/>
+                                <buttonCell key="cell" type="push" title="Build" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="KXj-Rb-Mcc">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="buttonBuild:" target="2ua-cd-ebo" id="F6H-th-bEN"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="Fkq-ph-lLr" firstAttribute="centerY" secondItem="c6K-zT-8xU" secondAttribute="centerY" id="7w0-Gk-o8I"/>
+                            <constraint firstAttribute="height" constant="48" id="S7v-ne-t4h"/>
+                            <constraint firstItem="Fkq-ph-lLr" firstAttribute="centerX" secondItem="c6K-zT-8xU" secondAttribute="centerX" id="b0i-Hf-ze6"/>
+                        </constraints>
+                    </customView>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="centerX" secondItem="6Ox-EY-Fwk" secondAttribute="centerX" id="1IS-1c-oc7"/>
+                    <constraint firstAttribute="trailing" secondItem="c6K-zT-8xU" secondAttribute="trailing" constant="20" symbolic="YES" id="7fJ-9B-hC1"/>
                     <constraint firstAttribute="trailing" secondItem="ngY-aB-lRp" secondAttribute="trailing" constant="20" symbolic="YES" id="FcS-1V-U6y"/>
+                    <constraint firstAttribute="bottom" secondItem="c6K-zT-8xU" secondAttribute="bottom" constant="7" id="H4y-Qn-KCb"/>
                     <constraint firstItem="ngY-aB-lRp" firstAttribute="top" secondItem="uL8-j3-eig" secondAttribute="bottom" constant="12" id="H8B-Yo-que"/>
                     <constraint firstAttribute="centerX" secondItem="uL8-j3-eig" secondAttribute="centerX" id="IjG-cj-4Tz"/>
-                    <constraint firstAttribute="bottom" secondItem="6Ox-EY-Fwk" secondAttribute="bottom" constant="20" symbolic="YES" id="NMT-Y8-L4x"/>
                     <constraint firstItem="uL8-j3-eig" firstAttribute="top" secondItem="ajs-UB-tQp" secondAttribute="bottom" constant="12" id="bSs-kV-N0u"/>
-                    <constraint firstItem="6Ox-EY-Fwk" firstAttribute="top" secondItem="ngY-aB-lRp" secondAttribute="bottom" constant="12" id="giT-kZ-uUz"/>
                     <constraint firstAttribute="trailing" secondItem="ajs-UB-tQp" secondAttribute="trailing" constant="20" symbolic="YES" id="hbT-hk-Weu"/>
                     <constraint firstItem="ajs-UB-tQp" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" symbolic="YES" id="oP2-5G-QHx"/>
                     <constraint firstItem="ngY-aB-lRp" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" symbolic="YES" id="qec-lS-5zE"/>
                     <constraint firstAttribute="centerX" secondItem="ajs-UB-tQp" secondAttribute="centerX" id="rJF-IM-QBY"/>
+                    <constraint firstItem="c6K-zT-8xU" firstAttribute="top" secondItem="ngY-aB-lRp" secondAttribute="bottom" constant="3" id="sdB-au-m8X"/>
+                    <constraint firstItem="c6K-zT-8xU" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" symbolic="YES" id="tMm-C2-jCm"/>
                     <constraint firstItem="ajs-UB-tQp" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" symbolic="YES" id="wBd-wM-JOq"/>
                 </constraints>
             </view>
@@ -475,45 +484,6 @@
             </connections>
             <point key="canvasLocation" x="-13" y="240"/>
         </window>
-        <box autoresizesSubviews="NO" title="InstallHelper" borderType="line" titlePosition="noTitle" id="pCh-R5-Ehc">
-            <rect key="frame" x="0.0" y="0.0" width="546" height="48"/>
-            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
-            <view key="contentView">
-                <rect key="frame" x="1" y="1" width="544" height="46"/>
-                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                <subviews>
-                    <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Zzw-YM-boj">
-                        <rect key="frame" x="412" y="6" width="120" height="32"/>
-                        <buttonCell key="cell" type="push" title="Install Helper" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="9o7-6N-NEG">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                        <connections>
-                            <action selector="buttonInstallHelper:" target="2ua-cd-ebo" id="625-iB-biH"/>
-                        </connections>
-                    </button>
-                    <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="NTd-K4-Z9c">
-                        <rect key="frame" x="16" y="15" width="396" height="17"/>
-                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="To create a NetInstall Image you need to install the helper tool." id="3yK-Ve-mvi">
-                            <font key="font" metaFont="system"/>
-                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                        </textFieldCell>
-                    </textField>
-                </subviews>
-            </view>
-            <constraints>
-                <constraint firstItem="Zzw-YM-boj" firstAttribute="top" secondItem="pCh-R5-Ehc" secondAttribute="top" constant="11" id="3rv-qc-m3V"/>
-                <constraint firstAttribute="bottom" secondItem="Zzw-YM-boj" secondAttribute="bottom" constant="10" id="G9g-sp-wip"/>
-                <constraint firstItem="NTd-K4-Z9c" firstAttribute="leading" secondItem="pCh-R5-Ehc" secondAttribute="leading" constant="16" id="aya-aP-luo"/>
-                <constraint firstItem="Zzw-YM-boj" firstAttribute="leading" secondItem="NTd-K4-Z9c" secondAttribute="trailing" constant="8" symbolic="YES" id="cGh-M9-qQr"/>
-                <constraint firstAttribute="trailing" secondItem="Zzw-YM-boj" secondAttribute="trailing" constant="16" id="fJU-4Q-6Gl"/>
-                <constraint firstItem="Zzw-YM-boj" firstAttribute="centerY" secondItem="NTd-K4-Z9c" secondAttribute="centerY" id="nAr-mo-0MI"/>
-            </constraints>
-            <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
-            <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
-            <point key="canvasLocation" x="-260" y="402"/>
-        </box>
         <userDefaultsController representsSharedInstance="YES" id="j6s-BB-2Ug"/>
         <customView id="Ek0-XK-LNg" customClass="NBCViewNoInternetConnection">
             <rect key="frame" x="0.0" y="0.0" width="600" height="19"/>
@@ -542,7 +512,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="283" y="305" width="565" height="72"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
             <view key="contentView" id="joo-YY-yvM">
                 <rect key="frame" x="0.0" y="0.0" width="565" height="72"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -583,5 +553,37 @@
             </view>
             <point key="canvasLocation" x="-324.5" y="529"/>
         </window>
+        <customView id="ASH-0V-yC1">
+            <rect key="frame" x="0.0" y="0.0" width="560" height="48"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+            <subviews>
+                <button horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Lo6-wW-Ynr">
+                    <rect key="frame" x="426" y="7" width="120" height="32"/>
+                    <buttonCell key="cell" type="push" title="Install Helper" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="qht-YJ-4XM">
+                        <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                        <font key="font" metaFont="system"/>
+                    </buttonCell>
+                    <connections>
+                        <action selector="buttonInstallHelper:" target="2ua-cd-ebo" id="6EW-lH-6VR"/>
+                    </connections>
+                </button>
+                <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="b04-dC-yGK">
+                    <rect key="frame" x="18" y="16" width="408" height="17"/>
+                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="To create a NetInstall Image you need to install the helper tool." id="l0L-Lj-F3a">
+                        <font key="font" metaFont="system"/>
+                        <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                    </textFieldCell>
+                </textField>
+            </subviews>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="Lo6-wW-Ynr" secondAttribute="trailing" constant="20" symbolic="YES" id="189-L3-Wj6"/>
+                <constraint firstItem="Lo6-wW-Ynr" firstAttribute="leading" secondItem="b04-dC-yGK" secondAttribute="trailing" constant="8" symbolic="YES" id="AFc-gB-Bfr"/>
+                <constraint firstItem="b04-dC-yGK" firstAttribute="centerY" secondItem="ASH-0V-yC1" secondAttribute="centerY" id="PX0-Pe-HwN"/>
+                <constraint firstItem="b04-dC-yGK" firstAttribute="leading" secondItem="ASH-0V-yC1" secondAttribute="leading" constant="20" symbolic="YES" id="TyP-gR-CF6"/>
+                <constraint firstItem="Lo6-wW-Ynr" firstAttribute="centerY" secondItem="b04-dC-yGK" secondAttribute="centerY" id="uxC-p2-5lv"/>
+            </constraints>
+            <point key="canvasLocation" x="-13" y="535"/>
+        </customView>
     </objects>
 </document>

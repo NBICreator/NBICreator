@@ -40,11 +40,6 @@
 @property (strong) NBCPreferences *preferencesWindow;
 
 // --------------------------------------------------------------
-//  Layout Constraints
-// --------------------------------------------------------------
-@property (strong) IBOutlet NSLayoutConstraint *constraintBetweenButtonBuildAndViewOutput;
-
-// --------------------------------------------------------------
 //  Properties
 // --------------------------------------------------------------
 @property (readonly) NSInteger selectedSegment;
@@ -88,8 +83,10 @@
 @property (weak) IBOutlet NSView *viewMainWindow;
 @property (weak) IBOutlet NSView *viewDropView;
 @property (weak) IBOutlet NSView *viewNBISettings;
-@property (weak) IBOutlet NSBox *viewInstallHelper;
+@property (weak) IBOutlet NSView *viewInstallHelper;
 @property (weak) IBOutlet NSView *viewNoInternetConnection;
+@property (weak) IBOutlet NSView *viewBuildInfo;
+
 
 // --------------------------------------------------------------
 //  Menu Items

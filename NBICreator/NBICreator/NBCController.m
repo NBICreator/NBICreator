@@ -747,16 +747,17 @@ enum {
     //  Show box with "Install Helper" button just above build button
     // --------------------------------------------------------------
     [_viewInstallHelper setTranslatesAutoresizingMaskIntoConstraints:NO];
-    [_viewMainWindow addSubview:_viewInstallHelper];
-    [_viewMainWindow removeConstraint:_constraintBetweenButtonBuildAndViewOutput];
-    [_viewMainWindow addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[_viewInstallHelper]-|"
+    [_viewBuildInfo addSubview:_viewInstallHelper];
+    [_viewBuildInfo addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_viewInstallHelper]|"
                                                                             options:0
                                                                             metrics:nil
                                                                               views:NSDictionaryOfVariableBindings(_viewInstallHelper)]];
-    [_viewMainWindow addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_viewNBISettings]-[_viewInstallHelper]-[_buttonBuild]"
+    
+    [_viewBuildInfo addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-(3)-[_viewInstallHelper]-(3)-|"
                                                                             options:0
                                                                             metrics:nil
-                                                                              views:NSDictionaryOfVariableBindings(_viewNBISettings, _viewInstallHelper, _buttonBuild)]];
+                                                                              views:NSDictionaryOfVariableBindings(_viewInstallHelper)]];
+    [_buttonBuild setHidden:YES];
     [_buttonBuild setEnabled:NO];
 } // showHelperToolInstallBox
 
@@ -776,7 +777,7 @@ enum {
     //  Hide box with "Install/Upgrade Helper" button
     // --------------------------------------------------------------
     [_viewInstallHelper removeFromSuperview];
-    [_viewMainWindow addConstraint:_constraintBetweenButtonBuildAndViewOutput];
+    [_buttonBuild setHidden:NO];
 } // hideHelperToolInstallBox
 
 - (void)checkHelperVersion {
@@ -784,10 +785,26 @@ enum {
     DDLogDebug(@"[DEBUG] Checking installed helper tool version...");
     
     // --------------------------------------------------------------
+    //  Check that helper binary exists
+    // --------------------------------------------------------------
+    NSURL *libraryURL = [[NSFileManager defaultManager] URLForDirectory:NSLibraryDirectory
+                                                                   inDomain:NSLocalDomainMask
+                                                          appropriateForURL:nil
+                                                                     create:NO
+                                                                      error:nil];
+    NSURL *helperToolBinaryURL = [libraryURL URLByAppendingPathComponent:[NSString stringWithFormat:@"PrivilegedHelperTools/%@", NBCBundleIdentifierHelper]];
+    if ( ! [helperToolBinaryURL checkResourceIsReachableAndReturnError:nil] ) {
+        [self setHelperAvailable:NO];
+        [self showHelperToolInstallBox];
+        [_buttonBuild setEnabled:NO];
+        return;
+    }
+    
+    // --------------------------------------------------------------
     //  Get version of helper within our bundle
     // --------------------------------------------------------------
-    NSString * currentHelperToolBundlePath = [NSString stringWithFormat:@"Contents/Library/LaunchServices/%@", NBCBundleIdentifierHelper];
-    NSURL * currentHelperToolURL = [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:currentHelperToolBundlePath];
+    NSString *currentHelperToolBundlePath = [NSString stringWithFormat:@"Contents/Library/LaunchServices/%@", NBCBundleIdentifierHelper];
+    NSURL *currentHelperToolURL = [[[NSBundle mainBundle] bundleURL] URLByAppendingPathComponent:currentHelperToolBundlePath];
     NSDictionary * currentHelperToolInfoPlist = (NSDictionary*)CFBridgingRelease(CFBundleCopyInfoDictionaryForURL((CFURLRef)currentHelperToolURL ));
     NSString * currentHelperToolBundleVersion = [currentHelperToolInfoPlist objectForKey:@"CFBundleVersion"];
     
