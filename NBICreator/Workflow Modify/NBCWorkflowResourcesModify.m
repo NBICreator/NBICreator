@@ -603,6 +603,21 @@ DDLogLevel ddLogLevel;
     }
     
     // --------------------------------------------------------------
+    //  /System/Library/Extensions/AppleTopCase.kext/Contents/PlugIns/AppleHSBluetoothDriver.kext
+    // --------------------------------------------------------------
+    NSURL *appleHSBBluetoothDriverURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleTopCase.kext/Contents/PlugIns/AppleHSBluetoothDriver.kext"];
+    if ( [appleHSBBluetoothDriverURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *appleHSBBluetoothDriverTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleHSBluetoothDriver.kext"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [appleHSBBluetoothDriverURL path],
+                                     NBCWorkflowModifyTargetURL : [appleHSBBluetoothDriverTargetURL path]
+                                     }];
+    }
+    
+    // --------------------------------------------------------------
     //  /System/Library/LaunchDaemons/com.apple.bluetoothReporter.plist
     // --------------------------------------------------------------
     NSURL *bluetoothReporterPlistURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.bluetoothReporter.plist"];
