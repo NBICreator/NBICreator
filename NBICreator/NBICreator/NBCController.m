@@ -1129,15 +1129,14 @@ enum {
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (IBAction)buttonInstallHelper:(id)sender {
-#pragma unused(sender)
+- (IBAction)buttonInstallHelper:(id) __unused sender {
     NSError *error = nil;
     if ( [self installHelper:&error] ) {
         [self setHelperAvailable:YES];
         [_currentSettingsController verifyBuildButton];
         [self hideHelperToolInstallBox];
     } else {
-        NSLog(@"[ERROR] %@", [error localizedDescription]);
+        DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
 } // buttonInstallHelper
 
@@ -1145,26 +1144,37 @@ enum {
     [_currentSettingsController buildNBI:preWorkflowTasks];
 } // continueWorkflow
 
-- (IBAction)buttonBuild:(id)sender {
-#pragma unused(sender)
+- (IBAction)buttonBuild:(id) __unused sender {
+
+    DDLogDebug(@"[DEBUG] Button pressed: 'Build'");
     if ( [NSEvent modifierFlags] & NSAlternateKeyMask ) {
+        
+        DDLogDebug(@"[DEBUG] Modifier key 'Alt': YES");
         if ( _optionBuildPanel ) {
             [self setOptionBuildPanel:nil];
         }
         [self setOptionBuildPanel:[[NBCOptionBuildPanel alloc] initWithDelegate:self]];
+        
         if ( _currentSettingsController ) {
             [_optionBuildPanel setSettingsViewController:_currentSettingsController];
         } else {
             DDLogError(@"[ERROR] Current settings controller was nil!");
             return;
         }
-        [[NSApp mainWindow] beginSheet:[_optionBuildPanel window] completionHandler:^(NSModalResponse returnCode) {
+        
+        [[[NSApp delegate] window] beginSheet:[_optionBuildPanel window] completionHandler:^(NSModalResponse returnCode) {
             if ( returnCode == NSModalResponseCancel ) {
                 DDLogInfo(@"[DEBUG] Workflow canceled!");
             }
         }];
     } else {
-        [_currentSettingsController buildNBI:@{}];
+        DDLogDebug(@"[DEBUG] Modifier key 'Alt': NO");
+        DDLogDebug(@"[DEBUG] Sending -(void)buildNBI to selected settings controller: %@", _currentSettingsController);
+        if ( [_currentSettingsController respondsToSelector:@selector(buildNBI:)] ) {
+            [_currentSettingsController buildNBI:@{}];
+        } else {
+            DDLogError(@"[ERROR] Settings controller: %@ doesn't respond to -(void)buildNBI:", _currentSettingsController);
+        }
     }
 } // buttonBuild
 
@@ -1173,8 +1183,7 @@ enum {
     [self selectSegmentedControl:[segmentedControl selectedSegment]];
 } // segmentedControlNBI
 
-- (IBAction)menuItemPreferences:(id)sender {
-#pragma unused(sender)
+- (IBAction)menuItemPreferences:(id) __unused sender {
     if ( ! _preferencesWindow ) {
         [self setPreferencesWindow:[[NBCPreferences alloc] initWithWindowNibName:@"NBCPreferences"]];
     }
@@ -1182,8 +1191,7 @@ enum {
     [[_preferencesWindow window] makeKeyAndOrderFront:self];
 } // menuItemPreferences
 
-- (IBAction)menuItemHelp:(id)sender {
-#pragma unused(sender)
+- (IBAction)menuItemHelp:(id) __unused sender {
     DDLogInfo(@"Opening help URL: %@", NBCHelpURL);
     [[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:NBCHelpURL]];
 } // menuItemHelp

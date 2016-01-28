@@ -68,7 +68,6 @@ extern NSString *const NBCFilePathNBIIconNetInstall;
 extern NSString *const NBCFilePathNBIIconDeployStudio;
 extern NSString *const NBCFilePathNBIIconCasper;
 extern NSString *const NBCFilePathPreferencesGlobal;
-extern NSString *const NBCFilePathPreferencesHIToolbox;
 extern NSString *const NBCFilePathHelperLaunchd;
 extern NSString *const NBCFilePathHelperTool;
 

@@ -68,7 +68,6 @@ NSString *const NBCFilePathNBIIconNetInstall = @"%APPLICATIONRESOURCESURL%/IconN
 NSString *const NBCFilePathNBIIconDeployStudio = @"%APPLICATIONRESOURCESURL%/IconDeployStudioNBI.icns";
 NSString *const NBCFilePathNBIIconCasper = @"%APPLICATIONRESOURCESURL%/IconCasperImaging.icns";
 NSString *const NBCFilePathPreferencesGlobal = @"/Library/Preferences/.GlobalPreferences.plist";
-NSString *const NBCFilePathPreferencesHIToolbox = @"/Library/Preferences/com.apple.HIToolbox.plist";
 NSString *const NBCFilePathHelperLaunchd = @"/Library/LaunchDaemons/com.github.NBICreatorHelper.plist";
 NSString *const NBCFilePathHelperTool = @"/Library/PrivilegedHelperTools/com.github.NBICreatorHelper";
 

@@ -2625,14 +2625,14 @@ DDLogLevel ddLogLevel;
                 [addedDisks addObject:[usbDisk BSDName]];
                 
                 for ( NBCDisk *childDisk in [usbDisk children] ) {
-                        NSString *childDiskItemTitle = [childDisk volumeName] ?: @"Unknown";
-                        NSImage *childIcon = [[childDisk icon] copy];
-                        NSMenuItem *childDiskMenuItem = [[NSMenuItem alloc] initWithTitle:childDiskItemTitle action:nil keyEquivalent:@""];
-                        [childIcon setSize:NSMakeSize(16, 16)];
-                        [childDiskMenuItem setImage:childIcon];
-                        [childDiskMenuItem setIndentationLevel:1];
-                        [childDiskMenuItem setEnabled:NO];
-                        [[_popUpButtonUSBDevices menu] addItem:childDiskMenuItem];
+                    NSString *childDiskItemTitle = [childDisk volumeName] ?: @"Unknown";
+                    NSImage *childIcon = [[childDisk icon] copy];
+                    NSMenuItem *childDiskMenuItem = [[NSMenuItem alloc] initWithTitle:childDiskItemTitle action:nil keyEquivalent:@""];
+                    [childIcon setSize:NSMakeSize(16, 16)];
+                    [childDiskMenuItem setImage:childIcon];
+                    [childDiskMenuItem setIndentationLevel:1];
+                    [childDiskMenuItem setEnabled:NO];
+                    [[_popUpButtonUSBDevices menu] addItem:childDiskMenuItem];
                 }
             }
         }
@@ -2686,6 +2686,9 @@ DDLogLevel ddLogLevel;
 
 - (void)buildNBI:(NSDictionary *)preWorkflowTasks {
     
+    DDLogDebug(@"[DEBUG] Build NBI");
+    DDLogDebug(@"[DEBUG] PreWorkflowTasks: %@", ([preWorkflowTasks count] == 0) ? @"NO" : @"YES");
+    
     if ( ! _isNBI && [self haveSettingsChanged] ) {
         NSDictionary *alertInfo = @{
                                     NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
@@ -2717,7 +2720,7 @@ DDLogLevel ddLogLevel;
                                                               workflowSessionType:kWorkflowSessionTypeGUI];
     
     if ( _source ) {
-        DDLogDebug(@"[DEBUG] Settings workflow item source...");
+        DDLogDebug(@"[DEBUG] Setting workflow item source...");
         [workflowItem setSource:_source];
     } else {
         DDLogError(@"[ERROR] Source was empty!");
@@ -2725,7 +2728,7 @@ DDLogLevel ddLogLevel;
     }
     
     if ( _target ) {
-        DDLogDebug(@"[DEBUG] Settings workflow item target...");
+        DDLogDebug(@"[DEBUG] Setting workflow item target...");
         [workflowItem setTarget:_target];
     }
     
@@ -2741,7 +2744,7 @@ DDLogLevel ddLogLevel;
         
         // Add create usb device here as this settings only is avalable to this session
         userSettings[NBCSettingsCreateUSBDeviceKey] = @(_createUSBDevice);
-        userSettings[NBCSettingsUSBBSDNameKey] = _usbDevicesDict[[_popUpButtonUSBDevices titleOfSelectedItem]] ?: @"";
+        userSettings[NBCSettingsUSBBSDNameKey] = _usbDevicesDict[[_popUpButtonUSBDevices titleOfSelectedItem] ?: @""] ?: @"";
         
         [workflowItem setUserSettings:[userSettings copy]];
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
@@ -2804,12 +2807,14 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Preparing workflow item...");
     
+    NSError *err = nil;
     NSMutableDictionary *resourcesSettings = [[NSMutableDictionary alloc] init];
     NSDictionary *userSettings = [workflowItem userSettings];
     
     // --------------------------------
     //  Prepare where to get Imagr.app
     // --------------------------------
+    DDLogDebug(@"[DEBUG] Preparing Imagr.app source...");
     if ( [userSettings[NBCSettingsImagrUseGitBranch] boolValue] ) {
         NSString *selectedGitBranch = _imagrGitBranch;
         if ( ! [selectedGitBranch isEqualToString:[_popUpButtonImagrGitBranch titleOfSelectedItem]] ) {
@@ -2828,8 +2833,8 @@ DDLogLevel ddLogLevel;
         if ( [imagrGitDownloadURL length] != 0 ) {
             resourcesSettings[NBCSettingsImagrDownloadURL] = imagrGitDownloadURL;
         } else {
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get Imagr Git Branch download URL"];
             DDLogError(@"[ERROR] Could not get Imagr Git Branch download URL!");
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get Imagr Git Branch download URL"];
             return;
         }
         
@@ -2837,8 +2842,8 @@ DDLogLevel ddLogLevel;
         if ( [imagrGitBranchSHA length] != 0 ) {
             resourcesSettings[NBCSettingsImagrGitBranchSHA] = imagrGitBranchSHA;
         } else {
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get Imagr Git Branch SHA"];
             DDLogError(@"[ERROR] Could not get Imagr Git Branch SHA");
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get Imagr Git Branch SHA"];
             return;
         }
     } else if ( ! [userSettings[NBCSettingsImagrUseLocalVersion] boolValue] ) {
@@ -2846,8 +2851,8 @@ DDLogLevel ddLogLevel;
         DDLogDebug(@"[DEBUG] Selected Imagr.app version: %@", selectedImagrVersion);
         if ( [selectedImagrVersion isEqualToString:NBCMenuItemImagrVersionLatest] ) {
             if ( [_imagrVersions count] == 0 ) {
-                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Imagr versions array is empty, please verify your internet connection and try again"];
                 DDLogError(@"[ERROR] Imagr versions array is empty!");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Imagr versions array is empty, please verify your internet connection and try again"];
                 return;
             }
             selectedImagrVersion = [_imagrVersions firstObject];
@@ -2856,32 +2861,48 @@ DDLogLevel ddLogLevel;
         NSString *imagrDownloadURL = _imagrVersionsDownloadLinks[selectedImagrVersion];
         DDLogDebug(@"[DEBUG] Selected Imagr.app download url: %@", imagrDownloadURL);
         if ( [imagrDownloadURL length] == 0 ) {
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Imagr download link is empty"];
             DDLogError(@"[ERROR] Imagr download link is empty!");
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Imagr download link is empty"];
             return;
         }
         resourcesSettings[NBCSettingsImagrVersion] = selectedImagrVersion;
         resourcesSettings[NBCSettingsImagrDownloadURL] = imagrDownloadURL;
     }
     
+    // -------------------------------------------------------------------------
+    //  Language
+    // -------------------------------------------------------------------------
+    DDLogDebug(@"[DEBUG] Preparing selected language...");
     NSString *selectedLanguage = userSettings[NBCSettingsLanguageKey];
+    DDLogDebug(@"[DEBUG] Selected language: %@", selectedLanguage);
     if ( [selectedLanguage isEqualToString:NBCMenuItemCurrent] ) {
         NSLocale *currentLocale = [NSLocale currentLocale];
-        NSString *currentLanguageID = [NSLocale preferredLanguages][0];
-        if ( [currentLanguageID length] != 0 ) {
-            resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
+        NSArray *preferredLanguages = [NSLocale preferredLanguages];
+        if ( [preferredLanguages count] != 0 ) {
+            NSString *currentLanguageID = [preferredLanguages firstObject];
+            DDLogDebug(@"[DEBUG] Current language ID: %@", currentLanguageID);
+            if ( [currentLanguageID length] != 0 ) {
+                resourcesSettings[NBCSettingsLanguageKey] = currentLanguageID;
+            } else {
+                DDLogError(@"[ERROR] Could not get current language ID!");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current language ID"];
+                return;
+            }
         } else {
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current language ID"];
             DDLogError(@"[ERROR] Could not get current language ID!");
+            DDLogError(@"[ERROR] Preferred languages is empty!");
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current language ID"];
             return;
         }
         
         NSString *currentLocaleIdentifier = [currentLocale localeIdentifier];
+        DDLogDebug(@"[DEBUG] Current locale identifier: %@", currentLocaleIdentifier);
         if ( [currentLocaleIdentifier length] != 0 ) {
             resourcesSettings[NBCSettingsLocale] = currentLocaleIdentifier;
         }
         
         NSString *currentCountry = [currentLocale objectForKey:NSLocaleCountryCode];
+        DDLogDebug(@"[DEBUG] Current country code: %@", currentCountry);
         if ( [currentCountry length] != 0 ) {
             resourcesSettings[NBCSettingsCountry] = currentCountry;
         }
@@ -2889,78 +2910,164 @@ DDLogLevel ddLogLevel;
         NSArray *allKeys = [_languageDict allKeysForObject:selectedLanguage];
         if ( [allKeys count] != 0 ) {
             NSString *languageID = [allKeys firstObject];
+            DDLogDebug(@"[DEBUG] Selected language ID: %@", languageID);
             if ( [languageID length] != 0 ) {
                 resourcesSettings[NBCSettingsLanguageKey] = languageID;
             } else {
-                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get selected language ID"];
                 DDLogError(@"[ERROR] Could not get selected language ID!");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get selected language ID"];
                 return;
             }
             
             if ( [languageID containsString:@"-"] ) {
                 NSString *localeFromLanguage = [languageID stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
+                DDLogDebug(@"[DEBUG] Selected locale (from language ID): %@", localeFromLanguage);
                 if ( [localeFromLanguage length] != 0 ) {
                     resourcesSettings[NBCSettingsLocale] = localeFromLanguage;
                     
                     NSLocale *locale = [NSLocale localeWithLocaleIdentifier:localeFromLanguage];
                     NSString *country = [locale objectForKey:NSLocaleCountryCode];
+                    DDLogDebug(@"[DEBUG] Selected country code (from selected locale): %@", country);
                     if ( [country length] != 0 ) {
                         resourcesSettings[NBCSettingsCountry] = country;
                     }
                 }
             }
         } else {
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:[NSString stringWithFormat:@"No objects in language dict for %@", selectedLanguage]];
             DDLogError(@"[ERROR] No objects in language dict for %@", selectedLanguage);
-            return; // Show error
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:[NSString stringWithFormat:@"No objects in language dict for: %@", selectedLanguage ?: @"Unknown Selection"]];
+            return;
         }
     }
     
-    NSDictionary *hiToolboxDict = [NSDictionary dictionaryWithContentsOfFile:NBCFilePathPreferencesHIToolbox];
+    // -------------------------------------------------------------------------
+    //  Keyboard Layout Name
+    // -------------------------------------------------------------------------
+    DDLogDebug(@"[DEBUG] Preparing selected keyboard layout name...");
+    NSDictionary *hiToolboxDict;
+    NSURL *userLibraryURL = [[NSFileManager defaultManager] URLForDirectory:NSLibraryDirectory
+                                                                   inDomain:NSUserDomainMask
+                                                          appropriateForURL:nil
+                                                                     create:NO
+                                                                      error:nil];
+    DDLogDebug(@"[DEBUG] User library path: %@", [userLibraryURL path]);
+    NSURL *hiToolboxURL = [userLibraryURL URLByAppendingPathComponent:@"Preferences/com.apple.HIToolbox.plist"];
     NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsKeyboardLayoutKey];
+    DDLogDebug(@"[DEBUG] Selected keyboard layout name: %@", selectedKeyboardLayoutName);
     if ( [selectedKeyboardLayoutName isEqualToString:NBCMenuItemCurrent] ) {
-        NSDictionary *appleDefaultAsciiInputSourceDict = hiToolboxDict[@"AppleDefaultAsciiInputSource"];
-        selectedKeyboardLayoutName = appleDefaultAsciiInputSourceDict[@"KeyboardLayout Name"];
-        if ( [selectedKeyboardLayoutName length] != 0 ) {
-            resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
+        DDLogDebug(@"[DEBUG] Checking HiToolbox URL...");
+        if ( ! [hiToolboxURL checkResourceIsReachableAndReturnError:&err] ) {
+            DDLogError(@"[ERROR] %@", err);
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not find hiToolboxPlist!"];
+            return;
+        }
+        
+        hiToolboxDict = [NSDictionary dictionaryWithContentsOfURL:hiToolboxURL];
+        if ( [hiToolboxDict isKindOfClass:[NSDictionary class]] ) {
+            
+            if ( [hiToolboxDict count] == 0 ) {
+                DDLogError(@"[ERROR] HIToolbox.plist was empty!");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"HIToolbox.plist was empty"];
+                return;
+            }
+            
+            NSArray *appleSelectedInputSources = hiToolboxDict[@"AppleSelectedInputSources"] ?: @[];
+            if ( [appleSelectedInputSources count] == 0 ) {
+                DDLogError(@"[ERROR] AppleSelectedInputSources in HIToolbox.plist was empty!");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"AppleSelectedInputSources in HIToolbox.plist was empty"];
+                return;
+            }
+            
+            NSDictionary *currentInputSource = [appleSelectedInputSources firstObject] ?: @{};
+            if ( [currentInputSource count] == 0 ) {
+                DDLogError(@"[ERROR] First object in AppleSelectedInputSources in HIToolbox.plist was empty!");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"First object in AppleSelectedInputSources in HIToolbox.plist was empty"];
+                return;
+            }
+            
+            selectedKeyboardLayoutName = currentInputSource[@"KeyboardLayout Name"];
+            DDLogDebug(@"[DEBUG] Current keyboard layout name: %@", selectedKeyboardLayoutName);
+            if ( [selectedKeyboardLayoutName length] != 0 ) {
+                resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
+            } else {
+                DDLogError(@"[ERROR] Selected keyboard layout name was empty");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout name"];
+                return;
+            }
         } else {
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout name"];
-            DDLogError(@"[ERROR] Could not get current keyboard layout name!");
+            DDLogError(@"[ERROR] hiToolboxDict is NOT a dict, it's of class: %@", [hiToolboxDict class]);
             return;
         }
     } else {
         resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
     }
     
+    // -------------------------------------------------------------------------
+    //  Keyboard Layout ID
+    // -------------------------------------------------------------------------
+    if ( ! [_keyboardLayoutDict isKindOfClass:[NSDictionary class]] ) {
+        DDLogError(@"[ERROR] _keyboardLayoutDict is NOT a dict, it's of class: %@", [_keyboardLayoutDict class]);
+        return;
+    }
+    
+    DDLogDebug(@"[DEBUG] Preparing selected keyboard layout id...");
+    if ( [_keyboardLayoutDict count] == 0 ) {
+        DDLogError(@"[ERROR] Keyboard layout dict was empty!");
+        [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
+        return;
+    }
+    
     NSString *selectedKeyboardLayout = _keyboardLayoutDict[selectedKeyboardLayoutName];
+    DDLogDebug(@"[DEBUG] Preparing selected keyboard layout: %@", selectedKeyboardLayout);
     if ( [selectedKeyboardLayout length] == 0 ) {
+        
+        if ( ! [hiToolboxURL checkResourceIsReachableAndReturnError:&err] ) {
+            DDLogError(@"[ERROR] %@", [err localizedDescription]);
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:[err localizedDescription]];
+            return;
+        }
+        
+        hiToolboxDict = [NSDictionary dictionaryWithContentsOfURL:hiToolboxURL];
+        if ( [hiToolboxDict count] == 0 ) {
+            DDLogError(@"[ERROR] HIToolbox.plist was empty!");
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
+            return;
+        }
+        
         NSString *currentKeyboardLayout = hiToolboxDict[@"AppleCurrentKeyboardLayoutInputSourceID"];
+        DDLogDebug(@"[DEBUG] Current keyboard layout: %@", currentKeyboardLayout);
         if ( [currentKeyboardLayout length] != 0 ) {
             resourcesSettings[NBCSettingsKeyboardLayoutID] = currentKeyboardLayout;
         } else {
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout"];
-            DDLogError(@"[ERROR] Could not get current keyboard layout!");
+            DDLogError(@"[ERROR] AppleCurrentKeyboardLayoutInputSourceID in HIToolbox.plist was empty!");
+            DDLogError(@"[ERROR] HIToolbox.plist: %@", hiToolboxDict);
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
             return;
         }
     } else {
         resourcesSettings[NBCSettingsKeyboardLayoutID] = selectedKeyboardLayout;
     }
     
+    DDLogDebug(@"[DEBUG] Preparing selected time zone...");
+    DDLogDebug(@"[DEBUG] Selected menu item: %@", [_selectedMenuItem title]);
     NSString *selectedTimeZone = [self timeZoneFromMenuItem:_selectedMenuItem];
+    DDLogDebug(@"[DEBUG] Selected time zone: %@", selectedTimeZone);
     if ( [selectedTimeZone length] != 0 ) {
         if ( [selectedTimeZone isEqualToString:NBCMenuItemCurrent] ) {
             NSTimeZone *currentTimeZone = [NSTimeZone defaultTimeZone];
             NSString *currentTimeZoneName = [currentTimeZone name];
+            DDLogDebug(@"[DEBUG] Current time zone: %@", currentTimeZoneName);
             resourcesSettings[NBCSettingsTimeZoneKey] = currentTimeZoneName;
         } else {
             resourcesSettings[NBCSettingsTimeZoneKey] = selectedTimeZone;
         }
     } else {
-        [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Selected TimeZone was empty"];
         DDLogError(@"[ERROR] Selected TimeZone was empty!");
+        [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Selected TimeZone was empty"];
         return;
     }
     
+    DDLogDebug(@"[DEBUG] Preparing certificates...");
     NSMutableArray *certificates = [[NSMutableArray alloc] init];
     for ( NSDictionary *certificateDict in _certificateTableViewContents ) {
         NSData *certificate = certificateDict[NBCDictionaryKeyCertificate];
@@ -2968,6 +3075,7 @@ DDLogLevel ddLogLevel;
     }
     resourcesSettings[NBCSettingsCertificatesKey] = [certificates copy] ?: @[];
     
+    DDLogDebug(@"[DEBUG] Preparing packages...");
     NSMutableArray *packages = [[NSMutableArray alloc] init];
     for ( NSDictionary *packageDict in _packagesTableViewContents ) {
         NSString *packagePath = packageDict[NBCDictionaryKeyPackagePath];
@@ -2975,6 +3083,7 @@ DDLogLevel ddLogLevel;
     }
     resourcesSettings[NBCSettingsPackagesKey] = [packages copy] ?: @[];
     
+    DDLogDebug(@"[DEBUG] Preparing RAM disks...");
     NSMutableArray *ramDisks = [[NSMutableArray alloc] init];
     for ( NSDictionary *ramDiskDict in _ramDisks ) {
         if ( [self validateRAMDisk:ramDiskDict] ) {
@@ -2983,6 +3092,7 @@ DDLogLevel ddLogLevel;
     }
     resourcesSettings[NBCSettingsRAMDisksKey] = [ramDisks copy] ?: @[];
     
+    DDLogDebug(@"[DEBUG] Preparing trusted NetBoot servers...");
     NSMutableArray *validatedTrustedNetBootServers = [[NSMutableArray alloc] init];
     for ( NSString *netBootServerIP in _trustedServers ) {
         if ( [netBootServerIP isValidIPAddress] ) {
@@ -3019,7 +3129,7 @@ DDLogLevel ddLogLevel;
     // --------------------------------
     //  Get Authorization
     // --------------------------------
-    NSError *err = nil;
+    DDLogDebug(@"[DEBUG] Retrieve authorization ref...");
     NSData *authData = [workflowItem authData];
     if ( ! authData ) {
         authData = [NBCHelperAuthorization authorizeHelper:&err];
@@ -3032,6 +3142,7 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------------------
     //  Authorize the workflow before adding it to the queue
     // ------------------------------------------------------
+    DDLogDebug(@"[DEBUG] Connecting to helper...");
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
         

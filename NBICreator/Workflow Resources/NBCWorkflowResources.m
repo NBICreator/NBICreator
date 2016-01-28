@@ -506,14 +506,15 @@ DDLogLevel ddLogLevel;
     if ( [sourceItemsDict count] != 0 ) {
         
         // -------------------------------------------------------------------------------------
-        // CTPresetFallbacks.plist (10.11+) Only add if anything else was added for extraction
+        // Fonts and CTPresetFallbacks.plist (10.11+)
+        // Only add if anything else was added for extraction
         // -------------------------------------------------------------------------------------
         if (
             _workflowType == kWorkflowTypeImagr ||
             _workflowType == kWorkflowTypeCasper
             ) {
             if ( 11 <= _sourceVersionMinor ) {
-                [self addExtractCTPresetFallbacks:sourceItemsDict];
+                [self addExtractFonts:sourceItemsDict];
             }
         }
         
@@ -1505,15 +1506,16 @@ DDLogLevel ddLogLevel;
     [self addItemsToExtractFromEssentials:essentials sourceItemsDict:sourceItemsDict];
 } // addConsole
 
-- (void)addExtractCTPresetFallbacks:(NSMutableDictionary *)sourceItemsDict {
+- (void)addExtractFonts:(NSMutableDictionary *)sourceItemsDict {
     
-    DDLogInfo(@"Adding regexes to extract CTPresetFallbacks.plist...");
+    DDLogInfo(@"Adding regexes to extract Fonts...");
     
     // ---------------------------------------------------------------------------------
     //  Essentials.pkg
     // ---------------------------------------------------------------------------------
     NSMutableArray *essentials = [NSMutableArray arrayWithArray:@[
                                                                   @".*CoreText.framework.*CTPresetFallbacks.plist",
+                                                                  @".*Fonts.*NotoSans.*"
                                                                   ]];
     
     // Update extraction array
