@@ -181,7 +181,7 @@ DDLogLevel ddLogLevel;
                                             ) ) ) {
         [self modifyKextdPlist:modifyDictArray];
     }
-    /* TESTING CODE TO REMOVE UNECESSARY LAUNCHD
+
     // ----------------------------------------------------------------
     //  LaunchDaemons
     // ----------------------------------------------------------------
@@ -189,9 +189,11 @@ DDLogLevel ddLogLevel;
                       _workflowType == kWorkflowTypeImagr ||
                       _workflowType == kWorkflowTypeCasper
                       ) ) {
-        [self modifyLaunchDaemons:modifyDictArray];
+        if ( 11 <= _sourceVersionMinor ) {
+            [self modifyLaunchDaemons:modifyDictArray];
+        }
     }
-    */
+
     // ----------------------------------------------------------------
     //  Localization
     // ----------------------------------------------------------------
@@ -1193,7 +1195,7 @@ DDLogLevel ddLogLevel;
                                      NBCWorkflowModifyTargetURL : [sntpPlistTargetURL path]
                                      }];
     }
-}
+} // modifyLaunchDaemons
 
 - (BOOL)modifyLocalization:(NSMutableArray *)modifyDictArray error:(NSError **)error {
     
