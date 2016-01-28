@@ -157,6 +157,18 @@ DDLogLevel ddLogLevel;
     }
     
     // ----------------------------------------------------------------
+    //  Fonts
+    // ----------------------------------------------------------------
+    if ( ! _isNBI && (
+                      _workflowType == kWorkflowTypeImagr ||
+                      _workflowType == kWorkflowTypeCasper
+                      ) ) {
+        if ( 11 <= _sourceVersionMinor ) {
+            [self modifyFonts:modifyDictArray];
+        }
+    }
+    
+    // ----------------------------------------------------------------
     // ImagrPlist (com.grahamgilbert.Imagr.plist)
     // ----------------------------------------------------------------
     if ( ( ! _isNBI && (
@@ -181,7 +193,7 @@ DDLogLevel ddLogLevel;
                                             ) ) ) {
         [self modifyKextdPlist:modifyDictArray];
     }
-
+    
     // ----------------------------------------------------------------
     //  LaunchDaemons
     // ----------------------------------------------------------------
@@ -193,7 +205,7 @@ DDLogLevel ddLogLevel;
             [self modifyLaunchDaemons:modifyDictArray];
         }
     }
-
+    
     // ----------------------------------------------------------------
     //  Localization
     // ----------------------------------------------------------------
@@ -530,6 +542,21 @@ DDLogLevel ddLogLevel;
                                      }];
     }
     
+    // --------------------------------------------------------------------------------------------
+    //  /System/Library/Extensions/AppleHIDMouse.kext/Contents/PlugIns/AppleBluetoothHIDMouse.kext
+    // --------------------------------------------------------------------------------------------
+    NSURL *bluetoothHIDMousePluginKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleHIDMouse.kext/Contents/PlugIns/AppleBluetoothHIDMouse.kext"];
+    if ( [bluetoothHIDMousePluginKextURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *bluetoothHIDMousePluginKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/PlugIn_AppleBluetoothHIDMouse.kext"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [bluetoothHIDMousePluginKextURL path],
+                                     NBCWorkflowModifyTargetURL : [bluetoothHIDMousePluginKextTargetURL path]
+                                     }];
+    }
+    
     // --------------------------------------------------------------
     //  /System/Library/Extensions/AppleBluetoothHIDKeyboard.kext
     // --------------------------------------------------------------
@@ -542,6 +569,21 @@ DDLogLevel ddLogLevel;
                                      NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
                                      NBCWorkflowModifySourceURL : [bluetoothHIDKeyboardKextURL path],
                                      NBCWorkflowModifyTargetURL : [bluetoothHIDKeyboardKextTargetURL path]
+                                     }];
+    }
+    
+    // --------------------------------------------------------------------------------------------------
+    //  /System/Library/Extensions/AppleHIDKeyboard.kext/Contents/PlugIns/AppleBluetoothHIDKeyboard.kext
+    // --------------------------------------------------------------------------------------------------
+    NSURL *bluetoothHIDKeyboardPluginKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleHIDKeyboard.kext/Contents/PlugIns/AppleBluetoothHIDKeyboard.kext"];
+    if ( [bluetoothHIDKeyboardPluginKextURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *bluetoothHIDKeyboardPluginKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/PlugIn_AppleBluetoothHIDKeyboard.kext"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [bluetoothHIDKeyboardPluginKextURL path],
+                                     NBCWorkflowModifyTargetURL : [bluetoothHIDKeyboardPluginKextTargetURL path]
                                      }];
     }
     
@@ -880,6 +922,53 @@ DDLogLevel ddLogLevel;
     
     return YES;
 } // modifyDesktopPicture
+
+- (void)modifyFonts:(NSMutableArray *)modifyDictArray {
+    
+    DDLogInfo(@"Preparing modifications for Fonts...");
+    
+    // --------------------------------------------------------------
+    //  /Library/Application Support/Apple/Fonts/Language Support
+    // --------------------------------------------------------------
+    NSURL *languageSupportURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Library/Application Support/Apple/Fonts/Language Support" isDirectory:YES];
+    if ( [languageSupportURL checkResourceIsReachableAndReturnError:nil] ) {
+        
+        NSURL *systemLibraryFontURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Fonts"];
+        
+        // ---------------------------------------------------------------------
+        //  Get all contents of language support folder
+        // ---------------------------------------------------------------------
+        NSArray *languageSupportContents = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:languageSupportURL
+                                                                         includingPropertiesForKeys:@[]
+                                                                                            options:NSDirectoryEnumerationSkipsHiddenFiles
+                                                                                              error:nil];
+        
+        // ---------------------------------------------------------------------
+        //  Create a move modification for all fonts ending in .ttf
+        // ---------------------------------------------------------------------
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"pathExtension='ttf'"];
+        for ( NSURL *fontURL in [languageSupportContents filteredArrayUsingPredicate:predicate] ) {
+            
+            // Update modification array
+            [modifyDictArray addObject:@{
+                                         NBCWorkflowModifyFileType :  NBCWorkflowModifyFileTypeMove,
+                                         NBCWorkflowModifySourceURL : [fontURL path],
+                                         NBCWorkflowModifyTargetURL : [[systemLibraryFontURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@", [fontURL lastPathComponent]]] path]
+                                         }];
+        }
+        
+        // ---------------------------------------------------------------------
+        //  Clean up by removing empty folder
+        // ---------------------------------------------------------------------
+        NSURL *appleFontsURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Library/Application Support/Apple/Fonts" isDirectory:YES];
+        if ( [appleFontsURL checkResourceIsReachableAndReturnError:nil] ) {
+            [modifyDictArray addObject:@{
+                                         NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
+                                         NBCWorkflowModifyTargetURL :  [appleFontsURL path]
+                                         }];
+        }
+    }
+}
 
 - (void)modifyFolders:(NSMutableArray *)modifyDictArray {
     
@@ -2581,6 +2670,37 @@ DDLogLevel ddLogLevel;
                                  NBCWorkflowModifySourceURL : [airPortMenuURL path],
                                  NBCWorkflowModifyTargetURL : [airPortMenuTargetURL path]
                                  }];
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.airport.wps.plist
+    // --------------------------------------------------------------
+    NSURL *airportWpsPlistURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.airport.wps.plist"];
+    if ( [airportWpsPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *airportWpsPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.airport.wps.plist"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [airportWpsPlistURL path],
+                                     NBCWorkflowModifyTargetURL : [airportWpsPlistTargetURL path]
+                                     }];
+    }
+    
+    // --------------------------------------------------------------
+    //  /System/Library/LaunchDaemons/com.apple.airportd.plist
+    // --------------------------------------------------------------
+    NSURL *airportdPlistURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.airportd.plist"];
+    if ( [airportdPlistURL checkResourceIsReachableAndReturnError:nil] ) {
+        NSURL *airportdPlistTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemonsDisabled/com.apple.airportd.plist"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                     NBCWorkflowModifySourceURL : [airportdPlistURL path],
+                                     NBCWorkflowModifyTargetURL : [airportdPlistTargetURL path]
+                                     }];
+    }
+    
 } // modifyWiFi
 
 @end
