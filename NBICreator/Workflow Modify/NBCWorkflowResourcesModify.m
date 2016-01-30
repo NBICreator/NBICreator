@@ -93,13 +93,14 @@ DDLogLevel ddLogLevel;
     //  Apple Installer
     // ---------------------------------------------------------------------------------
     // NOTE - This is for testing to remove the files for the Apple Installer, when not needed.
+    /*
     if ( ! _isNBI && (
                       _workflowType == kWorkflowTypeImagr ||
                       _workflowType == kWorkflowTypeCasper
                       ) ) {
         [self modifyAppleInstaller:modifyDictArray];
     }
-
+     */
     // ---------------------------------------------------------------------------------
     //  Bluetooth
     // ---------------------------------------------------------------------------------
