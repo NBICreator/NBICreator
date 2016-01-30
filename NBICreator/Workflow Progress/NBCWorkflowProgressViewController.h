@@ -26,6 +26,7 @@
 
 @property (strong) IBOutlet NSLayoutConstraint *layoutContraintStatusInfoLeading;
 @property (strong) IBOutlet NSLayoutConstraint *layoutConstraintButtonOpenLogLeading;
+@property (strong) IBOutlet NSLayoutConstraint *layoutConstraintButtonCloseTrailing;
 
 @property NBCWorkflowItem *workflowItem;
 @property NSURL *nbiURL;

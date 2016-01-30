@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15D21" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
     </dependencies>
@@ -10,6 +10,7 @@
                 <outlet property="buttonOpenLog" destination="6s6-PX-ioV" id="Uw7-Te-SfN"/>
                 <outlet property="buttonShowInFinder" destination="Xto-uU-I0c" id="2MP-mg-9Gi"/>
                 <outlet property="buttonWorkflowReport" destination="9rK-Pj-9i4" id="baL-aT-5jj"/>
+                <outlet property="layoutConstraintButtonCloseTrailing" destination="srK-Bu-2aA" id="yNb-nr-MXD"/>
                 <outlet property="layoutConstraintButtonOpenLogLeading" destination="vas-ao-VQw" id="Ute-IY-zaI"/>
                 <outlet property="layoutContraintStatusInfoLeading" destination="JKg-Z3-V8G" id="NuI-LE-lm6"/>
                 <outlet property="nbiIcon" destination="dl5-Dn-LjZ" id="5Lp-F4-csm"/>
@@ -116,7 +117,7 @@
                     </textFieldCell>
                 </textField>
                 <button hidden="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Xto-uU-I0c">
-                    <rect key="frame" x="103" y="46" width="14" height="14"/>
+                    <rect key="frame" x="376" y="29" width="14" height="14"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="14" id="YkH-Fk-3de"/>
                         <constraint firstAttribute="height" constant="14" id="yhO-Fh-eIv"/>
@@ -134,10 +135,10 @@
                         </binding>
                     </connections>
                 </button>
-                <progressIndicator wantsLayer="YES" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" maxValue="100" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="uBP-ur-nNv">
+                <progressIndicator wantsLayer="YES" horizontalHuggingPriority="1000" verticalHuggingPriority="1000" horizontalCompressionResistancePriority="249" maxValue="100" indeterminate="YES" style="bar" translatesAutoresizingMaskIntoConstraints="NO" id="uBP-ur-nNv">
                     <rect key="frame" x="68" y="26" width="300" height="20"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="300" id="55I-jk-Hbv"/>
+                        <constraint firstAttribute="width" relation="lessThanOrEqual" constant="300" id="55I-jk-Hbv"/>
                     </constraints>
                     <connections>
                         <binding destination="-2" name="isIndeterminate" keyPath="self.isRunning" id="ZW4-rK-zNi">
@@ -165,7 +166,6 @@
             <constraints>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" constant="12" id="09s-0i-FgE"/>
                 <constraint firstItem="Svh-zL-y2Z" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" id="2sX-HI-8AX"/>
-                <constraint firstItem="Xto-uU-I0c" firstAttribute="centerY" secondItem="bI5-Ub-8db" secondAttribute="centerY" constant="1" id="ByC-wE-3qy"/>
                 <constraint firstItem="rlx-cg-ns4" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6s6-PX-ioV" secondAttribute="trailing" constant="8" symbolic="YES" id="CB6-tL-Xnf"/>
                 <constraint firstItem="nfc-W4-XIp" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="leading" id="H3N-Pn-se5"/>
                 <constraint firstItem="McW-gO-jJv" firstAttribute="centerY" secondItem="60L-Th-Xvx" secondAttribute="centerY" constant="-1" id="HLP-Nm-lNb"/>
@@ -182,16 +182,16 @@
                 <constraint firstItem="uBP-ur-nNv" firstAttribute="leading" secondItem="dl5-Dn-LjZ" secondAttribute="trailing" constant="8" symbolic="YES" id="WT5-bj-RDA"/>
                 <constraint firstItem="9rK-Pj-9i4" firstAttribute="baseline" secondItem="6s6-PX-ioV" secondAttribute="baseline" id="Wj4-G1-EKC"/>
                 <constraint firstItem="9rK-Pj-9i4" firstAttribute="baseline" secondItem="rlx-cg-ns4" secondAttribute="baseline" id="Xga-OS-wix"/>
-                <constraint firstItem="Xto-uU-I0c" firstAttribute="leading" secondItem="bI5-Ub-8db" secondAttribute="trailing" constant="6" id="YWo-19-Whm"/>
                 <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" secondItem="9rK-Pj-9i4" secondAttribute="trailing" constant="8" symbolic="YES" id="e3g-r3-yXs"/>
                 <constraint firstAttribute="bottom" secondItem="60L-Th-Xvx" secondAttribute="bottom" constant="9" id="eTe-zv-1J0"/>
-                <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="Xto-uU-I0c" secondAttribute="trailing" constant="20" symbolic="YES" id="fD3-3v-Wox"/>
                 <constraint firstItem="OCM-Cq-6q3" firstAttribute="leading" secondItem="nfc-W4-XIp" secondAttribute="trailing" constant="8" symbolic="YES" id="lZD-4r-k5x"/>
                 <constraint firstAttribute="trailing" secondItem="OCM-Cq-6q3" secondAttribute="trailing" constant="20" symbolic="YES" id="srK-Bu-2aA"/>
                 <constraint firstItem="uBP-ur-nNv" firstAttribute="centerY" secondItem="OCM-Cq-6q3" secondAttribute="centerY" id="stM-Pk-aHt"/>
                 <constraint firstItem="6s6-PX-ioV" firstAttribute="leading" secondItem="dl5-Dn-LjZ" secondAttribute="trailing" constant="8" symbolic="YES" id="vas-ao-VQw"/>
                 <constraint firstItem="dl5-Dn-LjZ" firstAttribute="centerY" secondItem="uBP-ur-nNv" secondAttribute="centerY" id="vb8-aR-ww1"/>
                 <constraint firstItem="bI5-Ub-8db" firstAttribute="leading" secondItem="uBP-ur-nNv" secondAttribute="leading" id="wJX-qP-5i8"/>
+                <constraint firstItem="OCM-Cq-6q3" firstAttribute="centerY" secondItem="Xto-uU-I0c" secondAttribute="centerY" id="xPn-M1-3R2"/>
+                <constraint firstAttribute="trailing" secondItem="Xto-uU-I0c" secondAttribute="trailing" constant="20" symbolic="YES" id="ydg-UK-8uU"/>
                 <constraint firstItem="Svh-zL-y2Z" firstAttribute="leading" secondItem="60L-Th-Xvx" secondAttribute="trailing" constant="8" symbolic="YES" id="zW2-Ka-Oaf"/>
             </constraints>
             <point key="canvasLocation" x="-214.5" y="163"/>

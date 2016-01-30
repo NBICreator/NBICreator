@@ -568,6 +568,7 @@ DDLogLevel ddLogLevel;
     }
     
     [self setWorkflowComplete:YES];
+    [_layoutConstraintButtonCloseTrailing setConstant:40.0f];
     [_buttonOpenLog setHidden:NO];
     
     if ( [[[NSUserDefaults standardUserDefaults] objectForKey:@"WorkflowReportIncludeLinkerWarnings"] boolValue] ) {
