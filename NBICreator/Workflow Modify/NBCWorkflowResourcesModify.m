@@ -99,7 +99,7 @@ DDLogLevel ddLogLevel;
                       ) ) {
         [self modifyAppleInstaller:modifyDictArray];
     }
-    
+
     // ---------------------------------------------------------------------------------
     //  Bluetooth
     // ---------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ DDLogLevel ddLogLevel;
             [self modifyLaunchDaemons:modifyDictArray];
         }
     }
-    
+
     // ----------------------------------------------------------------
     //  Localization
     // ----------------------------------------------------------------
@@ -394,10 +394,14 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void)addFoldersToBaseSystemWithRelativePaths:(NSArray *)folderArray modifyDictArray:(NSMutableArray *)modifyDictArray {
+- (void)addFoldersToBaseSystem:(NSArray *)folderArray modifyDictArray:(NSMutableArray *)modifyDictArray {
+    DDLogDebug(@"[DEBUG] Adding %lu folders to create in BaseSystem", (unsigned long)[folderArray count]);
+    
     NSURL *folderURL;
     for ( NSString *folderRelativePath in folderArray ) {
+        DDLogDebug(@"[DEBUG] Relative path to folder: %@", folderRelativePath);
         folderURL = [_baseSystemVolumeURL URLByAppendingPathComponent:folderRelativePath];
+        DDLogDebug(@"[DEBUG] Full path to folder: %@", [folderURL path]);
         [modifyDictArray insertObject:@{
                                         NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeFolder,
                                         NBCWorkflowModifyTargetURL :  [folderURL path],
@@ -409,6 +413,60 @@ DDLogLevel ddLogLevel;
                                         } atIndex:0];
     }
 }
+
+- (void)deleteItemsFromBaseSystem:(NSArray *)itemArray modifyDictArray:(NSMutableArray *)modifyDictArray beforeModifications:(BOOL)beforeModifications {
+    DDLogDebug(@"[DEBUG] Adding %lu items to delete from BaseSyste", (unsigned long)[itemArray count]);
+    
+    NSURL *itemURL;
+    NSError *error = nil;
+    
+    for ( NSString *itemRelativePath in itemArray ) {
+        DDLogDebug(@"[DEBUG] Relative path to delete: %@", itemRelativePath);
+        itemURL = [_baseSystemVolumeURL URLByAppendingPathComponent:itemRelativePath];
+        DDLogDebug(@"[DEBUG] Full path to delete: %@", [itemURL path]);
+        if ( [itemURL checkResourceIsReachableAndReturnError:&error] ) {
+            if ( beforeModifications ) {
+                [modifyDictArray insertObject:@{
+                                                NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
+                                                NBCWorkflowModifyTargetURL :  [itemURL path]
+                                                } atIndex:0];
+            } else {
+                [modifyDictArray addObject:@{
+                                             NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
+                                             NBCWorkflowModifyTargetURL :  [itemURL path]
+                                             }];
+            }
+        } else {
+            DDLogDebug(@"[DEBUG] %@", [error localizedDescription]);
+        }
+    }
+}
+
+- (void)disableKernelExtensions:(NSArray *)kernelExtensions modifyDictArray:(NSMutableArray *)modifyDictArray {
+    DDLogDebug(@"[DEBUG] Adding %lu kernel extensions to disable from BaseSyste", (unsigned long)[kernelExtensions count]);
+    
+    NSURL *kextURL;
+    NSURL *kextTargetURL;
+    NSError *error = nil;
+    
+    for ( NSString *kextRelativePath in kernelExtensions ) {
+        DDLogDebug(@"[DEBUG] Relative path to kernel extension: %@", kextRelativePath);
+        kextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:kextRelativePath];
+        DDLogDebug(@"[DEBUG] Full path to kernel extension: %@", [kextURL path]);
+        if ( [kextURL checkResourceIsReachableAndReturnError:&error] ) {
+            kextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:[NSString stringWithFormat:@"System/Library/ExtensionsDisabled/%@", [kextURL lastPathComponent]]];
+            
+            // Update modification array
+            [modifyDictArray addObject:@{
+                                         NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
+                                         NBCWorkflowModifySourceURL : [kextURL path],
+                                         NBCWorkflowModifyTargetURL : [kextTargetURL path]
+                                         }];
+        } else {
+            DDLogDebug(@"[DEBUG] %@", [error localizedDescription]);
+        }
+    }
+} // disableLaunchDaemons:modifyDictArray
 
 - (void)disableLaunchDaemons:(NSArray *)launchDaemons modifyDictArray:(NSMutableArray *)modifyDictArray {
     
@@ -512,6 +570,7 @@ DDLogLevel ddLogLevel;
     NSError * error = nil;
     NSArray *rootItems = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:_baseSystemVolumeURL includingPropertiesForKeys:@[] options:NSDirectoryEnumerationSkipsHiddenFiles error:&error];
     
+    __block NSString *installerPath;
     if ( [rootItems count] == 0 && error ) {
         DDLogError(@"[ERROR] %@", [error localizedDescription]);
     } else {
@@ -519,39 +578,21 @@ DDLogLevel ddLogLevel;
         [itemsFiltered enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger __unused idx, BOOL * _Nonnull stop) {
             NSString *itemName = [obj lastPathComponent];
             if ( [itemName hasPrefix:@"Install OS X"] && [itemName hasSuffix:@".app"] ) {
-                DDLogDebug(@"[DEBUG] Installer path: %@", [obj path]);
-                [modifyDictArray insertObject:@{
-                                                NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
-                                                NBCWorkflowModifyTargetURL :  [obj path]
-                                                } atIndex:0];
+                installerPath = [obj lastPathComponent];
+                DDLogDebug(@"[DEBUG] Installer path: %@", installerPath);
                 *stop = YES;;
             }
         }];
     }
     
     // --------------------------------------------------------------
-    //  /Applications/Safari.app
+    //  Delete installer items
     // --------------------------------------------------------------
-    NSURL *safariURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Safari.app"];
-    DDLogDebug(@"[DEBUG] Safari.app path: %@", [safariURL path]);
-    if ( [safariURL checkResourceIsReachableAndReturnError:nil] ) {
-        [modifyDictArray insertObject:@{
-                                        NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
-                                        NBCWorkflowModifyTargetURL :  [safariURL path]
-                                        } atIndex:0];
-    }
-    
-    // --------------------------------------------------------------
-    //  /System/Installation/CDIS
-    // --------------------------------------------------------------
-    NSURL *cdisURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Installation/CDIS"];
-    DDLogDebug(@"[DEBUG] CDIS folder path: %@", [cdisURL path]);
-    if ( [cdisURL checkResourceIsReachableAndReturnError:nil] ) {
-        [modifyDictArray insertObject:@{
-                                        NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
-                                        NBCWorkflowModifyTargetURL :  [cdisURL path]
-                                        } atIndex:0];
-    }
+    [self deleteItemsFromBaseSystem:@[
+                                      installerPath ?: @"",
+                                      @"Safari.app",
+                                      @"System/Installation/CDIS"
+                                      ] modifyDictArray:modifyDictArray beforeModifications:YES];
     
     // --------------------------------------------------------------
     //  Disable installer LaunchDaemons
@@ -570,125 +611,21 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Preparing modifications for Bluetooth...");
     
-    // --------------------------------------------------------------
-    //  /System/Library/Extensions/IOBluetoothFamily.kext
-    // --------------------------------------------------------------
-    NSURL *bluetoothKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IOBluetoothFamily.kext"];
-    if ( [bluetoothKextURL checkResourceIsReachableAndReturnError:nil] ) {
-        NSURL *bluetoothKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IOBluetoothFamily.kext"];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                     NBCWorkflowModifySourceURL : [bluetoothKextURL path],
-                                     NBCWorkflowModifyTargetURL : [bluetoothKextTargetURL path]
-                                     }];
-    }
+    [self disableKernelExtensions:@[
+                                    @"System/Library/Extensions/IOBluetoothFamily.kext",
+                                    @"System/Library/Extensions/IOBluetoothHIDDriver.kext",
+                                    @"System/Library/Extensions/AppleBluetoothHIDMouse.kext",
+                                    @"System/Library/Extensions/AppleBluetoothHIDKeyboard.kext",
+                                    @"System/Library/Extensions/AppleBluetoothMultitouch.kext"
+                                    ] modifyDictArray:modifyDictArray];
     
-    // --------------------------------------------------------------
-    //  /System/Library/Extensions/IOBluetoothHIDDriver.kext
-    // --------------------------------------------------------------
-    NSURL *bluetoothHIDDriverKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IOBluetoothHIDDriver.kext"];
-    if ( [bluetoothHIDDriverKextURL checkResourceIsReachableAndReturnError:nil] ) {
-        NSURL *bluetoothHIDDriverKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IOBluetoothHIDDriver.kext"];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                     NBCWorkflowModifySourceURL : [bluetoothHIDDriverKextURL path],
-                                     NBCWorkflowModifyTargetURL : [bluetoothHIDDriverKextTargetURL path]
-                                     }];
-    }
-    
-    // --------------------------------------------------------------
-    //  /System/Library/Extensions/AppleBluetoothHIDMouse.kext
-    // --------------------------------------------------------------
-    NSURL *bluetoothHIDMouseKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleBluetoothHIDMouse.kext"];
-    if ( [bluetoothHIDMouseKextURL checkResourceIsReachableAndReturnError:nil] ) {
-        NSURL *bluetoothHIDMouseKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothHIDMouse.kext"];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                     NBCWorkflowModifySourceURL : [bluetoothHIDMouseKextURL path],
-                                     NBCWorkflowModifyTargetURL : [bluetoothHIDMouseKextTargetURL path]
-                                     }];
-    }
-    
-    // --------------------------------------------------------------------------------------------
-    //  /System/Library/Extensions/AppleHIDMouse.kext/Contents/PlugIns/AppleBluetoothHIDMouse.kext
-    // --------------------------------------------------------------------------------------------
-    NSURL *bluetoothHIDMousePluginKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleHIDMouse.kext/Contents/PlugIns/AppleBluetoothHIDMouse.kext"];
-    if ( [bluetoothHIDMousePluginKextURL checkResourceIsReachableAndReturnError:nil] ) {
-        NSURL *bluetoothHIDMousePluginKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/PlugIn_AppleBluetoothHIDMouse.kext"];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                     NBCWorkflowModifySourceURL : [bluetoothHIDMousePluginKextURL path],
-                                     NBCWorkflowModifyTargetURL : [bluetoothHIDMousePluginKextTargetURL path]
-                                     }];
-    }
-    
-    // --------------------------------------------------------------
-    //  /System/Library/Extensions/AppleBluetoothHIDKeyboard.kext
-    // --------------------------------------------------------------
-    NSURL *bluetoothHIDKeyboardKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleBluetoothHIDKeyboard.kext"];
-    if ( [bluetoothHIDKeyboardKextURL checkResourceIsReachableAndReturnError:nil] ) {
-        NSURL *bluetoothHIDKeyboardKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothHIDKeyboard.kext"];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                     NBCWorkflowModifySourceURL : [bluetoothHIDKeyboardKextURL path],
-                                     NBCWorkflowModifyTargetURL : [bluetoothHIDKeyboardKextTargetURL path]
-                                     }];
-    }
-    
-    // --------------------------------------------------------------------------------------------------
-    //  /System/Library/Extensions/AppleHIDKeyboard.kext/Contents/PlugIns/AppleBluetoothHIDKeyboard.kext
-    // --------------------------------------------------------------------------------------------------
-    NSURL *bluetoothHIDKeyboardPluginKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleHIDKeyboard.kext/Contents/PlugIns/AppleBluetoothHIDKeyboard.kext"];
-    if ( [bluetoothHIDKeyboardPluginKextURL checkResourceIsReachableAndReturnError:nil] ) {
-        NSURL *bluetoothHIDKeyboardPluginKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/PlugIn_AppleBluetoothHIDKeyboard.kext"];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                     NBCWorkflowModifySourceURL : [bluetoothHIDKeyboardPluginKextURL path],
-                                     NBCWorkflowModifyTargetURL : [bluetoothHIDKeyboardPluginKextTargetURL path]
-                                     }];
-    }
-    
-    // --------------------------------------------------------------
-    //  /System/Library/Extensions/AppleBluetoothMultitouch.kext
-    // --------------------------------------------------------------
-    NSURL *bluetoothMultitouchKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleBluetoothMultitouch.kext"];
-    if ( [bluetoothMultitouchKextURL checkResourceIsReachableAndReturnError:nil] ) {
-        NSURL *bluetoothMultitouchKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleBluetoothMultitouch.kext"];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                     NBCWorkflowModifySourceURL : [bluetoothMultitouchKextURL path],
-                                     NBCWorkflowModifyTargetURL : [bluetoothMultitouchKextTargetURL path]
-                                     }];
-    }
-    
-    // --------------------------------------------------------------
-    //  /System/Library/Extensions/AppleTopCase.kext/Contents/PlugIns/AppleHSBluetoothDriver.kext
-    // --------------------------------------------------------------
-    NSURL *appleHSBBluetoothDriverURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/AppleTopCase.kext/Contents/PlugIns/AppleHSBluetoothDriver.kext"];
-    if ( [appleHSBBluetoothDriverURL checkResourceIsReachableAndReturnError:nil] ) {
-        NSURL *appleHSBBluetoothDriverTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/AppleHSBluetoothDriver.kext"];
-        
-        // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove,
-                                     NBCWorkflowModifySourceURL : [appleHSBBluetoothDriverURL path],
-                                     NBCWorkflowModifyTargetURL : [appleHSBBluetoothDriverTargetURL path]
-                                     }];
-    }
+    /* Testing only, renders their parent kexts left out of prelinked kernel because of invalid signing when modified
+     [self disableKernelExtensions:@[
+     @"System/Library/Extensions/AppleHIDMouse.kext/Contents/PlugIns/AppleBluetoothHIDMouse.kext",
+     @"System/Library/Extensions/AppleHIDKeyboard.kext/Contents/PlugIns/AppleBluetoothHIDKeyboard.kext",
+     @"System/Library/Extensions/AppleTopCase.kext/Contents/PlugIns/AppleHSBluetoothDriver.kext"
+     ] modifyDictArray:modifyDictArray];
+     */
     
     [self disableLaunchDaemons:@[
                                  @"com.apple.bluetoothReporter.plist",
@@ -1034,13 +971,7 @@ DDLogLevel ddLogLevel;
         // ---------------------------------------------------------------------
         //  Clean up by removing empty folder
         // ---------------------------------------------------------------------
-        NSURL *appleFontsURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Library/Application Support/Apple/Fonts" isDirectory:YES];
-        if ( [appleFontsURL checkResourceIsReachableAndReturnError:nil] ) {
-            [modifyDictArray addObject:@{
-                                         NBCWorkflowModifyFileType :   NBCWorkflowModifyFileTypeDelete,
-                                         NBCWorkflowModifyTargetURL :  [appleFontsURL path]
-                                         }];
-        }
+        [self deleteItemsFromBaseSystem:@[ @"Library/Application Support/Apple/Fonts" ] modifyDictArray:modifyDictArray beforeModifications:NO];
     }
 }
 
@@ -1048,14 +979,14 @@ DDLogLevel ddLogLevel;
     
     DDLogInfo(@"Preparing modifications for folders...");
     
-    [self addFoldersToBaseSystemWithRelativePaths:@[
-                                                    @"usr/local",
-                                                    @"Library/LaunchAgents",
-                                                    @"Library/LaunchDaemons",
-                                                    @"Library/Application Support",
-                                                    @"System/Library/Caches/com.apple.kext.caches/Directories/System/Library/Extensions",
-                                                    @"System/Library/Caches/com.apple.kext.caches/Startup"
-                                                    ] modifyDictArray:modifyDictArray];
+    [self addFoldersToBaseSystem:@[
+                                   @"usr/local",
+                                   @"Library/LaunchAgents",
+                                   @"Library/LaunchDaemons",
+                                   @"Library/Application Support",
+                                   @"System/Library/Caches/com.apple.kext.caches/Directories/System/Library/Extensions",
+                                   @"System/Library/Caches/com.apple.kext.caches/Startup"
+                                   ] modifyDictArray:modifyDictArray];
 } // modifyFolders
 
 - (BOOL)modifyFolderPackages:(NSMutableArray *)modifyDictArray error:(NSError **)error {
@@ -1197,7 +1128,7 @@ DDLogLevel ddLogLevel;
                                  @"com.apple.ftp-proxy.plist",
                                  @"com.apple.icloud.findmydeviced.FMM_recovery.plist",
                                  @"com.apple.locationd.plist",
-                                 @"com.apple.lsd.plist",
+                                 //@"com.apple.lsd.plist",
                                  @"com.apple.ocspd.plist",
                                  @"com.apple.scrod.plist",
                                  @"com.apple.speech.speechsynthesisd.plist",
@@ -1207,6 +1138,11 @@ DDLogLevel ddLogLevel;
                                  @"org.ntp.sntp.plist",
                                  @"ssh.plist"
                                  ] modifyDictArray:modifyDictArray];
+    
+    [self deleteItemsFromBaseSystem:@[
+                                      @"Library/Managed Preferences/root"
+                                      ] modifyDictArray:modifyDictArray beforeModifications:YES];
+    
 } // modifyLaunchDaemons
 
 - (BOOL)modifyLocalization:(NSMutableArray *)modifyDictArray error:(NSError **)error {
@@ -1504,7 +1440,7 @@ DDLogLevel ddLogLevel;
                     line = [line stringByReplacingOccurrencesOfString:@"'" withString:@""];
                     
                     if ( [line hasPrefix:@"/"] ) {
-                        [self addFoldersToBaseSystemWithRelativePaths:@[ [line substringFromIndex:1] ] modifyDictArray:modifyDictArray];
+                        [self addFoldersToBaseSystem:@[ [line substringFromIndex:1] ] modifyDictArray:modifyDictArray];
                     }
                 }
             }
@@ -1648,13 +1584,13 @@ DDLogLevel ddLogLevel;
             [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches 32768\n"];
             [rcCdmCdrom appendString:@"RAMDisk /System/Library/Caches/com.apple.CVMS 32768\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/db/lsd 2048\n"];
-            [rcCdmCdrom appendString:@"RAMDisk /var/db/crls 2048\n"];
+            //[rcCdmCdrom appendString:@"RAMDisk /var/db/crls 2048\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/db/launchd.db 2048\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/db/launchd.db/com.apple.launchd 2048\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/db/dslocal/nodes/Default/users 2048\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/root 32768\n"];
             [rcCdmCdrom appendString:@"RAMDisk /var/root/Library/Caches 32768\n"];
-            [rcCdmCdrom appendString:@"RAMDisk /var/root/Library/Caches/ocspd 32768\n"];
+            //[rcCdmCdrom appendString:@"RAMDisk /var/root/Library/Caches/ocspd 32768\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Logs 16384\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Logs/DiagnosticReports 4096\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Caches 65536\n"];
@@ -1763,6 +1699,17 @@ DDLogLevel ddLogLevel;
     NSMutableString *rcImaging = [[NSMutableString alloc] initWithString:@"#!/bin/bash\n"];
     
     // ------------------------------------------------------------------
+    //  DesktopViewer
+    // ------------------------------------------------------------------
+    if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
+        [rcImaging appendString:[NSString stringWithFormat:@"\n"
+                                 "###\n"
+                                 "### Start NBICreatorDesktopViewer\n"
+                                 "###\n"
+                                 "/Applications/NBICreatorDesktopViewer.app/Contents/MacOS/NBICreatorDesktopViewer &\n"]];
+    }
+    
+    // ------------------------------------------------------------------
     //  Trusted NetBoot Servers
     // ------------------------------------------------------------------
     if ( 11 <= _sourceVersionMinor ) {
@@ -1804,7 +1751,8 @@ DDLogLevel ddLogLevel;
     // ------------------------------------------------------------------
     //  spctl
     // ------------------------------------------------------------------
-    /*[rcImaging appendString:[NSString stringWithFormat:@"\n"
+    /* Why is this uncommented, is this not needed? DS does this.
+     [rcImaging appendString:[NSString stringWithFormat:@"\n"
      "###\n"
      "### Disable Gatekeeper\n"
      "###\n"
@@ -1910,17 +1858,6 @@ DDLogLevel ddLogLevel;
                                  "if [ -e /usr/local/certificates ]; then\n"
                                  "\t/usr/local/scripts/installCertificates.bash\n"
                                  "fi\n"]];
-    }
-    
-    // ------------------------------------------------------------------
-    //  DesktopViewer
-    // ------------------------------------------------------------------
-    if ( [_userSettings[NBCSettingsUseBackgroundImageKey] boolValue] ) {
-        [rcImaging appendString:[NSString stringWithFormat:@"\n"
-                                 "###\n"
-                                 "### Start NBICreatorDesktopViewer\n"
-                                 "###\n"
-                                 "/Applications/NBICreatorDesktopViewer.app/Contents/MacOS/NBICreatorDesktopViewer &\n"]];
     }
     
     // ------------------------------------------------------------------
@@ -2249,9 +2186,9 @@ DDLogLevel ddLogLevel;
     // --------------------------------------------------------------
     //  /Library/Application Support/Apple/Remote Desktop
     // --------------------------------------------------------------
-    [self addFoldersToBaseSystemWithRelativePaths:@[
-                                                    @"Library/Application Support/Apple/Remote Desktop"
-                                                    ] modifyDictArray:modifyDictArray];
+    [self addFoldersToBaseSystem:@[
+                                   @"Library/Application Support/Apple/Remote Desktop"
+                                   ] modifyDictArray:modifyDictArray];
     
     // --------------------------------------------------------------
     //  /etc/RemoteManagement.launchd
@@ -2473,10 +2410,7 @@ DDLogLevel ddLogLevel;
                                      }];
         
         // Update modification array
-        [modifyDictArray addObject:@{
-                                     NBCWorkflowModifyFileType :    NBCWorkflowModifyFileTypeDelete,
-                                     NBCWorkflowModifyTargetURL :   [systemUIServerLaunchAgentURL path]
-                                     }];
+        [self deleteItemsFromBaseSystem:@[ [systemUIServerLaunchAgentURL path] ] modifyDictArray:modifyDictArray beforeModifications:NO];
     } else {
         return NO;
     }

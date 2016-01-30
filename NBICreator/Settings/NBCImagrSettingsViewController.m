@@ -2943,6 +2943,7 @@ DDLogLevel ddLogLevel;
     // -------------------------------------------------------------------------
     //  Keyboard Layout Name
     // -------------------------------------------------------------------------
+    // FIXME - copy/past for now, will move to it's own class for better structure
     DDLogDebug(@"[DEBUG] Preparing selected keyboard layout name...");
     NSDictionary *hiToolboxDict;
     NSURL *userLibraryURL = [[NSFileManager defaultManager] URLForDirectory:NSLibraryDirectory
@@ -2953,99 +2954,163 @@ DDLogLevel ddLogLevel;
     DDLogDebug(@"[DEBUG] User library path: %@", [userLibraryURL path]);
     NSURL *hiToolboxURL = [userLibraryURL URLByAppendingPathComponent:@"Preferences/com.apple.HIToolbox.plist"];
     NSString *selectedKeyboardLayoutName = userSettings[NBCSettingsKeyboardLayoutKey];
+    TISInputSourceRef inputSource = (TISInputSourceRef)(TISCopyCurrentKeyboardInputSource());
     DDLogDebug(@"[DEBUG] Selected keyboard layout name: %@", selectedKeyboardLayoutName);
     if ( [selectedKeyboardLayoutName isEqualToString:NBCMenuItemCurrent] ) {
-        DDLogDebug(@"[DEBUG] Checking HiToolbox URL...");
-        if ( ! [hiToolboxURL checkResourceIsReachableAndReturnError:&err] ) {
-            DDLogError(@"[ERROR] %@", err);
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not find hiToolboxPlist!"];
-            return;
-        }
         
-        hiToolboxDict = [NSDictionary dictionaryWithContentsOfURL:hiToolboxURL];
-        if ( [hiToolboxDict isKindOfClass:[NSDictionary class]] ) {
-            
-            if ( [hiToolboxDict count] == 0 ) {
-                DDLogError(@"[ERROR] HIToolbox.plist was empty!");
-                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"HIToolbox.plist was empty"];
-                return;
-            }
-            
-            NSArray *appleSelectedInputSources = hiToolboxDict[@"AppleSelectedInputSources"] ?: @[];
-            if ( [appleSelectedInputSources count] == 0 ) {
-                DDLogError(@"[ERROR] AppleSelectedInputSources in HIToolbox.plist was empty!");
-                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"AppleSelectedInputSources in HIToolbox.plist was empty"];
-                return;
-            }
-            
-            NSDictionary *currentInputSource = [appleSelectedInputSources firstObject] ?: @{};
-            if ( [currentInputSource count] == 0 ) {
-                DDLogError(@"[ERROR] First object in AppleSelectedInputSources in HIToolbox.plist was empty!");
-                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"First object in AppleSelectedInputSources in HIToolbox.plist was empty"];
-                return;
-            }
-            
-            selectedKeyboardLayoutName = currentInputSource[@"KeyboardLayout Name"];
-            DDLogDebug(@"[DEBUG] Current keyboard layout name: %@", selectedKeyboardLayoutName);
-            if ( [selectedKeyboardLayoutName length] != 0 ) {
-                resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
-            } else {
-                DDLogError(@"[ERROR] Selected keyboard layout name was empty");
-                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout name"];
-                return;
-            }
+        DDLogDebug(@"[DEBUG] Getting current keyboard layout name...");
+        NSString *localizedKeyboardName = (__bridge NSString *)(TISGetInputSourceProperty(inputSource, kTISPropertyLocalizedName));
+        DDLogDebug(@"[DEBUG] Current keyboard layout name: %@", localizedKeyboardName);
+        if ( [localizedKeyboardName length] != 0 ) {
+            resourcesSettings[NBCSettingsKeyboardLayoutKey] = localizedKeyboardName;
         } else {
-            DDLogError(@"[ERROR] hiToolboxDict is NOT a dict, it's of class: %@", [hiToolboxDict class]);
-            return;
+            
+            DDLogDebug(@"[DEBUG] Current keyboard layout name returned empty, checking HiToolbox URL...");
+            if ( ! [hiToolboxURL checkResourceIsReachableAndReturnError:&err] ) {
+                DDLogError(@"[ERROR] %@", err);
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not find hiToolboxPlist!"];
+                return;
+            }
+            
+            hiToolboxDict = [NSDictionary dictionaryWithContentsOfURL:hiToolboxURL];
+            if ( [hiToolboxDict isKindOfClass:[NSDictionary class]] ) {
+                
+                if ( [hiToolboxDict count] == 0 ) {
+                    DDLogError(@"[ERROR] HIToolbox.plist was empty!");
+                    [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"HIToolbox.plist was empty"];
+                    return;
+                }
+                
+                NSArray *appleSelectedInputSources = hiToolboxDict[@"AppleSelectedInputSources"] ?: @[];
+                if ( [appleSelectedInputSources count] == 0 ) {
+                    DDLogError(@"[ERROR] AppleSelectedInputSources in HIToolbox.plist was empty!");
+                    [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"AppleSelectedInputSources in HIToolbox.plist was empty"];
+                    return;
+                }
+                
+                NSDictionary *currentInputSource = [appleSelectedInputSources firstObject] ?: @{};
+                if ( [currentInputSource count] == 0 ) {
+                    DDLogError(@"[ERROR] First object in AppleSelectedInputSources in HIToolbox.plist was empty!");
+                    [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"First object in AppleSelectedInputSources in HIToolbox.plist was empty"];
+                    return;
+                }
+                
+                selectedKeyboardLayoutName = currentInputSource[@"KeyboardLayout Name"];
+                DDLogDebug(@"[DEBUG] Current keyboard layout name: %@", selectedKeyboardLayoutName);
+                if ( [selectedKeyboardLayoutName length] != 0 ) {
+                    resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
+                } else {
+                    DDLogError(@"[ERROR] Selected keyboard layout name was empty");
+                    [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout name"];
+                    return;
+                }
+            } else {
+                DDLogError(@"[ERROR] hiToolboxDict is NOT a dict, it's of class: %@", [hiToolboxDict class]);
+                return;
+            }
         }
     } else {
         resourcesSettings[NBCSettingsKeyboardLayoutKey] = selectedKeyboardLayoutName;
     }
     
-    // -------------------------------------------------------------------------
-    //  Keyboard Layout ID
-    // -------------------------------------------------------------------------
-    if ( ! [_keyboardLayoutDict isKindOfClass:[NSDictionary class]] ) {
-        DDLogError(@"[ERROR] _keyboardLayoutDict is NOT a dict, it's of class: %@", [_keyboardLayoutDict class]);
-        return;
-    }
-    
-    DDLogDebug(@"[DEBUG] Preparing selected keyboard layout id...");
-    if ( [_keyboardLayoutDict count] == 0 ) {
-        DDLogError(@"[ERROR] Keyboard layout dict was empty!");
-        [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
-        return;
-    }
-    
-    NSString *selectedKeyboardLayout = _keyboardLayoutDict[selectedKeyboardLayoutName];
-    DDLogDebug(@"[DEBUG] Preparing selected keyboard layout: %@", selectedKeyboardLayout);
-    if ( [selectedKeyboardLayout length] == 0 ) {
-        
-        if ( ! [hiToolboxURL checkResourceIsReachableAndReturnError:&err] ) {
-            DDLogError(@"[ERROR] %@", [err localizedDescription]);
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:[err localizedDescription]];
-            return;
-        }
-        
-        hiToolboxDict = [NSDictionary dictionaryWithContentsOfURL:hiToolboxURL];
-        if ( [hiToolboxDict count] == 0 ) {
-            DDLogError(@"[ERROR] HIToolbox.plist was empty!");
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
-            return;
-        }
-        
-        NSString *currentKeyboardLayout = hiToolboxDict[@"AppleCurrentKeyboardLayoutInputSourceID"];
-        DDLogDebug(@"[DEBUG] Current keyboard layout: %@", currentKeyboardLayout);
-        if ( [currentKeyboardLayout length] != 0 ) {
-            resourcesSettings[NBCSettingsKeyboardLayoutID] = currentKeyboardLayout;
+    if ( [selectedKeyboardLayoutName isEqualToString:NBCMenuItemCurrent] ) {
+        NSString* sourceID = (__bridge NSString *)(TISGetInputSourceProperty(inputSource, kTISPropertyInputSourceID));
+        if ( [sourceID length] != 0 ) {
+            resourcesSettings[NBCSettingsKeyboardLayoutID] = sourceID;
         } else {
-            DDLogError(@"[ERROR] AppleCurrentKeyboardLayoutInputSourceID in HIToolbox.plist was empty!");
-            DDLogError(@"[ERROR] HIToolbox.plist: %@", hiToolboxDict);
-            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
-            return;
+            
+            // -------------------------------------------------------------------------
+            //  Keyboard Layout ID
+            // -------------------------------------------------------------------------
+            if ( ! [_keyboardLayoutDict isKindOfClass:[NSDictionary class]] ) {
+                DDLogError(@"[ERROR] _keyboardLayoutDict is NOT a dict, it's of class: %@", [_keyboardLayoutDict class]);
+                return;
+            }
+            
+            DDLogDebug(@"[DEBUG] Preparing selected keyboard layout id...");
+            if ( [_keyboardLayoutDict count] == 0 ) {
+                DDLogError(@"[ERROR] Keyboard layout dict was empty!");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
+                return;
+            }
+            
+            NSString *selectedKeyboardLayout = _keyboardLayoutDict[selectedKeyboardLayoutName];
+            DDLogDebug(@"[DEBUG] Preparing selected keyboard layout: %@", selectedKeyboardLayout);
+            if ( [selectedKeyboardLayout length] == 0 ) {
+                
+                if ( ! [hiToolboxURL checkResourceIsReachableAndReturnError:&err] ) {
+                    DDLogError(@"[ERROR] %@", [err localizedDescription]);
+                    [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:[err localizedDescription]];
+                    return;
+                }
+                
+                hiToolboxDict = [NSDictionary dictionaryWithContentsOfURL:hiToolboxURL];
+                if ( [hiToolboxDict count] == 0 ) {
+                    DDLogError(@"[ERROR] HIToolbox.plist was empty!");
+                    [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
+                    return;
+                }
+                
+                NSString *currentKeyboardLayout = hiToolboxDict[@"AppleCurrentKeyboardLayoutInputSourceID"];
+                DDLogDebug(@"[DEBUG] Current keyboard layout: %@", currentKeyboardLayout);
+                if ( [currentKeyboardLayout length] != 0 ) {
+                    resourcesSettings[NBCSettingsKeyboardLayoutID] = currentKeyboardLayout;
+                } else {
+                    DDLogError(@"[ERROR] AppleCurrentKeyboardLayoutInputSourceID in HIToolbox.plist was empty!");
+                    DDLogError(@"[ERROR] HIToolbox.plist: %@", hiToolboxDict);
+                    [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
+                    return;
+                }
+            } else {
+                resourcesSettings[NBCSettingsKeyboardLayoutID] = selectedKeyboardLayout;
+            }
         }
     } else {
-        resourcesSettings[NBCSettingsKeyboardLayoutID] = selectedKeyboardLayout;
+        // -------------------------------------------------------------------------
+        //  Keyboard Layout ID
+        // -------------------------------------------------------------------------
+        if ( ! [_keyboardLayoutDict isKindOfClass:[NSDictionary class]] ) {
+            DDLogError(@"[ERROR] _keyboardLayoutDict is NOT a dict, it's of class: %@", [_keyboardLayoutDict class]);
+            return;
+        }
+        
+        DDLogDebug(@"[DEBUG] Preparing selected keyboard layout id...");
+        if ( [_keyboardLayoutDict count] == 0 ) {
+            DDLogError(@"[ERROR] Keyboard layout dict was empty!");
+            [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
+            return;
+        }
+        
+        NSString *selectedKeyboardLayout = _keyboardLayoutDict[selectedKeyboardLayoutName];
+        DDLogDebug(@"[DEBUG] Preparing selected keyboard layout: %@", selectedKeyboardLayout);
+        if ( [selectedKeyboardLayout length] == 0 ) {
+            
+            if ( ! [hiToolboxURL checkResourceIsReachableAndReturnError:&err] ) {
+                DDLogError(@"[ERROR] %@", [err localizedDescription]);
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:[err localizedDescription]];
+                return;
+            }
+            
+            hiToolboxDict = [NSDictionary dictionaryWithContentsOfURL:hiToolboxURL];
+            if ( [hiToolboxDict count] == 0 ) {
+                DDLogError(@"[ERROR] HIToolbox.plist was empty!");
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
+                return;
+            }
+            
+            NSString *currentKeyboardLayout = hiToolboxDict[@"AppleCurrentKeyboardLayoutInputSourceID"];
+            DDLogDebug(@"[DEBUG] Current keyboard layout: %@", currentKeyboardLayout);
+            if ( [currentKeyboardLayout length] != 0 ) {
+                resourcesSettings[NBCSettingsKeyboardLayoutID] = currentKeyboardLayout;
+            } else {
+                DDLogError(@"[ERROR] AppleCurrentKeyboardLayoutInputSourceID in HIToolbox.plist was empty!");
+                DDLogError(@"[ERROR] HIToolbox.plist: %@", hiToolboxDict);
+                [NBCAlerts showAlertErrorWithTitle:@"Preparing build failed" informativeText:@"Could not get current keyboard layout id"];
+                return;
+            }
+        } else {
+            resourcesSettings[NBCSettingsKeyboardLayoutID] = selectedKeyboardLayout;
+        }
     }
     
     DDLogDebug(@"[DEBUG] Preparing selected time zone...");
