@@ -136,6 +136,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     // --------------------------------------------------------------
     [self updatePopUpButtonSource];
     
+    [self setSourceReadOnlyShown:NO];
+    
     [self hideNoSource];
 } // viewDidLoad
 
@@ -468,15 +470,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     
     NSString *sourceType = [source sourceType];
     DDLogDebug(@"[DEBUG] Source type: %@", sourceType);
-    
-    if ( [sourceType isEqualToString:NBCSourceTypeNBI] ) {
-        if ( ! [[NSFileManager defaultManager] isWritableFileAtPath:[[source sourceURL] path]] ) {
-            [NBCAlerts showAlertSourceReadOnly];
-            [self restoreDropView];
-            return;
-        }
-    }
-    
+
     if ( [_creationTool isEqualToString:NBCMenuItemDeployStudioAssistant] ) {
         
         // -----------------------------------------------------------------
@@ -793,6 +787,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 } // showRecoveryVersionMismatch
 
 - (void)restoreDropView {
+    DDLogDebug(@"[DEBUG] Restoring drop view");
     
     // ------------------------------------------------------
     //  Post notification that source was removed
@@ -807,6 +802,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 } // restoreDropView
 
 - (void)hideSource {
+    DDLogDebug(@"[DEBUG] Hiding source from drop view");
+    
     // ------------------------------------------------------
     //  Resize Source PopUpButton
     // ------------------------------------------------------
@@ -845,6 +842,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 }
 
 - (void)showSource {
+    DDLogDebug(@"[DEBUG] Showing source in drop view");
     
     // ------------------------------------------------------
     //  Resize Source PopUpButton
@@ -1125,6 +1123,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 - (void)verifySourceAtURL:(NSURL *)sourceURL {
     
     [self setNbiSelectedSource:nil];
+    [self setSourceReadOnlyShown:NO];
     
     // ------------------------------------------------------
     //  Disable build button while checking new source
@@ -1230,6 +1229,19 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
         }
         
         if ( verified ) {
+            if ( [[source sourceType] isEqualToString:NBCSourceTypeNBI] ) {
+                if ( ! [[NSFileManager defaultManager] isWritableFileAtPath:[[source sourceURL] path]] ) {
+                    if ( ! self->_sourceReadOnlyShown ) {
+                        [self setSourceReadOnlyShown:YES];
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            [NBCAlerts showAlertSourceReadOnly];
+                            [self restoreDropView];
+                        });
+                        return;
+                    }
+                }
+            }
+            
             if ( [[source sourceType] isEqualToString:NBCSourceTypeNBI] && target ) {
                 [self setTargetNBI:target];
                 [self setNbiSelectedSource:[source sourceMenuName]];

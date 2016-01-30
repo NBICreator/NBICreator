@@ -97,6 +97,7 @@ extern NSString *const NBCSourceTypeSystem;
 @property NSString *nbiType;
 @property NSMutableArray *sourcesInstallESD;
 @property BOOL allowNBISource;
+@property BOOL sourceReadOnlyShown;
 
 // ------------------------------------------------------
 //  PopUpButton Source
