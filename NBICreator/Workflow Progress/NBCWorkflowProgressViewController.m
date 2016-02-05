@@ -400,6 +400,10 @@ DDLogLevel ddLogLevel;
     }
 } // logStdErr
 
+- (void)logLevel:(void (^)(int))reply {
+    reply((int)ddLogLevel);
+}
+
 - (void)parseDyldError:(NSString *)stdErrStr {
     
     NSString *enumerationTmpString;

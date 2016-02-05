@@ -31,6 +31,7 @@
 - (void)logError:(NSString *)logMessage;
 - (void)logStdOut:(NSString *)stdOutString;
 - (void)logStdErr:(NSString *)stdErrString;
+- (void)logLevel:(void (^)(int))reply;
 @end
 
 #endif /* NBCWorkflowProgressDelegate_h */

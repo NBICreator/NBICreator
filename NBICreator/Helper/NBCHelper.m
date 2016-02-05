@@ -224,9 +224,18 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     //  Run Script
     // -----------------------------------------------------------------------------------
     NSString *command = @"/bin/bash";
-    NSArray *arguments = @[ scriptPath, nbiVolumePath, userShortName, userPassword, @"501", @"admin" ];
+    NSMutableArray *arguments = [NSMutableArray arrayWithArray:@[ scriptPath, nbiVolumePath, userShortName, userPassword, @"501", @"admin" ]];
     
-    [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
+    // -----------------------------------------------------------------------------------
+    //  If debug logging is enabled, add -x to sh execution for verbose script output
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logLevel:^(int logLevel) {
+        if ( 15 <= logLevel ) {
+            [arguments insertObject:@"-x" atIndex:0];
+        }
+        
+        [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
+    }];
 } // addUsersToVolumeAtPath:userShortName:userPassword:withReply
 
 - (void)blessUSBVolumeAtURL:(NSURL *)usbVolumeURL
@@ -530,14 +539,22 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     
     // -----------------------------------------------------------------------------------
-    //  Verify script integrity
+    //  If debug logging is enabled, add -x to sh execution for verbose script output
     // -----------------------------------------------------------------------------------
-    //if ( ! [siuSource verifyCreateNetInstallHashes:&err] ) {
-    //    return reply(err, -1);
-    //}
-    
-    [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
-    
+    [[[self connection] remoteObjectProxy] logLevel:^(int logLevel) {
+        if ( 15 <= logLevel ) {
+            [argumentsWithScript insertObject:@"-x" atIndex:0];
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify script integrity
+        // -----------------------------------------------------------------------------------
+        //if ( ! [siuSource verifyCreateNetInstallHashes:&err] ) {
+        //    return reply(err, -1);
+        //}
+        
+        [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
+    }];
 } // createRestoreFromSourcesWithArguments
 
 - (void)createNetInstallWithArguments:(NSArray *)arguments
@@ -574,13 +591,22 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     
     // -----------------------------------------------------------------------------------
-    //  Verify script integrity
+    //  If debug logging is enabled, add -x to sh execution for verbose script output
     // -----------------------------------------------------------------------------------
-    //if ( ! [siuSource verifyCreateNetInstallHashes:&err] ) {
-    //    return reply(err, -1);
-    //}
-    
-    [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
+    [[[self connection] remoteObjectProxy] logLevel:^(int logLevel) {
+        if ( 15 <= logLevel ) {
+            [argumentsWithScript insertObject:@"-x" atIndex:0];
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify script integrity
+        // -----------------------------------------------------------------------------------
+        //if ( ! [siuSource verifyCreateNetInstallHashes:&err] ) {
+        //    return reply(err, -1);
+        //}
+        
+        [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
+    }];
 } // createNetInstallWithArguments
 
 - (void)disableSpotlightOnVolume:(NSString *)volumePath
@@ -1184,13 +1210,22 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     }
     
     // -----------------------------------------------------------------------------------
-    //  Verify script integrity
+    //  If debug logging is enabled, add -x to sh execution for verbose script output
     // -----------------------------------------------------------------------------------
-    //if ( ! [siuSource verifyCreateNetInstallHashes:&err] ) {
-    //    return reply(err, -1);
-    //}
-    
-    [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
+    [[[self connection] remoteObjectProxy] logLevel:^(int logLevel) {
+        if ( 15 <= logLevel ) {
+            [argumentsWithScript insertObject:@"-x" atIndex:0];
+        }
+        
+        // -----------------------------------------------------------------------------------
+        //  Verify script integrity
+        // -----------------------------------------------------------------------------------
+        //if ( ! [siuSource verifyCreateNetInstallHashes:&err] ) {
+        //    return reply(err, -1);
+        //}
+        
+        [self runTaskWithCommand:command arguments:[argumentsWithScript copy] currentDirectory:nil environmentVariables:nil withReply:reply];
+    }];
 } // sysBuilderWithArguments:selectedVersion:withReply
 
 - (void)updateKernelCache:(NSString *)targetVolumePath
@@ -1262,9 +1297,18 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     //  Run Script
     // -----------------------------------------------------------------------------------
     NSString *command = @"/bin/bash";
-    NSArray *arguments = @[ scriptPath, targetVolumePath, nbiVolumePath, minorVersion ];
+    NSMutableArray *arguments = [NSMutableArray arrayWithArray:@[ scriptPath, targetVolumePath, nbiVolumePath, minorVersion ]];
     
-    [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
+    // -----------------------------------------------------------------------------------
+    //  If debug logging is enabled, add -x to sh execution for verbose script output
+    // -----------------------------------------------------------------------------------
+    [[[self connection] remoteObjectProxy] logLevel:^(int logLevel) {
+        if ( 15 <= logLevel ) {
+            [arguments insertObject:@"-x" atIndex:0];
+        }
+        
+        [self runTaskWithCommand:command arguments:arguments currentDirectory:nil environmentVariables:nil withReply:reply];
+    }];
 } // updateKernelCache:tmpNBI:minorVersion:withReply
 
 - (void)quitHelper:(void (^)(BOOL success))reply {

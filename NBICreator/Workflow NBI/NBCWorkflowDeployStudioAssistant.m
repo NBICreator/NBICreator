@@ -222,5 +222,8 @@ DDLogLevel ddLogLevel;
 - (void)logStdErr:(NSString *)stdErrString {
     [_delegate logStdErr:stdErrString];
 }
+- (void)logLevel:(void (^)(int))reply {
+    reply((int)ddLogLevel);
+}
 
 @end

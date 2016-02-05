@@ -275,5 +275,8 @@ DDLogLevel ddLogLevel;
 - (void)logStdErr:(NSString *)stdErrString {
     DDLogDebug(@"[stderr] %@", stdErrString);
 }
+- (void)logLevel:(void (^)(int))reply {
+    reply((int)ddLogLevel);
+}
 
 @end
