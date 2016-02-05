@@ -153,11 +153,6 @@ DDLogLevel ddLogLevel;
     [menu addItem:restoreViewBackground];
     [_imageViewBackgroundImage setMenu:menu];
     
-    // --------------------------------------------------
-    //  Set correct background as no source is selected
-    // --------------------------------------------------
-    [self restoreNBIBackground:nil];
-    
     // ----------------------------------------------------
     //  Verify build button so It's not enabled by mistake
     // ----------------------------------------------------
@@ -366,8 +361,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateIconFromURL:(NSURL *)iconURL {
-    if ( iconURL != nil )
-    {
+    if ( iconURL != nil ) {
         // To get the view to update I have to first set the nbiIcon property to @""
         // It only happens when it recieves a dropped image, not when setting in code.
         [self setNbiIcon:@""];
@@ -719,9 +713,10 @@ DDLogLevel ddLogLevel;
     [self setUseCustomRuntimeTitle:[settingsDict[NBCSettingsDeployStudioUseCustomRuntimeTitleKey] boolValue]];
     [self setCustomRuntimeTitle:settingsDict[NBCSettingsDeployStudioRuntimeTitleKey]];
     [self setUseCustomBackgroundImage:[settingsDict[NBCSettingsUseBackgroundImageKey] boolValue]];
+    [self setImageBackground:@""];
     [self setImageBackgroundURL:settingsDict[NBCSettingsBackgroundImageKey]];
     [self setUsbLabel:settingsDict[NBCSettingsUSBLabelKey] ?: @"%OSVERSION%_%OSBUILD%_DS"];
-    
+
     [self uppdatePopUpButtonTool];
     
     [self expandVariablesForCurrentSettings];
@@ -797,7 +792,7 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsUseBackgroundImageKey] = @(_useCustomBackgroundImage) ?: @NO;
     settingsDict[NBCSettingsBackgroundImageKey] = _imageBackgroundURL ?: @"";
     settingsDict[NBCSettingsUSBLabelKey] = _usbLabel ?: @"";
-    
+
     return [settingsDict copy];
 } // returnSettingsFromUI
 
@@ -898,14 +893,18 @@ DDLogLevel ddLogLevel;
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         NSDictionary *savedSettings = [self returnSettingsFromURL:savedSettingsURL];
         if ( [currentSettings count] != 0 && [savedSettings count] != 0 ) {
+            if ( [currentSettings isEqualToDictionary:savedSettings] ) {
+                return NO;
+            }
+            
             NSMutableDictionary *currentSettingsOSBackground = [currentSettings mutableCopy];
             if ( [currentSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCDeployStudioBackgroundImageDefaultPath] ) {
                 currentSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundDefaultPath;
-            } else {
+            } else if ( [currentSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCDeployStudioBackgroundDefaultPath] ) {
                 currentSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundImageDefaultPath;
             }
             
-            if ( [currentSettings isEqualToDictionary:savedSettings] || [currentSettingsOSBackground isEqualToDictionary:savedSettings] ) {
+            if ( [currentSettingsOSBackground isEqualToDictionary:savedSettings] ) {
                 retval = NO;
             }
         } else {
