@@ -841,7 +841,7 @@ DDLogLevel ddLogLevel;
     NSString *imagrConfigurationURLString = userSettings[NBCSettingsImagrConfigurationURL];
     NSURL *imagrConfigurationURL = [NSURL URLWithString:imagrConfigurationURLString];
     if ( [imagrConfigurationURLString length] != 0 ) {
-        if ( [imagrConfigurationURLString hasPrefix:@"http://"] || [imagrConfigurationURLString hasPrefix:@"https://"] ) {
+        if ( [imagrConfigurationURLString hasPrefix:@"http://"] || [imagrConfigurationURLString hasPrefix:@"https://" || [imagrConfigurationURLString hasPrefix:@"file:///"] ) {
             if ( imagrConfigurationURL != nil ) {
                 NSString *imagrConfigurationURLHost = [imagrConfigurationURL host];
                 if ( [imagrConfigurationURLHost length] == 0 ) {
@@ -869,7 +869,7 @@ DDLogLevel ddLogLevel;
     NSString *imagrConfigurationURLString = userSettings[NBCSettingsImagrReportingURL];
     NSURL *imagrConfigurationURL = [NSURL URLWithString:imagrConfigurationURLString];
     if ( [imagrConfigurationURLString length] != 0 ) {
-        if ( [imagrConfigurationURLString hasPrefix:@"http://"] || [imagrConfigurationURLString hasPrefix:@"https://"] ) {
+        if ( [imagrConfigurationURLString hasPrefix:@"http://"] || [imagrConfigurationURLString hasPrefix:@"https://" || [imagrConfigurationURLString hasPrefix:@"file:///"] ) {
             if ( imagrConfigurationURL != nil ) {
                 NSString *imagrConfigurationURLHost = [imagrConfigurationURL host];
                 if ( [imagrConfigurationURLHost length] == 0 ) {
