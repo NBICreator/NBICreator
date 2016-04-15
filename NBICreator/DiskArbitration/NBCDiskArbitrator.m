@@ -23,7 +23,7 @@
     static NBCDiskArbitrator *arbitrator = nil;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        arbitrator = [[self alloc] init];
+      arbitrator = [[self alloc] init];
     });
     return arbitrator;
 }
@@ -31,7 +31,7 @@
 + (NSSet *)keyPathsForValuesAffectingValueForKey:(NSString *)key {
     if ([key isEqual:@"wholeDisks"])
         return [NSSet setWithObject:@"disks"];
-    
+
     return [super keyPathsForValuesAffectingValueForKey:key];
 }
 
@@ -65,25 +65,25 @@
 - (void)diskDidAppear:(NSNotification *)notif {
     NBCDisk *disk = notif.object;
     [self addDisksObject:disk];
-    
+
     /*
     if (disk.isMountable && !disk.isMounted) {
-        
+
         CFDictionaryRef desc = disk.diskDescription;
         NSString *volumeKindRef = (NSString *)CFDictionaryGetValue(desc, kDADiskDescriptionVolumeKindKey);
-        
+
         // Arguments will be passed via the -o flag of mount. If the file system specific mount, e.g. mount_hfs,
         // supports additional flags that mount(8) doesn't, they can be passed to -o.  That feature is used to
         // pass -j to mount_hfs, which instructs HFS to ignore journal.  Normally, an HFS volume that
         // has a dirty journal will fail to mount read-only because the file system is inconsistent.  "-j" is
         // a work-around.
-        
+
         NSArray *args;
         if ([volumeKindRef isEqual:@"hfs"])
             args = [NSArray arrayWithObjects:@"-j", @"rdonly", nil];
         else
             args = [NSArray arrayWithObjects:@"rdonly", nil];
-        
+
         [disk mountAtPath:nil withArguments:args];
     }
      */
@@ -94,17 +94,17 @@
 }
 
 - (void)diskDidChange:(NSNotification *)notif {
-    #pragma unused(notif)
-    //NSLog(@"Changed disk notification: %@", notif.description);
+#pragma unused(notif)
+    // NSLog(@"Changed disk notification: %@", notif.description);
 }
 
 - (NSSet *)wholeDisks {
     NSMutableSet *wholeDisks = [[NSMutableSet alloc] init];
-    
-    for ( NBCDisk *disk in disks )
-        if ( disk.isWholeDisk )
+
+    for (NBCDisk *disk in disks)
+        if (disk.isWholeDisk)
             [wholeDisks addObject:disk];
-    
+
     return wholeDisks;
 }
 
@@ -131,7 +131,7 @@
 }
 
 - (void)removeDisksObject:(NBCDisk *)anObject {
-    if ( anObject != nil ) {
+    if (anObject != nil) {
         [disks removeObject:anObject];
     } else {
         NSLog(@"Could not remove disk, it was nil");

@@ -19,24 +19,16 @@
 
 #import <Foundation/Foundation.h>
 
-#import "NBCSource.h"
-#import "NBCTarget.h"
 #import "NBCApplicationSourceDeployStudio.h"
 #import "NBCApplicationSourceSystemImageUtility.h"
+#import "NBCSource.h"
+#import "NBCTarget.h"
 
 @class NBCWorkflowProgressViewController;
 
-enum {
-    kWorkflowTypeDeployStudio = 0,
-    kWorkflowTypeNetInstall,
-    kWorkflowTypeImagr,
-    kWorkflowTypeCasper
-};
+enum { kWorkflowTypeDeployStudio = 0, kWorkflowTypeNetInstall, kWorkflowTypeImagr, kWorkflowTypeCasper };
 
-enum {
-    kWorkflowSessionTypeGUI = 0,
-    kWorkflowSessionTypeCLI
-};
+enum { kWorkflowSessionTypeGUI = 0, kWorkflowSessionTypeCLI };
 
 @interface NBCWorkflowItem : NSObject
 

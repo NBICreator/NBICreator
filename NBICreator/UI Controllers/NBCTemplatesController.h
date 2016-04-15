@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Cocoa/Cocoa.h>
 #import "NBCAlerts.h"
+#import <Cocoa/Cocoa.h>
 
 @protocol NBCTemplatesDelegate
 @optional
@@ -40,7 +40,6 @@
 - (IBAction)buttonSheetRenameCancel:(id)sender;
 
 @property (weak) IBOutlet NSTextField *textFieldSheetRenameName;
-
 
 // ------------------------------------------------------
 //  IBOutlets/Actions Sheet Save

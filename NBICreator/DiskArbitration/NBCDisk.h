@@ -11,27 +11,21 @@
 //  This is an ARC version of Disk.h created by Aaron Burghardt
 //  https://github.com/aburgh/Disk-Arbitrator
 
-#import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
+extern NSString *const DADiskDidAppearNotification;
+extern NSString *const DADiskDidDisappearNotification;
+extern NSString *const DADiskDidChangeNotification;
+extern NSString *const DADiskDidAttemptMountNotification;
+extern NSString *const DADiskDidAttemptUnmountNotification;
+extern NSString *const DADiskDidAttemptEjectNotification;
 
-extern NSString * const DADiskDidAppearNotification;
-extern NSString * const DADiskDidDisappearNotification;
-extern NSString * const DADiskDidChangeNotification;
-extern NSString * const DADiskDidAttemptMountNotification;
-extern NSString * const DADiskDidAttemptUnmountNotification;
-extern NSString * const DADiskDidAttemptEjectNotification;
+extern NSString *const DAStatusErrorKey;
 
-extern NSString * const DAStatusErrorKey;
+enum { kDiskUnmountOptionDefault = 0x00000000, kDiskUnmountOptionForce = 0x00080000, kDiskUnmountOptionWhole = 0x00000001 };
 
-enum {
-    kDiskUnmountOptionDefault = 0x00000000,
-    kDiskUnmountOptionForce = 0x00080000,
-    kDiskUnmountOptionWhole = 0x00000001
-};
-
-@interface NBCDisk : NSObject
-{
+@interface NBCDisk : NSObject {
     CFTypeRef _disk;
     NSString *BSDName;
     CFDictionaryRef _diskDescription;

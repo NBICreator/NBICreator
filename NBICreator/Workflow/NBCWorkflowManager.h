@@ -17,13 +17,13 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Foundation/Foundation.h>
 #import "NBCSource.h"
 #import "NBCWorkflowItem.h"
-#import "NBCWorkflowProgressViewController.h"
 #import "NBCWorkflowPanelController.h"
-#import "NBCWorkflowPreWorkflowTaskController.h"
 #import "NBCWorkflowPostWorkflowTaskController.h"
+#import "NBCWorkflowPreWorkflowTaskController.h"
+#import "NBCWorkflowProgressViewController.h"
+#import <Foundation/Foundation.h>
 
 @interface NBCWorkflowManager : NSObject <NSUserNotificationCenterDelegate, NBCWorkflowPreWorkflowTaskControllerDelegate, NBCWorkflowPostWorkflowTaskControllerDelegate, NBCSourceMountDelegate>
 
@@ -64,4 +64,3 @@
 - (void)menuItemWindowWorkflows:(id)sender;
 
 @end
-

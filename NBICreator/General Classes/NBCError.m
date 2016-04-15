@@ -17,20 +17,20 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCError.h"
 #import "NBCConstants.h"
+#import "NBCError.h"
 
 static NSDictionary *userInfoFromCode(NBCErrorCodes errorCode) {
     NSString *errorMessage;
-    switch ( errorCode ) {
-        case kNBCErrorSuccess:
-            errorMessage = @"Success";
-            break;
-        case kNBCErrorUnknown:
-            errorMessage = @"Unknown Error";
-            break;
+    switch (errorCode) {
+    case kNBCErrorSuccess:
+        errorMessage = @"Success";
+        break;
+    case kNBCErrorUnknown:
+        errorMessage = @"Unknown Error";
+        break;
     }
-    return @{ NSLocalizedDescriptionKey : errorMessage };
+    return @{NSLocalizedDescriptionKey : errorMessage};
 };
 
 @implementation NBCError

@@ -17,15 +17,15 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
+#import "NBCConstants.h"
+#import "NBCError.h"
+#import "NBCHelperAuthorization.h"
+#import "NBCHelperConnection.h"
+#import "NBCHelperProtocol.h"
+#import "NBCLogging.h"
 #import "NBCWorkflowDeployStudioAssistant.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowNBIController.h"
-#import "NBCLogging.h"
-#import "NBCError.h"
-#import "NBCConstants.h"
-#import "NBCHelperProtocol.h"
-#import "NBCHelperConnection.h"
-#import "NBCHelperAuthorization.h"
 
 DDLogLevel ddLogLevel;
 
@@ -52,96 +52,106 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)createNBI:(NBCWorkflowItem *)workflowItem {
-    
+
     NSNotificationCenter *nc = [NSNotificationCenter defaultCenter];
-    
+
     [self setWorkflowItem:workflowItem];
-    
+
     // -------------------------------------------------------------
     //  Create arguments array for sys_builder.sh
     // -------------------------------------------------------------
     NSArray *arguments = [NBCWorkflowNBIController generateScriptArgumentsForSysBuilder:workflowItem];
-    if ( [arguments count] != 0 ) {
+    if ([arguments count] != 0) {
         [workflowItem setScriptArguments:arguments];
     } else {
         DDLogError(@"[ERROR] No argumets returned for sys_builder.sh");
         [nc postNotificationName:NBCNotificationWorkflowFailed
                           object:self
-                        userInfo:@{ NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"Creating script arguments for sys_builder.sh failed"] }];
+                        userInfo:@{
+                            NBCUserInfoNSErrorKey : [NBCError errorWithDescription:@"Creating script arguments for sys_builder.sh failed"]
+                        }];
     }
-    
+
     // ------------------------------------------------------------------
     //  Save URL for NBI NetInstall.dmg
     // ------------------------------------------------------------------
     NSURL *nbiNetInstallURL = [[workflowItem temporaryNBIURL] URLByAppendingPathComponent:@"NetInstall.dmg"];
     [[workflowItem target] setNbiNetInstallURL:nbiNetInstallURL];
-    
+
     // -------------------------------------------------------------------
     //  Add sysBuilder.sh path
     // -------------------------------------------------------------------
     int sourceVersionMinor = (int)[[[workflowItem source] expandVariables:@"%OSMINOR%"] integerValue];
-    
+
     // --------------------------------
     //  Get Authorization
     // --------------------------------
     NSError *err = nil;
     NSData *authData = [_workflowItem authData];
-    if ( ! authData ) {
+    if (!authData) {
         authData = [NBCHelperAuthorization authorizeHelper:&err];
-        if ( err ) {
+        if (err) {
             DDLogError(@"[ERROR] %@", [err localizedDescription]);
         }
         [_workflowItem setAuthData:authData];
     }
-    
+
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
-        
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        [[helperConnector connection] setExportedObject:self];
-        [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                    object:self
-                                                                  userInfo:@{ NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:@"Creating NBI failed"] }];
-            });
-        }] sysBuilderWithArguments:arguments sourceVersionMinor:sourceVersionMinor selectedVersion:@"" authorization:authData withReply:^(NSError *error, int terminationStatus) {
-            if ( terminationStatus == 0 ) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self finalizeNBI];
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
-                                                                        object:self
-                                                                      userInfo:@{ NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Creating NBI failed"] }];
-                });
-            }
-        }];
+
+      NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+      [helperConnector connectToHelper];
+      [[helperConnector connection] setExportedObject:self];
+      [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+      [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError *proxyError) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                              object:self
+                                                            userInfo:@{
+                                                                NBCUserInfoNSErrorKey : proxyError ?: [NBCError errorWithDescription:@"Creating NBI failed"]
+                                                            }];
+        });
+      }] sysBuilderWithArguments:arguments
+               sourceVersionMinor:sourceVersionMinor
+                  selectedVersion:@""
+                    authorization:authData
+                        withReply:^(NSError *error, int terminationStatus) {
+                          if (terminationStatus == 0) {
+                              dispatch_async(dispatch_get_main_queue(), ^{
+                                [self finalizeNBI];
+                              });
+                          } else {
+                              dispatch_async(dispatch_get_main_queue(), ^{
+                                [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
+                                                                                    object:self
+                                                                                  userInfo:@{
+                                                                                      NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Creating NBI failed"]
+                                                                                  }];
+                              });
+                          }
+                        }];
     });
 }
 
 - (void)finalizeNBI {
-    
+
     DDLogInfo(@"Removing temporary items...");
-    
+
     __block NSError *error;
     NSFileManager *fm = [NSFileManager defaultManager];
-    
+
     // -------------------------------------------------------------
     //  Delete all items in temporaryItems array at end of workflow
     // -------------------------------------------------------------
     NSArray *temporaryItemsNBI = [_workflowItem temporaryItemsNBI];
-    for ( NSURL *temporaryItemURL in temporaryItemsNBI ) {
+    for (NSURL *temporaryItemURL in temporaryItemsNBI) {
         DDLogDebug(@"[DEBUG] Removing item at path: %@", [temporaryItemURL path]);
-        
-        if ( ! [fm removeItemAtURL:temporaryItemURL error:&error] ) {
+
+        if (![fm removeItemAtURL:temporaryItemURL error:&error]) {
             DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
     }
-    
+
     // ------------------------
     //  Send workflow complete
     // ------------------------
@@ -159,34 +169,34 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateDeployStudioWorkflowStatus:(NSString *)stdOut {
-    
+
     NSString *statusString = stdOut;
-    
-    if ( [stdOut containsString:@"Adding lib"] ) {
+
+    if ([stdOut containsString:@"Adding lib"]) {
         statusString = [NSString stringWithFormat:@"Adding Framework: %@...", [[statusString lastPathComponent] stringByReplacingOccurrencesOfString:@"'" withString:@""]];
         [_delegate updateProgressStatus:statusString workflow:self];
     }
-    
-    if ( [stdOut containsString:@"created"] && [stdOut containsString:@"NetInstall.sparseimage"] ) {
+
+    if ([stdOut containsString:@"created"] && [stdOut containsString:@"NetInstall.sparseimage"]) {
         statusString = @"Disabling Spotlight Indexing...";
         [_delegate updateProgressStatus:statusString workflow:self];
     }
-    
-    if ( [stdOut containsString:@"Indexing disabled"] ) {
+
+    if ([stdOut containsString:@"Indexing disabled"]) {
         statusString = @"Disabling Spotlight Indexing...";
         [_delegate updateProgressStatus:statusString workflow:self];
     }
-    
-    if ( [stdOut containsString:@"mounted"] ) {
+
+    if ([stdOut containsString:@"mounted"]) {
         statusString = @"Determining Recovery Partition...";
         [_delegate updateProgressStatus:statusString workflow:self];
     }
-    
-    if ( [stdOut containsString:@"rsync"] || [stdOut containsString:@"ditto"] ) {
+
+    if ([stdOut containsString:@"rsync"] || [stdOut containsString:@"ditto"]) {
         statusString = @"Copying files to NBI...";
         [_delegate updateProgressStatus:statusString workflow:self];
     }
-    
+
 } // updateDeployStudioWorkflowStatus
 
 ////////////////////////////////////////////////////////////////////////////////

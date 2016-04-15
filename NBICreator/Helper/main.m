@@ -21,12 +21,12 @@
 
 #import "NBCHelper.h"
 
-int main(int argc, const char * argv[]) {
+int main(int argc, const char *argv[]) {
 #pragma unused(argc)
 #pragma unused(argv)
-        @autoreleasepool {
-            NBCHelper *helper = [[NBCHelper alloc] init];
-            [helper run];
-        }
+    @autoreleasepool {
+        NBCHelper *helper = [[NBCHelper alloc] init];
+        [helper run];
+    }
     return 0;
 }

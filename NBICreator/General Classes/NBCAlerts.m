@@ -17,12 +17,12 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Cocoa/Cocoa.h>
 #import "NBCAlerts.h"
 #import "NBCConstants.h"
 #import "NBCController.h"
 #import "NBCLogging.h"
 #import "NBCWorkflowItem.h"
+#import <Cocoa/Cocoa.h>
 
 DDLogLevel ddLogLevel;
 
@@ -38,10 +38,11 @@ DDLogLevel ddLogLevel;
 
 + (void)showAlertError:(NSError *)error {
     NSAlert *alert = [NSAlert alertWithError:error];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        #pragma unused(returnCode)
-        
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
+#pragma unused(returnCode)
+
+                  }];
 }
 
 + (void)showAlertOKWithTitle:(NSString *)title informativeText:(NSString *)informativeText {
@@ -50,10 +51,11 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:title ?: @""];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSInformationalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
-        
-    }];
+
+                  }];
 }
 
 + (void)showAlertErrorWithTitle:(NSString *)title informativeText:(NSString *)informativeText {
@@ -62,10 +64,11 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:title ?: @"Error"];
     [alert setInformativeText:informativeText ?: @"Unknown Error"];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
-        
-    }];
+
+                  }];
 }
 
 + (void)showAlertSettingsUnchangedNBI {
@@ -74,35 +77,39 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Nothing to update"];
     [alert setInformativeText:[NSString stringWithFormat:@"You have not made any changes to the NBI."]];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
-        
-    }];
+
+                  }];
 }
 
 + (void)showAlertRecoveryVersionMismatch {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Recovery Version Mismatch"];
-    [alert setInformativeText:@"System version and it's Recovery HD must be of the same OS build and version to create a correct DeployStudio NBI. Consider using a Disk Image created from AutoDMG as source."];
+    [alert setInformativeText:
+               @"System version and it's Recovery HD must be of the same OS build and version to create a correct DeployStudio NBI. Consider using a Disk Image created from AutoDMG as source."];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        #pragma unused(returnCode)
-        
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
+#pragma unused(returnCode)
+
+                  }];
 }
 
 + (void)showAlertSourceReadOnly {
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Read Only Destination"];
-    [alert setInformativeText:  @"NBICreator have insufficient permissions to modify the selected NBI.\n\n"
-                                @"Please move the NBI to a directory where NBICreator have write permissions and/or update the permissions on the NBI folder."];
+    [alert setInformativeText:@"NBICreator have insufficient permissions to modify the selected NBI.\n\n"
+                              @"Please move the NBI to a directory where NBICreator have write permissions and/or update the permissions on the NBI folder."];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
-        
-    }];
+
+                  }];
 }
 
 + (void)showAlertFeatureNotImplemented:(NSString *)featureName {
@@ -113,12 +120,12 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Feature Not Implemented Yet"];
     [alert setInformativeText:informativeText];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
-        
-    }];
-}
 
+                  }];
+}
 
 + (void)showAlertUnrecognizedImagrApplication {
     NSAlert *alert = [[NSAlert alloc] init];
@@ -126,9 +133,10 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Invalid Imagr Application"];
     [alert setInformativeText:[NSString stringWithFormat:@"You need to set the path to a local Imagr.app application."]];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-                #pragma unused(returnCode)
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
+#pragma unused(returnCode)
+                  }];
 }
 
 + (void)showAlertUnrecognizedCasperImagingApplication {
@@ -137,33 +145,35 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Invalid Casper Imaging Application"];
     [alert setInformativeText:[NSString stringWithFormat:@"You need to set the path to a local Casper Imaging.app application."]];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
-    }];
+                  }];
 }
 
 + (void)showAlertUnrecognizedSourceForCreationTool:(NSString *)creationTool errorMessage:(NSString *)errorMessage {
     NSString *informativeText;
-    if ( [creationTool isEqualToString:NBCMenuItemNBICreator] ) {
+    if ([creationTool isEqualToString:NBCMenuItemNBICreator]) {
         informativeText = @"NBICreator only accept the following sources:\n\n• Install OS X Application\n• InstallESD.dmg";
-    } else if ( [creationTool isEqualToString:NBCMenuItemSystemImageUtility] ) {
+    } else if ([creationTool isEqualToString:NBCMenuItemSystemImageUtility]) {
         informativeText = @"SystemImageUtility only accept the following sources:\n\n• Install OS X Application\n• InstallESD.dmg";
-    } else if ( [creationTool isEqualToString:NBCMenuItemDeployStudioAssistant] ) {
+    } else if ([creationTool isEqualToString:NBCMenuItemDeployStudioAssistant]) {
         informativeText = @"DeployStudioAssistant only accept the following sources:\n\n• OS X System Volume and Recovery Partition";
     } else {
         DDLogError(@"[ERROR] Unknown creation tool: %@", creationTool);
         informativeText = @"Could not verify source for the selected creation tool";
     }
-    
+
     NSAlert *alert = [[NSAlert alloc] init];
     [alert addButtonWithTitle:NBCButtonTitleOK];
     [alert setMessageText:@"Invalid Source"];
     [alert setInformativeText:errorMessage ?: @"Unknown Error"];
     [alert setInformativeText:[NSString stringWithFormat:@"%@\n\n%@", errorMessage, informativeText]]; // Testing to only show error message
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-                #pragma unused(returnCode)
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
+#pragma unused(returnCode)
+                  }];
 }
 
 + (void)showAlertSettingsError:(NSString *)informativeText {
@@ -173,9 +183,10 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Configuration Error"];
     [alert setInformativeText:text];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-                #pragma unused(returnCode)
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
+#pragma unused(returnCode)
+                  }];
 }
 
 + (void)showAlertImportTemplateDuplicate:(NSString *)informativeText {
@@ -184,132 +195,144 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Template already exist!"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
-    }];
+                  }];
 }
 
 - (void)showAlertSettingsWarning:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     NSString *text = [NSString stringWithFormat:@"The current settings contain warnings that you need to approve before creating a NBI.\n%@", informativeText];
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:NBCButtonTitleCancel];     // NSAlertFirstButtonReturn
-    [alert addButtonWithTitle:NBCButtonTitleContinue];   // NSAlertSecondButtonReturn
+    [alert addButtonWithTitle:NBCButtonTitleCancel];   // NSAlertFirstButtonReturn
+    [alert addButtonWithTitle:NBCButtonTitleContinue]; // NSAlertSecondButtonReturn
     [alert setMessageText:@"Configuration Warning"];
     [alert setInformativeText:text];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode) {
+                    [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+                  }];
 }
 
 - (void)showAlertIncorrectPackageType:(NSArray *)pkgDictArray alertInfo:(NSDictionary *)alertInfo {
     NSMutableString *packageList = [[NSMutableString alloc] init];
-    for ( NSDictionary *pkgDict in pkgDictArray ) {
+    for (NSDictionary *pkgDict in pkgDictArray) {
         [packageList appendString:[NSString stringWithFormat:@"\n• %@", pkgDict[NBCDictionaryKeyName]]];
     }
-    
-    NSString *text = [NSString stringWithFormat:@"Component packages to be installed by System Image Utility need to be incorporated into a product archive.\n\nThe following package(s) have to be updated:\n%@\n\nWould you like to create a temporary product archive version of the package(s) to be included in the NBI?", packageList];
+
+    NSString *text = [NSString stringWithFormat:@"Component packages to be installed by System Image Utility need to be incorporated into a product archive.\n\nThe following package(s) have to be "
+                                                @"updated:\n%@\n\nWould you like to create a temporary product archive version of the package(s) to be included in the NBI?",
+                                                packageList];
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:NBCButtonTitleCancel];                                                    // NSAlertFirstButtonReturn
-    [alert addButtonWithTitle:( [pkgDictArray count] <= 1 ) ? @"Update Package" : @"Update Packages"];  // NSAlertSecondButtonReturn
+    [alert addButtonWithTitle:NBCButtonTitleCancel];                                                 // NSAlertFirstButtonReturn
+    [alert addButtonWithTitle:([pkgDictArray count] <= 1) ? @"Update Package" : @"Update Packages"]; // NSAlertSecondButtonReturn
     [alert setMessageText:@"Incorrect Package Type"];
     [alert setInformativeText:text];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode) {
+                    [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+                  }];
 }
 
 + (void)showAlertPackageAlreadyAdded:(NSArray *)pkgDictArray {
     NSMutableString *packageList = [[NSMutableString alloc] init];
-    for ( NSDictionary *pkgDict in pkgDictArray ) {
+    for (NSDictionary *pkgDict in pkgDictArray) {
         [packageList appendString:[NSString stringWithFormat:@"\n• %@", pkgDict[NBCDictionaryKeyName]]];
     }
-    
+
     NSString *text = [NSString stringWithFormat:@"A package with the same name already exist:\n%@", packageList];
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:NBCButtonTitleOK];    // NSAlertFirstButtonReturn
+    [alert addButtonWithTitle:NBCButtonTitleOK]; // NSAlertFirstButtonReturn
     [alert setMessageText:@"Package Already Added"];
     [alert setInformativeText:text];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
-    }];
+                  }];
 }
 
 - (void)showAlertSettingsUnsaved:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:NBCButtonTitleSave];   //NSAlertFirstButton
-    [alert addButtonWithTitle:@"Discard"];          //NSAlertSecondButton
-    [alert addButtonWithTitle:NBCButtonTitleCancel]; //NSAlertThirdButton
+    [alert addButtonWithTitle:NBCButtonTitleSave]; // NSAlertFirstButton
+    [alert addButtonWithTitle:@"Discard"]; // NSAlertSecondButton
+    [alert addButtonWithTitle:NBCButtonTitleCancel]; // NSAlertThirdButton
     [alert setMessageText:@"Unsaved Settings!"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode) {
+                    [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+                  }];
 }
 
 - (void)showAlertSettingsUnsavedBuild:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"Save and Continue"];    //NSAlertFirstButton
-    [alert addButtonWithTitle:NBCButtonTitleContinue];  //NSAlertSecondButton
-    [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertThirdButton
+    [alert addButtonWithTitle:@"Save and Continue"]; // NSAlertFirstButton
+    [alert addButtonWithTitle:NBCButtonTitleContinue]; // NSAlertSecondButton
+    [alert addButtonWithTitle:NBCButtonTitleCancel]; // NSAlertThirdButton
     [alert setMessageText:@"Unsaved Settings!"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode) {
+                    [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+                  }];
 }
 
 - (void)showAlertSettingsUnsavedQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:@"Save and Quit"];        //NSAlertFirstButton
-    [alert addButtonWithTitle:NBCButtonTitleQuit];      //NSAlertSecondButton
-    [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertThirdButton
+    [alert addButtonWithTitle:@"Save and Quit"]; // NSAlertFirstButton
+    [alert addButtonWithTitle:NBCButtonTitleQuit]; // NSAlertSecondButton
+    [alert addButtonWithTitle:NBCButtonTitleCancel]; // NSAlertThirdButton
     [alert setMessageText:@"Unsaved Settings"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode) {
+                    [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+                  }];
 }
 
 - (void)showAlertSettingsUnsavedQuitNoSave:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:NBCButtonTitleCancel];            //NSAlertFirstButton
-    [alert addButtonWithTitle:@"Discard changes and Quit"];     //NSAlertSecondButton
+    [alert addButtonWithTitle:NBCButtonTitleCancel]; // NSAlertFirstButton
+    [alert addButtonWithTitle:@"Discard changes and Quit"]; // NSAlertSecondButton
     [alert setMessageText:@"Unsaved Settings"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode) {
+                    [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+                  }];
 }
 
 - (void)showAlertWorkflowRunningQuit:(NSString *)informativeText alertInfo:(NSDictionary *)alertInfo {
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertFirstButton
-    [alert addButtonWithTitle:@"Quit Anyway"];          //NSAlertSecondButton
+    [alert addButtonWithTitle:NBCButtonTitleCancel]; // NSAlertFirstButton
+    [alert addButtonWithTitle:@"Quit Anyway"]; // NSAlertSecondButton
     [alert setMessageText:@"Workflow Running!"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode) {
+                    [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+                  }];
 }
 
-- (void)showAlertDeleteTemplate:(NSString *)informativeText templateName:(NSString *)templateName  alertInfo:(NSDictionary *)alertInfo {
+- (void)showAlertDeleteTemplate:(NSString *)informativeText templateName:(NSString *)templateName alertInfo:(NSDictionary *)alertInfo {
     NSAlert *alert = [[NSAlert alloc] init];
-    [alert addButtonWithTitle:NBCButtonTitleCancel];    //NSAlertFirstButton
-    [alert addButtonWithTitle:@"Delete"];               //NSAlertSecondButton
+    [alert addButtonWithTitle:NBCButtonTitleCancel]; // NSAlertFirstButton
+    [alert addButtonWithTitle:@"Delete"]; // NSAlertSecondButton
     [alert setMessageText:[NSString stringWithFormat:@"Delete %@?", templateName]];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window] completionHandler:^(NSInteger returnCode) {
-        [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
-    }];
+    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+                  completionHandler:^(NSInteger returnCode) {
+                    [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
+                  }];
 }
 
 @end

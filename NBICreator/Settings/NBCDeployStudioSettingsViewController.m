@@ -17,24 +17,24 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCDeployStudioSettingsViewController.h"
 #import "NBCConstants.h"
-#import "NBCVariables.h"
-#import "NBCWorkflowItem.h"
-#import "NBCSettingsController.h"
-#import "Reachability.h"
-#import "NBCWorkflowResourcesController.h"
-#include <ifaddrs.h>
-#include <arpa/inet.h>
-#import "NBCLogging.h"
-#import "NBCWorkflowModifyNBI.h"
+#import "NBCDDReader.h"
+#import "NBCDeployStudioSettingsViewController.h"
+#import "NBCDiskArbitrator.h"
 #import "NBCHelperAuthorization.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCTableViewCells.h"
+#import "NBCLogging.h"
 #import "NBCOverlayViewController.h"
-#import "NBCDDReader.h"
-#import "NBCDiskArbitrator.h"
+#import "NBCSettingsController.h"
+#import "NBCTableViewCells.h"
+#import "NBCVariables.h"
+#import "NBCWorkflowItem.h"
+#import "NBCWorkflowModifyNBI.h"
+#import "NBCWorkflowResourcesController.h"
+#import "Reachability.h"
+#include <arpa/inet.h>
+#include <ifaddrs.h>
 
 DDLogLevel ddLogLevel;
 
@@ -72,9 +72,9 @@ DDLogLevel ddLogLevel;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+
     [self setPostWorkflowScripts:[[NSMutableArray alloc] init]];
-    
+
     // --------------------------------------------------------------
     //  Add Notification Observers
     // --------------------------------------------------------------
@@ -84,25 +84,25 @@ DDLogLevel ddLogLevel;
     [nc addObserver:self selector:@selector(updatePopUpButtonUSBDevices) name:DADiskDidAppearNotification object:nil];
     [nc addObserver:self selector:@selector(updatePopUpButtonUSBDevices) name:DADiskDidDisappearNotification object:nil];
     [nc addObserver:self selector:@selector(updatePopUpButtonUSBDevices) name:DADiskDidChangeNotification object:nil];
-    
+
     // --------------------------------------------------------------
     //  Add KVO Observers
     // --------------------------------------------------------------
     NSUserDefaults *ud = [NSUserDefaults standardUserDefaults];
     [ud addObserver:self forKeyPath:NBCUserDefaultsIndexCounter options:NSKeyValueObservingOptionNew context:nil];
-    
+
     // --------------------------------------------------------------
     //  Initialize Properties
     // --------------------------------------------------------------
     NSError *error;
     NSFileManager *fm = [[NSFileManager alloc] init];
     NSURL *userApplicationSupport = [fm URLForDirectory:NSApplicationSupportDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:NO error:&error];
-    if ( [userApplicationSupport checkResourceIsReachableAndReturnError:&error] ) {
+    if ([userApplicationSupport checkResourceIsReachableAndReturnError:&error]) {
         _templatesFolderURL = [userApplicationSupport URLByAppendingPathComponent:NBCFolderTemplatesDeployStudio isDirectory:YES];
     } else {
         DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
-    
+
     [_imageViewIcon setDelegate:self];
     [_imageViewBackgroundImage setDelegate:self];
     [self setDsSource:[[NBCApplicationSourceDeployStudio alloc] init]];
@@ -113,30 +113,30 @@ DDLogLevel ddLogLevel;
     [self setShowARDPassword:NO];
     [self setUseCustomServers:NO];
     [self initializeTableViewOverlays];
-    
+
     // --------------------------------------------------------------
     //  Setup ComboBox to use self as DataSource
     // --------------------------------------------------------------
     [_comboBoxServerURL1 setUsesDataSource:YES];
     [_comboBoxServerURL1 setDataSource:self];
-    
+
     [_comboBoxServerURL2 setUsesDataSource:YES];
     [_comboBoxServerURL2 setDataSource:self];
-    
+
     [self testInternetConnection];
-    
+
     // --------------------------------------------------------------
     //  Load saved templates and create the template menu
     // --------------------------------------------------------------
     [self updatePopUpButtonTemplates];
-    
+
     [self updatePopUpButtonUSBDevices];
-    
+
     // --------------------------------------------------------------
     //  Update default Deploy Studio Version in UI.
     // --------------------------------------------------------------
     [self updateDeployStudioVersion];
-    
+
     // ------------------------------------------------------------------------------
     //  Add contextual menu to NBI Icon image view to allow to restore original icon.
     // -------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ DDLogLevel ddLogLevel;
     NSMenuItem *restoreViewIcon = [[NSMenuItem alloc] initWithTitle:NBCMenuItemRestoreOriginalIcon action:@selector(restoreNBIIcon:) keyEquivalent:@""];
     [menuIcon addItem:restoreViewIcon];
     [_imageViewIcon setMenu:menuIcon];
-    
+
     // ------------------------------------------------------------------------------------------
     //  Add contextual menu to NBI background image view to allow to restore original background.
     // ------------------------------------------------------------------------------------------
@@ -152,7 +152,7 @@ DDLogLevel ddLogLevel;
     NSMenuItem *restoreViewBackground = [[NSMenuItem alloc] initWithTitle:NBCMenuItemRestoreOriginalBackground action:@selector(restoreNBIBackground:) keyEquivalent:@""];
     [menu addItem:restoreViewBackground];
     [_imageViewBackgroundImage setMenu:menu];
-    
+
     // ----------------------------------------------------
     //  Verify build button so It's not enabled by mistake
     // ----------------------------------------------------
@@ -173,15 +173,9 @@ DDLogLevel ddLogLevel;
     [view addSubview:overlayView positioned:NSWindowAbove relativeTo:nil];
     [overlayView setTranslatesAutoresizingMaskIntoConstraints:NO];
     NSArray *constraintsArray;
-    constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[overlayView]-1-|"
-                                                               options:0
-                                                               metrics:nil
-                                                                 views:NSDictionaryOfVariableBindings(overlayView)];
+    constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"|-1-[overlayView]-1-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(overlayView)];
     [view addConstraints:constraintsArray];
-    constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[overlayView]-1-|"
-                                                               options:0
-                                                               metrics:nil
-                                                                 views:NSDictionaryOfVariableBindings(overlayView)];
+    constraintsArray = [NSLayoutConstraint constraintsWithVisualFormat:@"V:|-1-[overlayView]-1-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(overlayView)];
     [view addConstraints:constraintsArray];
     [view setHidden:NO];
 } // addOverlayViewToView:overlayView
@@ -193,28 +187,28 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)testInternetConnection {
-    
+
     _internetReachableFoo = [Reachability reachabilityWithHostname:@"www.deploystudio.com"];
     __unsafe_unretained typeof(self) weakSelf = self;
-    
+
     // Internet is reachable
     _internetReachableFoo.reachableBlock = ^(Reachability *reach) {
 #pragma unused(reach)
-        // Update the UI on the main thread
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf getDeployStudioVersions];
-        });
+      // Update the UI on the main thread
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [weakSelf getDeployStudioVersions];
+      });
     };
-    
+
     // Internet is not reachable
     _internetReachableFoo.unreachableBlock = ^(Reachability *reach) {
 #pragma unused(reach)
-        // Update the UI on the main thread
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf cachedDeployStudioVersionLocal];
-        });
+      // Update the UI on the main thread
+      dispatch_async(dispatch_get_main_queue(), ^{
+        [weakSelf cachedDeployStudioVersionLocal];
+      });
     };
-    
+
     [_internetReachableFoo startNotifier];
 } // testInternetConnection
 
@@ -228,23 +222,23 @@ DDLogLevel ddLogLevel;
     NSMutableAttributedString *packageName;
     NSImage *packageIcon;
     NSURL *packageURL = [NSURL fileURLWithPath:packageDict[NBCDictionaryKeyPath]];
-    if ( [packageURL checkResourceIsReachableAndReturnError:nil] ) {
+    if ([packageURL checkResourceIsReachableAndReturnError:nil]) {
         [[cellView textField] setStringValue:packageDict[NBCDictionaryKeyName] ?: @"Unknown"];
         packageIcon = [[NSWorkspace sharedWorkspace] iconForFile:[packageURL path]];
         [[cellView imageView] setImage:packageIcon];
     } else {
         packageName = [[NSMutableAttributedString alloc] initWithString:packageDict[NBCDictionaryKeyName]];
-        [packageName addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0,(NSUInteger)[packageName length])];
+        [packageName addAttribute:NSForegroundColorAttributeName value:[NSColor redColor] range:NSMakeRange(0, (NSUInteger)[packageName length])];
         [[cellView textField] setAttributedStringValue:packageName];
     }
-    
+
     return cellView;
 }
 
 - (NSView *)tableView:(NSTableView *)tableView viewForTableColumn:(NSTableColumn *)tableColumn row:(NSInteger)row {
-    if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPostWorkflowScripts] ) {
+    if ([[tableView identifier] isEqualToString:NBCTableViewIdentifierPostWorkflowScripts]) {
         NSDictionary *scriptDict = _postWorkflowScripts[(NSUInteger)row];
-        if ( [[tableColumn identifier] isEqualToString:@"ScriptTableColumn"] ) {
+        if ([[tableColumn identifier] isEqualToString:@"ScriptTableColumn"]) {
             NBCCellViewPostWorkflowScript *cellView = [tableView makeViewWithIdentifier:@"CellViewPostWorkflowScript" owner:self];
             return [self populateCellViewPostWorkflowScript:cellView packageDict:scriptDict];
         }
@@ -259,7 +253,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)tableView {
-    if ( [[tableView identifier] isEqualToString:NBCTableViewIdentifierPostWorkflowScripts] ) {
+    if ([[tableView identifier] isEqualToString:NBCTableViewIdentifierPostWorkflowScripts]) {
         return (NSInteger)[_postWorkflowScripts count];
     } else {
         return 0;
@@ -273,31 +267,27 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
-    
+
     BOOL retval = YES;
-    
-    if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalIcon] ) {
+
+    if ([[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalIcon]) {
         // -------------------------------------------------------------
         //  No need to restore original icon if it's already being used
         // -------------------------------------------------------------
-        if ( [_nbiIconPath isEqualToString:NBCFilePathNBIIconDeployStudio] ) {
+        if ([_nbiIconPath isEqualToString:NBCFilePathNBIIconDeployStudio]) {
             retval = NO;
         }
         return retval;
-    } else if ( [[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalBackground] ) {
+    } else if ([[menuItem title] isEqualToString:NBCMenuItemRestoreOriginalBackground]) {
         // -------------------------------------------------------------------
         //  No need to restore original background if it's already being used
         // -------------------------------------------------------------------
-        if (
-            [_imageBackgroundURL isEqualToString:NBCDeployStudioBackgroundImageDefaultPath] ||
-            [_imageBackgroundURL isEqualToString:NBCDeployStudioBackgroundDefaultPath] ||
-            ! [_dsSource isInstalled]
-            ) {
+        if ([_imageBackgroundURL isEqualToString:NBCDeployStudioBackgroundImageDefaultPath] || [_imageBackgroundURL isEqualToString:NBCDeployStudioBackgroundDefaultPath] || ![_dsSource isInstalled]) {
             retval = NO;
         }
         return retval;
     }
-    
+
     return YES;
 } // validateMenuItem
 
@@ -308,50 +298,50 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)controlTextDidChange:(NSNotification *)sender {
-    
+
     // --------------------------------------------------------------------
     //  Expand variables for the NBI preview text fields
     // --------------------------------------------------------------------
-    if ( [sender object] == _textFieldNBIName ) {
-        if ( [_nbiName length] == 0 ) {
+    if ([sender object] == _textFieldNBIName) {
+        if ([_nbiName length] == 0) {
             [_textFieldNBINamePreview setStringValue:@""];
         } else {
             NSString *nbiName = [NBCVariables expandVariables:_nbiName source:_source applicationSource:_dsSource];
             [_textFieldNBINamePreview setStringValue:[NSString stringWithFormat:@"%@.nbi", nbiName]];
         }
-    } else if ( [sender object] == _textFieldIndex ) {
-        if ( [_nbiIndex length] == 0 ) {
+    } else if ([sender object] == _textFieldIndex) {
+        if ([_nbiIndex length] == 0) {
             [_textFieldIndexPreview setStringValue:@""];
         } else {
             NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_dsSource];
             [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
         }
-    } else if ( [sender object] == _textFieldNBIDescription ) {
-        if ( [_nbiDescription length] == 0 ) {
+    } else if ([sender object] == _textFieldNBIDescription) {
+        if ([_nbiDescription length] == 0) {
             [_textFieldNBIDescriptionPreview setStringValue:@""];
         } else {
             NSString *nbiDescription = [NBCVariables expandVariables:_nbiDescription source:_source applicationSource:_dsSource];
             [_textFieldNBIDescriptionPreview setStringValue:nbiDescription];
         }
     }
-    
+
     // --------------------------------------------------------------------
     //  Expand tilde for destination folder if tilde is used in settings
     // --------------------------------------------------------------------
-    if ( [sender object] == _textFieldDestinationFolder ) {
-        if ( [_destinationFolder length] == 0 ) {
+    if ([sender object] == _textFieldDestinationFolder) {
+        if ([_destinationFolder length] == 0) {
             [self setDestinationFolder:@""];
-        } else if ( [_destinationFolder hasPrefix:@"~"] ) {
+        } else if ([_destinationFolder hasPrefix:@"~"]) {
             NSString *destinationFolder = [_destinationFolder stringByExpandingTildeInPath];
             [self setDestinationFolder:destinationFolder];
         }
     }
-    
+
     // --------------------------------------------------------------------
     //  Continuously verify build button
     // --------------------------------------------------------------------
     [self verifyBuildButton];
-    
+
 } // controlTextDidChange
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -361,7 +351,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updateIconFromURL:(NSURL *)iconURL {
-    if ( iconURL != nil ) {
+    if (iconURL != nil) {
         // To get the view to update I have to first set the nbiIcon property to @""
         // It only happens when it recieves a dropped image, not when setting in code.
         [self setNbiIcon:@""];
@@ -370,7 +360,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateBackgroundFromURL:(NSURL *)backgroundURL {
-    if ( backgroundURL != nil ) {
+    if (backgroundURL != nil) {
         // To get the view to update I have to first set the nbiIcon property to @""
         // It only happens when it recieves a dropped image, not when setting in code.
         [self setImageBackground:@""];
@@ -386,12 +376,12 @@ DDLogLevel ddLogLevel;
 
 - (void)fileDownloadCompleted:(NSURL *)url downloadInfo:(NSDictionary *)downloadInfo {
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
-    if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
+    if ([downloadTag isEqualToString:NBCDownloaderTagDeployStudio]) {
         [_progressIndicatorDeployStudioDownloadProgress setIndeterminate:YES];
         [_progressIndicatorDeployStudioDownloadProgress stopAnimation:self];
         [[NSApp mainWindow] endSheet:_windowDeployStudioDownloadProgress];
-        
-        if ( url ) {
+
+        if (url) {
             [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:@[ url ]];
         }
         [self setDeployStudioDownloader:nil];
@@ -400,13 +390,13 @@ DDLogLevel ddLogLevel;
 
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
-    if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
+    if ([downloadTag isEqualToString:NBCDownloaderTagDeployStudio]) {
         NSString *latestVersion = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        if ( [latestVersion length] != 0 ) {
+        if ([latestVersion length] != 0) {
             [self setDeployStudioLatestVersion:latestVersion];
             [self updateCachedDeployStudioLatestVersion:latestVersion];
             NSString *currentVersion = [_dsSource dsAdminVersion];
-            if ( [currentVersion isEqualToString:latestVersion] ) {
+            if ([currentVersion isEqualToString:latestVersion]) {
                 [self hideUpdateAvailable];
             } else {
                 [self showUpdateAvailable:latestVersion];
@@ -417,23 +407,23 @@ DDLogLevel ddLogLevel;
 
 - (void)downloadCanceled:(NSDictionary *)downloadInfo {
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
-    if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
+    if ([downloadTag isEqualToString:NBCDownloaderTagDeployStudio]) {
         [_progressIndicatorDeployStudioDownloadProgress setIndeterminate:YES];
         [_progressIndicatorDeployStudioDownloadProgress stopAnimation:self];
         [[NSApp mainWindow] endSheet:_windowDeployStudioDownloadProgress];
-        
+
         [self setDeployStudioDownloader:nil];
     }
 }
 
 - (void)updateProgressBytesRecieved:(float)bytesRecieved expectedLength:(long long)expectedLength downloadInfo:(NSDictionary *)downloadInfo {
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
-    if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
-        if ( _windowDeployStudioDownloadProgress ) {
+    if ([downloadTag isEqualToString:NBCDownloaderTagDeployStudio]) {
+        if (_windowDeployStudioDownloadProgress) {
             NSString *downloaded = [NSByteCountFormatter stringFromByteCount:(long long)bytesRecieved countStyle:NSByteCountFormatterCountStyleDecimal];
             NSString *downloadMax = [NSByteCountFormatter stringFromByteCount:expectedLength countStyle:NSByteCountFormatterCountStyleDecimal];
-            
-            float percentComplete = (bytesRecieved/(float)expectedLength)*(float)100.0;
+
+            float percentComplete = (bytesRecieved / (float)expectedLength) * (float)100.0;
             [_progressIndicatorDeployStudioDownloadProgress setDoubleValue:percentComplete];
             [_textFieldDeployStudioDownloadProgress setStringValue:[NSString stringWithFormat:@"%@/%@", downloaded, downloadMax]];
         }
@@ -447,9 +437,9 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)dsReleaseVersionsArray:(NSArray *)versionsArray downloadDict:(NSDictionary *)downloadDict downloadInfo:(NSDictionary *)downloadInfo {
-    
+
     NSString *downloadTag = downloadInfo[NBCDownloaderTag];
-    if ( [downloadTag isEqualToString:NBCDownloaderTagDeployStudio] ) {
+    if ([downloadTag isEqualToString:NBCDownloaderTagDeployStudio]) {
         [self setDeployStudioVersions:versionsArray];
         [self setDeployStudioVersionsDownloadLinks:downloadDict];
         [self getDeployStudioVersionLatest];
@@ -464,39 +454,39 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)alertReturnCode:(NSInteger)returnCode alertInfo:(NSDictionary *)alertInfo {
-    
+
     NSString *alertTag = alertInfo[NBCAlertTagKey];
-    if ( [alertTag isEqualToString:NBCAlertTagSettingsWarning] ) {
-        if ( returnCode == NSAlertSecondButtonReturn ) { // Continue
+    if ([alertTag isEqualToString:NBCAlertTagSettingsWarning]) {
+        if (returnCode == NSAlertSecondButtonReturn) { // Continue
             NBCWorkflowItem *workflowItem = alertInfo[NBCAlertWorkflowItemKey];
             [self prepareWorkflowItem:workflowItem];
         }
     }
-    
-    if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsaved] ) {
+
+    if ([alertTag isEqualToString:NBCAlertTagSettingsUnsaved]) {
         NSString *selectedTemplate = alertInfo[NBCAlertUserInfoSelectedTemplate];
-        if ( returnCode == NSAlertFirstButtonReturn ) {         // Save
+        if (returnCode == NSAlertFirstButtonReturn) { // Save
             [self saveUISettingsWithName:_selectedTemplate atUrl:_templatesDict[_selectedTemplate]];
             [self setSelectedTemplate:selectedTemplate];
             [self updateUISettingsFromURL:_templatesDict[_selectedTemplate]];
             [self expandVariablesForCurrentSettings];
             return;
-        } else if ( returnCode == NSAlertSecondButtonReturn ) { // Discard
+        } else if (returnCode == NSAlertSecondButtonReturn) { // Discard
             [self setSelectedTemplate:selectedTemplate];
             [self updateUISettingsFromURL:_templatesDict[_selectedTemplate]];
             [self expandVariablesForCurrentSettings];
             return;
-        } else {                                                // Cancel
+        } else { // Cancel
             [_popUpButtonTemplates selectItemWithTitle:_selectedTemplate];
             return;
         }
     }
-    
-    if ( [alertTag isEqualToString:NBCAlertTagSettingsUnsavedBuild] ) {
+
+    if ([alertTag isEqualToString:NBCAlertTagSettingsUnsavedBuild]) {
         NSString *selectedTemplate = alertInfo[NBCAlertUserInfoSelectedTemplate];
         NSDictionary *preWorkflowTasks = alertInfo[NBCAlertUserInfoPreWorkflowTasks];
-        if ( returnCode == NSAlertFirstButtonReturn ) {         // Save and Continue
-            if ( [_selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
+        if (returnCode == NSAlertFirstButtonReturn) { // Save and Continue
+            if ([_selectedTemplate isEqualToString:NBCMenuItemUntitled]) {
                 [_templates showSheetSaveUntitled:selectedTemplate buildNBI:YES preWorkflowTasks:preWorkflowTasks];
                 return;
             } else {
@@ -507,10 +497,10 @@ DDLogLevel ddLogLevel;
                 [self verifySettings:preWorkflowTasks];
                 return;
             }
-        } else if ( returnCode == NSAlertSecondButtonReturn ) { // Continue
+        } else if (returnCode == NSAlertSecondButtonReturn) { // Continue
             [self verifySettings:preWorkflowTasks];
             return;
-        } else {                                                // Cancel
+        } else { // Cancel
             [_popUpButtonTemplates selectItemWithTitle:_selectedTemplate];
             return;
         }
@@ -541,14 +531,14 @@ DDLogLevel ddLogLevel;
 
 - (void)tabView:(NSTabView *)tabView willSelectTabViewItem:(NSTabViewItem *)tabViewItem {
 #pragma unused(tabView)
-    
+
     NSString *tabViewTitle = [tabViewItem label];
-    
-    if ( [tabViewTitle isEqualToString:NBCDeployStudioTabTitleRuntime] ) {
+
+    if ([tabViewTitle isEqualToString:NBCDeployStudioTabTitleRuntime]) {
         _isSearching = YES;
         [_discoveredServers removeAllObjects];
         [_bonjourBrowser startBonjourDiscovery];
-    } else if ( _isSearching == YES ) {
+    } else if (_isSearching == YES) {
         _isSearching = NO;
         [_bonjourBrowser stopBonjourDiscovery];
     }
@@ -562,13 +552,13 @@ DDLogLevel ddLogLevel;
 
 - (void)updateSource:(NBCSource *)source target:(NBCTarget *)target {
 #pragma unused(target)
-    if ( source != nil ) {
+    if (source != nil) {
         [self setSource:source];
     }
-    
+
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
     NSURL *deployStudioBackgroundURL = [_dsSource dsBackgroundURL];
-    if ( [currentBackgroundImageURL isEqualToString:NBCDeployStudioBackgroundDefaultPath] ) {
+    if ([currentBackgroundImageURL isEqualToString:NBCDeployStudioBackgroundDefaultPath]) {
         [self setImageBackground:@""];
         [self setImageBackground:[deployStudioBackgroundURL path]];
         [self setImageBackgroundURL:NBCDeployStudioBackgroundImageDefaultPath];
@@ -579,13 +569,13 @@ DDLogLevel ddLogLevel;
 } // updateSource
 
 - (void)removedSource {
-    if ( _source ) {
+    if (_source) {
         [self setSource:nil];
     }
-    
+
     NSString *currentBackgroundImageURL = _imageBackgroundURL;
     NSURL *deployStudioBackgroundURL = [_dsSource dsBackgroundURL];
-    if ( [currentBackgroundImageURL isEqualToString:NBCDeployStudioBackgroundImageDefaultPath] ) {
+    if ([currentBackgroundImageURL isEqualToString:NBCDeployStudioBackgroundImageDefaultPath]) {
         [self setImageBackground:@""];
         [self setImageBackground:[deployStudioBackgroundURL path]];
         [self setImageBackgroundURL:NBCDeployStudioBackgroundDefaultPath];
@@ -597,63 +587,63 @@ DDLogLevel ddLogLevel;
 
 - (void)restoreNBIIcon:(NSNotification *)notification {
 #pragma unused(notification)
-    
+
     [self setNbiIconPath:NBCFilePathNBIIconDeployStudio];
     [self expandVariablesForCurrentSettings];
 } // restoreNBIIcon
 
 - (void)restoreNBIBackground:(NSNotification *)notification {
 #pragma unused(notification)
-    
-    if ( _source == nil ) {
-        //NSURL *deployStudioBackgroundURL = [_dsSource deployStudioBackgroundURL];
+
+    if (_source == nil) {
+        // NSURL *deployStudioBackgroundURL = [_dsSource deployStudioBackgroundURL];
         [self setImageBackground:@""];
         [self setImageBackgroundURL:NBCDeployStudioBackgroundDefaultPath];
     } else {
         [self setImageBackground:@""];
         [self setImageBackgroundURL:NBCDeployStudioBackgroundImageDefaultPath];
     }
-    
+
     [self expandVariablesForCurrentSettings];
 } // restoreNBIBackground
 
 - (void)addBonjourService:(NSNotification *)notification {
-    
+
     NSArray *serverURLs = [notification userInfo][@"serverURLs"];
-    for ( NSString *url in serverURLs ) {
-        if ( ! [_discoveredServers containsObject:url] ) {
+    for (NSString *url in serverURLs) {
+        if (![_discoveredServers containsObject:url]) {
             [_discoveredServers addObject:url];
         }
     }
     int urlCount = (int)[_discoveredServers count];
     [_comboBoxServerURL1 noteNumberOfItemsChanged];
     [_comboBoxServerURL1 reloadData];
-    
-    if ( [[_comboBoxServerURL1 stringValue] length] == 0 && urlCount != 0 ) {
+
+    if ([[_comboBoxServerURL1 stringValue] length] == 0 && urlCount != 0) {
         [_comboBoxServerURL1 selectItemAtIndex:0];
     }
-    
+
     [_comboBoxServerURL2 noteNumberOfItemsChanged];
     [_comboBoxServerURL2 reloadData];
-    
-    if ( [[_comboBoxServerURL2 stringValue] length] == 0 && 1 < urlCount ) {
+
+    if ([[_comboBoxServerURL2 stringValue] length] == 0 && 1 < urlCount) {
         [_comboBoxServerURL2 selectItemAtIndex:1];
     }
 } // addBonjourService
 
 - (void)removeBonjourService:(NSNotification *)notification {
-    
+
     NSArray *serverURLs = [notification userInfo][@"serverURLs"];
-    for ( NSString *url in serverURLs ) {
+    for (NSString *url in serverURLs) {
         [_discoveredServers removeObject:url];
     }
-    
+
     [_comboBoxServerURL1 noteNumberOfItemsChanged];
     [_comboBoxServerURL1 reloadData];
-    
+
     [_comboBoxServerURL2 noteNumberOfItemsChanged];
     [_comboBoxServerURL2 reloadData];
-    
+
 } // removeBonjourService
 
 - (void)refreshCreationTool {
@@ -666,7 +656,7 @@ DDLogLevel ddLogLevel;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
     if ([keyPath isEqualToString:NBCUserDefaultsIndexCounter]) {
         NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_dsSource];
@@ -718,15 +708,15 @@ DDLogLevel ddLogLevel;
     [self setUsbLabel:settingsDict[NBCSettingsUSBLabelKey] ?: @"%OSVERSION%_%OSBUILD%_DS"];
 
     [self uppdatePopUpButtonTool];
-    
+
     [self expandVariablesForCurrentSettings];
 } // updateUISettingsFromDict
 
 - (void)updateUISettingsFromURL:(NSURL *)url {
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
-    if ( [mainDict count] != 0 ) {
+    if ([mainDict count] != 0) {
         NSDictionary *settingsDict = mainDict[NBCSettingsSettingsKey];
-        if ( [settingsDict count] != 0 ) {
+        if ([settingsDict count] != 0) {
             [self updateUISettingsFromDict:settingsDict];
         } else {
             DDLogError(@"[ERROR] No key named \"Settings\" in template: %@", [url path]);
@@ -737,20 +727,19 @@ DDLogLevel ddLogLevel;
 } // updateUISettingsFromURL
 
 - (NSDictionary *)returnSettingsFromUI {
-    
+
     NSMutableDictionary *settingsDict = [[NSMutableDictionary alloc] init];
-    
-    
-    if ( _useCustomServers ) {
-        if ( [_serverURL1 length] == 0 ) {
+
+    if (_useCustomServers) {
+        if ([_serverURL1 length] == 0) {
             [self setServerURL1:[_comboBoxServerURL1 stringValue]];
         }
-        
-        if ( [_serverURL2 length] == 0 ) {
+
+        if ([_serverURL2 length] == 0) {
             [self setServerURL2:[_comboBoxServerURL2 stringValue]];
         }
     }
-    
+
     settingsDict[NBCSettingsNBICreationToolKey] = _nbiCreationTool ?: NBCMenuItemDeployStudioAssistant;
     settingsDict[NBCSettingsNameKey] = _nbiName ?: @"";
     settingsDict[NBCSettingsIndexKey] = _nbiIndex ?: @"";
@@ -759,13 +748,14 @@ DDLogLevel ddLogLevel;
     settingsDict[NBCSettingsEnabledKey] = @(_nbiEnabled) ?: @NO;
     settingsDict[NBCSettingsDefaultKey] = @(_nbiDefault) ?: @NO;
     settingsDict[NBCSettingsDescriptionKey] = _nbiDescription ?: @"";
-    if ( _destinationFolder != nil ) {
+    if (_destinationFolder != nil) {
         NSString *currentUserHome = NSHomeDirectory();
-        if ( [_destinationFolder hasPrefix:currentUserHome] ) {
+        if ([_destinationFolder hasPrefix:currentUserHome]) {
             NSString *destinationFolderPath = [_destinationFolder stringByReplacingOccurrencesOfString:currentUserHome withString:@"~"];
             settingsDict[NBCSettingsDestinationFolderKey] = destinationFolderPath ?: @"";
         } else {
-            settingsDict[NBCSettingsDestinationFolderKey] = _destinationFolder ?: @""; }
+            settingsDict[NBCSettingsDestinationFolderKey] = _destinationFolder ?: @"";
+        }
     }
     settingsDict[NBCSettingsIconKey] = _nbiIconPath ?: @"";
     settingsDict[NBCSettingsDeployStudioTimeServerKey] = _networkTimeServer ?: @"";
@@ -799,10 +789,10 @@ DDLogLevel ddLogLevel;
 - (NSDictionary *)returnSettingsFromURL:(NSURL *)url {
     NSDictionary *mainDict = [[NSDictionary alloc] initWithContentsOfURL:url];
     NSDictionary *settingsDict;
-    if ( [mainDict count] != 0 ) {
+    if ([mainDict count] != 0) {
         settingsDict = mainDict[NBCSettingsSettingsKey];
     }
-    
+
     return settingsDict;
 } // returnSettingsFromURL
 
@@ -815,38 +805,38 @@ DDLogLevel ddLogLevel;
     mainDict[NBCSettingsTitleKey] = name;
     mainDict[NBCSettingsTypeKey] = NBCSettingsTypeDeployStudio;
     mainDict[NBCSettingsVersionKey] = NBCSettingsFileVersion;
-    
+
     // ----------------------------------------------------------------
     //  Get current UI settings and add to settings sub-dict
     // ----------------------------------------------------------------
     NSDictionary *settingsDict = [self returnSettingsFromUI];
     mainDict[NBCSettingsSettingsKey] = settingsDict;
-    
+
     // -------------------------------------------------------------
     //  If no url was passed it means it's never been saved before.
     //  Create a new UUID and set 'settingsURL' to the new settings file
     // -------------------------------------------------------------
-    if ( targetURL == nil ) {
+    if (targetURL == nil) {
         NSString *uuid = [[NSUUID UUID] UUIDString];
         targetURL = [_templatesFolderURL URLByAppendingPathComponent:[NSString stringWithFormat:@"%@.nbictemplate", uuid]];
     }
-    
+
     // -------------------------------------------------------------
     //  Create the template folder if it doesn't exist.
     // -------------------------------------------------------------
     NSError *error;
-    if ( ! [_templatesFolderURL checkResourceIsReachableAndReturnError:&error] ) {
-        if ( ! [[NSFileManager defaultManager] createDirectoryAtURL:_templatesFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
+    if (![_templatesFolderURL checkResourceIsReachableAndReturnError:&error]) {
+        if (![[NSFileManager defaultManager] createDirectoryAtURL:_templatesFolderURL withIntermediateDirectories:YES attributes:nil error:&error]) {
             DDLogError(@"[ERROR] Creating template folder for DeployStudio failed: %@", error);
             DDLogError(@"[ERROR] %@", error);
         }
     }
-    
+
     DDLogInfo(@"Saving template \"%@\" at %@", name, [targetURL path]);
     // -------------------------------------------------------------
     //  Write settings to url and update _templatesDict
     // -------------------------------------------------------------
-    if ( [mainDict writeToURL:targetURL atomically:NO] ) {
+    if ([mainDict writeToURL:targetURL atomically:NO]) {
         [_templatesDict setValue:targetURL forKey:name];
     } else {
         DDLogError(@"[ERROR] Writing DeployStudio template to disk failed!");
@@ -854,17 +844,17 @@ DDLogLevel ddLogLevel;
 } // saveUISettingsWithName:atUrl
 
 - (BOOL)haveSettingsChanged {
-    
+
     BOOL retval = YES;
-    
+
     NSURL *defaultSettingsURL = [[NSBundle mainBundle] URLForResource:NBCFileNameDeployStudioDefaults withExtension:@"plist"];
-    if ( [defaultSettingsURL checkResourceIsReachableAndReturnError:nil] ) {
+    if ([defaultSettingsURL checkResourceIsReachableAndReturnError:nil]) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         NSDictionary *defaultSettings = [NSDictionary dictionaryWithContentsOfURL:defaultSettingsURL];
-        if ( [currentSettings count] != 0 && [defaultSettings count] != 0 ) {
+        if ([currentSettings count] != 0 && [defaultSettings count] != 0) {
             NSMutableDictionary *defaultSettingsOSBackground = [defaultSettings mutableCopy];
             defaultSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundImageDefaultPath;
-            if ( [currentSettings isEqualToDictionary:defaultSettings] || [currentSettings isEqualToDictionary:defaultSettingsOSBackground] ) {
+            if ([currentSettings isEqualToDictionary:defaultSettings] || [currentSettings isEqualToDictionary:defaultSettingsOSBackground]) {
                 return NO;
             } else {
                 /*
@@ -882,29 +872,29 @@ DDLogLevel ddLogLevel;
             }
         }
     }
-    
-    if ( [_selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
+
+    if ([_selectedTemplate isEqualToString:NBCMenuItemUntitled]) {
         return retval;
     }
-    
+
     NSError *error = nil;
     NSURL *savedSettingsURL = _templatesDict[_selectedTemplate];
-    if ( [savedSettingsURL checkResourceIsReachableAndReturnError:&error] ) {
+    if ([savedSettingsURL checkResourceIsReachableAndReturnError:&error]) {
         NSDictionary *currentSettings = [self returnSettingsFromUI];
         NSDictionary *savedSettings = [self returnSettingsFromURL:savedSettingsURL];
-        if ( [currentSettings count] != 0 && [savedSettings count] != 0 ) {
-            if ( [currentSettings isEqualToDictionary:savedSettings] ) {
+        if ([currentSettings count] != 0 && [savedSettings count] != 0) {
+            if ([currentSettings isEqualToDictionary:savedSettings]) {
                 return NO;
             }
-            
+
             NSMutableDictionary *currentSettingsOSBackground = [currentSettings mutableCopy];
-            if ( [currentSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCDeployStudioBackgroundImageDefaultPath] ) {
+            if ([currentSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCDeployStudioBackgroundImageDefaultPath]) {
                 currentSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundDefaultPath;
-            } else if ( [currentSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCDeployStudioBackgroundDefaultPath] ) {
+            } else if ([currentSettings[NBCSettingsBackgroundImageKey] isEqualToString:NBCDeployStudioBackgroundDefaultPath]) {
                 currentSettingsOSBackground[NBCSettingsBackgroundImageKey] = NBCDeployStudioBackgroundImageDefaultPath;
             }
-            
-            if ( [currentSettingsOSBackground isEqualToDictionary:savedSettings] ) {
+
+            if ([currentSettingsOSBackground isEqualToDictionary:savedSettings]) {
                 retval = NO;
             }
         } else {
@@ -913,50 +903,50 @@ DDLogLevel ddLogLevel;
     } else {
         DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
-    
+
     return retval;
 } // haveSettingsChanged
 
 - (void)expandVariablesForCurrentSettings {
-    
+
     // -------------------------------------------------------------
     //  Expand tilde in destination folder path
     // -------------------------------------------------------------
-    if ( [_destinationFolder hasPrefix:@"~"] ) {
+    if ([_destinationFolder hasPrefix:@"~"]) {
         NSString *destinationFolderPath = [_destinationFolder stringByExpandingTildeInPath];
         [self setDestinationFolder:destinationFolderPath];
     }
-    
+
     // -------------------------------------------------------------
     //  Expand variables in NBI Index
     // -------------------------------------------------------------
     NSString *nbiIndex = [NBCVariables expandVariables:_nbiIndex source:_source applicationSource:_dsSource];
     [_textFieldIndexPreview setStringValue:[NSString stringWithFormat:@"Index: %@", nbiIndex]];
-    
+
     // -------------------------------------------------------------
     //  Expand variables in NBI Name
     // -------------------------------------------------------------
     NSString *nbiName = [NBCVariables expandVariables:_nbiName source:_source applicationSource:_dsSource];
     [_textFieldNBINamePreview setStringValue:[NSString stringWithFormat:@"%@.nbi", nbiName]];
-    
+
     // -------------------------------------------------------------
     //  Expand variables in NBI Description
     // -------------------------------------------------------------
     NSString *nbiDescription = [NBCVariables expandVariables:_nbiDescription source:_source applicationSource:_dsSource];
     [_textFieldNBIDescriptionPreview setStringValue:nbiDescription];
-    
+
     // -------------------------------------------------------------
     //  Expand variables in NBI Icon Path
     // -------------------------------------------------------------
     NSString *nbiIconPath = [NBCVariables expandVariables:_nbiIconPath source:_source applicationSource:_dsSource];
     [self setNbiIcon:nbiIconPath];
-    
+
     // -------------------------------------------------------------
     //  Expand variables in Image Background Path
     // -------------------------------------------------------------
     NSString *customBackgroundPath = [NBCVariables expandVariables:_imageBackgroundURL source:_source applicationSource:_dsSource];
     [self setImageBackground:customBackgroundPath];
-    
+
 } // expandVariablesForCurrentSettings
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -966,7 +956,7 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)uppdatePopUpButtonTool {
-    if ( _popUpButtonTool ) {
+    if (_popUpButtonTool) {
         [_popUpButtonTool removeAllItems];
         //[_popUpButtonTool addItemWithTitle:NBCMenuItemNBICreator];
         [_popUpButtonTool addItemWithTitle:NBCMenuItemDeployStudioAssistant];
@@ -983,9 +973,9 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonChooseDestinationFolder:(id)sender {
 #pragma unused(sender)
-    
-    NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
-    
+
+    NSOpenPanel *chooseDestionation = [NSOpenPanel openPanel];
+
     // --------------------------------------------------------------
     //  Setup open dialog to only allow one folder to be chosen.
     // --------------------------------------------------------------
@@ -995,25 +985,25 @@ DDLogLevel ddLogLevel;
     [chooseDestionation setCanChooseDirectories:YES];
     [chooseDestionation setCanCreateDirectories:YES];
     [chooseDestionation setAllowsMultipleSelection:NO];
-    
-    if ( [chooseDestionation runModal] == NSModalResponseOK ) {
+
+    if ([chooseDestionation runModal] == NSModalResponseOK) {
         // -------------------------------------------------------------------------
         //  Get first item in URL array returned (should only be one) and update UI
         // -------------------------------------------------------------------------
-        NSArray* selectedURLs = [chooseDestionation URLs];
-        NSURL* selectedURL = [selectedURLs firstObject];
+        NSArray *selectedURLs = [chooseDestionation URLs];
+        NSURL *selectedURL = [selectedURLs firstObject];
         [self setDestinationFolder:[selectedURL path]];
     }
 } // buttonChooseDestinationFolder
 
 - (IBAction)matrixUseCustomServers:(id)sender {
-    
-    if ( [sender isEqualTo:_matrixUseCustomServers] ) {
-        if ( _useCustomServers == YES && _isSearching == NO ) {
+
+    if ([sender isEqualTo:_matrixUseCustomServers]) {
+        if (_useCustomServers == YES && _isSearching == NO) {
             [self setIsSearching:YES];
             [_discoveredServers removeAllObjects];
             [_bonjourBrowser startBonjourDiscovery];
-        } else if ( _useCustomServers == NO ) {
+        } else if (_useCustomServers == NO) {
             [_bonjourBrowser stopBonjourDiscovery];
             [self setIsSearching:NO];
         }
@@ -1027,22 +1017,22 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)getDeployStudioVersions {
-    NBCDownloaderDeployStudio *downloader =  [[NBCDownloaderDeployStudio alloc] initWithDelegate:self];
-    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagDeployStudio };
+    NBCDownloaderDeployStudio *downloader = [[NBCDownloaderDeployStudio alloc] initWithDelegate:self];
+    NSDictionary *downloadInfo = @{NBCDownloaderTag : NBCDownloaderTagDeployStudio};
     [downloader getReleaseVersionsAndURLsFromDeployStudioRepository:NBCDeployStudioRepository downloadInfo:downloadInfo];
 } // getDeployStudioVersions
 
 - (void)getDeployStudioVersionLatest {
-    NBCDownloader *downloader =  [[NBCDownloader alloc] initWithDelegate:self];
-    NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagDeployStudio };
+    NBCDownloader *downloader = [[NBCDownloader alloc] initWithDelegate:self];
+    NSDictionary *downloadInfo = @{NBCDownloaderTag : NBCDownloaderTagDeployStudio};
     [downloader downloadPageAsData:[NSURL URLWithString:NBCDeployStudioLatestVersionURL] downloadInfo:downloadInfo];
 } // getDeployStudioVersions
 
 - (void)updateDeployStudioVersion {
     [self setDeployStudioVersion:[_dsSource dsAdminVersion] ?: @""];
-    if ( [_deployStudioVersion length] != 0 ) {
+    if ([_deployStudioVersion length] != 0) {
         [_textFieldDeployStudioVersion setStringValue:_deployStudioVersion];
-        if ( [_deployStudioVersion isEqualToString:_deployStudioLatestVersion] ) {
+        if ([_deployStudioVersion isEqualToString:_deployStudioLatestVersion]) {
             [self hideUpdateAvailable];
         }
     } else {
@@ -1054,7 +1044,7 @@ DDLogLevel ddLogLevel;
 - (void)showUpdateAvailable:(NSString *)latestVersion {
     [_buttonDownloadDeployStudio setHidden:NO];
     [self setDeployStudioDownloadButtonHidden:NO];
-    if ( [_dsSource isInstalled] ) {
+    if ([_dsSource isInstalled]) {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Update available: %@)", latestVersion]];
     } else {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Latest version: %@)", latestVersion]];
@@ -1065,7 +1055,7 @@ DDLogLevel ddLogLevel;
 - (void)showUpdateAvailableCached:(NSString *)latestVersion {
     [_buttonDownloadDeployStudio setHidden:YES];
     [self setDeployStudioDownloadButtonHidden:YES];
-    if ( [_dsSource isInstalled] ) {
+    if ([_dsSource isInstalled]) {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Update available: %@)", latestVersion]];
     } else {
         [_textFieldUpdateAvailable setStringValue:[NSString stringWithFormat:@"(Latest version: %@)", latestVersion]];
@@ -1089,13 +1079,13 @@ DDLogLevel ddLogLevel;
 
 - (IBAction)buttonDownloadDeployStudio:(id)sender {
 #pragma unused(sender)
-    
-    if (([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask) != 0 ) {
+
+    if (([[NSApp currentEvent] modifierFlags] & NSAlternateKeyMask) != 0) {
         [self updatePopUpButtonDeployStudioVersion];
         [[NSApp mainWindow] beginSheet:_windowDeployStudioDownload completionHandler:nil];
     } else {
-        NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
-        
+        NSOpenPanel *chooseDestionation = [NSOpenPanel openPanel];
+
         // --------------------------------------------------------------
         //  Setup open dialog to only allow one folder to be chosen.
         // --------------------------------------------------------------
@@ -1105,24 +1095,22 @@ DDLogLevel ddLogLevel;
         [chooseDestionation setCanChooseDirectories:YES];
         [chooseDestionation setCanCreateDirectories:YES];
         [chooseDestionation setAllowsMultipleSelection:NO];
-        
-        if ( [chooseDestionation runModal] == NSModalResponseOK ) {
+
+        if ([chooseDestionation runModal] == NSModalResponseOK) {
             // -------------------------------------------------------------------------
             //  Get first item in URL array returned (should only be one) and update UI
             // -------------------------------------------------------------------------
-            NSArray* selectedURLs = [chooseDestionation URLs];
-            NSURL* selectedURL = [selectedURLs firstObject];
-            
+            NSArray *selectedURLs = [chooseDestionation URLs];
+            NSURL *selectedURL = [selectedURLs firstObject];
+
             NSString *downloadURL = _deployStudioVersionsDownloadLinks[_deployStudioLatestVersion];
-            if ( [downloadURL length] != 0 ) {
-                NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagDeployStudio };
-                if ( _deployStudioDownloader ) {
+            if ([downloadURL length] != 0) {
+                NSDictionary *downloadInfo = @{NBCDownloaderTag : NBCDownloaderTagDeployStudio};
+                if (_deployStudioDownloader) {
                     [self setDeployStudioDownloader:nil];
                 }
                 [self setDeployStudioDownloader:[[NBCDownloader alloc] initWithDelegate:self]];
-                [_deployStudioDownloader downloadFileFromURL:[NSURL URLWithString:downloadURL]
-                                             destinationPath:[selectedURL path]
-                                                downloadInfo:downloadInfo];
+                [_deployStudioDownloader downloadFileFromURL:[NSURL URLWithString:downloadURL] destinationPath:[selectedURL path] downloadInfo:downloadInfo];
                 [self showDeployStudioDownloadProgess:_deployStudioLatestVersion];
             } else {
                 DDLogError(@"[ERROR] Could not get download url for latest DeployStudio Version!");
@@ -1133,35 +1121,35 @@ DDLogLevel ddLogLevel;
 
 - (void)updatePopUpButtonDeployStudioVersion {
 
-    if ( _popUpButtonDeployStudioVersion ) {
+    if (_popUpButtonDeployStudioVersion) {
         [_popUpButtonDeployStudioVersion removeAllItems];
         [_popUpButtonDeployStudioVersion addItemWithTitle:NBCMenuItemDeployStudioVersionLatest];
         [[_popUpButtonDeployStudioVersion menu] addItem:[NSMenuItem separatorItem]];
         [_popUpButtonDeployStudioVersion addItemsWithTitles:_deployStudioVersions];
-        
+
         //[self setDeployStudioVersion:[_popUpButtonDeployStudioVersion titleOfSelectedItem]];
         //[self showPopUpButtonDeployStudioVersion];
     }
-    
-    if ( _popUpButtonDeployStudioDownload ) {
+
+    if (_popUpButtonDeployStudioDownload) {
         [_popUpButtonDeployStudioDownload removeAllItems];
         [_popUpButtonDeployStudioDownload addItemWithTitle:NBCMenuItemDeployStudioVersionLatest];
         [[_popUpButtonDeployStudioDownload menu] addItem:[NSMenuItem separatorItem]];
         [_popUpButtonDeployStudioDownload addItemsWithTitles:_deployStudioVersions];
     }
-    
+
 } // updatePopUpButtonImagrVersions
 
 - (void)cachedDeployStudioVersionLocal {
-    
+
     NBCWorkflowResourcesController *resourcesController = [[NBCWorkflowResourcesController alloc] init];
     NSDictionary *cachedDownloadsDict = [resourcesController cachedDownloadsDictFromResourceFolder:NBCFolderResourcesCacheDeployStudio];
-    if ( [cachedDownloadsDict count] != 0 ) {
+    if ([cachedDownloadsDict count] != 0) {
         NSString *latestVersion = cachedDownloadsDict[NBCResourcesDeployStudioLatestVersionKey];
-        if ( [latestVersion length] != 0 ) {
+        if ([latestVersion length] != 0) {
             [self setDeployStudioLatestVersion:latestVersion];
             NSString *currentVersion = [_dsSource dsAdminVersion];
-            if ( ! [currentVersion isEqualToString:latestVersion] ) {
+            if (![currentVersion isEqualToString:latestVersion]) {
                 [self showUpdateAvailableCached:latestVersion];
             }
         }
@@ -1169,22 +1157,22 @@ DDLogLevel ddLogLevel;
 } // cachedDeployStudioVersionLocal
 
 - (void)updateCachedDeployStudioLatestVersion:(NSString *)deployStudioLatestVersion {
-    
+
     NBCWorkflowResourcesController *resourcesController = [[NBCWorkflowResourcesController alloc] init];
     NSURL *deployStudioDownloadsDictURL = [resourcesController cachedDownloadsDictURLFromResourceFolder:NBCFolderResourcesCacheDeployStudio];
-    if ( deployStudioDownloadsDictURL != nil ) {
-        if ( [deployStudioDownloadsDictURL checkResourceIsReachableAndReturnError:nil] ) {
+    if (deployStudioDownloadsDictURL != nil) {
+        if ([deployStudioDownloadsDictURL checkResourceIsReachableAndReturnError:nil]) {
             NSMutableDictionary *deployStudioDownloadsDict = [[NSDictionary dictionaryWithContentsOfURL:deployStudioDownloadsDictURL] mutableCopy];
             deployStudioDownloadsDict[NBCResourcesDeployStudioLatestVersionKey] = deployStudioLatestVersion;
-            if ( ! [deployStudioDownloadsDict writeToURL:deployStudioDownloadsDictURL atomically:YES] ) {
+            if (![deployStudioDownloadsDict writeToURL:deployStudioDownloadsDictURL atomically:YES]) {
                 DDLogError(@"[ERROR] Writing DeployStudio downloads dict to caches failed");
             }
         } else {
             NSError *error;
             NSFileManager *fm = [NSFileManager defaultManager];
-            if ( [fm createDirectoryAtURL:[deployStudioDownloadsDictURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error] ) {
-                NSDictionary *deployStudioDownloadsDict = @{ NBCResourcesDeployStudioLatestVersionKey : deployStudioLatestVersion };
-                if ( ! [deployStudioDownloadsDict writeToURL:deployStudioDownloadsDictURL atomically:YES] ) {
+            if ([fm createDirectoryAtURL:[deployStudioDownloadsDictURL URLByDeletingLastPathComponent] withIntermediateDirectories:YES attributes:nil error:&error]) {
+                NSDictionary *deployStudioDownloadsDict = @{NBCResourcesDeployStudioLatestVersionKey : deployStudioLatestVersion};
+                if (![deployStudioDownloadsDict writeToURL:deployStudioDownloadsDictURL atomically:YES]) {
                     DDLogError(@"[ERROR] Writing DeployStudio downloads dict to caches failed");
                 }
             } else {
@@ -1220,22 +1208,18 @@ DDLogLevel ddLogLevel;
 } // updatePopUpButtonTemplates
 
 - (IBAction)popUpButtonTemplates:(id)sender {
-    
+
     NSString *selectedTemplate = [[sender selectedItem] title];
     BOOL settingsChanged = [self haveSettingsChanged];
-    
-    if ( [_selectedTemplate isEqualToString:NBCMenuItemUntitled] ) {
+
+    if ([_selectedTemplate isEqualToString:NBCMenuItemUntitled]) {
         [_templates showSheetSaveUntitled:selectedTemplate buildNBI:NO preWorkflowTasks:@{}];
         return;
-    } else if ( settingsChanged ) {
-        NSDictionary *alertInfo = @{
-                                    NBCAlertTagKey : NBCAlertTagSettingsUnsaved,
-                                    NBCAlertUserInfoSelectedTemplate : selectedTemplate
-                                    };
-        
+    } else if (settingsChanged) {
+        NSDictionary *alertInfo = @{NBCAlertTagKey : NBCAlertTagSettingsUnsaved, NBCAlertUserInfoSelectedTemplate : selectedTemplate};
+
         NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
-        [alert showAlertSettingsUnsaved:@"You have unsaved settings, do you want to discard changes and continue?"
-                              alertInfo:alertInfo];
+        [alert showAlertSettingsUnsaved:@"You have unsaved settings, do you want to discard changes and continue?" alertInfo:alertInfo];
     } else {
         [self setSelectedTemplate:[[sender selectedItem] title]];
         [self updateUISettingsFromURL:_templatesDict[_selectedTemplate]];
@@ -1249,32 +1233,32 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)verifyBuildButton {
-    
+
     // Why is this here?
     //[self updatePopUpButtonTemplates];
-    
+
     BOOL buildEnabled = YES;
-    
+
     // -------------------------------------------------------------
     //  Verify that the current source is not nil.
     // -------------------------------------------------------------
-    if ( _source == nil ) {
+    if (_source == nil) {
         buildEnabled = NO;
     }
-    
+
     // -------------------------------------------------------------
     //  Verify that the destination folder is not empty
     // -------------------------------------------------------------
-    if ( [_destinationFolder length] == 0 ) {
+    if ([_destinationFolder length] == 0) {
         buildEnabled = NO;
     }
-    
+
     // --------------------------------------------------------------------------------
     //  Post a notification that sets the button state to value of bool 'buildEnabled'
     // --------------------------------------------------------------------------------
-    NSDictionary * userInfo = @{ NBCNotificationUpdateButtonBuildUserInfoButtonState : @(buildEnabled) };
+    NSDictionary *userInfo = @{ NBCNotificationUpdateButtonBuildUserInfoButtonState : @(buildEnabled) };
     [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationUpdateButtonBuild object:self userInfo:userInfo];
-    
+
 } // verifyBuildButton
 
 - (IBAction)buttonPopOver:(id)sender {
@@ -1283,81 +1267,80 @@ DDLogLevel ddLogLevel;
 } // buttonPopOver
 
 - (void)updatePopOver {
-    
+
     NSString *separator = @";";
     NSString *variableString = [NSString stringWithFormat:@"%%OSVERSION%%%@"
-                                "%%OSMAJOR%%%@"
-                                "%%OSMINOR%%%@"
-                                "%%OSPATCH%%%@"
-                                "%%OSBUILD%%%@"
-                                "%%DATE%%%@"
-                                "%%OSINDEX%%%@"
-                                "%%NBCVERSION%%%@"
-                                ,separator, separator, separator, separator, separator, separator, separator, separator
-                                ];
+                                                           "%%OSMAJOR%%%@"
+                                                           "%%OSMINOR%%%@"
+                                                           "%%OSPATCH%%%@"
+                                                           "%%OSBUILD%%%@"
+                                                           "%%DATE%%%@"
+                                                           "%%OSINDEX%%%@"
+                                                           "%%NBCVERSION%%%@",
+                                                          separator, separator, separator, separator, separator, separator, separator, separator];
     NSString *expandedVariables = [NBCVariables expandVariables:variableString source:_source applicationSource:_dsSource];
     NSArray *expandedVariablesArray = [expandedVariables componentsSeparatedByString:separator];
-    
+
     // %OSVERSION%
-    if ( 1 <= [expandedVariablesArray count] ) {
+    if (1 <= [expandedVariablesArray count]) {
         NSString *osVersion = expandedVariablesArray[0];
-        if ( [osVersion length] != 0 ) {
+        if ([osVersion length] != 0) {
             [self setPopOverOSVersion:osVersion];
         }
     }
     // %OSMAJOR%
-    if ( 2 <= [expandedVariablesArray count] ) {
+    if (2 <= [expandedVariablesArray count]) {
         NSString *osMajor = expandedVariablesArray[1];
-        if ( [osMajor length] != 0 ) {
+        if ([osMajor length] != 0) {
             [self setPopOverOSMajor:osMajor];
         }
     }
     // %OSMINOR%
-    if ( 3 <= [expandedVariablesArray count] ) {
+    if (3 <= [expandedVariablesArray count]) {
         NSString *osMinor = expandedVariablesArray[2];
-        if ( [osMinor length] != 0 ) {
+        if ([osMinor length] != 0) {
             [self setPopOverOSMinor:osMinor];
         }
     }
     // %OSPATCH%
-    if ( 4 <= [expandedVariablesArray count] ) {
+    if (4 <= [expandedVariablesArray count]) {
         NSString *osPatch = expandedVariablesArray[3];
-        if ( [osPatch length] != 0 ) {
+        if ([osPatch length] != 0) {
             [self setPopOverOSPatch:osPatch];
         }
     }
     // %OSBUILD%
-    if ( 5 <= [expandedVariablesArray count] ) {
+    if (5 <= [expandedVariablesArray count]) {
         NSString *osBuild = expandedVariablesArray[4];
-        if ( [osBuild length] != 0 ) {
+        if ([osBuild length] != 0) {
             [self setPopOverOSBuild:osBuild];
         }
     }
     // %DATE%
-    if ( 6 <= [expandedVariablesArray count] ) {
+    if (6 <= [expandedVariablesArray count]) {
         NSString *date = expandedVariablesArray[5];
-        if ( [date length] != 0 ) {
+        if ([date length] != 0) {
             [self setPopOverDate:date];
         }
     }
     // %OSINDEX%
-    if ( 7 <= [expandedVariablesArray count] ) {
+    if (7 <= [expandedVariablesArray count]) {
         NSString *osIndex = expandedVariablesArray[6];
-        if ( [osIndex length] != 0 ) {
+        if ([osIndex length] != 0) {
             [self setPopOverOSIndex:osIndex];
         }
     }
     // %NBCVERSION%
-    if ( 8 <= [expandedVariablesArray count] ) {
+    if (8 <= [expandedVariablesArray count]) {
         NSString *nbcVersion = expandedVariablesArray[7];
-        if ( [nbcVersion length] != 0 ) {
+        if ([nbcVersion length] != 0) {
             [self setNbcVersion:nbcVersion];
         }
     }
     // %COUNTER%
     [self setPopOverIndexCounter:[[[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsIndexCounter] stringValue]];
     // %DSVERSION%
-    if ( [_deployStudioVersion length] != 0 ) {
+    if ([_deployStudioVersion length] != 0) {
         [self setPopOverDSVersion:_deployStudioVersion];
     } else {
         [self setPopOverDSVersion:@"Not Installed"];
@@ -1371,16 +1354,14 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)buildNBI:(NSDictionary *)preWorkflowTasks {
-    if ( ! _isNBI && [self haveSettingsChanged] ) {
-        NSDictionary *alertInfo = @{
-                                    NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
-                                    NBCAlertUserInfoSelectedTemplate : _selectedTemplate,
-                                    NBCAlertUserInfoPreWorkflowTasks : preWorkflowTasks ?: @{}
-                                    };
-        
+    if (!_isNBI && [self haveSettingsChanged]) {
+        NSDictionary *alertInfo =
+            @{ NBCAlertTagKey : NBCAlertTagSettingsUnsavedBuild,
+               NBCAlertUserInfoSelectedTemplate : _selectedTemplate,
+               NBCAlertUserInfoPreWorkflowTasks : preWorkflowTasks ?: @{} };
+
         NBCAlerts *alert = [[NBCAlerts alloc] initWithDelegate:self];
-        [alert showAlertSettingsUnsavedBuild:@"You have unsaved settings, do you want to save current template and continue?"
-                                   alertInfo:alertInfo];
+        [alert showAlertSettingsUnsavedBuild:@"You have unsaved settings, do you want to save current template and continue?" alertInfo:alertInfo];
     } else {
         [self verifySettings:preWorkflowTasks];
     }
@@ -1388,100 +1369,96 @@ DDLogLevel ddLogLevel;
 
 - (void)encryptRuntimePasswordInUserSettings:(NSMutableDictionary *)userSettings {
     NSString *encryptedPassword = [self encryptedRuntimePasswordForPassword:userSettings[NBCSettingsDeployStudioRuntimePasswordKey] ?: @""];
-    if ( [encryptedPassword length] != 0 ) {
+    if ([encryptedPassword length] != 0) {
         userSettings[NBCSettingsDeployStudioRuntimePasswordKey] = encryptedPassword;
     }
 }
 
 - (NSString *)encryptedRuntimePasswordForPassword:(NSString *)password {
-    
+
     NSTask *task = [[NSTask alloc] init];
-    openssl enc -des-cbc -in dscore_unencrypted.txt -out dscore_encrypted.txt -nosalt -nopad -K f137ec7cb5a49e4c -iv 0000000000000000
+    openssl enc - des - cbc - in dscore_unencrypted.txt - out dscore_encrypted.txt - nosalt - nopad - K f137ec7cb5a49e4c - iv 0000000000000000
 }
 
 - (void)verifySettings:(NSDictionary *)preWorkflowTasks {
-    
+
     DDLogInfo(@"Verifying settings...");
-    
+
     DDLogDebug(@"[DEBUG] Creating new workflow item");
-    NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeDeployStudio
-                                                              workflowSessionType:kWorkflowSessionTypeGUI];
-    
-    if ( _source ) {
+    NBCWorkflowItem *workflowItem = [[NBCWorkflowItem alloc] initWithWorkflowType:kWorkflowTypeDeployStudio workflowSessionType:kWorkflowSessionTypeGUI];
+
+    if (_source) {
         DDLogDebug(@"[DEBUG] Settings workflow item source...");
         [workflowItem setSource:_source];
     } else {
         DDLogError(@"[ERROR] Source was empty!");
         return;
     }
-    
-    if ( _target ) {
+
+    if (_target) {
         DDLogDebug(@"[DEBUG] Settings workflow item target...");
         [workflowItem setTarget:_target];
     }
-    
+
     [workflowItem setApplicationSource:_dsSource];
     [workflowItem setSettingsViewController:self];
     [workflowItem setPreWorkflowTasks:preWorkflowTasks];
-    
+
     // ----------------------------------------------------------------
     //  Collect current UI settings and pass them through verification
     // ----------------------------------------------------------------
     NSMutableDictionary *userSettings = [[self returnSettingsFromUI] mutableCopy];
-    if ( [userSettings count] != 0 ) {
-        
+    if ([userSettings count] != 0) {
+
         // Add create usb device here as this settings only is avalable to this session
         userSettings[NBCSettingsCreateUSBDeviceKey] = @(_createUSBDevice);
         userSettings[NBCSettingsUSBBSDNameKey] = _usbDevicesDict[[_popUpButtonUSBDevices titleOfSelectedItem]] ?: @"";
-        
-        if ( [userSettings[NBCSettingsDeployStudioRuntimePasswordKey] length] != 0 ) {
-            [self encryptRuntimePasswordInSettings:userSettings];
-        }
-        
+        /*
+                if ([userSettings[NBCSettingsDeployStudioRuntimePasswordKey] length] != 0) {
+                    [self encryptRuntimePasswordInSettings:userSettings];
+                }
+        */
         [workflowItem setUserSettings:[userSettings copy]];
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
-        
+
         // ----------------------------------------------------
         //  Check all settings for possible errors or warnings
         // ----------------------------------------------------
         NSDictionary *errorInfoDict = [sc verifySettingsForWorkflowItem:workflowItem];
-        if ( [errorInfoDict count] != 0 ) {
+        if ([errorInfoDict count] != 0) {
             BOOL configurationError = NO;
             BOOL configurationWarning = NO;
             NSMutableString *alertInformativeText = [[NSMutableString alloc] init];
             NSArray *error = errorInfoDict[NBCSettingsError];
             NSArray *warning = errorInfoDict[NBCSettingsWarning];
-            
-            if ( [error count] != 0 ) {
+
+            if ([error count] != 0) {
                 configurationError = YES;
-                for ( NSString *errorString in error ) {
+                for (NSString *errorString in error) {
                     [alertInformativeText appendString:[NSString stringWithFormat:@"\n\n• %@", errorString]];
                 }
             }
-            
-            if ( [warning count] != 0 ) {
+
+            if ([warning count] != 0) {
                 configurationWarning = YES;
-                for ( NSString *warningString in warning ) {
+                for (NSString *warningString in warning) {
                     [alertInformativeText appendString:[NSString stringWithFormat:@"\n\n• %@", warningString]];
                 }
             }
-            
+
             // ----------------------------------------------------------------
             //  If any errors are found, display alert and stop NBI creation
             // ----------------------------------------------------------------
-            if ( configurationError ) {
+            if (configurationError) {
                 [NBCAlerts showAlertSettingsError:alertInformativeText];
             }
-            
+
             // --------------------------------------------------------------------------------
             //  If only warnings are found, display alert and allow user to continue or cancel
             // --------------------------------------------------------------------------------
-            if ( ! configurationError && configurationWarning ) {
-                NSDictionary *alertInfo = @{
-                                            NBCAlertTagKey : NBCAlertTagSettingsWarning,
-                                            NBCAlertWorkflowItemKey : workflowItem
-                                            };
-                
+            if (!configurationError && configurationWarning) {
+                NSDictionary *alertInfo = @{NBCAlertTagKey : NBCAlertTagSettingsWarning, NBCAlertWorkflowItemKey : workflowItem};
+
                 NBCAlerts *alerts = [[NBCAlerts alloc] initWithDelegate:self];
                 [alerts showAlertSettingsWarning:alertInformativeText alertInfo:alertInfo];
             }
@@ -1490,70 +1467,76 @@ DDLogLevel ddLogLevel;
             [self prepareWorkflowItem:workflowItem];
         }
     } else {
-        [NBCAlerts showAlertErrorWithTitle:@"Configuration Error" informativeText:@"Settings in UI could not be read.\n\nTry saving your template and restart the application.\n\nIf this problem persists, consider turning on debug logging in preferences and open an issue on GitHub."];
+        [NBCAlerts showAlertErrorWithTitle:@"Configuration Error"
+                           informativeText:@"Settings in UI could not be read.\n\nTry saving your template and restart the application.\n\nIf this problem persists, consider turning on debug logging "
+                                           @"in preferences and open an issue on GitHub."];
     }
 } // buildNBI
 
 - (void)prepareWorkflowItem:(NBCWorkflowItem *)workflowItem {
-    
+
     DDLogInfo(@"Preparing workflow item...");
-    
+
     // --------------------------------
     //  Get Authorization
     // --------------------------------
     NSError *err = nil;
     NSData *authData = [workflowItem authData];
-    if ( ! authData ) {
+    if (!authData) {
         authData = [NBCHelperAuthorization authorizeHelper:&err];
-        if ( err ) {
+        if (err) {
             DDLogError(@"[ERROR] %@", [err localizedDescription]);
         }
         [workflowItem setAuthData:authData];
     }
-    
+
     // ------------------------------------------------------
     //  Authorize the workflow before adding it to the queue
     // ------------------------------------------------------
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
-        
-        NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-        [helperConnector connectToHelper];
-        [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [NBCAlerts showAlertErrorWithTitle:@"Helper Connection Error" informativeText:[NSString stringWithFormat:@"%@\n\nPlease try re-launching NBICreator and try installing the helper again.\n\nIf that doesn't work, consult the FAQ on the NBICreator GitHub wiki page under the title:\n\n\"Can't connect to helper\".", [proxyError localizedDescription]]];
-                DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
-            });
-        }] authorizeWorkflowDeployStudio:authData withReply:^(NSError *error) {
-            if ( ! error ) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    
-                    // -------------------------------------------------------------
-                    //  Post notification to add workflow item to queue
-                    // -------------------------------------------------------------
-                    NSDictionary *userInfo = @{ NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : workflowItem };
-                    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationAddWorkflowItemToQueue object:self userInfo:userInfo];
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    DDLogError(@"[ERROR] %@", [error localizedDescription]);
-                });
-            }
-        }];
+
+      NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+      [helperConnector connectToHelper];
+      [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError *proxyError) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+          [NBCAlerts showAlertErrorWithTitle:@"Helper Connection Error"
+                             informativeText:[NSString stringWithFormat:@"%@\n\nPlease try re-launching NBICreator and try installing the helper again.\n\nIf that doesn't work, consult the FAQ on "
+                                                                        @"the NBICreator GitHub wiki page under the title:\n\n\"Can't connect to helper\".",
+                                                                        [proxyError localizedDescription]]];
+          DDLogError(@"[ERROR] %@", [proxyError localizedDescription]);
+        });
+      }] authorizeWorkflowDeployStudio:authData
+                              withReply:^(NSError *error) {
+                                if (!error) {
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+
+                                      // -------------------------------------------------------------
+                                      //  Post notification to add workflow item to queue
+                                      // -------------------------------------------------------------
+                                      NSDictionary *userInfo = @{NBCNotificationAddWorkflowItemToQueueUserInfoWorkflowItem : workflowItem};
+                                      [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationAddWorkflowItemToQueue object:self userInfo:userInfo];
+                                    });
+                                } else {
+                                    dispatch_async(dispatch_get_main_queue(), ^{
+                                      DDLogError(@"[ERROR] %@", [error localizedDescription]);
+                                    });
+                                }
+                              }];
     });
 } // prepareWorkflow
 
-- (IBAction)buttonDeployStudioDownloadDownload:(id) __unused sender {
+- (IBAction)buttonDeployStudioDownloadDownload:(id)__unused sender {
     NSString *selectedVersion = [_popUpButtonDeployStudioDownload titleOfSelectedItem];
-    if ( [selectedVersion isEqualToString:NBCMenuItemDeployStudioVersionLatest] ) {
+    if ([selectedVersion isEqualToString:NBCMenuItemDeployStudioVersionLatest]) {
         selectedVersion = _deployStudioLatestVersion;
     }
     NSString *downloadURLString = _deployStudioVersionsDownloadLinks[selectedVersion];
     NSURL *downloadURL = [NSURL URLWithString:downloadURLString];
-    
-    if ( downloadURL != nil ) {
-        NSOpenPanel* chooseDestionation = [NSOpenPanel openPanel];
-        
+
+    if (downloadURL != nil) {
+        NSOpenPanel *chooseDestionation = [NSOpenPanel openPanel];
+
         // --------------------------------------------------------------
         //  Setup open dialog to only allow one folder to be chosen.
         // --------------------------------------------------------------
@@ -1563,21 +1546,19 @@ DDLogLevel ddLogLevel;
         [chooseDestionation setCanChooseDirectories:YES];
         [chooseDestionation setCanCreateDirectories:YES];
         [chooseDestionation setAllowsMultipleSelection:NO];
-        
-        if ( [chooseDestionation runModal] == NSModalResponseOK ) {
+
+        if ([chooseDestionation runModal] == NSModalResponseOK) {
             // -------------------------------------------------------------------------
             //  Get first item in URL array returned (should only be one) and update UI
             // -------------------------------------------------------------------------
-            NSArray* selectedURLs = [chooseDestionation URLs];
-            NSURL* selectedURL = [selectedURLs firstObject];
-            NSDictionary *downloadInfo = @{ NBCDownloaderTag : NBCDownloaderTagDeployStudio };
-            if ( _deployStudioDownloader ) {
+            NSArray *selectedURLs = [chooseDestionation URLs];
+            NSURL *selectedURL = [selectedURLs firstObject];
+            NSDictionary *downloadInfo = @{NBCDownloaderTag : NBCDownloaderTagDeployStudio};
+            if (_deployStudioDownloader) {
                 [self setDeployStudioDownloader:nil];
             }
             [self setDeployStudioDownloader:[[NBCDownloader alloc] initWithDelegate:self]];
-            [_deployStudioDownloader downloadFileFromURL:downloadURL
-                                         destinationPath:[selectedURL path]
-                                            downloadInfo:downloadInfo];
+            [_deployStudioDownloader downloadFileFromURL:downloadURL destinationPath:[selectedURL path] downloadInfo:downloadInfo];
         }
     } else {
         DDLogError(@"[ERROR] Could not get download url for latest DeployStudio Version!");
@@ -1594,21 +1575,21 @@ DDLogLevel ddLogLevel;
     [[NSApp mainWindow] beginSheet:_windowDeployStudioDownloadProgress completionHandler:nil];
 }
 
-- (IBAction)buttonDeployStudioDownloadCancel:(id) __unused sender {
+- (IBAction)buttonDeployStudioDownloadCancel:(id)__unused sender {
     [[NSApp mainWindow] endSheet:_windowDeployStudioDownload];
 }
 
-- (IBAction)buttonDeployStudioDownloadProgressCancel:(id) __unused sender {
-    if ( _deployStudioDownloader ) {
+- (IBAction)buttonDeployStudioDownloadProgressCancel:(id)__unused sender {
+    if (_deployStudioDownloader) {
         [_deployStudioDownloader cancelDownload];
     }
     [[NSApp mainWindow] endSheet:_windowDeployStudioDownload];
 }
 
-- (IBAction)buttonAddPostWorkflowScript:(id) __unused sender {
-    
-    NSOpenPanel* addPackages = [NSOpenPanel openPanel];
-    
+- (IBAction)buttonAddPostWorkflowScript:(id)__unused sender {
+
+    NSOpenPanel *addPackages = [NSOpenPanel openPanel];
+
     // --------------------------------------------------------------
     //  Setup open dialog to only allow one folder to be chosen.
     // --------------------------------------------------------------
@@ -1619,15 +1600,15 @@ DDLogLevel ddLogLevel;
     [addPackages setCanChooseDirectories:NO];
     [addPackages setCanCreateDirectories:YES];
     [addPackages setAllowsMultipleSelection:YES];
-    
-    if ( [addPackages runModal] == NSModalResponseOK ) {
+
+    if ([addPackages runModal] == NSModalResponseOK) {
         NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
-        NSArray* selectedURLs = [addPackages URLs];
-        for ( NSURL *url in selectedURLs ) {
+        NSArray *selectedURLs = [addPackages URLs];
+        for (NSURL *url in selectedURLs) {
             NSString *fileType = [[NSWorkspace sharedWorkspace] typeOfFile:[url path] error:nil];
-            if ( [workspace type:fileType conformsToType:@"public.shell-script"] ) {
+            if ([workspace type:fileType conformsToType:@"public.shell-script"]) {
                 NSDictionary *scriptDict = [self examineScriptAtURL:url];
-                if ( [scriptDict count] != 0 ) {
+                if ([scriptDict count] != 0) {
                     [self insertItemInPostWorkflowScriptsTableView:scriptDict];
                     return;
                 }
@@ -1638,13 +1619,13 @@ DDLogLevel ddLogLevel;
 
 - (void)insertItemInPostWorkflowScriptsTableView:(NSDictionary *)itemDict {
     NSString *packagePath = itemDict[NBCDictionaryKeyPath];
-    for ( NSDictionary *scriptDict in _postWorkflowScripts ) {
-        if ( [packagePath isEqualToString:scriptDict[NBCDictionaryKeyPath]] ) {
+    for (NSDictionary *scriptDict in _postWorkflowScripts) {
+        if ([packagePath isEqualToString:scriptDict[NBCDictionaryKeyPath]]) {
             DDLogWarn(@"Script %@ is already added!", [packagePath lastPathComponent]);
             return;
         }
     }
-    
+
     NSInteger index = [_tableViewPostWorkflowScripts selectedRow];
     index++;
     [_tableViewPostWorkflowScripts beginUpdates];
@@ -1656,41 +1637,38 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSDictionary *)examineScriptAtURL:(NSURL *)url {
-    
+
     DDLogDebug(@"[DEBUG] Examine script...");
-    
+
     NSMutableDictionary *newScriptDict = [[NSMutableDictionary alloc] init];
     NBCDDReader *reader = [[NBCDDReader alloc] initWithFilePath:[url path]];
     [reader enumerateLinesUsingBlock:^(NSString *line, BOOL *stop) {
-        if (
-            [line hasPrefix:@"#!/bin/bash"] |
-            [line hasPrefix:@"#!/bin/sh"]
-            ) {
-            newScriptDict[NBCDictionaryKeyScriptType] = @"Shell Script";
-            *stop = YES;
-        }
+      if ([line hasPrefix:@"#!/bin/bash"] | [line hasPrefix:@"#!/bin/sh"]) {
+          newScriptDict[NBCDictionaryKeyScriptType] = @"Shell Script";
+          *stop = YES;
+      }
     }];
-    
+
     DDLogDebug(@"[DEBUG] Script type: %@", newScriptDict[NBCDictionaryKeyScriptType] ?: @"Unknown");
-    
-    if ( [newScriptDict[NBCDictionaryKeyScriptType] length] != 0 ) {
+
+    if ([newScriptDict[NBCDictionaryKeyScriptType] length] != 0) {
         newScriptDict[NBCDictionaryKeyPath] = [url path] ?: @"Unknown";
         DDLogDebug(@"[DEBUG] Script path: %@", newScriptDict[NBCDictionaryKeyPath]);
-        
+
         newScriptDict[NBCDictionaryKeyName] = [url lastPathComponent] ?: @"Unknown";
         DDLogDebug(@"[DEBUG] Script name: %@", newScriptDict[NBCDictionaryKeyName]);
-        
+
         return newScriptDict;
     } else {
         return nil;
     }
 }
 
-- (IBAction)buttonRemovePostWorkflowScript:(id) __unused sender {
+- (IBAction)buttonRemovePostWorkflowScript:(id)__unused sender {
     NSIndexSet *indexes = [_tableViewPostWorkflowScripts selectedRowIndexes];
     [_postWorkflowScripts removeObjectsAtIndexes:indexes];
     [_tableViewPostWorkflowScripts removeRowsAtIndexes:indexes withAnimation:NSTableViewAnimationSlideDown];
-    if ( [_postWorkflowScripts count] == 0 ) {
+    if ([_postWorkflowScripts count] == 0) {
         [_viewOverlayPostWorkflowScripts setHidden:NO];
     }
 }
@@ -1702,14 +1680,14 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)updatePopUpButtonUSBDevices {
-    
+
     NSString *currentSelection = [_popUpButtonUSBDevices titleOfSelectedItem];
-    
+
     [_popUpButtonUSBDevices removeAllItems];
     _usbDevicesDict = [NSMutableDictionary dictionary];
     [_popUpButtonUSBDevices addItemWithTitle:NBCMenuItemNoSelection];
     [[_popUpButtonUSBDevices menu] setAutoenablesItems:NO];
-    
+
     // ------------------------------------------------------
     //  Add menu title: System Volumes
     // ------------------------------------------------------
@@ -1719,22 +1697,22 @@ DDLogLevel ddLogLevel;
     [titleMenuItem setEnabled:NO];
     [[_popUpButtonUSBDevices menu] addItem:titleMenuItem];
     [[_popUpButtonUSBDevices menu] addItem:[NSMenuItem separatorItem]];
-    
+
     // --------------------------------------------------------------
     //  Add all mounted OS X disks to source popUpButton
     // --------------------------------------------------------------
     NSMutableArray *addedDisks = [[NSMutableArray alloc] init];
     NSSet *currentDisks = [[[NBCDiskArbitrator sharedArbitrator] disks] copy];
-    for ( NBCDisk *disk in currentDisks ) {
-        if ( ! disk ) {
+    for (NBCDisk *disk in currentDisks) {
+        if (!disk) {
             continue;
         }
-        
+
         NSString *deviceProtocol = [disk deviceProtocol];
-        if ( [deviceProtocol isEqualToString:@"USB"] ) {
+        if ([deviceProtocol isEqualToString:@"USB"]) {
             NBCDisk *usbDisk = [disk parent];
-            
-            if ( usbDisk != nil && ! [addedDisks containsObject:[usbDisk BSDName]] ) {
+
+            if (usbDisk != nil && ![addedDisks containsObject:[usbDisk BSDName]]) {
                 NSString *diskMenuItemTitle = [usbDisk mediaName] ?: @"Unknown";
                 NSImage *icon = [[usbDisk icon] copy];
                 NSMenuItem *diskMenuItem = [[NSMenuItem alloc] initWithTitle:diskMenuItemTitle action:nil keyEquivalent:@""];
@@ -1742,11 +1720,11 @@ DDLogLevel ddLogLevel;
                 [diskMenuItem setImage:icon];
                 [diskMenuItem setEnabled:YES];
                 [[_popUpButtonUSBDevices menu] addItem:diskMenuItem];
-                
+
                 _usbDevicesDict[diskMenuItemTitle] = [usbDisk BSDName];
                 [addedDisks addObject:[usbDisk BSDName]];
-                
-                for ( NBCDisk *childDisk in [usbDisk children] ) {
+
+                for (NBCDisk *childDisk in [usbDisk children]) {
                     NSString *childDiskItemTitle = [childDisk volumeName] ?: @"Unknown";
                     NSImage *childIcon = [[childDisk icon] copy];
                     NSMenuItem *childDiskMenuItem = [[NSMenuItem alloc] initWithTitle:childDiskItemTitle action:nil keyEquivalent:@""];
@@ -1759,8 +1737,8 @@ DDLogLevel ddLogLevel;
             }
         }
     }
-    
-    if ( [[_popUpButtonUSBDevices itemTitles] containsObject:currentSelection] ) {
+
+    if ([[_popUpButtonUSBDevices itemTitles] containsObject:currentSelection]) {
         [_popUpButtonUSBDevices selectItemWithTitle:currentSelection ?: NBCMenuItemNoSelection];
     } else {
         [_popUpButtonUSBDevices selectItemWithTitle:NBCMenuItemNoSelection];

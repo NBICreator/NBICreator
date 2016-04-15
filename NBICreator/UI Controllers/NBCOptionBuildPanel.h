@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Cocoa/Cocoa.h>
 #import "NBCSource.h"
+#import <Cocoa/Cocoa.h>
 
 @protocol NBCOptionBuildPanelDelegate
 @optional
@@ -31,7 +31,6 @@
 
 @property (weak) id settingsViewController;
 @property (strong) IBOutlet NSWindow *windowOptionWindow;
-
 
 @property (weak) IBOutlet NSButton *checkboxClearSourceCache;
 @property (weak) IBOutlet NSPopUpButton *popUpButtonClearSourceCache;

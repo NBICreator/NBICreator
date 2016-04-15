@@ -25,40 +25,35 @@
 //
 // returns the fully resolved path (if possible) or nil (if resolution fails)
 //
-- (NSString *)stringByResolvingSymlinksAndAliases
-{
-	//
-	// Convert to a standardized absolute path.
-	//
-	NSString *path = [self stringByStandardizingPath];
-	if (![path hasPrefix:@"/"])
-	{
-		return nil;
-	}
-	
-	//
-	// Break into components. First component ("/") needs no resolution, so
-	// we only need to handle subsequent components.
-	//
-	NSArray *pathComponents = [path pathComponents];
-	NSString *resolvedPath = [pathComponents objectAtIndex:0];
-	pathComponents = [pathComponents
-		subarrayWithRange:NSMakeRange(1, [pathComponents count] - 1)];
+- (NSString *)stringByResolvingSymlinksAndAliases {
+    //
+    // Convert to a standardized absolute path.
+    //
+    NSString *path = [self stringByStandardizingPath];
+    if (![path hasPrefix:@"/"]) {
+        return nil;
+    }
 
-	//
-	// Process all remaining components.
-	//
-	for (NSString *component in pathComponents)
-	{
-		resolvedPath = [resolvedPath stringByAppendingPathComponent:component];
-		resolvedPath = [resolvedPath stringByIterativelyResolvingSymlinkOrAlias];
-		if (!resolvedPath)
-		{
-			return nil;
-		}
-	}
+    //
+    // Break into components. First component ("/") needs no resolution, so
+    // we only need to handle subsequent components.
+    //
+    NSArray *pathComponents = [path pathComponents];
+    NSString *resolvedPath = [pathComponents objectAtIndex:0];
+    pathComponents = [pathComponents subarrayWithRange:NSMakeRange(1, [pathComponents count] - 1)];
 
-	return resolvedPath;
+    //
+    // Process all remaining components.
+    //
+    for (NSString *component in pathComponents) {
+        resolvedPath = [resolvedPath stringByAppendingPathComponent:component];
+        resolvedPath = [resolvedPath stringByIterativelyResolvingSymlinkOrAlias];
+        if (!resolvedPath) {
+            return nil;
+        }
+    }
+
+    return resolvedPath;
 }
 
 //
@@ -69,58 +64,46 @@
 //
 // returns the resolved path
 //
-- (NSString *)stringByIterativelyResolvingSymlinkOrAlias
-{
-	NSString *path = self;
-	NSString *aliasTarget = nil;
-	struct stat fileInfo;
-	
-	//
-	// Use lstat to determine if the file is a symlink
-	//
-	if (lstat([[NSFileManager defaultManager]
-		fileSystemRepresentationWithPath:path], &fileInfo) < 0)
-	{
-		return nil;
-	}
-	
-	//
-	// While the file is a symlink or we can resolve aliases in the path,
-	// keep resolving.
-	//
-	while (S_ISLNK(fileInfo.st_mode) ||
-		(!S_ISDIR(fileInfo.st_mode) &&
-			(aliasTarget = [path stringByConditionallyResolvingAlias]) != nil))
-	{
-		if (S_ISLNK(fileInfo.st_mode))
-		{
-			//
-			// Resolve the symlink final component in the path
-			//
-			NSString *symlinkPath = [path stringByConditionallyResolvingSymlink];
-			if (!symlinkPath)
-			{
-				return nil;
-			}
-			path = symlinkPath;
-		}
-		else
-		{
-			path = aliasTarget;
-		}
+- (NSString *)stringByIterativelyResolvingSymlinkOrAlias {
+    NSString *path = self;
+    NSString *aliasTarget = nil;
+    struct stat fileInfo;
 
-		//
-		// Use lstat to determine if the file is a symlink
-		//
-		if (lstat([[NSFileManager defaultManager]
-			fileSystemRepresentationWithPath:path], &fileInfo) < 0)
-		{
-			path = nil;
-			continue;
-		}
-	}
-	
-	return path;
+    //
+    // Use lstat to determine if the file is a symlink
+    //
+    if (lstat([[NSFileManager defaultManager] fileSystemRepresentationWithPath:path], &fileInfo) < 0) {
+        return nil;
+    }
+
+    //
+    // While the file is a symlink or we can resolve aliases in the path,
+    // keep resolving.
+    //
+    while (S_ISLNK(fileInfo.st_mode) || (!S_ISDIR(fileInfo.st_mode) && (aliasTarget = [path stringByConditionallyResolvingAlias]) != nil)) {
+        if (S_ISLNK(fileInfo.st_mode)) {
+            //
+            // Resolve the symlink final component in the path
+            //
+            NSString *symlinkPath = [path stringByConditionallyResolvingSymlink];
+            if (!symlinkPath) {
+                return nil;
+            }
+            path = symlinkPath;
+        } else {
+            path = aliasTarget;
+        }
+
+        //
+        // Use lstat to determine if the file is a symlink
+        //
+        if (lstat([[NSFileManager defaultManager] fileSystemRepresentationWithPath:path], &fileInfo) < 0) {
+            path = nil;
+            continue;
+        }
+    }
+
+    return path;
 }
 
 //
@@ -131,14 +114,12 @@
 // returns the resolved alias or self if path wasn't an alias or couldn't be
 //	resolved.
 //
-- (NSString *)stringByResolvingAlias
-{
-	NSString *aliasTarget = [self stringByConditionallyResolvingAlias];
-	if (aliasTarget)
-	{
-		return aliasTarget;
-	}
-	return self;
+- (NSString *)stringByResolvingAlias {
+    NSString *aliasTarget = [self stringByConditionallyResolvingAlias];
+    if (aliasTarget) {
+        return aliasTarget;
+    }
+    return self;
 }
 
 //
@@ -149,14 +130,12 @@
 // returns the resolved path or self if path wasn't a symlink or couldn't be
 //	resolved.
 //
-- (NSString *)stringByResolvingSymlink
-{
-	NSString *symlinkTarget = [self stringByConditionallyResolvingSymlink];
-	if (symlinkTarget)
-	{
-		return symlinkTarget;
-	}
-	return self;
+- (NSString *)stringByResolvingSymlink {
+    NSString *symlinkTarget = [self stringByConditionallyResolvingSymlink];
+    if (symlinkTarget) {
+        return symlinkTarget;
+    }
+    return self;
 }
 
 //
@@ -167,31 +146,23 @@
 // returns the resolved path (if it was a symlink and resolution is possible)
 //	otherwise nil
 //
-- (NSString *)stringByConditionallyResolvingSymlink
-{
-	//
-	// Resolve the symlink final component in the path
-	//
-	NSString *symlinkPath =
-		[[NSFileManager defaultManager]
-			destinationOfSymbolicLinkAtPath:self
-			error:NULL];
-	if (!symlinkPath)
-	{
-		return nil;
-	}
-	if (![symlinkPath hasPrefix:@"/"])
-	{
-		//
-		// For relative path symlinks (common case), remove the
-		// relative links
-		//
-		symlinkPath =
-			[[self stringByDeletingLastPathComponent]
-				stringByAppendingPathComponent:symlinkPath];
-		symlinkPath = [symlinkPath stringByStandardizingPath];
-	}
-	return symlinkPath;
+- (NSString *)stringByConditionallyResolvingSymlink {
+    //
+    // Resolve the symlink final component in the path
+    //
+    NSString *symlinkPath = [[NSFileManager defaultManager] destinationOfSymbolicLinkAtPath:self error:NULL];
+    if (!symlinkPath) {
+        return nil;
+    }
+    if (![symlinkPath hasPrefix:@"/"]) {
+        //
+        // For relative path symlinks (common case), remove the
+        // relative links
+        //
+        symlinkPath = [[self stringByDeletingLastPathComponent] stringByAppendingPathComponent:symlinkPath];
+        symlinkPath = [symlinkPath stringByStandardizingPath];
+    }
+    return symlinkPath;
 }
 
 //
@@ -202,47 +173,43 @@
 // returns the resolved path (if it was an alias and resolution is possible)
 //	otherwise nil
 //
-- (NSString *)stringByConditionallyResolvingAlias
-{
-	NSString *resolvedPath = nil;
-	 
-	CFURLRef url = CFURLCreateWithFileSystemPath
-		(kCFAllocatorDefault, (CFStringRef)self, kCFURLPOSIXPathStyle, NO);
-	if (url != NULL)
-	{
+- (NSString *)stringByConditionallyResolvingAlias {
+    NSString *resolvedPath = nil;
+
+    CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef)self, kCFURLPOSIXPathStyle, NO);
+    if (url != NULL) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-		FSRef fsRef;
+        FSRef fsRef;
         ///////////////////////////////////////////////////////////////////////////////
         /// THIS IS DEPRECATED AS OF 10.9                                          ///
         ///////////////////////////////////////////////////////////////////////////////
-		if (CFURLGetFSRef(url, &fsRef))
+        if (CFURLGetFSRef(url, &fsRef))
         /* ------------------------------------------------------------------------- */
-		{
-			Boolean targetIsFolder, wasAliased;
+        {
+            Boolean targetIsFolder, wasAliased;
             ///////////////////////////////////////////////////////////////////////////////
             /// THIS IS DEPRECATED AS OF 10.8                                          ///
             ///////////////////////////////////////////////////////////////////////////////
-			OSErr err = FSResolveAliasFileWithMountFlags(&fsRef, false, &targetIsFolder, &wasAliased, kResolveAliasFileNoUI);
+            OSErr err = FSResolveAliasFileWithMountFlags(&fsRef, false, &targetIsFolder, &wasAliased, kResolveAliasFileNoUI);
             /* ------------------------------------------------------------------------- */
-			if ((err == noErr) && wasAliased) {
+            if ((err == noErr) && wasAliased) {
                 ///////////////////////////////////////////////////////////////////////////////
                 /// THIS IS DEPRECATED AS OF 10.9                                          ///
                 ///////////////////////////////////////////////////////////////////////////////
-				CFURLRef resolvedUrl = CFURLCreateFromFSRef(kCFAllocatorDefault, &fsRef);
+                CFURLRef resolvedUrl = CFURLCreateFromFSRef(kCFAllocatorDefault, &fsRef);
                 /* ------------------------------------------------------------------------- */
-				if (resolvedUrl != NULL) {
-					resolvedPath =
-						(id)CFBridgingRelease(CFURLCopyFileSystemPath(resolvedUrl, kCFURLPOSIXPathStyle));
-					CFRelease(resolvedUrl);
-				}
-			}
-		}
+                if (resolvedUrl != NULL) {
+                    resolvedPath = (id)CFBridgingRelease(CFURLCopyFileSystemPath(resolvedUrl, kCFURLPOSIXPathStyle));
+                    CFRelease(resolvedUrl);
+                }
+            }
+        }
 #pragma clang diagnostic pop
-		CFRelease(url);
-	}
-	 
-	return resolvedPath;
+        CFRelease(url);
+    }
+
+    return resolvedPath;
 }
 
 @end

@@ -17,15 +17,15 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Cocoa/Cocoa.h>
-#import <Foundation/Foundation.h>
 #import "NBCAlerts.h"
-#import "NBCOptionBuildPanel.h"
-#import "NBCNetInstallSettingsViewController.h"
-#import "NBCDeployStudioSettingsViewController.h"
-#import "NBCImagrSettingsViewController.h"
 #import "NBCCasperSettingsViewController.h"
 #import "NBCCustomSettingsViewController.h"
+#import "NBCDeployStudioSettingsViewController.h"
+#import "NBCImagrSettingsViewController.h"
+#import "NBCNetInstallSettingsViewController.h"
+#import "NBCOptionBuildPanel.h"
+#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 @class NBCSource;
 @class NBCPreferences;
 
@@ -86,7 +86,6 @@
 @property (weak) IBOutlet NSView *viewInstallHelper;
 @property (weak) IBOutlet NSView *viewNoInternetConnection;
 @property (weak) IBOutlet NSView *viewBuildInfo;
-
 
 // --------------------------------------------------------------
 //  Menu Items

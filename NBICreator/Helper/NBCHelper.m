@@ -1250,7 +1250,7 @@ static const NSTimeInterval kHelperCheckInterval = 1.0;
     // -----------------------------------------------------------------------------------
     [[[self connection] remoteObjectProxy] logDebug:[NSString stringWithFormat:@"Verifying os version (minor): %@", minorVersion]];
     NSCharacterSet *notDigits = [[NSCharacterSet decimalDigitCharacterSet] invertedSet];
-    if (![minorVersion rangeOfCharacterFromSet:notDigits].location == NSNotFound) {
+    if (!([minorVersion rangeOfCharacterFromSet:notDigits].location == NSNotFound)) {
         return reply([NSError errorWithDomain:NBCErrorDomain code:-1 userInfo:@{ NSLocalizedDescriptionKey : @"Minor version is not a number" }], -1);
     }
 

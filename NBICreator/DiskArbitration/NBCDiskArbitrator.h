@@ -6,13 +6,12 @@
 //  Copyright (c) 2015 NBICreator. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import <DiskArbitration/DiskArbitration.h>
+#import <Foundation/Foundation.h>
 
 // Mount Modes
-#define MM_BLOCK	0
-#define MM_READONLY	1
-
+#define MM_BLOCK 0
+#define MM_READONLY 1
 
 @interface NBCDiskArbitrator : NSObject
 

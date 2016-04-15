@@ -8,26 +8,26 @@
 #import <Foundation/Foundation.h>
 
 @interface NBCDDReader : NSObject {
-    NSString * filePath;
-    
-    NSFileHandle * fileHandle;
+    NSString *filePath;
+
+    NSFileHandle *fileHandle;
     unsigned long long currentOffset;
     unsigned long long totalFileLength;
-    
-    NSString * lineDelimiter;
+
+    NSString *lineDelimiter;
     NSUInteger chunkSize;
 }
 
-@property (nonatomic, copy) NSString * lineDelimiter;
+@property (nonatomic, copy) NSString *lineDelimiter;
 @property (nonatomic) NSUInteger chunkSize;
 
-- (id) initWithFilePath:(NSString *)aPath;
+- (id)initWithFilePath:(NSString *)aPath;
 
-- (NSString *) readLine;
-- (NSString *) readTrimmedLine;
+- (NSString *)readLine;
+- (NSString *)readTrimmedLine;
 
 #if NS_BLOCKS_AVAILABLE
-- (void) enumerateLinesUsingBlock:(void(^)(NSString*, BOOL *))block;
+- (void)enumerateLinesUsingBlock:(void (^)(NSString *, BOOL *))block;
 #endif
 
 @end

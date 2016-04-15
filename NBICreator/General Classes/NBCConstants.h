@@ -232,16 +232,10 @@ extern NSString *const NBCNBImageInfoDictIsEnabledKey;
 extern NSString *const NBCNBImageInfoDictLanguageKey;
 extern NSString *const NBCNBImageInfoDictProtocolKey;
 
-
-
-
-
 extern NSString *const NBCSettingsNBICreationToolKey;
 extern NSString *const NBCSettingsKeyboardLayoutID;
 extern NSString *const NBCSettingsLocale;
 extern NSString *const NBCSettingsCountry;
-
-
 
 // --------------------------------------------------------------
 //  Template Settings Imagr
@@ -291,9 +285,7 @@ extern NSString *const NBCSettingsBackgroundImageKey;
 
 extern NSString *const NBCBackgroundImageDefaultPath;
 
-
 extern NSString *const NBCSettingsConfigurationProfilesKey;
-
 
 // --------------------------------------------------------------
 //  Template Settings Python
@@ -305,7 +297,6 @@ extern NSString *const NBCSettingsPythonDefaultVersion;
 // --------------------------------------------------------------
 //  NBImageInfo
 // --------------------------------------------------------------
-
 
 // --------------------------------------------------------------
 //  Workflow Types
@@ -521,7 +512,6 @@ extern NSString *const NBCImagrConfigurationPlistNBICreatorTargetURL;
 extern NSString *const NBCImagrRCInstallTargetURL;
 extern NSString *const NBCImagrGitHubRepository;
 
-
 extern NSString *const NBCCasperImagingApplicationTargetURL;
 extern NSString *const NBCCasperImagingApplicationNBICreatorTargetURL;
 
@@ -530,7 +520,6 @@ extern NSString *const NBCNBICreatorResourcesGitHubRepository;
 
 extern NSString *const NBCRCImagingTargetURL;
 extern NSString *const NBCRCImagingNBICreatorTargetURL;
-
 
 extern NSString *const NBCJSSPreferencePlistTargetURL;
 extern NSString *const NBCJSSPreferencePlistNBICreatorTargetURL;
@@ -578,7 +567,6 @@ extern NSString *const NBCCertificatesTargetURL;
 extern NSString *const NBCScriptsNBICreatorTargetPath;
 extern NSString *const NBCScriptsTargetPath;
 extern NSString *const NBCApplicationsTargetPath;
-
 
 extern NSString *const NBCNetworkTimeServerDefault;
 
@@ -628,7 +616,6 @@ extern NSString *const NBCTabViewItemOptions;
 extern NSString *const NBCTabViewItemExtra;
 extern NSString *const NBCTabViewItemAdvanced;
 extern NSString *const NBCTabViewItemDebug;
-
 
 extern NSString *const NBCCLIArgumentSource;
 extern NSString *const NBCCLIArgumentTemplate;

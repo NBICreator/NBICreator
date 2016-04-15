@@ -55,7 +55,7 @@ DDLogLevel ddLogLevel;
     [self setDownloadInfo:downloadInfo];
     [self setRequest:[NSURLRequest requestWithURL:url cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0]];
     [self setDownload:[[NSURLDownload alloc] initWithRequest:_request delegate:self]];
-    if ( ! _download ) {
+    if (!_download) {
         DDLogError(@"[ERROR] Download Failed!");
     }
 }
@@ -72,28 +72,28 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)connection:(NSURLConnection *)connection didReceiveResponse:(NSURLResponse *)response {
-    #pragma unused(connection, response)
-    
+#pragma unused(connection, response)
+
     _downloadData = [[NSMutableData alloc] init];
 }
 
 - (void)connection:(NSURLConnection *)connection didReceiveData:(NSData *)data {
-    #pragma unused(connection)
-    
+#pragma unused(connection)
+
     [_downloadData appendData:data];
 }
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error {
 #pragma unused(connection)
-    if ( [_delegate respondsToSelector:@selector(downloadFailed:withError:)] ) {
+    if ([_delegate respondsToSelector:@selector(downloadFailed:withError:)]) {
         [_delegate downloadFailed:_downloadInfo withError:error];
     }
 }
 
 - (void)connectionDidFinishLoading:(NSURLConnection *)connection {
-    #pragma unused(connection)
-    
-    if ( [_delegate respondsToSelector:@selector(dataDownloadCompleted:downloadInfo:)] ) {
+#pragma unused(connection)
+
+    if ([_delegate respondsToSelector:@selector(dataDownloadCompleted:downloadInfo:)]) {
         [_delegate dataDownloadCompleted:_downloadData downloadInfo:_downloadInfo];
     }
 }
@@ -105,44 +105,44 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)download:(NSURLDownload *)download didReceiveResponse:(NSURLResponse *)response {
-    #pragma unused(download)
-    
+#pragma unused(download)
+
     [self setBytesRecieved:0];
     [self setDownloadResponse:response];
 }
 
 - (void)download:(NSURLDownload *)download decideDestinationWithSuggestedFilename:(NSString *)filename {
     NSString *destinationFilePath = [_destinationFolder stringByAppendingPathComponent:filename];
-    
+
     [self setDestinationPath:destinationFilePath];
     [download setDestination:destinationFilePath allowOverwrite:YES];
 }
 
 - (void)download:(NSURLDownload *)download didReceiveDataOfLength:(NSUInteger)length {
-    #pragma unused(download)
+#pragma unused(download)
     long long expectedLength = [[self downloadResponseTest] expectedContentLength];
-    
+
     [self setBytesRecieved:(_bytesRecieved + length)];
-    
+
     if (expectedLength != NSURLResponseUnknownLength) {
-        if ( [_delegate respondsToSelector:@selector(updateProgressBytesRecieved:expectedLength:downloadInfo:)] ) {
+        if ([_delegate respondsToSelector:@selector(updateProgressBytesRecieved:expectedLength:downloadInfo:)]) {
             [_delegate updateProgressBytesRecieved:_bytesRecieved expectedLength:expectedLength downloadInfo:_downloadInfo];
         }
     } else {
-        //NSLog(@"Bytes received - %f",_bytesRecieved);
+        // NSLog(@"Bytes received - %f",_bytesRecieved);
     }
 }
 
 - (void)downloadDidFinish:(NSURLDownload *)download {
-    #pragma unused(download)
+#pragma unused(download)
     NSURL *destinationURL = [NSURL fileURLWithPath:_destinationPath];
-    if ( [_delegate respondsToSelector:@selector(fileDownloadCompleted:downloadInfo:)] ) {
+    if ([_delegate respondsToSelector:@selector(fileDownloadCompleted:downloadInfo:)]) {
         [_delegate fileDownloadCompleted:destinationURL downloadInfo:_downloadInfo];
     }
 }
 
 - (void)download:(NSURLDownload *)download didFailWithError:(NSError *)error {
-    #pragma unused(download)
+#pragma unused(download)
     DDLogError(@"[ERROR] %@ %@", [error localizedDescription], [error userInfo][NSURLErrorFailingURLStringErrorKey]);
 }
 

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10116" systemVersion="15E65" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" customObjectInstantitationMethod="direct">
     <dependencies>
         <development version="6300" identifier="xcode"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9531"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
     </dependencies>
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="NSApplication">
@@ -414,8 +414,8 @@
         </menu>
         <window title="NBICreator" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="QvC-M9-y7g">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
-            <rect key="contentRect" x="335" y="558" width="600" height="434"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="contentRect" x="335" y="0.0" width="600" height="434"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" verticalCompressionResistancePriority="250" id="EiT-Mj-1SZ">
                 <rect key="frame" x="0.0" y="0.0" width="600" height="434"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -482,7 +482,7 @@
             <connections>
                 <outlet property="delegate" destination="2ua-cd-ebo" id="Pgw-0h-tCi"/>
             </connections>
-            <point key="canvasLocation" x="-13" y="240"/>
+            <point key="canvasLocation" x="236" y="237"/>
         </window>
         <userDefaultsController representsSharedInstance="YES" id="j6s-BB-2Ug"/>
         <customView id="Ek0-XK-LNg" customClass="NBCViewNoInternetConnection">
@@ -506,13 +506,13 @@
                 <constraint firstAttribute="centerY" secondItem="Gqx-qr-SCI" secondAttribute="centerY" id="beh-TH-yIt"/>
                 <constraint firstAttribute="trailing" secondItem="Gqx-qr-SCI" secondAttribute="trailing" constant="20" symbolic="YES" id="hNN-oR-GzQ"/>
             </constraints>
-            <point key="canvasLocation" x="-260" y="553.5"/>
+            <point key="canvasLocation" x="236" y="509.5"/>
         </customView>
         <window title="Progress" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" frameAutosaveName="" animationBehavior="default" id="ZJk-bZ-vE3">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="283" y="305" width="565" height="72"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1440" height="877"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="2560" height="1417"/>
             <view key="contentView" id="joo-YY-yvM">
                 <rect key="frame" x="0.0" y="0.0" width="565" height="72"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -551,7 +551,7 @@
                     <constraint firstItem="6Vx-Ga-wgW" firstAttribute="leading" secondItem="joo-YY-yvM" secondAttribute="leading" constant="20" symbolic="YES" id="rqw-Rl-UKn"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="-324.5" y="529"/>
+            <point key="canvasLocation" x="236.5" y="622"/>
         </window>
         <customView id="ASH-0V-yC1">
             <rect key="frame" x="0.0" y="0.0" width="560" height="48"/>
@@ -583,7 +583,7 @@
                 <constraint firstItem="b04-dC-yGK" firstAttribute="leading" secondItem="ASH-0V-yC1" secondAttribute="leading" constant="20" symbolic="YES" id="TyP-gR-CF6"/>
                 <constraint firstItem="Lo6-wW-Ynr" firstAttribute="centerY" secondItem="b04-dC-yGK" secondAttribute="centerY" id="uxC-p2-5lv"/>
             </constraints>
-            <point key="canvasLocation" x="-13" y="535"/>
+            <point key="canvasLocation" x="236" y="743"/>
         </customView>
     </objects>
 </document>

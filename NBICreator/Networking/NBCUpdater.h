@@ -17,9 +17,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Cocoa/Cocoa.h>
 #import "NBCDownloader.h"
 #import "NBCDownloaderGitHub.h"
+#import <Cocoa/Cocoa.h>
 
 @interface NBCUpdater : NSWindowController <NBCDownloaderDelegate, NBCDownloaderGitHubDelegate>
 
@@ -48,6 +48,5 @@
 
 @property (weak) IBOutlet NSTextField *textFieldTitle;
 @property (weak) IBOutlet NSTextField *textFieldMessage;
-
 
 @end

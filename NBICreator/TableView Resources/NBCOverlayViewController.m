@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCOverlayViewController.h"
 #import "NBCConstants.h"
+#import "NBCOverlayViewController.h"
 
 @interface NBCOverlayViewController ()
 
@@ -28,7 +28,7 @@
 
 - (id)initWithContentType:(int)contentType {
     self = [super initWithNibName:@"NBCOverlayViewController" bundle:nil];
-    if ( self != nil ) {
+    if (self != nil) {
         _contentType = contentType;
         [self updateViewContent];
     }
@@ -45,41 +45,40 @@
     NSImage *imageRight;
     NBCOverlayView *view = (NBCOverlayView *)[self view];
     [[view textField] setStringValue:@""];
-    switch ( _contentType ) {
-        case kContentTypePackages:
-            image = [[NSWorkspace sharedWorkspace] iconForFileType:@"com.apple.installer-package-archive"];
-            [[view imageView] setImage:image];
-            [[view textField] setStringValue:@"Drop Packages Here"];
-            break;
-        case kContentTypeCertificates:
-            image = [NSImage imageNamed:@"IconCertRoot"];
-            [[view imageView] setImage:image];
-            [[view textField] setStringValue:@"Drop Certificates Here"];
-            break;
-        case kContentTypeConfigurationProfiles:
-            image = [[NSImage alloc] initWithContentsOfFile:IconConfigurationProfilePath];
-            [[view imageView] setImage:image];
-            [[view textField] setStringValue:@"Drop Configuration Profiles Here"];
-            break;
-        case kContentTypeNetInstallPackages:
-            image = [[NSWorkspace sharedWorkspace] iconForFileType:@"com.apple.installer-package-archive"];
-            [[view imageView] setImage:image];
-            imageRight = [[NSWorkspace sharedWorkspace] iconForFileType:@"public.shell-script"];
-            [[view imageViewRight] setImage:imageRight];
-            [[view imageViewRight] setHidden:NO];
-            [[view textField] setStringValue:@"Drop Packages and Scripts Here"];
-            [_constraintImageLeft setConstant:195.0];
-            break;
-        case kContentTypeScripts:
-            image = [[NSWorkspace sharedWorkspace] iconForFileType:@"public.shell-script"];
-            [[view imageView] setImage:image];
-            [[view textField] setStringValue:@"Drop Scripts Here"];
-            break;
-        default:
-            break;
+    switch (_contentType) {
+    case kContentTypePackages:
+        image = [[NSWorkspace sharedWorkspace] iconForFileType:@"com.apple.installer-package-archive"];
+        [[view imageView] setImage:image];
+        [[view textField] setStringValue:@"Drop Packages Here"];
+        break;
+    case kContentTypeCertificates:
+        image = [NSImage imageNamed:@"IconCertRoot"];
+        [[view imageView] setImage:image];
+        [[view textField] setStringValue:@"Drop Certificates Here"];
+        break;
+    case kContentTypeConfigurationProfiles:
+        image = [[NSImage alloc] initWithContentsOfFile:IconConfigurationProfilePath];
+        [[view imageView] setImage:image];
+        [[view textField] setStringValue:@"Drop Configuration Profiles Here"];
+        break;
+    case kContentTypeNetInstallPackages:
+        image = [[NSWorkspace sharedWorkspace] iconForFileType:@"com.apple.installer-package-archive"];
+        [[view imageView] setImage:image];
+        imageRight = [[NSWorkspace sharedWorkspace] iconForFileType:@"public.shell-script"];
+        [[view imageViewRight] setImage:imageRight];
+        [[view imageViewRight] setHidden:NO];
+        [[view textField] setStringValue:@"Drop Packages and Scripts Here"];
+        [_constraintImageLeft setConstant:195.0];
+        break;
+    case kContentTypeScripts:
+        image = [[NSWorkspace sharedWorkspace] iconForFileType:@"public.shell-script"];
+        [[view imageView] setImage:image];
+        [[view textField] setStringValue:@"Drop Scripts Here"];
+        break;
+    default:
+        break;
     }
 }
-
 
 @end
 

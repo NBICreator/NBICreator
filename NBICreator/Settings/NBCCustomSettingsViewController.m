@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCCustomSettingsViewController.h"
 #import "NBCConstants.h"
+#import "NBCCustomSettingsViewController.h"
 #import "NBCLogging.h"
 
 DDLogLevel ddLogLevel;
@@ -32,7 +32,6 @@ DDLogLevel ddLogLevel;
 - (id)init {
     self = [super initWithNibName:@"NBCCustomSettingsViewController" bundle:nil];
     if (self != nil) {
-    
     }
     return self;
 } // init
@@ -45,7 +44,7 @@ DDLogLevel ddLogLevel;
     NSLog(@"Refreshing");
 }
 
--(void)verifyBuildButton {
+- (void)verifyBuildButton {
     NSLog(@"verifyBuildButton");
     [self uppdatePopUpButtonTool];
 }
@@ -64,7 +63,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)uppdatePopUpButtonTool {
-    if ( _popUpButtonTool ) {
+    if (_popUpButtonTool) {
         [_popUpButtonTool removeAllItems];
         [_popUpButtonTool addItemWithTitle:NBCMenuItemNBICreator];
         [_popUpButtonTool addItemWithTitle:NBCMenuItemDeployStudioAssistant];

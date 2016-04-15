@@ -8,9 +8,9 @@
 //  This is an ARC version of DiskArbitrationPrivateFunctions.h created by Aaron Burghardt
 //  https://github.com/aburgh/Disk-Arbitrator
 
-#import <Foundation/Foundation.h>
-#import <DiskArbitration/DiskArbitration.h>
 #import "NBCDisk.h"
+#import <DiskArbitration/DiskArbitration.h>
+#import <Foundation/Foundation.h>
 
 void InitializeDiskArbitration(void);
 BOOL NBCDiskValidate(DADiskRef diskRef);

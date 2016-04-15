@@ -19,13 +19,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-enum {
-    kContentTypePackages = 0,
-    kContentTypeCertificates,
-    kContentTypeConfigurationProfiles,
-    kContentTypeNetInstallPackages,
-    kContentTypeScripts
-};
+enum { kContentTypePackages = 0, kContentTypeCertificates, kContentTypeConfigurationProfiles, kContentTypeNetInstallPackages, kContentTypeScripts };
 
 @class NBCOverlayView;
 

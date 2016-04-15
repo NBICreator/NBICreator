@@ -17,9 +17,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Foundation/Foundation.h>
-#import "NBCWorkflowProgressDelegate.h"
 #import "NBCInstallerPackageController.h"
+#import "NBCWorkflowProgressDelegate.h"
+#import <Foundation/Foundation.h>
 @class NBCWorkflowItem;
 
 @interface NBCWorkflowModifyNBI : NSObject <NBCInstallerPackageDelegate>

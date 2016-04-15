@@ -17,21 +17,22 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Cocoa/Cocoa.h>
 #import "NBCAlerts.h"
+#import <Cocoa/Cocoa.h>
 
-#import "NBCTarget.h"
-#import "NBCSource.h"
 #import "NBCApplicationSourceDeployStudio.h"
+#import "NBCSource.h"
+#import "NBCTarget.h"
 #import "NBCTemplatesController.h"
 
 #import "NBCBonjourBrowser.h"
 #import "NBCDownloader.h"
 #import "NBCDownloaderDeployStudio.h"
-#import "NBCSourceDropViewController.h"
 #import "NBCImageDropViewController.h"
+#import "NBCSourceDropViewController.h"
 
-@interface NBCDeployStudioSettingsViewController : NSViewController <NSTabViewDelegate, NSComboBoxDataSource, NBCDownloaderDelegate, NBCDownloaderDeployStudioDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCSourceDropViewDelegate, NBCImageDropViewIconDelegate, NBCImageDropViewBackgroundDelegate>
+@interface NBCDeployStudioSettingsViewController : NSViewController <NSTabViewDelegate, NSComboBoxDataSource, NBCDownloaderDelegate, NBCDownloaderDeployStudioDelegate, NBCTemplatesDelegate,
+                                                                     NBCAlertDelegate, NBCSourceDropViewDelegate, NBCImageDropViewIconDelegate, NBCImageDropViewBackgroundDelegate>
 
 // ------------------------------------------------------
 //  Properties
