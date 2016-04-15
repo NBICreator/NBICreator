@@ -1386,6 +1386,19 @@ DDLogLevel ddLogLevel;
     }
 }
 
+- (void)encryptRuntimePasswordInUserSettings:(NSMutableDictionary *)userSettings {
+    NSString *encryptedPassword = [self encryptedRuntimePasswordForPassword:userSettings[NBCSettingsDeployStudioRuntimePasswordKey] ?: @""];
+    if ( [encryptedPassword length] != 0 ) {
+        userSettings[NBCSettingsDeployStudioRuntimePasswordKey] = encryptedPassword;
+    }
+}
+
+- (NSString *)encryptedRuntimePasswordForPassword:(NSString *)password {
+    
+    NSTask *task = [[NSTask alloc] init];
+    openssl enc -des-cbc -in dscore_unencrypted.txt -out dscore_encrypted.txt -nosalt -nopad -K f137ec7cb5a49e4c -iv 0000000000000000
+}
+
 - (void)verifySettings:(NSDictionary *)preWorkflowTasks {
     
     DDLogInfo(@"Verifying settings...");
@@ -1420,6 +1433,10 @@ DDLogLevel ddLogLevel;
         // Add create usb device here as this settings only is avalable to this session
         userSettings[NBCSettingsCreateUSBDeviceKey] = @(_createUSBDevice);
         userSettings[NBCSettingsUSBBSDNameKey] = _usbDevicesDict[[_popUpButtonUSBDevices titleOfSelectedItem]] ?: @"";
+        
+        if ( [userSettings[NBCSettingsDeployStudioRuntimePasswordKey] length] != 0 ) {
+            [self encryptRuntimePasswordInSettings:userSettings];
+        }
         
         [workflowItem setUserSettings:[userSettings copy]];
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
