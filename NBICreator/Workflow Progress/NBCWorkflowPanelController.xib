@@ -34,7 +34,7 @@
             <connections>
                 <outlet property="delegate" destination="-2" id="CTH-Xc-xuj"/>
             </connections>
-            <point key="canvasLocation" x="302.5" y="507.5"/>
+            <point key="canvasLocation" x="847.5" y="222.5"/>
         </window>
     </objects>
 </document>
