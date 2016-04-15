@@ -21,7 +21,7 @@
 #import "NBCSource.h"
 //#import "NBCLogging.h"
 
-//DDLogLevel ddLogLevel;
+// DDLogLevel ddLogLevel;
 
 @implementation NBCApplicationSourceDeployStudio
 
@@ -46,33 +46,33 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)selectLatestVersion {
-    
+
     NSInteger latestVersionCleaned = 0;
     NSURL *latestVersionURL;
-    for ( NSURL *dsAdminURL in [self dsAdminURLs] ) {
+    for (NSURL *dsAdminURL in [self dsAdminURLs]) {
         NSString *dsAdminVersion = [[NSBundle bundleWithURL:dsAdminURL] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
         NSString *dsAdminVersionCleaned = [dsAdminVersion stringByReplacingOccurrencesOfString:@"." withString:@""];
-        if ( latestVersionCleaned < [dsAdminVersionCleaned integerValue]) {
+        if (latestVersionCleaned < [dsAdminVersionCleaned integerValue]) {
             latestVersionCleaned = [dsAdminVersionCleaned integerValue];
             latestVersionURL = dsAdminURL;
         }
     }
-    
-    //NSError *error = nil;
-    
-    if ( [latestVersionURL checkResourceIsReachableAndReturnError:nil] ) {
+
+    // NSError *error = nil;
+
+    if ([latestVersionURL checkResourceIsReachableAndReturnError:nil]) {
         [self setIsInstalled:YES];
         [self setDsAdminURL:latestVersionURL];
-        if ( [[latestVersionURL URLByAppendingPathComponent:@"Contents/Applications/DeployStudio Assistant.app"] checkResourceIsReachableAndReturnError:nil] ) {
+        if ([[latestVersionURL URLByAppendingPathComponent:@"Contents/Applications/DeployStudio Assistant.app"] checkResourceIsReachableAndReturnError:nil]) {
             [self setDsAssistantURL:[latestVersionURL URLByAppendingPathComponent:@"Contents/Applications/DeployStudio Assistant.app"]];
         } else {
             [self setDsAssistantURL:nil];
             [self setDsAdminURL:nil];
             [self setIsInstalled:NO];
-            //DDLogError(@"[ERROR] %@", [error localizedDescription]);
+            // DDLogError(@"[ERROR] %@", [error localizedDescription]);
         }
     } else {
-        //DDLogError(@"[ERROR] %@", [error localizedDescription]);
+        // DDLogError(@"[ERROR] %@", [error localizedDescription]);
         [self setIsInstalled:NO];
     }
 }
@@ -92,7 +92,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSBundle *)dsAdminBundle {
-    if ( [_dsAdminURL checkResourceIsReachableAndReturnError:nil] ) {
+    if ([_dsAdminURL checkResourceIsReachableAndReturnError:nil]) {
         return [NSBundle bundleWithURL:_dsAdminURL];
     } else {
         return nil;
@@ -100,7 +100,7 @@
 } // dsAdminBundle
 
 - (NSBundle *)dsAssistantBundle {
-    if ( [_dsAssistantURL checkResourceIsReachableAndReturnError:nil] ) {
+    if ([_dsAssistantURL checkResourceIsReachableAndReturnError:nil]) {
         return [NSBundle bundleWithURL:_dsAssistantURL];
     } else {
         return nil;
@@ -142,7 +142,7 @@
 } // sysBuilderBestRecoveryDeviceURL
 
 - (NSURL *)sysBuilderFillVolumeURL {
-    if ( [_sourceImageOSVersion length] != 0 ) {
+    if ([_sourceImageOSVersion length] != 0) {
         return [[self sysBuilderFolderURL] URLByAppendingPathComponent:[NSString stringWithFormat:@"%@/fill_volume.sh", _sourceImageOSVersion]];
     } else {
         return nil;
@@ -159,7 +159,6 @@
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark Expand Variables
@@ -167,25 +166,22 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 - (NSString *)expandVariables:(NSString *)string {
-    
+
     // --------------------------------------------------------------
     //  Expand %DSVERSION%
     // --------------------------------------------------------------
-    NSString *expandedString = [string stringByReplacingOccurrencesOfString:@"%DSVERSION%"
-                                                                 withString:[[self dsAdminBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"Unknown"];
-    
+    NSString *expandedString = [string stringByReplacingOccurrencesOfString:@"%DSVERSION%" withString:[[self dsAdminBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: @"Unknown"];
+
     // --------------------------------------------------------------
     //  Expand %DSADMINURL%
     // --------------------------------------------------------------
-    expandedString = [expandedString stringByReplacingOccurrencesOfString:@"%DSADMINURL%"
-                                                               withString:[_dsAdminURL path] ?: @"Unknown"];
-    
+    expandedString = [expandedString stringByReplacingOccurrencesOfString:@"%DSADMINURL%" withString:[_dsAdminURL path] ?: @"Unknown"];
+
     // --------------------------------------------------------------
     //  Expand %NBITOOL%
     // --------------------------------------------------------------
-    expandedString = [expandedString stringByReplacingOccurrencesOfString:@"%NBITOOL%"
-                                                               withString:@"DSA"];
-    
+    expandedString = [expandedString stringByReplacingOccurrencesOfString:@"%NBITOOL%" withString:@"DSA"];
+
     return expandedString;
 }
 

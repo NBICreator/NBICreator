@@ -17,17 +17,18 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Cocoa/Cocoa.h>
 #import "NBCAlerts.h"
-#import "NBCSource.h"
 #import "NBCApplicationSourceSystemImageUtility.h"
-#import "NBCTemplatesController.h"
 #import "NBCDownloader.h"
 #import "NBCDownloaderGitHub.h"
-#import "NBCSourceDropViewController.h"
 #import "NBCImageDropViewController.h"
+#import "NBCSource.h"
+#import "NBCSourceDropViewController.h"
+#import "NBCTemplatesController.h"
+#import <Cocoa/Cocoa.h>
 
-@interface NBCNetInstallSettingsViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate, NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NBCSourceDropViewDelegate, NBCImageDropViewIconDelegate>
+@interface NBCNetInstallSettingsViewController : NSViewController <NSTableViewDataSource, NSTableViewDelegate, NBCDownloaderDelegate, NBCDownloaderGitHubDelegate, NBCTemplatesDelegate,
+                                                                   NBCAlertDelegate, NBCSourceDropViewDelegate, NBCImageDropViewIconDelegate>
 
 // ------------------------------------------------------
 //  Properties
@@ -98,7 +99,6 @@
 - (IBAction)buttonAddTrustedServer:(id)sender;
 @property (weak) IBOutlet NSButton *buttonRemoveTrustedServer;
 - (IBAction)buttonRemoveTrustedServer:(id)sender;
-
 
 // ------------------------------------------------------
 //  TabView Post-Install

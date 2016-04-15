@@ -44,7 +44,8 @@ NSString *const NBCFolderTemplatesDisabled = @"NBICreator/Templates/Disabled";
 NSString *const NBCFolderResources = @"NBICreator/Resources";
 NSString *const NBCFolderResourcesDependencies = @"NBICreator/Resources/Dependencies";
 NSString *const NBCFolderResourcesCache = @"com.github.NBICreator/Resources";
-NSString *const NBCFolderResourcesCacheDeployStudio = @"com.github.NBICreator/Resources/DeployStudio";;
+NSString *const NBCFolderResourcesCacheDeployStudio = @"com.github.NBICreator/Resources/DeployStudio";
+;
 NSString *const NBCFolderResourcesCacheImagr = @"com.github.NBICreator/Resources/Imagr";
 NSString *const NBCFolderResourcesCacheCasper = @"com.github.NBICreator/Resources/Casper";
 NSString *const NBCFolderResourcesCacheSource = @"com.github.NBICreator/Resources/Source";
@@ -204,7 +205,6 @@ NSString *const NBCSettingsEnableLaunchdLoggingKey = @"EnableLaunchdLogging";
 NSString *const NBCSettingsNetInstallPackagesKey = @"NetInstallPackages";
 NSString *const NBCSettingsNetInstallPackageOnlyKey = @"NetInstallPackageOnly";
 
-
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Template Keys - DeployStudio
 ////////////////////////////////////////////////////////////////////////////////
@@ -237,17 +237,12 @@ NSString *const NBCNBImageInfoDictProtocolKey = @"Type";
 #pragma mark NBImageInfo Keys
 ////////////////////////////////////////////////////////////////////////////////
 
-
-
-
-
 NSString *const NBCSettingsError = @"Error";
 NSString *const NBCSettingsWarning = @"Warning";
 NSString *const NBCSettingsSourceItemsKey = @"SourceItems";
 NSString *const NBCSettingsSourceItemsPathKey = @"Path";
 NSString *const NBCSettingsSourceItemsRegexKey = @"Regex";
 NSString *const NBCSettingsSourceItemsCacheFolderKey = @"CacheFolder";
-
 
 NSString *const NBCSettingsKeyboardLayoutID = @"KeyboardLayoutID";
 NSString *const NBCSettingsNBICreationToolKey = @"NBICreationTool";
@@ -298,7 +293,6 @@ NSString *const NBCSettingsDeployStudioUseSMB1Key = @"UseSMB1";
 NSString *const NBCSettingsDeployStudioUseCustomRuntimeTitleKey = @"UseCustomRuntimeTitle";
 NSString *const NBCSettingsDeployStudioRuntimeTitleKey = @"RuntimeTitle";
 
-
 NSString *const NBCSettingsUseBackgroundImageKey = @"UseBackgroundImage";
 NSString *const NBCSettingsBackgroundImageKey = @"BackgroundImage";
 
@@ -315,7 +309,6 @@ NSString *const NBCSettingsPythonDefaultVersion = @"2.7.6";
 
 NSString *const NBCSettingsLocale = @"NBCSettingsLocale";
 NSString *const NBCSettingsCountry = @"NBCSettingsCountry";
-
 
 NSString *const NBCSettingsConfigurationProfilesKey = @"ConfigurationProfiles";
 
@@ -385,7 +378,6 @@ NSString *const NBCNotificationUpdateNBIIconUserInfoIconURL = @"IconURL";
 
 // Update NBI Background UserInfoKeys
 NSString *const NBCNotificationUpdateNBIBackgroundUserInfoIconURL = @"BackgroundURL";
-
 
 NSString *const NBCNotificationStartSearchingForUpdates = @"StartSearchingForUpdates";
 NSString *const NBCNotificationStopSearchingForUpdates = @"StopSearchingForUpdates";
@@ -465,11 +457,9 @@ NSString *const NBCAlertUserInfoTemplateURL = @"TemplateURL";
 NSString *const NBCAlertUserInfoBuildNBI = @"BuildNBI";
 NSString *const NBCAlertUserInfoPreWorkflowTasks = @"PreWorkflowTasks";
 
-
 // --------------------------------------------------------------
 //  Buttons
 // --------------------------------------------------------------
-
 
 // --------------------------------------------------------------
 //  DeployStudio
@@ -495,29 +485,21 @@ NSString *const NBCImagrGitHubRepository = @"grahamgilbert/imagr";
 NSString *const NBCNBICreatorGitHubRepository = @"NBICreator/NBICreator";
 NSString *const NBCNBICreatorResourcesGitHubRepository = @"NBICreator/NBICreatorResources";
 
-
-
 NSString *const NBCJSSPreferencePlistTargetURL = @"Packages/com.jamfsoftware.jss.plist";
 NSString *const NBCJSSPreferencePlistNBICreatorTargetURL = @"usr/local/preferences/com.jamfsoftware.jss.plist";
-
-
 
 NSString *const NBCCasperImagingBundleIdentifier = @"com.jamfsoftware.CasperImaging";
 NSString *const NBCCasperImagingApplicationTargetURL = @"Packages/Casper Imaging.app";
 NSString *const NBCCasperImagingApplicationNBICreatorTargetURL = @"Applications/Casper Imaging.app";
-
 
 NSString *const NBCSettingsConfigurationProfilesNetInstallKey = @"ConfigurationProfilesNetInstall";
 
 NSString *const NBCFilePathNetInstallOSInstallCollection = @"Packages/OSInstall.collection";
 NSString *const NBCFilePathNetInstallInstallConfigurationProfiles = @"Packages/Extras/postinstall/installConfigurationProfiles.sh";
 
-
 NSString *const NBCFolderPathNetInstallPackages = @"Packages";
 NSString *const NBCFolderPathNetInstallPostinstall = @"Packages/Extras/postinstall";
 NSString *const NBCFolderPathNetInstallConfigurationProfiles = @"Packages/Extras/ConfigurationProfiles";
-
-
 
 NSString *const NBCRCImagingTargetURL = @"Packages/Extras/rc.imaging";
 NSString *const NBCRCImagingNBICreatorTargetURL = @"etc/rc.imaging";
@@ -675,7 +657,7 @@ NSString *const NBCAuthorizationRightCopyExtractedResourcesToCache = @"com.githu
 NSString *const NBCAuthorizationRightCopyResourcesToVolume = @"com.github.NBICreator.copyResourcesToVolume";
 NSString *const NBCAuthorizationRightCreateNetInstall = @"com.github.NBICreator.createNetInstall";
 NSString *const NBCAuthorizationRightCreateRestoreFromSources = @"com.github.NBICreator.createRestoreFromSources";
-NSString *const NBCAuthorizationRightDisableSpotlight= @"com.github.NBICreator.disableSpotlight";
+NSString *const NBCAuthorizationRightDisableSpotlight = @"com.github.NBICreator.disableSpotlight";
 NSString *const NBCAuthorizationRightExtractResourcesFromPackage = @"com.github.NBICreator.extractResourcesFromPackage";
 NSString *const NBCAuthorizationRightInstallPackages = @"com.github.NBICreator.installPackages";
 NSString *const NBCAuthorizationRightModifyResourcesOnVolume = @"com.github.NBICreator.modifyResourcesOnVolume";

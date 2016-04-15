@@ -17,20 +17,21 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Cocoa/Cocoa.h>
 #import "NBCAlerts.h"
-#import "NBCSource.h"
-#import "NBCTarget.h"
 #import "NBCApplicationSourceSystemImageUtility.h"
-#import "NBCTemplatesController.h"
 #import "NBCDownloader.h"
-#import "NBCWorkflowResourcesController.h"
-#import "NBCSourceDropViewController.h"
 #import "NBCImageDropViewController.h"
+#import "NBCSource.h"
+#import "NBCSourceDropViewController.h"
+#import "NBCTarget.h"
+#import "NBCTemplatesController.h"
+#import "NBCWorkflowResourcesController.h"
+#import <Cocoa/Cocoa.h>
 
 #define BasicTableViewDragAndDropDataType @"BasicTableViewDragAndDropDataType"
 
-@interface NBCCasperSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate, NBCSourceDropViewDelegate, NBCImageDropViewIconDelegate, NBCImageDropViewBackgroundDelegate>
+@interface NBCCasperSettingsViewController : NSViewController <NBCDownloaderDelegate, NBCTemplatesDelegate, NBCAlertDelegate, NSTableViewDataSource, NSTableViewDelegate, NBCSourceDropViewDelegate,
+                                                               NBCImageDropViewIconDelegate, NBCImageDropViewBackgroundDelegate>
 
 @property NSMutableArray *certificateTableViewContents;
 @property NSMutableArray *packagesTableViewContents;

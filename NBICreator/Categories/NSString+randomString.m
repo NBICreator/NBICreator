@@ -17,19 +17,19 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NSString+randomString.h"
 #import "NBCLogging.h"
+#import "NSString+randomString.h"
 
 DDLogLevel ddLogLevel;
 
 @implementation NSString (NBCrandomString)
 
-+ (NSString*)nbc_randomString {
-    
++ (NSString *)nbc_randomString {
+
     NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     NSMutableString *randomString = [NSMutableString stringWithCapacity:6];
-    for (int i=0; i<6; i++) {
-        [randomString appendFormat: @"%C", [letters characterAtIndex: arc4random() % [letters length]]];
+    for (int i = 0; i < 6; i++) {
+        [randomString appendFormat:@"%C", [letters characterAtIndex:arc4random() % [letters length]]];
     }
     return randomString;
 }

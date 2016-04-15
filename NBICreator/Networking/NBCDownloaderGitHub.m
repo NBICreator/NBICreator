@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCDownloaderGitHub.h"
 #import "NBCConstants.h"
+#import "NBCDownloaderGitHub.h"
 #import "NBCLogging.h"
 
 DDLogLevel ddLogLevel;
@@ -57,40 +57,37 @@ DDLogLevel ddLogLevel;
 
 - (void)dataDownloadCompleted:(NSData *)data downloadInfo:(NSDictionary *)downloadInfo {
     DDLogDebug(@"[DEBUG] Download completed!");
-    if ( [downloadInfo objectForKey:NBCDownloaderTagGitRepoPath] == NBCDownloaderTagGitRepoPathReleases ) {
+    if ([downloadInfo objectForKey:NBCDownloaderTagGitRepoPath] == NBCDownloaderTagGitRepoPathReleases) {
         NSMutableArray *releaseVersions = [[NSMutableArray alloc] init];
         NSMutableDictionary *releaseVersionsURLsDict = [[NSMutableDictionary alloc] init];
         NSArray *allReleases = [self convertJSONDataToArray:data];
-        
-        for ( NSDictionary *dict in allReleases ) {
+
+        for (NSDictionary *dict in allReleases) {
             NSString *versionNumber = [dict[@"tag_name"] stringByReplacingOccurrencesOfString:@"v" withString:@""];
             [releaseVersions addObject:versionNumber];
-            
+
             NSArray *assets = dict[@"assets"];
             NSDictionary *assetsDict = [assets firstObject];
             NSString *downloadURL = assetsDict[@"browser_download_url"];
             releaseVersionsURLsDict[versionNumber] = downloadURL;
         }
-        
+
         [_delegate githubReleaseVersionsArray:[releaseVersions copy] downloadDict:[releaseVersionsURLsDict copy] downloadInfo:downloadInfo];
-    } else if ( [downloadInfo objectForKey:NBCDownloaderTagGitRepoPath] == NBCDownloaderTagGitRepoPathBranches ) {
+    } else if ([downloadInfo objectForKey:NBCDownloaderTagGitRepoPath] == NBCDownloaderTagGitRepoPathBranches) {
         NSString *repoName = downloadInfo[NBCDownloaderTagGitRepoName];
         NSMutableArray *branches = [[NSMutableArray alloc] init];
         NSMutableDictionary *branchesURLsDict = [[NSMutableDictionary alloc] init];
         NSArray *allBranches = [self convertJSONDataToArray:data];
-        for ( NSDictionary *dict in allBranches ) {
+        for (NSDictionary *dict in allBranches) {
             NSString *name = [dict[@"name"] capitalizedString];
             [branches addObject:name];
-            
+
             NSString *downloadURL = [NSString stringWithFormat:@"https://api.github.com/repos/%@/zipball/%@", repoName, [name lowercaseString]];
-            
+
             NSDictionary *commitDict = dict[@"commit"];
             NSString *sha = commitDict[@"sha"];
-            if ( [sha length] != 0 ) {
-                NSDictionary *brancDict = @{
-                                            @"sha" : sha,
-                                            @"url" : downloadURL
-                                            };
+            if ([sha length] != 0) {
+                NSDictionary *brancDict = @{ @"sha" : sha, @"url" : downloadURL };
                 branchesURLsDict[name] = brancDict;
             } else {
                 DDLogError(@"[ERROR] Could not get SHA from git branch: %@", name);
@@ -101,12 +98,12 @@ DDLogLevel ddLogLevel;
 }
 
 - (NSArray *)convertJSONDataToArray:(NSData *)data {
-    if ( data != nil ) {
+    if (data != nil) {
         NSError *error;
         id jsonDataArray = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:&error];
-        if ( [jsonDataArray isKindOfClass:[NSArray class]] ) {
+        if ([jsonDataArray isKindOfClass:[NSArray class]]) {
             return jsonDataArray;
-        } else if ( jsonDataArray == nil ) {
+        } else if (jsonDataArray == nil) {
             DDLogError(@"[ERROR] Serializing JSON Data failed!");
             DDLogError(@"[ERROR] %@", error);
         }

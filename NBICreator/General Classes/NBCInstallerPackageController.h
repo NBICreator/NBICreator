@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Foundation/Foundation.h>
 #import "NBCWorkflowProgressDelegate.h"
+#import <Foundation/Foundation.h>
 @class NBCWorkflowItem;
 
 @protocol NBCInstallerPackageDelegate
@@ -30,7 +30,7 @@
 
 @property NBCWorkflowItem *workflowItem;
 @property (nonatomic, weak) id delegate;
-@property (nonatomic, weak) id<NBCWorkflowProgressDelegate>progressDelegate;
+@property (nonatomic, weak) id<NBCWorkflowProgressDelegate> progressDelegate;
 
 @property NSURL *volumeURL;
 @property NSMutableArray *packagesQueue;

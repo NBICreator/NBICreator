@@ -19,8 +19,8 @@
 
 #import <Cocoa/Cocoa.h>
 
-#import "NBCTemplatesController.h"
 #import "NBCSourceDropViewController.h"
+#import "NBCTemplatesController.h"
 
 @interface NBCCustomSettingsViewController : NSViewController <NBCSourceDropViewDelegate>
 

@@ -23,12 +23,12 @@
 
 - (void)drawRect:(NSRect)dirtyRect {
     [super drawRect:dirtyRect];
-    
+
     // --------------------------------------------------------------
     //  Set background color
     // --------------------------------------------------------------
-    CGContextRef context = (CGContextRef) [[NSGraphicsContext currentContext] graphicsPort];
-    CGContextSetRGBFillColor(context, 0.227,0.251,0.337,0.6);
+    CGContextRef context = (CGContextRef)[[NSGraphicsContext currentContext] graphicsPort];
+    CGContextSetRGBFillColor(context, 0.227, 0.251, 0.337, 0.6);
     CGContextFillRect(context, NSRectToCGRect(dirtyRect));
 } // drawRect
 

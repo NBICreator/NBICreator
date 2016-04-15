@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCTarget.h"
 #import "NBCLogging.h"
+#import "NBCTarget.h"
 
 DDLogLevel ddLogLevel;
 
@@ -28,8 +28,7 @@ DDLogLevel ddLogLevel;
     [self setResourcesNetInstallDict:nil];
     [self setResourcesBaseSystemDict:nil];
     [self setCreationTool:nil];
-    [self setNbiURL:nil],
-    [self setImagrApplicationExistOnTarget:NO];
+    [self setNbiURL:nil], [self setImagrApplicationExistOnTarget:NO];
     [self setImagrApplicationURL:nil];
     [self setImagrConfigurationPlistURL:nil];
     [self setRcImagingURL:nil];
@@ -50,8 +49,7 @@ DDLogLevel ddLogLevel;
     [self setBaseSystemVolumeBSDIdentifier:nil];
 }
 
-- (void)printAllVariables
-{
+- (void)printAllVariables {
     DDLogDebug(@"resourcesNetInstallDict=%@", _resourcesNetInstallDict);
     DDLogDebug(@"resourcesBaseSystemDict=%@", _resourcesBaseSystemDict);
     DDLogDebug(@"nbiNetInstallDisk=%@", _nbiNetInstallDisk);

@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
 @protocol NBCImageDropViewIconDelegate
 - (void)updateIconFromURL:(NSURL *)iconURL;
@@ -35,5 +35,3 @@
 @interface NBCImageDropViewBackground : NSImageView <NSDraggingDestination>
 @property (nonatomic, weak) id delegate;
 @end
-
-

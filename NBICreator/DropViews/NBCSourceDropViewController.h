@@ -17,9 +17,9 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Cocoa/Cocoa.h>
 #import "NBCSource.h"
 #import "NBCTarget.h"
+#import <Cocoa/Cocoa.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -28,7 +28,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 extern NSString *const NBCSourceTypeInstaller;
 extern NSString *const NBCSourceTypeSystem;
-//extern NSString *const NBCSourceTypeNBI;
+// extern NSString *const NBCSourceTypeNBI;
 
 @class NBCDropView;
 
@@ -175,5 +175,3 @@ extern NSString *const NBCSourceTypeSystem;
 @interface NBCDropViewImageView : NSImageView <NSDraggingDestination>
 @property (nonatomic, weak) id delegate;
 @end
-
-

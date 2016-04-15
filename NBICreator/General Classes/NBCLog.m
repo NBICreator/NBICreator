@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCLog.h"
 #import "NBCConstants.h"
+#import "NBCLog.h"
 #import "NBCWorkflowItem.h"
 
 DDLogLevel ddLogLevel;
@@ -26,12 +26,12 @@ DDLogLevel ddLogLevel;
 @implementation NBCLog
 
 + (void)configureLoggingFor:(int)sessionType {
-    
+
     // --------------------------------------------------------------
     //  Log to Console (Xcode/Commandline)
     // --------------------------------------------------------------
     [DDLog addLogger:[DDTTYLogger sharedInstance]];
-    
+
     // --------------------------------------------------------------
     //  Log to File
     // --------------------------------------------------------------
@@ -40,17 +40,17 @@ DDLogLevel ddLogLevel;
     [fileLogger setRollingFrequency:0];
     [[fileLogger logFileManager] setMaximumNumberOfLogFiles:7];
     [DDLog addLogger:fileLogger];
-    
+
     // --------------------------------------------------------------
     //  Set log level from setting in application preferences
     // --------------------------------------------------------------
     NSNumber *logLevel = [[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsLogLevel];
-    if ( logLevel ) {
-        
+    if (logLevel) {
+
         // --------------------------------------------------------------
         //  If log level was set to Debug, lower to Info
         // --------------------------------------------------------------
-        if ( [logLevel intValue] == (int)DDLogLevelDebug ) {
+        if ([logLevel intValue] == (int)DDLogLevelDebug) {
             ddLogLevel = DDLogLevelInfo;
             [[NSUserDefaults standardUserDefaults] setObject:@((int)ddLogLevel) forKey:NBCUserDefaultsLogLevel];
         } else {
@@ -60,47 +60,48 @@ DDLogLevel ddLogLevel;
         ddLogLevel = DDLogLevelWarning;
         [[NSUserDefaults standardUserDefaults] setObject:@((int)ddLogLevel) forKey:NBCUserDefaultsLogLevel];
     }
-    
-    NSString *logLevelName;
-    
-    switch (sessionType) {
-        case kWorkflowSessionTypeCLI:
 
+    NSString *logLevelName;
+
+    switch (sessionType) {
+    case kWorkflowSessionTypeCLI:
+
+        break;
+    case kWorkflowSessionTypeGUI:
+        DDLogError(@"");
+        DDLogError(@"Starting NBICreator version %@ (build %@)...", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
+                   [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
+        switch (ddLogLevel) {
+        case 1:
+            logLevelName = @"Error";
             break;
-        case kWorkflowSessionTypeGUI:
-            DDLogError(@"");
-            DDLogError(@"Starting NBICreator version %@ (build %@)...", [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"], [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"]);
-            switch (ddLogLevel) {
-                case 1:
-                    logLevelName = @"Error";
-                    break;
-                case 3:
-                    logLevelName = @"Warn";
-                    break;
-                case 7:
-                    logLevelName = @"Info";
-                    break;
-                case 15:
-                    logLevelName = @"Debug";
-                    break;
-                default:
-                    logLevelName = [@((int)ddLogLevel) stringValue];
-                    break;
-            }
-            DDLogInfo(@"Log level: %@", logLevelName);
+        case 3:
+            logLevelName = @"Warn";
+            break;
+        case 7:
+            logLevelName = @"Info";
+            break;
+        case 15:
+            logLevelName = @"Debug";
             break;
         default:
+            logLevelName = [@((int)ddLogLevel) stringValue];
             break;
+        }
+        DDLogInfo(@"Log level: %@", logLevelName);
+        break;
+    default:
+        break;
     }
 }
 
 + (DDFileLogger *)fileLogger {
     NSArray *allLoggers = [DDLog allLoggers];
-    NSUInteger indexOfFileLogger = [allLoggers indexOfObjectPassingTest:^(id logger, NSUInteger idx, BOOL* stop) {
+    NSUInteger indexOfFileLogger = [allLoggers indexOfObjectPassingTest:^(id logger, NSUInteger idx, BOOL *stop) {
 #pragma unused(idx, stop)
-        return [logger isKindOfClass:[DDFileLogger class]];
+      return [logger isKindOfClass:[DDFileLogger class]];
     }];
-    
+
     return indexOfFileLogger == NSNotFound ? nil : [allLoggers objectAtIndex:indexOfFileLogger];
 }
 

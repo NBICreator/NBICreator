@@ -17,22 +17,22 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCVariables.h"
 #import "NBCConstants.h"
+#import "NBCVariables.h"
 
-#import "NBCSource.h"
 #import "NBCApplicationSourceDeployStudio.h"
 #import "NBCApplicationSourceSystemImageUtility.h"
 #import "NBCLogging.h"
+#import "NBCSource.h"
 
 DDLogLevel ddLogLevel;
 
 @implementation NBCVariables
 
 + (NSString *)expandVariables:(NSString *)string source:(NBCSource *)source applicationSource:(id)applicationSource {
-    
+
     NSString *newString = string;
-    
+
     // -------------------------------------------------------------
     //  Expand variables for current application version
     // -------------------------------------------------------------
@@ -40,49 +40,46 @@ DDLogLevel ddLogLevel;
     NSString *nbiCreatorVersion = nbiCreatorInfoDict[@"CFBundleShortVersionString"];
     NSString *nbiCreatorBuild = nbiCreatorInfoDict[@"CFBundleVersion"];
     NSString *nbiCreatorVersionString = [NSString stringWithFormat:@"%@-%@", nbiCreatorVersion, nbiCreatorBuild];
-    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableNBICreatorVersion
-                                                     withString:nbiCreatorVersionString];
-    
+    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableNBICreatorVersion withString:nbiCreatorVersionString];
+
     // -------------------------------------------------------------
     //  Expand variables for current Source
     // -------------------------------------------------------------
-    if ( source != nil ) {
+    if (source != nil) {
         newString = [source expandVariables:newString];
     } else {
         NBCSource *tmpSource = [[NBCSource alloc] init];
         newString = [tmpSource expandVariables:newString];
     }
-    
+
     // -------------------------------------------------------------
     //  Expand variables for current external application
     // -------------------------------------------------------------
-    if ( applicationSource ) {
+    if (applicationSource) {
         newString = [applicationSource expandVariables:newString];
     }
-    
+
     // --------------------------------------------------------------
     //  Expand %COUNTER%
     // --------------------------------------------------------------
     NSString *indexCounter;
     NSNumber *defaultsCounter = [[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsIndexCounter];
-    if ( defaultsCounter ) {
+    if (defaultsCounter) {
         indexCounter = [NSString stringWithFormat:@"%@", defaultsCounter];
     } else {
         indexCounter = @"1024";
     }
-    
-    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableIndexCounter
-                                                     withString:indexCounter];
-    
+
+    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableIndexCounter withString:indexCounter];
+
     // --------------------------------------------------------------
     //  Expand %APPLICATIONRESOURCESURL%
     // --------------------------------------------------------------
     NSString *applicationResourcesURL;
     applicationResourcesURL = [[NSBundle mainBundle] resourcePath];
-    
-    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableApplicationResourcesURL
-                                                     withString:applicationResourcesURL];
-    
+
+    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableApplicationResourcesURL withString:applicationResourcesURL];
+
     // --------------------------------------------------------------
     //  Expand %DATE%
     // --------------------------------------------------------------
@@ -93,9 +90,8 @@ DDLogLevel ddLogLevel;
     [dateFormatter setLocale:enUSPOSIXLocale];
     [dateFormatter setDateFormat:dateFormatString];
     NSString *formattedDate = [dateFormatter stringFromDate:date];
-    
-    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableDate
-                                                     withString:formattedDate];
+
+    newString = [newString stringByReplacingOccurrencesOfString:NBCVariableDate withString:formattedDate];
     return newString;
 } // expandVariables
 

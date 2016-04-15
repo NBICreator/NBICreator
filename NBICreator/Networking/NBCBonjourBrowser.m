@@ -26,13 +26,13 @@ DDLogLevel ddLogLevel;
 @implementation NBCBonjourBrowser
 
 - (void)startBonjourDiscovery {
-    if ( _services ) {
+    if (_services) {
         [_services removeAllObjects];
     } else {
         _services = [[NSMutableArray alloc] init];
     }
-    
-    if ( _deployStudioURLs ) {
+
+    if (_deployStudioURLs) {
         [_deployStudioURLs removeAllObjects];
     } else {
         _deployStudioURLs = [[NSMutableArray alloc] init];
@@ -41,7 +41,7 @@ DDLogLevel ddLogLevel;
 } // startBonjourDiscovery
 
 - (void)startSearch {
-    if ( ! _browser ) {
+    if (!_browser) {
         _browser = [[NSNetServiceBrowser alloc] init];
     }
     [_browser setDelegate:self];
@@ -54,23 +54,19 @@ DDLogLevel ddLogLevel;
 } // dealloc
 
 - (void)restartBonjourDiscovery {
-    
+
     if (_browser) {
         [_browser stop];
-        [NSTimer scheduledTimerWithTimeInterval:0.5f
-                                         target:self
-                                       selector:@selector(startSearch)
-                                       userInfo:nil
-                                        repeats:NO];
+        [NSTimer scheduledTimerWithTimeInterval:0.5f target:self selector:@selector(startSearch) userInfo:nil repeats:NO];
     }
 } // restartBonjourDiscovery
 
 - (void)netServiceBrowserWillSearch:(NSNetServiceBrowser *)aNetServiceBrowser {
-    #pragma unused(aNetServiceBrowser)
+#pragma unused(aNetServiceBrowser)
 } // netServiceBrowserWillSearch
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)serviceBrowser didFindService:(NSNetService *)aNetService moreComing:(BOOL)moreComing {
-    #pragma unused(serviceBrowser, moreComing)
+#pragma unused(serviceBrowser, moreComing)
     [_services addObject:aNetService];
     [aNetService setDelegate:self];
     [aNetService resolveWithTimeout:10];
@@ -82,7 +78,7 @@ DDLogLevel ddLogLevel;
 
 - (void)netServiceDidResolveAddress:(NSNetService *)aNetService {
     NSDictionary *txtRecordDict = [NSNetService dictionaryFromTXTRecordData:[aNetService TXTRecordData]];
-    if ( [txtRecordDict count] == 0) {
+    if ([txtRecordDict count] == 0) {
         [self restartBonjourDiscovery];
         return;
     }
@@ -90,61 +86,57 @@ DDLogLevel ddLogLevel;
     NSData *altUrlsData = txtRecordDict[@"alt-urls"];
     NSString *altURLsString = [[NSString alloc] initWithData:altUrlsData encoding:NSUTF8StringEncoding];
     NSArray *altURLs = [altURLsString componentsSeparatedByString:@";"];
-    for ( NSString *url in altURLs ) {
-        if ( [url length] != 0 && ! [_deployStudioURLs containsObject:url] ) {
+    for (NSString *url in altURLs) {
+        if ([url length] != 0 && ![_deployStudioURLs containsObject:url]) {
             [_deployStudioURLs addObject:url];
         }
     }
-    
+
     NSDictionary *userInfo = @{ @"serverURLs" : _deployStudioURLs };
-    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationDeployStudioAddBonjourService
-                                                        object:self
-                                                      userInfo:userInfo];
+    [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationDeployStudioAddBonjourService object:self userInfo:userInfo];
 } // netServiceDidResolveAddress
 
 - (void)netService:(NSNetService *)sender didNotResolve:(NSDictionary *)errorDict {
-    #pragma unused(sender, errorDict)
-    
+#pragma unused(sender, errorDict)
+
 } // netService:didNotResolve
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)aNetServiceBrowser didRemoveService:(NSNetService *)aNetService moreComing:(BOOL)moreComing {
-    
-    #pragma unused(aNetServiceBrowser, moreComing)
+
+#pragma unused(aNetServiceBrowser, moreComing)
     if ([_services containsObject:aNetService]) {
         NSDictionary *txtRecordDict = [NSNetService dictionaryFromTXTRecordData:[aNetService TXTRecordData]];
-        
+
         NSData *altUrlsData = txtRecordDict[@"alt-urls"];
         NSString *altURLsString = [[NSString alloc] initWithData:altUrlsData encoding:NSUTF8StringEncoding];
         NSArray *altURLs = [altURLsString componentsSeparatedByString:@";"];
         for (NSString *url in altURLs) {
-            if ( [_deployStudioURLs containsObject:url] ) {
+            if ([_deployStudioURLs containsObject:url]) {
                 [_deployStudioURLs removeObject:url];
             }
         }
-        
-        NSDictionary * userInfo = @{ @"serverURLs" : _deployStudioURLs };
-        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationDeployStudioRemoveBonjourService
-                                                            object:self
-                                                          userInfo:userInfo];
+
+        NSDictionary *userInfo = @{ @"serverURLs" : _deployStudioURLs };
+        [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationDeployStudioRemoveBonjourService object:self userInfo:userInfo];
         [_services removeObject:aNetService];
     }
 } // netServiceBrowser:didRemoveService:moreComing
 
 - (void)netServiceBrowserDidStopSearch:(NSNetServiceBrowser *)serviceBrowser {
-    #pragma unused(serviceBrowser)
-    
+#pragma unused(serviceBrowser)
+
     [self stopBonjourDiscovery];
 } // netServiceBrowserDidStopSearch
 
 - (void)netServiceBrowser:(NSNetServiceBrowser *)aBrowser didNotSearch:(NSDictionary *)userInfo {
-    #pragma unused(aBrowser, userInfo)
-    
+#pragma unused(aBrowser, userInfo)
+
     [self stopBonjourDiscovery];
 } // netServiceBrowser:didNotSearch
 
 - (void)stopBonjourDiscovery {
-    
-    if ( _browser ) {
+
+    if (_browser) {
         [_browser stop];
         DDLogDebug(@"[DEBUG] Stopped bonjour search");
         [_browser setDelegate:nil];

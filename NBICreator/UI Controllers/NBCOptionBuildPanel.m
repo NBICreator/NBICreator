@@ -17,13 +17,13 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCOptionBuildPanel.h"
+#import "NBCCasperSettingsViewController.h"
 #import "NBCConstants.h"
-#import "NBCLogging.h"
-#import "NBCNetInstallSettingsViewController.h"
 #import "NBCDeployStudioSettingsViewController.h"
 #import "NBCImagrSettingsViewController.h"
-#import "NBCCasperSettingsViewController.h"
+#import "NBCLogging.h"
+#import "NBCNetInstallSettingsViewController.h"
+#import "NBCOptionBuildPanel.h"
 
 DDLogLevel ddLogLevel;
 
@@ -35,7 +35,7 @@ DDLogLevel ddLogLevel;
 
 - (id)initWithDelegate:(id<NBCOptionBuildPanelDelegate>)delegate {
     self = [super initWithWindowNibName:@"NBCOptionBuildPanel"];
-    if ( self != nil ) {
+    if (self != nil) {
         _delegate = delegate;
     }
     return self;
@@ -43,8 +43,7 @@ DDLogLevel ddLogLevel;
 
 - (id)init {
     self = [super initWithWindowNibName:@"NBCOptionBuildPanel"];
-    if ( self != nil ) {
-        
+    if (self != nil) {
     }
     return self;
 }
@@ -57,21 +56,22 @@ DDLogLevel ddLogLevel;
     // try-catch because the observer might be removed or never added. In this case, removeObserver throws and exception
     @try {
         [[NSUserDefaults standardUserDefaults] removeObserver:self forKeyPath:NBCUserDefaultsLogLevel];
-    } @catch (NSException *exception) { }
+    } @catch (NSException *exception) {
+    }
 }
 
 - (void)awakeFromNib {
     [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:NBCUserDefaultsLogLevel options:NSKeyValueObservingOptionNew context:nil];
-    
-    if ( [_settingsViewController isKindOfClass:[NBCNetInstallSettingsViewController class]] ) {
+
+    if ([_settingsViewController isKindOfClass:[NBCNetInstallSettingsViewController class]]) {
         [_checkboxClearSourceCache setEnabled:NO];
         [_popUpButtonClearSourceCache setEnabled:NO];
-    } else if ( [_settingsViewController isKindOfClass:[NBCDeployStudioSettingsViewController class]] ) {
-        
-    } else if ( [_settingsViewController isKindOfClass:[NBCImagrSettingsViewController class]] ) {
-        
-    } else if ( [_settingsViewController isKindOfClass:[NBCCasperSettingsViewController class]] ) {
-        
+    } else if ([_settingsViewController isKindOfClass:[NBCDeployStudioSettingsViewController class]]) {
+
+    } else if ([_settingsViewController isKindOfClass:[NBCImagrSettingsViewController class]]) {
+
+    } else if ([_settingsViewController isKindOfClass:[NBCCasperSettingsViewController class]]) {
+
     } else {
         DDLogError(@"[ERROR] Unknown settings view class!");
     }
@@ -85,9 +85,9 @@ DDLogLevel ddLogLevel;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
-    if ( [keyPath isEqualToString:NBCUserDefaultsLogLevel] ) {
+    if ([keyPath isEqualToString:NBCUserDefaultsLogLevel]) {
         NSNumber *logLevel = [[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsLogLevel];
-        if ( logLevel ) {
+        if (logLevel) {
             ddLogLevel = (DDLogLevel)[logLevel intValue];
         }
     }
@@ -96,12 +96,12 @@ DDLogLevel ddLogLevel;
 - (IBAction)buttonContinue:(id)sender {
 #pragma unused(sender)
     NSMutableDictionary *preWorkflowTasks = [[NSMutableDictionary alloc] init];
-    if ( [_checkboxClearSourceCache state] == NSOnState ) {
+    if ([_checkboxClearSourceCache state] == NSOnState) {
         NSString *selectedSource = [_popUpButtonClearSourceCache titleOfSelectedItem];
         preWorkflowTasks[@"ClearCache"] = @YES;
         preWorkflowTasks[@"ClearCacheSource"] = selectedSource;
     }
-    if ( [_delegate respondsToSelector:@selector(continueWorkflow:)] ) {
+    if ([_delegate respondsToSelector:@selector(continueWorkflow:)]) {
         [_delegate continueWorkflow:preWorkflowTasks];
     }
     [[[self window] sheetParent] endSheet:[self window] returnCode:NSModalResponseOK];

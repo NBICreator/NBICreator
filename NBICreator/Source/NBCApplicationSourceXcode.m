@@ -22,14 +22,13 @@
 @implementation NBCApplicationSourceXcode
 
 + (BOOL)isInstalled {
-    NSArray *xcodeApplicationURLs = (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.apple.dt.Xcode"), NULL));;
-    if ( [xcodeApplicationURLs count] != 0 ) {
+    NSArray *xcodeApplicationURLs = (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier(CFSTR("com.apple.dt.Xcode"), NULL));
+    ;
+    if ([xcodeApplicationURLs count] != 0) {
         return YES;
-    } else  {
+    } else {
         return NO;
     }
 }
-
-
 
 @end

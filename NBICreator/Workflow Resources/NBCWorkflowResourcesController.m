@@ -17,11 +17,11 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCWorkflowResourcesController.h"
 #import "NBCConstants.h"
 #import "NBCDiskImageController.h"
-#import "NBCWorkflowItem.h"
 #import "NBCLogging.h"
+#import "NBCWorkflowItem.h"
+#import "NBCWorkflowResourcesController.h"
 #import "NSString+randomString.h"
 
 DDLogLevel ddLogLevel;
@@ -43,18 +43,17 @@ DDLogLevel ddLogLevel;
 }
 
 + (NSURL *)urlForResourceFolder:(NSString *)resourceFolder {
-    
+
     NSURL *resourceFolderURL;
     NSFileManager *fm = [NSFileManager defaultManager];
-    
-    NSArray *urls = [fm URLsForDirectory:NSCachesDirectory
-                               inDomains:NSUserDomainMask];
-    
+
+    NSArray *urls = [fm URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask];
+
     NSURL *userCachesDirectory = [urls firstObject];
-    if ( userCachesDirectory != nil ) {
+    if (userCachesDirectory != nil) {
         resourceFolderURL = [userCachesDirectory URLByAppendingPathComponent:resourceFolder];
     }
-    
+
     return resourceFolderURL;
 }
 
@@ -63,15 +62,15 @@ DDLogLevel ddLogLevel;
     NSURL *temporaryFolderURL = [workflowItem temporaryFolderURL];
     NSString *packageTemporaryFolderName = [NSString stringWithFormat:@"pkg.%@", [NSString nbc_randomString]];
     NSURL *packageTemporaryFolderURL = [temporaryFolderURL URLByAppendingPathComponent:packageTemporaryFolderName isDirectory:YES];
-    if ( ! [packageTemporaryFolderURL checkResourceIsReachableAndReturnError:&error] ) {
+    if (![packageTemporaryFolderURL checkResourceIsReachableAndReturnError:&error]) {
         NSFileManager *fm = [NSFileManager defaultManager];
-        if ( ! [fm createDirectoryAtURL:packageTemporaryFolderURL withIntermediateDirectories:NO attributes:nil error:&error] ){
+        if (![fm createDirectoryAtURL:packageTemporaryFolderURL withIntermediateDirectories:NO attributes:nil error:&error]) {
             DDLogError(@"[ERROR] Could not create temporary pkg folder!");
             DDLogError(@"%@", error);
             packageTemporaryFolderURL = nil;
         }
     }
-    
+
     return packageTemporaryFolderURL;
 } // getTemporaryFolderURL
 
@@ -83,54 +82,54 @@ DDLogLevel ddLogLevel;
 
 - (NSArray *)cachedVersionsFromResourceFolder:(NSString *)resourceFolder {
     NSURL *currentResourceFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourceFolder];
-    if ( currentResourceFolder ) {
+    if (currentResourceFolder) {
         NSURL *currentResourceDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
-        if ( [currentResourceDictURL checkResourceIsReachableAndReturnError:nil] ) {
+        if ([currentResourceDictURL checkResourceIsReachableAndReturnError:nil]) {
             NSDictionary *resourceDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourceDictURL];
-            if ( resourceDict ) {
+            if (resourceDict) {
                 return [resourceDict allKeys];
             }
         }
     }
-    
+
     return @[];
 }
 
 - (NSDictionary *)cachedDownloadsDictFromResourceFolder:(NSString *)resourceFolder {
     NSURL *currentResourceFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourceFolder];
-    if ( currentResourceFolder ) {
+    if (currentResourceFolder) {
         NSURL *currentDownloadsDictURL = [currentResourceFolder URLByAppendingPathComponent:NBCFileNameDownloadsDict];
-        if ( [currentDownloadsDictURL checkResourceIsReachableAndReturnError:nil] ) {
+        if ([currentDownloadsDictURL checkResourceIsReachableAndReturnError:nil]) {
             return [[NSDictionary alloc] initWithContentsOfURL:currentDownloadsDictURL];
         }
     }
-    
+
     return @{};
 }
 
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder {
     NSURL *cachedDownloadsDictURL;
     NSURL *currentResourceFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourceFolder];
-    if ( currentResourceFolder ) {
+    if (currentResourceFolder) {
         return [currentResourceFolder URLByAppendingPathComponent:NBCFileNameDownloadsDict];
     }
-    
+
     return cachedDownloadsDictURL;
 }
 
 + (NSURL *)cachedBranchURL:(NSString *)branch sha:(NSString *)sha resourcesFolder:(NSString *)resourcesFolder {
     NSURL *cachedBranchURL;
     NSURL *currentResourcesFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
-    if ( [currentResourcesFolder checkResourceIsReachableAndReturnError:nil] ) {
+    if ([currentResourcesFolder checkResourceIsReachableAndReturnError:nil]) {
         NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
-        if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
+        if ([currentResourcesDictURL checkResourceIsReachableAndReturnError:nil]) {
             NSDictionary *resourcesDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourcesDictURL];
-            if ( [resourcesDict count] != 0 ) {
+            if ([resourcesDict count] != 0) {
                 NSDictionary *branchDict = resourcesDict[branch];
-                if ( [branchDict count] != 0 ) {
+                if ([branchDict count] != 0) {
                     NSString *cachedBranchSHA = branchDict[@"sha"];
                     NSString *cachedBranchPath = branchDict[@"url"];
-                    if ( [cachedBranchSHA isEqualToString:sha] && [cachedBranchPath length] != 0 ) {
+                    if ([cachedBranchSHA isEqualToString:sha] && [cachedBranchPath length] != 0) {
                         cachedBranchURL = [NSURL fileURLWithPath:cachedBranchPath];
                     } else {
                         DDLogDebug(@"[DEBUG] Resource path is empty!");
@@ -139,20 +138,20 @@ DDLogLevel ddLogLevel;
             }
         }
     }
-    
+
     return cachedBranchURL;
 }
 
 + (NSURL *)cachedVersionURL:(NSString *)version resourcesFolder:(NSString *)resourcesFolder {
     NSURL *cachedVersionURL;
     NSURL *currentResourcesFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
-    if ( [currentResourcesFolder checkResourceIsReachableAndReturnError:nil] ) {
+    if ([currentResourcesFolder checkResourceIsReachableAndReturnError:nil]) {
         NSURL *currentResourcesDictURL = [currentResourcesFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
-        if ( [currentResourcesDictURL checkResourceIsReachableAndReturnError:nil] ) {
+        if ([currentResourcesDictURL checkResourceIsReachableAndReturnError:nil]) {
             NSDictionary *resourcesDict = [[NSDictionary alloc] initWithContentsOfURL:currentResourcesDictURL];
-            if ( [resourcesDict count] != 0 ) {
+            if ([resourcesDict count] != 0) {
                 NSString *resourcePath = resourcesDict[version];
-                if ( [resourcePath length] != 0 ) {
+                if ([resourcePath length] != 0) {
                     cachedVersionURL = [NSURL fileURLWithPath:resourcePath];
                 } else {
                     DDLogDebug(@"[DEBUG] Resource path is empty!");
@@ -160,7 +159,7 @@ DDLogLevel ddLogLevel;
             }
         }
     }
-    
+
     return cachedVersionURL;
 }
 
@@ -171,47 +170,47 @@ DDLogLevel ddLogLevel;
 ////////////////////////////////////////////////////////////////////////////////
 
 + (NSURL *)copyFileToResources:(NSURL *)fileURL resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
-    
+
     NSURL *destinationURL;
     NSError *error;
     NSFileManager *fileManager = [NSFileManager defaultManager];
-    
+
     NSURL *resouresFolder = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
-    
+
     // Create resource folder if it does not exist
     NSURL *resourceFolderVersion = [resouresFolder URLByAppendingPathComponent:version];
-    if ( ! [resourceFolderVersion checkResourceIsReachableAndReturnError:nil] ) {
-        if ( ! [fileManager createDirectoryAtURL:resourceFolderVersion withIntermediateDirectories:YES attributes:nil error:&error] ) {
+    if (![resourceFolderVersion checkResourceIsReachableAndReturnError:nil]) {
+        if (![fileManager createDirectoryAtURL:resourceFolderVersion withIntermediateDirectories:YES attributes:nil error:&error]) {
             DDLogError(@"[ERROR] %@", [error localizedDescription]);
             return nil;
         }
     }
-    
+
     // Delete file if it exists
     NSString *fileName = [fileURL lastPathComponent];
     NSURL *targetFileURL = [resourceFolderVersion URLByAppendingPathComponent:fileName];
-    if ( [targetFileURL checkResourceIsReachableAndReturnError:nil] ) {
-        if ( ! [fileManager removeItemAtURL:targetFileURL error:&error] ) {
+    if ([targetFileURL checkResourceIsReachableAndReturnError:nil]) {
+        if (![fileManager removeItemAtURL:targetFileURL error:&error]) {
             DDLogError(@"[ERROR] %@", [error localizedDescription]);
             return nil;
         }
     }
-    
+
     // Copy file
-    if ( [fileManager copyItemAtURL:fileURL toURL:targetFileURL error:&error] ) {
+    if ([fileManager copyItemAtURL:fileURL toURL:targetFileURL error:&error]) {
         destinationURL = targetFileURL;
         NSURL *resourcesDictURL = [resouresFolder URLByAppendingPathComponent:NBCFileNameResourcesDict];
         NSMutableDictionary *resourceDict = [[[NSDictionary alloc] initWithContentsOfURL:resourcesDictURL] mutableCopy];
-        if ( resourceDict ) {
+        if (resourceDict) {
             resourceDict[version] = [targetFileURL path];
         } else {
             resourceDict = [[NSMutableDictionary alloc] init];
             resourceDict[version] = [targetFileURL path];
         }
-        
-        if ( [resourceDict writeToURL:resourcesDictURL atomically:YES] ) {
-            if ( ! [[fileURL path] hasPrefix:@"/Volumes"] ) {
-                if ( ! [fileManager removeItemAtURL:fileURL error:&error] ) {
+
+        if ([resourceDict writeToURL:resourcesDictURL atomically:YES]) {
+            if (![[fileURL path] hasPrefix:@"/Volumes"]) {
+                if (![fileManager removeItemAtURL:fileURL error:&error]) {
                     DDLogWarn(@"Could not delete %@!", [fileURL lastPathComponent]);
                     DDLogError(@"[ERROR] %@", error);
                 }
@@ -222,7 +221,7 @@ DDLogLevel ddLogLevel;
     } else {
         DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
-    
+
     return destinationURL;
 }
 
@@ -230,160 +229,155 @@ DDLogLevel ddLogLevel;
     NSError *error;
     NSURL *destinationURL;
     NSFileManager *fm = [NSFileManager defaultManager];
-    
+
     NSString *branchName = branchDict[NBCSettingsImagrGitBranch];
-    
+
     NSURL *resouresFolderURL = [NBCWorkflowResourcesController urlForResourceFolder:resourcesFolder];
     NSURL *targetFolderURL = [resouresFolderURL URLByAppendingPathComponent:branchName];
     NSURL *xcodeProjectFolderTargetURL = [targetFolderURL URLByAppendingPathComponent:@"Imagr"];
-    if ( [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
-        if ( ! [fm removeItemAtURL:targetFolderURL error:&error] ) {
+    if ([targetFolderURL checkResourceIsReachableAndReturnError:nil]) {
+        if (![fm removeItemAtURL:targetFolderURL error:&error]) {
             DDLogError(@"[ERROR] Could not remove folder");
             DDLogError(@"[ERROR] %@", error);
             return nil;
         }
     }
-    
-    if ( ! [fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES attributes:nil error:&error] ) {
+
+    if (![fm createDirectoryAtURL:targetFolderURL withIntermediateDirectories:YES attributes:nil error:&error]) {
         DDLogError(@"[ERROR] Could not create folder");
         DDLogError(@"[ERROR] %@", error);
         return nil;
     }
-    
+
     // Unzip Archive
     NSString *tmpFolderPath = [NSString stringWithFormat:@"/tmp/zip.%@", [NSString nbc_randomString]];
     NSURL *unzippedImagrProjectRootURL;
     NSURL *xcodeProjectFolderSourceURL;
-    if ( [Main unzipFileAtPath:[zipURL path] toDestination:tmpFolderPath] ) {
+    if ([Main unzipFileAtPath:[zipURL path] toDestination:tmpFolderPath]) {
         NSArray *unzippedRootItems = [fm contentsOfDirectoryAtPath:tmpFolderPath error:NULL];
-        for ( NSString *itemName in unzippedRootItems ) {
+        for (NSString *itemName in unzippedRootItems) {
             NSString *path = [tmpFolderPath stringByAppendingPathComponent:itemName];
             BOOL isDir = NO;
-            [fm fileExistsAtPath:path isDirectory:( &isDir )];
-            if ( [itemName containsString:@"imagr"] && isDir ) {
+            [fm fileExistsAtPath:path isDirectory:(&isDir)];
+            if ([itemName containsString:@"imagr"] && isDir) {
                 unzippedImagrProjectRootURL = [NSURL fileURLWithPath:path];
                 xcodeProjectFolderSourceURL = [unzippedImagrProjectRootURL URLByAppendingPathComponent:@"Imagr"];
-                if ( ! [xcodeProjectFolderSourceURL checkResourceIsReachableAndReturnError:nil] ) {
+                if (![xcodeProjectFolderSourceURL checkResourceIsReachableAndReturnError:nil]) {
                     xcodeProjectFolderSourceURL = nil;
                 }
             }
         }
-        
-        if ( unzippedImagrProjectRootURL == nil || xcodeProjectFolderSourceURL == nil ) {
+
+        if (unzippedImagrProjectRootURL == nil || xcodeProjectFolderSourceURL == nil) {
             DDLogError(@"[ERROR] Could not get path to Imgr Project Root after unzipping!");
             return nil;
         }
-        
-        if ( ! [fm moveItemAtURL:xcodeProjectFolderSourceURL toURL:xcodeProjectFolderTargetURL  error:&error] ) {
+
+        if (![fm moveItemAtURL:xcodeProjectFolderSourceURL toURL:xcodeProjectFolderTargetURL error:&error]) {
             DDLogError(@"[ERROR] Could not move unzipped Imagr Project to destinaion folder!");
             DDLogError(@"[ERROR] %@", error);
             return nil;
         }
-        
+
         NSURL *xcodeProjectSourceURL = [unzippedImagrProjectRootURL URLByAppendingPathComponent:@"Imagr.xcodeproj"];
         NSURL *xcodeProjectTargetURL = [targetFolderURL URLByAppendingPathComponent:@"Imagr.xcodeproj"];
-        
-        if ( ! [fm moveItemAtURL:xcodeProjectSourceURL toURL:xcodeProjectTargetURL error:&error] ) {
+
+        if (![fm moveItemAtURL:xcodeProjectSourceURL toURL:xcodeProjectTargetURL error:&error]) {
             DDLogError(@"[ERROR] Could not move project file!");
             DDLogError(@"[ERROR] %@", error);
             return nil;
         }
-        
-        if ( [targetFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+
+        if ([targetFolderURL checkResourceIsReachableAndReturnError:nil]) {
             destinationURL = targetFolderURL;
-            
+
             NSString *branchSHA = branchDict[NBCSettingsImagrGitBranchSHA];
             NSURL *resourcesDictURL = [resouresFolderURL URLByAppendingPathComponent:NBCFileNameResourcesDict];
             NSMutableDictionary *resourceDict = [[[NSDictionary alloc] initWithContentsOfURL:resourcesDictURL] mutableCopy];
-            NSDictionary *resourcesBranchDict = @{
-                                                  @"url" : [targetFolderURL path],
-                                                  @"sha" : branchSHA
-                                                  };
-            if ( resourceDict ) {
+            NSDictionary *resourcesBranchDict = @{ @"url" : [targetFolderURL path], @"sha" : branchSHA };
+            if (resourceDict) {
                 resourceDict[branchName] = resourcesBranchDict;
             } else {
                 resourceDict = [[NSMutableDictionary alloc] init];
                 resourceDict[branchName] = resourcesBranchDict;
             }
-            
-            if ( ! [resourceDict writeToURL:resourcesDictURL atomically:YES] ) {
+
+            if (![resourceDict writeToURL:resourcesDictURL atomically:YES]) {
                 DDLogError(@"[ERROR] Could Not Write Resource Dict at: %@", resourcesDictURL);
             }
         } else {
             DDLogError(@"[ERROR] Imagr Root Path doesn't exist somehow.");
         }
     }
-    
+
     return destinationURL;
 }
 
 - (void)buildProjectAtURL:(NSURL *)projectURL buildTarget:(NSString *)buildTarget {
     dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     dispatch_async(taskQueue, ^{
-        NSURL *productURL;
-        NSTask *newTask =  [[NSTask alloc] init];
-        [newTask setLaunchPath:@"/usr/bin/xcodebuild"];
-        [newTask setArguments:@[ @"-configuration", buildTarget ]];
-        [newTask setCurrentDirectoryPath:[projectURL path]];
-        [newTask setStandardOutput:[NSPipe pipe]];
-        [newTask setStandardError:[NSPipe pipe]];
-        [newTask launch];
-        [newTask waitUntilExit];
-        
-        //  NSData *newTaskStandardOutputData = [[[newTask standardOutput] fileHandleForReading] readDataToEndOfFile];
-        //  NSString *stdOut = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
-        NSData *newTaskStandardErrorData = [[[newTask standardError] fileHandleForReading] readDataToEndOfFile];
-        NSString *stdErr = [[NSString alloc] initWithData:newTaskStandardErrorData encoding:NSUTF8StringEncoding];
-        
-        if ( [newTask terminationStatus] == 0 ) {
-            productURL = [projectURL URLByAppendingPathComponent:[NSString stringWithFormat:@"build/%@/Imagr.app", buildTarget]];
-            if ( [productURL checkResourceIsReachableAndReturnError:nil] ) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self->_delegate xcodeBuildComplete:productURL];
-                });
-            } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self->_delegate xcodeBuildFailed:@"Could not find product after build!"];
-                });
-            }
-        } else {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self->_delegate xcodeBuildFailed:stdErr];
-            });
-            DDLogError(@"[ERROR] %@", stdErr);
-        }
+      NSURL *productURL;
+      NSTask *newTask = [[NSTask alloc] init];
+      [newTask setLaunchPath:@"/usr/bin/xcodebuild"];
+      [newTask setArguments:@[ @"-configuration", buildTarget ]];
+      [newTask setCurrentDirectoryPath:[projectURL path]];
+      [newTask setStandardOutput:[NSPipe pipe]];
+      [newTask setStandardError:[NSPipe pipe]];
+      [newTask launch];
+      [newTask waitUntilExit];
+
+      //  NSData *newTaskStandardOutputData = [[[newTask standardOutput] fileHandleForReading] readDataToEndOfFile];
+      //  NSString *stdOut = [[NSString alloc] initWithData:newTaskStandardOutputData encoding:NSUTF8StringEncoding];
+      NSData *newTaskStandardErrorData = [[[newTask standardError] fileHandleForReading] readDataToEndOfFile];
+      NSString *stdErr = [[NSString alloc] initWithData:newTaskStandardErrorData encoding:NSUTF8StringEncoding];
+
+      if ([newTask terminationStatus] == 0) {
+          productURL = [projectURL URLByAppendingPathComponent:[NSString stringWithFormat:@"build/%@/Imagr.app", buildTarget]];
+          if ([productURL checkResourceIsReachableAndReturnError:nil]) {
+              dispatch_async(dispatch_get_main_queue(), ^{
+                [self->_delegate xcodeBuildComplete:productURL];
+              });
+          } else {
+              dispatch_async(dispatch_get_main_queue(), ^{
+                [self->_delegate xcodeBuildFailed:@"Could not find product after build!"];
+              });
+          }
+      } else {
+          dispatch_async(dispatch_get_main_queue(), ^{
+            [self->_delegate xcodeBuildFailed:stdErr];
+          });
+          DDLogError(@"[ERROR] %@", stdErr);
+      }
     });
 }
 
 + (NSURL *)attachDiskImageAndCopyFileToResourceFolder:(NSURL *)diskImageURL filePath:(NSString *)filePath resourcesFolder:(NSString *)resourcesFolder version:(NSString *)version {
-    
+
     NSURL *destinationURL;
-    
+
     NSError *error;
     NSURL *volumeURL;
     NSDictionary *diskImageDict;
     NSArray *hdiutilOptions = @[
-                                @"-mountRandom", @"/Volumes",
-                                @"-nobrowse",
-                                @"-noverify",
-                                @"-plist",
-                                ];
-    
-    if ( [NBCDiskImageController attachDiskImageAndReturnPropertyList:&diskImageDict
-                                                              dmgPath:diskImageURL
-                                                              options:hdiutilOptions
-                                                                error:&error] ) {
-        if ( [diskImageDict count] != 0 ) {
+        @"-mountRandom",
+        @"/Volumes",
+        @"-nobrowse",
+        @"-noverify",
+        @"-plist",
+    ];
+
+    if ([NBCDiskImageController attachDiskImageAndReturnPropertyList:&diskImageDict dmgPath:diskImageURL options:hdiutilOptions error:&error]) {
+        if ([diskImageDict count] != 0) {
             volumeURL = [NBCDiskImageController getMountURLFromHdiutilOutputPropertyList:diskImageDict];
             NSURL *imagrApplicationURL = [volumeURL URLByAppendingPathComponent:filePath];
             destinationURL = [self copyFileToResources:imagrApplicationURL resourcesFolder:resourcesFolder version:version];
-            if ( [destinationURL checkResourceIsReachableAndReturnError:&error] ) {
+            if ([destinationURL checkResourceIsReachableAndReturnError:&error]) {
                 DDLogError(@"[ERROR] %@", [error localizedDescription]);
             }
-            
-            if ( [NBCDiskImageController detachDiskImageAtPath:[volumeURL path]] ) {
+
+            if ([NBCDiskImageController detachDiskImageAtPath:[volumeURL path]]) {
                 NSFileManager *fileManager = [NSFileManager defaultManager];
-                if ( ! [fileManager removeItemAtURL:diskImageURL error:&error] ) {
+                if (![fileManager removeItemAtURL:diskImageURL error:&error]) {
                     DDLogError(@"[ERROR] %@", [error localizedDescription]);
                 }
             } else {
@@ -395,7 +389,7 @@ DDLogLevel ddLogLevel;
     } else {
         DDLogError(@"[ERROR] %@", [error localizedDescription]);
     }
-    
+
     return destinationURL;
 }
 

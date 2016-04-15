@@ -17,16 +17,16 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import "NBCPreferences.h"
-#import "NBCLogging.h"
 #import "NBCConstants.h"
-#import "NBCWorkflowResourcesController.h"
+#import "NBCController.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCController.h"
+#import "NBCLogging.h"
+#import "NBCPreferences.h"
 #import "NBCUpdater.h"
 #import "NBCWorkflowManager.h"
 #import "NBCWorkflowProgressDelegate.h"
+#import "NBCWorkflowResourcesController.h"
 
 DDLogLevel ddLogLevel;
 
@@ -40,23 +40,22 @@ DDLogLevel ddLogLevel;
     self = [super initWithWindowNibName:windowNibName];
     if (self != nil) {
         [self window];
-        
     }
     return self;
 }
 
 - (void)awakeFromNib {
-    
+
     // --------------------------------------------------------------
     //  Add KVO Observers
     // --------------------------------------------------------------
     [[NBCWorkflowManager sharedManager] addObserver:self forKeyPath:@"workflowRunning" options:NSKeyValueObservingOptionNew context:nil];
     [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:NBCUserDefaultsLogLevel options:NSKeyValueObservingOptionNew context:nil];
-    
+
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(startSearchingForUpdates:) name:NBCNotificationStartSearchingForUpdates object:nil];
     [center addObserver:self selector:@selector(stopSearchingForUpdates:) name:NBCNotificationStopSearchingForUpdates object:nil];
-    
+
     [self createPopUpButtonDateFormats];
     [self updateLogWarningLabel];
     [self updateCacheFolderSize];
@@ -67,7 +66,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)controlTextDidChange:(NSNotification *)sender {
-    if ( [sender object] == _comboBoxDateFormat ) {
+    if ([sender object] == _comboBoxDateFormat) {
         [self updateDatePreview];
     }
 }
@@ -84,20 +83,20 @@ DDLogLevel ddLogLevel;
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
 #pragma unused(object, change, context)
-    
-    if ( [keyPath isEqualToString:NBCUserDefaultsLogLevel] ) {
+
+    if ([keyPath isEqualToString:NBCUserDefaultsLogLevel]) {
         NSNumber *logLevel = [[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsLogLevel];
-        if ( logLevel ) {
+        if (logLevel) {
             ddLogLevel = (DDLogLevel)[logLevel intValue];
             [self updateLogWarningLabel];
         }
-    } else if ( [keyPath isEqualToString:@"workflowRunning"] ) {
+    } else if ([keyPath isEqualToString:@"workflowRunning"]) {
         [_buttonClearCache setEnabled:![[NBCWorkflowManager sharedManager] workflowRunning]];
     }
 } // observeValueForKeyPath:ofObject:change:context
 
 - (void)updateLogWarningLabel {
-    if ( (int)ddLogLevel == (int)DDLogLevelDebug ) {
+    if ((int)ddLogLevel == (int)DDLogLevelDebug) {
         [_imageViewLogWarning setHidden:NO];
         [_textFieldLogWarning setHidden:NO];
     } else {
@@ -107,20 +106,20 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)createPopUpButtonDateFormats {
-    
+
     NSMutableArray *dateFormats = [[NSMutableArray alloc] init];
     [dateFormats addObject:@"yyyy-MM-dd"];
     [dateFormats addObject:@"yyMMdd"];
     [dateFormats addObject:@"yyyyMMdd"];
     [dateFormats addObject:@"MMddyy"];
     [dateFormats addObject:@"MMddyyyy"];
-    
+
     [_comboBoxDateFormat addItemsWithObjectValues:dateFormats];
     [self updateDatePreview];
 }
 
 - (void)updateDatePreview {
-    
+
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     NSString *dateFormat = [_comboBoxDateFormat stringValue];
     NSLocale *enUSPOSIXLocale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
@@ -137,20 +136,20 @@ DDLogLevel ddLogLevel;
 
 - (void)updateCacheFolderSize {
     [_textFieldCacheFolderSize setStringValue:@"Calculating…"];
-    
+
     NSURL *currentResourceFolder = [self cacheFolderURL];
-    if ( [currentResourceFolder checkPromisedItemIsReachableAndReturnError:nil] ) {
+    if ([currentResourceFolder checkPromisedItemIsReachableAndReturnError:nil]) {
         dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(taskQueue, ^{
-            unsigned long long int folderSize = [self folderSize:[currentResourceFolder path]];
-            if ( folderSize ) {
-                NSString *fileSizeString = [NSByteCountFormatter stringFromByteCount:(long long)folderSize countStyle:NSByteCountFormatterCountStyleDecimal];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self->_textFieldCacheFolderSize setStringValue:fileSizeString];
-                    [self->_buttonClearCache setEnabled:![[NBCWorkflowManager sharedManager] workflowRunning]];
-                    [self->_buttonShowCache setEnabled:YES];
-                });
-            }
+          unsigned long long int folderSize = [self folderSize:[currentResourceFolder path]];
+          if (folderSize) {
+              NSString *fileSizeString = [NSByteCountFormatter stringFromByteCount:(long long)folderSize countStyle:NSByteCountFormatterCountStyleDecimal];
+              dispatch_async(dispatch_get_main_queue(), ^{
+                [self->_textFieldCacheFolderSize setStringValue:fileSizeString];
+                [self->_buttonClearCache setEnabled:![[NBCWorkflowManager sharedManager] workflowRunning]];
+                [self->_buttonShowCache setEnabled:YES];
+              });
+          }
         });
     } else {
         [_textFieldCacheFolderSize setStringValue:@"Zero bytes"];
@@ -167,7 +166,7 @@ DDLogLevel ddLogLevel;
         NSDictionary *fileDictionary = [[NSFileManager defaultManager] attributesOfItemAtPath:[folderPath stringByAppendingPathComponent:fileName] error:nil];
         fileSize += [fileDictionary fileSize];
     }
-    
+
     return fileSize;
 }
 
@@ -176,28 +175,29 @@ DDLogLevel ddLogLevel;
     [_buttonShowCache setEnabled:NO];
     NSURL *cacheFolderURL = [self cacheFolderURL];
     DDLogDebug(@"[DEBUG] Cahce folder path: %@", [cacheFolderURL path]);
-    
-    if ( [cacheFolderURL checkResourceIsReachableAndReturnError:nil] ) {
-        
+
+    if ([cacheFolderURL checkResourceIsReachableAndReturnError:nil]) {
+
         DDLogInfo(@"Cleaning cache folder...");
-        
+
         dispatch_queue_t taskQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
         dispatch_async(taskQueue, ^{
-            
-            NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
-            [helperConnector connectToHelper];
-            [[helperConnector connection] setExportedObject:self];
-            [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
-            [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError * proxyError) {
-                DDLogWarn(@"[WARN] %@", [proxyError localizedDescription]);
-            }] removeItemsAtPaths:@[ [cacheFolderURL path] ] withReply:^(NSError *error, BOOL success) {
-                if ( ! success ) {
-                    DDLogWarn(@"[WARN] %@", [error localizedDescription]);
-                }
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    [self updateCacheFolderSize];
-                });
-            }];
+
+          NBCHelperConnection *helperConnector = [[NBCHelperConnection alloc] init];
+          [helperConnector connectToHelper];
+          [[helperConnector connection] setExportedObject:self];
+          [[helperConnector connection] setExportedInterface:[NSXPCInterface interfaceWithProtocol:@protocol(NBCWorkflowProgressDelegate)]];
+          [[[helperConnector connection] remoteObjectProxyWithErrorHandler:^(NSError *proxyError) {
+            DDLogWarn(@"[WARN] %@", [proxyError localizedDescription]);
+          }] removeItemsAtPaths:@[ [cacheFolderURL path] ]
+                       withReply:^(NSError *error, BOOL success) {
+                         if (!success) {
+                             DDLogWarn(@"[WARN] %@", [error localizedDescription]);
+                         }
+                         dispatch_async(dispatch_get_main_queue(), ^{
+                           [self updateCacheFolderSize];
+                         });
+                       }];
         });
     }
 }
@@ -215,7 +215,7 @@ DDLogLevel ddLogLevel;
 - (IBAction)buttonShowCache:(id)sender {
 #pragma unused(sender)
     NSURL *cacheFolderURL = [self cacheFolderURL];
-    if ( [cacheFolderURL checkResourceIsReachableAndReturnError:nil] ) {
+    if ([cacheFolderURL checkResourceIsReachableAndReturnError:nil]) {
         NSArray *currentTemplateURLArray = @[ cacheFolderURL ];
         [[NSWorkspace sharedWorkspace] activateFileViewerSelectingURLs:currentTemplateURLArray];
     }
@@ -229,9 +229,9 @@ DDLogLevel ddLogLevel;
 
 - (void)stopSearchingForUpdates:(NSNotification *)notification {
     [self setCheckingForApplicationUpdates:NO];
-    
+
     NSDictionary *userInfo = [notification userInfo];
-    if ( [userInfo[@"UpdateAvailable"] boolValue] ) {
+    if ([userInfo[@"UpdateAvailable"] boolValue]) {
         NSString *latestVersion = userInfo[@"LatestVersion"];
         DDLogInfo(@"latestVersion=%@", latestVersion);
         [_textFieldUpdateStatus setStringValue:@"There is an update available!"];
@@ -246,7 +246,7 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)updateProgressStatus:(NSString *)statusMessage workflow:(id)workflow {
-#pragma unused(statusMessage,workflow)
+#pragma unused(statusMessage, workflow)
 }
 - (void)updateProgressStatus:(NSString *)statusMessage {
 #pragma unused(statusMessage)

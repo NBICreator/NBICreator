@@ -17,8 +17,8 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Foundation/Foundation.h>
 #import "Main.h"
+#import <Foundation/Foundation.h>
 
 @class NBCWorkflowItem;
 
@@ -49,7 +49,5 @@
 - (NSURL *)cachedDownloadsDictURLFromResourceFolder:(NSString *)resourceFolder;
 
 - (void)buildProjectAtURL:(NSURL *)projectURL buildTarget:(NSString *)buildTarget;
-
-
 
 @end

@@ -17,13 +17,12 @@
 //  See the License for the specific language governing permissions and
 //  limitations under the License.
 
-#import <Foundation/Foundation.h>
 #import "NBCWorkflowProgressDelegate.h"
-#import "NBCWorkflowResourcesExtract.h"
 #import "NBCWorkflowResourceImagr.h"
+#import "NBCWorkflowResourcesExtract.h"
+#import <Foundation/Foundation.h>
 @class NBCSource;
 @class NBCWorkflowItem;
-
 
 @interface NBCWorkflowResources : NSObject <NBCWorkflowResourcesExtractDelegate, NBCWorkflowResourceImagrDelegate>
 

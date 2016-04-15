@@ -22,7 +22,7 @@
 
 @implementation NBCWorkflowItem
 
-- (id)initWithWorkflowType:(int)workflowType workflowSessionType:(int)workflowSessionType{
+- (id)initWithWorkflowType:(int)workflowType workflowSessionType:(int)workflowSessionType {
     self = [super init];
     if (self) {
         _workflowType = workflowType;

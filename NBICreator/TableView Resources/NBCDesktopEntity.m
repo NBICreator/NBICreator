@@ -40,7 +40,7 @@
 
 - (id)initWithFileURL:(NSURL *)fileURL {
     self = [super init];
-    if ( self ) {
+    if (self) {
         _fileURL = fileURL;
     }
     return self;
@@ -56,7 +56,7 @@
     NSURL *url = [[NSURL alloc] initWithPasteboardPropertyList:propertyList ofType:type];
     self = [NBCDesktopEntity entityForURL:url];
     return self;
-} //initWithPasteboardPropertyList
+} // initWithPasteboardPropertyList
 
 + (NSArray *)readableTypesForPasteboard:(NSPasteboard *)pasteboard {
 #pragma unused(pasteboard)
@@ -77,35 +77,35 @@
 + (NBCDesktopEntity *)entityForURL:(NSURL *)url {
     NSString *typeIdentifier;
     NSWorkspace *workspace = [NSWorkspace sharedWorkspace];
-    if ( [url getResourceValue:&typeIdentifier forKey:NSURLTypeIdentifierKey error:nil] ) {
+    if ([url getResourceValue:&typeIdentifier forKey:NSURLTypeIdentifierKey error:nil]) {
         // --------------------------------------------------------------
         //  If url points to a certificate, allocate a NBCDesktopCertificateEntity
         // --------------------------------------------------------------
-        if ( [@[ @"public.x509-certificate" ] containsObject:typeIdentifier] ) {
+        if ([@[ @"public.x509-certificate" ] containsObject:typeIdentifier]) {
             return [[NBCDesktopCertificateEntity alloc] initWithFileURL:url];
-            
+
             // --------------------------------------------------------------
             //  If url points to a installer package, allocate a NBCDesktopPackageEntity
             // --------------------------------------------------------------
-        } else if ( [@[ @"com.apple.installer-package-archive" ] containsObject:typeIdentifier] ) {
+        } else if ([@[ @"com.apple.installer-package-archive" ] containsObject:typeIdentifier]) {
             return [[NBCDesktopPackageEntity alloc] initWithFileURL:url];
-            
+
             // --------------------------------------------------------------
             //  If url points to a configuration profile, allocate a NBCDesktopConfigurationProfileEntity
             // --------------------------------------------------------------
-        } else if ( [@[ @"com.apple.mobileconfig" ] containsObject:typeIdentifier] ) {
+        } else if ([@[ @"com.apple.mobileconfig" ] containsObject:typeIdentifier]) {
             return [[NBCDesktopConfigurationProfileEntity alloc] initWithFileURL:url];
-            
+
             // --------------------------------------------------------------
             //  If url points to a script, allocate a NBCDesktopScriptEntity
             // --------------------------------------------------------------
-        } else if ( [workspace type:typeIdentifier conformsToType:@"public.shell-script"] ) {
+        } else if ([workspace type:typeIdentifier conformsToType:@"public.shell-script"]) {
             return [[NBCDesktopScriptEntity alloc] initWithFileURL:url];
-            
+
             // --------------------------------------------------------------
             //  If url points to a folder, allocate a NBCDesktopFolderEntity
             // --------------------------------------------------------------
-        }else if ( [typeIdentifier isEqualToString:(NSString *)kUTTypeFolder] ) {
+        } else if ([typeIdentifier isEqualToString:(NSString *)kUTTypeFolder]) {
             return [[NBCDesktopFolderEntity alloc] initWithFileURL:url];
         }
     }
@@ -114,7 +114,7 @@
 
 - (NSString *)name {
     NSString *name;
-    if ( [_fileURL getResourceValue:&name forKey:NSURLLocalizedNameKey error:nil] ) {
+    if ([_fileURL getResourceValue:&name forKey:NSURLLocalizedNameKey error:nil]) {
         return name;
     }
     return nil;
@@ -130,30 +130,30 @@
 @implementation NBCDesktopCertificateEntity
 
 - (NSData *)certificate {
-    if ( !_certificate ) {
+    if (!_certificate) {
 
         // --------------------------------------------------------------
         //  Try reading file contents as string (PEM-encoding)
         // --------------------------------------------------------------
         NSMutableString *certificateString = [NSMutableString stringWithContentsOfURL:[self fileURL] encoding:NSUTF8StringEncoding error:nil];
-        if ( [certificateString length] != 0 ) {
-            
+        if ([certificateString length] != 0) {
+
             /*/////////////////////////////////////////////////////////////////////////////////
              /// FUTURE FUNCTIONALITY - CHECK IF FILE/STRING CONTAINS MULTIPLE CERTIFICATES ///
              ////////////////////////////////////////////////////////////////////////////////*/
-            
+
             // --------------------------------------------------------------
             //  Remove "begin" and "end" lines from certificate
             // --------------------------------------------------------------
             [certificateString setString:[certificateString stringByReplacingOccurrencesOfString:@"-----BEGIN CERTIFICATE-----" withString:@""]];
             [certificateString setString:[certificateString stringByReplacingOccurrencesOfString:@"-----END CERTIFICATE-----" withString:@""]];
-            
+
             // --------------------------------------------------------------
             //  Read in base64 string as certificate data
             // --------------------------------------------------------------
             _certificate = [[NSData alloc] initWithBase64EncodedString:certificateString options:NSDataBase64DecodingIgnoreUnknownCharacters];
         } else {
-            
+
             // --------------------------------------------------------------
             //  Read in file contents as certificate data (DER-encoding)
             // --------------------------------------------------------------

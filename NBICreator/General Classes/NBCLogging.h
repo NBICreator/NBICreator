@@ -21,5 +21,5 @@
 #define NBICreator_NBCLogging_h
 
 #import <CocoaLumberjack/CocoaLumberjack.h>
-    extern DDLogLevel ddLogLevel;
+extern DDLogLevel ddLogLevel;
 #endif
