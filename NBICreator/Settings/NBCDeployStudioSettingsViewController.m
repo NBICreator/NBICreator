@@ -32,6 +32,8 @@
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowModifyNBI.h"
 #import "NBCWorkflowResourcesController.h"
+#import "NSData+DSCrypto.h"
+#import "NSString+randomString.h"
 #import "Reachability.h"
 #include <arpa/inet.h>
 #include <ifaddrs.h>
@@ -1368,16 +1370,18 @@ DDLogLevel ddLogLevel;
 }
 
 - (void)encryptRuntimePasswordInUserSettings:(NSMutableDictionary *)userSettings {
-    NSString *encryptedPassword = [self encryptedRuntimePasswordForPassword:userSettings[NBCSettingsDeployStudioRuntimePasswordKey] ?: @""];
-    if ([encryptedPassword length] != 0) {
-        userSettings[NBCSettingsDeployStudioRuntimePasswordKey] = encryptedPassword;
+    DDLogInfo(@"Encrypting runtime password...");
+    NSData *encryptedPassword;
+    if ([_deployStudioVersion hasPrefix:@"1.6"]) {
+        encryptedPassword = [[userSettings[NBCSettingsDeployStudioRuntimePasswordKey] ?: @"" dataUsingEncoding:NSUTF8StringEncoding] nbc_encryptLegacyDSPassword];
+    } else {
+        encryptedPassword = [[userSettings[NBCSettingsDeployStudioRuntimePasswordKey] ?: @"" dataUsingEncoding:NSUTF8StringEncoding] nbc_encryptDSPassword];
     }
-}
 
-- (NSString *)encryptedRuntimePasswordForPassword:(NSString *)password {
-
-    NSTask *task = [[NSTask alloc] init];
-    openssl enc - des - cbc - in dscore_unencrypted.txt - out dscore_encrypted.txt - nosalt - nopad - K f137ec7cb5a49e4c - iv 0000000000000000
+    if (encryptedPassword) {
+        DDLogInfo(@"Updating password with encrypted version...");
+        userSettings[NBCSettingsDeployStudioRuntimePasswordKey] = [[NSString alloc] initWithData:encryptedPassword encoding:NSUTF8StringEncoding];
+    }
 }
 
 - (void)verifySettings:(NSDictionary *)preWorkflowTasks {
@@ -1413,11 +1417,11 @@ DDLogLevel ddLogLevel;
         // Add create usb device here as this settings only is avalable to this session
         userSettings[NBCSettingsCreateUSBDeviceKey] = @(_createUSBDevice);
         userSettings[NBCSettingsUSBBSDNameKey] = _usbDevicesDict[[_popUpButtonUSBDevices titleOfSelectedItem]] ?: @"";
-        /*
-                if ([userSettings[NBCSettingsDeployStudioRuntimePasswordKey] length] != 0) {
-                    [self encryptRuntimePasswordInSettings:userSettings];
-                }
-        */
+
+        if ([userSettings[NBCSettingsDeployStudioRuntimePasswordKey] length] != 0) {
+            [self encryptRuntimePasswordInUserSettings:userSettings];
+        }
+
         [workflowItem setUserSettings:[userSettings copy]];
         NBCSettingsController *sc = [[NBCSettingsController alloc] init];
 
