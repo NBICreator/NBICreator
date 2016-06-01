@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="9532" systemVersion="15D21" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="10116" systemVersion="15F34" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="9532"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="10116"/>
         <capability name="Aspect ratio constraints" minToolsVersion="5.1"/>
         <capability name="box content view" minToolsVersion="7.0"/>
     </dependencies>
@@ -1311,7 +1311,7 @@ asdasd</string>
                 <constraint firstItem="Jkr-W2-481" firstAttribute="leading" secondItem="wMx-9w-VcQ" secondAttribute="leading" id="ht3-MF-Uhi"/>
                 <constraint firstItem="Jkr-W2-481" firstAttribute="top" secondItem="bTS-LS-Vgg" secondAttribute="bottom" constant="12" id="p1T-6v-n85"/>
             </constraints>
-            <point key="canvasLocation" x="-1303" y="80"/>
+            <point key="canvasLocation" x="-1082" y="287.5"/>
         </customView>
         <viewController id="RDh-6Q-Ga8" userLabel="Popover Variables VC">
             <connections>

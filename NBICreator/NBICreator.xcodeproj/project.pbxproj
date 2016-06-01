@@ -11,6 +11,8 @@
 		5303EBBB1AF4268200F6120D /* NBCTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 5303EBBA1AF4268200F6120D /* NBCTarget.m */; };
 		5304B4AE1BA1E741007D7A9F /* ServerInformation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */; };
 		5305AF011C249CAB00DBECEE /* NBCResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = 5305AF001C249CAB00DBECEE /* NBCResolver.m */; };
+		530BB3401CECD2F4008D3B5D /* libcrypto.0.9.8.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 530BB33F1CECD2F4008D3B5D /* libcrypto.0.9.8.tbd */; };
+		530BB35D1CED962E008D3B5D /* NSData+DSCrypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 530BB35C1CED962E008D3B5D /* NSData+DSCrypto.m */; };
 		530BFF571B00F3160012D067 /* NBCWorkflowNBIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */; };
 		530E0C7B1B190C550025A9C3 /* NBCViewNoInternetConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 530E0C7A1B190C550025A9C3 /* NBCViewNoInternetConnection.m */; };
 		53116E521ADDAF7A00CF9378 /* NBCDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 53116E511ADDAF7A00CF9378 /* NBCDownloader.m */; };
@@ -19,6 +21,7 @@
 		53121EA11AD5C24A004515D6 /* NBCPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 53121E9F1AD5C24A004515D6 /* NBCPreferences.m */; };
 		53121EA21AD5C24A004515D6 /* NBCPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53121EA01AD5C24A004515D6 /* NBCPreferences.xib */; };
 		5318EF6E1B729B3400F818FC /* NBCCertificateTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5318EF6D1B729B3400F818FC /* NBCCertificateTableCellView.m */; };
+		531B2FEB1CFC4A0C0009590E /* NBICreatorDesktopViewer.app in Resources */ = {isa = PBXBuildFile; fileRef = 531B2FEA1CFC4A0C0009590E /* NBICreatorDesktopViewer.app */; };
 		531C23DF1C0453BA0041CB1A /* IconSnowLeopard.icns in Resources */ = {isa = PBXBuildFile; fileRef = 531C23DE1C0453BA0041CB1A /* IconSnowLeopard.icns */; };
 		531CED221C16CE57005C310B /* pbzx in Resources */ = {isa = PBXBuildFile; fileRef = 53C97F9F1B07DEEF00034B60 /* pbzx */; };
 		531E7F4F1B0A5D88001573E7 /* ImagrDefaults.plist in Resources */ = {isa = PBXBuildFile; fileRef = 531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */; };
@@ -64,7 +67,6 @@
 		53721AE31C010363000B46BF /* sharedLibraryDependencyChecker.bash in Copy Scripts */ = {isa = PBXBuildFile; fileRef = 530D983C1BAB4728007FA973 /* sharedLibraryDependencyChecker.bash */; };
 		537499521BF0F4C200A49787 /* DeployStudio.plist in Resources */ = {isa = PBXBuildFile; fileRef = 537499511BF0F4C200A49787 /* DeployStudio.plist */; };
 		5374C28E1BB2CDCE008C8679 /* IconCasperImaging.icns in Resources */ = {isa = PBXBuildFile; fileRef = 5374C28D1BB2CDCE008C8679 /* IconCasperImaging.icns */; };
-		5374C2991BB2E1BD008C8679 /* NBICreatorDesktopViewer.app in Resources */ = {isa = PBXBuildFile; fileRef = 5374C2981BB2E1BD008C8679 /* NBICreatorDesktopViewer.app */; };
 		5379C4031BE39AB500353E95 /* NBCWorkflowModifyNBI.m in Sources */ = {isa = PBXBuildFile; fileRef = 5379C4021BE39AB500353E95 /* NBCWorkflowModifyNBI.m */; };
 		537DB2E51BB66A7B00CBB36B /* NBCLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 537DB2E41BB66A7B00CBB36B /* NBCLog.m */; };
 		537FF2281B9B0CE200924E04 /* NSString+validIP.m in Sources */ = {isa = PBXBuildFile; fileRef = 537FF2271B9B0CE200924E04 /* NSString+validIP.m */; };
@@ -351,6 +353,9 @@
 		5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServerInformation.framework; path = /System/Library/PrivateFrameworks/ServerInformation.framework; sourceTree = "<absolute>"; };
 		5305AEFF1C249CAB00DBECEE /* NBCResolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCResolver.h; path = Networking/NBCResolver.h; sourceTree = "<group>"; };
 		5305AF001C249CAB00DBECEE /* NBCResolver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCResolver.m; path = Networking/NBCResolver.m; sourceTree = "<group>"; };
+		530BB33F1CECD2F4008D3B5D /* libcrypto.0.9.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcrypto.0.9.8.tbd; path = usr/lib/libcrypto.0.9.8.tbd; sourceTree = SDKROOT; };
+		530BB35B1CED962E008D3B5D /* NSData+DSCrypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+DSCrypto.h"; sourceTree = "<group>"; };
+		530BB35C1CED962E008D3B5D /* NSData+DSCrypto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+DSCrypto.m"; sourceTree = "<group>"; };
 		530BFF551B00F3160012D067 /* NBCWorkflowNBIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowNBIController.h; path = "Workflow NBI/NBCWorkflowNBIController.h"; sourceTree = "<group>"; };
 		530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowNBIController.m; path = "Workflow NBI/NBCWorkflowNBIController.m"; sourceTree = "<group>"; };
 		530D983C1BAB4728007FA973 /* sharedLibraryDependencyChecker.bash */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = sharedLibraryDependencyChecker.bash; path = "Supporting Files/Scripts/sharedLibraryDependencyChecker.bash"; sourceTree = "<group>"; };
@@ -369,6 +374,7 @@
 		5319A5291BFFD5EA002014EE /* SNTCertificate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SNTCertificate.m; path = Helper/SNTCertificate.m; sourceTree = SOURCE_ROOT; };
 		5319A52A1BFFD5EA002014EE /* SNTCodesignChecker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SNTCodesignChecker.h; path = Helper/SNTCodesignChecker.h; sourceTree = SOURCE_ROOT; };
 		5319A52B1BFFD5EA002014EE /* SNTCodesignChecker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SNTCodesignChecker.m; path = Helper/SNTCodesignChecker.m; sourceTree = SOURCE_ROOT; };
+		531B2FEA1CFC4A0C0009590E /* NBICreatorDesktopViewer.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = NBICreatorDesktopViewer.app; path = "Supporting Files/Applications/NBICreatorDesktopViewer.app"; sourceTree = "<group>"; };
 		531C23DE1C0453BA0041CB1A /* IconSnowLeopard.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconSnowLeopard.icns; sourceTree = "<group>"; };
 		531E7F4E1B0A5D88001573E7 /* ImagrDefaults.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; name = ImagrDefaults.plist; path = "Supporting Files/Property Lists/ImagrDefaults.plist"; sourceTree = "<group>"; };
 		532A678F1B18D98C007528AE /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -432,7 +438,6 @@
 		536E68281BB533C700B7E1A1 /* Main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Main.m; path = "Supporting Files/Libraries/ZipArchive/Main.m"; sourceTree = "<group>"; };
 		537499511BF0F4C200A49787 /* DeployStudio.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = DeployStudio.plist; path = "Supporting Files/Dependencies/DeployStudio.plist"; sourceTree = "<group>"; };
 		5374C28D1BB2CDCE008C8679 /* IconCasperImaging.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = IconCasperImaging.icns; sourceTree = "<group>"; };
-		5374C2981BB2E1BD008C8679 /* NBICreatorDesktopViewer.app */ = {isa = PBXFileReference; lastKnownFileType = wrapper.application; name = NBICreatorDesktopViewer.app; path = "Supporting Files/Applications/NBICreatorDesktopViewer.app"; sourceTree = "<group>"; };
 		5379C4011BE39AB500353E95 /* NBCWorkflowModifyNBI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowModifyNBI.h; path = "Workflow Modify/NBCWorkflowModifyNBI.h"; sourceTree = "<group>"; };
 		5379C4021BE39AB500353E95 /* NBCWorkflowModifyNBI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCWorkflowModifyNBI.m; path = "Workflow Modify/NBCWorkflowModifyNBI.m"; sourceTree = "<group>"; };
 		537DB2E31BB66A7B00CBB36B /* NBCLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCLog.h; path = "../General Classes/NBCLog.h"; sourceTree = "<group>"; };
@@ -594,6 +599,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				530BB3401CECD2F4008D3B5D /* libcrypto.0.9.8.tbd in Frameworks */,
 				534D7BD11BB6AAB2006DA88A /* libxml2.2.tbd in Frameworks */,
 				536E68121BB5242100B7E1A1 /* libz.tbd in Frameworks */,
 				5304B4AE1BA1E741007D7A9F /* ServerInformation.framework in Frameworks */,
@@ -611,6 +617,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		530BB3501CECD306008D3B5D /* libcrypto */ = {
+			isa = PBXGroup;
+			children = (
+				530BB33F1CECD2F4008D3B5D /* libcrypto.0.9.8.tbd */,
+			);
+			name = libcrypto;
+			sourceTree = "<group>";
+		};
 		531F1D191A99A43C00C8B6A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -889,7 +903,7 @@
 		53B2B26D1B83BEC70062F6A2 /* Applications */ = {
 			isa = PBXGroup;
 			children = (
-				5374C2981BB2E1BD008C8679 /* NBICreatorDesktopViewer.app */,
+				531B2FEA1CFC4A0C0009590E /* NBICreatorDesktopViewer.app */,
 			);
 			name = Applications;
 			sourceTree = "<group>";
@@ -897,6 +911,8 @@
 		53B91EE41AD9BDDC0056CFC0 /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				530BB35B1CED962E008D3B5D /* NSData+DSCrypto.h */,
+				530BB35C1CED962E008D3B5D /* NSData+DSCrypto.m */,
 				53DD632D1BCD9A1F005C460C /* NSString+SymlinksAndAliases.h */,
 				53DD632E1BCD9A1F005C460C /* NSString+SymlinksAndAliases.m */,
 				5337D0C01AD9BAE200DF7579 /* NSString+randomString.h */,
@@ -960,6 +976,7 @@
 		53CBA9621ADE552000385C89 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				530BB3501CECD306008D3B5D /* libcrypto */,
 				536E68011BB5230E00B7E1A1 /* ZipArchive */,
 				53CBA9641ADE554B00385C89 /* Hpple */,
 			);
@@ -1422,8 +1439,8 @@
 				5360B9EC1BC6203E0076811E /* IconElCapitan.icns in Resources */,
 				539DAEF31AF158150037F06B /* NBCImagrSettingsViewController.xib in Resources */,
 				53609D761B80F4D0007F874F /* NBCUpdater.xib in Resources */,
+				531B2FEB1CFC4A0C0009590E /* NBICreatorDesktopViewer.app in Resources */,
 				53FB3E971B975D3B00CCE413 /* NBCCasperSettingsViewController.xib in Resources */,
-				5374C2991BB2E1BD008C8679 /* NBICreatorDesktopViewer.app in Resources */,
 				53121EA21AD5C24A004515D6 /* NBCPreferences.xib in Resources */,
 				535A898B1AD3247A00DC08F4 /* IconMavericks.icns in Resources */,
 				53CBB1C61ACF253200B83089 /* NBCWorkflowPanelController.xib in Resources */,
@@ -1536,6 +1553,7 @@
 				5353A00B1BB534D400679A4F /* unzip.c in Sources */,
 				53CBB1C51ACF253200B83089 /* NBCWorkflowPanelController.m in Sources */,
 				53BC04021AD2660A0037DCBA /* NBCDiskArbitrationPrivateFunctions.m in Sources */,
+				530BB35D1CED962E008D3B5D /* NSData+DSCrypto.m in Sources */,
 				538D6BBF1BF3E77500E58468 /* NBCHelperConnection.m in Sources */,
 				53CBA96B1ADE556600385C89 /* TFHpple.m in Sources */,
 				533262901B794A9E00BA7EC9 /* NBCDesktopEntity.m in Sources */,
@@ -1679,7 +1697,7 @@
 		53968C251A8E7A3E0079AA95 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = NBICreator;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -1719,7 +1737,7 @@
 		53968C261A8E7A3E0079AA95 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = YES;
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = NBICreator;
 				CODE_SIGN_IDENTITY = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application: Erik Berglund (Y7QFC8672N)";

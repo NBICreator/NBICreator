@@ -896,7 +896,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)addCopyDesktopViewer:(NSError **)error {
 
-    DDLogInfo(@"Adding copy NBICreatorDesktopViewer.app...");
+    DDLogInfo(@"Adding NBICreatorDesktopViewer.app for copy...");
 
     NSURL *desktopViewerURL = [[NSBundle mainBundle] URLForResource:@"NBICreatorDesktopViewer" withExtension:@"app"];
     DDLogDebug(@"[DEBUG] NBICreatorDesktopViewer.app path: %@", [desktopViewerURL path]);
