@@ -241,6 +241,8 @@ extern NSString *const NBCSettingsCountry;
 //  Template Settings Imagr
 // --------------------------------------------------------------
 extern NSString *const NBCSettingsImagrVersion;
+extern NSString *const NBCSettingsImagrBackgroundImage;
+extern NSString *const NBCSettingsImagrBackgroundImageKey;
 extern NSString *const NBCSettingsImagrConfigurationURL;
 extern NSString *const NBCSettingsImagrReportingURL;
 extern NSString *const NBCSettingsImagrServerURLKey;

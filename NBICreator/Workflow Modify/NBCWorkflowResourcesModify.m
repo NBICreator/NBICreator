@@ -160,7 +160,7 @@ DDLogLevel ddLogLevel;
     // ----------------------------------------------------------------
     if ((!_isNBI && (_workflowType == kWorkflowTypeImagr)) ||
         (_isNBI && ([_settingsChanged[NBCSettingsImagrConfigurationURL] boolValue] || [_settingsChanged[NBCSettingsImagrReportingURL] boolValue] ||
-                    [_settingsChanged[NBCSettingsImagrSyslogServerURI] boolValue]))) {
+                    [_settingsChanged[NBCSettingsImagrSyslogServerURI] boolValue] || [_settingsChanged[NBCSettingsImagrBackgroundImage] boolValue]))) {
         [self modifyImagrPlist:modifyDictArray];
     }
 
@@ -935,6 +935,13 @@ DDLogLevel ddLogLevel;
     if ([configurationURL length] != 0) {
         DDLogDebug(@"[DEBUG] Setting Imagr configuration URL: %@", configurationURL);
         comGrahamgilbertImagrPlistDict[@"serverurl"] = configurationURL;
+    }
+
+    // Setting 'background_window'
+    NSString *backgroundImage = _userSettings[NBCSettingsImagrBackgroundImage];
+    if ([backgroundImage length] != 0) {
+        DDLogDebug(@"[DEBUG] Setting Imagr background image: %@", backgroundImage);
+        comGrahamgilbertImagrPlistDict[NBCSettingsImagrBackgroundImageKey] = [backgroundImage lowercaseString];
     }
 
     // Setting 'reporting'

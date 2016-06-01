@@ -252,6 +252,8 @@ NSString *const NBCCasperJSSCertificateURLPath = @"/CA/SCEP";
 //  Template Settings Imagr
 // --------------------------------------------------------------
 NSString *const NBCSettingsImagrVersion = @"ImagrVersion";
+NSString *const NBCSettingsImagrBackgroundImage = @"ImagrBackgroundImage";
+NSString *const NBCSettingsImagrBackgroundImageKey = @"background_window";
 NSString *const NBCSettingsImagrConfigurationURL = @"ImagrConfigurationURL";
 NSString *const NBCSettingsImagrReportingURL = @"ImagrReportingURL";
 NSString *const NBCSettingsImagrReportingURLKey = @"reporturl";

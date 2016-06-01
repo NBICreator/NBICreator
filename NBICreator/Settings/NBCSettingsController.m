@@ -946,7 +946,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *settingsWarnings = [[NSMutableArray alloc] init];
 
     NSDictionary *userSettings = [workflowItem userSettings];
-    NSString *casperJSSURLString = userSettings[NBCSettingsImagrReportingURL];
+    NSString *casperJSSURLString = userSettings[NBCSettingsCasperJSSURLKey];
     NSURL *casperJSSURL = [NSURL URLWithString:casperJSSURLString];
     if ([casperJSSURLString length] != 0) {
         if ([casperJSSURLString hasPrefix:@"http://"] || [casperJSSURLString hasPrefix:@"https://"]) {
@@ -1441,6 +1441,7 @@ DDLogLevel ddLogLevel;
         settingsDict[NBCSettingsImagrConfigurationURL] = imagrConfigurationURL ?: @"";
         settingsDict[NBCSettingsImagrSyslogServerURI] = nbiImagrConfigurationDict[NBCSettingsImagrSyslogServerURIKey] ?: @"";
         settingsDict[NBCSettingsImagrReportingURL] = nbiImagrConfigurationDict[NBCSettingsImagrReportingURLKey] ?: @"";
+        settingsDict[NBCSettingsImagrBackgroundImage] = [nbiImagrConfigurationDict[NBCSettingsImagrBackgroundImageKey] ?: @"" capitalizedString];
         if ([imagrConfigurationURL length] != 0) {
             [target setImagrConfigurationPlistURL:nbiImagrConfigurationDictURL];
         }
@@ -1480,6 +1481,7 @@ DDLogLevel ddLogLevel;
         settingsDict[NBCSettingsImagrConfigurationURL] = imagrConfigurationURL ?: @"";
         settingsDict[NBCSettingsImagrSyslogServerURI] = nbiImagrConfigurationDict[NBCSettingsImagrSyslogServerURIKey] ?: @"";
         settingsDict[NBCSettingsImagrReportingURL] = nbiImagrConfigurationDict[NBCSettingsImagrReportingURLKey] ?: @"";
+        settingsDict[NBCSettingsImagrBackgroundImage] = [nbiImagrConfigurationDict[NBCSettingsImagrBackgroundImageKey] ?: @"" capitalizedString];
         if ([imagrConfigurationURL length] != 0) {
             [target setImagrConfigurationPlistURL:nbiImagrConfigurationDictURL];
         }

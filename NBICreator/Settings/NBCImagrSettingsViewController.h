@@ -272,6 +272,7 @@
 @property NSString *imagrConfigurationURL;
 @property NSString *imagrReportingURL;
 @property NSString *imagrSyslogServerURI;
+@property NSString *imagrBackgroundImage;
 @property BOOL imagrUseLocalVersion;
 @property BOOL imagrUseGitBranch;
 @property NSString *imagrLocalVersionPath;
