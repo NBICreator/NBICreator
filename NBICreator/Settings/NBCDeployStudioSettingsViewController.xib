@@ -972,7 +972,7 @@ To enable remote login you have to define a VNC password or an ARD login.</strin
                                         <rect key="frame" x="18" y="270" width="498" height="34"/>
                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" id="sf0-rI-S13">
                                             <font key="font" metaFont="system"/>
-                                            <string key="title">You can defina a default login the DeployStudio Runtime will use to automatically log in to the Server. Leave empty to require login each boot.</string>
+                                            <string key="title">You can define a default login that the DeployStudio Runtime will use to automatically log in to the Server. Leave empty to require login each boot.</string>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                         </textFieldCell>
