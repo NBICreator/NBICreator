@@ -1369,6 +1369,7 @@ DDLogLevel ddLogLevel;
     NSMutableArray *additionalEssentials = [NSMutableArray arrayWithArray:@[
         @".*Console.app.*",
     ]];
+
     // Update extraction array
     [self addItemsToExtractFromAdditionalEssentials:additionalEssentials sourceItemsDict:sourceItemsDict];
 
@@ -1377,11 +1378,16 @@ DDLogLevel ddLogLevel;
     // ---------------------------------------------------------------------------------
     NSMutableArray *essentials = [NSMutableArray
         arrayWithArray:@[ @".*ShareKit.framework.*", @".*/Colors/System.clr.*", @".*ViewBridge.framework.*", @".*/Social.framework.*", @".*AccountsDaemon.framework.*", @".*CloudDocs.framework.*" ]];
+
     if (11 <= _sourceVersionMinor) {
         [essentials addObjectsFromArray:@[
             @".*AccountsUI.framework.*",         // For 'ShareKit'
             @".*ContactsPersistence.framework.*" // For 'AddressBook'
         ]];
+    }
+
+    if (12 <= _sourceVersionMinor) {
+        [essentials addObjectsFromArray:@[ @".*ConsoleKit.framework.*" ]];
     }
 
     // Update extraction array
@@ -1569,6 +1575,10 @@ DDLogLevel ddLogLevel;
     // ---------------------------------------------------------------------------------
     NSMutableArray *bsd = [NSMutableArray arrayWithArray:@[ @".*/[Pp]ython.*" ]];
 
+    if (12 <= _sourceVersionMinor) {
+        [bsd addObjectsFromArray:@[ @".*/usr/lib/libffi.dylib.*", @".*/usr/lib/libexpat.1.dylib.*" ]];
+    }
+
     // Update extraction array
     [self addItemsToExtractFromBSD:bsd sourceItemsDict:sourceItemsDict];
 } // addPython
@@ -1675,6 +1685,10 @@ DDLogLevel ddLogLevel;
 
     if (11 <= _sourceVersionMinor) {
         [essentials addObjectsFromArray:@[ @".*AVFoundation.framework.*", @".*APTransport.framework.*", @".*WirelessProximity.framework.*" ]];
+    }
+
+    if (12 <= _sourceVersionMinor) {
+        [essentials addObjectsFromArray:@[ @".*WirelessDiagnostics.framework.*", @".*libTelephonyUtilDynamic.dylib.*", @".*BatteryUIKit.framework.*" ]];
     }
 
     // Update extraction array

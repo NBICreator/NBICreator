@@ -1129,7 +1129,7 @@ DDLogLevel ddLogLevel;
             [rootItems enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
 #pragma unused(idx)
               NSString *itemName = [obj lastPathComponent];
-              if ([itemName hasPrefix:@"Install OS X"] && [itemName hasSuffix:@".app"]) {
+              if (([itemName hasPrefix:@"Install OS X"] || [itemName hasPrefix:@"Install macOS"]) && [itemName hasSuffix:@".app"]) {
                   isBaseSystem = YES;
                   *stop = YES;
                   ;

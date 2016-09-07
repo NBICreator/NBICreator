@@ -377,6 +377,8 @@ DDLogLevel ddLogLevel;
 
 - (void)disableLaunchDaemons:(NSArray *)launchDaemons modifyDictArray:(NSMutableArray *)modifyDictArray {
 
+    NSError *error = nil;
+
     // ------------------------------------------------------------------
     //  /System/Library/LaunchDaemons
     //  /System/Library/LaunchDaemonsDisabled
@@ -391,9 +393,13 @@ DDLogLevel ddLogLevel;
         launchDaemonURL = [launchDaemonsURL URLByAppendingPathComponent:launchDaemon];
         launchDaemonTargetURL = [launchDaemonsTargetURL URLByAppendingPathComponent:launchDaemon];
 
-        // Update modification array
-        [modifyDictArray
-            addObject:@{NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove, NBCWorkflowModifySourceURL : [launchDaemonURL path], NBCWorkflowModifyTargetURL : [launchDaemonTargetURL path]}];
+        if (![launchDaemonURL checkResourceIsReachableAndReturnError:&error]) {
+            DDLogDebug(@"[DEBUG] %@", error.localizedDescription);
+        } else {
+            // Update modification array
+            [modifyDictArray
+                addObject:@{NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove, NBCWorkflowModifySourceURL : [launchDaemonURL path], NBCWorkflowModifyTargetURL : [launchDaemonTargetURL path]}];
+        }
     }
 } // disableLaunchDaemons:modifyDictArray
 
@@ -482,7 +488,7 @@ DDLogLevel ddLogLevel;
         NSArray *itemsFiltered = [rootItems filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"pathExtension == 'app'"]];
         [itemsFiltered enumerateObjectsUsingBlock:^(id _Nonnull obj, NSUInteger __unused idx, BOOL *_Nonnull stop) {
           NSString *itemName = [obj lastPathComponent];
-          if ([itemName hasPrefix:@"Install OS X"] && [itemName hasSuffix:@".app"]) {
+          if (([itemName hasPrefix:@"Install OS X"] || [itemName hasPrefix:@"Install macOS"]) && [itemName hasSuffix:@".app"]) {
               installerPath = [obj lastPathComponent];
               DDLogDebug(@"[DEBUG] Installer path: %@", installerPath);
               *stop = YES;
@@ -1810,8 +1816,19 @@ DDLogLevel ddLogLevel;
         NSMutableString *rcInstallContentString = [[NSMutableString alloc] init];
         NSArray *rcInstallContentArray = [rcInstallContentStringOriginal componentsSeparatedByCharactersInSet:[NSCharacterSet newlineCharacterSet]];
         for (NSString *line in rcInstallContentArray) {
-            if ([line containsString:@"/System/Library/CoreServices/Installer\\ Progress.app"]) {
+            if ([line containsString:@"/System/Library/CoreServices/Installer\\ Progress.app"] || [line containsString:@"/System/Installation/CDIS/launchprogresswindow"]) {
                 [rcInstallContentString appendString:[NSString stringWithFormat:@"#%@\n", line]];
+            } else if (12 <= _sourceVersionMinor && [line containsString:@"/usr/bin/security unlock-keychain"]) {
+                [rcInstallContentString appendString:[NSString stringWithFormat:@"%@\n", line]];
+                [rcInstallContentString appendString:[NSString stringWithFormat:@"\n#\n"
+                                                                                @"# Source the system imaging extras files if present\n"
+                                                                                @"#\n"
+                                                                                @"if [ -x /etc/rc.imaging ]; then\n"
+                                                                                @"/etc/rc.imaging\n"
+                                                                                @"fi\n\n"
+                                                                                @"if [ -x /System/Installation/Packages/Extras/rc.imaging ]; then\n"
+                                                                                @"/System/Installation/Packages/Extras/rc.imaging\n"
+                                                                                @"fi\n"]];
             } else {
                 [rcInstallContentString appendString:[NSString stringWithFormat:@"%@\n", line]];
             }
