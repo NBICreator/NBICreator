@@ -114,6 +114,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     //  Initialize Properties
     // --------------------------------------------------------------
     [self setInstallerApplicationIdentifiers:@[
+        @"com.apple.InstallAssistant.OSX12Seed1",
         @"com.apple.InstallAssistant.ElCapitan",
         @"com.apple.InstallAssistant.OSX11Seed1",
         @"com.apple.InstallAssistant.Yosemite",
@@ -337,7 +338,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
             NSURL *systemVersionPlist = [volumeURL URLByAppendingPathComponent:@"/System/Library/CoreServices/SystemVersion.plist"];
             if ([systemVersionPlist checkResourceIsReachableAndReturnError:nil]) {
                 NSURL *diskImageURL = [NBCDiskImageController getDiskImageURLFromMountURL:volumeURL];
-                if (([[diskImageURL path] containsString:@"/Install OS X"] || [[diskImageURL path] containsString:@"/Install Mac OS X"]) && [[diskImageURL path] containsString:@".app/"]) {
+                if (([[diskImageURL path] containsString:@"/Install OS X"] || [[diskImageURL path] containsString:@"/Install Mac OS X"] || [[diskImageURL path] containsString:@"/Install macOS"]) &&
+                    [[diskImageURL path] containsString:@".app/"]) {
                     continue;
                 }
 
@@ -472,8 +474,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
         // -----------------------------------------------------------------
         //  If source os/build and baseSystem os/build mismatch, show error
         // -----------------------------------------------------------------
-        if (![[source systemOSVersion] hasPrefix:@"10.6"] &&
-            (![[source systemOSVersion] isEqualToString:[source baseSystemOSVersion]] || ![[source systemOSBuild] isEqualToString:[source baseSystemOSBuild]])) {
+        if (![[source systemOSVersion] hasPrefix:@"10.6"] && (![[source systemOSVersion] isEqualToString:[source baseSystemOSVersion]])) {
             [self updateSourceInfoRecoveryMismatch:source];
             [self showRecoveryVersionMismatch];
             return;
