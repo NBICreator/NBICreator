@@ -82,6 +82,7 @@ extern NSString *const NBCUserDefaultsCheckForUpdates;
 extern NSString *const NBCUserDefaultsUserNotificationsEnabled;
 extern NSString *const NBCUserDefaultsUserNotificationsSoundEnabled;
 extern NSString *const NBCUserDefaultsWorkflowTimerEnabled;
+extern NSString *const NBCUserDefaultsAllowBetaReleases;
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Menu Items

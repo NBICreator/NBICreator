@@ -83,6 +83,7 @@ NSString *const NBCUserDefaultsCheckForUpdates = @"CheckForUpdates";
 NSString *const NBCUserDefaultsUserNotificationsEnabled = @"UserNotificationsEnabled";
 NSString *const NBCUserDefaultsUserNotificationsSoundEnabled = @"UserNotificationsSoundEnabled";
 NSString *const NBCUserDefaultsWorkflowTimerEnabled = @"WorkflowTimerEnabled";
+NSString *const NBCUserDefaultsAllowBetaReleases = @"AllowBetaReleases";
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark Menu Items
