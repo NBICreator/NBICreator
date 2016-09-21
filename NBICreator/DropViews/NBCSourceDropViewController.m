@@ -114,9 +114,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
     //  Initialize Properties
     // --------------------------------------------------------------
     [self setInstallerApplicationIdentifiers:@[
-        @"com.apple.InstallAssistant.OSX12Seed1",
+        @"com.apple.InstallAssistant.Sierra",
         @"com.apple.InstallAssistant.ElCapitan",
-        @"com.apple.InstallAssistant.OSX11Seed1",
         @"com.apple.InstallAssistant.Yosemite",
         @"com.apple.InstallAssistant.Mavericks",
         @"com.apple.InstallAssistant.MountainLion",
