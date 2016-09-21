@@ -95,12 +95,15 @@ DDLogLevel ddLogLevel;
         //  Update NBI Icon
         // ---------------------------------------------------------------
         if (![self updateNBIIconForNBIAtURL:nbiURL workflowItem:workflowItem error:&error]) {
+            DDLogError(@"[ERROR] %@", error ?: [NBCError errorWithDescription:@"Updating NBI icon failed"]);
+            /* FAILING HERE SEEMS HARSH, JUST LOG AND MAYBE PUT A NOTICE UP
             [[NSNotificationCenter defaultCenter] postNotificationName:NBCNotificationWorkflowFailed
                                                                 object:self
                                                               userInfo:@{
                                                                   NBCUserInfoNSErrorKey : error ?: [NBCError errorWithDescription:@"Updating NBI icon failed"]
                                                               }];
             return;
+             */
         }
 
         // ---------------------------------------------------------------
@@ -136,6 +139,7 @@ DDLogLevel ddLogLevel;
 
 - (BOOL)updateNBIIconForNBIAtURL:(NSURL *)nbiURL workflowItem:(NBCWorkflowItem *)workflowItem error:(NSError **)error {
     NSImage *icon = [workflowItem nbiIcon];
+    DDLogDebug(@"[DEBUG] NBI Icon: %@", icon);
     if (icon) {
         return [[NSWorkspace sharedWorkspace] setIcon:icon forFile:[nbiURL path] options:0];
     } else {
