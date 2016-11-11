@@ -19,9 +19,7 @@
 
 #import "NBCConstants.h"
 #import "NBCDownloaderGitHub.h"
-#import "NBCLogging.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCDownloaderGitHub
 

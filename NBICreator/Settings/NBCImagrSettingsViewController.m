@@ -32,7 +32,6 @@
 #import "NBCImagrRAMDiskSizeCellView.h"
 #import "NBCImagrSettingsViewController.h"
 #import "NBCImagrTrustedNetBootServerCellView.h"
-#import "NBCLogging.h"
 #import "NBCOverlayViewController.h"
 #import "NBCPackageTableCellView.h"
 #import "NBCTableViewCells.h"
@@ -44,8 +43,7 @@
 #import "NSString+validIP.h"
 #import "Reachability.h"
 #import <Carbon/Carbon.h>
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @interface NBCImagrSettingsViewController () {
     Reachability *_internetReachableFoo;

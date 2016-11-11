@@ -25,11 +25,9 @@
 #import "NBCDiskArbitrator.h"
 #import "NBCDiskController.h"
 #import "NBCDiskImageController.h"
-#import "NBCLogging.h"
 #import "NBCSourceDropViewController.h"
 #import "NBCWorkflowItem.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -

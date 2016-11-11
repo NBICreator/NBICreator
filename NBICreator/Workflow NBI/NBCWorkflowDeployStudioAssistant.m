@@ -22,12 +22,10 @@
 #import "NBCHelperAuthorization.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCLogging.h"
 #import "NBCWorkflowDeployStudioAssistant.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowNBIController.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCWorkflowDeployStudioAssistant
 

@@ -19,9 +19,7 @@
 
 #import "NBCConstants.h"
 #import "NBCImageDropViewController.h"
-#import "NBCLogging.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -

@@ -27,7 +27,6 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCInstallerPackageController.h"
-#import "NBCLogging.h"
 #import "NBCNetInstallSettingsViewController.h"
 #import "NBCNetInstallTrustedNetBootServerCellView.h"
 #import "NBCOverlayViewController.h"
@@ -37,8 +36,7 @@
 #import "NBCVariables.h"
 #import "NBCWorkflowItem.h"
 #import "NSString+validIP.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCNetInstallSettingsViewController
 

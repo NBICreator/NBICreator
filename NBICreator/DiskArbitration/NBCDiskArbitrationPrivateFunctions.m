@@ -50,9 +50,10 @@ BOOL NBCDiskValidate(DADiskRef diskRef) {
     BOOL isOK = YES;
 
     // Reject if no BSDName
-    if (DADiskGetBSDName(diskRef) == NULL)
-        [NSException raise:NSInternalInconsistencyException format:@"Disk without BSDName"];
+    if (DADiskGetBSDName(diskRef) == NULL) {
+        //[NSException raise:NSInternalInconsistencyException format:@"Disk without BSDName"];
     //		return NO;
+    }
 
     CFDictionaryRef desc = DADiskCopyDescription(diskRef);
     // CFShow(desc);

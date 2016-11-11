@@ -21,10 +21,8 @@
 
 #import "NBCDiskImageController.h"
 #import "NBCError.h"
-#import "NBCLogging.h"
 #import <sys/sysctl.h>
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 NSString *const NBCSourceTypeInstallerApplication = @"InstallerApplication";
 NSString *const NBCSourceTypeInstallESDDiskImage = @"InstallESDDiskImage";

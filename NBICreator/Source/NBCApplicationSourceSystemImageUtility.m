@@ -19,7 +19,6 @@
 
 #import "NBCApplicationSourceSystemImageUtility.h"
 #import "NBCConstants.h"
-//#import "NBCLogging.h"
 #import "FileHash.h"
 #import "NBCError.h"
 

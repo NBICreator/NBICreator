@@ -11,7 +11,6 @@
 		5303EBBB1AF4268200F6120D /* NBCTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 5303EBBA1AF4268200F6120D /* NBCTarget.m */; };
 		5304B4AE1BA1E741007D7A9F /* ServerInformation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */; };
 		5305AF011C249CAB00DBECEE /* NBCResolver.m in Sources */ = {isa = PBXBuildFile; fileRef = 5305AF001C249CAB00DBECEE /* NBCResolver.m */; };
-		530BB3401CECD2F4008D3B5D /* libcrypto.0.9.8.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 530BB33F1CECD2F4008D3B5D /* libcrypto.0.9.8.tbd */; };
 		530BB35D1CED962E008D3B5D /* NSData+DSCrypto.m in Sources */ = {isa = PBXBuildFile; fileRef = 530BB35C1CED962E008D3B5D /* NSData+DSCrypto.m */; };
 		530BFF571B00F3160012D067 /* NBCWorkflowNBIController.m in Sources */ = {isa = PBXBuildFile; fileRef = 530BFF561B00F3160012D067 /* NBCWorkflowNBIController.m */; };
 		530E0C7B1B190C550025A9C3 /* NBCViewNoInternetConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 530E0C7A1B190C550025A9C3 /* NBCViewNoInternetConnection.m */; };
@@ -353,7 +352,6 @@
 		5304B4AD1BA1E741007D7A9F /* ServerInformation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ServerInformation.framework; path = /System/Library/PrivateFrameworks/ServerInformation.framework; sourceTree = "<absolute>"; };
 		5305AEFF1C249CAB00DBECEE /* NBCResolver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCResolver.h; path = Networking/NBCResolver.h; sourceTree = "<group>"; };
 		5305AF001C249CAB00DBECEE /* NBCResolver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBCResolver.m; path = Networking/NBCResolver.m; sourceTree = "<group>"; };
-		530BB33F1CECD2F4008D3B5D /* libcrypto.0.9.8.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcrypto.0.9.8.tbd; path = usr/lib/libcrypto.0.9.8.tbd; sourceTree = SDKROOT; };
 		530BB35B1CED962E008D3B5D /* NSData+DSCrypto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+DSCrypto.h"; sourceTree = "<group>"; };
 		530BB35C1CED962E008D3B5D /* NSData+DSCrypto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+DSCrypto.m"; sourceTree = "<group>"; };
 		530BFF551B00F3160012D067 /* NBCWorkflowNBIController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCWorkflowNBIController.h; path = "Workflow NBI/NBCWorkflowNBIController.h"; sourceTree = "<group>"; };
@@ -575,7 +573,6 @@
 		53EFC5131A9DF304005A68E6 /* NBCDiskImageController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCDiskImageController.m; path = ../DiskArbitration/NBCDiskImageController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53EFC5161A9E00E1005A68E6 /* NBCSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = NBCSource.h; path = Source/NBCSource.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		53EFC5171A9E00E1005A68E6 /* NBCSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCSource.m; path = Source/NBCSource.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		53F229EF1B683E8600CC0B09 /* NBCLogging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCLogging.h; path = "../General Classes/NBCLogging.h"; sourceTree = "<group>"; };
 		53F33A861B08C3D50022C68F /* NBCAlerts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBCAlerts.h; path = "../General Classes/NBCAlerts.h"; sourceTree = "<group>"; };
 		53F33A871B08C3D50022C68F /* NBCAlerts.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; name = NBCAlerts.m; path = "../General Classes/NBCAlerts.m"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		53F3B2841B7D1A54005BEAD3 /* IconCertPersonal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = IconCertPersonal.png; sourceTree = "<group>"; };
@@ -599,7 +596,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				530BB3401CECD2F4008D3B5D /* libcrypto.0.9.8.tbd in Frameworks */,
 				534D7BD11BB6AAB2006DA88A /* libxml2.2.tbd in Frameworks */,
 				536E68121BB5242100B7E1A1 /* libz.tbd in Frameworks */,
 				5304B4AE1BA1E741007D7A9F /* ServerInformation.framework in Frameworks */,
@@ -620,7 +616,6 @@
 		530BB3501CECD306008D3B5D /* libcrypto */ = {
 			isa = PBXGroup;
 			children = (
-				530BB33F1CECD2F4008D3B5D /* libcrypto.0.9.8.tbd */,
 			);
 			name = libcrypto;
 			sourceTree = "<group>";
@@ -858,7 +853,6 @@
 				53931B9C1AED511B0076C1CC /* NBCVariables.m */,
 				53F33A861B08C3D50022C68F /* NBCAlerts.h */,
 				53F33A871B08C3D50022C68F /* NBCAlerts.m */,
-				53F229EF1B683E8600CC0B09 /* NBCLogging.h */,
 				53AFED871BD95EFE00601525 /* NBCError.h */,
 				53AFED881BD95EFE00601525 /* NBCError.m */,
 				537DB2E31BB66A7B00CBB36B /* NBCLog.h */,
@@ -1240,14 +1234,16 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = NBC;
-				LastUpgradeCheck = 0640;
+				LastUpgradeCheck = 0810;
 				ORGANIZATIONNAME = NBICreator;
 				TargetAttributes = {
 					53968C061A8E7A3E0079AA95 = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = Y7QFC8672N;
 					};
 					53968C2D1A8E7B8C0079AA95 = {
 						CreatedOnToolsVersion = 6.1.1;
+						DevelopmentTeam = Y7QFC8672N;
 					};
 					53E2A49F1C02439200B31717 = {
 						CreatedOnToolsVersion = 7.1.1;
@@ -1629,8 +1625,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
@@ -1639,6 +1637,7 @@
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -1671,8 +1670,10 @@
 				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
@@ -1681,6 +1682,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = NDEBUG;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -1702,6 +1704,7 @@
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = Y7QFC8672N;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
@@ -1742,6 +1745,7 @@
 				CODE_SIGN_IDENTITY = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = Y7QFC8672N;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SYSTEM_LIBRARY_DIR)/PrivateFrameworks",
@@ -1779,6 +1783,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				DEVELOPMENT_TEAM = Y7QFC8672N;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -1805,6 +1810,7 @@
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
+				DEVELOPMENT_TEAM = Y7QFC8672N;
 				INFOPLIST_FILE = "\"$(SRCROOT)/Helper/Supporting Files/NBICreatorHelper-Info.plist\"";
 				OTHER_LDFLAGS = (
 					"-sectcreate",

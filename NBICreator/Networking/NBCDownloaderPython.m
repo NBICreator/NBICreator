@@ -18,11 +18,8 @@
 //  limitations under the License.
 
 #import "NBCDownloaderPython.h"
-
-#import "NBCLogging.h"
 #import "TFHpple.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCDownloaderPython
 

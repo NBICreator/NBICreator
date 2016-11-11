@@ -22,10 +22,8 @@
 
 #import "NBCApplicationSourceDeployStudio.h"
 #import "NBCApplicationSourceSystemImageUtility.h"
-#import "NBCLogging.h"
 #import "NBCSource.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCVariables
 

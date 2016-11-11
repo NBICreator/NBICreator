@@ -20,11 +20,9 @@
 #import "NBCAlerts.h"
 #import "NBCConstants.h"
 #import "NBCController.h"
-#import "NBCLogging.h"
 #import "NBCWorkflowItem.h"
 #import <Cocoa/Cocoa.h>
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCAlerts
 
@@ -38,7 +36,7 @@ DDLogLevel ddLogLevel;
 
 + (void)showAlertError:(NSError *)error {
     NSAlert *alert = [NSAlert alertWithError:error];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
 
@@ -51,7 +49,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:title ?: @""];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSInformationalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
 
@@ -64,7 +62,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:title ?: @"Error"];
     [alert setInformativeText:informativeText ?: @"Unknown Error"];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
 
@@ -77,7 +75,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Nothing to update"];
     [alert setInformativeText:[NSString stringWithFormat:@"You have not made any changes to the NBI."]];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
 
@@ -91,7 +89,7 @@ DDLogLevel ddLogLevel;
     [alert setInformativeText:
                @"System version and it's Recovery HD must be of the same OS build and version to create a correct DeployStudio NBI. Consider using a Disk Image created from AutoDMG as source."];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
 
@@ -105,7 +103,7 @@ DDLogLevel ddLogLevel;
     [alert setInformativeText:@"NBICreator have insufficient permissions to modify the selected NBI.\n\n"
                               @"Please move the NBI to a directory where NBICreator have write permissions and/or update the permissions on the NBI folder."];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
 
@@ -120,7 +118,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Feature Not Implemented Yet"];
     [alert setInformativeText:informativeText];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
 
@@ -133,7 +131,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Invalid Imagr Application"];
     [alert setInformativeText:[NSString stringWithFormat:@"You need to set the path to a local Imagr.app application."]];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
                   }];
@@ -145,7 +143,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Invalid Casper Imaging Application"];
     [alert setInformativeText:[NSString stringWithFormat:@"You need to set the path to a local Casper Imaging.app application."]];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
                   }];
@@ -170,7 +168,7 @@ DDLogLevel ddLogLevel;
     [alert setInformativeText:errorMessage ?: @"Unknown Error"];
     [alert setInformativeText:[NSString stringWithFormat:@"%@\n\n%@", errorMessage, informativeText]]; // Testing to only show error message
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
                   }];
@@ -183,7 +181,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Configuration Error"];
     [alert setInformativeText:text];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
                   }];
@@ -195,7 +193,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Template already exist!"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
                   }];
@@ -209,7 +207,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Configuration Warning"];
     [alert setInformativeText:text];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode) {
                     [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
                   }];
@@ -230,7 +228,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Incorrect Package Type"];
     [alert setInformativeText:text];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode) {
                     [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
                   }];
@@ -248,7 +246,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Package Already Added"];
     [alert setInformativeText:text];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode){
 #pragma unused(returnCode)
                   }];
@@ -262,7 +260,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Unsaved Settings!"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode) {
                     [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
                   }];
@@ -276,7 +274,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Unsaved Settings!"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode) {
                     [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
                   }];
@@ -290,7 +288,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Unsaved Settings"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode) {
                     [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
                   }];
@@ -303,7 +301,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Unsaved Settings"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode) {
                     [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
                   }];
@@ -316,7 +314,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:@"Workflow Running!"];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode) {
                     [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
                   }];
@@ -329,7 +327,7 @@ DDLogLevel ddLogLevel;
     [alert setMessageText:[NSString stringWithFormat:@"Delete %@?", templateName]];
     [alert setInformativeText:informativeText ?: @""];
     [alert setAlertStyle:NSCriticalAlertStyle];
-    [alert beginSheetModalForWindow:[[NSApp delegate] window]
+    [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                   completionHandler:^(NSInteger returnCode) {
                     [self->_delegate alertReturnCode:returnCode alertInfo:alertInfo];
                   }];

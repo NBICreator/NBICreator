@@ -22,9 +22,8 @@
 
 #import "NBCConstants.h"
 #import "NBCError.h"
-#import "NBCLogging.h"
 #import "NBCVariables.h"
-
+#import "NBCLog.h"
 #import "NBCDiskArbitrationPrivateFunctions.h"
 #import "NBCDiskImageController.h"
 #import "NBCHelperAuthorization.h"
@@ -32,8 +31,7 @@
 #import "NBCHelperProtocol.h"
 #import "NBCWorkflowResourcesModify.h"
 #import "ServerInformationComputerModelInfo.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCWorkflowModifyNBI
 

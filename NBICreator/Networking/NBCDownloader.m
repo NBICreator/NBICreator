@@ -18,9 +18,7 @@
 //  limitations under the License.
 
 #import "NBCDownloader.h"
-#import "NBCLogging.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCDownloader
 

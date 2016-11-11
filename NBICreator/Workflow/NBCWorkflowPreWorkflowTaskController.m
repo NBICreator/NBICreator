@@ -21,7 +21,7 @@
 #import "NBCError.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCLogging.h"
+#import "NBCLog.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowPreWorkflowTaskController.h"
 #import "NBCWorkflowResourcesController.h"

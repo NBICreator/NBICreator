@@ -14,7 +14,7 @@
 #import "NBCHelperAuthorization.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCLogging.h"
+#import "NBCLog.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowPostWorkflowTaskController.h"
 #import "NBCWorkflowResources.h"

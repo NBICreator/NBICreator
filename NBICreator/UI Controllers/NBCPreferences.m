@@ -21,14 +21,12 @@
 #import "NBCController.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCLogging.h"
 #import "NBCPreferences.h"
 #import "NBCUpdater.h"
 #import "NBCWorkflowManager.h"
 #import "NBCWorkflowProgressDelegate.h"
 #import "NBCWorkflowResourcesController.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @interface NBCPreferences ()
 

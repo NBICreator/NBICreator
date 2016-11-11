@@ -23,7 +23,6 @@
 #import "NBCError.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCLogging.h"
 #import "NBCVariables.h"
 #import "NBCWorkflowDeployStudioAssistant.h"
 #import "NBCWorkflowManager.h"
@@ -33,8 +32,7 @@
 #import "NBCWorkflowSystemImageUtility.h"
 #import "NBCWorkflowUpdateNBI.h"
 #import "NSString+randomString.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCWorkflowManager
 

@@ -19,7 +19,7 @@
 
 #import "Main.h"
 #import "NBCConstants.h"
-#import "NBCLogging.h"
+#import "NBCLog.h"
 #import "NBCUpdater.h"
 #import "NSString+randomString.h"
 

@@ -21,11 +21,9 @@
 #import "NBCConstants.h"
 #import "NBCDeployStudioSettingsViewController.h"
 #import "NBCImagrSettingsViewController.h"
-#import "NBCLogging.h"
 #import "NBCNetInstallSettingsViewController.h"
 #import "NBCOptionBuildPanel.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @interface NBCOptionBuildPanel ()
 

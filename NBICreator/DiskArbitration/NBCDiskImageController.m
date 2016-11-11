@@ -26,13 +26,11 @@
 #import "NBCController.h"
 #import "NBCDiskController.h"
 #import "NBCError.h"
-#import "NBCLogging.h"
 #import "NBCSource.h"
 #import "NSString+SymlinksAndAliases.h"
 #import "NSString+randomString.h"
 #import <DiskArbitration/DiskArbitration.h>
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCDiskImageController
 

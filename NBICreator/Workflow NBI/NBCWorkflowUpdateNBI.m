@@ -20,7 +20,7 @@
 #import "NBCConstants.h"
 #import "NBCDiskImageController.h"
 #import "NBCError.h"
-#import "NBCLogging.h"
+#import "NBCLog.h"
 #import "NBCTarget.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowResources.h"

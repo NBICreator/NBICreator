@@ -19,9 +19,7 @@
 
 #import "NBCConstants.h"
 #import "NBCCustomSettingsViewController.h"
-#import "NBCLogging.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @interface NBCCustomSettingsViewController ()
 

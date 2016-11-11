@@ -30,7 +30,6 @@
 #import "NBCHelperAuthorization.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCLogging.h"
 #import "NBCOverlayViewController.h"
 #import "NBCPackageTableCellView.h"
 #import "NBCSettingsController.h"
@@ -41,8 +40,7 @@
 #import "Reachability.h"
 #import "TFHpple.h"
 #import <Carbon/Carbon.h>
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @interface NBCCasperSettingsViewController () {
     Reachability *_internetReachableFoo;

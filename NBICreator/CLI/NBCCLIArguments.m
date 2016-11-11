@@ -19,10 +19,8 @@
 
 #import "NBCCLIArguments.h"
 #import "NBCConstants.h"
-#import "NBCLogging.h"
 #import "NBCWorkflowItem.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCCLIArguments
 

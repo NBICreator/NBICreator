@@ -20,11 +20,8 @@
 #import "NBCConstants.h"
 #import "NBCError.h"
 #import "NBCLog.h"
-#import "NBCLogging.h"
 #import "NBCWorkflowManager.h"
 #import "NBCWorkflowProgressViewController.h"
-
-DDLogLevel ddLogLevel;
 
 @interface NBCWorkflowProgressViewController ()
 

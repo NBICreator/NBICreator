@@ -24,7 +24,6 @@
 #import "NBCHelperAuthorization.h"
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
-#import "NBCLogging.h"
 #import "NBCOverlayViewController.h"
 #import "NBCSettingsController.h"
 #import "NBCTableViewCells.h"
@@ -37,8 +36,7 @@
 #import "Reachability.h"
 #include <arpa/inet.h>
 #include <ifaddrs.h>
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @interface NBCDeployStudioSettingsViewController () {
     Reachability *_internetReachableFoo;

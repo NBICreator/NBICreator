@@ -23,11 +23,9 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCInstallerPackageController.h"
-#import "NBCLogging.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowResourcesController.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCInstallerPackageController
 

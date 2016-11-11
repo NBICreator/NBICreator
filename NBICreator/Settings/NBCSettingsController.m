@@ -25,7 +25,6 @@
 #import "NBCHelperConnection.h"
 #import "NBCHelperProtocol.h"
 #import "NBCImagrSettingsViewController.h"
-#import "NBCLogging.h"
 #import "NBCSettingsController.h"
 #import "NBCSource.h"
 #import "NBCTarget.h"
@@ -34,8 +33,7 @@
 #import "NBCWorkflowManager.h"
 #import "NSString+SymlinksAndAliases.h"
 #import "NSString+validIP.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCSettingsController
 

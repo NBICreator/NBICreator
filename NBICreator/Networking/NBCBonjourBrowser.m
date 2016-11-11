@@ -19,9 +19,7 @@
 
 #import "NBCBonjourBrowser.h"
 #import "NBCConstants.h"
-#import "NBCLogging.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCBonjourBrowser
 

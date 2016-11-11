@@ -19,14 +19,12 @@
 
 #import "NBCConstants.h"
 #import "NBCError.h"
-#import "NBCLogging.h"
 #import "NBCSource.h"
 #import "NBCTarget.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowResources.h"
 #import "NBCWorkflowResourcesController.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCWorkflowResources
 

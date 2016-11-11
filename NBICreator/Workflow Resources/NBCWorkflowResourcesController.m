@@ -19,12 +19,10 @@
 
 #import "NBCConstants.h"
 #import "NBCDiskImageController.h"
-#import "NBCLogging.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowResourcesController.h"
 #import "NSString+randomString.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCWorkflowResourcesController
 

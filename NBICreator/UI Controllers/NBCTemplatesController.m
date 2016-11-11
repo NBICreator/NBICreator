@@ -19,11 +19,10 @@
 
 #import "NBCConstants.h"
 #import "NBCTemplatesController.h"
+#import "NBCController.h"
 
 #import "NBCImagrSettingsViewController.h"
-#import "NBCLogging.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 enum { kTemplateSelectionNew = 100, kTemplateSelectionSave, kTemplateSelectionSaveAs, kTemplateSelectionExport, kTemplateSelectionRename, kTemplateSelectionDelete, kTemplateSelectionShowInFinder };
 
@@ -711,7 +710,7 @@ enum { kTemplateSelectionNew = 100, kTemplateSelectionSave, kTemplateSelectionSa
         [panel setTitle:@"Export Template"];
         [panel setPrompt:@"Export"];
         [panel setNameFieldStringValue:[NSString stringWithFormat:@"%@", templateName]];
-        [panel beginSheetModalForWindow:[[NSApp delegate] window]
+        [panel beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                       completionHandler:^(NSInteger result) {
                         if (result == NSFileHandlingPanelOKButton) {
                             NSURL *saveURL = [panel URL];

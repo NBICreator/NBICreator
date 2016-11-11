@@ -19,7 +19,7 @@
 
 #import "NBCConstants.h"
 #import "NBCError.h"
-#import "NBCLogging.h"
+#import "NBCLog.h"
 #import "NBCWorkflowItem.h"
 #import "NBCWorkflowNBICreator.h"
 

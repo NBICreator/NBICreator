@@ -18,12 +18,10 @@
 //  limitations under the License.
 
 #import "NBCConstants.h"
-#import "NBCLogging.h"
 #import "NBCVariables.h"
 #import "NBCWorkflowNBIController.h"
 #import <SystemConfiguration/SystemConfiguration.h>
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCWorkflowNBIController
 

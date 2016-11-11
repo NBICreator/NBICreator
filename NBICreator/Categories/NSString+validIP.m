@@ -5,12 +5,10 @@
 //  Taken from http://stackoverflow.com/a/10971521/4596429
 //
 
-#import "NBCLogging.h"
 #import "NBCResolver.h"
 #import "NSString+validIP.h"
 #include <arpa/inet.h>
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NSString (NBCvalidIP)
 

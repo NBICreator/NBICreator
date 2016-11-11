@@ -18,13 +18,10 @@
 //  limitations under the License.
 
 #import <Foundation/Foundation.h>
-
-#ifndef NBICreator_NBCLogging_h
-#define NBICreator_NBCLogging_h
-
 #import <CocoaLumberjack/CocoaLumberjack.h>
+
+#pragma once
 extern DDLogLevel ddLogLevel;
-#endif
 
 @interface NBCLog : NSObject
 

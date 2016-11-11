@@ -19,10 +19,8 @@
 
 #import "NBCConstants.h"
 #import "NBCDownloaderDeployStudio.h"
-#import "NBCLogging.h"
 #import "TFHpple.h"
-
-DDLogLevel ddLogLevel;
+#import "NBCLog.h"
 
 @implementation NBCDownloaderDeployStudio
 

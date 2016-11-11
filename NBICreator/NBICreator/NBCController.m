@@ -58,8 +58,6 @@
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-DDLogLevel ddLogLevel;
-
 // --------------------------------------------------------------
 //  Enum corresponding to segmented control position
 // --------------------------------------------------------------
@@ -365,7 +363,7 @@ enum { kSegmentedControlNetInstall = 0, kSegmentedControlDeployStudio, kSegmente
             [alert setMessageText:importTitle];
             [alert setInformativeText:importMessage];
             [alert setAlertStyle:NSInformationalAlertStyle];
-            [alert beginSheetModalForWindow:[[NSApp delegate] window]
+            [alert beginSheetModalForWindow:[(NBCController *)[[NSApplication sharedApplication] delegate] window]
                           completionHandler:^(NSInteger returnCode) {
                             if (returnCode == NSAlertFirstButtonReturn) {
                                 if (self->_currentSettingsController) {
@@ -1125,7 +1123,7 @@ enum { kSegmentedControlNetInstall = 0, kSegmentedControlDeployStudio, kSegmente
             return;
         }
 
-        [[[NSApp delegate] window] beginSheet:[_optionBuildPanel window]
+        [[(NBCController *)[[NSApplication sharedApplication] delegate] window] beginSheet:[_optionBuildPanel window]
                             completionHandler:^(NSModalResponse returnCode) {
                               if (returnCode == NSModalResponseCancel) {
                                   DDLogInfo(@"[DEBUG] Workflow canceled!");
