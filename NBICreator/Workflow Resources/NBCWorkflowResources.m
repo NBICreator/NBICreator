@@ -86,6 +86,9 @@
     [self setSourceVersionMinor:(int)[[_source expandVariables:@"%OSMINOR%"] integerValue]];
     DDLogDebug(@"[DEBUG] Source os version (minor): %d", _sourceVersionMinor);
 
+    [self setSourceVersionPatch:(int)[[_source expandVariables:@"%OSPATCH%"] integerValue]];
+    DDLogDebug(@"[DEBUG] Source os version (patch): %d", _sourceVersionMinor);
+    
     NSString *sourceOSBuild = [[_workflowItem source] sourceBuild];
     if ([sourceOSBuild length] != 0) {
         [self setSourceOSBuild:sourceOSBuild];
@@ -1386,6 +1389,23 @@
 
     if (12 <= _sourceVersionMinor) {
         [essentials addObjectsFromArray:@[ @".*ConsoleKit.framework.*" ]];
+        [essentials addObjectsFromArray:@[ @".*LoggingSupport.framework.*" ]];
+        [essentials addObjectsFromArray:@[ @".*usr/bin/log" ]];
+        
+        // This is for Quartz.framework, unsure if all are really needed:
+        //[essentials addObjectsFromArray:@[ @".*/Quartz.framework.*" ]];
+        
+        //[essentials addObjectsFromArray:@[ @".*/CoreAVCHD.framework/Versions/A/CoreAVCHD.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/CoreWiFi.framework/Versions/A/CoreWiFi.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/FaceCore.framework/Versions/A/FaceCore.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/GPUCompiler.framework/libmetal_timestamp.dylib.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/IntlPreferences.framework/Versions/A/IntlPreferences.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/Mangrove.framework/Versions/A/Mangrove.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/MetalPerformanceShaders.framework/Versions/A/MetalPerformanceShaders.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/MobileKeyBag.framework/Versions/A/MobileKeyBag.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/QuickLookThumbnailing.framework/Versions/A/QuickLookThumbnailing.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/SpeechRecognitionCore.framework/Versions/A/SpeechRecognitionCore.*" ]];
+        //[essentials addObjectsFromArray:@[ @".*/libOpenScriptingUtil.dylib.*" ]];
     }
 
     // Update extraction array
@@ -1687,6 +1707,10 @@
 
     if (12 <= _sourceVersionMinor) {
         [essentials addObjectsFromArray:@[ @".*WirelessDiagnostics.framework.*", @".*libTelephonyUtilDynamic.dylib.*", @".*BatteryUIKit.framework.*" ]];
+        
+        if (1 <= _sourceVersionPatch) {
+            [essentials addObjectsFromArray:@[ @".*ImageKit.framework.*", @".*PDFKit.framework.*", @".*QuicklookUI.framework.*" ]];
+        }
     }
 
     // Update extraction array

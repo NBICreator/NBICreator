@@ -39,6 +39,7 @@
 @property NBCSource *source;
 @property NBCWorkflowItem *workflowItem;
 @property int sourceVersionMinor;
+@property int sourceVersionPatch;
 @property int workflowType;
 @property BOOL isNBI;
 
