@@ -1392,20 +1392,18 @@
         [essentials addObjectsFromArray:@[ @".*LoggingSupport.framework.*" ]];
         [essentials addObjectsFromArray:@[ @".*usr/bin/log" ]];
         
-        // This is for Quartz.framework, unsure if all are really needed:
-        //[essentials addObjectsFromArray:@[ @".*/Quartz.framework.*" ]];
-        
-        //[essentials addObjectsFromArray:@[ @".*/CoreAVCHD.framework/Versions/A/CoreAVCHD.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/CoreWiFi.framework/Versions/A/CoreWiFi.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/FaceCore.framework/Versions/A/FaceCore.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/GPUCompiler.framework/libmetal_timestamp.dylib.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/IntlPreferences.framework/Versions/A/IntlPreferences.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/Mangrove.framework/Versions/A/Mangrove.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/MetalPerformanceShaders.framework/Versions/A/MetalPerformanceShaders.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/MobileKeyBag.framework/Versions/A/MobileKeyBag.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/QuickLookThumbnailing.framework/Versions/A/QuickLookThumbnailing.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/SpeechRecognitionCore.framework/Versions/A/SpeechRecognitionCore.*" ]];
-        //[essentials addObjectsFromArray:@[ @".*/libOpenScriptingUtil.dylib.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/Quartz.framework.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/CoreAVCHD.framework/Versions/A/CoreAVCHD.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/CoreWiFi.framework/Versions/A/CoreWiFi.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/FaceCore.framework/Versions/A/FaceCore.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/GPUCompiler.framework/libmetal_timestamp.dylib.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/IntlPreferences.framework/Versions/A/IntlPreferences.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/Mangrove.framework/Versions/A/Mangrove.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/MetalPerformanceShaders.framework/Versions/A/MetalPerformanceShaders.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/MobileKeyBag.framework/Versions/A/MobileKeyBag.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/QuickLookThumbnailing.framework/Versions/A/QuickLookThumbnailing.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/SpeechRecognitionCore.framework/Versions/A/SpeechRecognitionCore.*" ]];
+        [essentials addObjectsFromArray:@[ @".*/libOpenScriptingUtil.dylib.*" ]];
     }
 
     // Update extraction array
