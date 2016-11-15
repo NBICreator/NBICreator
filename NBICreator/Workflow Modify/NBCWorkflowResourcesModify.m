@@ -1719,11 +1719,23 @@
                                                             "\t/usr/local/scripts/installCertificates.bash\n"
                                                             "fi\n"]];
     }
-
+    
     // ------------------------------------------------------------------
     //  Console
     // ------------------------------------------------------------------
     if ([_userSettings[NBCSettingsIncludeConsoleAppKey] boolValue] && [_userSettings[NBCSettingsLaunchConsoleAppKey] boolValue]) {
+        
+        // ---------------------------------------------------------------------
+        //  Show private data (10.12+)
+        // ---------------------------------------------------------------------
+        if (12 <= _sourceVersionMinor) {
+            [rcImaging appendString:[NSString stringWithFormat:@"\n"
+                                     "###\n"
+                                     "### Show Privata Data in Log\n"
+                                     "###\n"
+                                     "log config --mode \"private_data:on\"\n"]];
+        }        
+        
         [rcImaging appendString:[NSString stringWithFormat:@"\n"
                                                             "###\n"
                                                             "### Start Console\n"
