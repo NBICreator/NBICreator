@@ -1463,7 +1463,7 @@
             DDLogDebug(@"[DEBUG] Recovery partition volume path: %@", [systemVolumeURL path]);
 
         } else {
-            recoveryVolumeURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/Volumes/dmg.%@", [NSString nbc_randomString]]];
+            recoveryVolumeURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/tmp/dmg.%@", [NSString nbc_randomString]]];
 
             NSArray *diskutilOptions = @[
                 @"rdonly",
