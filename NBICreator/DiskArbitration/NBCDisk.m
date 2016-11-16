@@ -150,8 +150,8 @@
 }
 
 - (void)unmountWithOptions:(NSUInteger)options {
-    NSAssert(self.isMountable, @"Disk isn't mountable.");
-    NSAssert(self.isMounted, @"Disk isn't mounted.");
+    //NSAssert(self.isMountable, @"Disk isn't mountable.");
+    //NSAssert(self.isMounted, @"Disk isn't mounted.");
 
     DADiskUnmount((DADiskRef)_disk, (DADiskUnmountOptions)options, DiskUnmountCallback, (__bridge void *)(self));
 }
