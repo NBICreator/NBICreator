@@ -1211,9 +1211,9 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
           }
       } else if ([sourceExtension length] == 0) {
           if ([self->_sourceTypes containsObject:NBCSourceTypeSystem]) {
+              [source setSourceType:NBCSourceTypeSystemDisk];
               if ([NBCDiskController verifySystemDisk:[NBCDiskController diskFromVolumeURL:sourceURL] source:source requireRecoveryPartition:YES error:&error]) {
                   verified = YES;
-                  [source setSourceType:NBCSourceTypeSystemDisk];
                   NSString *volumeName;
                   if ([[[[source systemDisk] volumeURL] path] isEqualToString:@"/"]) {
                       volumeName = @"Booted System";
@@ -1261,7 +1261,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
               [source unmountRecoveryHD];
           }
       } else {
-          if (![[source sourceType] isEqualToString:NBCSourceTypeNBI]) {
+          if (![[source sourceType] isEqualToString:NBCSourceTypeNBI] && ![[source sourceType] isEqualToString:NBCSourceTypeSystemDisk]) {
               [source detachAll];
           }
           dispatch_async(dispatch_get_main_queue(), ^{
