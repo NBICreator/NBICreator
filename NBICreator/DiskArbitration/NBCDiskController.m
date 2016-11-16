@@ -84,7 +84,7 @@
     DDLogInfo(@"Verifying that system disk contains a valid recovery partition...");
 
     NSURL *systemVolumeURL = [systemDisk volumeURL];
-    DDLogDebug(@"[DEBUG] Disk image system volume path: %@", [systemVolumeURL path]);
+    DDLogDebug(@"[DEBUG] System disk volume path: %@", [systemVolumeURL path]);
 
     if (![systemVolumeURL checkResourceIsReachableAndReturnError:error]) {
         return NO;
@@ -92,7 +92,7 @@
 
     NSURL *recoveryVolumeURL;
     NSString *recoveryPartitionDiskIdentifier = [self getRecoveryPartitionIdentifierFromVolumeURL:systemVolumeURL];
-    DDLogDebug(@"[DEBUG] Disk image recovery partition BSD identifier: %@", recoveryPartitionDiskIdentifier);
+    DDLogDebug(@"[DEBUG] System disk recovery partition BSD identifier: %@", recoveryPartitionDiskIdentifier);
 
     if ([recoveryPartitionDiskIdentifier length] != 0) {
         [source setRecoveryVolumeBSDIdentifier:recoveryPartitionDiskIdentifier];
@@ -102,7 +102,7 @@
             [source setRecoveryDisk:recoveryDisk];
             recoveryVolumeURL = [recoveryDisk volumeURL];
         } else {
-            recoveryVolumeURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/Volumes/dmg.%@", [NSString nbc_randomString]]];
+            recoveryVolumeURL = [NSURL fileURLWithPath:[NSString stringWithFormat:@"/tmp/dmg.%@", [NSString nbc_randomString]]];
             DDLogDebug(@"[DEBUG] Mounting disk recovery partition at path: %@", [recoveryVolumeURL path]);
 
             NSArray *diskutilOptions = @[
@@ -140,6 +140,7 @@
             return NO;
         }
     } else {
+        DDLogError(@"[ERROR] %@", [*error localizedDescription]);
         return NO;
     }
 } // verifyRecoveryPartitionFromSystemDisk
@@ -212,8 +213,13 @@
 
     NSURL *url = path ? [NSURL fileURLWithPath:path.stringByExpandingTildeInPath] : NULL;
     NSFileManager *fm = [NSFileManager defaultManager];
-    [fm createDirectoryAtURL:url withIntermediateDirectories:NO attributes:nil error:nil];
-    DADiskMountWithArguments((DADiskRef)disk, (__bridge CFURLRef)url, kDADiskMountOptionDefault, NULL, (__bridge void *)self, argv);
+    NSError *error;
+    if ([fm createDirectoryAtURL:url withIntermediateDirectories:NO attributes:nil error:&error]) {
+        DADiskMountWithArguments((DADiskRef)disk, (__bridge CFURLRef)url, kDADiskMountOptionDefault, NULL, (__bridge void *)self, argv);
+    } else {
+        DDLogError(@"[ERROR] %@", error.localizedDescription);
+        return NO;
+    }
 
     free(argv);
     return YES;
