@@ -1190,7 +1190,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 53968C241A8E7A3E0079AA95 /* Build configuration list for PBXNativeTarget "NBICreator" */;
 			buildPhases = (
-				BE56FA0D1C07648D00453312 /* Update Helper Tool Codesigning Script */,
 				53968C031A8E7A3E0079AA95 /* Sources */,
 				53968C041A8E7A3E0079AA95 /* Frameworks */,
 				53968C051A8E7A3E0079AA95 /* Resources */,
@@ -1444,23 +1443,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		BE56FA0D1C07648D00453312 /* Update Helper Tool Codesigning Script */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Update Helper Tool Codesigning Script";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "${PROJECT_DIR}/Helper/Scripts/codesign_helper-tool-codesign.py";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		53968C031A8E7A3E0079AA95 /* Sources */ = {
