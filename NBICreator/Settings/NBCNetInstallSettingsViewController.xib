@@ -15,7 +15,6 @@
                 <outlet property="buttonRemoveTrustedServer" destination="wQ7-a6-43C" id="01u-BI-8bX"/>
                 <outlet property="checkboxAvailabilityDefault" destination="G3P-of-tSp" id="KQH-Kx-Ydo"/>
                 <outlet property="checkboxAvailabilityEnabled" destination="DgJ-hr-lIh" id="gle-NL-PKg"/>
-                <outlet property="checkboxCreateUSBDevice" destination="G6s-B2-6Me" id="OUh-tR-6fA"/>
                 <outlet property="imageViewIcon" destination="oCz-Qg-YeU" id="vOq-7K-XrA"/>
                 <outlet property="popOverManageTrustedServers" destination="YVk-lX-dhA" id="1jg-PU-edq"/>
                 <outlet property="popOverVariables" destination="Q6d-NY-WFB" id="lTw-36-gmr"/>
@@ -23,7 +22,6 @@
                 <outlet property="popUpButtonNBIType" destination="RuB-7u-1X5" id="uFD-DE-VXe"/>
                 <outlet property="popUpButtonProtocol" destination="Z7G-0b-h1g" id="ve7-C4-akr"/>
                 <outlet property="popUpButtonTemplates" destination="lDO-IA-htW" id="OnX-Sm-apa"/>
-                <outlet property="popUpButtonUSBDevices" destination="kME-Om-Lnu" id="jhV-wH-fbb"/>
                 <outlet property="superViewConfigurationProfiles" destination="UbA-ej-B0x" id="v47-U8-sfi"/>
                 <outlet property="superViewPackagesNetInstall" destination="UBT-O8-zRE" id="hSL-wc-tsf"/>
                 <outlet property="superViewPostWorkflowScripts" destination="nbS-tq-k00" id="gfG-d0-1J1"/>
@@ -41,7 +39,6 @@
                 <outlet property="textFieldNBINamePreview" destination="QIk-2e-5gf" id="1Oo-W1-JC2"/>
                 <outlet property="textFieldSystemImageUtilityVersion" destination="8CX-f1-mPX" id="d82-6f-SkS"/>
                 <outlet property="textFieldTrustedServersCount" destination="BtE-jk-6y2" id="V1s-UP-TEm"/>
-                <outlet property="textFieldUSBDeviceLabel" destination="oIc-7T-r7B" id="bzf-EV-ynf"/>
                 <outlet property="view" destination="wMx-9w-VcQ" id="FD8-UX-F8Q"/>
             </connections>
         </customObject>
@@ -888,7 +885,7 @@ asdasd</string>
                                                 <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
                                                 <clipView key="contentView" id="PXH-pI-jam">
                                                     <rect key="frame" x="1" y="1" width="492" height="85"/>
-                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <tableView identifier="tableViewPackages" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowHeight="19" rowSizeStyle="automatic" viewBased="YES" id="D6T-6s-HS1">
                                                             <rect key="frame" x="0.0" y="0.0" width="492" height="85"/>
@@ -978,7 +975,7 @@ asdasd</string>
                                                 <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
                                                 <clipView key="contentView" id="QLz-rv-phX">
                                                     <rect key="frame" x="1" y="1" width="492" height="85"/>
-                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                    <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <tableView identifier="TableViewConfigurationProfiles" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnResizing="NO" autosaveColumns="NO" rowHeight="19" rowSizeStyle="automatic" viewBased="YES" id="Htj-dq-PR8">
                                                             <rect key="frame" x="0.0" y="0.0" width="492" height="85"/>
@@ -1096,57 +1093,8 @@ asdasd</string>
                                 <rect key="frame" x="10" y="33" width="534" height="324"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
-                                    <button horizontalHuggingPriority="251" horizontalCompressionResistancePriority="751" translatesAutoresizingMaskIntoConstraints="NO" id="G6s-B2-6Me">
-                                        <rect key="frame" x="18" y="288" width="338" height="18"/>
-                                        <buttonCell key="cell" type="check" title="Create a bootable USB drive from the resulting NBI: " bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="N4v-Es-wcv">
-                                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <binding destination="-2" name="value" keyPath="self.createUSBDevice" id="UbE-8G-uyV"/>
-                                        </connections>
-                                    </button>
-                                    <popUpButton verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kME-Om-Lnu">
-                                        <rect key="frame" x="360" y="282" width="157" height="26"/>
-                                        <popUpButtonCell key="cell" type="push" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" id="CEq-gC-qjb">
-                                            <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="menu"/>
-                                            <menu key="menu" id="okp-p8-2eb"/>
-                                        </popUpButtonCell>
-                                        <connections>
-                                            <binding destination="-2" name="enabled" keyPath="self.createUSBDevice" id="3Ui-hD-2CZ"/>
-                                        </connections>
-                                    </popUpButton>
-                                    <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="kpa-TQ-cbQ">
-                                        <rect key="frame" x="41" y="259" width="152" height="17"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="USB volume name/label:" id="ZZ4-2b-IFN">
-                                            <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                        </textFieldCell>
-                                    </textField>
-                                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="oIc-7T-r7B">
-                                        <rect key="frame" x="199" y="256" width="315" height="22"/>
-                                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="QvF-7G-umU">
-                                            <font key="font" metaFont="system"/>
-                                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
-                                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
-                                        </textFieldCell>
-                                        <connections>
-                                            <binding destination="-2" name="enabled" keyPath="self.createUSBDevice" id="OQ4-Rp-8go"/>
-                                            <binding destination="-2" name="value" keyPath="self.usbLabel" id="QNF-8K-Vhe">
-                                                <dictionary key="options">
-                                                    <bool key="NSContinuouslyUpdatesValue" value="YES"/>
-                                                </dictionary>
-                                            </binding>
-                                            <outlet property="delegate" destination="-2" id="5ct-2X-WfJ"/>
-                                        </connections>
-                                    </textField>
-                                    <box verticalHuggingPriority="750" boxType="separator" translatesAutoresizingMaskIntoConstraints="NO" id="pWI-5E-rQt">
-                                        <rect key="frame" x="20" y="228" width="494" height="5"/>
-                                    </box>
                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="24y-jB-ygE">
-                                        <rect key="frame" x="18" y="205" width="323" height="17"/>
+                                        <rect key="frame" x="18" y="287" width="323" height="17"/>
                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" title="Post-workflow scripts to run after the NBI is created:" id="WgZ-Ph-mqq">
                                             <font key="font" metaFont="system"/>
                                             <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
@@ -1154,7 +1102,7 @@ asdasd</string>
                                         </textFieldCell>
                                     </textField>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Eng-u6-Zun">
-                                        <rect key="frame" x="19" y="89" width="59" height="16"/>
+                                        <rect key="frame" x="19" y="171" width="59" height="16"/>
                                         <buttonCell key="cell" type="push" title="Add" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="EX5-RY-aae">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -1164,7 +1112,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="9oM-fW-Wtg">
-                                        <rect key="frame" x="81" y="89" width="59" height="16"/>
+                                        <rect key="frame" x="81" y="171" width="59" height="16"/>
                                         <buttonCell key="cell" type="push" title="Remove" bezelStyle="rounded" alignment="center" controlSize="mini" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="z0F-18-vjU">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="miniSystem"/>
@@ -1174,7 +1122,7 @@ asdasd</string>
                                         </connections>
                                     </button>
                                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="nbS-tq-k00" userLabel="Holding View Packages">
-                                        <rect key="frame" x="20" y="110" width="494" height="87"/>
+                                        <rect key="frame" x="20" y="192" width="494" height="87"/>
                                         <subviews>
                                             <scrollView autohidesScrollers="YES" horizontalLineScroll="21" horizontalPageScroll="10" verticalLineScroll="21" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Cw-Oa-Xk2">
                                                 <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
@@ -1257,28 +1205,15 @@ asdasd</string>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="nbS-tq-k00" firstAttribute="top" secondItem="24y-jB-ygE" secondAttribute="bottom" constant="8" symbolic="YES" id="2Ik-a3-ZHV"/>
-                                    <constraint firstItem="24y-jB-ygE" firstAttribute="top" secondItem="pWI-5E-rQt" secondAttribute="bottom" constant="8" symbolic="YES" id="3I4-C5-G4G"/>
                                     <constraint firstItem="9oM-fW-Wtg" firstAttribute="centerY" secondItem="Eng-u6-Zun" secondAttribute="centerY" id="3SG-wS-T8E"/>
-                                    <constraint firstItem="G6s-B2-6Me" firstAttribute="top" secondItem="yLf-Kb-a4T" secondAttribute="top" constant="20" symbolic="YES" id="AFO-Ob-cj1"/>
-                                    <constraint firstAttribute="trailing" secondItem="oIc-7T-r7B" secondAttribute="trailing" constant="20" symbolic="YES" id="BRL-nF-VtU"/>
-                                    <constraint firstAttribute="trailing" secondItem="pWI-5E-rQt" secondAttribute="trailing" constant="20" symbolic="YES" id="LnW-4v-wed"/>
+                                    <constraint firstItem="24y-jB-ygE" firstAttribute="leading" secondItem="yLf-Kb-a4T" secondAttribute="leading" constant="20" symbolic="YES" id="5Fs-JW-lf0"/>
                                     <constraint firstItem="Eng-u6-Zun" firstAttribute="width" secondItem="9oM-fW-Wtg" secondAttribute="width" id="Mz3-TT-ZJ9"/>
-                                    <constraint firstAttribute="trailing" secondItem="kME-Om-Lnu" secondAttribute="trailing" constant="20" symbolic="YES" id="NFg-Mv-nGu"/>
-                                    <constraint firstItem="pWI-5E-rQt" firstAttribute="top" secondItem="oIc-7T-r7B" secondAttribute="bottom" constant="25" id="Q60-LB-MJe"/>
-                                    <constraint firstItem="kME-Om-Lnu" firstAttribute="baseline" secondItem="G6s-B2-6Me" secondAttribute="baseline" id="XPk-t5-rOz"/>
-                                    <constraint firstItem="pWI-5E-rQt" firstAttribute="leading" secondItem="yLf-Kb-a4T" secondAttribute="leading" constant="20" symbolic="YES" id="aXp-Jd-qKf"/>
-                                    <constraint firstItem="24y-jB-ygE" firstAttribute="leading" secondItem="G6s-B2-6Me" secondAttribute="leading" id="bmG-zG-Iff"/>
-                                    <constraint firstItem="oIc-7T-r7B" firstAttribute="baseline" secondItem="kpa-TQ-cbQ" secondAttribute="baseline" id="fPX-Ei-Zpf"/>
                                     <constraint firstItem="nbS-tq-k00" firstAttribute="leading" secondItem="24y-jB-ygE" secondAttribute="leading" id="h05-pl-Ki6"/>
-                                    <constraint firstItem="kpa-TQ-cbQ" firstAttribute="leading" secondItem="G6s-B2-6Me" secondAttribute="leading" constant="23" id="ibD-Uc-LMq"/>
-                                    <constraint firstItem="kpa-TQ-cbQ" firstAttribute="top" secondItem="G6s-B2-6Me" secondAttribute="bottom" constant="14" id="j7r-8D-12k"/>
-                                    <constraint firstItem="G6s-B2-6Me" firstAttribute="leading" secondItem="yLf-Kb-a4T" secondAttribute="leading" constant="20" symbolic="YES" id="kC0-iR-IJg"/>
+                                    <constraint firstItem="24y-jB-ygE" firstAttribute="top" secondItem="yLf-Kb-a4T" secondAttribute="top" constant="20" symbolic="YES" id="mKa-z3-k5X"/>
                                     <constraint firstItem="Eng-u6-Zun" firstAttribute="leading" secondItem="nbS-tq-k00" secondAttribute="leading" id="moH-EZ-bM0"/>
-                                    <constraint firstItem="oIc-7T-r7B" firstAttribute="leading" secondItem="kpa-TQ-cbQ" secondAttribute="trailing" constant="8" symbolic="YES" id="pdg-1C-kdW"/>
                                     <constraint firstAttribute="trailing" secondItem="nbS-tq-k00" secondAttribute="trailing" constant="20" symbolic="YES" id="pqo-M6-gKO"/>
                                     <constraint firstItem="9oM-fW-Wtg" firstAttribute="leading" secondItem="Eng-u6-Zun" secondAttribute="trailing" constant="5" id="qot-ty-K90"/>
                                     <constraint firstItem="Eng-u6-Zun" firstAttribute="top" secondItem="nbS-tq-k00" secondAttribute="bottom" constant="5" id="tKd-qJ-CUn"/>
-                                    <constraint firstItem="kME-Om-Lnu" firstAttribute="leading" secondItem="G6s-B2-6Me" secondAttribute="trailing" constant="8" symbolic="YES" id="xEn-wq-Rw5"/>
                                 </constraints>
                             </view>
                         </tabViewItem>
