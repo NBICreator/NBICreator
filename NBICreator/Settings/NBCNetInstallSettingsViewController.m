@@ -74,8 +74,12 @@
     [self setConfigurationProfilesTableViewContents:[[NSMutableArray alloc] init]];
     [self setTrustedServers:[[NSMutableArray alloc] init]];
     [self setPostWorkflowScripts:[[NSMutableArray alloc] init]];
-    NSTabViewItem *tabViewPostWorkflow = [[self tabViewSettings] tabViewItemAtIndex:3];
+    
+    // Remove Extra
+    NSTabViewItem *tabViewPostWorkflow = [[self tabViewSettings] tabViewItemAtIndex:1];
     [[self tabViewSettings] removeTabViewItem:tabViewPostWorkflow];
+    
+    // Remove USB-option
     //[self updatePopUpButtonUSBDevices];
 
     // --------------------------------------------------------------
@@ -154,6 +158,7 @@
         _viewOverlayConfigurationProfiles = [vc view];
     }
     [self addOverlayViewToView:_superViewConfigurationProfiles overlayView:_viewOverlayConfigurationProfiles];
+    
     /* Will be added next release
     if ( ! _viewOverlayPostWorkflowScripts ) {
         NBCOverlayViewController *vc = [[NBCOverlayViewController alloc] initWithContentType:kContentTypeScripts];

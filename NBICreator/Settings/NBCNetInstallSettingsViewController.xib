@@ -545,7 +545,7 @@ asdasd</string>
                                                 <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
                                                 <clipView key="contentView" id="fHl-mi-z0v">
                                                     <rect key="frame" x="1" y="1" width="492" height="85"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <tableView identifier="tableViewPackages" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowHeight="19" rowSizeStyle="automatic" viewBased="YES" id="sZt-Uy-TrI">
                                                             <rect key="frame" x="0.0" y="0.0" width="492" height="85"/>
@@ -631,7 +631,7 @@ asdasd</string>
                                                 <rect key="frame" x="0.0" y="0.0" width="494" height="92"/>
                                                 <clipView key="contentView" id="uSm-XK-yLr">
                                                     <rect key="frame" x="1" y="1" width="492" height="90"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <tableView identifier="tableViewCertificates" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnSelection="YES" columnResizing="NO" autosaveColumns="NO" rowHeight="28" rowSizeStyle="automatic" viewBased="YES" id="955-Dq-RJn">
                                                             <rect key="frame" x="0.0" y="0.0" width="492" height="90"/>
@@ -885,7 +885,7 @@ asdasd</string>
                                                 <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
                                                 <clipView key="contentView" id="PXH-pI-jam">
                                                     <rect key="frame" x="1" y="1" width="492" height="85"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <tableView identifier="tableViewPackages" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnReordering="NO" columnResizing="NO" autosaveColumns="NO" rowHeight="19" rowSizeStyle="automatic" viewBased="YES" id="D6T-6s-HS1">
                                                             <rect key="frame" x="0.0" y="0.0" width="492" height="85"/>
@@ -975,7 +975,7 @@ asdasd</string>
                                                 <rect key="frame" x="0.0" y="0.0" width="494" height="87"/>
                                                 <clipView key="contentView" id="QLz-rv-phX">
                                                     <rect key="frame" x="1" y="1" width="492" height="85"/>
-                                                    <autoresizingMask key="autoresizingMask"/>
+                                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                     <subviews>
                                                         <tableView identifier="TableViewConfigurationProfiles" verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" alternatingRowBackgroundColors="YES" columnResizing="NO" autosaveColumns="NO" rowHeight="19" rowSizeStyle="automatic" viewBased="YES" id="Htj-dq-PR8">
                                                             <rect key="frame" x="0.0" y="0.0" width="492" height="85"/>
