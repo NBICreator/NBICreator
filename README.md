@@ -9,9 +9,6 @@ The following NetInstall images are currently supported:
 * [DeployStudio](https://github.com/NBICreator/NBICreator/wiki/DeployStudio)
 * [Imagr](https://github.com/NBICreator/NBICreator/wiki/Imagr)
  
-The following NetInstall images are being openly developed and are not suitable for production:
-* [Casper](https://github.com/NBICreator/NBICreator/wiki/Casper)
-
 The design and idea of the application is to be able to create different types of NetInstall images in one single application, and to save the configuration in a template to be reused when the NetInstall image need to be updated for newer versions of the OS.
 
 # Download
