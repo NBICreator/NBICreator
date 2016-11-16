@@ -40,7 +40,6 @@
 
 // UI
 #import "NBCSourceDropViewController.h"
-
 #import "NBCPreferences.h"
 
 // Other
