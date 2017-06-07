@@ -402,8 +402,19 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 
     NSMutableArray *installerApplications = [[NSMutableArray alloc] init];
 
+    NSArray *activeInstallerApplicationIdentifiers;
+    
+    if ([[[NSUserDefaults standardUserDefaults] objectForKey:NBCUserDefaultsAllowBetaReleases] boolValue]) {
+        // Beta Identifiers
+        // Terrible solution that requires hardcoded strings. Just for testing.
+        NSArray *betaInstallerApplicationIdentifiers = @[ @"com.apple.InstallAssistant.Seed.macOS1013Seed1" ];
+        activeInstallerApplicationIdentifiers = [_installerApplicationIdentifiers arrayByAddingObjectsFromArray:betaInstallerApplicationIdentifiers];
+    } else {
+        activeInstallerApplicationIdentifiers = _installerApplicationIdentifiers;
+    }
+    
     CFErrorRef error = NULL;
-    for (NSString *bundleIdentifier in _installerApplicationIdentifiers) {
+    for (NSString *bundleIdentifier in activeInstallerApplicationIdentifiers) {
         NSArray *applicationURLs = (__bridge NSArray *)(LSCopyApplicationURLsForBundleIdentifier((__bridge CFStringRef)(bundleIdentifier), &error));
         if ([applicationURLs count] != 0) {
             for (NSURL *url in applicationURLs) {
@@ -429,6 +440,7 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 ////////////////////////////////////////////////////////////////////////////////
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem {
+    NSLog(@"validateMenuItem");
     BOOL retval = YES;
 
     if ([[menuItem title] isEqualToString:NBCMenuItemShowInFinder]) {
@@ -440,6 +452,18 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 
     return YES;
 } // validateMenuItem
+
+////////////////////////////////////////////////////////////////////////////////
+#pragma mark -
+#pragma mark Delegate Methods Menu
+#pragma mark -
+////////////////////////////////////////////////////////////////////////////////
+
+- (void)menuWillOpen:(NSMenu *)menu {
+    if (menu == [self.popUpButtonSource menu]) {
+        [self updatePopUpButtonSource];
+    }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -1000,6 +1024,8 @@ NSString *const NBCSourceTypeSystem = @"NBCSourceTypeSystem";
 
 - (void)updatePopUpButtonSource {
 
+    NSLog(@"updatePopUpButtonSource!");
+    
     NSString *currentSelection = [_popUpButtonSource titleOfSelectedItem];
 
     [_popUpButtonSource removeAllItems];

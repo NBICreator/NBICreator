@@ -60,7 +60,7 @@ extern NSString *const NBCSourceTypeSystem;
 #pragma mark -
 ////////////////////////////////////////////////////////////////////////////////
 
-@interface NBCSourceDropViewController : NSViewController <NBCSourceDropDelegate>
+@interface NBCSourceDropViewController : NSViewController <NBCSourceDropDelegate, NSMenuDelegate>
 
 // ------------------------------------------------------
 //  Views
