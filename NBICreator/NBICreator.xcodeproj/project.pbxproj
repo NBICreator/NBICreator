@@ -1684,7 +1684,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = NBICreator;
 				CODE_SIGN_IDENTITY = "Developer ID Application";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_TEAM = Y7QFC8672N;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -1763,8 +1763,8 @@
 		53968C331A8E7B8C0079AA95 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				DEVELOPMENT_TEAM = Y7QFC8672N;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
@@ -1790,7 +1790,7 @@
 		53968C341A8E7B8C0079AA95 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Developer ID Application: Erik Berglund (Y7QFC8672N)";
 				DEVELOPMENT_TEAM = Y7QFC8672N;
 				INFOPLIST_FILE = "\"$(SRCROOT)/Helper/Supporting Files/NBICreatorHelper-Info.plist\"";
