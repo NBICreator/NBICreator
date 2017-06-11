@@ -1305,12 +1305,18 @@
         NSURL *baseSystemDiskImageURL = [installESDVolumeURL URLByAppendingPathComponent:@"BaseSystem.dmg"];
         DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
 
-        if ([baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error]) {
-            [source setBaseSystemDiskImageURL:baseSystemDiskImageURL];
-            return [self verifyBaseSystemDiskImage:baseSystemDiskImageURL source:source error:error];
+        if (![baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error]) {
+            baseSystemDiskImageURL = [[source.installESDDiskImageURL URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"BaseSystem.dmg"];
+            DDLogDebug(@"[DEBUG] BaseSystem disk image path: %@", [baseSystemDiskImageURL path]);
+            if (![baseSystemDiskImageURL checkResourceIsReachableAndReturnError:error]) {
+                return NO;
+            }
         } else {
             return NO;
         }
+        
+        [source setBaseSystemDiskImageURL:baseSystemDiskImageURL];
+        return [self verifyBaseSystemDiskImage:baseSystemDiskImageURL source:source error:error];
     } else {
         return NO;
     }
