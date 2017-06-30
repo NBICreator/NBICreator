@@ -89,7 +89,7 @@
         //		CFShow(description);
 
         if (self.isWholeDisk == NO) {
-
+            
             DADiskRef parentRef = DADiskCopyWholeDisk(diskRef);
             if (parentRef) {
                 NBCDisk *parentDisk = [NBCDisk uniqueDiskForDADisk:parentRef create:shouldCreateParent];

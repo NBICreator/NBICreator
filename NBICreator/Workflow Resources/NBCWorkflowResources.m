@@ -1054,7 +1054,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 - (void)addItemsToExtractFromEssentials:(NSArray *)itemsArray sourceItemsDict:(NSMutableDictionary *)sourceItemsDict {
-    NSString *packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [_installESDVolumeURL path]];
+    
+    NSString *packageEssentialsPath = @"";
+    
+    if (13 <= _sourceVersionMinor) {
+        packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Core.pkg", [_installESDVolumeURL path]];
+    } else {
+            packageEssentialsPath = [NSString stringWithFormat:@"%@/Packages/Essentials.pkg", [_installESDVolumeURL path]];
+    }
     NSMutableDictionary *packageEssentialsDict = [sourceItemsDict[packageEssentialsPath] mutableCopy] ?: [[NSMutableDictionary alloc] init];
     NSMutableArray *packageEssentialsRegexes = [packageEssentialsDict[NBCSettingsSourceItemsRegexKey] mutableCopy] ?: [[NSMutableArray alloc] init];
     [packageEssentialsRegexes addObjectsFromArray:itemsArray];
@@ -1090,6 +1097,16 @@
     sourceItemsDict[packageBSDPath] = packageBSDDict;
 } // addItemsToExtractFromBSD
 
+/*
+- (void)addItemsToExtractFromBootedSystem:(NSArray *)itemsArray sourceItemsDict:(NSMutableDictionary *)sourceItemsDict {
+    NSString *bootedSystemPath = @"/";
+    NSMutableDictionary *bootedSystemDict = [sourceItemsDict[bootedSystemPath] mutableCopy] ?: [[NSMutableDictionary alloc] init];
+    NSMutableArray *bootedSystemRegexes = [bootedSystemDict[NBCSettingsSourceItemsRegexKey] mutableCopy] ?: [[NSMutableArray alloc] init];
+    [bootedSystemRegexes addObjectsFromArray:itemsArray];
+    bootedSystemDict[NBCSettingsSourceItemsRegexKey] = bootedSystemRegexes;
+    sourceItemsDict[bootedSystemPath] = bootedSystemDict;
+} // addItemsToExtractFromBSD
+*/
 - (void)addItemsToExtractFromBaseSystemBinaries:(NSArray *)itemsArray sourceItemsDict:(NSMutableDictionary *)sourceItemsDict {
     if (11 <= _sourceVersionMinor) {
         [self addItemsToExtractFromEssentials:itemsArray sourceItemsDict:sourceItemsDict];
@@ -1586,17 +1603,24 @@
 
     DDLogInfo(@"Adding regexes to extract Python...");
 
-    // ---------------------------------------------------------------------------------
-    //  BSD.pkg
-    // ---------------------------------------------------------------------------------
-    NSMutableArray *bsd = [NSMutableArray arrayWithArray:@[ @".*/[Pp]ython.*" ]];
+    NSMutableArray *python = [NSMutableArray arrayWithArray:@[ @".*/[Pp]ython.*" ]];
+    
+   // if (13 <= _sourceVersionMinor) {
+   //     [python addObjectsFromArray:@[ @".*/usr/lib/libffi.dylib.*", @".*/usr/lib/libexpat.1.dylib.*" ]];
+        
+   //     [self addItemsToExtractFromBootedSystem:python sourceItemsDict:sourceItemsDict];
+   // } else {
 
-    if (12 <= _sourceVersionMinor) {
-        [bsd addObjectsFromArray:@[ @".*/usr/lib/libffi.dylib.*", @".*/usr/lib/libexpat.1.dylib.*" ]];
-    }
+        // ---------------------------------------------------------------------------------
+        //  BSD.pkg
+        // ---------------------------------------------------------------------------------
+        if (12 <= _sourceVersionMinor) {
+            [python addObjectsFromArray:@[ @".*/usr/lib/libffi.dylib.*", @".*/usr/lib/libexpat.1.dylib.*" ]];
+        }
 
-    // Update extraction array
-    [self addItemsToExtractFromBSD:bsd sourceItemsDict:sourceItemsDict];
+        // Update extraction array
+        [self addItemsToExtractFromBSD:python sourceItemsDict:sourceItemsDict];
+    //}
 } // addPython
 
 - (void)addExtractRuby:(NSMutableDictionary *)sourceItemsDict {

@@ -259,8 +259,11 @@
     //  Screen Sharing
     // ---------------------------------------------------------------------------------
     if ((!_isNBI && (_workflowType == kWorkflowTypeImagr || _workflowType == kWorkflowTypeCasper)) && [_userSettings[NBCSettingsARDPasswordKey] length] != 0) {
-        if (![self modifyScreenSharing:modifyDictArray error:error]) {
-            return nil;
+// Temporary Disable for 10.13
+        if (_sourceVersionMinor <= 12) {
+            if (![self modifyScreenSharing:modifyDictArray error:error]) {
+                return nil;
+            }
         }
     }
 
@@ -275,8 +278,11 @@
     //  SystemUIServer
     // ---------------------------------------------------------------------------------
     if ((!_isNBI && (_workflowType == kWorkflowTypeImagr)) && [_userSettings[NBCSettingsIncludeSystemUIServerKey] boolValue]) {
-        if (![self modifySystemUIServer:modifyDictArray error:error]) {
-            return nil;
+        // Temporary Disable for 10.13
+        if (_sourceVersionMinor <= 12) {
+            if (![self modifySystemUIServer:modifyDictArray error:error]) {
+                return nil;
+            }
         }
     }
 
@@ -1334,8 +1340,14 @@
     NSURL *rcCdromURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/rc.cdrom"];
     DDLogDebug(@"[DEBUG] rc.cdrom path: %@", [rcCdromURL path]);
 
-    NSURL *rcCdmCdromURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/rc.cdm.cdrom"];
-    DDLogDebug(@"[DEBUG] rc.cdm.cdrom path: %@", [rcCdmCdromURL path]);
+    NSURL *rcCdmCdromURL;
+    if (13 <= _sourceVersionMinor ) {
+        rcCdmCdromURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/rc.diag.cdrom"];
+        DDLogDebug(@"[DEBUG] rc.diag.cdrom path: %@", [rcCdmCdromURL path]);
+    } else {
+        rcCdmCdromURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/rc.cdm.cdrom"];
+        DDLogDebug(@"[DEBUG] rc.cdm.cdrom path: %@", [rcCdmCdromURL path]);
+    }
 
     if ([rcCdromURL checkResourceIsReachableAndReturnError:error]) {
         NSString *rcCdromOriginal = [NSString stringWithContentsOfURL:rcCdromURL encoding:NSUTF8StringEncoding error:error];
@@ -1393,6 +1405,8 @@
               NSRange range = [line rangeOfString:@"^\\s*" options:NSRegularExpressionSearch];
               line = [line stringByReplacingCharactersInRange:range withString:@""];
 
+              DDLogDebug(@"Line: %@", line);
+              
               // ------------------------------------------------------------------------------
               //  Modify sizes of default RAM Disks
               // ------------------------------------------------------------------------------
@@ -1441,7 +1455,7 @@
           // ------------------------------------------------------------------------------
           //  Start looking for RAMDisks after this line
           // ------------------------------------------------------------------------------
-          if ([line hasPrefix:@"if [ -f \"/etc/rc.cdm.cdrom\" ]; then"]) {
+          if ([line hasPrefix:@"if [ -f \"/etc/rc."]) {
               inspectNextLine = YES;
           }
         }];
@@ -1462,7 +1476,9 @@
             [rcCdmCdrom appendString:@"RAMDisk /var/root/Library/Caches 32768\n"];
             //[rcCdmCdrom appendString:@"RAMDisk /var/root/Library/Caches/ocspd 32768\n"];
             [rcCdmCdrom appendString:@"RAMDisk /Library/Logs 16384\n"];
-            [rcCdmCdrom appendString:@"RAMDisk /Library/Logs/DiagnosticReports 4096\n"];
+            if (13 <= _sourceVersionMinor) {
+                [rcCdmCdrom appendString:@"RAMDisk /Library/Logs/DiagnosticReports 4096\n"];
+            }
             [rcCdmCdrom appendString:@"RAMDisk /Library/Caches 65536\n"];
 
             if ([_userSettings[NBCSettingsCertificatesKey] count] != 0) {
@@ -1872,146 +1888,149 @@
 }
 
 - (BOOL)modifyScreenSharing:(NSMutableArray *)modifyDictArray error:(NSError **)error {
-
+    
     DDLogInfo(@"Preparing modifications for Screen Sharing...");
-
+    
     NSFileManager *fm = [NSFileManager defaultManager];
-
+    
     // --------------------------------------------------------------
     //  /Library/Preferences/com.apple.RemoteManagement.plist
     // --------------------------------------------------------------
     NSURL *remoteManagementURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.RemoteManagement.plist"];
     DDLogDebug(@"[DEBUG] com.apple.RemoteManagement.plist path: %@", [remoteManagementURL path]);
-
+    
     NSMutableDictionary *remoteManagementDict = [NSMutableDictionary dictionaryWithContentsOfURL:remoteManagementURL] ?: [[NSMutableDictionary alloc] init];
     NSDictionary *remoteManagementAttributes = [fm attributesOfItemAtPath:[remoteManagementURL path] error:nil]
-                                                   ?: @{ NSFileOwnerAccountName : @"root",
-                                                         NSFileGroupOwnerAccountName : @"wheel",
-                                                         NSFilePosixPermissions : @0644 };
-
+    ?: @{ NSFileOwnerAccountName : @"root",
+          NSFileGroupOwnerAccountName : @"wheel",
+          NSFilePosixPermissions : @0644 };
+    
     remoteManagementDict[@"ARD_AllLocalUsers"] = @YES;
     remoteManagementDict[@"ARD_AllLocalUsersPrivs"] = @-1073741569;
     remoteManagementDict[@"LoadRemoteManagementMenuExtra"] = @NO;
     remoteManagementDict[@"DisableKerberos"] = @NO;
     remoteManagementDict[@"ScreenSharingReqPermEnabled"] = @NO;
     remoteManagementDict[@"VNCLegacyConnectionsEnabled"] = @YES;
-
+    
     // Update modification array
     [modifyDictArray addObject:@{
-        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-        NBCWorkflowModifyContent : remoteManagementDict,
-        NBCWorkflowModifyAttributes : remoteManagementAttributes,
-        NBCWorkflowModifyTargetURL : [remoteManagementURL path]
-    }];
-
+                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                 NBCWorkflowModifyContent : remoteManagementDict,
+                                 NBCWorkflowModifyAttributes : remoteManagementAttributes,
+                                 NBCWorkflowModifyTargetURL : [remoteManagementURL path]
+                                 }];
+    
     // --------------------------------------------------------------
     //  /System/Library/LaunchDaemons/com.apple.screensharing.plist
     // --------------------------------------------------------------
     NSURL *screensharingLaunchDaemonURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.screensharing.plist"];
     DDLogDebug(@"[DEBUG] com.apple.screensharing.plist path: %@", [screensharingLaunchDaemonURL path]);
-
+    
     if ([screensharingLaunchDaemonURL checkResourceIsReachableAndReturnError:error]) {
         NSMutableDictionary *screensharingLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:screensharingLaunchDaemonURL] ?: [[NSMutableDictionary alloc] init];
         NSDictionary *screensharingLaunchDaemonAttributes = [fm attributesOfItemAtPath:[screensharingLaunchDaemonURL path] error:nil]
-                                                                ?: @{ NSFileOwnerAccountName : @"root",
-                                                                      NSFileGroupOwnerAccountName : @"wheel",
-                                                                      NSFilePosixPermissions : @0644 };
-
+        ?: @{ NSFileOwnerAccountName : @"root",
+              NSFileGroupOwnerAccountName : @"wheel",
+              NSFilePosixPermissions : @0644 };
+        
         // Run launchdaemon as root
         screensharingLaunchDaemonDict[@"UserName"] = @"root";
         screensharingLaunchDaemonDict[@"GroupName"] = @"wheel";
-
+        
         // Update modification array
         [modifyDictArray addObject:@{
-            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-            NBCWorkflowModifyContent : screensharingLaunchDaemonDict,
-            NBCWorkflowModifyTargetURL : [screensharingLaunchDaemonURL path],
-            NBCWorkflowModifyAttributes : screensharingLaunchDaemonAttributes
-        }];
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                     NBCWorkflowModifyContent : screensharingLaunchDaemonDict,
+                                     NBCWorkflowModifyTargetURL : [screensharingLaunchDaemonURL path],
+                                     NBCWorkflowModifyAttributes : screensharingLaunchDaemonAttributes
+                                     }];
     } else {
         return NO;
     }
-
+    
+    
     // --------------------------------------------------------------
     //  /System/Library/LaunchDaemons/com.apple.RemoteDesktop.PrivilegeProxy.plist
     // --------------------------------------------------------------
     NSURL *remoteDesktopPrivilegeProxyDaemonURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchDaemons/com.apple.RemoteDesktop.PrivilegeProxy.plist"];
     DDLogDebug(@"[DEBUG] com.apple.RemoteDesktop.PrivilegeProxy.plist path: %@", [remoteDesktopPrivilegeProxyDaemonURL path]);
-
+    
     if ([remoteDesktopPrivilegeProxyDaemonURL checkResourceIsReachableAndReturnError:error]) {
         NSMutableDictionary *remoteDesktopPrivilegeProxyLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:remoteDesktopPrivilegeProxyDaemonURL] ?: [[NSMutableDictionary alloc] init];
         NSDictionary *remoteDesktopPrivilegeProxyLaunchDaemonAttributes = [fm attributesOfItemAtPath:[remoteDesktopPrivilegeProxyDaemonURL path] error:nil]
-                                                                              ?: @{ NSFileOwnerAccountName : @"root",
-                                                                                    NSFileGroupOwnerAccountName : @"wheel",
-                                                                                    NSFilePosixPermissions : @0644 };
-
+        ?: @{ NSFileOwnerAccountName : @"root",
+              NSFileGroupOwnerAccountName : @"wheel",
+              NSFilePosixPermissions : @0644 };
+        
         // Run launchdaemon as root
         remoteDesktopPrivilegeProxyLaunchDaemonDict[@"UserName"] = @"root";
         remoteDesktopPrivilegeProxyLaunchDaemonDict[@"GroupName"] = @"wheel";
-
+        
         // Update modification array
         [modifyDictArray addObject:@{
-            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-            NBCWorkflowModifyContent : remoteDesktopPrivilegeProxyLaunchDaemonDict,
-            NBCWorkflowModifyTargetURL : [remoteDesktopPrivilegeProxyDaemonURL path],
-            NBCWorkflowModifyAttributes : remoteDesktopPrivilegeProxyLaunchDaemonAttributes
-        }];
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                     NBCWorkflowModifyContent : remoteDesktopPrivilegeProxyLaunchDaemonDict,
+                                     NBCWorkflowModifyTargetURL : [remoteDesktopPrivilegeProxyDaemonURL path],
+                                     NBCWorkflowModifyAttributes : remoteDesktopPrivilegeProxyLaunchDaemonAttributes
+                                     }];
     } else {
         return NO;
     }
-
+    
+    
+    
     // --------------------------------------------------------------
     //  /System/Library/LaunchAgents/com.apple.screensharing.agent.plist
     // --------------------------------------------------------------
     NSURL *screensharingAgentDaemonURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchAgents/com.apple.screensharing.agent.plist"];
     DDLogDebug(@"[DEBUG] com.apple.screensharing.agent.plist path: %@", [screensharingAgentDaemonURL path]);
-
+    
     if ([screensharingAgentDaemonURL checkResourceIsReachableAndReturnError:error]) {
         NSMutableDictionary *screensharingAgentLaunchDaemonDict = [NSMutableDictionary dictionaryWithContentsOfURL:screensharingAgentDaemonURL] ?: [[NSMutableDictionary alloc] init];
         NSDictionary *screensharingAgentLaunchDaemonAttributes = [fm attributesOfItemAtPath:[screensharingAgentDaemonURL path] error:nil]
-                                                                     ?: @{ NSFileOwnerAccountName : @"root",
-                                                                           NSFileGroupOwnerAccountName : @"wheel",
-                                                                           NSFilePosixPermissions : @0644 };
-
+        ?: @{ NSFileOwnerAccountName : @"root",
+              NSFileGroupOwnerAccountName : @"wheel",
+              NSFilePosixPermissions : @0644 };
+        
         // Remove LimitLoadToSessionType to run in NetInstall
         [screensharingAgentLaunchDaemonDict removeObjectForKey:@"LimitLoadToSessionType"];
-
+        
         //+ TESTING: TO EXCLUDE
         // screensharingAgentLaunchDaemonDict[@"RunAtLoad"] = @YES;
-
+        
         // Update modification array
         [modifyDictArray addObject:@{
-            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-            NBCWorkflowModifyContent : screensharingAgentLaunchDaemonDict,
-            NBCWorkflowModifyTargetURL : [screensharingAgentDaemonURL path],
-            NBCWorkflowModifyAttributes : screensharingAgentLaunchDaemonAttributes
-        }];
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                     NBCWorkflowModifyContent : screensharingAgentLaunchDaemonDict,
+                                     NBCWorkflowModifyTargetURL : [screensharingAgentDaemonURL path],
+                                     NBCWorkflowModifyAttributes : screensharingAgentLaunchDaemonAttributes
+                                     }];
     }
-
+    
     // --------------------------------------------------------------
     //  /System/Library/LaunchAgents/com.apple.screensharing.MessagesAgent.plist
     // --------------------------------------------------------------
     if (7 < _sourceVersionMinor) {
         NSURL *screensharingMessagesAgentDaemonURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchAgents/com.apple.screensharing.MessagesAgent.plist"];
         DDLogDebug(@"[DEBUG] com.apple.screensharing.MessagesAgent.plist path: %@", [screensharingMessagesAgentDaemonURL path]);
-
+        
         if ([screensharingMessagesAgentDaemonURL checkResourceIsReachableAndReturnError:error]) {
             NSMutableDictionary *screensharingMessagesAgentLaunchAgentDict =
-                [NSMutableDictionary dictionaryWithContentsOfURL:screensharingMessagesAgentDaemonURL] ?: [[NSMutableDictionary alloc] init];
+            [NSMutableDictionary dictionaryWithContentsOfURL:screensharingMessagesAgentDaemonURL] ?: [[NSMutableDictionary alloc] init];
             NSDictionary *screensharingMessagesAgentLaunchAgentAttributes = [fm attributesOfItemAtPath:[screensharingAgentDaemonURL path] error:nil]
-                                                                                ?: @{ NSFileOwnerAccountName : @"root",
-                                                                                      NSFileGroupOwnerAccountName : @"wheel",
-                                                                                      NSFilePosixPermissions : @0644 };
+            ?: @{ NSFileOwnerAccountName : @"root",
+                  NSFileGroupOwnerAccountName : @"wheel",
+                  NSFilePosixPermissions : @0644 };
             // Set launch daemon to run at load
             screensharingMessagesAgentLaunchAgentDict[@"RunAtLoad"] = @YES;
-
+            
             // Update modification array
             [modifyDictArray addObject:@{
-                NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-                NBCWorkflowModifyContent : screensharingMessagesAgentLaunchAgentDict,
-                NBCWorkflowModifyTargetURL : [screensharingMessagesAgentDaemonURL path],
-                NBCWorkflowModifyAttributes : screensharingMessagesAgentLaunchAgentAttributes
-            }];
+                                         NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                         NBCWorkflowModifyContent : screensharingMessagesAgentLaunchAgentDict,
+                                         NBCWorkflowModifyTargetURL : [screensharingMessagesAgentDaemonURL path],
+                                         NBCWorkflowModifyAttributes : screensharingMessagesAgentLaunchAgentAttributes
+                                         }];
         } else if (7 < _sourceVersionMinor) {
             /* FIXME - Why is this uncommented, isn't it needed? And why is the if statement checking the same thing twice?
              screensharingMessagesAgentLaunchAgentDict = [[NSMutableDictionary alloc] init];
@@ -2027,30 +2046,34 @@
     } else {
         DDLogDebug(@"MessagesAgent isn't available in 10.7 or lower.");
     }
-
+    
+    
+    
     // --------------------------------------------------------------
     //  /etc/com.apple.screensharing.agent.launchd
     // --------------------------------------------------------------
     NSURL *etcScreensharingAgentLaunchdURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/com.apple.screensharing.agent.launchd"];
     DDLogDebug(@"[DEBUG] com.apple.screensharing.agent.launchd path: %@", [etcScreensharingAgentLaunchdURL path]);
-
+    
     // Set content of file to the string 'enabled'
     NSString *etcScreensharingAgentLaunchdContentString = @"enabled\n";
     NSData *etcScreensharingAgentLaunchdContentData = [etcScreensharingAgentLaunchdContentString dataUsingEncoding:NSUTF8StringEncoding];
-
+    
     // Update modification array
     [modifyDictArray addObject:@{
-        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
-        NBCWorkflowModifyContent : etcScreensharingAgentLaunchdContentData,
-        NBCWorkflowModifyTargetURL : [etcScreensharingAgentLaunchdURL path],
-        NBCWorkflowModifyAttributes : @{NSFileOwnerAccountName : @"root", NSFileGroupOwnerAccountName : @"wheel", NSFilePosixPermissions : @0644}
-    }];
-
+                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
+                                 NBCWorkflowModifyContent : etcScreensharingAgentLaunchdContentData,
+                                 NBCWorkflowModifyTargetURL : [etcScreensharingAgentLaunchdURL path],
+                                 NBCWorkflowModifyAttributes : @{NSFileOwnerAccountName : @"root", NSFileGroupOwnerAccountName : @"wheel", NSFilePosixPermissions : @0644}
+                                 }];
+    
+    
+    
     // --------------------------------------------------------------
     //  /Library/Application Support/Apple/Remote Desktop
     // --------------------------------------------------------------
     [self addFoldersToBaseSystem:@[ @"Library/Application Support/Apple/Remote Desktop" ] modifyDictArray:modifyDictArray];
-
+    
     // --------------------------------------------------------------
     //  /etc/RemoteManagement.launchd
     // --------------------------------------------------------------
@@ -2061,103 +2084,103 @@
         etcRemoteManagementLaunchdURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"etc/RemoteManagement.launchd"];
     }
     DDLogDebug(@"[DEBUG] RemoteManagement.launchd path: %@", [etcRemoteManagementLaunchdURL path]);
-
+    
     // Set content of file to the string 'enabled'
     NSString *etcRemoteManagementLaunchdContentString = @"enabled\n";
     NSData *etcRemoteManagementLaunchdContentData = [etcRemoteManagementLaunchdContentString dataUsingEncoding:NSUTF8StringEncoding];
-
+    
     // Update modification array
     [modifyDictArray addObject:@{
-        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
-        NBCWorkflowModifyContent : etcRemoteManagementLaunchdContentData,
-        NBCWorkflowModifyTargetURL : [etcRemoteManagementLaunchdURL path],
-        NBCWorkflowModifyAttributes : @{NSFileOwnerAccountName : @"root", NSFileGroupOwnerAccountName : @"wheel", NSFilePosixPermissions : @0644}
-    }];
-
+                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeGeneric,
+                                 NBCWorkflowModifyContent : etcRemoteManagementLaunchdContentData,
+                                 NBCWorkflowModifyTargetURL : [etcRemoteManagementLaunchdURL path],
+                                 NBCWorkflowModifyAttributes : @{NSFileOwnerAccountName : @"root", NSFileGroupOwnerAccountName : @"wheel", NSFilePosixPermissions : @0644}
+                                 }];
+    
     // --------------------------------------------------------------
     //  /System/Library/LaunchAgents/com.apple.RemoteDesktop.plist
     // --------------------------------------------------------------
     NSURL *remoteDesktopLaunchAgentURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/LaunchAgents/com.apple.RemoteDesktop.plist"];
     DDLogDebug(@"[DEBUG] com.apple.RemoteDesktop.plist path: %@", [remoteDesktopLaunchAgentURL path]);
-
+    
     if ([remoteDesktopLaunchAgentURL checkResourceIsReachableAndReturnError:error]) {
         NSMutableDictionary *remoteDesktopLaunchAgentDict = [NSMutableDictionary dictionaryWithContentsOfURL:remoteDesktopLaunchAgentURL] ?: [[NSMutableDictionary alloc] init];
         NSDictionary *remoteDesktopLaunchAgentAttributes = [fm attributesOfItemAtPath:[remoteDesktopLaunchAgentURL path] error:nil]
-                                                               ?: @{ NSFileOwnerAccountName : @"root",
-                                                                     NSFileGroupOwnerAccountName : @"wheel",
-                                                                     NSFilePosixPermissions : @0644 };
-
+        ?: @{ NSFileOwnerAccountName : @"root",
+              NSFileGroupOwnerAccountName : @"wheel",
+              NSFilePosixPermissions : @0644 };
+        
         // Remove LimitLoadToSessionType to run in NetInstall
         [remoteDesktopLaunchAgentDict removeObjectForKey:@"LimitLoadToSessionType"];
-
+        
         // Update modification array
         [modifyDictArray addObject:@{
-            NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-            NBCWorkflowModifyContent : remoteDesktopLaunchAgentDict,
-            NBCWorkflowModifyTargetURL : [remoteDesktopLaunchAgentURL path],
-            NBCWorkflowModifyAttributes : remoteDesktopLaunchAgentAttributes
-        }];
+                                     NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                     NBCWorkflowModifyContent : remoteDesktopLaunchAgentDict,
+                                     NBCWorkflowModifyTargetURL : [remoteDesktopLaunchAgentURL path],
+                                     NBCWorkflowModifyAttributes : remoteDesktopLaunchAgentAttributes
+                                     }];
     }
-
+    
     // --------------------------------------------------------------
     //  /Library/Preferences/com.apple.RemoteDesktop.plist
     // --------------------------------------------------------------
     NSURL *remoteDesktopURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"Library/Preferences/com.apple.RemoteDesktop.plist"];
     DDLogDebug(@"[DEBUG] com.apple.RemoteDesktop.plist path: %@", remoteDesktopURL);
-
+    
     NSMutableDictionary *remoteDesktopDict = [NSMutableDictionary dictionaryWithContentsOfURL:remoteDesktopURL] ?: [[NSMutableDictionary alloc] init];
     NSDictionary *remoteDesktopAttributes = [fm attributesOfItemAtPath:[remoteDesktopURL path] error:nil]
-                                                ?: @{ NSFileOwnerAccountName : @"root",
-                                                      NSFileGroupOwnerAccountName : @"wheel",
-                                                      NSFilePosixPermissions : @0644 };
-
+    ?: @{ NSFileOwnerAccountName : @"root",
+          NSFileGroupOwnerAccountName : @"wheel",
+          NSFilePosixPermissions : @0644 };
+    
     // Configure remote desktop to allow full access to all users
     remoteDesktopDict[@"DOCAllowRemoteConnections"] = @YES;
     remoteDesktopDict[@"RestrictedFeatureList"] = @[
-        @NO,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @YES,
-        @NO,
-        @NO,
-        @NO,
-        @NO,
-        @NO,
-        @NO,
-        @NO,
-        @NO,
-        @NO,
-        @NO,
-    ];
+                                                    @NO,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @YES,
+                                                    @NO,
+                                                    @NO,
+                                                    @NO,
+                                                    @NO,
+                                                    @NO,
+                                                    @NO,
+                                                    @NO,
+                                                    @NO,
+                                                    @NO,
+                                                    @NO,
+                                                    ];
     remoteDesktopDict[@"Text1"] = @"";
     remoteDesktopDict[@"Text2"] = @"";
     remoteDesktopDict[@"Text3"] = @"";
     remoteDesktopDict[@"Text4"] = @"";
-
+    
     // Update modification array
     [modifyDictArray addObject:@{
-        NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
-        NBCWorkflowModifyContent : remoteDesktopDict,
-        NBCWorkflowModifyTargetURL : [remoteDesktopURL path],
-        NBCWorkflowModifyAttributes : remoteDesktopAttributes
-    }];
-
+                                 NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypePlist,
+                                 NBCWorkflowModifyContent : remoteDesktopDict,
+                                 NBCWorkflowModifyTargetURL : [remoteDesktopURL path],
+                                 NBCWorkflowModifyAttributes : remoteDesktopAttributes
+                                 }];
+    
     return [self modifyVNCPasswordHash:modifyDictArray error:error];
-} // modifySettingsForVNC:workflowItem
+} // modifyScreenSharing:workflowItem
 
 - (void)modifySpotlight:(NSMutableArray *)modifyDictArray {
 
@@ -2385,12 +2408,15 @@
     // --------------------------------------------------------------
     //  /System/Library/Extensions/IO80211Family.kext
     // --------------------------------------------------------------
-    NSURL *wifiKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IO80211Family.kext"];
-    NSURL *wifiKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IO80211Family.kext"];
-
-    // Update modification array
-    [modifyDictArray addObject:@{NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove, NBCWorkflowModifySourceURL : [wifiKextURL path], NBCWorkflowModifyTargetURL : [wifiKextTargetURL path]}];
-
+    //Temporarily disable for 10.13
+    if (_sourceVersionMinor <= 12) {
+        NSURL *wifiKextURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/Extensions/IO80211Family.kext"];
+        NSURL *wifiKextTargetURL = [_baseSystemVolumeURL URLByAppendingPathComponent:@"System/Library/ExtensionsDisabled/IO80211Family.kext"];
+        
+        // Update modification array
+        [modifyDictArray addObject:@{NBCWorkflowModifyFileType : NBCWorkflowModifyFileTypeMove, NBCWorkflowModifySourceURL : [wifiKextURL path], NBCWorkflowModifyTargetURL : [wifiKextTargetURL path]}];
+    }
+        
     // --------------------------------------------------------------
     //  /System/Library/CoreServices/Menu Extras/AirPort.menu
     // --------------------------------------------------------------
